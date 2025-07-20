@@ -133,25 +133,26 @@ class MainViewModelTest : BaseHiltTest() {
   }
 
   @Test
-  fun `sign in state changed when on signed in get tos when permission denied`() = runWithTestDispatcher {
-    tosRepository.isTermsOfServiceAccepted = false
-    fakeRemoteDataStore.termsOfService =
-      Result.failure(
-        FirebaseFirestoreException(
-          "permission denied",
-          FirebaseFirestoreException.Code.PERMISSION_DENIED,
+  fun `sign in state changed when on signed in get tos when permission denied`() =
+    runWithTestDispatcher {
+      tosRepository.isTermsOfServiceAccepted = false
+      fakeRemoteDataStore.termsOfService =
+        Result.failure(
+          FirebaseFirestoreException(
+            "permission denied",
+            FirebaseFirestoreException.Code.PERMISSION_DENIED,
+          )
         )
-      )
 
-    viewModel.navigationRequests.test {
-      fakeAuthenticationManager.signIn()
-      advanceUntilIdle()
-      // TODO: Update these implementation to make it clearer why this would be the case.
-      // Issue URL: https://github.com/google/ground-android/issues/2667
-      assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
-      assertThat(awaitItem()).isEqualTo(MainUiState.TosNotAccepted)
+      viewModel.navigationRequests.test {
+        fakeAuthenticationManager.signIn()
+        advanceUntilIdle()
+        // TODO: Update these implementation to make it clearer why this would be the case.
+        // Issue URL: https://github.com/google/ground-android/issues/2667
+        assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
+        assertThat(awaitItem()).isEqualTo(MainUiState.TosNotAccepted)
+      }
     }
-  }
 
   @Test
   fun `sign in state changed when on signed in get tos when not permission denied error`() =

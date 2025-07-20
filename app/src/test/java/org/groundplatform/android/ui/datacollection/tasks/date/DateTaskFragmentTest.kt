@@ -60,7 +60,7 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
   private val job = Job(id = "job1")
 
   @Test
-  fun `header`() {
+  fun header() {
     setupTaskFragment<DateTaskFragment>(job, task)
 
     hasTaskViewWithHeader(task)

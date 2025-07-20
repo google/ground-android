@@ -139,34 +139,36 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   }
 
   @Test
-  fun `loi within bounds when some lo is inside bounds returns partial list`() = runWithTestDispatcher {
-    val southwest = Coordinates(-20.0, -20.0)
-    val northeast = Coordinates(-10.0, -10.0)
+  fun `loi within bounds when some lo is inside bounds returns partial list`() =
+    runWithTestDispatcher {
+      val southwest = Coordinates(-20.0, -20.0)
+      val northeast = Coordinates(-10.0, -10.0)
 
-    locationOfInterestRepository.getWithinBounds(TEST_SURVEY, Bounds(southwest, northeast)).test {
-      assertThat(expectMostRecentItem())
-        .isEqualTo(listOf(TEST_POINT_OF_INTEREST_1, TEST_AREA_OF_INTEREST_1))
+      locationOfInterestRepository.getWithinBounds(TEST_SURVEY, Bounds(southwest, northeast)).test {
+        assertThat(expectMostRecentItem())
+          .isEqualTo(listOf(TEST_POINT_OF_INTEREST_1, TEST_AREA_OF_INTEREST_1))
+      }
     }
-  }
 
   @Test
-  fun `loi within bounds when all lo is inside bounds returns complete list`() = runWithTestDispatcher {
-    val southwest = Coordinates(-20.0, -20.0)
-    val northeast = Coordinates(20.0, 20.0)
+  fun `loi within bounds when all lo is inside bounds returns complete list`() =
+    runWithTestDispatcher {
+      val southwest = Coordinates(-20.0, -20.0)
+      val northeast = Coordinates(20.0, 20.0)
 
-    locationOfInterestRepository.getWithinBounds(TEST_SURVEY, Bounds(southwest, northeast)).test {
-      assertThat(expectMostRecentItem())
-        .isEqualTo(
-          listOf(
-            TEST_POINT_OF_INTEREST_1,
-            TEST_POINT_OF_INTEREST_2,
-            TEST_POINT_OF_INTEREST_3,
-            TEST_AREA_OF_INTEREST_1,
-            TEST_AREA_OF_INTEREST_2,
+      locationOfInterestRepository.getWithinBounds(TEST_SURVEY, Bounds(southwest, northeast)).test {
+        assertThat(expectMostRecentItem())
+          .isEqualTo(
+            listOf(
+              TEST_POINT_OF_INTEREST_1,
+              TEST_POINT_OF_INTEREST_2,
+              TEST_POINT_OF_INTEREST_3,
+              TEST_AREA_OF_INTEREST_1,
+              TEST_AREA_OF_INTEREST_2,
+            )
           )
-        )
+      }
     }
-  }
 
   @Test
   fun `hasValidLois when survey has no lois returns false`() = runWithTestDispatcher {

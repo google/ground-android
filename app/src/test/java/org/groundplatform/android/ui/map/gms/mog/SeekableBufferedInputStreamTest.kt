@@ -24,7 +24,7 @@ class SeekableBufferedInputStreamTest {
   private val testSourceStream = ByteArrayInputStream(byteArrayOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9))
 
   @Test
-  fun `seek`() {
+  fun seek() {
     val sbis = SeekableInputStream(testSourceStream)
     assertEquals(sbis.read(), 0)
     assertEquals(sbis.read(), 1)

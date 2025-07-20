@@ -48,7 +48,7 @@ class NumberTaskFragmentTest : BaseTaskFragmentTest<NumberTaskFragment, NumberTa
   private val job = Job("job1")
 
   @Test
-  fun `header`() {
+  fun header() {
     setupTaskFragment<NumberTaskFragment>(job, task)
 
     hasTaskViewWithHeader(task)

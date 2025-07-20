@@ -46,7 +46,7 @@ class TextTaskFragmentTest : BaseTaskFragmentTest<TextTaskFragment, TextTaskView
   private val job = Job("job")
 
   @Test
-  fun `header`() {
+  fun header() {
     setupTaskFragment<TextTaskFragment>(job, task)
 
     hasTaskViewWithHeader(task)

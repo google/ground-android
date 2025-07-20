@@ -55,7 +55,7 @@ class InstructionTaskFragmentTest :
   private val job = Job("job")
 
   @Test
-  fun `header`() {
+  fun header() {
     setupTaskFragment<InstructionTaskFragment>(job, task)
     hasNoTaskViewHeader()
   }

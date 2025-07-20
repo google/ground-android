@@ -71,7 +71,7 @@ class CaptureLocationTaskFragmentTest :
   }
 
   @Test
-  fun `header`() {
+  fun header() {
     setupTaskFragment<CaptureLocationTaskFragment>(job, task)
 
     hasTaskViewWithoutHeader(task.label)
@@ -104,7 +104,7 @@ class CaptureLocationTaskFragmentTest :
   }
 
   @Test
-  fun `undo`() = runWithTestDispatcher {
+  fun undo() = runWithTestDispatcher {
     setupTaskFragment<CaptureLocationTaskFragment>(job, task)
     setupLocation()
 

@@ -57,7 +57,7 @@ class DrawAreaTaskFragmentTest :
   private val job = Job("job", Style("#112233"))
 
   @Test
-  fun `header`() {
+  fun header() {
     setupTaskFragment<DrawAreaTaskFragment>(job, task)
 
     hasTaskViewWithoutHeader(task.label)

@@ -57,7 +57,7 @@ class TimeTaskFragmentTest : BaseTaskFragmentTest<TimeTaskFragment, TimeTaskView
   private val job = Job("job")
 
   @Test
-  fun `header`() {
+  fun header() {
     setupTaskFragment<TimeTaskFragment>(job, task)
 
     hasTaskViewWithHeader(task)
