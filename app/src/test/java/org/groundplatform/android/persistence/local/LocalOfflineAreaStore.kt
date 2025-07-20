@@ -34,7 +34,7 @@ class LocalOfflineAreaStore : BaseHiltTest() {
   @Inject lateinit var localOfflineStore: LocalOfflineAreaStore
 
   @Test
-  fun testGetOfflineAreas() = runWithTestDispatcher {
+  fun `get offline areas`() = runWithTestDispatcher {
     localOfflineStore.insertOrUpdate(TEST_OFFLINE_AREA)
     localOfflineStore.offlineAreas().test {
       assertThat(expectMostRecentItem()).isEqualTo(listOf(TEST_OFFLINE_AREA))

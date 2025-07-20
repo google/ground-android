@@ -72,7 +72,7 @@ class MainViewModelTest : BaseHiltTest() {
   }
 
   @Test
-  fun testSignInStateChanged_onSignedOut() = runWithTestDispatcher {
+  fun `sign in updated on sign out`() = runWithTestDispatcher {
     setupUserPreferences()
 
     viewModel.navigationRequests.test {
@@ -87,7 +87,7 @@ class MainViewModelTest : BaseHiltTest() {
   }
 
   @Test
-  fun testSignInStateChanged_onSigningIn() = runWithTestDispatcher {
+  fun `navigation redirects to signing in state when authentication in progress`() = runWithTestDispatcher {
     viewModel.navigationRequests.test {
       fakeAuthenticationManager.setState(SignInState.SigningIn)
       advanceUntilIdle()
@@ -103,7 +103,7 @@ class MainViewModelTest : BaseHiltTest() {
   // Issue URL: https://github.com/google/ground-android/issues/1612
 
   @Test
-  fun testSignInStateChanged_onSignedIn_whenTosNotAccepted() = runWithTestDispatcher {
+  fun `navigation redirects to TOS screen when signed in but terms not accepted`() = runWithTestDispatcher {
     tosRepository.isTermsOfServiceAccepted = false
     fakeRemoteDataStore.termsOfService = Result.success(FakeData.TERMS_OF_SERVICE)
 
@@ -118,7 +118,7 @@ class MainViewModelTest : BaseHiltTest() {
   }
 
   @Test
-  fun testSignInStateChanged_onSignedIn_getTos_whenTosMissing() = runWithTestDispatcher {
+  fun `navigation redirects to TOS screen when terms document missing`() = runWithTestDispatcher {
     tosRepository.isTermsOfServiceAccepted = false
     fakeRemoteDataStore.termsOfService = null
 
@@ -133,28 +133,29 @@ class MainViewModelTest : BaseHiltTest() {
   }
 
   @Test
-  fun testSignInStateChanged_onSignedIn_getTos_whenPermissionDenied() = runWithTestDispatcher {
-    tosRepository.isTermsOfServiceAccepted = false
-    fakeRemoteDataStore.termsOfService =
-      Result.failure(
-        FirebaseFirestoreException(
-          "permission denied",
-          FirebaseFirestoreException.Code.PERMISSION_DENIED,
+  fun `navigation redirects to TOS screen when permission denied for terms`() =
+    runWithTestDispatcher {
+      tosRepository.isTermsOfServiceAccepted = false
+      fakeRemoteDataStore.termsOfService =
+        Result.failure(
+          FirebaseFirestoreException(
+            "permission denied",
+            FirebaseFirestoreException.Code.PERMISSION_DENIED,
+          )
         )
-      )
 
-    viewModel.navigationRequests.test {
-      fakeAuthenticationManager.signIn()
-      advanceUntilIdle()
-      // TODO: Update these implementation to make it clearer why this would be the case.
-      // Issue URL: https://github.com/google/ground-android/issues/2667
-      assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
-      assertThat(awaitItem()).isEqualTo(MainUiState.TosNotAccepted)
+      viewModel.navigationRequests.test {
+        fakeAuthenticationManager.signIn()
+        advanceUntilIdle()
+        // TODO: Update these implementation to make it clearer why this would be the case.
+        // Issue URL: https://github.com/google/ground-android/issues/2667
+        assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
+        assertThat(awaitItem()).isEqualTo(MainUiState.TosNotAccepted)
+      }
     }
-  }
 
   @Test
-  fun testSignInStateChanged_onSignedIn_getTos_whenNotPermissionDeniedError() =
+  fun `navigation redirects to TOS screen when error retrieving terms`() =
     runWithTestDispatcher {
       tosRepository.isTermsOfServiceAccepted = false
       fakeRemoteDataStore.termsOfService = Result.failure(Error("user error"))
@@ -169,7 +170,7 @@ class MainViewModelTest : BaseHiltTest() {
     }
 
   @Test
-  fun testSignInStateChanged_onSignInError() = runWithTestDispatcher {
+  fun `sign in error redirects to signed out state`() = runWithTestDispatcher {
     setupUserPreferences()
 
     viewModel.navigationRequests.test {

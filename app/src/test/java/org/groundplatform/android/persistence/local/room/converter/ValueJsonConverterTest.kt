@@ -50,12 +50,12 @@ class ValueJsonConverterTest(
 ) : BaseHiltTest() {
 
   @Test
-  fun testToJsonObject() {
+  fun `to json object`() {
     assertThat(ValueJsonConverter.toJsonObject(taskData)).isEqualTo(input)
   }
 
   @Test
-  fun testToResponse() {
+  fun `to response`() {
     assertThat(ValueJsonConverter.toResponse(task, input)).isEqualTo(taskData)
   }
 

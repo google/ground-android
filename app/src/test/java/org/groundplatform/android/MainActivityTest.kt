@@ -76,7 +76,7 @@ class MainActivityTest : BaseHiltTest() {
   }
 
   @Test
-  fun signInErrorDialog_isDisplayed() = runWithTestDispatcher {
+  fun signInErrorDialog_isDisplayedWhenSignInFails() = runWithTestDispatcher {
     Robolectric.buildActivity(MainActivity::class.java).use { controller ->
       controller.setup() // Moves Activity to RESUMED state
       activity = controller.get()
@@ -120,7 +120,7 @@ class MainActivityTest : BaseHiltTest() {
   }
 
   @Test
-  fun launchAppWithSurveyId_needLogin_ShowLoginIn() = runWithTestDispatcher {
+  fun launchAppWithSurveyId_whenNotLoggedIn_showsSignInScreen() = runWithTestDispatcher {
     val uri = Uri.parse("https://groundplatform.org/survey/surveyId")
     val intent = Intent(Intent.ACTION_VIEW, uri)
 
