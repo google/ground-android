@@ -132,10 +132,13 @@ constructor(
         MainUiState.TosNotAccepted
       } else if (isDeepLinkAvailable()) {
         val deepLinkUri = _deepLinkUri.value
+        val pathSegments = deepLinkUri?.pathSegments ?: emptyList()
+
         val surveyId =
-          deepLinkUri
-            ?.takeIf { it.pathSegments.firstOrNull() == SURVEY_PATH_SEGMENT }
-            ?.lastPathSegment
+          pathSegments
+            .indexOf(SURVEY_PATH_SEGMENT)
+            .takeIf { it != -1 }
+            ?.let { pathSegments.getOrNull(it + 1) }
 
         if (!surveyId.isNullOrBlank()) {
           MainUiState.ActiveSurveyById(surveyId)
