@@ -216,7 +216,7 @@ private fun HeaderRow(item: SurveyListItem, onPopUpClick: (String) -> Unit) {
       )
       Icon(
         painter = painterResource(R.drawable.ic_more_vert),
-        contentDescription = null,
+        contentDescription = stringResource(R.string.more_options_icon_description),
         modifier = Modifier.size(24.dp).clickable { onPopUpClick(item.id) }.padding(end = 4.dp),
       )
     }
@@ -275,4 +275,4 @@ private fun SectionHeader(
   }
 }
 
-private fun formatSectionTitle(title: String, count: Int): String = "$title ($count)"
+fun formatSectionTitle(title: String, count: Int): String = "$title ($count)"

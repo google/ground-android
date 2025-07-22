@@ -17,7 +17,6 @@ package org.groundplatform.android.ui.surveyselector
 
 import android.os.Bundle
 import android.view.Menu
-import android.widget.Button
 import android.widget.PopupMenu
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertCountEquals
@@ -25,6 +24,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.core.os.bundleOf
@@ -32,10 +32,8 @@ import androidx.navigation.NavController
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition
 import androidx.test.espresso.matcher.RootMatchers.isPlatformPopup
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
@@ -51,7 +49,6 @@ import org.groundplatform.android.launchFragmentInHiltContainer
 import org.groundplatform.android.launchFragmentWithNavController
 import org.groundplatform.android.model.SurveyListItem
 import org.groundplatform.android.proto.Survey
-import org.groundplatform.android.recyclerChildAction
 import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
@@ -188,8 +185,12 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     advanceUntilIdle()
 
     // Click second item
-    onView(withId(R.id.recycler_view))
-      .perform(actionOnItemAtPosition<SurveyListAdapter.ViewHolder>(1, click()))
+    composeTestRule
+      .onNodeWithText(
+        formatSectionTitle(composeTestRule.activity.getString(R.string.section_shared_with_me), 1)
+      )
+      .performClick()
+    composeTestRule.onNodeWithText(TEST_SURVEY_1.title).performClick()
     advanceUntilIdle()
 
     // Assert survey is activated.
@@ -341,13 +342,12 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   }
 
   private fun openOverflowMenu() {
-    onView(withId(R.id.recycler_view))
-      .perform(
-        actionOnItemAtPosition<SurveyListAdapter.ViewHolder>(
-          1,
-          recyclerChildAction<Button>(R.id.overflowMenu) { performClick() },
-        )
+    composeTestRule
+      .onNodeWithContentDescription(
+        composeTestRule.activity.getString(R.string.more_options_icon_description),
+        useUnmergedTree = true,
       )
+      .performClick()
   }
 
   private fun setUpFragment(

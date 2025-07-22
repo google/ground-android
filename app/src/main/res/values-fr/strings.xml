@@ -108,6 +108,7 @@
   <string name="capture">Capturer</string>
   <string name="surveys">Enquêtes</string>
   <string name="offline_icon_description">Icône affichée lorsque l&#8217;enquête est disponible hors ligne</string>
+  <string name="more_options_icon_description">Plus d&#8217;options</string>
   <string name="remove_offline_access">Supprimer l&#8217;accès hors ligne</string>
   <string name="remove_offline_access_warning_title">Avertissement</string>
   <string name="remove_offline_access_warning_confirm_button">Retirer</string>

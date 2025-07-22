@@ -108,6 +108,7 @@
   <string name="capture">Capturar</string>
   <string name="surveys">Encuestas</string>
   <string name="offline_icon_description">Icono mostrado cuando la encuesta está disponible sin conexión</string>
+  <string name="more_options_icon_description">Más opciones</string>
   <string name="remove_offline_access">Eliminar acceso sin conexión</string>
   <string name="remove_offline_access_warning_title">Advertencia</string>
   <string name="remove_offline_access_warning_confirm_button">Eliminar</string>
