@@ -53,7 +53,7 @@ class MapTypeDialogFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun render() {
+  fun `renders dialog correctly`() {
     assertThat(fragment.isVisible).isTrue()
 
     onView(withText("Layers")).check(matches(isDisplayed()))
@@ -67,12 +67,12 @@ class MapTypeDialogFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun defaultMapType() {
+  fun `displays default map type correctly`() {
     assertThat(mapStateRepository.mapType).isEqualTo(MapType.TERRAIN)
   }
 
   @Test
-  fun changeMapType() {
+  fun `changes map type when selected`() {
     onView(withText("Terrain")).perform(click())
 
     assertThat(mapStateRepository.mapType).isEqualTo(MapType.TERRAIN)

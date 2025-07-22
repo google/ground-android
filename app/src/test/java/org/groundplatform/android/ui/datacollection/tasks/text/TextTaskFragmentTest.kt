@@ -46,7 +46,7 @@ class TextTaskFragmentTest : BaseTaskFragmentTest<TextTaskFragment, TextTaskView
   private val job = Job("job")
 
   @Test
-  fun header() {
+  fun `displays task header correctly`() {
     setupTaskFragment<TextTaskFragment>(job, task)
 
     hasTaskViewWithHeader(task)
@@ -104,7 +104,7 @@ class TextTaskFragmentTest : BaseTaskFragmentTest<TextTaskFragment, TextTaskView
   }
 
   @Test
-  fun `action buttons`() {
+  fun `displays correct action buttons`() {
     setupTaskFragment<TextTaskFragment>(job, task)
 
     assertFragmentHasButtons(ButtonAction.PREVIOUS, ButtonAction.SKIP, ButtonAction.NEXT)

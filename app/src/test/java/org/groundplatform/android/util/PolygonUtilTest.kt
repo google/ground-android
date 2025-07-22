@@ -70,7 +70,7 @@ class PolygonUtilTest {
   }
 
   @Test
-  fun triangle() {
+  fun `triangle does not self intersect`() {
     assertFalse(isSelfIntersecting(TRIANGLE))
   }
 

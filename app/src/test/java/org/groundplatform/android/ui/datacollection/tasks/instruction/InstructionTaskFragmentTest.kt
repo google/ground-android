@@ -55,7 +55,7 @@ class InstructionTaskFragmentTest :
   private val job = Job("job")
 
   @Test
-  fun header() {
+  fun `displays task header correctly`() {
     setupTaskFragment<InstructionTaskFragment>(job, task)
     hasNoTaskViewHeader()
   }

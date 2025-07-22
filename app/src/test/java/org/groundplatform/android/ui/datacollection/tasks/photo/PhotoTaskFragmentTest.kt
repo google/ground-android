@@ -55,7 +55,7 @@ class PhotoTaskFragmentTest : BaseTaskFragmentTest<PhotoTaskFragment, PhotoTaskV
   }
 
   @Test
-  fun header() {
+  fun `displays task header correctly`() {
     setupTaskFragment<PhotoTaskFragment>(job, task)
 
     hasTaskViewWithHeader(task)

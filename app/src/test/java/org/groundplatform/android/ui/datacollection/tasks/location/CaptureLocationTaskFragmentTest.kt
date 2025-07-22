@@ -71,7 +71,7 @@ class CaptureLocationTaskFragmentTest :
   }
 
   @Test
-  fun header() {
+  fun `displays task without header correctly`() {
     setupTaskFragment<CaptureLocationTaskFragment>(job, task)
 
     hasTaskViewWithoutHeader(task.label)
@@ -104,7 +104,7 @@ class CaptureLocationTaskFragmentTest :
   }
 
   @Test
-  fun undo() = runWithTestDispatcher {
+  fun `undo resets location data`() = runWithTestDispatcher {
     setupTaskFragment<CaptureLocationTaskFragment>(job, task)
     setupLocation()
 
@@ -124,7 +124,7 @@ class CaptureLocationTaskFragmentTest :
   }
 
   @Test
-  fun `action buttons`() {
+  fun `displays correct action buttons`() {
     setupTaskFragment<CaptureLocationTaskFragment>(job, task)
 
     assertFragmentHasButtons(

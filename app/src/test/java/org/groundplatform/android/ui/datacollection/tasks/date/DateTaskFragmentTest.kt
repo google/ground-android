@@ -60,7 +60,7 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
   private val job = Job(id = "job1")
 
   @Test
-  fun header() {
+  fun `displays task header correctly`() {
     setupTaskFragment<DateTaskFragment>(job, task)
 
     hasTaskViewWithHeader(task)
@@ -146,7 +146,7 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
   }
 
   @Test
-  fun `action buttons`() {
+  fun `displays correct action buttons`() {
     setupTaskFragment<DateTaskFragment>(job, task)
     assertFragmentHasButtons(ButtonAction.PREVIOUS, ButtonAction.SKIP, ButtonAction.NEXT)
   }
