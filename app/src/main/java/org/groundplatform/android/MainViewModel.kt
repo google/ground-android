@@ -27,8 +27,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.groundplatform.android.Config.SURVEY_PATH_SEGMENT
@@ -57,7 +55,7 @@ constructor(
   private val termsOfServiceRepository: TermsOfServiceRepository,
   private val reactivateLastSurvey: ReactivateLastSurveyUseCase,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-  private val authenticationManager: AuthenticationManager,
+  authenticationManager: AuthenticationManager,
 ) : AbstractViewModel() {
 
   private val _navigationRequests: MutableSharedFlow<MainUiState?> = MutableSharedFlow()
@@ -70,16 +68,11 @@ constructor(
 
   init {
     viewModelScope.launch {
-      authenticationManager.signInState.collectLatest { signInState ->
-        _navigationRequests.emit(onSignInStateChange(signInState))
+      // TODO: Check auth status whenever fragments resumes
+      // Issue URL: https://github.com/google/ground-android/issues/2624
+      authenticationManager.signInState.collect {
+        _navigationRequests.emit(onSignInStateChange(it))
       }
-    }
-  }
-
-  fun checkAuthStatus() {
-    viewModelScope.launch {
-      val currentSignInState = authenticationManager.signInState.first()
-      _navigationRequests.emit(onSignInStateChange(currentSignInState))
     }
   }
 
@@ -139,10 +132,13 @@ constructor(
         MainUiState.TosNotAccepted
       } else if (isDeepLinkAvailable()) {
         val deepLinkUri = _deepLinkUri.value
+        val pathSegments = deepLinkUri?.pathSegments ?: emptyList()
+
         val surveyId =
-          deepLinkUri
-            ?.takeIf { it.pathSegments.firstOrNull() == SURVEY_PATH_SEGMENT }
-            ?.lastPathSegment
+          pathSegments
+            .indexOf(SURVEY_PATH_SEGMENT)
+            .takeIf { it != -1 }
+            ?.let { pathSegments.getOrNull(it + 1) }
 
         if (!surveyId.isNullOrBlank()) {
           MainUiState.ActiveSurveyById(surveyId)
