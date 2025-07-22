@@ -216,4 +216,13 @@
   <string name="lang_french">Français</string>
   <string name="lang_spanish">Espagnol</string>
   <string name="lang_portuguese">Portugais</string>
+
+
+  <string name="access_restricted">Restreint</string>
+  <string name="access_unlisted">Non répertorié</string>
+  <string name="access_public">Public</string>
+
+  <string name="section_on_device">Sur cet appareil</string>
+  <string name="section_shared_with_me">Partagé avec moi</string>
+  <string name="section_public">Public</string>
 </resources>
