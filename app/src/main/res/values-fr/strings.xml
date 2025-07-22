@@ -75,8 +75,6 @@
   <string name="satellite">Satellite</string>
   <string name="terrain">Relief</string>
   <string name="next">Suivant</string>
-  <string name="select_survey_title">Sélectionner une enquête</string>
-  <string name="survey_sync_hint">Une fois ouvertes, les enquêtes sont disponibles hors ligne et synchronisées automatiquement lorsqu&#8217;elles sont en ligne.</string>
   <string name="done">Soumettre</string>
   <string name="skip">Ignore</string>
 

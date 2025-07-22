@@ -76,8 +76,6 @@
   <string name="satellite">Satellite</string>
   <string name="terrain">Terrain</string>
   <string name="next">Next</string>
-  <string name="select_survey_title">Select a survey</string>
-  <string name="survey_sync_hint">Once opened, surveys are available offline and synced automatically when online.</string>
   <string name="done">Done</string>
   <string name="skip">Skip</string>
 

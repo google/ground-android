@@ -75,8 +75,6 @@
   <string name="satellite">Satélite</string>
   <string name="terrain">Relieve</string>
   <string name="next">Siguiente</string>
-  <string name="select_survey_title">Seleccionar una encuesta</string>
-  <string name="survey_sync_hint">Una vez abiertas, las encuestas están disponibles sin conexión y se sincronizan automáticamente cuando tenga conexión de nuevo.</string>
   <string name="done">Hecho</string>
   <string name="skip">Omitir</string>
 

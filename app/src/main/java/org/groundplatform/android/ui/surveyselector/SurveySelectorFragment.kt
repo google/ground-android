@@ -39,14 +39,12 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
   @Inject lateinit var ephemeralPopups: EphemeralPopups
   private lateinit var viewModel: SurveySelectorViewModel
   private lateinit var binding: SurveySelectorFragBinding
-  private lateinit var adapter: SurveyListAdapter
 
   private val args: SurveySelectorFragmentArgs by navArgs()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     viewModel = getViewModel(SurveySelectorViewModel::class.java)
-    adapter = SurveyListAdapter(viewModel, this)
     viewModel.uiState.launchWhenStartedAndCollect { updateUi(it) }
     if (!args.surveyId.isNullOrBlank()) {
       viewModel.activateSurvey(args.surveyId!!)

@@ -75,8 +75,6 @@
   <string name="satellite">Satélite</string>
   <string name="terrain">Terreno</string>
   <string name="next">Próximo</string>
-  <string name="select_survey_title">Selecione um inquérito</string>
-  <string name="survey_sync_hint">Uma vez abertos, os inquéritos ficam disponíveis offline e são sincronizados automaticamente quando online.</string>
   <string name="done">Concluído</string>
   <string name="skip">Pular</string>
 

@@ -1,3 +1,18 @@
+/*
+ * Copyright 2025 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.groundplatform.android.ui.surveyselector
 
 import androidx.compose.foundation.LocalIndication
@@ -107,14 +122,12 @@ fun SurveyList(surveys: List<SurveyListItem>, viewModel: SurveySelectorViewModel
 }
 
 @Composable
-private fun rememberExpandedStates(): MutableMap<Int, Boolean> {
-  return remember {
-    mutableStateMapOf(
-      R.string.section_on_device to true,
-      R.string.section_shared_with_me to false,
-      R.string.section_public to false,
-    )
-  }
+private fun rememberExpandedStates(): MutableMap<Int, Boolean> = remember {
+  mutableStateMapOf(
+    R.string.section_on_device to true,
+    R.string.section_shared_with_me to false,
+    R.string.section_public to false,
+  )
 }
 
 private fun Survey.GeneralAccess.iconRes(): Int =
@@ -262,6 +275,4 @@ private fun SectionHeader(
   }
 }
 
-fun formatSectionTitle(title: String, count: Int): String {
-  return "$title ($count)"
-}
+private fun formatSectionTitle(title: String, count: Int): String = "$title ($count)"
