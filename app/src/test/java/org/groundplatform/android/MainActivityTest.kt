@@ -49,7 +49,7 @@ class MainActivityTest : BaseHiltTest() {
   }
 
   @Test
-  fun signInProgressDialog_whenSigningIn_isDisplayed() = runWithTestDispatcher {
+  fun `Sign in progress dialog is displayed when signing in`() = runWithTestDispatcher {
     Robolectric.buildActivity(MainActivity::class.java).use { controller ->
       controller.setup() // Moves Activity to RESUMED state
       activity = controller.get()
@@ -62,7 +62,7 @@ class MainActivityTest : BaseHiltTest() {
   }
 
   @Test
-  fun signInProgressDialog_whenSignedOutAfterSignInState_isNotDisplayed() = runWithTestDispatcher {
+  fun `Sign in progress dialog is not displayed when signed out after sign in state`() = runWithTestDispatcher {
     Robolectric.buildActivity(MainActivity::class.java).use { controller ->
       controller.setup() // Moves Activity to RESUMED state
       activity = controller.get()
@@ -76,7 +76,7 @@ class MainActivityTest : BaseHiltTest() {
   }
 
   @Test
-  fun signInErrorDialog_isDisplayedWhenSignInFails() = runWithTestDispatcher {
+  fun `Sign in error dialog is displayed when sign in fails`() = runWithTestDispatcher {
     Robolectric.buildActivity(MainActivity::class.java).use { controller ->
       controller.setup() // Moves Activity to RESUMED state
       activity = controller.get()
@@ -94,7 +94,7 @@ class MainActivityTest : BaseHiltTest() {
   }
 
   @Test
-  fun launchAppWithSurveyId_loggedInUser_ActivitySurvey() = runWithTestDispatcher {
+  fun `Launch app with survey ID navigates to survey selector when user is logged in`() = runWithTestDispatcher {
     tosRepository.isTermsOfServiceAccepted = true
     val uri = Uri.parse("https://groundplatform.org/android/survey/surveyId")
     val intent = Intent(Intent.ACTION_VIEW, uri)
@@ -120,7 +120,7 @@ class MainActivityTest : BaseHiltTest() {
   }
 
   @Test
-  fun launchAppWithSurveyId_needLogin_ShowLoginIn() = runWithTestDispatcher {
+  fun `Launch app with survey ID shows login when user needs to login`() = runWithTestDispatcher {
     val uri = Uri.parse("https://groundplatform.org/android/survey/surveyId")
     val intent = Intent(Intent.ACTION_VIEW, uri)
 

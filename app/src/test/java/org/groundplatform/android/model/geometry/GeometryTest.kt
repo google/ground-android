@@ -129,34 +129,34 @@ class GeometryTest {
   }
 
   @Test
-  fun validateLinearRing_firstAndLastNotSame_throws() {
+  fun `validateLinearRing throws when first and last coordinates are not the same`() {
     Assert.assertThrows("Invalid linear ring", InvalidGeometryException::class.java) {
       LinearRing(OPEN_LOOP).validate()
     }
   }
 
   @Test
-  fun validateLinearRing_empty_doesNothing() {
+  fun `validateLinearRing does nothing when empty`() {
     LinearRing(listOf()).validate()
   }
 
   @Test
-  fun validateLinearRing_firstAndLastSame_doesNothing() {
+  fun `validateLinearRing does nothing when first and last coordinates are the same`() {
     LinearRing(CLOSED_LOOP).validate()
   }
 
   @Test
-  fun isComplete_whenCountIsLessThanFour() {
+  fun `isComplete returns false when count is less than four`() {
     assertThat(LineString(OPEN_LOOP).isClosed()).isFalse()
   }
 
   @Test
-  fun isComplete_whenCountIsFour_whenFirstAndLastAreNotSame() {
+  fun `isComplete returns false when count is four but first and last are not the same`() {
     assertThat(LineString(OPEN_LOOP + COORDINATE_4).isClosed()).isFalse()
   }
 
   @Test
-  fun isComplete_whenCountIsFour_whenFirstAndLastAreSame() {
+  fun `isComplete returns true when count is four and first and last are the same`() {
     assertThat(LineString(CLOSED_LOOP).isClosed()).isTrue()
   }
 
