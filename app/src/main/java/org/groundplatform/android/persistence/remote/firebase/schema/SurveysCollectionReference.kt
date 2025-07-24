@@ -38,25 +38,29 @@ class SurveysCollectionReference internal constructor(ref: CollectionReference) 
   fun survey(id: String) = SurveyDocumentReference(reference().document(id))
 
   fun getReadable(user: User): Flow<List<Survey>> {
-    val allowedRoles = listOf(Role.SURVEY_ORGANIZER, Role.DATA_COLLECTOR, Role.VIEWER).map { it.ordinal }
+    val allowedRoles =
+      listOf(Role.SURVEY_ORGANIZER, Role.DATA_COLLECTOR, Role.VIEWER).map { it.ordinal }
 
-    val accessCondition = reference()
-      .whereIn(STATE, listOf(SurveyProto.State.READY_VALUE))
-      .whereIn(FieldPath.of(ACL_FIELD, user.email), allowedRoles)
-      .where(
-        Filter.or(
-          Filter.inArray(GENERAL_ACCESS_FIELD, listOf(
-            SurveyProto.GeneralAccess.GENERAL_ACCESS_UNSPECIFIED_VALUE,
-            SurveyProto.GeneralAccess.RESTRICTED_VALUE,
-          )),
-          Filter.equalTo(GENERAL_ACCESS_FIELD, null) // This checks if field is missing
+    val accessCondition =
+      reference()
+        .whereIn(STATE, listOf(SurveyProto.State.READY_VALUE))
+        .whereIn(FieldPath.of(ACL_FIELD, user.email), allowedRoles)
+        .where(
+          Filter.or(
+            Filter.inArray(
+              GENERAL_ACCESS_FIELD,
+              listOf(
+                SurveyProto.GeneralAccess.GENERAL_ACCESS_UNSPECIFIED_VALUE,
+                SurveyProto.GeneralAccess.RESTRICTED_VALUE,
+              ),
+            ),
+            Filter.equalTo(GENERAL_ACCESS_FIELD, null), // This checks if field is missing
+          )
         )
-      )
 
-    return accessCondition.snapshots()
-      .map { snapshot ->
-        snapshot.documents.map { SurveyConverter.toSurvey(it) }
-      }
+    return accessCondition.snapshots().map { snapshot ->
+      snapshot.documents.map { SurveyConverter.toSurvey(it) }
+    }
   }
 
   fun getPublicReadable(): Flow<List<Survey>> =
