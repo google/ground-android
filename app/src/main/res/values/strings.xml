@@ -110,7 +110,6 @@
   <string name="surveys">Surveys</string>
   <string name="offline_icon_description">Icon shown when the survey is available offline</string>
   <string name="more_options_icon_description">More options</string>
-  <string name="remove_offline_access">Remove offline access</string>
   <string name="remove_offline_access_warning_title">Warning</string>
   <string name="remove_offline_access_warning_confirm_button">Remove</string>
   <string name="remove_offline_access_warning_dialog_body">If you remove offline access:\n \u2022 Any unsynced data will be discarded\n\nAre you sure you want to remove the offline access?</string>

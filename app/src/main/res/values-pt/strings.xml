@@ -109,7 +109,6 @@
   <string name="surveys">Inquéritos</string>
   <string name="offline_icon_description">Ícone exibido quando o inquérito está disponível offline</string>
   <string name="more_options_icon_description">Más opciones</string>
-  <string name="remove_offline_access">Remover acesso offline</string>
   <string name="remove_offline_access_warning_title">Aviso</string>
   <string name="remove_offline_access_warning_confirm_button">Remover</string>
   <string name="remove_offline_access_warning_dialog_body">Se remover o acesso offline:\n \u2022 Todos os dados não sincronizados serão descartados\n\nTem a certeza de que pretende remover o acesso offline?</string>
