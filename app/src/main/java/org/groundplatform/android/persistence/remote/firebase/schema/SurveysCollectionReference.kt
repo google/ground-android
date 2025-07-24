@@ -18,7 +18,6 @@ package org.groundplatform.android.persistence.remote.firebase.schema
 
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FieldPath
-import com.google.firebase.firestore.Filter
 import com.google.firebase.firestore.snapshots
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -41,25 +40,19 @@ class SurveysCollectionReference internal constructor(ref: CollectionReference) 
     val allowedRoles =
       listOf(Role.SURVEY_ORGANIZER, Role.DATA_COLLECTOR, Role.VIEWER).map { it.ordinal }
 
-    val accessCondition =
+    val baseCondition =
       reference()
         .whereIn(STATE, listOf(SurveyProto.State.READY_VALUE))
         .whereIn(FieldPath.of(ACL_FIELD, user.email), allowedRoles)
-        .where(
-          Filter.or(
-            Filter.inArray(
-              GENERAL_ACCESS_FIELD,
-              listOf(
-                SurveyProto.GeneralAccess.GENERAL_ACCESS_UNSPECIFIED_VALUE,
-                SurveyProto.GeneralAccess.RESTRICTED_VALUE,
-              ),
-            ),
-            Filter.equalTo(GENERAL_ACCESS_FIELD, null), // This checks if field is missing
-          )
-        )
 
-    return accessCondition.snapshots().map { snapshot ->
-      snapshot.documents.map { SurveyConverter.toSurvey(it) }
+    return baseCondition.snapshots().map { snapshot ->
+      snapshot.documents
+        .mapNotNull { SurveyConverter.toSurvey(it) }
+        .filter { survey ->
+          survey.generalAccess == null ||
+            survey.generalAccess == SurveyProto.GeneralAccess.GENERAL_ACCESS_UNSPECIFIED ||
+            survey.generalAccess == SurveyProto.GeneralAccess.RESTRICTED
+        }
     }
   }
 
