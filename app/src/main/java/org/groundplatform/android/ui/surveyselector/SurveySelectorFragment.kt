@@ -83,6 +83,7 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
       container.visibleIf(surveys.isNotEmpty())
       emptyContainer.visibleIf(surveys.isEmpty())
     }
+    // TODO: Migrate complete screen to compose
     binding.composeView.setContent { AppTheme { SurveyList(surveys, viewModel) } }
   }
 

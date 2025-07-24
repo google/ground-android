@@ -54,8 +54,10 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.groundplatform.android.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.R
 import org.groundplatform.android.model.SurveyListItem
 import org.groundplatform.android.proto.Survey
@@ -65,28 +67,46 @@ import org.groundplatform.android.ui.compose.ConfirmationDialog
 fun SurveyList(surveys: List<SurveyListItem>, viewModel: SurveySelectorViewModel) {
   LaunchedEffect(surveys) { viewModel.setSurveys(surveys) }
 
-  val onDevice by viewModel.onDevice.collectAsState()
-  val sharedWith by viewModel.sharedWith.collectAsState()
-  val publicList by viewModel.publicList.collectAsState()
-  val showDialog by viewModel.showDialog.collectAsState()
-
+  val onDeviceSurveys by viewModel.onDeviceSurveys.collectAsState()
+  val sharedWithSurveys by viewModel.sharedWithSurveys.collectAsState()
+  val publicListSurveys by viewModel.publicListSurveys.collectAsState()
+  val showDeleteDialog by viewModel.showDeleteDialog.collectAsState()
   val expandedStates = rememberExpandedStates()
 
-  if (showDialog) {
+  val sectionData =
+    listOf(
+      R.string.section_on_device to onDeviceSurveys,
+      R.string.section_shared_with_me to sharedWithSurveys,
+      R.string.section_public to publicListSurveys,
+    )
+
+  SurveyListContent(
+    sectionData = sectionData,
+    expandedStates = expandedStates,
+    showDeleteDialog = showDeleteDialog,
+    onConfirmDelete = { viewModel.selectedSurveyId.value?.let { viewModel.confirmDelete(it) } },
+    onCardClick = viewModel::activateSurvey,
+    onMenuClick = viewModel::openDeleteDialog,
+  )
+}
+
+@Composable
+fun SurveyListContent(
+  sectionData: List<Pair<Int, List<SurveyListItem>>>,
+  expandedStates: MutableMap<Int, Boolean>,
+  showDeleteDialog: Boolean,
+  onConfirmDelete: () -> Unit,
+  onCardClick: (String) -> Unit,
+  onMenuClick: (String) -> Unit,
+) {
+  if (showDeleteDialog) {
     ConfirmationDialog(
       title = R.string.remove_offline_access_warning_title,
       description = R.string.remove_offline_access_warning_dialog_body,
       confirmButtonText = R.string.remove_offline_access_warning_confirm_button,
-      onConfirmClicked = { viewModel.confirmDelete() },
+      onConfirmClicked = onConfirmDelete,
     )
   }
-
-  val sectionData =
-    listOf(
-      R.string.section_on_device to onDevice,
-      R.string.section_shared_with_me to sharedWith,
-      R.string.section_public to publicList,
-    )
 
   LazyColumn(
     modifier = Modifier.fillMaxSize().padding(16.dp),
@@ -107,11 +127,7 @@ fun SurveyList(surveys: List<SurveyListItem>, viewModel: SurveySelectorViewModel
       }
 
       if (expandedStates[titleResId] == true) {
-        SurveyItemExpandedList(
-          items = list,
-          onActivate = viewModel::activateSurvey,
-          onPopUpClick = viewModel::openDeleteDialog,
-        )
+        SurveyItemExpandedList(items = list, onCardClick = onCardClick, menuClick = onMenuClick)
       }
 
       item { Spacer(modifier = Modifier.height(8.dp)) }
@@ -132,15 +148,15 @@ private fun rememberExpandedStates(): MutableMap<Int, Boolean> = remember {
 
 private fun Survey.GeneralAccess.iconRes(): Int =
   when (ordinal) {
-    2 -> R.drawable.ic_unlisted
-    3 -> R.drawable.ic_public
+    Survey.GeneralAccess.UNLISTED.ordinal -> R.drawable.ic_unlisted
+    Survey.GeneralAccess.PUBLIC.ordinal -> R.drawable.ic_public
     else -> R.drawable.ic_restricted
   }
 
 private fun Survey.GeneralAccess.labelString(): Int =
   when (ordinal) {
-    2 -> R.string.access_unlisted
-    3 -> R.string.access_public
+    Survey.GeneralAccess.UNLISTED.ordinal -> R.string.access_unlisted
+    Survey.GeneralAccess.PUBLIC.ordinal -> R.string.access_public
     else -> R.string.access_restricted
   }
 
@@ -148,17 +164,17 @@ private fun Survey.GeneralAccess.labelString(): Int =
 private fun SurveyCardItem(
   item: SurveyListItem,
   modifier: Modifier = Modifier,
-  onActivate: (String) -> Unit,
-  onPopUpClick: (String) -> Unit,
+  onCardClick: (String) -> Unit,
+  menuClick: (String) -> Unit,
 ) {
   Card(
-    modifier = modifier.fillMaxWidth().clickable { onActivate(item.id) },
+    modifier = modifier.fillMaxWidth().clickable { onCardClick(item.id) },
     shape = MaterialTheme.shapes.medium,
     colors =
       CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLowest),
   ) {
     Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)) {
-      HeaderRow(item, onPopUpClick)
+      HeaderRow(item, menuClick)
       Spacer(modifier = Modifier.height(8.dp))
       Text(
         text = item.title,
@@ -188,7 +204,7 @@ private fun SurveyCardItem(
 }
 
 @Composable
-private fun HeaderRow(item: SurveyListItem, onPopUpClick: (String) -> Unit) {
+private fun HeaderRow(item: SurveyListItem, menuClick: (String) -> Unit) {
   Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
     Icon(
       painter = painterResource(item.generalAccess.iconRes()),
@@ -217,7 +233,7 @@ private fun HeaderRow(item: SurveyListItem, onPopUpClick: (String) -> Unit) {
       Icon(
         painter = painterResource(R.drawable.ic_more_vert),
         contentDescription = stringResource(R.string.more_options_icon_description),
-        modifier = Modifier.size(24.dp).clickable { onPopUpClick(item.id) }.padding(end = 4.dp),
+        modifier = Modifier.size(24.dp).clickable { menuClick(item.id) }.padding(end = 4.dp),
       )
     }
   }
@@ -225,15 +241,11 @@ private fun HeaderRow(item: SurveyListItem, onPopUpClick: (String) -> Unit) {
 
 private fun LazyListScope.SurveyItemExpandedList(
   items: List<SurveyListItem>,
-  onActivate: (String) -> Unit,
-  onPopUpClick: (String) -> Unit,
+  onCardClick: (String) -> Unit,
+  menuClick: (String) -> Unit,
 ) {
   this.items(items, key = { it.id }) { item ->
-    SurveyCardItem(
-      item = item,
-      onActivate = { onActivate(it) },
-      onPopUpClick = { onPopUpClick(it) },
-    )
+    SurveyCardItem(item = item, onCardClick = { onCardClick(it) }, menuClick = { menuClick(it) })
   }
 }
 
@@ -276,3 +288,44 @@ private fun SectionHeader(
 }
 
 fun formatSectionTitle(title: String, count: Int): String = "$title ($count)"
+
+@Composable
+@Preview(showBackground = true)
+@ExcludeFromJacocoGeneratedReport
+fun PreviewSurveyList() {
+  val dummySurveys =
+    listOf(
+      SurveyListItem("1", "Tree Survey", "Track tree growth", true, Survey.GeneralAccess.PUBLIC),
+      SurveyListItem(
+        "2",
+        "Water Survey",
+        "Check water quality",
+        false,
+        Survey.GeneralAccess.RESTRICTED,
+      ),
+    )
+
+  val sectionData =
+    listOf(
+      R.string.section_on_device to dummySurveys,
+      R.string.section_shared_with_me to emptyList(),
+      R.string.section_public to dummySurveys,
+    )
+
+  val expandedStates = remember {
+    mutableStateMapOf(
+      R.string.section_on_device to true,
+      R.string.section_shared_with_me to false,
+      R.string.section_public to false,
+    )
+  }
+
+  SurveyListContent(
+    sectionData = sectionData,
+    expandedStates = expandedStates,
+    showDeleteDialog = false,
+    onConfirmDelete = {},
+    onCardClick = {},
+    onMenuClick = {},
+  )
+}

@@ -55,16 +55,16 @@ internal constructor(
 
   private val _surveys = MutableStateFlow<List<SurveyListItem>>(emptyList())
 
-  private val _onDevice = MutableStateFlow<List<SurveyListItem>>(emptyList())
-  val onDevice: StateFlow<List<SurveyListItem>> = _onDevice
+  private val _onDeviceSurveys = MutableStateFlow<List<SurveyListItem>>(emptyList())
+  val onDeviceSurveys: StateFlow<List<SurveyListItem>> = _onDeviceSurveys
 
-  private val _sharedWith = MutableStateFlow<List<SurveyListItem>>(emptyList())
-  val sharedWith: StateFlow<List<SurveyListItem>> = _sharedWith
+  private val _sharedWithSurveys = MutableStateFlow<List<SurveyListItem>>(emptyList())
+  val sharedWithSurveys: StateFlow<List<SurveyListItem>> = _sharedWithSurveys
 
-  private val _publicList = MutableStateFlow<List<SurveyListItem>>(emptyList())
-  val publicList: StateFlow<List<SurveyListItem>> = _publicList
+  private val _publicListSurveys = MutableStateFlow<List<SurveyListItem>>(emptyList())
+  val publicListSurveys: StateFlow<List<SurveyListItem>> = _publicListSurveys
 
-  val showDialog = MutableStateFlow(false)
+  val showDeleteDialog = MutableStateFlow(false)
   val selectedSurveyId = mutableStateOf<String?>(null)
 
   var surveyActivationInProgress = false
@@ -130,31 +130,31 @@ internal constructor(
   fun setSurveys(surveys: List<SurveyListItem>) {
     _surveys.value = surveys
 
-    _onDevice.value = surveys.filter { it.availableOffline }
+    _onDeviceSurveys.value = surveys.filter { it.availableOffline }
 
-    _sharedWith.value =
+    _sharedWithSurveys.value =
       surveys.filter {
         !it.availableOffline &&
           (it.generalAccess == Survey.GeneralAccess.RESTRICTED ||
             it.generalAccess == Survey.GeneralAccess.UNLISTED)
       }
 
-    _publicList.value =
+    _publicListSurveys.value =
       surveys.filter { !it.availableOffline && it.generalAccess == Survey.GeneralAccess.PUBLIC }
   }
 
   fun openDeleteDialog(id: String) {
     selectedSurveyId.value = id
-    showDialog.value = true
+    showDeleteDialog.value = true
   }
 
   fun closeDeleteDialog() {
-    showDialog.value = false
+    showDeleteDialog.value = false
     selectedSurveyId.value = null
   }
 
-  fun confirmDelete() {
-    selectedSurveyId.value?.let { deleteSurvey(it) }
+  fun confirmDelete(selectedSurveyId: String) {
+    deleteSurvey(selectedSurveyId)
     closeDeleteDialog()
   }
 
