@@ -18,6 +18,7 @@ package org.groundplatform.android.persistence.remote.firebase.schema
 
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FieldPath
+import com.google.firebase.firestore.Filter
 import com.google.firebase.firestore.snapshots
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -36,22 +37,27 @@ class SurveysCollectionReference internal constructor(ref: CollectionReference) 
 
   fun survey(id: String) = SurveyDocumentReference(reference().document(id))
 
-  fun getReadable(user: User): Flow<List<Survey>> =
-    reference()
-      .whereIn(
-        GENERAL_ACCESS_FIELD,
-        listOf(
-          SurveyProto.GeneralAccess.GENERAL_ACCESS_UNSPECIFIED_VALUE,
-          SurveyProto.GeneralAccess.RESTRICTED_VALUE,
-        ),
-      )
+  fun getReadable(user: User): Flow<List<Survey>> {
+    val allowedRoles = listOf(Role.SURVEY_ORGANIZER, Role.DATA_COLLECTOR, Role.VIEWER).map { it.ordinal }
+
+    val accessCondition = reference()
       .whereIn(STATE, listOf(SurveyProto.State.READY_VALUE))
-      .whereIn(
-        FieldPath.of(ACL_FIELD, user.email),
-        listOf(Role.SURVEY_ORGANIZER, Role.DATA_COLLECTOR, Role.VIEWER).map { it.ordinal },
+      .whereIn(FieldPath.of(ACL_FIELD, user.email), allowedRoles)
+      .where(
+        Filter.or(
+          Filter.inArray(GENERAL_ACCESS_FIELD, listOf(
+            SurveyProto.GeneralAccess.GENERAL_ACCESS_UNSPECIFIED_VALUE,
+            SurveyProto.GeneralAccess.RESTRICTED_VALUE,
+          )),
+          Filter.equalTo(GENERAL_ACCESS_FIELD, null) // This checks if field is missing
+        )
       )
-      .snapshots()
-      .map { it.documents.map { doc -> doc.let { SurveyConverter.toSurvey(doc) } } }
+
+    return accessCondition.snapshots()
+      .map { snapshot ->
+        snapshot.documents.map { SurveyConverter.toSurvey(it) }
+      }
+  }
 
   fun getPublicReadable(): Flow<List<Survey>> =
     reference()
