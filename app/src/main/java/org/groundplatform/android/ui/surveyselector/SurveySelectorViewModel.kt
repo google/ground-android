@@ -130,17 +130,19 @@ internal constructor(
   fun setSurveys(surveys: List<SurveyListItem>) {
     _surveys.value = surveys
 
-    _onDeviceSurveys.value = surveys.filter { it.availableOffline }
-
-    _sharedWithSurveys.value =
-      surveys.filter {
-        !it.availableOffline &&
-          (it.generalAccess == Survey.GeneralAccess.RESTRICTED ||
-            it.generalAccess == Survey.GeneralAccess.UNLISTED)
+    val grouped =
+      surveys.groupBy {
+        when {
+          it.availableOffline -> "onDevice"
+          it.generalAccess == Survey.GeneralAccess.PUBLIC -> "public"
+          it.generalAccess == Survey.GeneralAccess.RESTRICTED ||
+            it.generalAccess == Survey.GeneralAccess.UNLISTED -> "sharedWith"
+          else -> "other"
+        }
       }
-
-    _publicListSurveys.value =
-      surveys.filter { !it.availableOffline && it.generalAccess == Survey.GeneralAccess.PUBLIC }
+    _onDeviceSurveys.value = grouped["onDevice"].orEmpty()
+    _sharedWithSurveys.value = grouped["sharedWith"].orEmpty()
+    _publicListSurveys.value = grouped["public"].orEmpty()
   }
 
   fun openDeleteDialog(id: String) {
