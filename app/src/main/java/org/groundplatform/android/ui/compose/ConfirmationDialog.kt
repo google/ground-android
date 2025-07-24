@@ -35,6 +35,7 @@ fun ConfirmationDialog(
   @StringRes dismissButtonText: Int? = R.string.cancel,
   @StringRes confirmButtonText: Int,
   onConfirmClicked: () -> Unit,
+  onDismiss: (() -> Unit)? = null,
 ) {
   val showDialog = remember { mutableStateOf(true) }
 
@@ -45,6 +46,7 @@ fun ConfirmationDialog(
 
   fun onDismiss() {
     showDialog.value = false
+    onDismiss?.invoke()
   }
 
   if (showDialog.value) {

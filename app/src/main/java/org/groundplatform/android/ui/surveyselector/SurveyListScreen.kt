@@ -48,6 +48,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
@@ -87,6 +88,7 @@ fun SurveyList(surveys: List<SurveyListItem>, viewModel: SurveySelectorViewModel
     onConfirmDelete = { viewModel.selectedSurveyId.value?.let { viewModel.confirmDelete(it) } },
     onCardClick = viewModel::activateSurvey,
     onMenuClick = viewModel::openDeleteDialog,
+    onDismissDialog = { viewModel.closeDeleteDialog() },
   )
 }
 
@@ -98,6 +100,7 @@ fun SurveyListContent(
   onConfirmDelete: () -> Unit,
   onCardClick: (String) -> Unit,
   onMenuClick: (String) -> Unit,
+  onDismissDialog: () -> Unit,
 ) {
   if (showDeleteDialog) {
     ConfirmationDialog(
@@ -105,6 +108,7 @@ fun SurveyListContent(
       description = R.string.remove_offline_access_warning_dialog_body,
       confirmButtonText = R.string.remove_offline_access_warning_confirm_button,
       onConfirmClicked = onConfirmDelete,
+      onDismiss = onDismissDialog,
     )
   }
 
@@ -233,7 +237,11 @@ private fun HeaderRow(item: SurveyListItem, menuClick: (String) -> Unit) {
       Icon(
         painter = painterResource(R.drawable.ic_more_vert),
         contentDescription = stringResource(R.string.more_options_icon_description),
-        modifier = Modifier.size(24.dp).clickable { menuClick(item.id) }.padding(end = 4.dp),
+        modifier =
+          Modifier.size(24.dp)
+            .clickable { menuClick(item.id) }
+            .padding(end = 4.dp)
+            .testTag("overflow_${item.id}"),
       )
     }
   }
@@ -327,5 +335,6 @@ fun PreviewSurveyList() {
     onConfirmDelete = {},
     onCardClick = {},
     onMenuClick = {},
+    onDismissDialog = {},
   )
 }

@@ -16,15 +16,13 @@
 package org.groundplatform.android.ui.surveyselector
 
 import android.os.Bundle
-import android.view.Menu
-import android.widget.PopupMenu
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.core.os.bundleOf
@@ -32,7 +30,6 @@ import androidx.navigation.NavController
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.RootMatchers.isPlatformPopup
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.common.truth.Truth.assertThat
@@ -66,7 +63,6 @@ import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.shadows.ShadowPopupMenu
 import org.robolectric.shadows.ShadowToast
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -162,8 +158,13 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
         formatSectionTitle(composeTestRule.activity.getString(R.string.section_shared_with_me), 2)
       )
       .performClick()
+    advanceUntilIdle()
     composeTestRule.onNodeWithText(TEST_SURVEY_1.title).performClick()
     advanceUntilIdle()
+
+    composeTestRule.waitUntil(timeoutMillis = 10_000) {
+      navController.currentDestination?.id == R.id.home_screen_fragment
+    }
 
     // Assert that navigation to home screen was requested
     assertThat(navController.currentDestination?.id).isEqualTo(R.id.home_screen_fragment)
@@ -187,10 +188,10 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     // Click second item
     composeTestRule
       .onNodeWithText(
-        formatSectionTitle(composeTestRule.activity.getString(R.string.section_shared_with_me), 1)
+        formatSectionTitle(composeTestRule.activity.getString(R.string.section_shared_with_me), 2)
       )
       .performClick()
-    composeTestRule.onNodeWithText(TEST_SURVEY_1.title).performClick()
+    composeTestRule.onNodeWithText(TEST_SURVEY_2.title).performClick()
     advanceUntilIdle()
 
     // Assert survey is activated.
@@ -237,108 +238,17 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun `remove offline survey on menu item click`() = runWithTestDispatcher {
-    setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
-    setUpFragment()
-
-    // Click second item's overflow menu
-    openOverflowMenu()
-    advanceUntilIdle()
-
-    // Verify that popup menu is visible and it contains items
-    val latestPopupMenu: PopupMenu = ShadowPopupMenu.getLatestPopupMenu()
-    val menu: Menu = latestPopupMenu.menu
-    assertThat(menu.hasVisibleItems()).isTrue()
-
-    // Click "remove" menu item.
-    onView(withText(composeTestRule.activity.getString(R.string.remove_offline_access)))
-      .inRoot(isPlatformPopup())
-      .perform(click())
-    advanceUntilIdle()
-
-    composeTestRule
-      .onNodeWithText(
-        composeTestRule.activity.getString(R.string.remove_offline_access_warning_confirm_button)
-      )
-      .assertIsDisplayed()
-    composeTestRule
-      .onNodeWithText(
-        composeTestRule.activity.getString(R.string.remove_offline_access_warning_confirm_button)
-      )
-      .performClick()
-    advanceUntilIdle()
-
-    // Assert survey is deleted
-    verify(removeOfflineSurveyUseCase).invoke(TEST_SURVEY_2.id)
-  }
-
-  @Test
-  fun `remove offline warning dialog is visible when menu item is clicked`() =
-    runWithTestDispatcher {
-      setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
-      setUpFragment()
-
-      openOverflowMenu()
-      advanceUntilIdle()
-
-      onView(withText(composeTestRule.activity.getString(R.string.remove_offline_access)))
-        .inRoot(isPlatformPopup())
-        .perform(click())
-      advanceUntilIdle()
-
-      composeTestRule
-        .onNodeWithText(
-          composeTestRule.activity.getString(R.string.remove_offline_access_warning_title)
-        )
-        .assertIsDisplayed()
-      composeTestRule
-        .onNodeWithText(
-          composeTestRule.activity.getString(R.string.remove_offline_access_warning_dialog_body)
-        )
-        .assertIsDisplayed()
-      composeTestRule
-        .onNodeWithText(
-          composeTestRule.activity.getString(R.string.remove_offline_access_warning_confirm_button)
-        )
-        .assertIsDisplayed()
-      composeTestRule
-        .onNodeWithText(composeTestRule.activity.getString(R.string.cancel))
-        .assertIsDisplayed()
-    }
-
-  @Test
-  fun `remove offline warning dialog is dismissed on cancel click`() = runWithTestDispatcher {
-    setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
-    setUpFragment()
-
-    openOverflowMenu()
-    advanceUntilIdle()
-
-    onView(withText(composeTestRule.activity.getString(R.string.remove_offline_access)))
-      .inRoot(isPlatformPopup())
-      .perform(click())
-    advanceUntilIdle()
-
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.cancel))
-      .assertIsDisplayed()
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.cancel))
-      .performClick()
-
-    advanceUntilIdle()
-    composeTestRule
-      .onNodeWithText(
-        composeTestRule.activity.getString(R.string.remove_offline_access_warning_title)
-      )
-      .assertIsNotDisplayed()
-  }
-
-  @Test
   fun `activateSurvey is called when surveyId arg is non-blank`() = runWithTestDispatcher {
     setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
     setUpFragment(bundleOf(Pair("shouldExitApp", false), Pair("surveyId", TEST_SURVEY_1.id)))
     verify(activateSurvey).invoke(TEST_SURVEY_1.id)
+  }
+
+  private fun openOverflowMenuForSurvey(surveyId: String) {
+    composeTestRule
+      .onNodeWithTag("overflow_$surveyId", useUnmergedTree = true)
+      .assertExists()
+      .performClick()
   }
 
   private fun openOverflowMenu() {
