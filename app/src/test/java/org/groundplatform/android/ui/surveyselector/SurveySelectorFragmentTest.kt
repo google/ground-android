@@ -21,7 +21,6 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.core.os.bundleOf
@@ -241,13 +240,6 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
     setUpFragment(bundleOf(Pair("shouldExitApp", false), Pair("surveyId", TEST_SURVEY_1.id)))
     verify(activateSurvey).invoke(TEST_SURVEY_1.id)
-  }
-
-  private fun openOverflowMenuForSurvey(surveyId: String) {
-    composeTestRule
-      .onNodeWithTag("overflow_$surveyId", useUnmergedTree = true)
-      .assertExists()
-      .performClick()
   }
 
   private fun setUpFragment(
