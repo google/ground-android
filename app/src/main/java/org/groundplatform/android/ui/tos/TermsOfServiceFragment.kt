@@ -180,9 +180,14 @@ class TermsOfServiceFragment : AbstractFragment() {
     lifecycleScope.launch {
       viewModel.navigateToSurveySelector.collect {
         activity?.intent?.data?.let { uri ->
-          if (uri.pathSegments.firstOrNull() == SURVEY_PATH_SEGMENT) {
-            val surveyId = uri.lastPathSegment
+          val pathSegments = uri.pathSegments
+
+          if (SURVEY_PATH_SEGMENT in pathSegments) {
+            val index = pathSegments.indexOf(SURVEY_PATH_SEGMENT)
+            val surveyId = pathSegments.getOrNull(index + 1)
             openSurveySelector(surveyId)
+          } else {
+            openSurveySelector()
           }
         } ?: run { openSurveySelector() }
       }
