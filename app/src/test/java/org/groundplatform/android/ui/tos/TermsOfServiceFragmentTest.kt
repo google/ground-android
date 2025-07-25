@@ -33,6 +33,7 @@ import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.R
 import org.groundplatform.android.launchFragmentInHiltContainer
@@ -145,7 +146,7 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
 
   @Test
   fun openSurveySelectorFragment_withSurveyId() = runWithTestDispatcher {
-    val uri = Uri.parse("https://groundplatform.org/survey/surveyId")
+    val uri = Uri.parse("https://groundplatform.org/android/survey/surveyId")
     launchFragmentWithNavController<TermsOfServiceFragment>(
       fragmentArgs = bundleOf("isViewOnly" to false),
       destId = R.id.terms_of_service_fragment,
@@ -156,6 +157,22 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
     getButton().performClick()
     assertThat(navController.currentDestination?.id).isEqualTo(R.id.surveySelectorFragment)
     assertEquals("surveyId", navController.currentBackStackEntry?.arguments?.getString("surveyId"))
+  }
+
+  @Test
+  fun openSurveySelectorFragment_withoutSurveyId() = runWithTestDispatcher {
+    launchFragmentWithNavController<TermsOfServiceFragment>(
+      fragmentArgs = bundleOf("isViewOnly" to false),
+      destId = R.id.terms_of_service_fragment,
+      navControllerCallback = { navController = it },
+      intentData = null,
+    )
+
+    getCheckbox().performClick()
+    getButton().performClick()
+
+    assertThat(navController.currentDestination?.id).isEqualTo(R.id.surveySelectorFragment)
+    assertNull(navController.currentBackStackEntry?.arguments?.getString("surveyId"))
   }
 
   private fun getCheckbox() =
