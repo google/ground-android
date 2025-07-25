@@ -17,60 +17,54 @@ package org.groundplatform.android.ui.util
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.net.Uri
 import androidx.exifinterface.media.ExifInterface
-import com.squareup.picasso.Transformation
 import java.io.IOException
 
 /**
- * A transformation that rotates a given bitmap based on its EXIF orientation metadata.
+ * Loads a [Bitmap] from the given [uri] and applies the correct rotation based on its EXIF
+ * orientation.
  *
- * This class is useful when loading images that may have incorrect orientation due to how they were
- * captured or stored. It reads the EXIF orientation from the image URI and applies the necessary
- * rotation to correct its display.
- *
- * @property uri The URI of the image to be transformed.
- * @property context The context used to access the content resolver for reading EXIF data.
+ * This method ensures that images—especially those captured from the camera or selected from
+ * external sources— are displayed in the proper orientation by reading the EXIF metadata and
+ * rotating the bitmap accordingly.
  */
-class RotateUsingExif(private val uri: Uri, private val context: Context) : Transformation {
-  override fun transform(source: Bitmap): Bitmap {
-    val orientation = getOrientationFromExif(uri)
-    val rotateDegrees = getRotationDegrees(orientation)
-    return rotateBitmap(source, rotateDegrees)
+fun loadBitmapWithCorrectOrientation(context: Context, uri: Uri): Bitmap {
+  val orientation = getOrientationFromExif(context, uri)
+  val rotationDegrees = getRotationDegrees(orientation)
+
+  context.contentResolver.openInputStream(uri)?.use { inputStream ->
+    val bitmap = BitmapFactory.decodeStream(inputStream)
+    if (rotationDegrees == 0f) return bitmap
+
+    val matrix = Matrix().apply { postRotate(rotationDegrees) }
+    return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
   }
 
-  override fun key(): String = "${uri.hashCode()}"
+  throw IOException("Unable to open input stream for URI: $uri")
+}
 
-  private fun rotateBitmap(bitmap: Bitmap, rotateDegrees: Float): Bitmap {
-    val matrix = Matrix()
-    // Rotate if rotation is non-zero.
-    if (rotateDegrees != 0f) {
-      matrix.postRotate(rotateDegrees)
-    }
-    return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true)
+/**
+ * Returns the number of degrees a photo should be rotated based on the value of its orientation
+ * EXIF tag.
+ */
+private fun getRotationDegrees(orientation: Int): Float =
+  when (orientation) {
+    ExifInterface.ORIENTATION_UNDEFINED,
+    ExifInterface.ORIENTATION_NORMAL -> 0f
+    ExifInterface.ORIENTATION_ROTATE_90 -> 90f
+    ExifInterface.ORIENTATION_ROTATE_180 -> 180f
+    ExifInterface.ORIENTATION_ROTATE_270 -> 270f
+    else -> throw UnsupportedOperationException("Unsupported photo orientation $orientation")
   }
 
-  /**
-   * Returns the number of degrees a photo should be rotated based on the value of its orientation
-   * EXIF tag.
-   */
-  private fun getRotationDegrees(orientation: Int): Float =
-    when (orientation) {
-      ExifInterface.ORIENTATION_UNDEFINED,
-      ExifInterface.ORIENTATION_NORMAL -> 0f
-      ExifInterface.ORIENTATION_ROTATE_90 -> 90f
-      ExifInterface.ORIENTATION_ROTATE_180 -> 180f
-      ExifInterface.ORIENTATION_ROTATE_270 -> 270f
-      else -> throw UnsupportedOperationException("Unsupported photo orientation $orientation")
-    }
-
-  /** Returns the EXIF orientation attribute of the JPEG image at the specified URI. */
-  private fun getOrientationFromExif(uri: Uri): Int {
-    val inputStream =
-      context.contentResolver.openInputStream(uri)
-        ?: throw IOException("Content resolver returned null for $uri")
-    val exif = ExifInterface(inputStream)
-    return exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
-  }
+/** Reads the EXIF orientation tag from the image at the given [uri]. */
+private fun getOrientationFromExif(context: Context, uri: Uri): Int {
+  val inputStream =
+    context.contentResolver.openInputStream(uri)
+      ?: throw IOException("Content resolver returned null for $uri")
+  val exif = ExifInterface(inputStream)
+  return exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
 }
