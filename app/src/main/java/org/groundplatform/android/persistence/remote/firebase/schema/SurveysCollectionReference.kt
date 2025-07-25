@@ -30,6 +30,9 @@ import org.groundplatform.android.proto.Survey as SurveyProto
 private const val ACL_FIELD = SurveyProto.ACL_FIELD_NUMBER.toString()
 private const val GENERAL_ACCESS_FIELD = SurveyProto.GENERAL_ACCESS_FIELD_NUMBER.toString()
 private const val STATE = SurveyProto.STATE_FIELD_NUMBER.toString()
+private val ALLOWED_ROLES =
+  listOf(Role.SURVEY_ORGANIZER.ordinal, Role.DATA_COLLECTOR.ordinal, Role.VIEWER.ordinal)
+private val ALLOWED_STATES = listOf(SurveyProto.State.READY_VALUE)
 
 class SurveysCollectionReference internal constructor(ref: CollectionReference) :
   FluentCollectionReference(ref) {
@@ -37,15 +40,12 @@ class SurveysCollectionReference internal constructor(ref: CollectionReference) 
   fun survey(id: String) = SurveyDocumentReference(reference().document(id))
 
   fun getReadable(user: User): Flow<List<Survey>> {
-    val allowedRoles =
-      listOf(Role.SURVEY_ORGANIZER, Role.DATA_COLLECTOR, Role.VIEWER).map { it.ordinal }
-
-    val baseCondition =
+    val references =
       reference()
-        .whereIn(STATE, listOf(SurveyProto.State.READY_VALUE))
-        .whereIn(FieldPath.of(ACL_FIELD, user.email), allowedRoles)
+        .whereIn(STATE, ALLOWED_STATES)
+        .whereIn(FieldPath.of(ACL_FIELD, user.email), ALLOWED_ROLES)
 
-    return baseCondition.snapshots().map { snapshot ->
+    return references.snapshots().map { snapshot ->
       snapshot.documents
         .mapNotNull { SurveyConverter.toSurvey(it) }
         .filter { survey ->
