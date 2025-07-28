@@ -33,7 +33,6 @@ import androidx.navigation.fragment.NavHostFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.groundplatform.android.databinding.MainActBinding
 import org.groundplatform.android.repository.UserRepository
@@ -88,8 +87,6 @@ class MainActivity : AbstractActivity() {
     viewModel = viewModelFactory[this, MainViewModel::class.java]
 
     lifecycleScope.launch {
-      viewModel.navigationRequests.filterNotNull().first()
-
       intent.data?.let {
         if (navHostFragment.navController.currentDestination?.id != R.id.sign_in_fragment) {
           viewModel.setDeepLinkUri(it)
@@ -195,11 +192,6 @@ class MainActivity : AbstractActivity() {
     Timber.v("Activity result received")
     super.onActivityResult(requestCode, resultCode, intent)
     activityStreams.onActivityResult(requestCode, resultCode, intent)
-  }
-
-  override fun onResume() {
-    super.onResume()
-    viewModel.checkAuthStatus()
   }
 
   /** Override up button behavior to use Navigation Components back stack. */
