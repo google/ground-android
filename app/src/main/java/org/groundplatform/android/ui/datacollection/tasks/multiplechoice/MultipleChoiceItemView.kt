@@ -130,7 +130,10 @@ private fun OtherTextField(
     supportingText = {
       Row(modifier = modifier.fillMaxWidth()) {
         Spacer(modifier = modifier.weight(1f))
-        Text("${item.otherText.length} / ${Constants.TEXT_DATA_CHAR_LIMIT}", textAlign = TextAlign.End)
+        Text(
+          "${item.otherText.length} / ${Constants.TEXT_DATA_CHAR_LIMIT}",
+          textAlign = TextAlign.End,
+        )
       }
     },
     isError = item.otherText.length > Constants.TEXT_DATA_CHAR_LIMIT,
