@@ -27,6 +27,7 @@ import org.groundplatform.android.model.locationofinterest.LocationOfInterest
 import org.groundplatform.android.model.locationofinterest.generateProperties
 import org.groundplatform.android.model.mutation.LocationOfInterestMutation
 import org.groundplatform.android.model.mutation.Mutation
+import org.groundplatform.android.model.mutation.Mutation.SyncStatus
 import org.groundplatform.android.persistence.local.stores.LocalLocationOfInterestStore
 import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
 import org.groundplatform.android.persistence.remote.RemoteDataStore
@@ -66,8 +67,8 @@ class LocationOfInterestRepositoryImpl(
     val pendingLois =
       loiMutations.mapNotNull {
         when (it.syncStatus) {
-          Mutation.SyncStatus.PENDING,
-          Mutation.SyncStatus.IN_PROGRESS -> it.locationOfInterestId
+          SyncStatus.PENDING,
+          SyncStatus.IN_PROGRESS -> it.locationOfInterestId
           else -> null
         }
       }
