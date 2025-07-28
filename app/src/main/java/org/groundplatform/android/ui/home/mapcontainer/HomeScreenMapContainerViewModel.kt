@@ -125,7 +125,7 @@ internal constructor(
   private val adHocLoiJobs: Flow<List<Job>>
 
   /** Emits whether the current zoom has crossed the zoomed-in threshold or not to cluster LOIs. */
-  val isZoomedInFlow: Flow<Boolean>
+  private val isZoomedInFlow: Flow<Boolean>
 
   init {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
