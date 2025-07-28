@@ -29,7 +29,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.groundplatform.android.Config.SURVEY_PATH_SEGMENT
+import org.groundplatform.android.common.Constants.SURVEY_PATH_SEGMENT
 import org.groundplatform.android.coroutines.IoDispatcher
 import org.groundplatform.android.model.User
 import org.groundplatform.android.persistence.local.room.LocalDatabase
