@@ -87,35 +87,37 @@ class MainViewModelTest : BaseHiltTest() {
   }
 
   @Test
-  fun `navigation redirects to signing in state when authentication in progress`() = runWithTestDispatcher {
-    viewModel.navigationRequests.test {
-      fakeAuthenticationManager.setState(SignInState.SigningIn)
-      advanceUntilIdle()
+  fun `navigation redirects to signing in state when authentication in progress`() =
+    runWithTestDispatcher {
+      viewModel.navigationRequests.test {
+        fakeAuthenticationManager.setState(SignInState.SigningIn)
+        advanceUntilIdle()
 
-      assertThat(awaitItem()).isEqualTo(MainUiState.OnUserSigningIn)
-      verifyUserNotSaved()
-      assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
+        assertThat(awaitItem()).isEqualTo(MainUiState.OnUserSigningIn)
+        verifyUserNotSaved()
+        assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
+      }
     }
-  }
 
   // TODO: Add back testSignInStateChanged_onSignedIn_whenTosAcceptedAndActiveSurveyAvailable
   //   once reactivate last survey is implemented.
   // Issue URL: https://github.com/google/ground-android/issues/1612
 
   @Test
-  fun `navigation redirects to TOS screen when signed in but terms not accepted`() = runWithTestDispatcher {
-    tosRepository.isTermsOfServiceAccepted = false
-    fakeRemoteDataStore.termsOfService = Result.success(FakeData.TERMS_OF_SERVICE)
+  fun `navigation redirects to TOS screen when signed in but terms not accepted`() =
+    runWithTestDispatcher {
+      tosRepository.isTermsOfServiceAccepted = false
+      fakeRemoteDataStore.termsOfService = Result.success(FakeData.TERMS_OF_SERVICE)
 
-    viewModel.navigationRequests.test {
-      fakeAuthenticationManager.signIn()
-      advanceUntilIdle()
+      viewModel.navigationRequests.test {
+        fakeAuthenticationManager.signIn()
+        advanceUntilIdle()
 
-      assertThat(awaitItem()).isEqualTo(MainUiState.TosNotAccepted)
-      verifyUserSaved()
-      assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
+        assertThat(awaitItem()).isEqualTo(MainUiState.TosNotAccepted)
+        verifyUserSaved()
+        assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
+      }
     }
-  }
 
   @Test
   fun `navigation redirects to TOS screen when terms document missing`() = runWithTestDispatcher {
@@ -155,19 +157,18 @@ class MainViewModelTest : BaseHiltTest() {
     }
 
   @Test
-  fun `navigation redirects to TOS screen when error retrieving terms`() =
-    runWithTestDispatcher {
-      tosRepository.isTermsOfServiceAccepted = false
-      fakeRemoteDataStore.termsOfService = Result.failure(Error("user error"))
+  fun `navigation redirects to TOS screen when error retrieving terms`() = runWithTestDispatcher {
+    tosRepository.isTermsOfServiceAccepted = false
+    fakeRemoteDataStore.termsOfService = Result.failure(Error("user error"))
 
-      viewModel.navigationRequests.test {
-        fakeAuthenticationManager.signIn()
-        advanceUntilIdle()
+    viewModel.navigationRequests.test {
+      fakeAuthenticationManager.signIn()
+      advanceUntilIdle()
 
-        assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
-        assertThat(awaitItem()).isEqualTo(MainUiState.TosNotAccepted)
-      }
+      assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
+      assertThat(awaitItem()).isEqualTo(MainUiState.TosNotAccepted)
     }
+  }
 
   @Test
   fun `sign in error redirects to signed out state`() = runWithTestDispatcher {

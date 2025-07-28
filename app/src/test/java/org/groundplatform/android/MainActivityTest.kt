@@ -62,18 +62,19 @@ class MainActivityTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Sign in progress dialog is not displayed when signed out after sign in state`() = runWithTestDispatcher {
-    Robolectric.buildActivity(MainActivity::class.java).use { controller ->
-      controller.setup() // Moves Activity to RESUMED state
-      activity = controller.get()
+  fun `Sign in progress dialog is not displayed when signed out after sign in state`() =
+    runWithTestDispatcher {
+      Robolectric.buildActivity(MainActivity::class.java).use { controller ->
+        controller.setup() // Moves Activity to RESUMED state
+        activity = controller.get()
 
-      fakeAuthenticationManager.setState(SignInState.SigningIn)
-      fakeAuthenticationManager.setState(SignInState.SignedOut)
-      advanceUntilIdle()
+        fakeAuthenticationManager.setState(SignInState.SigningIn)
+        fakeAuthenticationManager.setState(SignInState.SignedOut)
+        advanceUntilIdle()
 
-      assertThat(ShadowProgressDialog.getLatestDialog().isShowing).isFalse()
+        assertThat(ShadowProgressDialog.getLatestDialog().isShowing).isFalse()
+      }
     }
-  }
 
   @Test
   fun `Sign in error dialog is displayed when sign in fails`() = runWithTestDispatcher {
@@ -94,30 +95,32 @@ class MainActivityTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Launch app with survey ID navigates to survey selector when user is logged in`() = runWithTestDispatcher {
-    tosRepository.isTermsOfServiceAccepted = true
-    val uri = Uri.parse("https://groundplatform.org/android/survey/surveyId")
-    val intent = Intent(Intent.ACTION_VIEW, uri)
+  fun `Launch app with survey ID navigates to survey selector when user is logged in`() =
+    runWithTestDispatcher {
+      tosRepository.isTermsOfServiceAccepted = true
+      val uri = Uri.parse("https://groundplatform.org/android/survey/surveyId")
+      val intent = Intent(Intent.ACTION_VIEW, uri)
 
-    Robolectric.buildActivity(MainActivity::class.java, intent).use { controller ->
-      controller.setup()
-      activity = controller.get()
+      Robolectric.buildActivity(MainActivity::class.java, intent).use { controller ->
+        controller.setup()
+        activity = controller.get()
 
-      viewModel.setDeepLinkUri(uri)
-      advanceUntilIdle()
-      val navHost =
-        activity.supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-      val navController = navHost.navController
+        viewModel.setDeepLinkUri(uri)
+        advanceUntilIdle()
+        val navHost =
+          activity.supportFragmentManager.findFragmentById(R.id.nav_host_fragment)
+            as NavHostFragment
+        val navController = navHost.navController
 
-      fakeAuthenticationManager.setState(SignInState.SignedIn(FakeData.USER))
-      advanceUntilIdle()
+        fakeAuthenticationManager.setState(SignInState.SignedIn(FakeData.USER))
+        advanceUntilIdle()
 
-      assertThat(navController.currentDestination?.id).isEqualTo(R.id.surveySelectorFragment)
+        assertThat(navController.currentDestination?.id).isEqualTo(R.id.surveySelectorFragment)
 
-      assertThat(navController.currentBackStackEntry?.arguments?.getString("surveyId"))
-        .isEqualTo("surveyId")
+        assertThat(navController.currentBackStackEntry?.arguments?.getString("surveyId"))
+          .isEqualTo("surveyId")
+      }
     }
-  }
 
   @Test
   fun `Launch app with survey ID shows login when user needs to login`() = runWithTestDispatcher {
