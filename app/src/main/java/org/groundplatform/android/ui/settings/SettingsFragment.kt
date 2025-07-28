@@ -27,9 +27,9 @@ import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
-import org.groundplatform.android.Config
 import org.groundplatform.android.MainActivity
 import org.groundplatform.android.R
+import org.groundplatform.android.common.Constants
 import org.groundplatform.android.persistence.local.LocalValueStore
 
 /**
@@ -44,8 +44,8 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
   @Inject lateinit var localValueStore: LocalValueStore
 
   override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-    preferenceManager.sharedPreferencesName = Config.SHARED_PREFS_NAME
-    preferenceManager.sharedPreferencesMode = Config.SHARED_PREFS_MODE
+    preferenceManager.sharedPreferencesName = Constants.SHARED_PREFS_NAME
+    preferenceManager.sharedPreferencesMode = Constants.SHARED_PREFS_MODE
 
     setPreferencesFromResource(R.xml.preferences, rootKey)
     for (key in Keys.ALL_KEYS) {

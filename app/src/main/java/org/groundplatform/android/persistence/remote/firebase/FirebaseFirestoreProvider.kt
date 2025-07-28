@@ -20,7 +20,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 import javax.inject.Inject
 import javax.inject.Singleton
-import org.groundplatform.android.Config
+import org.groundplatform.android.common.Constants
 import org.groundplatform.android.util.AsyncSingletonProvider
 
 @Singleton
@@ -31,7 +31,7 @@ class FirebaseFirestoreProvider @Inject constructor(settings: FirebaseFirestoreS
     // of calling `getInstance()` directly.
     FirebaseFirestore.getInstance().apply {
       setFirestoreSettings(this, settings)
-      FirebaseFirestore.setLoggingEnabled(Config.FIRESTORE_LOGGING_ENABLED)
+      FirebaseFirestore.setLoggingEnabled(Constants.FIRESTORE_LOGGING_ENABLED)
     }
   })
 
