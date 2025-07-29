@@ -20,22 +20,19 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
 import java.io.IOException
 import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import org.groundplatform.android.model.submission.PhotoTaskData
 import org.groundplatform.android.model.submission.isNotNullOrEmpty
 import org.groundplatform.android.persistence.remote.firebase.FirebaseStorageManager
 import org.groundplatform.android.repository.UserMediaRepository
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
-import org.groundplatform.android.ui.util.BitmapUtil
 import timber.log.Timber
 
-class PhotoTaskViewModel
-@Inject
-constructor(
-  private val userMediaRepository: UserMediaRepository,
-  private val bitmapUtil: BitmapUtil,
-) : AbstractTaskViewModel() {
+class PhotoTaskViewModel @Inject constructor(private val userMediaRepository: UserMediaRepository) :
+  AbstractTaskViewModel() {
 
   /**
    * Task id waiting for a photo result. As only one photo result is returned at a time, we can
@@ -44,6 +41,9 @@ constructor(
   var taskWaitingForPhoto: String? = null
 
   lateinit var surveyId: String
+
+  var hasLaunchedCamera: Boolean = false
+  var capturedUri: Uri? = null
 
   val uri: LiveData<Uri> =
     taskTaskData
@@ -63,13 +63,13 @@ constructor(
     requireNotNull(currentTask) { "Photo captured but no task waiting for the result" }
 
     try {
-      val bitmap = bitmapUtil.fromUri(uri)
-      val file = userMediaRepository.savePhoto(bitmap, currentTask)
+      val file = userMediaRepository.savePhotoFromUri(uri, currentTask)
       userMediaRepository.addImageToGallery(file.absolutePath, file.name)
       val remoteFilename = FirebaseStorageManager.getRemoteMediaPath(surveyId, file.name)
-      setValue(PhotoTaskData(remoteFilename))
+
+      withContext(Dispatchers.Main) { setValue(PhotoTaskData(remoteFilename)) }
     } catch (e: IOException) {
-      Timber.e(e, "Error getting photo selected from storage")
+      Timber.e(e, "Error saving photo to storage")
     }
   }
 }

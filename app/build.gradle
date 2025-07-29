@@ -270,8 +270,7 @@ dependencies {
     compileOnly "com.google.auto.value:auto-value-annotations:$project.autoValueVersion"
     kapt "com.google.auto.value:auto-value:$project.autoValueVersion"
 
-    // Picasso: Image downloading and caching library
-    implementation 'com.squareup.picasso:picasso:2.71828'
+    implementation "androidx.exifinterface:exifinterface:1.4.1"
 
     // Logging
     implementation "com.jakewharton.timber:timber:$timberVersion"

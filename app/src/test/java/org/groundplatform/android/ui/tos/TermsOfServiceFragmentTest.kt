@@ -28,12 +28,12 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.core.os.bundleOf
 import androidx.navigation.NavController
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.R
 import org.groundplatform.android.launchFragmentInHiltContainer
@@ -42,7 +42,6 @@ import org.groundplatform.android.model.TermsOfService
 import org.groundplatform.android.persistence.remote.FakeRemoteDataStore
 import org.groundplatform.android.repository.TermsOfServiceRepository
 import org.groundplatform.android.system.NetworkManager
-import org.hamcrest.Matchers.not
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -70,6 +69,7 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
   override fun setUp() {
     super.setUp()
     fakeRemoteDataStore.termsOfService = Result.success(TEST_TOS)
+    whenever(networkManager.isNetworkConnected()).thenReturn(true)
   }
 
   @Test
@@ -90,7 +90,6 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
 
   @Test
   fun termsOfServiceText_shouldBeDisplayed() {
-    whenever(networkManager.isNetworkConnected()).thenReturn(true)
     launchFragmentInHiltContainer<TermsOfServiceFragment>(bundleOf(Pair("isViewOnly", false)))
 
     composeTestRule.onNodeWithText("This is a heading\n\nSample terms of service\n\n").isDisplayed()
@@ -147,7 +146,7 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
 
   @Test
   fun openSurveySelectorFragment_withSurveyId() = runWithTestDispatcher {
-    val uri = Uri.parse("https://groundplatform.org/survey/surveyId")
+    val uri = Uri.parse("https://groundplatform.org/android/survey/surveyId")
     launchFragmentWithNavController<TermsOfServiceFragment>(
       fragmentArgs = bundleOf("isViewOnly" to false),
       destId = R.id.terms_of_service_fragment,
@@ -158,6 +157,22 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
     getButton().performClick()
     assertThat(navController.currentDestination?.id).isEqualTo(R.id.surveySelectorFragment)
     assertEquals("surveyId", navController.currentBackStackEntry?.arguments?.getString("surveyId"))
+  }
+
+  @Test
+  fun openSurveySelectorFragment_withoutSurveyId() = runWithTestDispatcher {
+    launchFragmentWithNavController<TermsOfServiceFragment>(
+      fragmentArgs = bundleOf("isViewOnly" to false),
+      destId = R.id.terms_of_service_fragment,
+      navControllerCallback = { navController = it },
+      intentData = null,
+    )
+
+    getCheckbox().performClick()
+    getButton().performClick()
+
+    assertThat(navController.currentDestination?.id).isEqualTo(R.id.surveySelectorFragment)
+    assertNull(navController.currentBackStackEntry?.arguments?.getString("surveyId"))
   }
 
   private fun getCheckbox() =

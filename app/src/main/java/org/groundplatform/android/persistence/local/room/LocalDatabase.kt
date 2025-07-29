@@ -19,7 +19,7 @@ import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import org.groundplatform.android.Config
+import org.groundplatform.android.common.Constants
 import org.groundplatform.android.persistence.local.room.converter.GeometryWrapperTypeConverter
 import org.groundplatform.android.persistence.local.room.converter.JsonArrayTypeConverter
 import org.groundplatform.android.persistence.local.room.converter.JsonObjectTypeConverter
@@ -88,9 +88,14 @@ import org.groundplatform.android.persistence.local.room.fields.TileSetEntitySta
       ConditionEntity::class,
       ExpressionEntity::class,
     ],
-  version = Config.DB_VERSION,
+  version = Constants.DB_VERSION,
   exportSchema = true,
-  autoMigrations = [AutoMigration(from = 120, to = 121), AutoMigration(from = 121, to = 122)],
+  autoMigrations =
+    [
+      AutoMigration(from = 120, to = 121),
+      AutoMigration(from = 121, to = 122),
+      AutoMigration(from = 122, to = 123),
+    ],
 )
 @TypeConverters(
   TaskEntityType::class,

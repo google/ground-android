@@ -80,7 +80,7 @@
         <data
           android:scheme="https"
           android:host="groundplatform.org"
-          android:pathPrefix="/survey/" />
+          android:pathPrefix="/android/survey/" />
       </intent-filter>
     </activity>
     <activity

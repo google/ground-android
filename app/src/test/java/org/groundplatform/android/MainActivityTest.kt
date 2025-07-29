@@ -24,6 +24,7 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
+import org.groundplatform.android.repository.TermsOfServiceRepository
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
 import org.groundplatform.android.system.auth.SignInState
 import org.junit.Test
@@ -39,6 +40,8 @@ class MainActivityTest : BaseHiltTest() {
 
   private lateinit var activity: MainActivity
   @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
+  @Inject lateinit var viewModel: MainViewModel
+  @Inject lateinit var tosRepository: TermsOfServiceRepository
 
   override fun setUp() {
     super.setUp()
@@ -115,13 +118,16 @@ class MainActivityTest : BaseHiltTest() {
   @Test
   fun launchAppWithSurveyId_loggedInUser_ActivitySurvey() = runWithTestDispatcher {
     try {
-      val uri = Uri.parse("https://groundplatform.org/survey/surveyId")
+      tosRepository.isTermsOfServiceAccepted = true
+      val uri = Uri.parse("https://groundplatform.org/android/survey/surveyId")
       val intent = Intent(Intent.ACTION_VIEW, uri)
 
       Robolectric.buildActivity(MainActivity::class.java, intent).use { controller ->
         controller.setup()
         activity = controller.get()
 
+        viewModel.setDeepLinkUri(uri)
+        advanceUntilIdle()
         val navHost =
           activity.supportFragmentManager.findFragmentById(R.id.nav_host_fragment)
             as NavHostFragment
@@ -145,7 +151,7 @@ class MainActivityTest : BaseHiltTest() {
   @Test
   fun launchAppWithSurveyId_needLogin_ShowLoginIn() = runWithTestDispatcher {
     try {
-      val uri = Uri.parse("https://groundplatform.org/survey/surveyId")
+      val uri = Uri.parse("https://groundplatform.org/android/survey/surveyId")
       val intent = Intent(Intent.ACTION_VIEW, uri)
 
       Robolectric.buildActivity(MainActivity::class.java, intent).use { controller ->

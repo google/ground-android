@@ -29,15 +29,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.NavHostFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import org.groundplatform.android.Config.SURVEY_PATH_SEGMENT
 import org.groundplatform.android.databinding.MainActBinding
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.ActivityCallback
@@ -91,11 +88,9 @@ class MainActivity : AbstractActivity() {
     viewModel = viewModelFactory[this, MainViewModel::class.java]
 
     lifecycleScope.launch {
-      viewModel.navigationRequests.filterNotNull().first()
-
       intent.data?.let {
         if (navHostFragment.navController.currentDestination?.id != R.id.sign_in_fragment) {
-          navHostFragment.navController.handleDeepLinkIfNeeded(it)
+          viewModel.setDeepLinkUri(it)
         } else {
           pendingDeepLink = it
         }
@@ -136,6 +131,11 @@ class MainActivity : AbstractActivity() {
       }
       MainUiState.OnUserSigningIn -> {
         onSignInProgress(true)
+      }
+      is MainUiState.ActiveSurveyById -> {
+        val action = SurveySelectorFragmentDirections.showSurveySelectorScreen(false)
+        action.surveyId = uiState.surveyId
+        navigateTo(action)
       }
     }
 
@@ -197,7 +197,6 @@ class MainActivity : AbstractActivity() {
 
   override fun onResume() {
     super.onResume()
-    viewModel.checkAuthStatus()
     if (viewModel.isAppUpdateAvailable()) {
       showForceUpdateDialog()
     }
@@ -254,15 +253,6 @@ class MainActivity : AbstractActivity() {
         return
       }
       navHostFragment.navController.navigate(directions)
-    }
-  }
-
-  private fun NavController.handleDeepLinkIfNeeded(uri: Uri) {
-    if (uri.pathSegments.firstOrNull() == SURVEY_PATH_SEGMENT) {
-      val surveyId = uri.lastPathSegment
-      val action = SurveySelectorFragmentDirections.showSurveySelectorScreen(false)
-      action.surveyId = surveyId
-      navigate(action)
     }
   }
 

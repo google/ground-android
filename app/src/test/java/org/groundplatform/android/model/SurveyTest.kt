@@ -40,6 +40,7 @@ class SurveyTest {
           Pair(surveyOrganizerEmail, Role.SURVEY_ORGANIZER.toString()),
           Pair(badRoleEmail, "UNKNOWN_ROLE"),
         ),
+      generalAccess = org.groundplatform.android.proto.Survey.GeneralAccess.RESTRICTED,
     )
 
   @Test

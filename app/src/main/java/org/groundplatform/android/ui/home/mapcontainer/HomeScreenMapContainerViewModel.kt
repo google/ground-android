@@ -35,7 +35,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
-import org.groundplatform.android.Config.CLUSTERING_ZOOM_THRESHOLD
+import org.groundplatform.android.common.Constants.CLUSTERING_ZOOM_THRESHOLD
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.getDefaultColor
@@ -125,7 +125,7 @@ internal constructor(
   private val adHocLoiJobs: Flow<List<Job>>
 
   /** Emits whether the current zoom has crossed the zoomed-in threshold or not to cluster LOIs. */
-  val isZoomedInFlow: Flow<Boolean>
+  private val isZoomedInFlow: Flow<Boolean>
 
   init {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
