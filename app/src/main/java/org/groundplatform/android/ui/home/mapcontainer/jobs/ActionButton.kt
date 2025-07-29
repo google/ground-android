@@ -32,7 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.groundplatform.android.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.R
-import org.groundplatform.android.ui.theme.AppTheme
+import org.groundplatform.android.presentation.ui.theme.AppTheme
 
 @Composable
 fun ActionButton(

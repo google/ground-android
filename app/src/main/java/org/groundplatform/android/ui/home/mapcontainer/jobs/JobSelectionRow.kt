@@ -43,7 +43,7 @@ import org.groundplatform.android.R
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.Style
 import org.groundplatform.android.model.job.getDefaultColor
-import org.groundplatform.android.ui.theme.AppTheme
+import org.groundplatform.android.presentation.ui.theme.AppTheme
 
 @Composable
 fun JobSelectionRow(job: Job, onClick: () -> Unit) {

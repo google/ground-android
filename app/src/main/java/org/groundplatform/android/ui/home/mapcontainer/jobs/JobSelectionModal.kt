@@ -39,7 +39,7 @@ import org.groundplatform.android.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.R
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.Style
-import org.groundplatform.android.ui.theme.AppTheme
+import org.groundplatform.android.presentation.ui.theme.AppTheme
 
 private val verticalGradient =
   Brush.verticalGradient(

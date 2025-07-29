@@ -55,8 +55,8 @@ import org.groundplatform.android.model.job.Style
 import org.groundplatform.android.model.job.getDefaultColor
 import org.groundplatform.android.model.locationofinterest.LocationOfInterest
 import org.groundplatform.android.model.task.Task
+import org.groundplatform.android.presentation.ui.theme.AppTheme
 import org.groundplatform.android.ui.common.LocationOfInterestHelper
-import org.groundplatform.android.ui.theme.AppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

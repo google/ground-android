@@ -45,7 +45,7 @@ import java.util.Date
 import org.groundplatform.android.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.R
 import org.groundplatform.android.model.mutation.Mutation
-import org.groundplatform.android.ui.theme.AppTheme
+import org.groundplatform.android.presentation.ui.theme.AppTheme
 
 @Composable
 fun SyncListItem(modifier: Modifier, detail: SyncStatusDetail) {
