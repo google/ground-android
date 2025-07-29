@@ -25,7 +25,7 @@ import androidx.multidex.MultiDexApplication
 import androidx.work.Configuration
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
-import org.groundplatform.android.Config.isReleaseBuild
+import org.groundplatform.android.common.Constants.isReleaseBuild
 import org.groundplatform.android.persistence.local.LocalValueStore
 import timber.log.Timber
 

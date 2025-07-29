@@ -52,8 +52,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import org.groundplatform.android.Config.SURVEY_PATH_SEGMENT
 import org.groundplatform.android.R
+import org.groundplatform.android.common.Constants.SURVEY_PATH_SEGMENT
 import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.compose.Toolbar
 import org.groundplatform.android.ui.surveyselector.SurveySelectorFragmentDirections
@@ -180,9 +180,14 @@ class TermsOfServiceFragment : AbstractFragment() {
     lifecycleScope.launch {
       viewModel.navigateToSurveySelector.collect {
         activity?.intent?.data?.let { uri ->
-          if (uri.pathSegments.firstOrNull() == SURVEY_PATH_SEGMENT) {
-            val surveyId = uri.lastPathSegment
+          val pathSegments = uri.pathSegments
+
+          if (SURVEY_PATH_SEGMENT in pathSegments) {
+            val index = pathSegments.indexOf(SURVEY_PATH_SEGMENT)
+            val surveyId = pathSegments.getOrNull(index + 1)
             openSurveySelector(surveyId)
+          } else {
+            openSurveySelector()
           }
         } ?: run { openSurveySelector() }
       }

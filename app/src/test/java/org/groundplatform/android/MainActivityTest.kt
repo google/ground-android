@@ -96,7 +96,7 @@ class MainActivityTest : BaseHiltTest() {
   @Test
   fun launchAppWithSurveyId_loggedInUser_ActivitySurvey() = runWithTestDispatcher {
     tosRepository.isTermsOfServiceAccepted = true
-    val uri = Uri.parse("https://groundplatform.org/survey/surveyId")
+    val uri = Uri.parse("https://groundplatform.org/android/survey/surveyId")
     val intent = Intent(Intent.ACTION_VIEW, uri)
 
     Robolectric.buildActivity(MainActivity::class.java, intent).use { controller ->
@@ -121,7 +121,7 @@ class MainActivityTest : BaseHiltTest() {
 
   @Test
   fun launchAppWithSurveyId_needLogin_ShowLoginIn() = runWithTestDispatcher {
-    val uri = Uri.parse("https://groundplatform.org/survey/surveyId")
+    val uri = Uri.parse("https://groundplatform.org/android/survey/surveyId")
     val intent = Intent(Intent.ACTION_VIEW, uri)
 
     Robolectric.buildActivity(MainActivity::class.java, intent).use { controller ->
