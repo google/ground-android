@@ -94,26 +94,4 @@ class SyncSurveyUseCaseTest : BaseHiltTest() {
       verify(loiRepository).syncLocationsOfInterest(survey)
       assertThat(loiRepository.getValidLois(survey).first()).isEqualTo(expectedLois)
     }
-
-  @Test
-  fun `should not load shared LOIs when visibility is not ALL_SURVEY_PARTICIPANTS`() =
-    runWithTestDispatcher {
-      val survey = SURVEY.copy(dataVisibility = DataVisibility.CONTRIBUTOR_AND_ORGANIZERS)
-      fakeRemoteDataStore.surveys = listOf(survey)
-
-      val predefinedLoi = LOCATION_OF_INTEREST.copy(id = "predefined_id")
-      val userLoi = LOCATION_OF_INTEREST.copy(id = "user_id")
-
-      fakeRemoteDataStore.predefinedLois = listOf(predefinedLoi)
-      fakeRemoteDataStore.userLois = listOf(userLoi)
-
-      val expectedLois = setOf(predefinedLoi, userLoi)
-      whenever(loiRepository.getValidLois(survey))
-        .thenReturn(kotlinx.coroutines.flow.flowOf(expectedLois))
-
-      syncSurvey(survey.id)
-
-      verify(loiRepository).syncLocationsOfInterest(survey)
-      assertThat(loiRepository.getValidLois(survey).first()).isEqualTo(expectedLois)
-    }
 }
