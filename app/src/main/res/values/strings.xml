@@ -215,4 +215,8 @@
   <string name="lang_french">French</string>
   <string name="lang_spanish">Spanish</string>
   <string name="lang_portuguese">Portuguese</string>
+
+  <string name="dialog_title_update_required">Update Required</string>
+  <string name="dialog_message_update_required">A new version of the app is available. Please update to continue using the app.</string>
+  <string name="dialog_button_update">Update</string>
 </resources>

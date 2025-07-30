@@ -17,6 +17,7 @@ package org.groundplatform.android
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Looper
 import androidx.navigation.fragment.NavHostFragment
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.FirebaseFirestoreException
@@ -31,6 +32,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows
 import org.robolectric.shadows.ShadowProgressDialog
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -46,6 +48,12 @@ class MainActivityTest : BaseHiltTest() {
   override fun setUp() {
     super.setUp()
     ShadowProgressDialog.reset()
+    Shadows.shadowOf(Looper.getMainLooper()).idle()
+  }
+
+  override fun closeDb() {
+    super.closeDb()
+    Shadows.shadowOf(Looper.getMainLooper()).idle()
   }
 
   @Test
@@ -53,6 +61,8 @@ class MainActivityTest : BaseHiltTest() {
     Robolectric.buildActivity(MainActivity::class.java).use { controller ->
       controller.setup() // Moves Activity to RESUMED state
       activity = controller.get()
+
+      advanceUntilIdle()
 
       fakeAuthenticationManager.setState(SignInState.SigningIn)
       advanceUntilIdle()
@@ -66,6 +76,8 @@ class MainActivityTest : BaseHiltTest() {
     Robolectric.buildActivity(MainActivity::class.java).use { controller ->
       controller.setup() // Moves Activity to RESUMED state
       activity = controller.get()
+
+      advanceUntilIdle()
 
       fakeAuthenticationManager.setState(SignInState.SigningIn)
       fakeAuthenticationManager.setState(SignInState.SignedOut)

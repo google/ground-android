@@ -214,4 +214,8 @@
   <string name="lang_french">Français</string>
   <string name="lang_spanish">Espagnol</string>
   <string name="lang_portuguese">Portugais</string>
+
+  <string name="dialog_title_update_required">Mise à jour requise</string>
+  <string name="dialog_message_update_required">Une nouvelle version de l&#8217;application est disponible. Veuillez mettre à jour pour continuer à utiliser l&#8217;application.</string>
+  <string name="dialog_button_update">Mettre à jour</string>
 </resources>
