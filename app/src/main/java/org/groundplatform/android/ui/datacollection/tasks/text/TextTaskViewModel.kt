@@ -36,10 +36,8 @@ class TextTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
   override fun validate(task: Task, taskData: TaskData?): Int? {
     if (task.type != Task.Type.TEXT) return super.validate(task, taskData)
 
-    val text = (taskData as? TextTaskData)?.text ?: return super.validate(task, taskData)
-    if (text.length > Constants.TEXT_DATA_CHAR_LIMIT) {
+    if ((taskData as TextTaskData).text.length > Constants.TEXT_DATA_CHAR_LIMIT)
       return R.string.text_task_data_character_limit
-    }
 
     return super.validate(task, taskData)
   }
