@@ -22,7 +22,7 @@
         <value>false</value>
     </entry>
     <entry>
-        <key>latest_version_code</key>
+        <key>min_app_version</key>
         <value>0.0.0</value>
     </entry>
 </defaultsMap>
