@@ -157,12 +157,8 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
       )
       .performClick()
     advanceUntilIdle()
-    composeTestRule.onNodeWithText(TEST_SURVEY_1.title).performClick()
+    composeTestRule.onNodeWithText(TEST_SURVEY_2.title).performClick()
     advanceUntilIdle()
-
-    composeTestRule.waitUntil(timeoutMillis = 10_000) {
-      navController.currentDestination?.id == R.id.home_screen_fragment
-    }
 
     // Assert that navigation to home screen was requested
     assertThat(navController.currentDestination?.id).isEqualTo(R.id.home_screen_fragment)
