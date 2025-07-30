@@ -94,10 +94,10 @@ internal constructor(
   /** Attempts to return draft submission for the currently active survey. */
   suspend fun getDraftSubmission(): DraftSubmission? {
     val draftId = submissionRepository.getDraftSubmissionsId()
-    val survey = surveyRepository.activeSurvey
+    val survey = surveyRepository.activeSurveyFlow.first()
 
-    if (draftId.isEmpty() || survey == null) {
-      // Missing draft submission
+    if (survey == null || draftId.isEmpty()) {
+      // No active survey or draft submission.
       return null
     }
 
