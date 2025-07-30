@@ -160,9 +160,28 @@ constructor(
   /** Returns true if the user has already accepted the Terms of Service. */
   private fun isTosAccepted(): Boolean = termsOfServiceRepository.isTermsOfServiceAccepted
 
-  fun isAppUpdateAvailable(currentVersion: Int = BuildConfig.VERSION_CODE): Boolean {
+  private fun isOlderVersion(current: String, minRequired: String): Boolean {
+    fun String.toSegments() = split('.').map { it.toIntOrNull() ?: 0 }
+
+    val currentParts = current.toSegments()
+    val requiredParts = minRequired.toSegments()
+    val maxLength = maxOf(currentParts.size, requiredParts.size)
+
+    for (i in 0 until maxLength) {
+      val curr = currentParts.getOrElse(i) { 0 }
+      val req = requiredParts.getOrElse(i) { 0 }
+      if (curr != req) return curr < req
+    }
+
+    return false
+  }
+
+  fun isAppUpdateAvailable(currentVersion: String = BuildConfig.VERSION_NAME): Boolean {
     val forceUpdate = remoteConfig.getBoolean("force_update")
-    val latestVersion = remoteConfig.getLong("latest_version_code")
-    return forceUpdate && currentVersion.toLong() < latestVersion
+    val latestVersion = remoteConfig.getString("latest_version_code")
+
+    return forceUpdate &&
+      latestVersion.isNotBlank() &&
+      isOlderVersion(currentVersion, latestVersion)
   }
 }

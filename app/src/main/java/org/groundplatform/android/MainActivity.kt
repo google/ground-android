@@ -261,7 +261,7 @@ class MainActivity : AbstractActivity() {
       .setTitle(R.string.dialog_title_update_required)
       .setMessage(R.string.dialog_message_update_required)
       .setCancelable(false)
-      .setPositiveButton(R.string.dialog_button_update) { dialog, _ ->
+      .setPositiveButton(R.string.dialog_button_update) { _, _ ->
         val appPackageName = packageName
         try {
           startActivity(

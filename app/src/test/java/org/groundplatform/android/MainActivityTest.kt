@@ -17,6 +17,7 @@ package org.groundplatform.android
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Looper
 import androidx.navigation.fragment.NavHostFragment
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.FirebaseFirestoreException
@@ -31,6 +32,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows
 import org.robolectric.shadows.ShadowProgressDialog
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -46,132 +48,106 @@ class MainActivityTest : BaseHiltTest() {
   override fun setUp() {
     super.setUp()
     ShadowProgressDialog.reset()
+    Shadows.shadowOf(Looper.getMainLooper()).idle()
+  }
+
+  override fun closeDb() {
+    super.closeDb()
+    Shadows.shadowOf(Looper.getMainLooper()).idle()
   }
 
   @Test
   fun signInProgressDialog_whenSigningIn_isDisplayed() = runWithTestDispatcher {
-    try {
-      Robolectric.buildActivity(MainActivity::class.java).use { controller ->
-        controller.setup() // Moves Activity to RESUMED state
-        activity = controller.get()
+    Robolectric.buildActivity(MainActivity::class.java).use { controller ->
+      controller.setup() // Moves Activity to RESUMED state
+      activity = controller.get()
 
-        advanceUntilIdle()
+      advanceUntilIdle()
 
-        fakeAuthenticationManager.setState(SignInState.SigningIn)
-        advanceUntilIdle()
+      fakeAuthenticationManager.setState(SignInState.SigningIn)
+      advanceUntilIdle()
 
-        assertThat(ShadowProgressDialog.getLatestDialog().isShowing).isTrue()
-      }
-    } catch (e: Exception) {
-      println("Caught exception: ${e.message}")
-      e.printStackTrace()
-      throw e
+      assertThat(ShadowProgressDialog.getLatestDialog().isShowing).isTrue()
     }
   }
 
   @Test
   fun signInProgressDialog_whenSignedOutAfterSignInState_isNotDisplayed() = runWithTestDispatcher {
-    try {
-      Robolectric.buildActivity(MainActivity::class.java).use { controller ->
-        controller.setup() // Moves Activity to RESUMED state
-        activity = controller.get()
+    Robolectric.buildActivity(MainActivity::class.java).use { controller ->
+      controller.setup() // Moves Activity to RESUMED state
+      activity = controller.get()
 
-        advanceUntilIdle()
+      advanceUntilIdle()
 
-        fakeAuthenticationManager.setState(SignInState.SigningIn)
-        fakeAuthenticationManager.setState(SignInState.SignedOut)
-        advanceUntilIdle()
+      fakeAuthenticationManager.setState(SignInState.SigningIn)
+      fakeAuthenticationManager.setState(SignInState.SignedOut)
+      advanceUntilIdle()
 
-        assertThat(ShadowProgressDialog.getLatestDialog().isShowing).isFalse()
-      }
-    } catch (e: Exception) {
-      println("Caught exception: ${e.message}")
-      e.printStackTrace()
-      throw e
+      assertThat(ShadowProgressDialog.getLatestDialog().isShowing).isFalse()
     }
   }
 
   @Test
   fun signInErrorDialog_isDisplayed() = runWithTestDispatcher {
-    try {
-      Robolectric.buildActivity(MainActivity::class.java).use { controller ->
-        controller.setup() // Moves Activity to RESUMED state
-        activity = controller.get()
+    Robolectric.buildActivity(MainActivity::class.java).use { controller ->
+      controller.setup() // Moves Activity to RESUMED state
+      activity = controller.get()
 
-        fakeAuthenticationManager.setState(
-          SignInState.Error(
-            error =
-              FirebaseFirestoreException("error", FirebaseFirestoreException.Code.PERMISSION_DENIED)
-          )
+      fakeAuthenticationManager.setState(
+        SignInState.Error(
+          error =
+            FirebaseFirestoreException("error", FirebaseFirestoreException.Code.PERMISSION_DENIED)
         )
-        advanceUntilIdle()
+      )
+      advanceUntilIdle()
 
-        assertThat(ShadowProgressDialog.getLatestDialog().isShowing).isTrue()
-      }
-    } catch (e: Exception) {
-      println("Caught exception: ${e.message}")
-      e.printStackTrace()
-      throw e
+      assertThat(ShadowProgressDialog.getLatestDialog().isShowing).isTrue()
     }
   }
 
   @Test
   fun launchAppWithSurveyId_loggedInUser_ActivitySurvey() = runWithTestDispatcher {
-    try {
-      tosRepository.isTermsOfServiceAccepted = true
-      val uri = Uri.parse("https://groundplatform.org/android/survey/surveyId")
-      val intent = Intent(Intent.ACTION_VIEW, uri)
+    tosRepository.isTermsOfServiceAccepted = true
+    val uri = Uri.parse("https://groundplatform.org/android/survey/surveyId")
+    val intent = Intent(Intent.ACTION_VIEW, uri)
 
-      Robolectric.buildActivity(MainActivity::class.java, intent).use { controller ->
-        controller.setup()
-        activity = controller.get()
+    Robolectric.buildActivity(MainActivity::class.java, intent).use { controller ->
+      controller.setup()
+      activity = controller.get()
 
-        viewModel.setDeepLinkUri(uri)
-        advanceUntilIdle()
-        val navHost =
-          activity.supportFragmentManager.findFragmentById(R.id.nav_host_fragment)
-            as NavHostFragment
-        val navController = navHost.navController
+      viewModel.setDeepLinkUri(uri)
+      advanceUntilIdle()
+      val navHost =
+        activity.supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+      val navController = navHost.navController
 
-        fakeAuthenticationManager.setState(SignInState.SignedIn(FakeData.USER))
-        advanceUntilIdle()
+      fakeAuthenticationManager.setState(SignInState.SignedIn(FakeData.USER))
+      advanceUntilIdle()
 
-        assertThat(navController.currentDestination?.id).isEqualTo(R.id.surveySelectorFragment)
+      assertThat(navController.currentDestination?.id).isEqualTo(R.id.surveySelectorFragment)
 
-        assertThat(navController.currentBackStackEntry?.arguments?.getString("surveyId"))
-          .isEqualTo("surveyId")
-      }
-    } catch (e: Exception) {
-      println("Caught exception: ${e.message}")
-      e.printStackTrace()
-      throw e
+      assertThat(navController.currentBackStackEntry?.arguments?.getString("surveyId"))
+        .isEqualTo("surveyId")
     }
   }
 
   @Test
   fun launchAppWithSurveyId_needLogin_ShowLoginIn() = runWithTestDispatcher {
-    try {
-      val uri = Uri.parse("https://groundplatform.org/android/survey/surveyId")
-      val intent = Intent(Intent.ACTION_VIEW, uri)
+    val uri = Uri.parse("https://groundplatform.org/android/survey/surveyId")
+    val intent = Intent(Intent.ACTION_VIEW, uri)
 
-      Robolectric.buildActivity(MainActivity::class.java, intent).use { controller ->
-        controller.setup()
-        activity = controller.get()
+    Robolectric.buildActivity(MainActivity::class.java, intent).use { controller ->
+      controller.setup()
+      activity = controller.get()
 
-        val navHost =
-          activity.supportFragmentManager.findFragmentById(R.id.nav_host_fragment)
-            as NavHostFragment
-        val navController = navHost.navController
+      val navHost =
+        activity.supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+      val navController = navHost.navController
 
-        fakeAuthenticationManager.setState(SignInState.SignedOut)
-        advanceUntilIdle()
+      fakeAuthenticationManager.setState(SignInState.SignedOut)
+      advanceUntilIdle()
 
-        assertThat(navController.currentDestination?.id).isEqualTo(R.id.sign_in_fragment)
-      }
-    } catch (e: Exception) {
-      println("Caught exception: ${e.message}")
-      e.printStackTrace()
-      throw e
+      assertThat(navController.currentDestination?.id).isEqualTo(R.id.sign_in_fragment)
     }
   }
 }
