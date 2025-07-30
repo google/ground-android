@@ -84,19 +84,24 @@ constructor(
    * survey. If no survey is active at the moment, then it returns false.
    */
   suspend fun canUserSubmitData(): Boolean {
+    val survey = surveyRepository.getActiveSurvey()
+    if (survey == null) {
+      Timber.e("Can't load user roles with no active survey")
+      return false
+    }
+    val surveyAccessType = survey.generalAccess
     if (
-      surveyRepository.activeSurvey?.generalAccess == Survey.GeneralAccess.PUBLIC ||
-        surveyRepository.activeSurvey?.generalAccess == Survey.GeneralAccess.UNLISTED
+      surveyAccessType == Survey.GeneralAccess.PUBLIC ||
+        surveyAccessType == Survey.GeneralAccess.UNLISTED
     ) {
       return true
     }
 
-    val user = getAuthenticatedUser()
-    return try {
-      surveyRepository.activeSurvey?.getRole(user.email) != Role.VIEWER
+    try {
+      return survey.getRole(getAuthenticatedUser().email) != Role.VIEWER
     } catch (e: IllegalStateException) {
-      Timber.e(e, "Error getting role for user $user")
-      false
+      Timber.e(e, "Error getting user role from survey")
+      return false
     }
   }
 }

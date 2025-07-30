@@ -59,6 +59,7 @@ constructor(
 ) {
   private val _selectedSurveyId = MutableStateFlow<String?>(null)
 
+  /** The latest version of the currently active survey, or `null` if no survey is active. */
   val activeSurveyFlow: StateFlow<Survey?> =
     _selectedSurveyId
       .flatMapLatest { id -> getOfflineSurveyFlow(id) }
@@ -95,10 +96,19 @@ constructor(
    * Activates the survey with the specified id. Waits for [ACTIVATE_SURVEY_TIMEOUT_MILLS] before
    * throwing an error if the survey couldn't be activated.
    */
-  suspend fun activateSurvey(surveyId: String) {
+  suspend fun activateSurvey(surveyId: String): Survey? {
     _selectedSurveyId.update { surveyId }
 
-    // Wait for survey to be updated. Else throw an error after timeout.
+    val survey = waitForActiveSurvey(surveyId)
+
+    firebaseCrashLogger.setSelectedSurveyId(surveyId)
+    localValueStore.lastActiveSurveyId = surveyId
+
+    return survey
+  }
+
+  /** Wait for survey to be loaded ,else throw an error after timeout. */
+  private suspend fun waitForActiveSurvey(surveyId: String): Survey? =
     try {
       withTimeout(ACTIVATE_SURVEY_TIMEOUT_MILLS) {
         activeSurveyFlow.first { survey ->
@@ -111,18 +121,16 @@ constructor(
       }
     } catch (e: TimeoutCancellationException) {
       Timber.e(e, "Failed to get survey due to timeout")
+      null
     }
 
-    if (isSurveyActive(surveyId) || surveyId.isBlank()) {
-      firebaseCrashLogger.setSelectedSurveyId(surveyId)
-      localValueStore.lastActiveSurveyId = surveyId
-    }
-  }
+  suspend fun getActiveSurvey(): Survey? = activeSurveyFlow.first()
 
   suspend fun clearActiveSurvey() {
     activateSurvey("")
   }
 
+  // TODO: Delete me.
   fun isSurveyActive(surveyId: String): Boolean =
     surveyId.isNotBlank() && activeSurvey?.id == surveyId
 }

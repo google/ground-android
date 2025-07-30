@@ -226,7 +226,7 @@ internal constructor(
   }
 
   fun grantDataSharingConsent() {
-    val survey = requireNotNull(surveyRepository.activeSurvey)
+    val survey = requireNotNull(surveyRepository.activeSurveyFlow.value)
     localValueStore.setDataSharingConsent(survey.id, true)
   }
 

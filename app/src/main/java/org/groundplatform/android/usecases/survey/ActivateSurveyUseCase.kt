@@ -16,9 +16,9 @@
 
 package org.groundplatform.android.usecases.survey
 
-import javax.inject.Inject
 import org.groundplatform.android.persistence.sync.SurveySyncWorker
 import org.groundplatform.android.repository.SurveyRepository
+import javax.inject.Inject
 
 /**
  * Sets the survey with the specified ID as the currently active.
@@ -39,7 +39,7 @@ constructor(
    * @return `true` if the survey was successfully activated or was already active, otherwise false.
    */
   suspend operator fun invoke(surveyId: String): Boolean {
-    if (surveyRepository.isSurveyActive(surveyId)) {
+    if (surveyRepository.getActiveSurvey()?.id == surveyId) {
       // Do nothing if survey is already active.
       return true
     }
@@ -50,6 +50,6 @@ constructor(
 
     surveyRepository.activateSurvey(surveyId)
 
-    return surveyRepository.isSurveyActive(surveyId)
+    return true
   }
 }

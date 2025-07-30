@@ -121,7 +121,9 @@ internal constructor(
   val tasks: List<Task> =
     if (isAddLoiFlow) job.tasksSorted else job.tasksSorted.filterNot { it.isAddLoiTask }
 
-  val surveyId: String = requireNotNull(surveyRepository.activeSurvey?.id)
+  // TODO: This change isn't necessary. What's needed is a guarantee
+  // that views will not be loaded unless a Survey is activated.
+  val surveyId: String = requireNotNull(surveyRepository.activeSurveyFlow.value?.id)
 
   val jobName: StateFlow<String> =
     MutableStateFlow(job.name ?: "").stateIn(viewModelScope, SharingStarted.Lazily, "")
