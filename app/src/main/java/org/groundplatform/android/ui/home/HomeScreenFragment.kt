@@ -101,7 +101,7 @@ class HomeScreenFragment :
       showSignOutConfirmationDialogs()
     }
     updateNavHeader()
-    // Re-open data collection screen if any drafts are present
+    // Re-open data collection screen if draft submission is present.
     viewLifecycleOwner.lifecycleScope.launch {
       homeScreenViewModel.getDraftSubmission()?.let { draft ->
         findNavController()

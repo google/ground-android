@@ -133,9 +133,7 @@
   <string name="sign_out_dialog_title">Aviso de fim de sessão</string>
   <string name="sign_out_dialog_body">Se você terminar sua sessão:\n \u2022 Quaisquer dados não sincronizados serão descartados.\n \u2022 Você não poderá iniciar sessão se estiver offline\n \u2022 Inquéritos offline não estarão disponíveis até você iniciar sessão novamente\n\nTem certeza de que deseja sair?</string>
 
-  <string name="suggest_data_collection_hint">Amplie para começar a coletar dados</string>
   <string name="read_only_data_collection_hint">Inquérito apenas para leitura</string>
-  <string name="predefined_data_collection_hint">Amplie até um local de coleta de dados para coletar informações</string>
   <string name="no_submissions">Nenhuma submissão</string>
   <string name="dismiss_info_popup">Ignorar</string>
   <string name="other">Outro</string>

@@ -133,9 +133,7 @@
   <string name="map_location">Ubicación del mapa:</string>
   <string name="sign_out_dialog_title">Advertencia de cierre de sesión</string>
   <string name="sign_out_dialog_body">Si cierra sesión:\n \u2022 Cualquier dato no sincronizado se descartará\n \u2022 No podrá iniciar sesión si está sin conexión\n \u2022 Las encuestas sin conexión no estarán disponibles hasta que vuelva a iniciar sesión\n\n¿Está seguro de que quiere cerrar sesión?</string>
-  <string name="suggest_data_collection_hint">Acérquese para empezar a recopilar datos</string>
   <string name="read_only_data_collection_hint">Encuesta de solo lectura</string>
-  <string name="predefined_data_collection_hint">Acérquese a un sitio de recolección de datos para recopilar datos</string>
   <string name="no_submissions">Sin presentaciones</string>
   <string name="dismiss_info_popup">Descartar</string>
   <string name="other">Otro</string>

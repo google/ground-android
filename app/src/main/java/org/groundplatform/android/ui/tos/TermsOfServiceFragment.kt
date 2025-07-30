@@ -52,8 +52,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import org.groundplatform.android.Config.SURVEY_PATH_SEGMENT
 import org.groundplatform.android.R
+import org.groundplatform.android.common.Constants.SURVEY_PATH_SEGMENT
 import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.compose.Toolbar
 import org.groundplatform.android.ui.surveyselector.SurveySelectorFragmentDirections

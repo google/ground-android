@@ -132,9 +132,7 @@
   <string name="map_location">Localisation sur la carte :</string>
   <string name="sign_out_dialog_title">Données non synchronisées</string>
   <string name="sign_out_dialog_body">Si vous vous déconnectez, toutes les données non synchronisées seront supprimées</string>
-  <string name="suggest_data_collection_hint">Zoomer pour commencer la collecte des données</string>
   <string name="read_only_data_collection_hint">L&#8217;enquête est en lecture seule</string>
-  <string name="predefined_data_collection_hint">Zoomer sur un site de collecte de données pour commencer la collecte</string>
   <string name="no_submissions">Aucune soumission</string>
   <string name="dismiss_info_popup">Rejeter</string>
   <string name="other">Autres</string>
