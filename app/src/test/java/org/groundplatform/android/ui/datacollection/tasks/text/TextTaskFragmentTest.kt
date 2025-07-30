@@ -46,14 +46,14 @@ class TextTaskFragmentTest : BaseTaskFragmentTest<TextTaskFragment, TextTaskView
   private val job = Job("job")
 
   @Test
-  fun testHeader() {
+  fun `displays task header correctly`() {
     setupTaskFragment<TextTaskFragment>(job, task)
 
     hasTaskViewWithHeader(task)
   }
 
   @Test
-  fun testResponse_defaultIsEmpty() = runWithTestDispatcher {
+  fun `response when default is empty`() = runWithTestDispatcher {
     setupTaskFragment<TextTaskFragment>(job, task)
 
     runner().assertInputTextDisplayed("").assertButtonIsDisabled("Next")
@@ -95,7 +95,7 @@ class TextTaskFragmentTest : BaseTaskFragmentTest<TextTaskFragment, TextTaskView
   }
 
   @Test
-  fun testResponse_onUserInput_nextButtonIsEnabled() = runWithTestDispatcher {
+  fun `response when on user input next button is enabled`() = runWithTestDispatcher {
     setupTaskFragment<TextTaskFragment>(job, task)
 
     runner().inputText("Hello world").clickNextButton()
@@ -104,21 +104,21 @@ class TextTaskFragmentTest : BaseTaskFragmentTest<TextTaskFragment, TextTaskView
   }
 
   @Test
-  fun testActionButtons() {
+  fun `displays correct action buttons`() {
     setupTaskFragment<TextTaskFragment>(job, task)
 
     assertFragmentHasButtons(ButtonAction.PREVIOUS, ButtonAction.SKIP, ButtonAction.NEXT)
   }
 
   @Test
-  fun testActionButtons_whenTaskIsOptional() {
+  fun `action buttons when task is optional`() {
     setupTaskFragment<TextTaskFragment>(job, task.copy(isRequired = false))
 
     runner().assertButtonIsDisabled("Next").assertButtonIsEnabled("Skip")
   }
 
   @Test
-  fun testActionButtons_whenTaskIsRequired() {
+  fun `action buttons when task is required`() {
     setupTaskFragment<TextTaskFragment>(job, task.copy(isRequired = true))
 
     runner().assertButtonIsDisabled("Next").assertButtonIsHidden("Skip")

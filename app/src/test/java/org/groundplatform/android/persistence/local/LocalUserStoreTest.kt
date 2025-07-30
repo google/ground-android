@@ -32,7 +32,7 @@ class LocalUserStoreTest : BaseHiltTest() {
   @Inject lateinit var localUserStore: LocalUserStore
 
   @Test
-  fun testInsertAndGetUser() = runWithTestDispatcher {
+  fun `insert and get user`() = runWithTestDispatcher {
     localUserStore.insertOrUpdateUser(TEST_USER)
     assertThat(localUserStore.getUser(FakeData.USER_ID)).isEqualTo(TEST_USER)
   }

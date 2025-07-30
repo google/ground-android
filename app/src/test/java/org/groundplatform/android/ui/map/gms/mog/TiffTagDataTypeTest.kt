@@ -28,7 +28,7 @@ class TiffTagDataTypeTest(
 ) {
 
   @Test
-  fun testByIndex() {
+  fun `by index`() {
     assertThat(dataType.sizeInBytes).isEqualTo(sizeInBytes)
     assertThat(TiffTagDataType.byId(position)).isEqualTo(dataType)
   }

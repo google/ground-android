@@ -31,7 +31,7 @@ class UserMediaRepositoryTest : BaseHiltTest() {
   @Inject lateinit var userMediaRepository: UserMediaRepository
 
   @Test
-  fun getLocalFileFromRemotePath_invalidImageFilename() {
+  fun `getLocalFileFromRemotePath handles invalid image filename`() {
     for (path in
       listOf(
         "(/some/path/filename.png)",
@@ -47,7 +47,7 @@ class UserMediaRepositoryTest : BaseHiltTest() {
   }
 
   @Test
-  fun getLocalFileFromRemotePath_validImageFilename() {
+  fun `getLocalFileFromRemotePath handles valid image filename`() {
     for (path in listOf("/some/path/filename.png", "/some/path/filename.jpg")) {
       val localFile = userMediaRepository.getLocalFileFromRemotePath(path)
       assertThat(localFile).isNotNull()

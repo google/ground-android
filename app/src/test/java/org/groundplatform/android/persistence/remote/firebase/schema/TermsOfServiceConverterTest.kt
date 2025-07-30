@@ -38,7 +38,7 @@ class TermsOfServiceConverterTest {
   }
 
   @Test
-  fun testTermsOfService() {
+  fun `terms of service`() {
     mockTermsOfServiceDocumentSnapshot(TermsOfServiceDocument(TEST_TERMS))
     assertThat(toTermsOfService()).isEqualTo(termsOfService)
   }

@@ -57,21 +57,21 @@ class DrawAreaTaskFragmentTest :
   private val job = Job("job", Style("#112233"))
 
   @Test
-  fun testHeader() {
+  fun `displays task header correctly`() {
     setupTaskFragment<DrawAreaTaskFragment>(job, task)
 
     hasTaskViewWithoutHeader(task.label)
   }
 
   @Test
-  fun testInfoCard_noValue() {
+  fun `info card when no value`() {
     setupTaskFragment<DrawAreaTaskFragment>(job, task)
 
     runner().assertInfoCardHidden()
   }
 
   @Test
-  fun testActionButtons() {
+  fun `action buttons`() {
     setupTaskFragment<DrawAreaTaskFragment>(job, task)
 
     assertFragmentHasButtons(
@@ -86,7 +86,7 @@ class DrawAreaTaskFragmentTest :
   }
 
   @Test
-  fun testActionButtons_whenTaskIsOptional() {
+  fun `action buttons when task is optional`() {
     setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = false))
 
     runner()
@@ -99,7 +99,7 @@ class DrawAreaTaskFragmentTest :
   }
 
   @Test
-  fun testActionButtons_whenTaskIsRequired() {
+  fun `action buttons when task is required`() {
     setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = true))
 
     runner()
@@ -112,7 +112,7 @@ class DrawAreaTaskFragmentTest :
   }
 
   @Test
-  fun testDrawArea_incompleteWhenTaskIsOptional() = runWithTestDispatcher {
+  fun `draw area when incomplete when task is optional`() = runWithTestDispatcher {
     setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = false))
     // Dismiss the instructions dialog
     ShadowDialog.getLatestDialog().dismiss()
@@ -144,7 +144,7 @@ class DrawAreaTaskFragmentTest :
   }
 
   @Test
-  fun testDrawArea() = runWithTestDispatcher {
+  fun `draw area`() = runWithTestDispatcher {
     setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = false))
     // Dismiss the instructions dialog
     ShadowDialog.getLatestDialog().dismiss()
@@ -178,7 +178,7 @@ class DrawAreaTaskFragmentTest :
   }
 
   @Test
-  fun testDrawArea_addPointButton_disabledWhenTooClose() = runWithTestDispatcher {
+  fun `draw area when add point button disabled when too close`() = runWithTestDispatcher {
     setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = false))
     ShadowDialog.getLatestDialog().dismiss()
 
@@ -191,7 +191,7 @@ class DrawAreaTaskFragmentTest :
   }
 
   @Test
-  fun testRedoButton_isVisible() = runWithTestDispatcher {
+  fun `redo button when is visible`() = runWithTestDispatcher {
     setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = false))
     ShadowDialog.getLatestDialog().dismiss()
 
@@ -206,7 +206,7 @@ class DrawAreaTaskFragmentTest :
   }
 
   @Test
-  fun testRedoButton_isDisabled_emptyRedoVertexStack() = runWithTestDispatcher {
+  fun `redo button when is disabled empty redo vertex stack`() = runWithTestDispatcher {
     setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = false))
     ShadowDialog.getLatestDialog().dismiss()
 

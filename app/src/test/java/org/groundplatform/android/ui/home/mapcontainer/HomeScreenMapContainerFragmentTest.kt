@@ -47,7 +47,7 @@ class HomeScreenMapContainerFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun clickMapType_launchesMapTypeDialogFragment() = runWithTestDispatcher {
+  fun `Click map type launches MapTypeDialogFragment`() = runWithTestDispatcher {
     onView(withId(R.id.map_type_btn)).perform(click()).check(matches(isEnabled()))
     assertThat(navController.currentDestination?.id).isEqualTo(R.id.mapTypeDialogFragment)
   }
