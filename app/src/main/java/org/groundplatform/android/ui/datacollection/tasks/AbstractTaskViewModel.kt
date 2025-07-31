@@ -53,7 +53,9 @@ open class AbstractTaskViewModel internal constructor() : AbstractViewModel() {
    */
   open fun validate(task: Task, taskData: TaskData?): Int? {
     // Empty response for a required task.
-    if (task.isRequired && (taskData == null || taskData.isEmpty())) {
+    if (
+      task.isRequired && (taskData == null || taskData.isEmpty() || taskData is SkippedTaskData)
+    ) {
       return R.string.required_task
     }
     return null
