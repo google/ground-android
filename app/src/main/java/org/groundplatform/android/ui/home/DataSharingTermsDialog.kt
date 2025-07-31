@@ -30,9 +30,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.groundplatform.android.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.R
+import org.groundplatform.android.presentation.ui.theme.AppTheme
 import org.groundplatform.android.proto.Survey
 import org.groundplatform.android.ui.compose.HtmlText
-import org.groundplatform.android.ui.theme.AppTheme
 import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
 import org.intellij.markdown.html.HtmlGenerator
 import org.intellij.markdown.parser.MarkdownParser
