@@ -22,9 +22,11 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
+import org.groundplatform.android.FakeData.SURVEY
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.LinearRing
 import org.groundplatform.android.model.geometry.Point
@@ -33,9 +35,11 @@ import org.groundplatform.android.model.mutation.Mutation.Type.CREATE
 import org.groundplatform.android.persistence.local.stores.LocalLocationOfInterestStore
 import org.groundplatform.android.persistence.remote.FakeRemoteDataStore
 import org.groundplatform.android.persistence.sync.MutationSyncWorkManager
+import org.groundplatform.android.proto.Survey.DataVisibility
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
 import org.groundplatform.android.ui.map.Bounds
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
+import org.groundplatform.android.usecases.survey.SyncSurveyUseCase
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -58,6 +62,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   @Inject lateinit var mutationRepository: MutationRepository
   @Inject lateinit var userRepository: UserRepository
   @Inject lateinit var activateSurvey: ActivateSurveyUseCase
+  @Inject lateinit var syncSurvey: SyncSurveyUseCase
 
   private val mutation = LOCATION_OF_INTEREST.toMutation(CREATE, TEST_USER.id)
 
@@ -188,6 +193,48 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
 
     assertThat(locationOfInterestRepository.hasValidLois(TEST_SURVEY.id)).isTrue()
   }
+
+  @Test
+  fun `should load all types of LOIs when visibility is ALL_SURVEY_PARTICIPANTS`() =
+    runWithTestDispatcher {
+      val survey = TEST_SURVEY.copy(dataVisibility = DataVisibility.ALL_SURVEY_PARTICIPANTS)
+      fakeRemoteDataStore.surveys = listOf(survey)
+
+      val predefinedLoi = FakeData.LOCATION_OF_INTEREST.copy(id = "predefined_id")
+      val userLoi = FakeData.LOCATION_OF_INTEREST.copy(id = "user_id")
+      val sharedLoi = FakeData.LOCATION_OF_INTEREST.copy(id = "shared_id")
+      fakeRemoteDataStore.predefinedLois = listOf(predefinedLoi)
+      fakeRemoteDataStore.userLois = listOf(userLoi)
+      fakeRemoteDataStore.sharedLois = listOf(sharedLoi)
+
+      val expected = setOf(predefinedLoi, userLoi, sharedLoi)
+
+      syncSurvey(survey.id)
+
+      val actual = locationOfInterestRepository.getValidLois(survey).first()
+
+      assertThat(actual).isEqualTo(expected)
+    }
+
+  @Test
+  fun `should not load shared LOIs when visibility is not ALL_SURVEY_PARTICIPANTS`() =
+    runWithTestDispatcher {
+      val survey = TEST_SURVEY.copy(dataVisibility = DataVisibility.CONTRIBUTOR_AND_ORGANIZERS)
+      fakeRemoteDataStore.surveys = listOf(survey)
+
+      val predefinedLoi = FakeData.LOCATION_OF_INTEREST.copy(id = "predefined_id")
+      val userLoi = FakeData.LOCATION_OF_INTEREST.copy(id = "user_id")
+      fakeRemoteDataStore.predefinedLois = listOf(predefinedLoi)
+      fakeRemoteDataStore.userLois = listOf(userLoi)
+
+      val expected = setOf(predefinedLoi, userLoi)
+
+      syncSurvey(survey.id)
+
+      val actual = locationOfInterestRepository.getValidLois(survey).first()
+
+      assertThat(actual).isEqualTo(expected)
+    }
 
   companion object {
     private val COORDINATE_1 = Coordinates(-20.0, -20.0)
