@@ -75,8 +75,6 @@
   <string name="satellite">Satellite</string>
   <string name="terrain">Relief</string>
   <string name="next">Suivant</string>
-  <string name="select_survey_title">Sélectionner une enquête</string>
-  <string name="survey_sync_hint">Une fois ouvertes, les enquêtes sont disponibles hors ligne et synchronisées automatiquement lorsqu&#8217;elles sont en ligne.</string>
   <string name="done">Soumettre</string>
   <string name="skip">Ignore</string>
 
@@ -110,7 +108,7 @@
   <string name="capture">Capturer</string>
   <string name="surveys">Enquêtes</string>
   <string name="offline_icon_description">Icône affichée lorsque l&#8217;enquête est disponible hors ligne</string>
-  <string name="remove_offline_access">Supprimer l&#8217;accès hors ligne</string>
+  <string name="more_options_icon_description">Plus d&#8217;options</string>
   <string name="remove_offline_access_warning_title">Avertissement</string>
   <string name="remove_offline_access_warning_confirm_button">Retirer</string>
   <string name="remove_offline_access_warning_dialog_body">Si vous supprimez l&#8217;accès hors ligne:\n \u2022 Toutes les données non synchronisées seront supprimées\n\nÊtes-vous sûr de vouloir supprimer l&#8217;accès hors ligne ?</string>
@@ -214,4 +212,13 @@
   <string name="lang_french">Français</string>
   <string name="lang_spanish">Espagnol</string>
   <string name="lang_portuguese">Portugais</string>
+
+
+  <string name="access_restricted">Restreint</string>
+  <string name="access_unlisted">Non répertorié</string>
+  <string name="access_public">Public</string>
+
+  <string name="section_on_device">Sur cet appareil</string>
+  <string name="section_shared_with_me">Partagé avec moi</string>
+  <string name="section_public">Public</string>
 </resources>
