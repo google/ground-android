@@ -190,10 +190,10 @@
   <string name="lang_french">Tiếng Pháp</string>
   <string name="lang_spanish">Tiếng Tây Ban Nha</string>
   <string name="lang_portuguese">Tiếng Bồ Đào Nha</string>
-  <string name="access_restricted">Restricted</string>
-  <string name="access_unlisted">Unlisted</string>
-  <string name="access_public">Public</string>
+  <string name="access_restricted">Hạn chế</string>
+  <string name="access_unlisted">Không công khai</string>
+  <string name="access_public">Công khai</string>
   <string name="section_on_device">On this device</string>
   <string name="section_shared_with_me">Shared with me</string>
-  <string name="section_public">Public</string>
+  <string name="section_public">Công khai</string>
 </resources>
