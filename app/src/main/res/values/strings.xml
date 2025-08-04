@@ -213,6 +213,7 @@
   <string name="lang_french">French</string>
   <string name="lang_spanish">Spanish</string>
   <string name="lang_portuguese">Portuguese</string>
+  <string name="lang_vietnamese">Vietnamese</string>
 
   <string name="access_restricted">Restricted</string>
   <string name="access_unlisted">Unlisted</string>
