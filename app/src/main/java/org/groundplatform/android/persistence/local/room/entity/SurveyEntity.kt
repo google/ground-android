@@ -28,4 +28,5 @@ data class SurveyEntity(
   @ColumnInfo(name = "acl") val acl: JSONObject?,
   @ColumnInfo(name = "data_sharing_terms") val dataSharingTerms: ByteArray?,
   @ColumnInfo(name = "general_access") val generalAccess: Int?,
+  @ColumnInfo(name = "data_visibility") val dataVisibility: Int?,
 )
