@@ -31,6 +31,7 @@ import org.groundplatform.android.model.toListItem
 class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
   var predefinedLois = emptyList<LocationOfInterest>()
   var userLois = emptyList<LocationOfInterest>()
+  var sharedLois = emptyList<LocationOfInterest>()
   var surveys = emptyList<Survey>()
   var publicSurveys = emptyList<Survey>()
   var onLoadSurvey = { surveyId: String -> surveys.firstOrNull { it.id == surveyId } }
@@ -70,6 +71,8 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
 
   override suspend fun loadUserLois(survey: Survey, ownerUserId: String): List<LocationOfInterest> =
     userLois
+
+  override suspend fun loadSharedLois(survey: Survey): List<LocationOfInterest> = sharedLois
 
   /** Returns true iff [subscribeToSurveyUpdates] has been called with the specified id. */
   fun isSubscribedToSurveyUpdates(surveyId: String): Boolean =
