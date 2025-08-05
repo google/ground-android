@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2018 Google LLC
+  ~ Copyright 2025 Google LLC
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -190,6 +190,7 @@
   <string name="lang_french">Tiếng Pháp</string>
   <string name="lang_spanish">Tiếng Tây Ban Nha</string>
   <string name="lang_portuguese">Tiếng Bồ Đào Nha</string>
+  <string name="lang_vietnamese">Tiếng Việt</string>
   <string name="access_restricted">Hạn chế</string>
   <string name="access_unlisted">Không công khai</string>
   <string name="access_public">Công khai</string>
