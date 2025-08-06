@@ -76,8 +76,6 @@
   <string name="satellite">Satellite</string>
   <string name="terrain">Terrain</string>
   <string name="next">Next</string>
-  <string name="select_survey_title">Select a survey</string>
-  <string name="survey_sync_hint">Once opened, surveys are available offline and synced automatically when online.</string>
   <string name="done">Done</string>
   <string name="skip">Skip</string>
 
@@ -111,7 +109,7 @@
   <string name="capture">Capture</string>
   <string name="surveys">Surveys</string>
   <string name="offline_icon_description">Icon shown when the survey is available offline</string>
-  <string name="remove_offline_access">Remove offline access</string>
+  <string name="more_options_icon_description">More options</string>
   <string name="remove_offline_access_warning_title">Warning</string>
   <string name="remove_offline_access_warning_confirm_button">Remove</string>
   <string name="remove_offline_access_warning_dialog_body">If you remove offline access:\n \u2022 Any unsynced data will be discarded\n\nAre you sure you want to remove the offline access?</string>
@@ -215,4 +213,13 @@
   <string name="lang_french">French</string>
   <string name="lang_spanish">Spanish</string>
   <string name="lang_portuguese">Portuguese</string>
+  <string name="lang_vietnamese">Vietnamese</string>
+
+  <string name="access_restricted">Restricted</string>
+  <string name="access_unlisted">Unlisted</string>
+  <string name="access_public">Public</string>
+
+  <string name="section_on_device">On this device</string>
+  <string name="section_shared_with_me">Shared with me</string>
+  <string name="section_public">Public</string>
 </resources>

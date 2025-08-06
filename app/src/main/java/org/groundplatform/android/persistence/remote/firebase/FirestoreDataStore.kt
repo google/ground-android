@@ -87,6 +87,9 @@ internal constructor(
       db().surveys().survey(survey.id).lois().fetchUserDefined(survey, ownerUserId)
     }
 
+  override suspend fun loadSharedLois(survey: Survey) =
+    withContext(ioDispatcher) { db().surveys().survey(survey.id).lois().fetchSharedLois(survey) }
+
   override suspend fun subscribeToSurveyUpdates(surveyId: String) {
     Timber.d("Subscribing to FCM topic $surveyId")
     try {
