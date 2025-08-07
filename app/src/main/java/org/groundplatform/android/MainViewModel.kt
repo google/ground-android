@@ -178,7 +178,7 @@ constructor(
 
   fun isAppUpdateAvailable(currentVersion: String = BuildConfig.VERSION_NAME): Boolean {
     val forceUpdate = remoteConfig.getBoolean("force_update")
-    val latestVersion = remoteConfig.getString("min_app_version")
+    val latestVersion = remoteConfig.getString("min_app_version") ?: ""
 
     return forceUpdate &&
       latestVersion.isNotBlank() &&

@@ -15,30 +15,17 @@
  */
 package org.groundplatform.android
 
-import android.content.Context
-import android.content.res.Resources
-import com.google.android.gms.common.GoogleApiAvailability
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import dagger.Module
 import dagger.Provides
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dagger.hilt.testing.TestInstallIn
+import org.groundplatform.android.util.FirebaseModule
 import org.mockito.Mockito
-import java.util.Locale
 
 @Module
-@TestInstallIn(
-  components = [SingletonComponent::class],
-  replaces = [GroundApplicationModule::class],
-)
+@TestInstallIn(components = [SingletonComponent::class], replaces = [FirebaseModule::class])
 object TestFirebaseModule {
-  @Provides
-  fun provideGoogleApiAvailability(): GoogleApiAvailability = GoogleApiAvailability.getInstance()
-
-  @Provides fun provideResources(@ApplicationContext ctx: Context): Resources = ctx.resources
-
-  @Provides fun provideLocale(): Locale = Locale.getDefault()
 
   @Provides
   fun provideFirebaseRemoteConfig(): FirebaseRemoteConfig =

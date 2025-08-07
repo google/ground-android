@@ -22,7 +22,6 @@ import androidx.navigation.fragment.NavHostFragment
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
-import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -48,13 +47,10 @@ class MainActivityTest : BaseHiltTest() {
   @Inject lateinit var viewModel: MainViewModel
   @Inject lateinit var tosRepository: TermsOfServiceRepository
 
-  @BindValue
-  @JvmField
-  val remoteConfig: FirebaseRemoteConfig = Mockito.mock(FirebaseRemoteConfig::class.java)
+  @Inject lateinit var remoteConfig: FirebaseRemoteConfig
 
   override fun setUp() {
     super.setUp()
-    Mockito.`when`(remoteConfig.getBoolean("force_update")).thenReturn(false)
     ShadowProgressDialog.reset()
     Shadows.shadowOf(Looper.getMainLooper()).idle()
   }
@@ -67,6 +63,9 @@ class MainActivityTest : BaseHiltTest() {
   @Test
   fun signInProgressDialog_whenSigningIn_isDisplayed() = runWithTestDispatcher {
     Robolectric.buildActivity(MainActivity::class.java).use { controller ->
+      Mockito.`when`(remoteConfig.getBoolean("force_update")).thenReturn(false)
+      Mockito.`when`(remoteConfig.getString("min_app_version")).thenReturn("0.0.0")
+
       controller.setup() // Moves Activity to RESUMED state
       activity = controller.get()
 
