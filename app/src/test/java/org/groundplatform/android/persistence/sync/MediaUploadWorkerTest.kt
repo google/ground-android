@@ -95,7 +95,7 @@ class MediaUploadWorkerTest : BaseHiltTest() {
   }
 
   @Test
-  fun doWork_succeedsOnExistingPhoto() = runWithTestDispatcher {
+  fun `doWork succeeds on existing photo`() = runWithTestDispatcher {
     localUserStore.insertOrUpdateUser(FakeData.USER)
     localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
     localLocationOfInterestStore.insertOrUpdate(TEST_LOI)
@@ -107,7 +107,7 @@ class MediaUploadWorkerTest : BaseHiltTest() {
   }
 
   @Test
-  fun doWork_failsOnNonExistentPhotos() = runWithTestDispatcher {
+  fun `doWork fails on non-existent photos`() = runWithTestDispatcher {
     localUserStore.insertOrUpdateUser(FakeData.USER)
     localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
     localLocationOfInterestStore.insertOrUpdate(TEST_LOI)
@@ -119,7 +119,7 @@ class MediaUploadWorkerTest : BaseHiltTest() {
   }
 
   @Test
-  fun doWork_propagatesFailures() = runWithTestDispatcher {
+  fun `doWork propagates failures`() = runWithTestDispatcher {
     val mutation = createSubmissionMutation() // a valid mutation
     val delta = buildList {
       addAll(mutation.deltas)
@@ -145,7 +145,7 @@ class MediaUploadWorkerTest : BaseHiltTest() {
   }
 
   @Test
-  fun doWork_ignoresNonMediaMutations() = runWithTestDispatcher {
+  fun `doWork ignores non-media mutations`() = runWithTestDispatcher {
     localUserStore.insertOrUpdateUser(FakeData.USER)
     localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
     localLocationOfInterestStore.insertOrUpdate(TEST_LOI)

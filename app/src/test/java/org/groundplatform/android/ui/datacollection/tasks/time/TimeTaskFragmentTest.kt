@@ -57,14 +57,14 @@ class TimeTaskFragmentTest : BaseTaskFragmentTest<TimeTaskFragment, TimeTaskView
   private val job = Job("job")
 
   @Test
-  fun testHeader() {
+  fun `displays task header correctly`() {
     setupTaskFragment<TimeTaskFragment>(job, task)
 
     hasTaskViewWithHeader(task)
   }
 
   @Test
-  fun testResponse_defaultIsEmpty() {
+  fun `response when default is empty`() {
     setupTaskFragment<TimeTaskFragment>(job, task)
 
     onView(withId(R.id.user_response_text))
@@ -76,7 +76,7 @@ class TimeTaskFragmentTest : BaseTaskFragmentTest<TimeTaskFragment, TimeTaskView
   }
 
   @Test
-  fun testResponse_onUserInput() {
+  fun `response when on user input`() {
     setupTaskFragment<TimeTaskFragment>(job, task)
     // NOTE: The task container layout is given 0dp height to allow Android's constraint system to
     // determine the appropriate height. Unfortunately, Espresso does not perform actions on views
@@ -91,21 +91,21 @@ class TimeTaskFragmentTest : BaseTaskFragmentTest<TimeTaskFragment, TimeTaskView
   }
 
   @Test
-  fun testActionButtons() {
+  fun `action buttons`() {
     setupTaskFragment<TimeTaskFragment>(job, task)
 
     assertFragmentHasButtons(ButtonAction.PREVIOUS, ButtonAction.SKIP, ButtonAction.NEXT)
   }
 
   @Test
-  fun testActionButtons_whenTaskIsOptional() {
+  fun `action buttons when task is optional`() {
     setupTaskFragment<TimeTaskFragment>(job, task.copy(isRequired = false))
 
     runner().assertButtonIsDisabled("Next").assertButtonIsEnabled("Skip")
   }
 
   @Test
-  fun testActionButtons_whenTaskIsRequired() {
+  fun `action buttons when task is required`() {
     setupTaskFragment<TimeTaskFragment>(job, task.copy(isRequired = true))
 
     runner().assertButtonIsDisabled("Next").assertButtonIsHidden("Skip")

@@ -84,7 +84,7 @@ class SurveySyncServiceTest : BaseHiltTest() {
 
   @Ignore
   @Test
-  fun callSyncSurveyWithIdWhenConstraintsMet() = runWithTestDispatcher {
+  fun `calls sync survey with id when constraints are met`() = runWithTestDispatcher {
     `when`(syncSurvey(SURVEY.id)).thenReturn(SURVEY)
 
     val surveyId = "survey1000"

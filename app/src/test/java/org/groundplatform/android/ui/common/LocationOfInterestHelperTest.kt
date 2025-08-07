@@ -32,19 +32,19 @@ class LocationOfInterestHelperTest : BaseHiltTest() {
   @Inject lateinit var loiHelper: LocationOfInterestHelper
 
   @Test
-  fun testLoiNameWithPoint_whenCustomIdAndPropertiesAreNull() {
+  fun `loi name with point when custom id and properties are null`() {
     assertThat(loiHelper.getDisplayLoiName(TEST_LOI.copy(customId = "", properties = mapOf())))
       .isEqualTo("Unnamed point")
   }
 
   @Test
-  fun testLoiNameWithPolygon_whenCustomIdAndPropertiesAreNull() {
+  fun `loi name with polygon when custom id and properties are null`() {
     assertThat(loiHelper.getDisplayLoiName(TEST_AREA.copy(customId = "", properties = mapOf())))
       .isEqualTo("Unnamed area")
   }
 
   @Test
-  fun testLoiNameWithMultiPolygon_whenCustomIdAndPropertiesAreNull() {
+  fun `loi name with multi polygon when custom id and properties are null`() {
     assertThat(
         loiHelper.getDisplayLoiName(
           TEST_LOI_WITH_MULTIPOLYGON.copy(customId = "", properties = mapOf())
@@ -54,19 +54,19 @@ class LocationOfInterestHelperTest : BaseHiltTest() {
   }
 
   @Test
-  fun testLoiName_whenCustomIdIsAvailable() {
+  fun `loi name when custom id is available`() {
     assertThat(loiHelper.getDisplayLoiName(TEST_LOI.copy(customId = "some value")))
       .isEqualTo("Unnamed point (some value)")
   }
 
   @Test
-  fun testArea_whenCustomIdIsAvailable() {
+  fun `area when custom id is available`() {
     assertThat(loiHelper.getDisplayLoiName(TEST_AREA.copy(customId = "some value")))
       .isEqualTo("Unnamed area (some value)")
   }
 
   @Test
-  fun testArea_whenCustomIdIsNotAvailable_usesPropertiesId() {
+  fun `area when custom id is not available uses properties id`() {
     assertThat(
         loiHelper.getDisplayLoiName(
           TEST_AREA.copy(customId = "", properties = mapOf("id" to "property id"))
@@ -76,7 +76,7 @@ class LocationOfInterestHelperTest : BaseHiltTest() {
   }
 
   @Test
-  fun testLoiName_whenPropertiesNameIsAvailable() {
+  fun `loi name when properties name is available`() {
     assertThat(
         loiHelper.getDisplayLoiName(
           TEST_LOI.copy(properties = mapOf(LOI_NAME_PROPERTY to "custom name"))
@@ -86,7 +86,7 @@ class LocationOfInterestHelperTest : BaseHiltTest() {
   }
 
   @Test
-  fun testLoiName_whenCustomIdAndPropertiesNameIsAvailable() {
+  fun `loi name when custom id and properties name is available`() {
     assertThat(
         loiHelper.getDisplayLoiName(
           TEST_LOI.copy(
@@ -99,7 +99,7 @@ class LocationOfInterestHelperTest : BaseHiltTest() {
   }
 
   @Test
-  fun testLoiName_whenPropertiesDoesNotContainName() {
+  fun `loi name when properties does not contain name`() {
     assertThat(
         loiHelper.getDisplayLoiName(
           TEST_LOI.copy(customId = "", properties = mapOf("not" to "a name field"))
@@ -109,31 +109,31 @@ class LocationOfInterestHelperTest : BaseHiltTest() {
   }
 
   @Test
-  fun testLoiJobName_whenNameIsNull() {
+  fun `loi job name when name is null`() {
     val job = TEST_LOI.job.copy(name = null)
     assertThat(loiHelper.getJobName(TEST_LOI.copy(job = job))).isNull()
   }
 
   @Test
-  fun testLoiJobName_whenNameIsAvailable() {
+  fun `loi job name when name is available`() {
     val job = TEST_LOI.job.copy(name = "job name")
     assertThat(loiHelper.getJobName(TEST_LOI.copy(job = job))).isEqualTo("job name")
   }
 
   @Test
-  fun testLoiName_whenCustomIdIsNotEmptyAndGeometryIsPolygon() {
+  fun `loi name when custom id is not empty and geometry is polygon`() {
     assertThat(loiHelper.getDisplayLoiName(TEST_AREA.copy(customId = "id")))
       .isEqualTo("Unnamed area (id)")
   }
 
   @Test
-  fun testLoiName_whenCustomIdIsNotEmptyAndGeometryIsMultiPolygon() {
+  fun `loi name when custom id is not empty and geometry is multi polygon`() {
     assertThat(loiHelper.getDisplayLoiName(TEST_LOI_WITH_MULTIPOLYGON.copy(customId = "id")))
       .isEqualTo("Unnamed area (id)")
   }
 
   @Test
-  fun testLoiName_whenCustomIdIsNotEmptyAndUnsupportedGeometry() {
+  fun `loi name when custom id is not empty and unsupported geometry`() {
     try {
       loiHelper.getDisplayLoiName(TEST_LOI_WITH_LINEARRING.copy(customId = "id"))
     } catch (e: Exception) {
@@ -146,7 +146,7 @@ class LocationOfInterestHelperTest : BaseHiltTest() {
   }
 
   @Test
-  fun testLoiName_whenCustomIdIsEmptyAndUnsupportedGeometry() {
+  fun `loi name when custom id is empty and unsupported geometry`() {
     try {
       loiHelper.getDisplayLoiName(TEST_LOI_WITH_LINEARRING.copy(customId = ""))
     } catch (e: Exception) {

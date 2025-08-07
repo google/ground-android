@@ -21,14 +21,14 @@ import org.junit.Test
 class TiffTagTest {
 
   @Test
-  fun testUniqueId() {
+  fun `unique id`() {
     assertWithMessage("TiffTag enum contains non-unique ids")
       .that(TiffTag.entries.toTypedArray())
       .hasLength(TiffTag.byId.size)
   }
 
   @Test
-  fun testIsArray_true() {
+  fun `is array when true`() {
     TiffTag.entries
       .filter {
         it == TiffTag.TileByteCounts || it == TiffTag.TileOffsets || it == TiffTag.JPEGTables
@@ -37,7 +37,7 @@ class TiffTagTest {
   }
 
   @Test
-  fun testIsArray_false() {
+  fun `is array when false`() {
     TiffTag.entries
       .filter {
         it != TiffTag.TileByteCounts && it != TiffTag.TileOffsets && it != TiffTag.JPEGTables

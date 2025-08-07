@@ -87,7 +87,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun created_surveysAvailable_whenNoSurveySynced() {
+  fun `Surveys are available when no survey is synced`() {
     setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
     setUpFragment()
 
@@ -124,7 +124,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun created_surveysAvailable_whenOneSurveySynced() {
+  fun `Surveys are available when one survey is synced`() {
     val syncedSurvey = TEST_SURVEY_2.copy(availableOffline = true)
     val unsyncedSurvey = TEST_SURVEY_1
     setSurveyList(listOf(syncedSurvey, unsyncedSurvey))
@@ -140,7 +140,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun click_activatesSurvey() = runWithTestDispatcher {
+  fun `Click activates survey`() = runWithTestDispatcher {
     setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
     whenever(activateSurvey(TEST_SURVEY_2.id)).thenReturn(true)
 
@@ -167,7 +167,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun click_activatesSurvey_whenActiveSurveyFails() = runWithTestDispatcher {
+  fun `Click activates survey when active survey fails`() = runWithTestDispatcher {
     whenever(activateSurvey(any())).thenThrow(Error("Some exception"))
 
     setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
@@ -197,7 +197,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun shouldExitAppOnBackPress_defaultFalse() {
+  fun `Should exit app on back press is false by default`() {
     setSurveyList(listOf())
     setUpFragment()
 
@@ -206,7 +206,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun shouldExitAppOnBackPress_whenArgIsPresent() {
+  fun `Should exit app on back press when arg is present`() {
     setSurveyList(listOf())
     setUpFragment(bundleOf(Pair("shouldExitApp", true), Pair("surveyId", "")))
 

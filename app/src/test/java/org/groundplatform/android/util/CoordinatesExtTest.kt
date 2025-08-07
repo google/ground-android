@@ -28,27 +28,27 @@ import org.robolectric.RobolectricTestRunner
 class CoordinatesExtTest {
 
   @Test
-  fun testProcessCoordinates_ne() {
+  fun `process coordinates when ne`() {
     assertThat(Coordinates(10.555, 10.555).toDmsFormat()).isEqualTo("10°33'18\" N 10°33'18\" E")
   }
 
   @Test
-  fun testProcessCoordinates_se() {
+  fun `process coordinates when se`() {
     assertThat(Coordinates(-10.555, 10.555).toDmsFormat()).isEqualTo("10°33'18\" S 10°33'18\" E")
   }
 
   @Test
-  fun testProcessCoordinates_nw() {
+  fun `process coordinates when nw`() {
     assertThat(Coordinates(10.555, -10.555).toDmsFormat()).isEqualTo("10°33'18\" N 10°33'18\" W")
   }
 
   @Test
-  fun testProcessCoordinates_sw() {
+  fun `process coordinates when sw`() {
     assertThat(Coordinates(-10.555, -10.555).toDmsFormat()).isEqualTo("10°33'18\" S 10°33'18\" W")
   }
 
   @Test
-  fun testMidpoint_simpleCase() {
+  fun `midpoint when simple case`() {
     val coord1 = Coordinates(lat = 0.0, lng = 0.0)
     val coord2 = Coordinates(lat = 2.0, lng = 2.0)
     val expected = LatLng(1.0, 1.0)
@@ -65,7 +65,7 @@ class CoordinatesExtTest {
   }
 
   @Test
-  fun testMidpoint_negativeCoordinates() {
+  fun `midpoint when negative coordinates`() {
     val coord1 = Coordinates(lat = -1.0, lng = -1.0)
     val coord2 = Coordinates(lat = 1.0, lng = 1.0)
     val expected = LatLng(0.0, 0.0)
@@ -87,7 +87,7 @@ class CoordinatesExtTest {
   }
 
   @Test
-  fun testMidpoint_mixedCoordinates() {
+  fun `midpoint when mixed coordinates`() {
     // Given a case with mixed (positive and negative) values
     val coord1 = Coordinates(lat = 10.0, lng = -5.0)
     val coord2 = Coordinates(lat = 20.0, lng = 15.0)

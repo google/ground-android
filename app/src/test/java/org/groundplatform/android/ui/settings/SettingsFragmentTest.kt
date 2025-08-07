@@ -60,7 +60,7 @@ class SettingsFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun `General category items are Displayed`() {
+  fun `general category items are displayed`() {
     val item = fragment.findPreference<PreferenceCategory>("general_category")
     assertThat(item).isNotNull()
     assertThat(item!!.toString()).isEqualTo(fragment.getString(R.string.general_title))
@@ -80,7 +80,7 @@ class SettingsFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Help category items are Displayed`() {
+  fun `help category items are displayed`() {
     val item = fragment.findPreference<PreferenceCategory>("help_category")
     assertThat(item).isNotNull()
 
@@ -101,7 +101,7 @@ class SettingsFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Feedback Toast is Displayed`() {
+  fun `feedback toast is displayed`() {
     val item = fragment.findPreference<PreferenceCategory>("help_category")
 
     val preferenceFeedback = item!!.getPreference(1)
@@ -111,7 +111,7 @@ class SettingsFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Visit Website click opens correct page`() {
+  fun `visit website click opens correct page`() {
     val item = fragment.findPreference<PreferenceCategory>("help_category")
 
     val preferenceWebsite = item!!.getPreference(0)
@@ -124,7 +124,7 @@ class SettingsFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun `When sharedPreferences is null, should use device default language`() =
+  fun `when shared preferences is null should use device default language`() =
     runWithTestDispatcher {
       val mockedPreferenceManager = mock<PreferenceManager>()
       whenever(mockedPreferenceManager.sharedPreferences).thenReturn(null)
@@ -141,7 +141,7 @@ class SettingsFragmentTest : BaseHiltTest() {
     }
 
   @Test
-  fun `Change App Language to French`() {
+  fun `change app language to french`() {
     assertThat(fragment).isNotNull()
 
     val generalCategory = fragment.findPreference<PreferenceCategory>("general_category")

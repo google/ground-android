@@ -32,7 +32,7 @@ class SeekableInputStreamTest {
   }
 
   @Test
-  fun testSeek() {
+  fun `seek moves to correct position`() {
     assertEquals(inputStream.read(), 0)
     assertEquals(inputStream.read(), 1)
     inputStream.seek(8)
@@ -44,7 +44,7 @@ class SeekableInputStreamTest {
   }
 
   @Test
-  fun testMarkAndReset() {
+  fun `mark and reset`() {
     assertEquals(inputStream.read(), 0)
     assertEquals(inputStream.read(), 1)
     inputStream.mark()

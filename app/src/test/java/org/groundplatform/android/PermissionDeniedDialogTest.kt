@@ -33,7 +33,7 @@ class PermissionDeniedDialogTest : BaseHiltTest() {
   @get:Rule override val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
   @Test
-  fun permissionDeniedDialog_DisplaysCorrectTitle() {
+  fun `PermissionDeniedDialog displays correct title`() {
     composeTestRule.setContent {
       PermissionDeniedDialog(signupLink = "http://example.com", onSignOut = {}, onCloseApp = {})
     }
@@ -44,7 +44,7 @@ class PermissionDeniedDialogTest : BaseHiltTest() {
   }
 
   @Test
-  fun permissionDeniedDialog_DisplaysSignOutButton() {
+  fun `PermissionDeniedDialog displays sign out button`() {
     composeTestRule.setContent {
       PermissionDeniedDialog(signupLink = "http://example.com", onSignOut = {}, onCloseApp = {})
     }
@@ -55,7 +55,7 @@ class PermissionDeniedDialogTest : BaseHiltTest() {
   }
 
   @Test
-  fun permissionDeniedDialog_DisplaysCloseAppButton() {
+  fun `PermissionDeniedDialog displays close app button`() {
     composeTestRule.setContent {
       PermissionDeniedDialog(signupLink = "http://example.com", onSignOut = {}, onCloseApp = {})
     }
@@ -66,7 +66,7 @@ class PermissionDeniedDialogTest : BaseHiltTest() {
   }
 
   @Test
-  fun permissionDeniedDialog_ClickSignOutButton_CallsOnSignOut() {
+  fun `PermissionDeniedDialog calls onSignOut when sign out button is clicked`() {
     var signOutCalled = false
 
     composeTestRule.setContent {
@@ -85,7 +85,7 @@ class PermissionDeniedDialogTest : BaseHiltTest() {
   }
 
   @Test
-  fun permissionDeniedDialog_ClickCloseAppButton_CallsOnCloseApp() {
+  fun `PermissionDeniedDialog calls onCloseApp when close app button is clicked`() {
     var closeAppCalled = false
 
     composeTestRule.setContent {
@@ -104,7 +104,7 @@ class PermissionDeniedDialogTest : BaseHiltTest() {
   }
 
   @Test
-  fun permissionDeniedDialog_DisplaysSignupLink_WhenLinkIsProvided() {
+  fun `PermissionDeniedDialog displays signup link when link is provided`() {
     composeTestRule.setContent {
       PermissionDeniedDialog(signupLink = "http://example.com", onSignOut = {}, onCloseApp = {})
     }
@@ -115,7 +115,7 @@ class PermissionDeniedDialogTest : BaseHiltTest() {
   }
 
   @Test
-  fun permissionDeniedDialog_DoesNotDisplaySignupLink_WhenLinkIsEmpty() {
+  fun `PermissionDeniedDialog does not display signup link when link is empty`() {
     composeTestRule.setContent {
       PermissionDeniedDialog(signupLink = "", onSignOut = {}, onCloseApp = {})
     }
@@ -129,7 +129,7 @@ class PermissionDeniedDialogTest : BaseHiltTest() {
   }
 
   @Test
-  fun signOutWarning_isDisplayed() {
+  fun `SignOutWarning is displayed`() {
     composeTestRule.setContent {
       PermissionDeniedDialog(signupLink = "", onSignOut = {}, onCloseApp = {})
     }
