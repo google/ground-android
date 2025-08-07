@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,29 +18,29 @@ package org.groundplatform.android
 import android.content.Context
 import android.content.res.Resources
 import com.google.android.gms.common.GoogleApiAvailability
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import dagger.Module
 import dagger.Provides
-import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import dagger.hilt.testing.TestInstallIn
+import org.mockito.Mockito
 import java.util.Locale
-import javax.inject.Singleton
-import org.groundplatform.android.ui.common.ViewModelModule
 
-@InstallIn(SingletonComponent::class)
-@Module(includes = [ViewModelModule::class])
-object GroundApplicationModule {
+@Module
+@TestInstallIn(
+  components = [SingletonComponent::class],
+  replaces = [GroundApplicationModule::class],
+)
+object TestFirebaseModule {
+  @Provides
+  fun provideGoogleApiAvailability(): GoogleApiAvailability = GoogleApiAvailability.getInstance()
+
+  @Provides fun provideResources(@ApplicationContext ctx: Context): Resources = ctx.resources
+
+  @Provides fun provideLocale(): Locale = Locale.getDefault()
 
   @Provides
-  @Singleton
-  fun googleApiAvailability(): GoogleApiAvailability {
-    return GoogleApiAvailability.getInstance()
-  }
-
-  @Provides
-  fun provideResources(@ApplicationContext context: Context): Resources {
-    return context.resources
-  }
-
-  @Provides fun provideLocale() = Locale.getDefault()
+  fun provideFirebaseRemoteConfig(): FirebaseRemoteConfig =
+    Mockito.mock(FirebaseRemoteConfig::class.java)
 }

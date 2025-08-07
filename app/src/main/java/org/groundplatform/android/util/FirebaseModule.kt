@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,34 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android
+package org.groundplatform.android.util
 
 import android.content.Context
-import android.content.res.Resources
-import com.google.android.gms.common.GoogleApiAvailability
+import com.google.firebase.Firebase
+import com.google.firebase.FirebaseApp
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import com.google.firebase.remoteconfig.remoteConfig
+import com.google.firebase.remoteconfig.remoteConfigSettings
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import java.util.Locale
 import javax.inject.Singleton
-import org.groundplatform.android.ui.common.ViewModelModule
 
+@Module
 @InstallIn(SingletonComponent::class)
-@Module(includes = [ViewModelModule::class])
-object GroundApplicationModule {
-
+object FirebaseModule {
   @Provides
   @Singleton
-  fun googleApiAvailability(): GoogleApiAvailability {
-    return GoogleApiAvailability.getInstance()
+  fun provideFirebaseRemoteConfig(@ApplicationContext context: Context): FirebaseRemoteConfig {
+    if (FirebaseApp.getApps(context).isEmpty()) {
+      FirebaseApp.initializeApp(context)
+    }
+    return Firebase.remoteConfig.apply {
+      setConfigSettingsAsync(remoteConfigSettings { minimumFetchIntervalInSeconds = 3600 })
+    }
   }
-
-  @Provides
-  fun provideResources(@ApplicationContext context: Context): Resources {
-    return context.resources
-  }
-
-  @Provides fun provideLocale() = Locale.getDefault()
 }

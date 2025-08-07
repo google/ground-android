@@ -21,6 +21,8 @@ import android.os.Looper
 import androidx.navigation.fragment.NavHostFragment
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.FirebaseFirestoreException
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -30,6 +32,7 @@ import org.groundplatform.android.system.auth.FakeAuthenticationManager
 import org.groundplatform.android.system.auth.SignInState
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows
@@ -45,8 +48,13 @@ class MainActivityTest : BaseHiltTest() {
   @Inject lateinit var viewModel: MainViewModel
   @Inject lateinit var tosRepository: TermsOfServiceRepository
 
+  @BindValue
+  @JvmField
+  val remoteConfig: FirebaseRemoteConfig = Mockito.mock(FirebaseRemoteConfig::class.java)
+
   override fun setUp() {
     super.setUp()
+    Mockito.`when`(remoteConfig.getBoolean("force_update")).thenReturn(false)
     ShadowProgressDialog.reset()
     Shadows.shadowOf(Looper.getMainLooper()).idle()
   }
