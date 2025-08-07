@@ -59,7 +59,7 @@ open class BaseHiltTest {
   }
 
   @After
-  fun closeDb() {
+  open fun closeDb() {
     database.close()
   }
 }

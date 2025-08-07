@@ -221,4 +221,8 @@
   <string name="section_on_device">En este dispositivo</string>
   <string name="section_shared_with_me">Compartido conmigo</string>
   <string name="section_public">Público</string>
+
+  <string name="dialog_title_update_required">Actualización requerida</string>
+  <string name="dialog_message_update_required">Hay una nueva versión de la aplicación disponible. Por favor, actualiza para seguir usando la aplicación.</string>
+  <string name="dialog_button_update">Actualizar</string>
 </resources>
