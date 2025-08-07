@@ -203,4 +203,8 @@
   <string name="section_on_device">Sur cet appareil</string>
   <string name="section_shared_with_me">Partagé avec moi</string>
   <string name="section_public">Public</string>
+
+  <string name="dialog_title_update_required">Mise à jour requise</string>
+  <string name="dialog_message_update_required">Une nouvelle version de l&#8217;application est disponible. Veuillez mettre à jour pour continuer à utiliser l&#8217;application.</string>
+  <string name="dialog_button_update">Mettre à jour</string>
 </resources>

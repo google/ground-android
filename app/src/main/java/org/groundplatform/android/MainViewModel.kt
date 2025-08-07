@@ -21,6 +21,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes.SIGN_IN_CANCELLED
 import com.google.android.gms.common.api.ApiException
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -55,6 +56,7 @@ constructor(
   private val termsOfServiceRepository: TermsOfServiceRepository,
   private val reactivateLastSurvey: ReactivateLastSurveyUseCase,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+  private val remoteConfig: FirebaseRemoteConfig,
   authenticationManager: AuthenticationManager,
 ) : AbstractViewModel() {
 
@@ -157,4 +159,29 @@ constructor(
 
   /** Returns true if the user has already accepted the Terms of Service. */
   private fun isTosAccepted(): Boolean = termsOfServiceRepository.isTermsOfServiceAccepted
+
+  private fun isOlderVersion(current: String, minRequired: String): Boolean {
+    fun String.toSegments() = split('.').map { it.toIntOrNull() ?: 0 }
+
+    val currentParts = current.toSegments()
+    val requiredParts = minRequired.toSegments()
+    val maxLength = maxOf(currentParts.size, requiredParts.size)
+
+    for (i in 0 until maxLength) {
+      val curr = currentParts.getOrElse(i) { 0 }
+      val req = requiredParts.getOrElse(i) { 0 }
+      if (curr != req) return curr < req
+    }
+
+    return false
+  }
+
+  fun isAppUpdateAvailable(currentVersion: String = BuildConfig.VERSION_NAME): Boolean {
+    val forceUpdate = remoteConfig.getBoolean("force_update")
+    val latestVersion = remoteConfig.getString("min_app_version") ?: ""
+
+    return forceUpdate &&
+      latestVersion.isNotBlank() &&
+      isOlderVersion(currentVersion, latestVersion)
+  }
 }

@@ -16,6 +16,7 @@
 package org.groundplatform.android
 
 import android.app.AlertDialog
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -194,6 +195,13 @@ class MainActivity : AbstractActivity() {
     activityStreams.onActivityResult(requestCode, resultCode, intent)
   }
 
+  override fun onResume() {
+    super.onResume()
+    if (viewModel.isAppUpdateAvailable()) {
+      showForceUpdateDialog()
+    }
+  }
+
   /** Override up button behavior to use Navigation Components back stack. */
   override fun onSupportNavigateUp(): Boolean = navigateUp()
 
@@ -246,5 +254,29 @@ class MainActivity : AbstractActivity() {
       }
       navHostFragment.navController.navigate(directions)
     }
+  }
+
+  private fun showForceUpdateDialog() {
+    AlertDialog.Builder(this)
+      .setTitle(R.string.dialog_title_update_required)
+      .setMessage(R.string.dialog_message_update_required)
+      .setCancelable(false)
+      .setPositiveButton(R.string.dialog_button_update) { _, _ ->
+        val appPackageName = packageName
+        try {
+          startActivity(
+            Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$appPackageName"))
+          )
+        } catch (e: ActivityNotFoundException) {
+          Timber.e("Not able to open play store: $e")
+          startActivity(
+            Intent(
+              Intent.ACTION_VIEW,
+              Uri.parse("https://play.google.com/store/apps/details?id=$appPackageName"),
+            )
+          )
+        }
+      }
+      .show()
   }
 }
