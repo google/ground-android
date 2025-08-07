@@ -59,6 +59,13 @@ class LoiCollectionReference internal constructor(ref: CollectionReference) :
         .whereEqualTo(OWNER_FIELD, ownerUserId),
     )
 
+  /** Retrieves all LOIs visible to data collectors in the given survey. */
+  suspend fun fetchSharedLois(survey: Survey): List<LocationOfInterest> =
+    fetchLois(
+      survey,
+      reference().whereEqualTo(SOURCE_FIELD, LocationOfInterestProto.Source.FIELD_DATA.number),
+    )
+
   private suspend fun fetchLois(survey: Survey, query: Query): List<LocationOfInterest> =
     try {
       val snapshot = query.get().await()

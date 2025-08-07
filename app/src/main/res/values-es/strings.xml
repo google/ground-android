@@ -75,8 +75,6 @@
   <string name="satellite">Satélite</string>
   <string name="terrain">Relieve</string>
   <string name="next">Siguiente</string>
-  <string name="select_survey_title">Seleccionar una encuesta</string>
-  <string name="survey_sync_hint">Una vez abiertas, las encuestas están disponibles sin conexión y se sincronizan automáticamente cuando tenga conexión de nuevo.</string>
   <string name="done">Hecho</string>
   <string name="skip">Omitir</string>
 
@@ -110,7 +108,7 @@
   <string name="capture">Capturar</string>
   <string name="surveys">Encuestas</string>
   <string name="offline_icon_description">Icono mostrado cuando la encuesta está disponible sin conexión</string>
-  <string name="remove_offline_access">Eliminar acceso sin conexión</string>
+  <string name="more_options_icon_description">Más opciones</string>
   <string name="remove_offline_access_warning_title">Advertencia</string>
   <string name="remove_offline_access_warning_confirm_button">Eliminar</string>
   <string name="remove_offline_access_warning_dialog_body">Si elimina el acceso sin conexión:\n \u2022 Cualquier dato no sincronizado será descartado.\n\n¿Está seguro de que desea eliminar el acceso sin conexión?</string>
@@ -215,6 +213,14 @@
   <string name="lang_french">Francés</string>
   <string name="lang_spanish">Español</string>
   <string name="lang_portuguese">Portugués</string>
+
+  <string name="access_restricted">Restringido</string>
+  <string name="access_unlisted">No listado</string>
+  <string name="access_public">Público</string>
+
+  <string name="section_on_device">En este dispositivo</string>
+  <string name="section_shared_with_me">Compartido conmigo</string>
+  <string name="section_public">Público</string>
 
   <string name="dialog_title_update_required">Actualización requerida</string>
   <string name="dialog_message_update_required">Hay una nueva versión de la aplicación disponible. Por favor, actualiza para seguir usando la aplicación.</string>

@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android.ui.surveyselector
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
@@ -29,6 +30,7 @@ import kotlinx.coroutines.launch
 import org.groundplatform.android.coroutines.ApplicationScope
 import org.groundplatform.android.coroutines.IoDispatcher
 import org.groundplatform.android.model.SurveyListItem
+import org.groundplatform.android.proto.Survey
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
@@ -50,6 +52,20 @@ internal constructor(
 
   private val _uiState: MutableStateFlow<UiState> = MutableStateFlow(UiState.FetchingSurveys)
   val uiState: StateFlow<UiState> = _uiState.asStateFlow()
+
+  private val _surveys = MutableStateFlow<List<SurveyListItem>>(emptyList())
+
+  private val _onDeviceSurveys = MutableStateFlow<List<SurveyListItem>>(emptyList())
+  val onDeviceSurveys: StateFlow<List<SurveyListItem>> = _onDeviceSurveys
+
+  private val _sharedWithSurveys = MutableStateFlow<List<SurveyListItem>>(emptyList())
+  val sharedWithSurveys: StateFlow<List<SurveyListItem>> = _sharedWithSurveys
+
+  private val _publicListSurveys = MutableStateFlow<List<SurveyListItem>>(emptyList())
+  val publicListSurveys: StateFlow<List<SurveyListItem>> = _publicListSurveys
+
+  val showDeleteDialog = MutableStateFlow(false)
+  val selectedSurveyId = mutableStateOf<String?>(null)
 
   var surveyActivationInProgress = false
 
@@ -107,11 +123,46 @@ internal constructor(
     _uiState.emit(UiState.Error)
   }
 
-  fun deleteSurvey(surveyId: String) {
-    externalScope.launch(ioDispatcher) { removeOfflineSurveyUseCase(surveyId) }
-  }
-
   fun signOut() {
     userRepository.signOut()
+  }
+
+  fun setSurveys(surveys: List<SurveyListItem>) {
+    _surveys.value = surveys
+
+    val grouped =
+      surveys.groupBy {
+        when {
+          it.availableOffline -> "onDevice"
+          it.generalAccess == Survey.GeneralAccess.PUBLIC -> "public"
+          it.generalAccess == Survey.GeneralAccess.RESTRICTED ||
+            it.generalAccess == Survey.GeneralAccess.UNLISTED -> "sharedWith"
+          else -> "other"
+        }
+      }
+    _onDeviceSurveys.value = grouped["onDevice"].orEmpty()
+    _sharedWithSurveys.value = grouped["sharedWith"].orEmpty()
+    _publicListSurveys.value = grouped["public"].orEmpty()
+  }
+
+  fun openDeleteDialog(id: String) {
+    selectedSurveyId.value = id
+    showDeleteDialog.value = true
+  }
+
+  fun closeDeleteDialog() {
+    showDeleteDialog.value = false
+    selectedSurveyId.value = null
+  }
+
+  fun confirmDelete(selectedSurveyId: String) {
+    deleteSurvey(selectedSurveyId)
+    closeDeleteDialog()
+  }
+
+  private fun deleteSurvey(surveyId: String) {
+    externalScope.launch(ioDispatcher) { removeOfflineSurveyUseCase(surveyId) }
+    _surveys.value = _surveys.value.filterNot { it.id == surveyId }
+    setSurveys(_surveys.value)
   }
 }

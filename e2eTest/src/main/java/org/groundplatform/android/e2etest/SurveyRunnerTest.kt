@@ -92,10 +92,6 @@ class SurveyRunnerTest : AutomatorRunner {
   }
 
   private fun selectTestSurvey() {
-    if (device.wait(Until.hasObject(byText(R.string.select_survey_title)), LONG_TIMEOUT) == null) {
-      captureScreenshot()
-      fail("Failed to find select survey title")
-    }
     val testSurveySelector =
       byClass(CardView::class)
         .hasDescendant(byClass(TextView::class).textContains(TEST_SURVEY_IDENTIFIER))
