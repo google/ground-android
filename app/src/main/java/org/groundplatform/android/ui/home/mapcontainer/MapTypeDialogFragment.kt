@@ -58,7 +58,10 @@ class MapTypeDialogFragment : BottomSheetDialogFragment() {
 
     val index = mapTypes.indexOfFirst { it == viewModel.mapType }
     binding.recyclerView.adapter =
-      MapTypeAdapter(requireContext(), mapTypes, index) { viewModel.mapType = mapTypes[it] }
+      MapTypeAdapter(requireContext(), mapTypes, index) {
+        viewModel.mapType = mapTypes[it]
+        dismiss()
+      }
     binding.recyclerView.addItemDecoration(AdaptiveSpacingItemDecorator(resources, 80))
   }
 }
