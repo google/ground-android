@@ -34,6 +34,7 @@ import org.groundplatform.android.common.Constants.SURVEY_PATH_SEGMENT
 import org.groundplatform.android.coroutines.IoDispatcher
 import org.groundplatform.android.model.User
 import org.groundplatform.android.persistence.local.room.LocalDatabase
+import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.repository.TermsOfServiceRepository
 import org.groundplatform.android.repository.UserRepository
@@ -51,6 +52,7 @@ class MainViewModel
 @Inject
 constructor(
   private val localDatabase: LocalDatabase,
+  private val offlineAreaRepository: OfflineAreaRepository,
   private val surveyRepository: SurveyRepository,
   private val userRepository: UserRepository,
   private val termsOfServiceRepository: TermsOfServiceRepository,
@@ -119,6 +121,7 @@ constructor(
     // Issue URL: https://github.com/google/ground-android/issues/1691
     viewModelScope.launch {
       withContext(ioDispatcher) {
+        offlineAreaRepository.removeAllOfflineAreas()
         surveyRepository.clearActiveSurvey()
         userRepository.clearUserPreferences()
         localDatabase.clearAllTables()
