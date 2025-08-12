@@ -22,7 +22,8 @@ on:
 jobs:
   build:
     if: github.repository.fork == false # This job will only run on the original repository, not on forks
-
+    run: |
+      echo "PR URL: ${{ github.event.pull_request.html_url }}"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
