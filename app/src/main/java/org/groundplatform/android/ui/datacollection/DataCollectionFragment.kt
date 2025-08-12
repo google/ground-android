@@ -119,7 +119,9 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
               uiStateJob?.cancel()
               uiStateJob = launch { viewModel.uiState.filterNotNull().collect { updateUI(it) } }
             }
-            else -> uiStateJob?.cancel()
+            else -> {
+              uiStateJob?.cancel()
+            }
           }
         }
       }
