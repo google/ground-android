@@ -29,6 +29,7 @@ jobs:
         run: |
           echo "PR URL: ${{ github.event.pull_request.html_url }}"
           echo "${{ github.repository.fork }}"
+          echo "Github repo: ${{ github.repository }}"
           echo "Forked repo: ${{ github.event.pull_request.head.repo.full_name }}"
       - uses: actions/checkout@v4
         with:
