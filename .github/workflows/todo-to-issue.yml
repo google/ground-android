@@ -28,6 +28,7 @@ jobs:
       - name: Debug
         run: |
           echo "PR URL: ${{ github.event.pull_request.html_url }}"
+          echo "${{ github.repository.fork }}"
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
