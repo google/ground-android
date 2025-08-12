@@ -24,19 +24,19 @@ import javax.inject.Inject
 import javax.inject.Provider
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import org.groundplatform.android.coroutines.ApplicationScope
 import org.groundplatform.android.coroutines.IoDispatcher
@@ -87,8 +87,24 @@ internal constructor(
   surveyRepository: SurveyRepository,
 ) : AbstractViewModel() {
 
+  sealed interface LoadState {
+    object Loading : LoadState
+
+    data class Ready(
+      val survey: Survey,
+      val job: Job,
+      val tasks: List<Task>,
+      val surveyId: String,
+    ) : LoadState
+
+    data class Error(val cause: Throwable) : LoadState
+  }
+
   private val _uiState: MutableStateFlow<UiState?> = MutableStateFlow(null)
   val uiState = _uiState.asStateFlow()
+
+  private val _loadState = MutableStateFlow<LoadState>(LoadState.Loading)
+  val loadState: StateFlow<LoadState> = _loadState
 
   private val jobId: String = requireNotNull(savedStateHandle[TASK_JOB_ID_KEY])
   private val loiId: String? = savedStateHandle[TASK_LOI_ID_KEY]
@@ -99,72 +115,94 @@ internal constructor(
   private var shouldLoadFromDraft: Boolean = savedStateHandle[TASK_SHOULD_LOAD_FROM_DRAFT] ?: false
   private var draftDeltas: List<ValueDelta>? = null
 
-  private val activeSurvey: Survey = runBlocking {
-    try {
-      withTimeout(SURVEY_LOAD_TIMEOUT_MILLIS) {
-        surveyRepository.activeSurveyFlow.filterNotNull().first()
-      }
-    } catch (e: TimeoutCancellationException) {
-      Timber.e(e, "Failed to get survey due to timeout")
-      throw e
-    }
-  }
+  private lateinit var job: Job
+  val surveyId: String
+    get() = (loadState.value as? LoadState.Ready)?.surveyId ?: error("Survey not loaded yet")
 
-  private val job: Job = activeSurvey.getJob(jobId) ?: error("couldn't retrieve job for $jobId")
+  lateinit var tasks: List<Task>
+    private set
+
   private var customLoiName: String?
     get() = savedStateHandle[TASK_LOI_NAME_KEY]
     set(value) {
       savedStateHandle[TASK_LOI_NAME_KEY] = value
     }
 
-  // LOI creation task is included only on "new data collection site" flow..
-  val tasks: List<Task> =
-    if (isAddLoiFlow) job.tasksSorted else job.tasksSorted.filterNot { it.isAddLoiTask }
-
-  val surveyId: String = requireNotNull(surveyRepository.activeSurvey?.id)
-
-  val jobName: StateFlow<String> =
-    MutableStateFlow(job.name ?: "").stateIn(viewModelScope, SharingStarted.Lazily, "")
-
-  val loiName: StateFlow<String?> =
-    (if (loiId == null) {
-        // User supplied LOI name during LOI creation task. Use to save the LOI name later.
-        savedStateHandle.getStateFlow(TASK_LOI_NAME_KEY, "")
-      } else
-      // LOI name pulled from LOI properties, if it exists.
-      flow {
-          locationOfInterestRepository.getOfflineLoi(surveyId, loiId)?.let {
-            val label = locationOfInterestHelper.getDisplayLoiName(it)
-            emit(label)
-          }
-        })
-      .stateIn(viewModelScope, SharingStarted.Lazily, "")
-
-  val loiNameDialogOpen: MutableState<Boolean> = mutableStateOf(false)
-
   private val taskViewModels: MutableStateFlow<MutableMap<String, AbstractTaskViewModel>> =
     MutableStateFlow(mutableMapOf())
 
   private val taskDataHandler = TaskDataHandler()
-  private val taskSequenceHandler = TaskSequenceHandler(tasks, taskDataHandler)
+  private lateinit var taskSequenceHandler: TaskSequenceHandler
 
-  // Tracks the current task ID to compute the position in the list of tasks for the current job.
   private val currentTaskId: StateFlow<String> = savedStateHandle.getStateFlow(TASK_POSITION_ID, "")
 
-  init {
-    // Set current task's ID for new task submissions.
-    if (currentTaskId.value == "") {
-      savedStateHandle[TASK_POSITION_ID] = taskSequenceHandler.getValidTasks().first().id
+  val jobName: StateFlow<String> =
+    loadState
+      .map { (it as? LoadState.Ready)?.job?.name.orEmpty() }
+      .distinctUntilChanged()
+      .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), "")
+
+  val loiName: StateFlow<String> =
+    if (loiId == null) {
+      savedStateHandle.getStateFlow(TASK_LOI_NAME_KEY, "")
+    } else {
+      surveyRepository.activeSurveyFlow
+        .filterNotNull()
+        .map { survey ->
+          withContext(ioDispatcher) {
+            locationOfInterestRepository
+              .getOfflineLoi(survey.id, loiId)
+              ?.let { locationOfInterestHelper.getDisplayLoiName(it) }
+              .orEmpty()
+          }
+        }
+        .distinctUntilChanged()
+        .stateIn(viewModelScope, SharingStarted.Lazily, "")
     }
 
-    // Invalidates the cache if any of the task's data is updated.
+  val loiNameDialogOpen: MutableState<Boolean> = mutableStateOf(false)
+
+  init {
     viewModelScope.launch {
-      taskDataHandler.dataState.collectLatest { taskSequenceHandler.invalidateCache() }
+      _loadState.value = LoadState.Loading
+      val result = runCatching {
+        withTimeout(SURVEY_LOAD_TIMEOUT_MILLIS) {
+          val survey = surveyRepository.activeSurveyFlow.filterNotNull().first()
+          val job = survey.getJob(jobId) ?: error("couldn't retrieve job for $jobId")
+          val tasks =
+            if (isAddLoiFlow) job.tasksSorted else job.tasksSorted.filterNot { it.isAddLoiTask }
+          LoadState.Ready(survey = survey, job = job, tasks = tasks, surveyId = survey.id)
+        }
+      }
+
+      result
+        .onSuccess { ready ->
+          this@DataCollectionViewModel.job = ready.job
+          this@DataCollectionViewModel.tasks = ready.tasks
+          taskSequenceHandler = TaskSequenceHandler(tasks, taskDataHandler)
+
+          if (currentTaskId.value.isBlank()) {
+            savedStateHandle[TASK_POSITION_ID] = taskSequenceHandler.getValidTasks().first().id
+          }
+
+          _loadState.value = ready
+        }
+        .onFailure { e ->
+          Timber.e(e, "Failed to load survey/job")
+          _loadState.value = LoadState.Error(e)
+        }
+    }
+
+    viewModelScope.launch {
+      taskDataHandler.dataState.collectLatest {
+        if (::taskSequenceHandler.isInitialized) taskSequenceHandler.invalidateCache()
+      }
     }
   }
 
   /** Returns the ID of the user visible task. */
   fun getCurrentTaskId(): String {
+    ensureReady()
     val taskId = currentTaskId.value
     check(taskId.isNotBlank()) { "Task ID can't be blank" }
     return taskId
@@ -172,6 +210,10 @@ internal constructor(
 
   fun setLoiName(name: String) {
     customLoiName = name
+  }
+
+  private fun ensureReady() {
+    check(loadState.value is LoadState.Ready) { "DataCollection not ready yet" }
   }
 
   private fun getDraftDeltas(): List<ValueDelta> {
@@ -200,6 +242,7 @@ internal constructor(
   }
 
   fun getTaskViewModel(taskId: String): AbstractTaskViewModel? {
+    ensureReady()
     val viewModels = taskViewModels.value
 
     if (viewModels.containsKey(taskId)) {

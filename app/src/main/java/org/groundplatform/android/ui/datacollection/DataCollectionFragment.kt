@@ -24,14 +24,17 @@ import android.widget.ProgressBar
 import androidx.constraintlayout.widget.Guideline
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnLayout
+import androidx.core.view.isVisible
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
@@ -77,7 +80,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     binding.viewModel = viewModel
-    binding.lifecycleOwner = this
+    binding.lifecycleOwner = viewLifecycleOwner
 
     viewPager.isUserInputEnabled = false
     viewPager.offscreenPageLimit = 1
@@ -87,7 +90,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
         override fun onPageScrollStateChanged(state: Int) {
           super.onPageScrollStateChanged(state)
           if (state == ViewPager2.SCROLL_STATE_IDLE) {
-            lifecycleScope.launch(Dispatchers.Main) {
+            viewLifecycleOwner.lifecycleScope.launch {
               delay(100) // Wait for the keyboard to close
               setProgressBarPosition(view)
             }
@@ -96,14 +99,31 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
       }
     )
 
-    updateUI(
-      UiState.TaskListAvailable(
-        viewModel.tasks,
-        viewModel.getTaskPosition(viewModel.getCurrentTaskId()),
-      )
-    )
+    viewLifecycleOwner.lifecycleScope.launch {
+      viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        var uiStateJob: Job? = null
+        viewModel.loadState.collect { st ->
+          binding.progressBar.isVisible = st is DataCollectionViewModel.LoadState.Loading
+          when (st) {
+            is DataCollectionViewModel.LoadState.Error -> {
+              uiStateJob?.cancel()
+            }
 
-    lifecycleScope.launch { viewModel.uiState.filterNotNull().collect { updateUI(it) } }
+            is DataCollectionViewModel.LoadState.Ready -> {
+              updateUI(
+                UiState.TaskListAvailable(
+                  viewModel.tasks,
+                  viewModel.getTaskPosition(viewModel.getCurrentTaskId()),
+                )
+              )
+              uiStateJob?.cancel()
+              uiStateJob = launch { viewModel.uiState.filterNotNull().collect { updateUI(it) } }
+            }
+            else -> uiStateJob?.cancel()
+          }
+        }
+      }
+    }
   }
 
   override fun onResume() {
@@ -113,7 +133,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
 
   override fun onPause() {
     super.onPause()
-    if (!isNavigatingUp) {
+    if (!isNavigatingUp && viewModel.loadState.value is DataCollectionViewModel.LoadState.Ready) {
       viewModel.saveCurrentState()
     }
   }
@@ -183,7 +203,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
         start()
       }
     } else {
-      progressBar.progress = taskPosition.relativeIndex
+      progressBar.progress = taskPosition.relativeIndex * PROGRESS_SCALE
     }
   }
 
