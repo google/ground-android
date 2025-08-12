@@ -154,9 +154,7 @@ constructor(
   }
 
   suspend fun removeAllOfflineAreas() {
-    localOfflineAreaStore.offlineAreas().first().forEach {
-      removeFromDevice(it)
-    }
+    localOfflineAreaStore.offlineAreas().first().forEach { removeFromDevice(it) }
     val directoryToDelete = getLocalTileDirectory()
     if (directoryToDelete.exists()) {
       val success = directoryToDelete.deleteRecursively()
