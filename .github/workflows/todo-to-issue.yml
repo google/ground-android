@@ -14,7 +14,6 @@
 
 # For more details, see: https://github.com/marketplace/actions/todo-to-issue
 
-# Test change
 name: "Run TODO to Issue"
 on:
   pull_request:
@@ -22,6 +21,8 @@ on:
 
 jobs:
   build:
+    if: github.repository.fork == false # This job will only run on the original repository, not on forks
+
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
