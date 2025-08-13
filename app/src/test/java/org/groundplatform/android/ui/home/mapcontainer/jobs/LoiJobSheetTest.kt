@@ -44,7 +44,7 @@ class LoiJobSheetTest : BaseHiltTest() {
   @get:Rule override val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
   @Test
-  fun `Add data button is shown for predefined LOIs`() {
+  fun `add data button is shown for predefined LOIs`() {
     setContent(TASK_AND_PREDEFINED_LOI)
 
     composeTestRule
@@ -53,7 +53,7 @@ class LoiJobSheetTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Add data button is not shown for LOIs without Job`() {
+  fun `add data button is not shown for LOIs without Job`() {
     setContent(NO_TASK_LOI)
 
     composeTestRule
@@ -62,7 +62,7 @@ class LoiJobSheetTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Add data button is not shown for LOIs with no submissions`() {
+  fun `add data button is not shown for LOIs with no submissions`() {
     setContent(NO_SUBMISSION_LOI)
 
     composeTestRule

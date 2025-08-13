@@ -44,7 +44,7 @@ class FirestoreToProtobufExtTest(
   private val expectedOutput: GeneratedMessageLite<*, *>,
 ) {
   @Test
-  fun parseFrom() {
+  fun `parses from firestore data correctly`() {
     val output = expectedOutput::class.parseFrom(input, idField)
     assertThat(output).isEqualTo(expectedOutput)
   }

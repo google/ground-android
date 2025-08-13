@@ -60,37 +60,37 @@ class PolygonUtilTest {
   }
 
   @Test
-  fun testNonIntersectingPolygon() {
+  fun `non intersecting polygon`() {
     assertFalse(isSelfIntersecting(NON_INTERSECTING))
   }
 
   @Test
-  fun testSelfIntersectingPolygon() {
+  fun `self intersecting polygon`() {
     assertTrue(isSelfIntersecting(listOf(P1, P2, Q1, Q2)))
   }
 
   @Test
-  fun testTriangle() {
+  fun `triangle does not self intersect`() {
     assertFalse(isSelfIntersecting(TRIANGLE))
   }
 
   @Test
-  fun testEmptyList() {
+  fun `empty list`() {
     assertFalse(isSelfIntersecting(emptyList()))
   }
 
   @Test
-  fun testSinglePoint() {
+  fun `single point`() {
     assertFalse(isSelfIntersecting(SINGLE_POINT))
   }
 
   @Test
-  fun testThreePoints() {
+  fun `three points`() {
     assertFalse(isSelfIntersecting(THREE_POINTS))
   }
 
   @Test
-  fun testFourPointsFormingAnX() {
+  fun `four points forming an x`() {
     assertTrue(isSelfIntersecting(FOUR_POINTS_X))
   }
 
