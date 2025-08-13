@@ -33,7 +33,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
-import org.groundplatform.android.ui.AbstractActivity
+import org.groundplatform.android.ui.common.AbstractActivity
 import org.groundplatform.android.ui.util.ViewUtil
 import org.groundplatform.android.util.Debug
 

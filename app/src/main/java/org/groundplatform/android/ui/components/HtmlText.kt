@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.groundplatform.android.ui.compose
+package org.groundplatform.android.ui.components
 
 import android.text.method.ScrollingMovementMethod
 import android.widget.TextView
