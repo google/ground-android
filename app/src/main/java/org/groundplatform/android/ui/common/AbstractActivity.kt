@@ -22,10 +22,10 @@ import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import javax.annotation.OverridingMethodsMustInvokeSuper
 import org.groundplatform.android.R
 import org.groundplatform.android.util.Debug
 import org.groundplatform.android.util.systemInsets
-import javax.annotation.OverridingMethodsMustInvokeSuper
 
 /** Base activity class containing common helper methods. */
 abstract class AbstractActivity : AppCompatActivity() {
