@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android
+package org.groundplatform.android.ui
 
 import android.content.Intent
 import android.net.Uri
@@ -26,6 +26,9 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
+import org.groundplatform.android.BaseHiltTest
+import org.groundplatform.android.FakeData
+import org.groundplatform.android.R
 import org.groundplatform.android.repository.TermsOfServiceRepository
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
 import org.groundplatform.android.system.auth.SignInState

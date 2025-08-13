@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android
+package org.groundplatform.android.ui
 
 import android.app.AlertDialog
 import android.content.ActivityNotFoundException
@@ -35,6 +35,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
+import org.groundplatform.android.BuildConfig
+import org.groundplatform.android.R
 import org.groundplatform.android.databinding.MainActBinding
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.ActivityCallback
