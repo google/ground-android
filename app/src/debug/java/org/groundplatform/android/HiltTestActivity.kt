@@ -16,5 +16,6 @@
 package org.groundplatform.android
 
 import dagger.hilt.android.AndroidEntryPoint
+import org.groundplatform.android.ui.AbstractActivity
 
 @AndroidEntryPoint class HiltTestActivity : AbstractActivity()

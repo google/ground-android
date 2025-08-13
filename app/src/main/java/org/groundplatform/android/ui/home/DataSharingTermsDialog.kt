@@ -28,9 +28,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import org.groundplatform.android.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.R
 import org.groundplatform.android.proto.Survey
+import org.groundplatform.android.ui.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.components.HtmlText
 import org.groundplatform.android.ui.theme.AppTheme
 import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor

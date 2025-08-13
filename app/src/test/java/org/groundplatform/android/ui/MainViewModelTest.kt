@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android
+package org.groundplatform.android.ui
 
 import android.content.SharedPreferences
 import androidx.core.content.edit
@@ -25,6 +25,8 @@ import javax.inject.Inject
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
+import org.groundplatform.android.BaseHiltTest
+import org.groundplatform.android.FakeData
 import org.groundplatform.android.persistence.local.room.LocalDataStoreException
 import org.groundplatform.android.persistence.remote.FakeRemoteDataStore
 import org.groundplatform.android.repository.TermsOfServiceRepository
