@@ -14,6 +14,9 @@
 
 # For more details, see: https://github.com/marketplace/actions/todo-to-issue
 
+# This job will only run on the original repository, not on forks.
+# Disabled in https://github.com/google/ground-android/issues/3101.
+
 name: "Run TODO to Issue"
 on:
   pull_request:
@@ -21,6 +24,8 @@ on:
 
 jobs:
   build:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

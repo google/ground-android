@@ -75,8 +75,6 @@
   <string name="satellite">Satélite</string>
   <string name="terrain">Terreno</string>
   <string name="next">Próximo</string>
-  <string name="select_survey_title">Selecione um inquérito</string>
-  <string name="survey_sync_hint">Uma vez abertos, os inquéritos ficam disponíveis offline e são sincronizados automaticamente quando online.</string>
   <string name="done">Concluído</string>
   <string name="skip">Pular</string>
 
@@ -110,7 +108,7 @@
   <string name="capture">Capturar</string>
   <string name="surveys">Inquéritos</string>
   <string name="offline_icon_description">Ícone exibido quando o inquérito está disponível offline</string>
-  <string name="remove_offline_access">Remover acesso offline</string>
+  <string name="more_options_icon_description">Más opciones</string>
   <string name="remove_offline_access_warning_title">Aviso</string>
   <string name="remove_offline_access_warning_confirm_button">Remover</string>
   <string name="remove_offline_access_warning_dialog_body">Se remover o acesso offline:\n \u2022 Todos os dados não sincronizados serão descartados\n\nTem a certeza de que pretende remover o acesso offline?</string>
@@ -216,4 +214,16 @@
   <string name="lang_french">Francês</string>
   <string name="lang_spanish">Espanhol</string>
   <string name="lang_portuguese">Português</string>
+
+  <string name="access_restricted">Restrito</string>
+  <string name="access_unlisted">Não listado</string>
+  <string name="access_public">Público</string>
+
+  <string name="section_on_device">Neste dispositivo</string>
+  <string name="section_shared_with_me">Compartilhado comigo</string>
+  <string name="section_public">Público</string>
+
+  <string name="dialog_title_update_required">Atualização necessária</string>
+  <string name="dialog_message_update_required">Uma nova versão do aplicativo está disponível. Atualize para continuar usando o aplicativo.</string>
+  <string name="dialog_button_update">Atualizar</string>
 </resources>

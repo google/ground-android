@@ -17,9 +17,11 @@ package org.groundplatform.android
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Looper
 import androidx.navigation.fragment.NavHostFragment
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.FirebaseFirestoreException
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -29,8 +31,10 @@ import org.groundplatform.android.system.auth.FakeAuthenticationManager
 import org.groundplatform.android.system.auth.SignInState
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows
 import org.robolectric.shadows.ShadowProgressDialog
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -43,16 +47,29 @@ class MainActivityTest : BaseHiltTest() {
   @Inject lateinit var viewModel: MainViewModel
   @Inject lateinit var tosRepository: TermsOfServiceRepository
 
+  @Inject lateinit var remoteConfig: FirebaseRemoteConfig
+
   override fun setUp() {
     super.setUp()
     ShadowProgressDialog.reset()
+    Shadows.shadowOf(Looper.getMainLooper()).idle()
+  }
+
+  override fun closeDb() {
+    super.closeDb()
+    Shadows.shadowOf(Looper.getMainLooper()).idle()
   }
 
   @Test
   fun `Sign in progress dialog is displayed when signing in`() = runWithTestDispatcher {
     Robolectric.buildActivity(MainActivity::class.java).use { controller ->
+      Mockito.`when`(remoteConfig.getBoolean("force_update")).thenReturn(false)
+      Mockito.`when`(remoteConfig.getString("min_app_version")).thenReturn("0.0.0")
+
       controller.setup() // Moves Activity to RESUMED state
       activity = controller.get()
+
+      advanceUntilIdle()
 
       fakeAuthenticationManager.setState(SignInState.SigningIn)
       advanceUntilIdle()

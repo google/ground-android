@@ -67,7 +67,17 @@ class MapTypeDialogFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun `displays default map type correctly`() {
+  fun dismiss dialog after map type selection() {
+    assertThat(fragment.isVisible).isTrue()
+
+    onView(withId(R.id.recycler_view)).check(matches(allOf(isDisplayed(), hasChildCount(3))))
+    onView(withText("Terrain")).perform(click())
+    assertThat(fragment.isVisible).isFalse()
+  }
+
+  @Test
+  fun displays default map type correctly() {
+
     assertThat(mapStateRepository.mapType).isEqualTo(MapType.TERRAIN)
   }
 

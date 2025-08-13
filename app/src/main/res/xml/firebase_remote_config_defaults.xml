@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  ~ Copyright 2023 Google LLC
+  ~ Copyright 2025 Google LLC
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -16,12 +16,13 @@
   ~ limitations under the License.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto">
-  <item
-    android:id="@+id/remove_offline_access_menu_item"
-    android:icon="@drawable/ic_offline_pin"
-    android:title="@string/remove_offline_access"
-    app:iconTint="?attr/colorOnSurface"
-    app:showAsAction="always|withText" />
-</menu>
+<defaultsMap>
+    <entry>
+        <key>force_update</key>
+        <value>false</value>
+    </entry>
+    <entry>
+        <key>min_app_version</key>
+        <value>0.0.0</value>
+    </entry>
+</defaultsMap>
