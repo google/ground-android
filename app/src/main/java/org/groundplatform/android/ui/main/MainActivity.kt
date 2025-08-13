@@ -42,10 +42,10 @@ import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.ActivityCallback
 import org.groundplatform.android.system.ActivityStreams
 import org.groundplatform.android.ui.common.AbstractActivity
-import org.groundplatform.android.ui.components.PermissionDeniedDialog
 import org.groundplatform.android.ui.common.BackPressListener
 import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.common.modalSpinner
+import org.groundplatform.android.ui.components.PermissionDeniedDialog
 import org.groundplatform.android.ui.home.HomeScreenFragmentDirections
 import org.groundplatform.android.ui.signin.SignInFragmentDirections
 import org.groundplatform.android.ui.surveyselector.SurveySelectorFragmentDirections
