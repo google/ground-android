@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.ui
+package org.groundplatform.android.ui.components
 
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsDisplayed
@@ -24,6 +24,7 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import kotlin.test.Test
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.R
+import org.groundplatform.android.ui.components.PermissionDeniedDialog
 import org.junit.Rule
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner

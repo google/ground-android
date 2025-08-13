@@ -18,7 +18,7 @@ package org.groundplatform.android.ui.settings
 import android.os.Bundle
 import dagger.hilt.android.AndroidEntryPoint
 import org.groundplatform.android.databinding.SettingsActivityBinding
-import org.groundplatform.android.ui.AbstractActivity
+import org.groundplatform.android.ui.common.AbstractActivity
 
 @AndroidEntryPoint
 class SettingsActivity : AbstractActivity() {
