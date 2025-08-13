@@ -368,7 +368,7 @@ class SubmissionMutationConverterTest {
     )
 
   @Test
-  fun testToMap_create() {
+  fun `to map when create`() {
     val submissionMutation = submissionMutation.copy(type = Mutation.Type.CREATE)
 
     val map = submissionMutation.createSubmissionMessage(user).toFirestoreMap()
@@ -384,7 +384,7 @@ class SubmissionMutationConverterTest {
   }
 
   @Test
-  fun testToMap_update() {
+  fun `to map when update`() {
     val submissionMutation = submissionMutation.copy(type = Mutation.Type.UPDATE)
 
     val map = submissionMutation.createSubmissionMessage(user).toFirestoreMap()
@@ -399,21 +399,21 @@ class SubmissionMutationConverterTest {
   }
 
   @Test
-  fun testToMap_delete() {
+  fun `to map when delete`() {
     assertThrows("Unsupported mutation type", UnsupportedOperationException::class.java) {
       submissionMutation.copy(type = Mutation.Type.DELETE).createSubmissionMessage(user)
     }
   }
 
   @Test
-  fun testToMap_unknown() {
+  fun `to map when unknown`() {
     assertThrows("Unsupported mutation type", UnsupportedOperationException::class.java) {
       submissionMutation.copy(type = Mutation.Type.UNKNOWN).createSubmissionMessage(user)
     }
   }
 
   @Test
-  fun testToMap_allTaskDataSkipped() {
+  fun `to map when all task data skipped`() {
     val mutation =
       submissionMutation.copy(
         job =
@@ -459,7 +459,7 @@ class SubmissionMutationConverterTest {
   }
 
   @Test
-  fun testToMap_someTaskDataSkipped() {
+  fun `to map when some task data skipped`() {
     val mutation =
       submissionMutation.copy(
         job =
@@ -506,7 +506,7 @@ class SubmissionMutationConverterTest {
   }
 
   @Test
-  fun testToMap_instructionTaskDataIsNotAdded() {
+  fun `to map when instruction task data is not added`() {
     val mutation =
       submissionMutation.copy(
         job =

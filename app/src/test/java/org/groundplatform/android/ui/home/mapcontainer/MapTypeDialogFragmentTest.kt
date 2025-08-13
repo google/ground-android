@@ -53,7 +53,7 @@ class MapTypeDialogFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun render() {
+  fun `renders dialog correctly`() {
     assertThat(fragment.isVisible).isTrue()
 
     onView(withText("Layers")).check(matches(isDisplayed()))
@@ -67,7 +67,7 @@ class MapTypeDialogFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun dismiss_dialog_after_map_type_selection() {
+  fun `dismiss dialog after map type selection`() {
     assertThat(fragment.isVisible).isTrue()
 
     onView(withId(R.id.recycler_view)).check(matches(allOf(isDisplayed(), hasChildCount(3))))
@@ -76,12 +76,13 @@ class MapTypeDialogFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun defaultMapType() {
+  fun `displays default map type correctly`() {
+
     assertThat(mapStateRepository.mapType).isEqualTo(MapType.TERRAIN)
   }
 
   @Test
-  fun changeMapType() {
+  fun `changes map type when selected`() {
     onView(withText("Terrain")).perform(click())
 
     assertThat(mapStateRepository.mapType).isEqualTo(MapType.TERRAIN)

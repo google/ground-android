@@ -83,7 +83,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   }
 
   @Test
-  fun testApplyAndEnqueue_createsLocalLoi() = runWithTestDispatcher {
+  fun `apply and enqueue when creates local loi`() = runWithTestDispatcher {
     // TODO: Remove once customId and caption are handled consistently.
     // Issue URL: https://github.com/google/ground-android/issues/1559
     val loi =
@@ -99,7 +99,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   }
 
   @Test
-  fun testApplyAndEnqueue_enqueuesLoiMutation() = runWithTestDispatcher {
+  fun `apply and enqueue when enqueues loi mutation`() = runWithTestDispatcher {
     locationOfInterestRepository.applyAndEnqueue(mutation)
 
     mutationRepository.getSurveyMutationsFlow(TEST_SURVEY).test {
@@ -108,14 +108,14 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   }
 
   @Test
-  fun testApplyAndEnqueue_enqueuesWorker() = runWithTestDispatcher {
+  fun `apply and enqueue when enqueues worker`() = runWithTestDispatcher {
     locationOfInterestRepository.applyAndEnqueue(mutation)
 
     verify(mockWorkManager).enqueueSyncWorker()
   }
 
   @Test
-  fun testApplyAndEnqueue_returnsErrorOnWorkerSyncFailure() = runWithTestDispatcher {
+  fun `apply and enqueue when returns error on worker sync failure`() = runWithTestDispatcher {
     `when`(mockWorkManager.enqueueSyncWorker()).thenThrow(Error())
 
     assertFailsWith<Error> {
@@ -134,7 +134,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   // Issue URL: https://github.com/google/ground-android/issues/1373
 
   @Test
-  fun testLoiWithinBounds_whenOutOfBounds_returnsEmptyList() = runWithTestDispatcher {
+  fun `loi within bounds when out of bounds returns empty list`() = runWithTestDispatcher {
     val southwest = Coordinates(-60.0, -60.0)
     val northeast = Coordinates(-50.0, -50.0)
 
@@ -144,34 +144,36 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   }
 
   @Test
-  fun testLoiWithinBounds_whenSomeLOIsInsideBounds_returnsPartialList() = runWithTestDispatcher {
-    val southwest = Coordinates(-20.0, -20.0)
-    val northeast = Coordinates(-10.0, -10.0)
+  fun `loi within bounds when some lo is inside bounds returns partial list`() =
+    runWithTestDispatcher {
+      val southwest = Coordinates(-20.0, -20.0)
+      val northeast = Coordinates(-10.0, -10.0)
 
-    locationOfInterestRepository.getWithinBounds(TEST_SURVEY, Bounds(southwest, northeast)).test {
-      assertThat(expectMostRecentItem())
-        .isEqualTo(listOf(TEST_POINT_OF_INTEREST_1, TEST_AREA_OF_INTEREST_1))
+      locationOfInterestRepository.getWithinBounds(TEST_SURVEY, Bounds(southwest, northeast)).test {
+        assertThat(expectMostRecentItem())
+          .isEqualTo(listOf(TEST_POINT_OF_INTEREST_1, TEST_AREA_OF_INTEREST_1))
+      }
     }
-  }
 
   @Test
-  fun testLoiWithinBounds_whenAllLOIsInsideBounds_returnsCompleteList() = runWithTestDispatcher {
-    val southwest = Coordinates(-20.0, -20.0)
-    val northeast = Coordinates(20.0, 20.0)
+  fun `loi within bounds when all lo is inside bounds returns complete list`() =
+    runWithTestDispatcher {
+      val southwest = Coordinates(-20.0, -20.0)
+      val northeast = Coordinates(20.0, 20.0)
 
-    locationOfInterestRepository.getWithinBounds(TEST_SURVEY, Bounds(southwest, northeast)).test {
-      assertThat(expectMostRecentItem())
-        .isEqualTo(
-          listOf(
-            TEST_POINT_OF_INTEREST_1,
-            TEST_POINT_OF_INTEREST_2,
-            TEST_POINT_OF_INTEREST_3,
-            TEST_AREA_OF_INTEREST_1,
-            TEST_AREA_OF_INTEREST_2,
+      locationOfInterestRepository.getWithinBounds(TEST_SURVEY, Bounds(southwest, northeast)).test {
+        assertThat(expectMostRecentItem())
+          .isEqualTo(
+            listOf(
+              TEST_POINT_OF_INTEREST_1,
+              TEST_POINT_OF_INTEREST_2,
+              TEST_POINT_OF_INTEREST_3,
+              TEST_AREA_OF_INTEREST_1,
+              TEST_AREA_OF_INTEREST_2,
+            )
           )
-        )
+      }
     }
-  }
 
   @Test
   fun `hasValidLois when survey has no lois returns false`() = runWithTestDispatcher {

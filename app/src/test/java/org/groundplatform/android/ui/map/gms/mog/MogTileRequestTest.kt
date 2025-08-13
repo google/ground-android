@@ -25,7 +25,7 @@ import org.mockito.junit.MockitoJUnitRunner
 class MogTileRequestTest {
 
   @Test
-  fun consolidate_differentUrlsConsecutiveRanges_doesNotMerge() {
+  fun `consolidate does not merge different URLs with consecutive ranges`() {
     val tile1 = newTileMetadata(0..10)
     val tile2 = newTileMetadata(11..20)
     val tile3 = newTileMetadata(21..30)
@@ -38,7 +38,7 @@ class MogTileRequestTest {
   }
 
   @Test
-  fun consolidate_sameUrlsNonConsecutiveRanges_doesNotMerge() {
+  fun `consolidate does not merge same URLs with non-consecutive ranges`() {
     val tile1 = newTileMetadata(0..10)
     val tile2 = newTileMetadata(21..30)
     val request1 = MogTilesRequest("http://url", listOf(tile1))
@@ -48,7 +48,7 @@ class MogTileRequestTest {
   }
 
   @Test
-  fun consolidate_sameUrlsConsecutiveRanges_mergesRequests() {
+  fun `consolidate merges requests with same URLs and consecutive ranges`() {
     val tile1 = newTileMetadata(0..10)
     val tile2 = newTileMetadata(11..20)
     val tile3 = newTileMetadata(21..30)
@@ -61,7 +61,7 @@ class MogTileRequestTest {
   }
 
   @Test
-  fun consolidate_sameUrlsNearbyRanges_mergesRequests() {
+  fun `consolidate merges requests with same URLs and nearby ranges`() {
     val tile1 = newTileMetadata(0..10)
     val tile2 = newTileMetadata(12..20)
     val request1 = MogTilesRequest("http://url", listOf(tile1))

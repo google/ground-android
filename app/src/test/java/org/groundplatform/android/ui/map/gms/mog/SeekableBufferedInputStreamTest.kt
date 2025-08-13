@@ -24,7 +24,7 @@ class SeekableBufferedInputStreamTest {
   private val testSourceStream = ByteArrayInputStream(byteArrayOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9))
 
   @Test
-  fun testSeek() {
+  fun `seek moves to correct position`() {
     val sbis = SeekableInputStream(testSourceStream)
     assertEquals(sbis.read(), 0)
     assertEquals(sbis.read(), 1)
@@ -37,7 +37,7 @@ class SeekableBufferedInputStreamTest {
   }
 
   @Test
-  fun testMarkAndReset() {
+  fun `mark and reset`() {
     val sbis = SeekableInputStream(testSourceStream)
     assertEquals(sbis.read(), 0)
     assertEquals(sbis.read(), 1)

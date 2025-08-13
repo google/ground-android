@@ -22,22 +22,22 @@ import org.junit.Test
 class CameraPositionTest {
 
   @Test
-  fun serialize_deserialize_when_only_target_is_available() {
+  fun `Serialize and deserialize when only target is available`() {
     serializeAndDeserialize(CameraPosition(coordinates = COORDINATES))
   }
 
   @Test
-  fun serialize_deserialize_when_target_and_zoomLevel_are_available() {
+  fun `Serialize and deserialize when target and zoom level are available`() {
     serializeAndDeserialize(CameraPosition(coordinates = COORDINATES, zoomLevel = ZOOM_LEVEL))
   }
 
   @Test
-  fun serialize_deserialize_when_target_and_bounds_are_available() {
+  fun `Serialize and deserialize when target and bounds are available`() {
     serializeAndDeserialize(CameraPosition(coordinates = COORDINATES, bounds = BOUNDS))
   }
 
   @Test
-  fun serialize_deserialize_when_all_fields_present() {
+  fun `Serialize and deserialize when all fields are present`() {
     serializeAndDeserialize(CameraPosition(COORDINATES, ZOOM_LEVEL, BOUNDS))
   }
 
