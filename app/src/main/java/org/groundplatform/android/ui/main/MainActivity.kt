@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android
+package org.groundplatform.android.ui.main
 
 import android.app.AlertDialog
 import android.content.ActivityNotFoundException
@@ -35,13 +35,17 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
+import org.groundplatform.android.BuildConfig
+import org.groundplatform.android.R
 import org.groundplatform.android.databinding.MainActBinding
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.ActivityCallback
 import org.groundplatform.android.system.ActivityStreams
+import org.groundplatform.android.ui.common.AbstractActivity
 import org.groundplatform.android.ui.common.BackPressListener
 import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.common.modalSpinner
+import org.groundplatform.android.ui.components.PermissionDeniedDialog
 import org.groundplatform.android.ui.home.HomeScreenFragmentDirections
 import org.groundplatform.android.ui.signin.SignInFragmentDirections
 import org.groundplatform.android.ui.surveyselector.SurveySelectorFragmentDirections

@@ -29,7 +29,7 @@ import javax.inject.Provider
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.model.submission.isNullOrEmpty
-import org.groundplatform.android.ui.compose.ConfirmationDialog
+import org.groundplatform.android.ui.components.ConfirmationDialog
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.TaskView
 import org.groundplatform.android.ui.datacollection.components.TaskViewFactory

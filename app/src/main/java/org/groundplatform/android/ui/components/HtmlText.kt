@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.groundplatform.android.ui.compose
+package org.groundplatform.android.ui.components
 
 import android.text.method.ScrollingMovementMethod
 import android.widget.TextView
@@ -23,8 +23,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.text.HtmlCompat
-import org.groundplatform.android.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.R
+import org.groundplatform.android.ui.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.theme.AppTheme
 
 @Composable

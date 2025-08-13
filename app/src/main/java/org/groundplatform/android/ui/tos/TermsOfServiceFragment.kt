@@ -55,7 +55,7 @@ import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.common.Constants.SURVEY_PATH_SEGMENT
 import org.groundplatform.android.ui.common.AbstractFragment
-import org.groundplatform.android.ui.compose.Toolbar
+import org.groundplatform.android.ui.components.Toolbar
 import org.groundplatform.android.ui.surveyselector.SurveySelectorFragmentDirections
 import org.groundplatform.android.util.createComposeView
 

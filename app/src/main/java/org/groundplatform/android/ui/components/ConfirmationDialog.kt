@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.ui.compose
+package org.groundplatform.android.ui.components
 
 import androidx.annotation.StringRes
 import androidx.compose.material3.AlertDialog
@@ -24,8 +24,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import org.groundplatform.android.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.R
+import org.groundplatform.android.ui.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.theme.AppTheme
 
 @Composable
