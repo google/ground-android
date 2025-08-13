@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.groundplatform.android.ui
+package org.groundplatform.android.ui.main
 
 sealed class MainUiState {
 

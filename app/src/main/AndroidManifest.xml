@@ -64,7 +64,7 @@
       android:value="${MAPS_API_KEY}" />
 
     <activity
-      android:name="org.groundplatform.android.ui.MainActivity"
+      android:name="org.groundplatform.android.ui.main.MainActivity"
       android:exported="true"
       android:windowSoftInputMode="stateHidden|adjustResize">
       <intent-filter>
@@ -84,7 +84,7 @@
       </intent-filter>
     </activity>
     <activity
-      android:name="org.groundplatform.android.ui.SettingsActivity"
+      android:name="org.groundplatform.android.ui.settings.SettingsActivity"
       android:theme="@style/AppTheme" />
 
     <!--

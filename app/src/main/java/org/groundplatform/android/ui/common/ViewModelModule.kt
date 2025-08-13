@@ -22,7 +22,7 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.IntoMap
-import org.groundplatform.android.ui.MainViewModel
+import org.groundplatform.android.ui.main.MainViewModel
 import org.groundplatform.android.ui.datacollection.tasks.date.DateTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.instruction.InstructionTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.location.CaptureLocationTaskViewModel
