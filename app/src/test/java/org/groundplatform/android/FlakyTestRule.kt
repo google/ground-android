@@ -25,9 +25,8 @@ import org.junit.runners.model.Statement
  * network issues or race conditions.
  */
 class FlakyTestRule : TestRule {
-  override fun apply(base: Statement, description: Description): Statement {
-    return object : Statement() {
-
+  override fun apply(base: Statement, description: Description): Statement =
+    object : Statement() {
       override fun evaluate() {
         val annotation = description.getAnnotation(FlakyTest::class.java)
         val maxAttempts = (annotation?.retryCount ?: 0) + 1
@@ -44,5 +43,4 @@ class FlakyTestRule : TestRule {
         }
       }
     }
-  }
 }
