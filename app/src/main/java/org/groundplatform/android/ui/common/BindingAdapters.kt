@@ -101,8 +101,4 @@ object BindingAdapters {
   fun bindVisible(view: View, visible: Boolean) {
     view.visibility = if (visible) View.VISIBLE else View.GONE
   }
-
-  private fun setErrorImage(view: ImageView) {
-    view.setImageResource(R.drawable.outline_error_outline_24)
-  }
 }
