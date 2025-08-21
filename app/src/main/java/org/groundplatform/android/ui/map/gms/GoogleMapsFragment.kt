@@ -42,7 +42,6 @@ import javax.inject.Inject
 import kotlin.math.min
 import kotlin.math.sqrt
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import org.groundplatform.android.common.Constants
@@ -80,11 +79,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   override val startDragEvents = MutableSharedFlow<Unit>()
 
   /** Camera move events. Emits items after the camera has stopped moving. */
-  override val cameraMovedEvents =
-    MutableSharedFlow<CameraPosition>(
-      extraBufferCapacity = 64,
-      onBufferOverflow = BufferOverflow.DROP_OLDEST,
-    )
+  override val cameraMovedEvents = MutableSharedFlow<CameraPosition>()
 
   @Inject lateinit var featureManager: FeatureManager
   @Inject lateinit var remoteStorageManager: RemoteStorageManager
