@@ -89,13 +89,28 @@ private fun onSegment(a: Coordinates, b: Coordinates, c: Coordinates) =
 fun isSelfIntersecting(vertices: List<Coordinates>): Boolean {
   if (vertices.size < 4) return false // A polygon must have at least 4 points to self-intersect
 
-  for (i in 0 until vertices.size - 1) {
-    val segment1 = Pair(vertices[i], vertices[i + 1])
+  val last = vertices.size - 1
+  val isClosed = vertices.first() == vertices.last()
 
-    for (j in i + 2 until vertices.size - 1) {
-      val segment2 = Pair(vertices[j], vertices[j + 1])
+  fun shareEndpoint(a1: Coordinates, a2: Coordinates, b1: Coordinates, b2: Coordinates): Boolean {
+    return a1 == b1 || a1 == b2 || a2 == b1 || a2 == b2
+  }
 
-      if (isIntersecting(segment1.first, segment1.second, segment2.first, segment2.second)) {
+  for (i in 0 until last) {
+    val a1 = vertices[i]
+    val a2 = vertices[i + 1]
+
+    for (j in i + 2 until last) {
+      // In a closed ring, the first and last edges are adjacent (share the first vertex).
+      if (isClosed && i == 0 && j == last - 1) continue
+
+      val b1 = vertices[j]
+      val b2 = vertices[j + 1]
+
+      // Skip edges that share an endpoint (adjacent or touching at vertices)
+      if (shareEndpoint(a1, a2, b1, b2)) continue
+
+      if (isIntersecting(a1, a2, b1, b2)) {
         return true
       }
     }

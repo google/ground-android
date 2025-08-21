@@ -92,11 +92,16 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
     addPointButton =
       addButton(ButtonAction.ADD_POINT).setOnClickListener {
         viewModel.addLastVertex()
-        viewModel.checkVertexIntersection()
-        viewModel.triggerVibration()
+        val intersected = viewModel.checkVertexIntersection()
+        if (!intersected) viewModel.triggerVibration()
       }
     completeButton =
-      addButton(ButtonAction.COMPLETE).setOnClickListener { viewModel.completePolygon() }
+      addButton(ButtonAction.COMPLETE).setOnClickListener {
+        if (viewModel.validateBeforeComplete()) {
+          viewModel.completePolygon()
+          viewModel.clearIntersectionFlag()
+        }
+      }
   }
 
   /** Removes the last vertex from the polygon. */
@@ -157,10 +162,12 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
     val closed = geometry.isClosed()
     val markedComplete = viewModel.isMarkedComplete()
     val tooClose = viewModel.isTooClose.value
+    val selfIntersecting = viewModel.hasSelfIntersection()
 
     addPointButton.showIfTrue(!closed)
     addPointButton.enableIfTrue(!closed && !tooClose)
     completeButton.showIfTrue(closed && !markedComplete)
+    completeButton.enableIfTrue(closed && !markedComplete && !selfIntersecting)
     nextButton.showIfTrue(markedComplete)
   }
 
