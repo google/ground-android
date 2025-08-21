@@ -85,34 +85,54 @@ private fun onSegment(a: Coordinates, b: Coordinates, c: Coordinates) =
   c.lat in minOf(a.lat, b.lat)..maxOf(a.lat, b.lat) &&
     c.lng in minOf(a.lng, b.lng)..maxOf(a.lng, b.lng)
 
+private data class Segment(val a: Coordinates, val b: Coordinates)
+
+private fun isClosed(vertices: List<Coordinates>): Boolean =
+  vertices.size >= 2 && vertices.first() == vertices.last()
+
+private fun shareEndpoint(s1: Segment, s2: Segment): Boolean =
+  s1.a == s2.a || s1.a == s2.b || s1.b == s2.a || s1.b == s2.b
+
+private fun buildSegments(vertices: List<Coordinates>): List<Segment> {
+  val n = vertices.size
+  if (n < 2) return emptyList()
+  val closed = isClosed(vertices)
+
+  val segs = ArrayList<Segment>(if (closed) n else n - 1) // <- removed unnecessary parentheses
+  for (i in 0 until n - 1) {
+    segs += Segment(vertices[i], vertices[i + 1])
+  }
+  if (closed) segs += Segment(vertices[n - 1], vertices[0])
+  return segs
+}
+
+private fun areAdjacent(i: Int, j: Int, size: Int, closed: Boolean): Boolean {
+  if (i == j) return true
+  if (kotlin.math.abs(i - j) == 1) return true
+  if (closed) {
+    val last = size - 1
+    if ((i == 0 && j == last) || (j == 0 && i == last)) return true
+  }
+  return false
+}
+
 /** Checks if a polygon formed by the given vertices is self-intersecting. */
 fun isSelfIntersecting(vertices: List<Coordinates>): Boolean {
-  if (vertices.size < 4) return false // A polygon must have at least 4 points to self-intersect
+  if (vertices.size < 4) return false
 
-  val last = vertices.size - 1
-  val isClosed = vertices.first() == vertices.last()
+  val segments = buildSegments(vertices)
+  val segmentSize = segments.size
+  val closed = isClosed(vertices)
 
-  fun shareEndpoint(a1: Coordinates, a2: Coordinates, b1: Coordinates, b2: Coordinates): Boolean {
-    return a1 == b1 || a1 == b2 || a2 == b1 || a2 == b2
-  }
+  for (i in 0 until segmentSize) {
+    val s1 = segments[i]
+    for (j in i + 1 until segmentSize) {
+      val s2 = segments[j]
 
-  for (i in 0 until last) {
-    val a1 = vertices[i]
-    val a2 = vertices[i + 1]
+      // Skip pairs we should not test (adjacent or sharing an endpoint)
+      if (areAdjacent(i, j, segmentSize, closed) || shareEndpoint(s1, s2)) continue
 
-    for (j in i + 2 until last) {
-      // In a closed ring, the first and last edges are adjacent (share the first vertex).
-      if (isClosed && i == 0 && j == last - 1) continue
-
-      val b1 = vertices[j]
-      val b2 = vertices[j + 1]
-
-      // Skip edges that share an endpoint (adjacent or touching at vertices)
-      if (shareEndpoint(a1, a2, b1, b2)) continue
-
-      if (isIntersecting(a1, a2, b1, b2)) {
-        return true
-      }
+      if (isIntersecting(s1.a, s1.b, s2.a, s2.b)) return true
     }
   }
   return false

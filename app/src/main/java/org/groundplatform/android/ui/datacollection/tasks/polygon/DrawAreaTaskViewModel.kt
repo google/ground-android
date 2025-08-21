@@ -97,9 +97,9 @@ internal constructor(
 
   private var hasSelfIntersection: Boolean = false
 
-  fun hasSelfIntersection(): Boolean = hasSelfIntersection
-
   private var strokeColor: Int = 0
+
+  fun hasSelfIntersection(): Boolean = hasSelfIntersection
 
   override fun initialize(job: Job, task: Task, taskData: TaskData?) {
     super.initialize(job, task, taskData)
