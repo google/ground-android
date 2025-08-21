@@ -42,6 +42,7 @@ import javax.inject.Inject
 import kotlin.math.min
 import kotlin.math.sqrt
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import org.groundplatform.android.common.Constants
@@ -79,7 +80,11 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   override val startDragEvents = MutableSharedFlow<Unit>()
 
   /** Camera move events. Emits items after the camera has stopped moving. */
-  override val cameraMovedEvents = MutableSharedFlow<CameraPosition>()
+  override val cameraMovedEvents =
+    MutableSharedFlow<CameraPosition>(
+      extraBufferCapacity = 64,
+      onBufferOverflow = BufferOverflow.DROP_OLDEST,
+    )
 
   @Inject lateinit var featureManager: FeatureManager
   @Inject lateinit var remoteStorageManager: RemoteStorageManager
@@ -167,6 +172,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
     map.setOnCameraIdleListener(this::onCameraIdle)
     map.setOnCameraMoveStartedListener(this::onCameraMoveStarted)
+    map.setOnCameraMoveListener(this::onCameraMoving)
     map.setOnMapClickListener { onMapClick(it) }
 
     with(map.uiSettings) {
@@ -264,6 +270,24 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   private fun onCameraMoveStarted(reason: Int) {
     if (reason == OnCameraMoveStartedListener.REASON_GESTURE) {
       viewLifecycleOwner.lifecycleScope.launch { startDragEvents.emit(Unit) }
+    }
+  }
+
+  private fun onCameraMoving() {
+    lifecycleScope.launch {
+      repeatOnLifecycle(Lifecycle.State.STARTED) {
+        map.setOnCameraMoveListener {
+          val cameraPosition = map.cameraPosition
+          val projection = map.projection
+          cameraMovedEvents.tryEmit(
+            CameraPosition(
+              cameraPosition.target.toCoordinates(),
+              cameraPosition.zoom,
+              projection.visibleRegion.latLngBounds.toModelObject(),
+            )
+          )
+        }
+      }
     }
   }
 
