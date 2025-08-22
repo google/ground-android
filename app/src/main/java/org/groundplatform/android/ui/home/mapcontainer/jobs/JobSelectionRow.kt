@@ -42,7 +42,7 @@ import org.groundplatform.android.R
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.Style
 import org.groundplatform.android.model.job.getDefaultColor
-import org.groundplatform.android.ui.ExcludeFromJacocoGeneratedReport
+import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.theme.AppTheme
 
 @Composable

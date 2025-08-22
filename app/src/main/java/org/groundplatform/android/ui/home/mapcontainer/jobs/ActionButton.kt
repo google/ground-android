@@ -31,7 +31,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.groundplatform.android.R
-import org.groundplatform.android.ui.ExcludeFromJacocoGeneratedReport
+import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.theme.AppTheme
 
 @Composable
