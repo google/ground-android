@@ -167,6 +167,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
     map.setOnCameraIdleListener(this::onCameraIdle)
     map.setOnCameraMoveStartedListener(this::onCameraMoveStarted)
+    map.setOnCameraMoveListener(this::onCameraMoving)
     map.setOnMapClickListener { onMapClick(it) }
 
     with(map.uiSettings) {
@@ -264,6 +265,24 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   private fun onCameraMoveStarted(reason: Int) {
     if (reason == OnCameraMoveStartedListener.REASON_GESTURE) {
       viewLifecycleOwner.lifecycleScope.launch { startDragEvents.emit(Unit) }
+    }
+  }
+
+  private fun onCameraMoving() {
+    lifecycleScope.launch {
+      repeatOnLifecycle(Lifecycle.State.STARTED) {
+        map.setOnCameraMoveListener {
+          val cameraPosition = map.cameraPosition
+          val projection = map.projection
+          cameraMovedEvents.tryEmit(
+            CameraPosition(
+              cameraPosition.target.toCoordinates(),
+              cameraPosition.zoom,
+              projection.visibleRegion.latLngBounds.toModelObject(),
+            )
+          )
+        }
+      }
     }
   }
 
