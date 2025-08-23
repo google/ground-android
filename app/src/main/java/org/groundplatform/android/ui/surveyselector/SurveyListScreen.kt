@@ -37,7 +37,7 @@ import org.groundplatform.android.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.R
 import org.groundplatform.android.model.SurveyListItem
 import org.groundplatform.android.proto.Survey
-import org.groundplatform.android.ui.compose.ConfirmationDialog
+import org.groundplatform.android.ui.components.ConfirmationDialog
 import org.groundplatform.android.ui.surveyselector.components.SectionHeader
 import org.groundplatform.android.ui.surveyselector.components.SurveyCardItem
 
