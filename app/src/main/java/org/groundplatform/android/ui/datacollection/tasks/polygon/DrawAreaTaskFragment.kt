@@ -97,9 +97,8 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
       }
     completeButton =
       addButton(ButtonAction.COMPLETE).setOnClickListener {
-        if (viewModel.validateBeforeComplete()) {
+        if (viewModel.validatePolygonCompletion()) {
           viewModel.completePolygon()
-          viewModel.clearIntersectionFlag()
         }
       }
   }
@@ -162,7 +161,7 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
     val closed = geometry.isClosed()
     val markedComplete = viewModel.isMarkedComplete()
     val tooClose = viewModel.isTooClose.value
-    val selfIntersecting = viewModel.hasSelfIntersection()
+    val selfIntersecting = viewModel.hasSelfIntersection
 
     addPointButton.showIfTrue(!closed)
     addPointButton.enableIfTrue(!closed && !tooClose)

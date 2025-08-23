@@ -95,11 +95,10 @@ internal constructor(
   private val _showSelfIntersectionDialog = MutableSharedFlow<Unit>()
   val showSelfIntersectionDialog = _showSelfIntersectionDialog.asSharedFlow()
 
-  private var hasSelfIntersection: Boolean = false
+  var hasSelfIntersection: Boolean = false
+    private set
 
   private var strokeColor: Int = 0
-
-  fun hasSelfIntersection(): Boolean = hasSelfIntersection
 
   override fun initialize(job: Job, task: Task, taskData: TaskData?) {
     super.initialize(job, task, taskData)
@@ -247,13 +246,11 @@ internal constructor(
     if (hit) {
       vertices = vertices.dropLast(1)
       onSelfIntersectionDetected()
-    } else {
-      hasSelfIntersection = false
     }
     return hit
   }
 
-  fun validateBeforeComplete(): Boolean {
+  fun validatePolygonCompletion(): Boolean {
     val ring =
       if (vertices.size >= 3 && vertices.first() != vertices.last()) {
         vertices + vertices.first()
@@ -261,13 +258,11 @@ internal constructor(
         vertices
       }
 
-    val hit = isSelfIntersecting(ring)
-    hasSelfIntersection = hit
-    if (hit) {
+    hasSelfIntersection = isSelfIntersecting(ring)
+    if (hasSelfIntersection) {
       onSelfIntersectionDetected()
       return false
     }
-    hasSelfIntersection = false
     return true
   }
 
