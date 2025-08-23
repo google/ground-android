@@ -40,7 +40,6 @@ import org.groundplatform.android.FakeData.SURVEY
 import org.groundplatform.android.coroutines.IoDispatcher
 import org.groundplatform.android.usecases.survey.SyncSurveyUseCase
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -82,7 +81,6 @@ class SurveySyncServiceTest : BaseHiltTest() {
     testDriver = WorkManagerTestInitHelper.getTestDriver(context)!!
   }
 
-  @Ignore
   @Test
   fun `calls sync survey with id when constraints are met`() = runWithTestDispatcher {
     `when`(syncSurvey(SURVEY.id)).thenReturn(SURVEY)
