@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import org.groundplatform.android.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.R
 import org.groundplatform.android.proto.Survey
-import org.groundplatform.android.ui.compose.HtmlText
+import org.groundplatform.android.ui.components.HtmlText
 import org.groundplatform.android.ui.theme.AppTheme
 import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
 import org.intellij.markdown.html.HtmlGenerator
