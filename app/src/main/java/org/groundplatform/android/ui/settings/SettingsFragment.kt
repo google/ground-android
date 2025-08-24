@@ -59,45 +59,34 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
     val switchPreference = findPreference<SwitchPreferenceCompat>(Keys.UPLOAD_MEDIA)
     switchPreference?.isChecked = loadSwitchPreferenceState()
 
-    val languagePreference = findPreference<DropDownPreference>(Keys.LANGUAGE)
-    val selectedLanguage = localValueStore.selectedLanguage
-    languagePreference?.apply {
-      val index = findIndexOfValue(selectedLanguage)
-      if (index >= 0) {
-        summary = entries[index]
-      }
+    setupDropDownPreference(Keys.LANGUAGE, localValueStore.selectedLanguage) {
+      updateLocaleAndRestart(it)
+    }
+    setupDropDownPreference(Keys.LENGTH, localValueStore.selectedLength)
+  }
 
+  private fun setupDropDownPreference(
+    prefKey: String,
+    selectedValue: String,
+    onPrefChanged: (String) -> Unit = {},
+  ) {
+    findPreference<DropDownPreference>(prefKey)?.apply {
+      updateSummary(selectedValue)
       onPreferenceChangeListener =
         Preference.OnPreferenceChangeListener { preference, newValue ->
           if (newValue is String) {
-            val index = findIndexOfValue(newValue)
-            if (index >= 0) {
-              summary = entries[index]
-            }
-            updateLocaleAndRestart(newValue)
+            updateSummary(newValue)
+            onPrefChanged(newValue)
           }
           true
         }
     }
+  }
 
-    val lengthPreference = findPreference<DropDownPreference>(Keys.LENGTH)
-    val selectedLength = localValueStore.selectedLength
-    lengthPreference?.apply {
-      val index = findIndexOfValue(selectedLength)
-      if (index >= 0) {
-        summary = entries[index]
-      }
-
-      onPreferenceChangeListener =
-        Preference.OnPreferenceChangeListener { preference, newValue ->
-          if (newValue is String) {
-            val index = findIndexOfValue(newValue)
-            if (index >= 0) {
-              summary = entries[index]
-            }
-          }
-          true
-        }
+  private fun DropDownPreference.updateSummary(selectedLanguage: String) {
+    val index = findIndexOfValue(selectedLanguage)
+    if (index >= 0) {
+      summary = entries[index]
     }
   }
 

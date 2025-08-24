@@ -300,7 +300,14 @@ internal constructor(
     return localeAwareMeasureFormatter.formatDistance(distance, getDistanceUnit())
   }
 
-  private fun getDistanceUnit() = localValueStore.selectedLength.toMeasureUnit()
+  private fun getDistanceUnit(): MeasureUnit {
+    val unit = localValueStore.selectedLength
+    return when (unit) {
+      "m" -> MeasureUnit.METER
+      "ft" -> MeasureUnit.FOOT
+      else -> error("Unknown distance unit: $unit")
+    }
+  }
 
   override fun validate(task: Task, taskData: TaskData?): Int? {
     // Invalid response for draw area task.
@@ -317,13 +324,5 @@ internal constructor(
   companion object {
     /** Min. distance in dp between two points for them be considered as overlapping. */
     const val DISTANCE_THRESHOLD_DP = 24
-  }
-}
-
-private fun String.toMeasureUnit(): MeasureUnit {
-  return when (this) {
-    "m" -> MeasureUnit.METER
-    "ft" -> MeasureUnit.FOOT
-    else -> error("Unknown distance unit: $this")
   }
 }
