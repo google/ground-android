@@ -23,27 +23,41 @@ import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.floor
 import kotlin.math.pow
+import org.groundplatform.android.persistence.local.LocalValueStore
 
 private const val METERS_TO_FEET = 3.28084
+
 /** Distances equal to or greater than this value are rounded down to the nearest integer. */
 private const val MIN_ROUNDED_DISTANCE = 10
+
 /** The number of decimal places shown for distances < MIN_ROUNDED_DISTANCE. */
 private const val SMALL_DISTANCE_DECIMAL_PLACES = 1
 
-class LocaleAwareMeasureFormatter @Inject constructor(private val locale: Locale) {
+class LocaleAwareMeasureFormatter
+@Inject
+constructor(locale: Locale, private val localValueStore: LocalValueStore) {
   private val uLocale = ULocale.forLocale(locale)
   private val distanceFormatter =
     MeasureFormat.getInstance(uLocale, MeasureFormat.FormatWidth.SHORT)
 
   fun formatDistance(distanceInMeters: Double): String {
-    val isImperial = isImperialSystem()
-    val distance = if (isImperial) distanceInMeters.toFeet() else distanceInMeters
-    val measureUnit = if (isImperial) MeasureUnit.FOOT else MeasureUnit.METER
+    val measureUnit = getDistanceUnit()
+    val distance =
+      if (measureUnit == MeasureUnit.FOOT) distanceInMeters.toFeet() else distanceInMeters
     val roundedDistance =
       if (distance < MIN_ROUNDED_DISTANCE)
         distance.floorToDecimalPlaces(SMALL_DISTANCE_DECIMAL_PLACES)
       else floor(distance)
     return roundedDistance.formatDistance(measureUnit)
+  }
+
+  private fun getDistanceUnit(): MeasureUnit {
+    val unit = localValueStore.selectedLength
+    return when (unit) {
+      "m" -> MeasureUnit.METER
+      "ft" -> MeasureUnit.FOOT
+      else -> error("Unknown distance unit: $unit")
+    }
   }
 
   private fun Double.formatDistance(measureUnit: MeasureUnit) =
@@ -55,7 +69,4 @@ class LocaleAwareMeasureFormatter @Inject constructor(private val locale: Locale
     val factor = 10.0.pow(n)
     return floor(this * factor) / factor
   }
-
-  private fun isImperialSystem(): Boolean =
-    locale.country.uppercase(Locale.ROOT) in setOf("US", "LR", "MM")
 }
