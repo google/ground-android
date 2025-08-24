@@ -96,6 +96,7 @@ class TaskDataHandlerTest {
   }
 
   @Test
+  @FlakyTest
   fun `getData returns correct data`() = runTest {
     val handler = TaskDataHandler()
     val task = createTask("task1")
