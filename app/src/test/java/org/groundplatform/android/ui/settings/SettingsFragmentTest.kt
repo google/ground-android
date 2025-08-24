@@ -65,8 +65,8 @@ class SettingsFragmentTest : BaseHiltTest() {
     assertThat(item).isNotNull()
     assertThat(item!!.toString()).isEqualTo(fragment.getString(R.string.general_title))
 
-    val items = item.getPreferenceCount()
-    assertThat(items).isEqualTo(2)
+    val items = item.preferenceCount
+    assertThat(items).isEqualTo(3)
 
     val preferenceGeneral = item.getPreference(0)
     assertThat(preferenceGeneral.title).isEqualTo(fragment.getString(R.string.upload_media_title))
@@ -77,6 +77,11 @@ class SettingsFragmentTest : BaseHiltTest() {
     assertThat(preferenceLanguage.title)
       .isEqualTo(fragment.getString(R.string.select_language_title))
     assertThat(preferenceLanguage.summary.toString()).isEqualTo("English") // default language
+
+    val preferenceLength = item.getPreference(2)
+    assertThat(preferenceLength.title)
+      .isEqualTo(fragment.getString(R.string.select_length_title))
+    assertThat(preferenceLength.summary.toString()).isEqualTo("Meters (m)") // default length
   }
 
   @Test
