@@ -40,7 +40,7 @@
 
     <DropDownPreference
       app:iconSpaceReserved="false"
-      app:key="distance"
+      app:key="length"
       app:title="@string/select_length_title"
       app:summary="@string/select_length_summary"
       app:entries="@array/length_entries"

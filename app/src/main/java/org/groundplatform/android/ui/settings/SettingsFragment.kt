@@ -79,6 +79,26 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
           true
         }
     }
+
+    val lengthPreference = findPreference<DropDownPreference>(Keys.LENGTH)
+    val selectedLength = localValueStore.selectedLength
+    lengthPreference?.apply {
+      val index = findIndexOfValue(selectedLength)
+      if (index >= 0) {
+        summary = entries[index]
+      }
+
+      onPreferenceChangeListener =
+        Preference.OnPreferenceChangeListener { preference, newValue ->
+          if (newValue is String) {
+            val index = findIndexOfValue(newValue)
+            if (index >= 0) {
+              summary = entries[index]
+            }
+          }
+          true
+        }
+    }
   }
 
   private fun loadSwitchPreferenceState() =

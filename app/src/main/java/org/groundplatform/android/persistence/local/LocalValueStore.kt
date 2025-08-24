@@ -109,6 +109,10 @@ constructor(private val preferences: SharedPreferences, private val locale: Loca
     }
     set(value) = allowThreadDiskReads { preferences.edit { putString(Keys.LANGUAGE, value) } }
 
+  var selectedLength: String
+    get() = allowThreadDiskReads { preferences.getString(Keys.LENGTH, "m") ?: "m" }
+    set(value) = allowThreadDiskReads { preferences.edit { putString(Keys.LENGTH, value) } }
+
   /** Removes all values stored in the local store. */
   fun clear() = allowThreadDiskWrites { preferences.edit { clear() } }
 
