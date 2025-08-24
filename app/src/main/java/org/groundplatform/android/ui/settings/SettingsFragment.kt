@@ -83,8 +83,8 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
     }
   }
 
-  private fun DropDownPreference.updateSummary(selectedLanguage: String) {
-    val index = findIndexOfValue(selectedLanguage)
+  private fun DropDownPreference.updateSummary(value: String) {
+    val index = findIndexOfValue(value)
     if (index >= 0) {
       summary = entries[index]
     }
