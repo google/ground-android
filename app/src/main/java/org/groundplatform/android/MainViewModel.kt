@@ -32,8 +32,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.groundplatform.android.common.Constants.SURVEY_PATH_SEGMENT
 import org.groundplatform.android.coroutines.IoDispatcher
+import org.groundplatform.android.data.local.room.LocalDatabase
 import org.groundplatform.android.model.User
-import org.groundplatform.android.persistence.local.room.LocalDatabase
 import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.repository.TermsOfServiceRepository
 import org.groundplatform.android.repository.UserRepository

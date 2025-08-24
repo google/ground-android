@@ -24,6 +24,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
+import org.groundplatform.android.data.local.stores.LocalLocationOfInterestStore
+import org.groundplatform.android.data.local.stores.LocalSurveyStore
+import org.groundplatform.android.data.remote.RemoteDataStore
+import org.groundplatform.android.data.sync.MutationSyncWorkManager
+import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.geometry.Geometry
 import org.groundplatform.android.model.job.Job
@@ -32,11 +37,6 @@ import org.groundplatform.android.model.locationofinterest.generateProperties
 import org.groundplatform.android.model.mutation.LocationOfInterestMutation
 import org.groundplatform.android.model.mutation.Mutation
 import org.groundplatform.android.model.mutation.Mutation.SyncStatus
-import org.groundplatform.android.persistence.local.stores.LocalLocationOfInterestStore
-import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
-import org.groundplatform.android.persistence.remote.RemoteDataStore
-import org.groundplatform.android.persistence.sync.MutationSyncWorkManager
-import org.groundplatform.android.persistence.uuid.OfflineUuidGenerator
 import org.groundplatform.android.proto.Survey.DataVisibility
 import org.groundplatform.android.system.auth.AuthenticationManager
 import org.groundplatform.android.ui.map.Bounds
