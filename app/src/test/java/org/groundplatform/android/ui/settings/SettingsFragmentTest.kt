@@ -79,8 +79,7 @@ class SettingsFragmentTest : BaseHiltTest() {
     assertThat(preferenceLanguage.summary.toString()).isEqualTo("English") // default language
 
     val preferenceLength = item.getPreference(2)
-    assertThat(preferenceLength.title)
-      .isEqualTo(fragment.getString(R.string.select_length_title))
+    assertThat(preferenceLength.title).isEqualTo(fragment.getString(R.string.select_length_title))
     assertThat(preferenceLength.summary.toString()).isEqualTo("Meters (m)") // default length
   }
 
