@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.groundplatform.android.system
+package org.groundplatform.android.di
 
 import android.content.Context
-import android.location.Geocoder
-import com.google.android.gms.common.GoogleApiAvailability
+import com.google.firebase.Firebase
+import com.google.firebase.FirebaseApp
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import com.google.firebase.remoteconfig.remoteConfig
+import com.google.firebase.remoteconfig.remoteConfigSettings
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -26,19 +28,17 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
-@InstallIn(SingletonComponent::class)
 @Module
-object SystemModule {
-
+@InstallIn(SingletonComponent::class)
+object FirebaseModule {
   @Provides
   @Singleton
-  fun googleApiAvailability(): GoogleApiAvailability {
-    return GoogleApiAvailability.getInstance()
-  }
-
-  @Provides
-  @Singleton
-  fun provideGeocoder(@ApplicationContext context: Context): Geocoder {
-    return Geocoder(context)
+  fun provideFirebaseRemoteConfig(@ApplicationContext context: Context): FirebaseRemoteConfig {
+    if (FirebaseApp.getApps(context).isEmpty()) {
+      FirebaseApp.initializeApp(context)
+    }
+    return Firebase.remoteConfig.apply {
+      setConfigSettingsAsync(remoteConfigSettings { minimumFetchIntervalInSeconds = 3600 })
+    }
   }
 }

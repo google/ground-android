@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,33 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.groundplatform.android.coroutines
 
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
 import javax.inject.Qualifier
-import javax.inject.Singleton
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-
-@InstallIn(SingletonComponent::class)
-@Module
-object CoroutinesScopesModule {
-  @ApplicationScope
-  @Singleton
-  @Provides
-  fun provideCoroutineScope(): CoroutineScope {
-    return CoroutineScope(SupervisorJob() + Dispatchers.Default)
-  }
-
-  @MainScope
-  @Provides
-  fun provideMainCoroutineScope(): CoroutineScope = kotlinx.coroutines.MainScope()
-}
 
 /**
  * Scope for jobs which need to outlive the lifecycle of specific view components. Use this scope to

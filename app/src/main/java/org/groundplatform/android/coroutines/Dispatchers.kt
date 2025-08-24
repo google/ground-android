@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,29 +15,7 @@
  */
 package org.groundplatform.android.coroutines
 
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
 import javax.inject.Qualifier
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
-
-@Module
-@InstallIn(SingletonComponent::class)
-object CoroutineDispatchersModule {
-  @DefaultDispatcher
-  @Provides
-  fun provideDefaultDispatcher(): CoroutineDispatcher = Dispatchers.Default
-
-  @IoDispatcher @Provides fun provideIoDispatcher(): CoroutineDispatcher = Dispatchers.IO
-
-  @MainDispatcher @Provides fun provideMainDispatcher(): CoroutineDispatcher = Dispatchers.Main
-
-  @MainImmediateDispatcher
-  @Provides
-  fun provideMainImmediateDispatcher(): CoroutineDispatcher = Dispatchers.Main.immediate
-}
 
 @Retention(AnnotationRetention.RUNTIME) @Qualifier annotation class DefaultDispatcher
 
