@@ -23,7 +23,6 @@ import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.floor
 import kotlin.math.pow
-import org.groundplatform.android.persistence.local.LocalValueStore
 
 private const val METERS_TO_FEET = 3.28084
 
@@ -33,35 +32,23 @@ private const val MIN_ROUNDED_DISTANCE = 10
 /** The number of decimal places shown for distances < MIN_ROUNDED_DISTANCE. */
 private const val SMALL_DISTANCE_DECIMAL_PLACES = 1
 
-class LocaleAwareMeasureFormatter
-@Inject
-constructor(locale: Locale, private val localValueStore: LocalValueStore) {
-  private val uLocale = ULocale.forLocale(locale)
+class LocaleAwareMeasureFormatter @Inject constructor() {
+  private val uLocale = ULocale.forLocale(Locale.getDefault())
   private val distanceFormatter =
     MeasureFormat.getInstance(uLocale, MeasureFormat.FormatWidth.SHORT)
 
-  fun formatDistance(distanceInMeters: Double): String {
-    val measureUnit = getDistanceUnit()
-    val distance =
-      if (measureUnit == MeasureUnit.FOOT) distanceInMeters.toFeet() else distanceInMeters
-    val roundedDistance =
-      if (distance < MIN_ROUNDED_DISTANCE)
-        distance.floorToDecimalPlaces(SMALL_DISTANCE_DECIMAL_PLACES)
-      else floor(distance)
-    return roundedDistance.formatDistance(measureUnit)
+  fun formatDistance(distanceInMeters: Double, unit: MeasureUnit): String {
+    val distance = if (unit == MeasureUnit.FOOT) distanceInMeters.toFeet() else distanceInMeters
+    val roundedDistance = getRoundedDistance(distance)
+    return distanceFormatter.format(Measure(roundedDistance, unit))
   }
 
-  private fun getDistanceUnit(): MeasureUnit {
-    val unit = localValueStore.selectedLength
-    return when (unit) {
-      "m" -> MeasureUnit.METER
-      "ft" -> MeasureUnit.FOOT
-      else -> error("Unknown distance unit: $unit")
+  private fun getRoundedDistance(distance: Double): Double =
+    if (distance < MIN_ROUNDED_DISTANCE) {
+      distance.floorToDecimalPlaces(SMALL_DISTANCE_DECIMAL_PLACES)
+    } else {
+      floor(distance)
     }
-  }
-
-  private fun Double.formatDistance(measureUnit: MeasureUnit) =
-    distanceFormatter.format(Measure(this, measureUnit))
 
   private fun Double.toFeet() = this * METERS_TO_FEET
 
