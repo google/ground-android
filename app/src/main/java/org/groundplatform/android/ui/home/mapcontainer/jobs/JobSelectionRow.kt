@@ -66,14 +66,14 @@ fun JobSelectionRow(job: Job, onClick: () -> Unit) {
       Icon(
         painter = painterResource(R.drawable.ic_ring_marker),
         contentDescription = stringResource(R.string.job_site_icon),
-        modifier = Modifier.size(32.dp),
+        modifier = Modifier.size(28.dp),
         tint = Color(job.getDefaultColor()),
       )
       Spacer(modifier = Modifier.size(8.dp))
       Text(
         job.name ?: stringResource(R.string.unnamed_job),
         modifier = Modifier.padding(16.dp),
-        fontSize = 24.sp,
+        fontSize = 20.sp,
       )
     }
   }
