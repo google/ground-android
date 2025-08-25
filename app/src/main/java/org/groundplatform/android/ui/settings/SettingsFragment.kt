@@ -29,6 +29,7 @@ import javax.inject.Inject
 import org.groundplatform.android.MainActivity
 import org.groundplatform.android.R
 import org.groundplatform.android.common.Constants
+import org.groundplatform.android.common.PrefKeys
 import org.groundplatform.android.persistence.local.LocalValueStore
 
 /** Fragment containing app preferences saved as shared preferences. */
@@ -42,7 +43,7 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
     preferenceManager.sharedPreferencesMode = Constants.SHARED_PREFS_MODE
 
     setPreferencesFromResource(R.xml.preferences, rootKey)
-    for (key in Keys.ALL_KEYS) {
+    for (key in ALL_KEYS) {
       val preference =
         findPreference<Preference>(key)
           ?: throw IllegalArgumentException("Key not found in preferences.xml: $key")
@@ -50,10 +51,10 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
       preference.onPreferenceClickListener = this
     }
 
-    val switchPreference = findPreference<SwitchPreferenceCompat>(Keys.UPLOAD_MEDIA)
+    val switchPreference = findPreference<SwitchPreferenceCompat>(PrefKeys.UPLOAD_MEDIA)
     switchPreference?.isChecked = loadSwitchPreferenceState()
 
-    val languagePreference = findPreference<DropDownPreference>(Keys.LANGUAGE)
+    val languagePreference = findPreference<DropDownPreference>(PrefKeys.LANGUAGE)
     val selectedLanguage = localValueStore.selectedLanguage
     languagePreference?.apply {
       val index = findIndexOfValue(selectedLanguage)
@@ -76,10 +77,10 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
   }
 
   private fun loadSwitchPreferenceState() =
-    preferenceManager.sharedPreferences?.getBoolean(Keys.UPLOAD_MEDIA, false) ?: false
+    preferenceManager.sharedPreferences?.getBoolean(PrefKeys.UPLOAD_MEDIA, false) ?: false
 
   override fun onPreferenceClick(preference: Preference): Boolean {
-    if (preference.key == Keys.VISIT_WEBSITE) {
+    if (preference.key == PrefKeys.VISIT_WEBSITE) {
       openUrl(preference.summary.toString())
     }
     return true
@@ -91,7 +92,7 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
   }
 
   private fun updateLocaleAndRestart(languageCode: String) {
-    preferenceManager.sharedPreferences?.edit()?.putString(Keys.LANGUAGE, languageCode)?.apply()
+    preferenceManager.sharedPreferences?.edit()?.putString(PrefKeys.LANGUAGE, languageCode)?.apply()
 
     val appLocale = LocaleListCompat.forLanguageTags(languageCode)
     AppCompatDelegate.setApplicationLocales(appLocale)
@@ -101,5 +102,9 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
       }
     startActivity(intent)
+  }
+
+  companion object {
+    private val ALL_KEYS = arrayOf(PrefKeys.UPLOAD_MEDIA, PrefKeys.VISIT_WEBSITE, PrefKeys.LANGUAGE)
   }
 }
