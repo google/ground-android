@@ -23,8 +23,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.SURVEY
-import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
-import org.groundplatform.android.persistence.remote.FakeRemoteDataStore
+import org.groundplatform.android.data.local.stores.LocalSurveyStore
+import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
 import org.junit.Before
 import org.junit.Test

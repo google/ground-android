@@ -36,10 +36,10 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.R
+import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.launchFragmentInHiltContainer
 import org.groundplatform.android.launchFragmentWithNavController
 import org.groundplatform.android.model.TermsOfService
-import org.groundplatform.android.persistence.remote.FakeRemoteDataStore
 import org.groundplatform.android.repository.TermsOfServiceRepository
 import org.groundplatform.android.system.NetworkManager
 import org.junit.Rule

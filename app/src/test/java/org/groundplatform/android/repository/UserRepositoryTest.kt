@@ -24,11 +24,11 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
+import org.groundplatform.android.data.local.LocalValueStore
+import org.groundplatform.android.data.local.stores.LocalSurveyStore
+import org.groundplatform.android.data.local.stores.LocalUserStore
+import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.model.Role
-import org.groundplatform.android.persistence.local.LocalValueStore
-import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
-import org.groundplatform.android.persistence.local.stores.LocalUserStore
-import org.groundplatform.android.persistence.remote.FakeRemoteDataStore
 import org.groundplatform.android.proto.Survey
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.auth.FakeAuthenticationManager

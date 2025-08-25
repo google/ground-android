@@ -21,8 +21,8 @@ import dagger.Provides
 import dagger.hilt.components.SingletonComponent
 import dagger.hilt.testing.TestInstallIn
 import javax.inject.Singleton
-import org.groundplatform.android.persistence.sync.FakeWorkManager
-import org.groundplatform.android.persistence.sync.WorkManagerModule
+import org.groundplatform.android.data.sync.FakeWorkManager
+import org.groundplatform.android.data.sync.WorkManagerModule
 
 @Module
 @TestInstallIn(components = [SingletonComponent::class], replaces = [WorkManagerModule::class])

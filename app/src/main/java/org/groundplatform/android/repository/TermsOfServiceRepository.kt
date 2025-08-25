@@ -19,10 +19,10 @@ package org.groundplatform.android.repository
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.withTimeout
+import org.groundplatform.android.data.local.LocalValueStore
+import org.groundplatform.android.data.remote.DataStoreException
+import org.groundplatform.android.data.remote.RemoteDataStore
 import org.groundplatform.android.model.TermsOfService
-import org.groundplatform.android.persistence.local.LocalValueStore
-import org.groundplatform.android.persistence.remote.DataStoreException
-import org.groundplatform.android.persistence.remote.RemoteDataStore
 import org.groundplatform.android.system.NetworkManager
 import timber.log.Timber
 

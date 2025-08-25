@@ -25,8 +25,8 @@ import javax.inject.Inject
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
-import org.groundplatform.android.persistence.local.room.LocalDataStoreException
-import org.groundplatform.android.persistence.remote.FakeRemoteDataStore
+import org.groundplatform.android.data.local.room.LocalDataStoreException
+import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.repository.TermsOfServiceRepository
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.auth.FakeAuthenticationManager

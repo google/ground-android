@@ -30,8 +30,8 @@ import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST
 import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST_FEATURE
 import org.groundplatform.android.FakeData.SURVEY
 import org.groundplatform.android.FakeData.USER
+import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.model.geometry.Coordinates
-import org.groundplatform.android.persistence.remote.FakeRemoteDataStore
 import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.repository.UserRepository

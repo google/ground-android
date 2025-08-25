@@ -23,12 +23,12 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import org.groundplatform.android.common.Constants
+import org.groundplatform.android.data.local.stores.LocalOfflineAreaStore
+import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.android.model.imagery.LocalTileSource
 import org.groundplatform.android.model.imagery.OfflineArea
 import org.groundplatform.android.model.imagery.RemoteMogTileSource
 import org.groundplatform.android.model.imagery.TileSource
-import org.groundplatform.android.persistence.local.stores.LocalOfflineAreaStore
-import org.groundplatform.android.persistence.uuid.OfflineUuidGenerator
 import org.groundplatform.android.system.GeocodingManager
 import org.groundplatform.android.ui.map.Bounds
 import org.groundplatform.android.ui.map.gms.mog.MogClient

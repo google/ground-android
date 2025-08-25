@@ -24,7 +24,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
-import org.groundplatform.android.persistence.local.room.LocalDatabase
+import org.groundplatform.android.data.local.room.LocalDatabase
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule

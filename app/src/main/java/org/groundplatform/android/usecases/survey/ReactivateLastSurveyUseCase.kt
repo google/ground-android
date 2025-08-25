@@ -17,7 +17,7 @@
 package org.groundplatform.android.usecases.survey
 
 import javax.inject.Inject
-import org.groundplatform.android.persistence.local.LocalValueStore
+import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.repository.SurveyRepository
 
 /** Attempts to reactivate the last survey. If survey is already active, does nothing. */

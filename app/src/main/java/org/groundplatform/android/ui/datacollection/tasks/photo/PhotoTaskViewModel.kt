@@ -24,9 +24,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import org.groundplatform.android.data.remote.firebase.FirebaseStorageManager
 import org.groundplatform.android.model.submission.PhotoTaskData
 import org.groundplatform.android.model.submission.isNotNullOrEmpty
-import org.groundplatform.android.persistence.remote.firebase.FirebaseStorageManager
 import org.groundplatform.android.repository.UserMediaRepository
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 import timber.log.Timber

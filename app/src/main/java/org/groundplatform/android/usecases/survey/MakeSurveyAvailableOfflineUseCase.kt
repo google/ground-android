@@ -17,8 +17,8 @@
 package org.groundplatform.android.usecases.survey
 
 import javax.inject.Inject
+import org.groundplatform.android.data.remote.RemoteDataStore
 import org.groundplatform.android.model.Survey
-import org.groundplatform.android.persistence.remote.RemoteDataStore
 
 /**
  * Makes the survey with the specified ID and related LOIs available offline. Subscribes to updates

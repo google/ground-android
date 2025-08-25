@@ -23,7 +23,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dagger.hilt.testing.TestInstallIn
 import javax.inject.Singleton
-import org.groundplatform.android.persistence.local.room.LocalDatabase
+import org.groundplatform.android.data.local.room.LocalDatabase
 
 @Module
 @TestInstallIn(components = [SingletonComponent::class], replaces = [LocalDatabaseModule::class])

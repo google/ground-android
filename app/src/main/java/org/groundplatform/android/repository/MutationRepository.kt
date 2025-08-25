@@ -21,6 +21,9 @@ import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import org.groundplatform.android.data.local.stores.LocalLocationOfInterestStore
+import org.groundplatform.android.data.local.stores.LocalSubmissionStore
+import org.groundplatform.android.data.remote.RemoteDataStore
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.User
 import org.groundplatform.android.model.mutation.LocationOfInterestMutation
@@ -36,9 +39,6 @@ import org.groundplatform.android.model.mutation.Mutation.SyncStatus.PENDING
 import org.groundplatform.android.model.mutation.Mutation.SyncStatus.UNKNOWN
 import org.groundplatform.android.model.mutation.SubmissionMutation
 import org.groundplatform.android.model.submission.UploadQueueEntry
-import org.groundplatform.android.persistence.local.stores.LocalLocationOfInterestStore
-import org.groundplatform.android.persistence.local.stores.LocalSubmissionStore
-import org.groundplatform.android.persistence.remote.RemoteDataStore
 import org.groundplatform.android.system.auth.AuthenticationManager
 import timber.log.Timber
 

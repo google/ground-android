@@ -30,7 +30,7 @@ import javax.inject.Inject
 import org.groundplatform.android.MainActivity
 import org.groundplatform.android.R
 import org.groundplatform.android.common.Constants
-import org.groundplatform.android.persistence.local.LocalValueStore
+import org.groundplatform.android.data.local.LocalValueStore
 
 /**
  * Fragment containing app preferences saved as shared preferences.
