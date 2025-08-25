@@ -73,6 +73,9 @@ object BindingAdapters {
     if (view == null || uri == null) return
 
     val dm = view.resources.displayMetrics
+    // Determine target dimensions for Glide to avoid loading very large images into memory.
+    // - Prefer the view’s measured size if available, else fall back to half the screen size.
+    // - Clamp to a maximum of 2048px to keep decoding efficient and prevent OOM on huge images.
     val targetW = (if (view.width > 0) view.width else dm.widthPixels / 2).coerceAtMost(2048)
     val targetH = (if (view.height > 0) view.height else dm.heightPixels / 2).coerceAtMost(2048)
 
