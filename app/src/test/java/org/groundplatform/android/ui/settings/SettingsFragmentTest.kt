@@ -85,29 +85,13 @@ class SettingsFragmentTest : BaseHiltTest() {
     assertThat(item).isNotNull()
 
     val items = item!!.getPreferenceCount()
-    assertThat(items).isEqualTo(2)
+    assertThat(items).isEqualTo(1)
 
     val preferenceHelp = item.getPreference(0)
     assertThat(preferenceHelp.title.toString())
       .isEqualTo(fragment.getString(R.string.visit_website_title))
     assertThat(preferenceHelp.summary.toString())
       .isEqualTo(fragment.getString(R.string.ground_website))
-
-    val preferenceFeedback = item.getPreference(1)
-    assertThat(preferenceFeedback.title.toString())
-      .isEqualTo(fragment.getString(R.string.send_feedback_title))
-    assertThat(preferenceFeedback.summary.toString())
-      .isEqualTo(fragment.getString(R.string.report_summary))
-  }
-
-  @Test
-  fun `feedback toast is displayed`() {
-    val item = fragment.findPreference<PreferenceCategory>("help_category")
-
-    val preferenceFeedback = item!!.getPreference(1)
-    preferenceFeedback.performClick()
-    assertThat(ShadowToast.getTextOfLatestToast())
-      .isEqualTo(fragment.getString(R.string.not_yet_impl_title))
   }
 
   @Test
