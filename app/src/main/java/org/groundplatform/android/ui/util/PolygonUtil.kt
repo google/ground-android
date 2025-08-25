@@ -121,8 +121,8 @@ private data class PolygonEdge(val a: Coordinates, val b: Coordinates)
  * Returns whether the polygon represented by vertices is closed (i.e., its first and last vertices
  * are the same).
  */
-private fun isClosed(vertices: List<Coordinates>): Boolean =
-  vertices.size >= 4 && vertices.first() == vertices.last()
+fun isClosed(coordinates: List<Coordinates>): Boolean =
+  coordinates.size >= 4 && coordinates.firstOrNull() == coordinates.lastOrNull()
 
 /** Checks if two segments share a common endpoint. */
 private fun shareEndpoint(s1: PolygonEdge, s2: PolygonEdge): Boolean =
