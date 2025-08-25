@@ -65,7 +65,7 @@ class LocalLocationOfInterestStoreTest : BaseHiltTest() {
   @Inject lateinit var locationOfInterestDao: LocationOfInterestDao
 
   @Test
-  fun testApplyAndEnqueue_insertsLoi() = runWithTestDispatcher {
+  fun `apply and enqueue when inserts loi`() = runWithTestDispatcher {
     localUserStore.insertOrUpdateUser(TEST_USER)
     localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
 
@@ -80,7 +80,7 @@ class LocalLocationOfInterestStoreTest : BaseHiltTest() {
   }
 
   @Test
-  fun testApplyAndEnqueue_insertsMutation() = runWithTestDispatcher {
+  fun `apply and enqueue when inserts mutation`() = runWithTestDispatcher {
     localUserStore.insertOrUpdateUser(TEST_USER)
     localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
 
@@ -93,7 +93,7 @@ class LocalLocationOfInterestStoreTest : BaseHiltTest() {
   }
 
   @Test
-  fun testApplyAndEnqueue_insertPolygonLoi() = runWithTestDispatcher {
+  fun `apply and enqueue when insert polygon loi`() = runWithTestDispatcher {
     localUserStore.insertOrUpdateUser(TEST_USER)
     localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
 
@@ -108,7 +108,7 @@ class LocalLocationOfInterestStoreTest : BaseHiltTest() {
   }
 
   @Test
-  fun testApplyAndEnqueue_enqueuesPolygonLoiMutation() = runWithTestDispatcher {
+  fun `apply and enqueue when enqueues polygon loi mutation`() = runWithTestDispatcher {
     localUserStore.insertOrUpdateUser(TEST_USER)
     localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
     localLoiStore.applyAndEnqueue(TEST_POLYGON_LOI_MUTATION)
@@ -119,7 +119,7 @@ class LocalLocationOfInterestStoreTest : BaseHiltTest() {
   }
 
   @Test
-  fun testFindLocationsOfInterest() = runWithTestDispatcher {
+  fun `find locations of interest`() = runWithTestDispatcher {
     localUserStore.insertOrUpdateUser(TEST_USER)
     localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
     localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION)
@@ -146,7 +146,7 @@ class LocalLocationOfInterestStoreTest : BaseHiltTest() {
   }
 
   @Test
-  fun testMergeLoi() = runWithTestDispatcher {
+  fun `merge loi`() = runWithTestDispatcher {
     localUserStore.insertOrUpdateUser(TEST_USER)
     localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
     localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION)
@@ -158,7 +158,7 @@ class LocalLocationOfInterestStoreTest : BaseHiltTest() {
   }
 
   @Test
-  fun testMergePolygonLoi() = runWithTestDispatcher {
+  fun `merge polygon loi`() = runWithTestDispatcher {
     localUserStore.insertOrUpdateUser(TEST_USER)
     localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
     localLoiStore.applyAndEnqueue(TEST_POLYGON_LOI_MUTATION)
@@ -170,7 +170,7 @@ class LocalLocationOfInterestStoreTest : BaseHiltTest() {
   }
 
   @Test
-  fun testDeleteLoi() = runWithTestDispatcher {
+  fun `delete loi`() = runWithTestDispatcher {
     localUserStore.insertOrUpdateUser(TEST_USER)
     localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
     localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION)
@@ -206,23 +206,23 @@ class LocalLocationOfInterestStoreTest : BaseHiltTest() {
   }
 
   @Test
-  fun testParseVertices_emptyString() {
+  fun `parse vertices when empty string`() {
     assertThat(parseVertices("")).isEqualTo(listOf<Any>())
   }
 
   @Test
-  fun testFormatVertices_emptyList() {
+  fun `format vertices when empty list`() {
     assertThat(formatVertices(listOf())).isNull()
   }
 
   @Test
-  fun testTermsOfServiceAccepted() {
+  fun `terms of service accepted`() {
     localValueStore.isTermsOfServiceAccepted = true
     assertThat(localValueStore.isTermsOfServiceAccepted).isTrue()
   }
 
   @Test
-  fun testTermsOfServiceNotAccepted() {
+  fun `terms of service not accepted`() {
     assertThat(localValueStore.isTermsOfServiceAccepted).isFalse()
   }
 

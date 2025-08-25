@@ -44,8 +44,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.groundplatform.android.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.AbstractFragment
-import org.groundplatform.android.ui.compose.HyperlinkText
-import org.groundplatform.android.ui.compose.Toolbar
+import org.groundplatform.android.ui.components.HyperlinkText
+import org.groundplatform.android.ui.components.Toolbar
 import org.groundplatform.android.util.createComposeView
 
 @AndroidEntryPoint

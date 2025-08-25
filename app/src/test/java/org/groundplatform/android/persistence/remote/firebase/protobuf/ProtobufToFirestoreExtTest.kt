@@ -42,7 +42,7 @@ class ProtobufToFirestoreExtTest(
   private val expectedOutput: Map<String, Any>,
 ) {
   @Test
-  fun toFirestoreMap() {
+  fun `converts to firestore map correctly`() {
     val output = input.toFirestoreMap(idField)
     Truth.assertThat(output).isEqualTo(expectedOutput)
   }

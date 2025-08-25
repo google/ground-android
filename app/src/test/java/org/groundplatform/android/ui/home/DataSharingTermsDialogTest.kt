@@ -39,7 +39,7 @@ class DataSharingTermsDialogTest : BaseHiltTest() {
   @get:Rule override val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
   @Test
-  fun `Title is displayed`() {
+  fun `title is displayed`() {
     composeTestRule.setContent {
       DataSharingTermsDialog(
         dataSharingTerms =
@@ -51,7 +51,7 @@ class DataSharingTermsDialogTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Verify private data sharing terms`() {
+  fun `verify private data sharing terms`() {
     composeTestRule.setContent {
       DataSharingTermsDialog(
         dataSharingTerms =
@@ -66,7 +66,7 @@ class DataSharingTermsDialogTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Verify public data sharing terms`() {
+  fun `verify public data sharing terms`() {
     composeTestRule.setContent {
       DataSharingTermsDialog(
         dataSharingTerms =
@@ -83,7 +83,7 @@ class DataSharingTermsDialogTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Verify custom data sharing terms`() {
+  fun `verify custom data sharing terms`() {
     composeTestRule.setContent {
       DataSharingTermsDialog(
         dataSharingTerms =
@@ -99,7 +99,7 @@ class DataSharingTermsDialogTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Verify message for no terms`() {
+  fun `verify message for no terms`() {
     composeTestRule.setContent {
       DataSharingTermsDialog(dataSharingTerms = Survey.DataSharingTerms.getDefaultInstance())
     }
@@ -109,7 +109,7 @@ class DataSharingTermsDialogTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Cancel button click dismisses the dialog`() {
+  fun `cancel button click dismisses the dialog`() {
     composeTestRule.setContent {
       DataSharingTermsDialog(
         dataSharingTerms =
@@ -125,7 +125,7 @@ class DataSharingTermsDialogTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Agree button click invokes consent callback`() {
+  fun `agree button click invokes consent callback`() {
     var callbackCalled = false
 
     composeTestRule.setContent {
