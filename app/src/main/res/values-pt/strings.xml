@@ -226,4 +226,9 @@
   <string name="dialog_title_update_required">Atualização necessária</string>
   <string name="dialog_message_update_required">Uma nova versão do aplicativo está disponível. Atualize para continuar usando o aplicativo.</string>
   <string name="dialog_button_update">Atualizar</string>
+
+  <string name="select_length_title">Unidade de comprimento</string>
+  <string name="select_length_summary">Selecione sua unidade preferida</string>
+  <string name="length_meters">Metros (m)</string>
+  <string name="length_feet">Pés (ft)</string>
 </resources>

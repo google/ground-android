@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.polygon
 
+import android.icu.util.MeasureUnit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -296,7 +297,16 @@ internal constructor(
     if (isMarkedComplete.value || vertices.size <= 1) return null
     val distance = vertices.penult().distanceTo(vertices.last())
     if (distance < TOOLTIP_MIN_DISTANCE_METERS) return null
-    return localeAwareMeasureFormatter.formatDistance(distance)
+    return localeAwareMeasureFormatter.formatDistance(distance, getDistanceUnit())
+  }
+
+  private fun getDistanceUnit(): MeasureUnit {
+    val unit = localValueStore.selectedLength
+    return when (unit) {
+      "m" -> MeasureUnit.METER
+      "ft" -> MeasureUnit.FOOT
+      else -> error("Unknown distance unit: $unit")
+    }
   }
 
   override fun validate(task: Task, taskData: TaskData?): Int? {
