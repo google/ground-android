@@ -157,9 +157,6 @@
   <string name="over_wifi_summary">Chỉ khi có Wi-Fi</string>
   <string name="help_title">Trợ giúp</string>
   <string name="visit_website_title">Truy cập trang web</string>
-  <string name="send_feedback_title">Gửi phản hồi</string>
-  <string name="report_summary">Báo cáo sự cố kỹ thuật hoặc đề xuất địa điểm quan tâm mới</string>
-  <string name="not_yet_impl_title">Chưa được triển khai</string>
   <string name="accuracy">Độ chính xác:</string>
   <string name="select_language_title">Chọn ngôn ngữ</string>
   <string name="select_language_summary">Chọn ngôn ngữ ưu tiên</string>
