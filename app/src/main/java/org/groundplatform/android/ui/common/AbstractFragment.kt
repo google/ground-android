@@ -32,7 +32,6 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import org.groundplatform.android.AbstractActivity
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.util.ViewUtil
 import org.groundplatform.android.util.Debug
