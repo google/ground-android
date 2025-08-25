@@ -241,18 +241,21 @@ internal constructor(
   }
 
   fun checkVertexIntersection(): Boolean {
-    val hit = isSelfIntersecting(vertices)
-    hasSelfIntersection = hit
-    if (hit) {
+    hasSelfIntersection = isSelfIntersecting(vertices)
+    if (hasSelfIntersection) {
       vertices = vertices.dropLast(1)
       onSelfIntersectionDetected()
     }
-    return hit
+    return hasSelfIntersection
   }
 
   fun validatePolygonCompletion(): Boolean {
+    if (vertices.size < 3) {
+      return false
+    }
+
     val ring =
-      if (vertices.size >= 3 && vertices.first() != vertices.last()) {
+      if (vertices.first() != vertices.last()) {
         vertices + vertices.first()
       } else {
         vertices
@@ -264,10 +267,6 @@ internal constructor(
       return false
     }
     return true
-  }
-
-  fun clearIntersectionFlag() {
-    hasSelfIntersection = false
   }
 
   private fun updateVertices(newVertices: List<Coordinates>) {

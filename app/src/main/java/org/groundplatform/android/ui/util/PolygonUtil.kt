@@ -122,7 +122,7 @@ private data class PolygonEdge(val a: Coordinates, val b: Coordinates)
  * are the same).
  */
 private fun isClosed(vertices: List<Coordinates>): Boolean =
-  vertices.size >= 3 && vertices.first() == vertices.last()
+  vertices.size >= 4 && vertices.first() == vertices.last()
 
 /** Checks if two segments share a common endpoint. */
 private fun shareEndpoint(s1: PolygonEdge, s2: PolygonEdge): Boolean =
