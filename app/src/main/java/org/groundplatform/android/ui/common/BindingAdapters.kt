@@ -23,8 +23,9 @@ import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.core.widget.ImageViewCompat
 import androidx.databinding.BindingAdapter
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
 import com.google.android.gms.common.SignInButton
-import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
 import kotlinx.coroutines.CoroutineScope
@@ -32,8 +33,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.groundplatform.android.R
-import org.groundplatform.android.ui.util.loadBitmapWithCorrectOrientation
-import timber.log.Timber
 
 /**
  * Container for adapter methods defining custom data binding behavior. This class cannot be made
@@ -73,16 +72,20 @@ object BindingAdapters {
   fun bindUri(view: ImageView?, uri: Uri?) {
     if (view == null || uri == null) return
 
-    try {
-      val rotatedBitmap = loadBitmapWithCorrectOrientation(view.context, uri)
-      view.setImageBitmap(rotatedBitmap)
-    } catch (e: IOException) {
-      Timber.e(e, "Failed to load image: IO error")
-      setErrorImage(view)
-    } catch (e: IllegalArgumentException) {
-      Timber.e(e, "Failed to load image: Invalid arguments")
-      setErrorImage(view)
-    }
+    val dm = view.resources.displayMetrics
+    // Determine target dimensions for Glide to avoid loading very large images into memory.
+    // - Prefer the view’s measured size if available, else fall back to half the screen size.
+    // - Clamp to a maximum of 2048px to keep decoding efficient and prevent OOM on huge images.
+    val targetW = (if (view.width > 0) view.width else dm.widthPixels / 2).coerceAtMost(2048)
+    val targetH = (if (view.height > 0) view.height else dm.heightPixels / 2).coerceAtMost(2048)
+
+    Glide.with(view)
+      .load(uri)
+      .override(targetW, targetH)
+      .fitCenter()
+      .downsample(DownsampleStrategy.AT_MOST)
+      .error(R.drawable.outline_error_outline_24)
+      .into(view)
   }
 
   @JvmStatic
@@ -100,9 +103,5 @@ object BindingAdapters {
   @BindingAdapter("visible")
   fun bindVisible(view: View, visible: Boolean) {
     view.visibility = if (visible) View.VISIBLE else View.GONE
-  }
-
-  private fun setErrorImage(view: ImageView) {
-    view.setImageResource(R.drawable.outline_error_outline_24)
   }
 }
