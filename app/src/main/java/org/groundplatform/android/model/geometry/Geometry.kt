@@ -21,6 +21,7 @@ import kotlinx.serialization.Serializable
 import org.groundplatform.android.ui.map.gms.GmsExt.center
 import org.groundplatform.android.ui.map.gms.GmsExt.toBounds
 import org.groundplatform.android.ui.map.gms.toLatLngList
+import org.groundplatform.android.ui.util.isClosed
 
 /** A common ancestor for all geometry types. */
 @Serializable
@@ -96,8 +97,7 @@ data class LineString(val coordinates: List<Coordinates>) : Geometry {
 
   override fun isEmpty() = coordinates.isEmpty()
 
-  fun isClosed(): Boolean =
-    coordinates.size >= 4 && coordinates.firstOrNull() == coordinates.lastOrNull()
+  fun isClosed(): Boolean = isClosed(coordinates)
 
   companion object {
     fun lineStringOf(vararg coordinates: Coordinates) = LineString(coordinates.asList())
