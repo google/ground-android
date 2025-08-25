@@ -16,9 +16,9 @@
 package org.groundplatform.android.ui.settings
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.net.toUri
 import androidx.core.os.LocaleListCompat
 import androidx.preference.DropDownPreference
 import androidx.preference.Preference
@@ -31,12 +31,7 @@ import org.groundplatform.android.R
 import org.groundplatform.android.common.Constants
 import org.groundplatform.android.persistence.local.LocalValueStore
 
-/**
- * Fragment containing app preferences saved as shared preferences.
- *
- * NOTE: It uses [PreferenceFragmentCompat] instead of [ ], so dagger can't inject into it like it
- * does in other fragments.
- */
+/** Fragment containing app preferences saved as shared preferences. */
 @AndroidEntryPoint
 class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClickListener {
 
@@ -84,15 +79,14 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
     preferenceManager.sharedPreferences?.getBoolean(Keys.UPLOAD_MEDIA, false) ?: false
 
   override fun onPreferenceClick(preference: Preference): Boolean {
-    when (preference.key) {
-      Keys.VISIT_WEBSITE -> openUrl(preference.summary.toString())
+    if (preference.key == Keys.VISIT_WEBSITE) {
+      openUrl(preference.summary.toString())
     }
     return true
   }
 
   private fun openUrl(url: String) {
-    val intent = Intent(Intent.ACTION_VIEW)
-    intent.data = Uri.parse(url)
+    val intent = Intent(Intent.ACTION_VIEW, url.toUri())
     startActivity(intent)
   }
 
