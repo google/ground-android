@@ -214,6 +214,9 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-tooling:$composeUi"
     stagingImplementation "androidx.compose.ui:ui-test-manifest:$composeUi"
 
+    // Image loading
+    implementation "com.github.bumptech.glide:glide:4.16.0"
+
     // Google Play Services.
     implementation 'com.google.android.gms:play-services-auth:21.3.0'
     implementation 'com.google.android.gms:play-services-maps:19.2.0'
