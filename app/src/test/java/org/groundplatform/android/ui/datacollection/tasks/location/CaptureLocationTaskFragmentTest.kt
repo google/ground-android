@@ -21,6 +21,7 @@ import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
+import org.groundplatform.android.FlakyTest
 import org.groundplatform.android.R
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.Point
@@ -78,6 +79,7 @@ class CaptureLocationTaskFragmentTest :
   }
 
   @Test
+  @FlakyTest
   fun `drop pin`() = runWithTestDispatcher {
     setupTaskFragment<CaptureLocationTaskFragment>(job, task)
     setupLocation()
