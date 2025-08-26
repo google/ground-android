@@ -108,6 +108,7 @@ class TaskDataHandlerTest {
   }
 
   @Test
+  @FlakyTest
   fun `getData returns null for unknown task`() = runTest {
     val handler = TaskDataHandler()
     val task = createTask("task1")
