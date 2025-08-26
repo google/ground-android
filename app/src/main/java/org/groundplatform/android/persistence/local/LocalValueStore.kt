@@ -20,10 +20,6 @@ import androidx.core.content.edit
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import org.groundplatform.android.ui.map.CameraPosition
 import org.groundplatform.android.ui.map.MapType
 import org.groundplatform.android.ui.settings.Keys
@@ -40,11 +36,6 @@ import timber.log.Timber
 class LocalValueStore
 @Inject
 constructor(private val preferences: SharedPreferences, private val locale: Locale) {
-  private val _mapType = MutableStateFlow(mapType)
-  private val _offlineImageryEnabled = MutableStateFlow(isOfflineImageryEnabled)
-
-  val mapTypeFlow: StateFlow<MapType> = _mapType.asStateFlow()
-  val offlineImageryEnabledFlow: StateFlow<Boolean> = _offlineImageryEnabled.asStateFlow()
 
   /**
    * Id of the last survey successfully activated by the user. This value is only updated after the
@@ -55,15 +46,9 @@ constructor(private val preferences: SharedPreferences, private val locale: Loca
     set(id) = allowThreadDiskWrites { preferences.edit { putString(ACTIVE_SURVEY_ID_KEY, id) } }
 
   /** The last map type selected. */
-  var mapType: MapType
-    get() = allowThreadDiskReads {
-      val mapTypeIdx = preferences.getInt(MAP_TYPE, MapType.DEFAULT.ordinal)
-      MapType.entries[mapTypeIdx]
-    }
-    set(value) = allowThreadDiskWrites {
-      preferences.edit { putInt(MAP_TYPE, value.ordinal) }
-      _mapType.update { value }
-    }
+  var mapType: Int
+    get() = allowThreadDiskReads { preferences.getInt(MAP_TYPE, MapType.DEFAULT.ordinal) }
+    set(value) = allowThreadDiskWrites { preferences.edit { putInt(MAP_TYPE, value) } }
 
   /** Whether location lock is enabled or not. */
   var isLocationLockEnabled: Boolean
@@ -82,7 +67,6 @@ constructor(private val preferences: SharedPreferences, private val locale: Loca
     get() = allowThreadDiskReads { preferences.getBoolean(OFFLINE_MAP_IMAGERY, true) }
     set(value) = allowThreadDiskReads {
       preferences.edit { putBoolean(OFFLINE_MAP_IMAGERY, value) }
-      _offlineImageryEnabled.update { value }
     }
 
   /** Whether to display instructions when loading a draw area task. */
