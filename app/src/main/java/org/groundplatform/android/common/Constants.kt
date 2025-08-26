@@ -74,4 +74,8 @@ object Constants {
 
   // TODO: Move to a util class
   fun isReleaseBuild(): Boolean = BuildConfig.BUILD_TYPE.contentEquals("release")
+
+  // Length Units
+  const val METER = "m"
+  const val FOOT = "ft"
 }

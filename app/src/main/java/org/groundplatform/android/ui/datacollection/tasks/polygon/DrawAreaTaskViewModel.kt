@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
+import org.groundplatform.android.common.Constants
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.LineString
 import org.groundplatform.android.model.geometry.LinearRing
@@ -303,8 +304,8 @@ internal constructor(
   private fun getDistanceUnit(): MeasureUnit {
     val unit = localValueStore.selectedLength
     return when (unit) {
-      "m" -> MeasureUnit.METER
-      "ft" -> MeasureUnit.FOOT
+      Constants.METER -> MeasureUnit.METER
+      Constants.FOOT -> MeasureUnit.FOOT
       else -> error("Unknown distance unit: $unit")
     }
   }
