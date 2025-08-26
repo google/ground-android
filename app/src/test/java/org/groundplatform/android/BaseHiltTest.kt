@@ -46,6 +46,8 @@ open class BaseHiltTest {
 
   @get:Rule(order = 3) open val composeTestRule = createComposeRule()
 
+  @get:Rule(order = 4) val flakyTestRule = FlakyTestRule()
+
   @Inject lateinit var database: LocalDatabase
   @Inject lateinit var testDispatcher: TestDispatcher
 
