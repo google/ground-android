@@ -32,8 +32,9 @@ private const val MIN_ROUNDED_DISTANCE = 10
 /** The number of decimal places shown for distances < MIN_ROUNDED_DISTANCE. */
 private const val SMALL_DISTANCE_DECIMAL_PLACES = 1
 
-class LocaleAwareMeasureFormatter @Inject constructor() {
-  private val uLocale = ULocale.forLocale(Locale.getDefault())
+class LocaleAwareMeasureFormatter @Inject constructor(locale: Locale) {
+
+  private val uLocale = ULocale.forLocale(locale)
   private val distanceFormatter =
     MeasureFormat.getInstance(uLocale, MeasureFormat.FormatWidth.SHORT)
 
