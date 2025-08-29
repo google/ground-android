@@ -33,6 +33,7 @@ import org.groundplatform.android.model.geometry.LinearRing
 import org.groundplatform.android.model.geometry.Polygon
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.getDefaultColor
+import org.groundplatform.android.model.map.Feature
 import org.groundplatform.android.model.submission.DrawAreaTaskData
 import org.groundplatform.android.model.submission.DrawAreaTaskIncompleteData
 import org.groundplatform.android.model.submission.TaskData
@@ -41,7 +42,6 @@ import org.groundplatform.android.persistence.local.LocalValueStore
 import org.groundplatform.android.persistence.uuid.OfflineUuidGenerator
 import org.groundplatform.android.ui.common.SharedViewModel
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
-import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.FeatureType
 import org.groundplatform.android.ui.util.LocaleAwareMeasureFormatter
 import org.groundplatform.android.ui.util.VibrationHelper

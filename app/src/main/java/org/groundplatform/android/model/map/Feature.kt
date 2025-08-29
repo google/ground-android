@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.ui.map
+package org.groundplatform.android.model.map
 
 import androidx.annotation.ColorInt
 import org.groundplatform.android.model.geometry.Geometry
-import org.groundplatform.android.ui.map.Feature.Tag
 
-/** Represents an individual feature on a map with a given [Geometry] and [Tag]. */
+/**
+ * Represents an individual feature on a map with a given
+ * [org.groundplatform.android.model.geometry.Geometry] and [Tag].
+ */
 data class Feature(
   val tag: Tag,
   val geometry: Geometry,

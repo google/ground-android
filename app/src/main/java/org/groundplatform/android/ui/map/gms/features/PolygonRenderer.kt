@@ -24,7 +24,7 @@ import com.google.android.gms.maps.model.PolygonOptions
 import javax.inject.Inject
 import org.groundplatform.android.R
 import org.groundplatform.android.model.geometry.Polygon
-import org.groundplatform.android.ui.map.Feature
+import org.groundplatform.android.model.map.Feature
 import org.groundplatform.android.ui.map.gms.POLYGON_Z
 import org.groundplatform.android.ui.map.gms.toLatLng
 import org.groundplatform.android.ui.map.gms.toLatLngList

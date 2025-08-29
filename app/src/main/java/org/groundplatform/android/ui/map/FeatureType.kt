@@ -15,6 +15,8 @@
  */
 package org.groundplatform.android.ui.map
 
+import org.groundplatform.android.model.map.Feature
+
 /**
  * Indicates the type of a geometric model object. Used to interpret other objects (e.g. map
  * features) back into model objects.

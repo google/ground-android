@@ -32,10 +32,10 @@ import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.databinding.MapTaskFragBinding
 import org.groundplatform.android.model.map.CameraPosition
+import org.groundplatform.android.model.map.Feature
 import org.groundplatform.android.ui.common.AbstractMapContainerFragment
 import org.groundplatform.android.ui.common.BaseMapViewModel
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
-import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.MapFragment
 import org.groundplatform.android.ui.map.gms.getAccuracyOrNull
 import org.groundplatform.android.ui.map.gms.toCoordinates

@@ -29,6 +29,7 @@ import org.groundplatform.android.R
 import org.groundplatform.android.databinding.FragmentDrawAreaTaskBinding
 import org.groundplatform.android.model.geometry.LineString
 import org.groundplatform.android.model.geometry.LineString.Companion.lineStringOf
+import org.groundplatform.android.model.map.Feature
 import org.groundplatform.android.model.submission.isNotNullOrEmpty
 import org.groundplatform.android.ui.components.ConfirmationDialog
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
@@ -38,7 +39,6 @@ import org.groundplatform.android.ui.datacollection.components.TaskView
 import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment.Companion.TASK_ID_FRAGMENT_ARG_KEY
-import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.util.renderComposableDialog
 
 @AndroidEntryPoint

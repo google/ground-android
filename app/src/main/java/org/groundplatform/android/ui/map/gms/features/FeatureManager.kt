@@ -28,7 +28,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import org.groundplatform.android.coroutines.MainScope
-import org.groundplatform.android.ui.map.Feature
+import org.groundplatform.android.model.map.Feature
 import timber.log.Timber
 
 /**
