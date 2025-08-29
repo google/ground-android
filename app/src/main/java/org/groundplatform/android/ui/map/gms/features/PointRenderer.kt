@@ -25,8 +25,8 @@ import com.google.android.gms.maps.model.MarkerOptions
 import javax.inject.Inject
 import org.groundplatform.android.R
 import org.groundplatform.android.model.geometry.Point
-import org.groundplatform.android.model.map.Feature
 import org.groundplatform.android.ui.IconFactory
+import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.gms.MARKER_Z
 import org.groundplatform.android.ui.map.gms.toLatLng
 

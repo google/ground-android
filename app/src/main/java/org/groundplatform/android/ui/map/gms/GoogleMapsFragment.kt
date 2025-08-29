@@ -51,10 +51,10 @@ import org.groundplatform.android.model.imagery.RemoteMogTileSource
 import org.groundplatform.android.model.imagery.TileSource
 import org.groundplatform.android.model.map.Bounds
 import org.groundplatform.android.model.map.CameraPosition
-import org.groundplatform.android.model.map.Feature
 import org.groundplatform.android.model.map.MapType
 import org.groundplatform.android.persistence.remote.RemoteStorageManager
 import org.groundplatform.android.ui.common.AbstractFragment
+import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.MapFragment
 import org.groundplatform.android.ui.map.gms.features.FeatureManager
 import org.groundplatform.android.ui.map.gms.mog.MogCollection

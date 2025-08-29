@@ -22,7 +22,6 @@ import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.imagery.TileSource
 import org.groundplatform.android.model.map.Bounds
 import org.groundplatform.android.model.map.CameraPosition
-import org.groundplatform.android.model.map.Feature
 import org.groundplatform.android.model.map.MapType
 import org.groundplatform.android.ui.common.AbstractFragment
 
@@ -41,8 +40,8 @@ interface MapFragment {
   var viewport: Bounds
 
   /**
-   * Clicks on [org.groundplatform.android.model.map.Feature] on the maps. A set with multiple items
-   * is emitted when multiple overlapping geometries overlap the click location.
+   * Clicks on [Feature] on the maps. A set with multiple items is emitted when multiple overlapping
+   * geometries overlap the click location.
    */
   val featureClicks: SharedFlow<Set<Feature>>
 

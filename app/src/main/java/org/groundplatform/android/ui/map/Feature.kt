@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.model.map
+package org.groundplatform.android.ui.map
 
 import androidx.annotation.ColorInt
 import org.groundplatform.android.model.geometry.Geometry

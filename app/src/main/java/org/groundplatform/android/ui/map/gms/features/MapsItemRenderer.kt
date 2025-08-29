@@ -17,7 +17,7 @@ package org.groundplatform.android.ui.map.gms.features
 
 import com.google.android.gms.maps.GoogleMap
 import org.groundplatform.android.model.geometry.Geometry
-import org.groundplatform.android.model.map.Feature
+import org.groundplatform.android.ui.map.Feature
 
 interface MapsItemRenderer<T : Geometry, U> {
   fun add(

@@ -40,7 +40,6 @@ import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.getDefaultColor
 import org.groundplatform.android.model.locationofinterest.LocationOfInterest
-import org.groundplatform.android.model.map.Feature
 import org.groundplatform.android.persistence.local.LocalValueStore
 import org.groundplatform.android.proto.Survey.DataSharingTerms
 import org.groundplatform.android.repository.LocationOfInterestRepository
@@ -57,6 +56,7 @@ import org.groundplatform.android.ui.common.SharedViewModel
 import org.groundplatform.android.ui.home.mapcontainer.jobs.AdHocDataCollectionButtonData
 import org.groundplatform.android.ui.home.mapcontainer.jobs.DataCollectionEntryPointData
 import org.groundplatform.android.ui.home.mapcontainer.jobs.SelectedLoiSheetData
+import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.usecases.datasharingterms.GetDataSharingTermsUseCase
 
 @OptIn(ExperimentalCoroutinesApi::class)
