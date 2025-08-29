@@ -16,23 +16,17 @@
 package org.groundplatform.android.model.map
 
 import android.os.Parcelable
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import kotlinx.parcelize.Parcelize
-import org.groundplatform.android.R
 
 /**
  * The type of base map shown beneath all other layers. Google Maps SDK refers to these as "map
  * type", or "map styles" in Mapbox, or "basemap" in Leaflet.
  */
 @Parcelize
-enum class MapType(
-  @field:StringRes @StringRes val labelId: Int,
-  @field:DrawableRes @DrawableRes val imageId: Int,
-) : Parcelable {
-  ROAD(R.string.road_map, R.drawable.map_type_roadmap),
-  TERRAIN(R.string.terrain, R.drawable.map_type_terrain),
-  SATELLITE(R.string.satellite, R.drawable.map_type_satellite);
+enum class MapType : Parcelable {
+  ROAD,
+  TERRAIN,
+  SATELLITE;
 
   companion object {
     val DEFAULT = TERRAIN
