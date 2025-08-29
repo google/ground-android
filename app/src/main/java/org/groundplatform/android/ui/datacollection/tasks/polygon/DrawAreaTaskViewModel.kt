@@ -42,7 +42,6 @@ import org.groundplatform.android.persistence.local.LocalValueStore
 import org.groundplatform.android.persistence.uuid.OfflineUuidGenerator
 import org.groundplatform.android.ui.common.SharedViewModel
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
-import org.groundplatform.android.ui.map.FeatureType
 import org.groundplatform.android.ui.util.LocaleAwareMeasureFormatter
 import org.groundplatform.android.ui.util.VibrationHelper
 import org.groundplatform.android.ui.util.calculateShoelacePolygonArea
@@ -283,7 +282,7 @@ internal constructor(
   private suspend fun buildPolygonFeature() =
     Feature(
       id = uuidGenerator.generateUuid(),
-      type = FeatureType.USER_POLYGON.ordinal,
+      type = Feature.Type.USER_POLYGON,
       geometry = LineString(vertices),
       style = Feature.Style(strokeColor, Feature.VertexStyle.CIRCLE),
       clusterable = false,

@@ -57,8 +57,6 @@ import org.groundplatform.android.ui.common.SharedViewModel
 import org.groundplatform.android.ui.home.mapcontainer.jobs.AdHocDataCollectionButtonData
 import org.groundplatform.android.ui.home.mapcontainer.jobs.DataCollectionEntryPointData
 import org.groundplatform.android.ui.home.mapcontainer.jobs.SelectedLoiSheetData
-import org.groundplatform.android.ui.map.FeatureType
-import org.groundplatform.android.ui.map.isLocationOfInterest
 import org.groundplatform.android.usecases.datasharingterms.GetDataSharingTermsUseCase
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -212,7 +210,11 @@ internal constructor(
     selectedLoiId: String?,
   ): Set<Feature> =
     features
-      .map { it.withSelected(it.isLocationOfInterest() && it.tag.id == selectedLoiId) }
+      .map {
+        it.withSelected(
+          it.tag.type == Feature.Type.LOCATION_OF_INTEREST && it.tag.id == selectedLoiId
+        )
+      }
       .toSet()
 
   /**
@@ -236,7 +238,7 @@ internal constructor(
   private suspend fun LocationOfInterest.toFeature() =
     Feature(
       id = id,
-      type = FeatureType.LOCATION_OF_INTEREST.ordinal,
+      type = Feature.Type.LOCATION_OF_INTEREST,
       flag = submissionRepository.getTotalSubmissionCount(this) > 0,
       geometry = geometry,
       style = Feature.Style(job.getDefaultColor()),

@@ -41,7 +41,6 @@ import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.proto.Survey.DataSharingTerms
 import org.groundplatform.android.proto.SurveyKt.dataSharingTerms
 import org.groundplatform.android.proto.copy
-import org.groundplatform.android.ui.map.FeatureType
 import org.groundplatform.android.ui.map.gms.features.FeatureClusterItem
 
 /**
@@ -116,7 +115,7 @@ object FakeData {
   val LOCATION_OF_INTEREST_FEATURE =
     Feature(
       id = LOCATION_OF_INTEREST.id,
-      type = FeatureType.LOCATION_OF_INTEREST.ordinal,
+      type = Feature.Type.LOCATION_OF_INTEREST,
       geometry = LOCATION_OF_INTEREST.geometry,
       style = Feature.Style(0),
       clusterable = true,
