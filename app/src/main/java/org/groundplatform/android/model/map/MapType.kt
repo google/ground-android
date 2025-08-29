@@ -26,5 +26,5 @@ import kotlinx.parcelize.Parcelize
 enum class MapType : Parcelable {
   ROAD,
   TERRAIN,
-  SATELLITE;
+  SATELLITE,
 }

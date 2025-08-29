@@ -57,6 +57,9 @@ object Constants {
   /** Limit on the permitted character length for free text question responses. */
   const val TEXT_DATA_CHAR_LIMIT = 255
 
+  /** Default map type used when map is displayed. */
+  val DEFAULT_MAP_TYPE = MapType.TERRAIN
+
   // TODO: Make sub-paths configurable and stop hardcoding here.
   // Issue URL: https://github.com/google/ground-android/issues/1730
   const val DEFAULT_MOG_TILE_LOCATION = "/offline-imagery/default"
@@ -75,6 +78,4 @@ object Constants {
 
   // TODO: Move to a util class
   fun isReleaseBuild(): Boolean = BuildConfig.BUILD_TYPE.contentEquals("release")
-
-  val DEFAULT_MAP_TYPE = MapType.TERRAIN
 }
