@@ -37,6 +37,7 @@ import org.groundplatform.android.R
 import org.groundplatform.android.launchFragmentWithNavController
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.Point
+import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.model.mutation.Mutation
 import org.groundplatform.android.model.mutation.SubmissionMutation
 import org.groundplatform.android.model.submission.DraftSubmission
@@ -57,7 +58,6 @@ import org.groundplatform.android.repository.MutationRepository
 import org.groundplatform.android.repository.SubmissionRepository
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.ui.datacollection.tasks.point.DropPinTaskViewModel
-import org.groundplatform.android.ui.map.CameraPosition
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
 import org.junit.Test
 import org.junit.runner.RunWith

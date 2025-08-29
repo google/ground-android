@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.ui.map
+package org.groundplatform.android.model.map
 
 import com.google.common.truth.Truth.assertThat
 import org.groundplatform.android.FakeData
-import org.groundplatform.android.model.map.Bounds
 import org.junit.Test
 
 class CameraPositionTest {

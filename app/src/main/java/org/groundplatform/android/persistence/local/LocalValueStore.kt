@@ -24,7 +24,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import org.groundplatform.android.ui.map.CameraPosition
+import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.ui.map.MapType
 import org.groundplatform.android.ui.settings.Keys
 import org.groundplatform.android.util.allowThreadDiskReads

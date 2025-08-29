@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.ui.map
+package org.groundplatform.android.model.map
 
 import org.groundplatform.android.model.geometry.Coordinates
-import org.groundplatform.android.model.map.Bounds
 import timber.log.Timber
 
 /** Represents current camera position of the map. */
@@ -60,7 +59,7 @@ data class CameraPosition(
           return CameraPosition(Coordinates(lat, long), zoomLevel, bounds)
         }
         .getOrElse { exception ->
-          Timber.e(exception)
+          Timber.Forest.e(exception)
           // Prevent app from crashing if we are unable to parse the camera position
           null
         }

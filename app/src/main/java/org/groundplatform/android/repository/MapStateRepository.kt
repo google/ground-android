@@ -18,8 +18,8 @@ package org.groundplatform.android.repository
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
+import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.persistence.local.LocalValueStore
-import org.groundplatform.android.ui.map.CameraPosition
 import org.groundplatform.android.ui.map.MapType
 
 /** Provides access and storage of persistent map states. */
