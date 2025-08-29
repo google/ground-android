@@ -49,9 +49,9 @@ import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.imagery.LocalTileSource
 import org.groundplatform.android.model.imagery.RemoteMogTileSource
 import org.groundplatform.android.model.imagery.TileSource
+import org.groundplatform.android.model.map.Bounds
 import org.groundplatform.android.persistence.remote.RemoteStorageManager
 import org.groundplatform.android.ui.common.AbstractFragment
-import org.groundplatform.android.ui.map.Bounds
 import org.groundplatform.android.ui.map.CameraPosition
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.MapFragment

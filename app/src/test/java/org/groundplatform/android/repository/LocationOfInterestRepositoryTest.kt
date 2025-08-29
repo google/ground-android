@@ -31,13 +31,13 @@ import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.LinearRing
 import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.model.geometry.Polygon
+import org.groundplatform.android.model.map.Bounds
 import org.groundplatform.android.model.mutation.Mutation.Type.CREATE
 import org.groundplatform.android.persistence.local.stores.LocalLocationOfInterestStore
 import org.groundplatform.android.persistence.remote.FakeRemoteDataStore
 import org.groundplatform.android.persistence.sync.MutationSyncWorkManager
 import org.groundplatform.android.proto.Survey.DataVisibility
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
-import org.groundplatform.android.ui.map.Bounds
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
 import org.groundplatform.android.usecases.survey.SyncSurveyUseCase
 import org.junit.Before

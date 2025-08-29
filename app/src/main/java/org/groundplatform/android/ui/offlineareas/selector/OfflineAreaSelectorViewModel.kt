@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.coroutines.IoDispatcher
+import org.groundplatform.android.model.map.Bounds
 import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.MapStateRepository
 import org.groundplatform.android.repository.OfflineAreaRepository
@@ -37,7 +38,6 @@ import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.system.SettingsManager
 import org.groundplatform.android.ui.common.BaseMapViewModel
 import org.groundplatform.android.ui.common.SharedViewModel
-import org.groundplatform.android.ui.map.Bounds
 import org.groundplatform.android.ui.map.CameraPosition
 import org.groundplatform.android.util.toMb
 import org.groundplatform.android.util.toMbString
