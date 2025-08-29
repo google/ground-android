@@ -271,7 +271,7 @@
     android:label="MapTypeDialogFragment">
     <argument
       android:name="mapTypes"
-      app:argType="org.groundplatform.android.ui.map.MapType[]" />
+      app:argType="org.groundplatform.android.model.map.MapType[]" />
   </dialog>
   <fragment
     android:id="@+id/aboutFragment"

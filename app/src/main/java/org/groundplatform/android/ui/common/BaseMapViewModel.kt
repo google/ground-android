@@ -50,6 +50,7 @@ import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.imagery.TileSource
 import org.groundplatform.android.model.map.CameraPosition
+import org.groundplatform.android.model.map.MapType
 import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.MapStateRepository
 import org.groundplatform.android.repository.OfflineAreaRepository
@@ -59,7 +60,6 @@ import org.groundplatform.android.system.LocationManager
 import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.system.SettingsManager
 import org.groundplatform.android.ui.map.CameraUpdateRequest
-import org.groundplatform.android.ui.map.MapType
 import org.groundplatform.android.ui.map.NewCameraPositionViaBounds
 import org.groundplatform.android.ui.map.NewCameraPositionViaCoordinates
 import org.groundplatform.android.ui.map.NewCameraPositionViaCoordinatesAndZoomLevel
