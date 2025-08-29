@@ -27,8 +27,4 @@ enum class MapType : Parcelable {
   ROAD,
   TERRAIN,
   SATELLITE;
-
-  companion object {
-    val DEFAULT = TERRAIN
-  }
 }

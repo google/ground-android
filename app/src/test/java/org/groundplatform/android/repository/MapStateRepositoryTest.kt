@@ -36,8 +36,8 @@ class MapStateRepositoryTest : BaseHiltTest() {
   @Inject lateinit var localValueStore: LocalValueStore
 
   @Test
-  fun `getMapType() should return default value when not set`() {
-    assertThat(mapStateRepository.mapType).isEqualTo(MapType.DEFAULT)
+  fun `getMapType() should return terrain value when not set`() {
+    assertThat(mapStateRepository.mapType).isEqualTo(MapType.TERRAIN)
   }
 
   @Test

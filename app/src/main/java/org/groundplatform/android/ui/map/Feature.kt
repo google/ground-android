@@ -18,10 +18,7 @@ package org.groundplatform.android.ui.map
 import androidx.annotation.ColorInt
 import org.groundplatform.android.model.geometry.Geometry
 
-/**
- * Represents an individual feature on a map with a given
- * [org.groundplatform.android.model.geometry.Geometry] and [Tag].
- */
+/** Represents an individual feature on a map with a given [Geometry] and [Tag]. */
 data class Feature(
   val tag: Tag,
   val geometry: Geometry,

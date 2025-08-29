@@ -17,6 +17,7 @@ package org.groundplatform.android.common
 
 import android.content.Context
 import org.groundplatform.android.BuildConfig
+import org.groundplatform.android.model.map.MapType
 import org.groundplatform.android.ui.map.gms.mog.MogSource
 
 /** Application constants. */
@@ -74,4 +75,6 @@ object Constants {
 
   // TODO: Move to a util class
   fun isReleaseBuild(): Boolean = BuildConfig.BUILD_TYPE.contentEquals("release")
+
+  val DEFAULT_MAP_TYPE = MapType.TERRAIN
 }

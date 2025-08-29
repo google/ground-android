@@ -59,7 +59,7 @@ data class CameraPosition(
           return CameraPosition(Coordinates(lat, long), zoomLevel, bounds)
         }
         .getOrElse { exception ->
-          Timber.Forest.e(exception)
+          Timber.e(exception)
           // Prevent app from crashing if we are unable to parse the camera position
           null
         }
