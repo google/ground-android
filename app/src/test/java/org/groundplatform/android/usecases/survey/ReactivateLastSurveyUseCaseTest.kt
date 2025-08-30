@@ -24,9 +24,9 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.FAKE_GENERAL_ACCESS
+import org.groundplatform.android.data.local.LocalValueStore
+import org.groundplatform.android.data.local.stores.LocalSurveyStore
 import org.groundplatform.android.model.Survey
-import org.groundplatform.android.persistence.local.LocalValueStore
-import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner

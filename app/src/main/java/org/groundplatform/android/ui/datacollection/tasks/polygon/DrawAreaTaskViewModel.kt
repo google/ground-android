@@ -28,6 +28,8 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
+import org.groundplatform.android.data.local.LocalValueStore
+import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.android.common.Constants
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.LineString
@@ -39,8 +41,6 @@ import org.groundplatform.android.model.submission.DrawAreaTaskData
 import org.groundplatform.android.model.submission.DrawAreaTaskIncompleteData
 import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.task.Task
-import org.groundplatform.android.persistence.local.LocalValueStore
-import org.groundplatform.android.persistence.uuid.OfflineUuidGenerator
 import org.groundplatform.android.ui.common.SharedViewModel
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 import org.groundplatform.android.ui.map.Feature

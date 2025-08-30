@@ -40,14 +40,14 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.groundplatform.android.coroutines.ApplicationScope
 import org.groundplatform.android.coroutines.IoDispatcher
+import org.groundplatform.android.data.local.room.converter.SubmissionDeltasConverter
+import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.submission.ValueDelta
 import org.groundplatform.android.model.submission.isNotNullOrEmpty
 import org.groundplatform.android.model.task.Task
-import org.groundplatform.android.persistence.local.room.converter.SubmissionDeltasConverter
-import org.groundplatform.android.persistence.uuid.OfflineUuidGenerator
 import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.SubmissionRepository
 import org.groundplatform.android.repository.SurveyRepository
