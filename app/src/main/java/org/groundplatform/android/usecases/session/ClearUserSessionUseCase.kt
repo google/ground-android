@@ -16,7 +16,7 @@
 package org.groundplatform.android.usecases.session
 
 import javax.inject.Inject
-import org.groundplatform.android.persistence.local.room.LocalDatabase
+import org.groundplatform.android.data.local.room.LocalDatabase
 import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.repository.UserRepository
