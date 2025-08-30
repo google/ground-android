@@ -207,4 +207,9 @@
   <string name="dialog_title_update_required">Mise à jour requise</string>
   <string name="dialog_message_update_required">Une nouvelle version de l&#8217;application est disponible. Veuillez mettre à jour pour continuer à utiliser l&#8217;application.</string>
   <string name="dialog_button_update">Mettre à jour</string>
+
+  <string name="select_length_title">Unité de longueur</string>
+  <string name="select_length_summary">Sélectionnez votre unité préférée</string>
+  <string name="length_meters">Mètres (m)</string>
+  <string name="length_feet">Pieds (pi)</string>
 </resources>

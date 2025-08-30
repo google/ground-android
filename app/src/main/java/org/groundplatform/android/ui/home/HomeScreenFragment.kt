@@ -34,10 +34,10 @@ import javax.inject.Inject
 import kotlinx.coroutines.launch
 import org.groundplatform.android.BuildConfig
 import org.groundplatform.android.R
+import org.groundplatform.android.data.local.room.converter.SubmissionDeltasConverter
 import org.groundplatform.android.databinding.HomeScreenFragBinding
 import org.groundplatform.android.databinding.NavDrawerHeaderBinding
 import org.groundplatform.android.model.User
-import org.groundplatform.android.persistence.local.room.converter.SubmissionDeltasConverter
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.common.BackPressListener

@@ -28,7 +28,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.asExecutor
 import org.groundplatform.android.common.Constants
 import org.groundplatform.android.coroutines.IoDispatcher
-import org.groundplatform.android.persistence.local.room.LocalDatabase
+import org.groundplatform.android.data.local.room.LocalDatabase
 
 @InstallIn(SingletonComponent::class)
 @Module
