@@ -15,7 +15,7 @@
  */
 package org.groundplatform.android.model.imagery
 
-import org.groundplatform.android.ui.map.Bounds
+import org.groundplatform.android.model.map.Bounds
 import org.groundplatform.android.ui.map.gms.mog.TileCoordinates
 
 /** An area is a contiguous set of tiles that task a geodesic rectangle. */

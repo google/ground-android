@@ -62,6 +62,7 @@ import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.Job.DataCollectionStrategy
 import org.groundplatform.android.model.job.Style
 import org.groundplatform.android.model.locationofinterest.LocationOfInterest
+import org.groundplatform.android.model.map.Bounds
 import org.groundplatform.android.model.mutation.LocationOfInterestMutation
 import org.groundplatform.android.model.mutation.SubmissionMutation
 import org.groundplatform.android.model.submission.DraftSubmission
@@ -74,7 +75,6 @@ import org.groundplatform.android.model.task.Option
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.model.task.TaskId
 import org.groundplatform.android.proto.Survey.DataSharingTerms
-import org.groundplatform.android.ui.map.Bounds
 import org.json.JSONObject
 import timber.log.Timber
 

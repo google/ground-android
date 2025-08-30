@@ -30,6 +30,7 @@ import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.Style
 import org.groundplatform.android.model.locationofinterest.LOI_NAME_PROPERTY
 import org.groundplatform.android.model.locationofinterest.LocationOfInterest
+import org.groundplatform.android.model.map.Bounds
 import org.groundplatform.android.model.mutation.LocationOfInterestMutation
 import org.groundplatform.android.model.mutation.Mutation
 import org.groundplatform.android.model.mutation.SubmissionMutation
@@ -39,9 +40,7 @@ import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.proto.Survey.DataSharingTerms
 import org.groundplatform.android.proto.SurveyKt.dataSharingTerms
 import org.groundplatform.android.proto.copy
-import org.groundplatform.android.ui.map.Bounds
 import org.groundplatform.android.ui.map.Feature
-import org.groundplatform.android.ui.map.FeatureType
 import org.groundplatform.android.ui.map.gms.features.FeatureClusterItem
 
 /**
@@ -116,7 +115,7 @@ object FakeData {
   val LOCATION_OF_INTEREST_FEATURE =
     Feature(
       id = LOCATION_OF_INTEREST.id,
-      type = FeatureType.LOCATION_OF_INTEREST.ordinal,
+      type = Feature.Type.LOCATION_OF_INTEREST,
       geometry = LOCATION_OF_INTEREST.geometry,
       style = Feature.Style(0),
       clusterable = true,

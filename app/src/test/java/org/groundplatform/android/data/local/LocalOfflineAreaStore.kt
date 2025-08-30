@@ -22,7 +22,7 @@ import javax.inject.Inject
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.data.local.stores.LocalOfflineAreaStore
 import org.groundplatform.android.model.imagery.OfflineArea
-import org.groundplatform.android.ui.map.Bounds
+import org.groundplatform.android.model.map.Bounds
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
