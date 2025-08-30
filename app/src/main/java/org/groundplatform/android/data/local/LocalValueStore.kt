@@ -20,7 +20,7 @@ import androidx.core.content.edit
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
-import org.groundplatform.android.common.Constants
+import org.groundplatform.android.common.Constants.LENGTH_UNIT_METER
 import org.groundplatform.android.ui.map.CameraPosition
 import org.groundplatform.android.ui.map.MapType
 import org.groundplatform.android.ui.settings.Keys
@@ -96,8 +96,7 @@ constructor(private val preferences: SharedPreferences, private val locale: Loca
 
   var selectedLengthUnit: String
     get() = allowThreadDiskReads {
-      preferences.getString(Keys.LENGTH_UNIT, Constants.LENGTH_UNIT_METER)
-        ?: Constants.LENGTH_UNIT_METER
+      preferences.getString(Keys.LENGTH_UNIT, LENGTH_UNIT_METER) ?: LENGTH_UNIT_METER
     }
     set(value) = allowThreadDiskReads { preferences.edit { putString(Keys.LENGTH_UNIT, value) } }
 
