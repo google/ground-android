@@ -36,8 +36,7 @@ import org.groundplatform.android.ui.main.MainActivity
 @AndroidEntryPoint
 class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClickListener {
 
-  @Inject
-  lateinit var localValueStore: LocalValueStore
+  @Inject lateinit var localValueStore: LocalValueStore
 
   override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
     preferenceManager.sharedPreferencesName = Constants.SHARED_PREFS_NAME
@@ -58,7 +57,7 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
     setupDropDownPreference(PrefKeys.LANGUAGE, localValueStore.selectedLanguage) {
       updateLocaleAndRestart(it)
     }
-    setupDropDownPreference(Keys.LENGTH_UNIT, localValueStore.selectedLengthUnit)
+    setupDropDownPreference(PrefKeys.LENGTH_UNIT, localValueStore.selectedLengthUnit)
   }
 
   private fun setupDropDownPreference(
@@ -115,11 +114,12 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
   }
 
   companion object {
-    private val ALL_KEYS = arrayOf(
-      PrefKeys.LANGUAGE,
-      PrefKeys.LENGTH_UNIT,
-      PrefKeys.UPLOAD_MEDIA,
-      PrefKeys.VISIT_WEBSITE,
-    )
+    private val ALL_KEYS =
+      arrayOf(
+        PrefKeys.LANGUAGE,
+        PrefKeys.LENGTH_UNIT,
+        PrefKeys.UPLOAD_MEDIA,
+        PrefKeys.VISIT_WEBSITE,
+      )
   }
 }

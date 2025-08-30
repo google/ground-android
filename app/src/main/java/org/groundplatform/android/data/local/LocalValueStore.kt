@@ -124,9 +124,11 @@ constructor(private val preferences: SharedPreferences, private val locale: Loca
 
   var selectedLengthUnit: String
     get() = allowThreadDiskReads {
-      preferences.getString(Keys.LENGTH_UNIT, LENGTH_UNIT_METER) ?: LENGTH_UNIT_METER
+      preferences.getString(PrefKeys.LENGTH_UNIT, LENGTH_UNIT_METER) ?: LENGTH_UNIT_METER
     }
-    set(value) = allowThreadDiskReads { preferences.edit { putString(Keys.LENGTH_UNIT, value) } }
+    set(value) = allowThreadDiskReads {
+      preferences.edit { putString(PrefKeys.LENGTH_UNIT, value) }
+    }
 
   /** Removes all values stored in the local store. */
   fun clear() = allowThreadDiskWrites { preferences.edit { clear() } }
