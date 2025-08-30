@@ -62,7 +62,7 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
     setupDropDownPreference(Keys.LANGUAGE, localValueStore.selectedLanguage) {
       updateLocaleAndRestart(it)
     }
-    setupDropDownPreference(Keys.LENGTH, localValueStore.selectedLength)
+    setupDropDownPreference(Keys.LENGTH_UNIT, localValueStore.selectedLengthUnit)
   }
 
   private fun setupDropDownPreference(

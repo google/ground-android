@@ -302,7 +302,7 @@ internal constructor(
   }
 
   private fun getLengthUnit(): MeasureUnit {
-    val unit = localValueStore.selectedLength
+    val unit = localValueStore.selectedLengthUnit
     return when (unit) {
       Constants.LENGTH_UNIT_METER -> MeasureUnit.METER
       Constants.LENGTH_UNIT_FEET -> MeasureUnit.FOOT

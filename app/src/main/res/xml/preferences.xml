@@ -40,7 +40,7 @@
 
     <DropDownPreference
       app:iconSpaceReserved="false"
-      app:key="length"
+      app:key="length_unit"
       app:title="@string/select_length_title"
       app:summary="@string/select_length_summary"
       app:entries="@array/length_entries"
