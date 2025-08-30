@@ -53,6 +53,9 @@ object Constants {
    */
   const val SURVEY_PATH_SEGMENT = "survey"
 
+  const val LENGTH_UNIT_METER = "m"
+  const val LENGTH_UNIT_FEET = "ft"
+
   /** Limit on the permitted character length for free text question responses. */
   const val TEXT_DATA_CHAR_LIMIT = 255
 
@@ -74,8 +77,4 @@ object Constants {
 
   // TODO: Move to a util class
   fun isReleaseBuild(): Boolean = BuildConfig.BUILD_TYPE.contentEquals("release")
-
-  // Length Units
-  const val METER = "m"
-  const val FOOT = "ft"
 }

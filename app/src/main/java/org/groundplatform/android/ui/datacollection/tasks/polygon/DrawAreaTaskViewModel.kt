@@ -298,14 +298,14 @@ internal constructor(
     if (isMarkedComplete.value || vertices.size <= 1) return null
     val distance = vertices.penult().distanceTo(vertices.last())
     if (distance < TOOLTIP_MIN_DISTANCE_METERS) return null
-    return localeAwareMeasureFormatter.formatDistance(distance, getDistanceUnit())
+    return localeAwareMeasureFormatter.formatDistance(distance, getLengthUnit())
   }
 
-  private fun getDistanceUnit(): MeasureUnit {
+  private fun getLengthUnit(): MeasureUnit {
     val unit = localValueStore.selectedLength
     return when (unit) {
-      Constants.METER -> MeasureUnit.METER
-      Constants.FOOT -> MeasureUnit.FOOT
+      Constants.LENGTH_UNIT_METER -> MeasureUnit.METER
+      Constants.LENGTH_UNIT_FEET -> MeasureUnit.FOOT
       else -> error("Unknown distance unit: $unit")
     }
   }
