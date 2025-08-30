@@ -18,7 +18,7 @@ package org.groundplatform.android.usecases.session
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlin.test.Test
 import org.groundplatform.android.BaseHiltTest
-import org.groundplatform.android.persistence.local.room.LocalDatabase
+import org.groundplatform.android.data.local.room.LocalDatabase
 import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.repository.UserRepository
