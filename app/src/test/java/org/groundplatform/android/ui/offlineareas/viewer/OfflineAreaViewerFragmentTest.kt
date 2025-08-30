@@ -35,7 +35,6 @@ import org.groundplatform.android.R
 import org.groundplatform.android.data.local.stores.LocalOfflineAreaStore
 import org.groundplatform.android.launchFragmentWithNavController
 import org.groundplatform.android.model.map.MapType
-import org.groundplatform.android.persistence.local.stores.LocalOfflineAreaStore
 import org.groundplatform.android.ui.common.MapConfig
 import org.groundplatform.android.util.view.isGone
 import org.junit.Test

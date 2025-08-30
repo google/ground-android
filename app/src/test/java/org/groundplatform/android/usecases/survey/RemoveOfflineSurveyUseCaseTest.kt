@@ -27,8 +27,6 @@ import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.local.stores.LocalSurveyStore
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.map.CameraPosition
-import org.groundplatform.android.persistence.local.LocalValueStore
-import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
 import org.groundplatform.android.repository.SurveyRepository
 import org.junit.Test
 import org.junit.runner.RunWith

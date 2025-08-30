@@ -30,8 +30,6 @@ import org.groundplatform.android.model.imagery.OfflineArea
 import org.groundplatform.android.model.imagery.RemoteMogTileSource
 import org.groundplatform.android.model.imagery.TileSource
 import org.groundplatform.android.model.map.Bounds
-import org.groundplatform.android.persistence.local.stores.LocalOfflineAreaStore
-import org.groundplatform.android.persistence.uuid.OfflineUuidGenerator
 import org.groundplatform.android.system.GeocodingManager
 import org.groundplatform.android.ui.map.gms.mog.MogClient
 import org.groundplatform.android.ui.map.gms.mog.MogTileDownloader
