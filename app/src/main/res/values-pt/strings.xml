@@ -171,9 +171,6 @@
   <string name="over_wifi_summary">Somente via Wi-Fi</string>
   <string name="help_title">Ajuda</string>
   <string name="visit_website_title">Visitar site</string>
-  <string name="send_feedback_title">Enviar feedback</string>
-  <string name="report_summary">Relatar problemas técnicos ou sugerir novos locais de interesse</string>
-  <string name="not_yet_impl_title">Ainda não implementado</string>
   <string name="accuracy">Precisão:</string>
   <string name="select_language_title">Selecionar idioma</string>
   <string name="select_language_summary">Selecione o seu idioma preferido</string>
