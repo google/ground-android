@@ -69,7 +69,7 @@ class SettingsFragmentTest : BaseHiltTest() {
   fun `general category items are displayed`() {
     val category = assertHasCategory("general_category")
 
-    assertThat(category.preferenceCount).isEqualTo(2)
+    assertThat(category.preferenceCount).isEqualTo(3)
 
     category.getPreference(0).apply {
       assertThat(title).isEqualTo("Upload photos")
@@ -79,6 +79,11 @@ class SettingsFragmentTest : BaseHiltTest() {
     category.getPreference(1).apply {
       assertThat(title).isEqualTo("Select language")
       assertThat(summary).isEqualTo("English")
+    }
+
+    category.getPreference(2).apply {
+      assertThat(title).isEqualTo("Unit of length")
+      assertThat(summary).isEqualTo("Meters (m)")
     }
   }
 

@@ -223,4 +223,9 @@
   <string name="dialog_title_update_required">Update Required</string>
   <string name="dialog_message_update_required">A new version of the app is available. Please update to continue using the app.</string>
   <string name="dialog_button_update">Update</string>
+
+  <string name="select_length_title">Unit of length</string>
+  <string name="select_length_summary">Select your preferred unit</string>
+  <string name="length_meters">Meters (m)</string>
+  <string name="length_feet">Feet (ft)</string>
 </resources>

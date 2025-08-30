@@ -26,17 +26,18 @@ import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
-import org.groundplatform.android.MainActivity
 import org.groundplatform.android.R
 import org.groundplatform.android.common.Constants
 import org.groundplatform.android.common.PrefKeys
-import org.groundplatform.android.persistence.local.LocalValueStore
+import org.groundplatform.android.data.local.LocalValueStore
+import org.groundplatform.android.ui.main.MainActivity
 
 /** Fragment containing app preferences saved as shared preferences. */
 @AndroidEntryPoint
 class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClickListener {
 
-  @Inject lateinit var localValueStore: LocalValueStore
+  @Inject
+  lateinit var localValueStore: LocalValueStore
 
   override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
     preferenceManager.sharedPreferencesName = Constants.SHARED_PREFS_NAME
@@ -54,25 +55,34 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
     val switchPreference = findPreference<SwitchPreferenceCompat>(PrefKeys.UPLOAD_MEDIA)
     switchPreference?.isChecked = loadSwitchPreferenceState()
 
-    val languagePreference = findPreference<DropDownPreference>(PrefKeys.LANGUAGE)
-    val selectedLanguage = localValueStore.selectedLanguage
-    languagePreference?.apply {
-      val index = findIndexOfValue(selectedLanguage)
-      if (index >= 0) {
-        summary = entries[index]
-      }
+    setupDropDownPreference(PrefKeys.LANGUAGE, localValueStore.selectedLanguage) {
+      updateLocaleAndRestart(it)
+    }
+    setupDropDownPreference(Keys.LENGTH_UNIT, localValueStore.selectedLengthUnit)
+  }
 
+  private fun setupDropDownPreference(
+    prefKey: String,
+    selectedValue: String,
+    onPrefChanged: (String) -> Unit = {},
+  ) {
+    findPreference<DropDownPreference>(prefKey)?.apply {
+      updateSummary(selectedValue)
       onPreferenceChangeListener =
         Preference.OnPreferenceChangeListener { preference, newValue ->
           if (newValue is String) {
-            val index = findIndexOfValue(newValue)
-            if (index >= 0) {
-              summary = entries[index]
-            }
-            updateLocaleAndRestart(newValue)
+            updateSummary(newValue)
+            onPrefChanged(newValue)
           }
           true
         }
+    }
+  }
+
+  private fun DropDownPreference.updateSummary(value: String) {
+    val index = findIndexOfValue(value)
+    if (index >= 0) {
+      summary = entries[index]
     }
   }
 
@@ -105,6 +115,11 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
   }
 
   companion object {
-    private val ALL_KEYS = arrayOf(PrefKeys.UPLOAD_MEDIA, PrefKeys.VISIT_WEBSITE, PrefKeys.LANGUAGE)
+    private val ALL_KEYS = arrayOf(
+      PrefKeys.LANGUAGE,
+      PrefKeys.LENGTH_UNIT,
+      PrefKeys.UPLOAD_MEDIA,
+      PrefKeys.VISIT_WEBSITE,
+    )
   }
 }

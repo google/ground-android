@@ -38,6 +38,14 @@
       app:entryValues="@array/language_entry_values"
       app:defaultValue="en"/>
 
+    <DropDownPreference
+      app:iconSpaceReserved="false"
+      app:key="length_unit"
+      app:title="@string/select_length_title"
+      app:summary="@string/select_length_summary"
+      app:entries="@array/length_entries"
+      app:entryValues="@array/length_entry_values"
+      app:defaultValue="m"/>
   </PreferenceCategory>
 
   <PreferenceCategory
