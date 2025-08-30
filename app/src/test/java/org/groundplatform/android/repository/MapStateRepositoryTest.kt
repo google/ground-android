@@ -21,9 +21,9 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
+import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.model.map.MapType
-import org.groundplatform.android.data.local.LocalValueStore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
