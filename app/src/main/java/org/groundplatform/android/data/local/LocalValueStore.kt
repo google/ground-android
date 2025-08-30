@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import org.groundplatform.android.common.Constants.LENGTH_UNIT_METER
 import org.groundplatform.android.ui.map.CameraPosition
 import org.groundplatform.android.ui.map.MapType
 import org.groundplatform.android.ui.settings.Keys
@@ -108,6 +109,12 @@ constructor(private val preferences: SharedPreferences, private val locale: Loca
       preferences.getString(Keys.LANGUAGE, locale.language) ?: locale.language
     }
     set(value) = allowThreadDiskReads { preferences.edit { putString(Keys.LANGUAGE, value) } }
+
+  var selectedLengthUnit: String
+    get() = allowThreadDiskReads {
+      preferences.getString(Keys.LENGTH_UNIT, LENGTH_UNIT_METER) ?: LENGTH_UNIT_METER
+    }
+    set(value) = allowThreadDiskReads { preferences.edit { putString(Keys.LENGTH_UNIT, value) } }
 
   /** Removes all values stored in the local store. */
   fun clear() = allowThreadDiskWrites { preferences.edit { clear() } }
