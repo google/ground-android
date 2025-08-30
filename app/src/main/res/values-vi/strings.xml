@@ -198,4 +198,9 @@
   <string name="section_on_device">On this device</string>
   <string name="section_shared_with_me">Shared with me</string>
   <string name="section_public">Công khai</string>
+
+  <string name="select_length_title">Đơn vị chiều dài</string>
+  <string name="select_length_summary">Chọn đơn vị ưa thích của bạn</string>
+  <string name="length_meters">Mét (m)</string>
+  <string name="length_feet">Bàn chân (ft)</string>
 </resources>

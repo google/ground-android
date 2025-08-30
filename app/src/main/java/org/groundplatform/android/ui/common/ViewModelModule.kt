@@ -22,7 +22,6 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.IntoMap
-import org.groundplatform.android.MainViewModel
 import org.groundplatform.android.ui.datacollection.tasks.date.DateTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.instruction.InstructionTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.location.CaptureLocationTaskViewModel
@@ -36,6 +35,7 @@ import org.groundplatform.android.ui.datacollection.tasks.time.TimeTaskViewModel
 import org.groundplatform.android.ui.home.HomeScreenViewModel
 import org.groundplatform.android.ui.home.mapcontainer.HomeScreenMapContainerViewModel
 import org.groundplatform.android.ui.home.mapcontainer.MapTypeViewModel
+import org.groundplatform.android.ui.main.MainViewModel
 import org.groundplatform.android.ui.offlineareas.OfflineAreasViewModel
 import org.groundplatform.android.ui.offlineareas.selector.OfflineAreaSelectorViewModel
 import org.groundplatform.android.ui.offlineareas.viewer.OfflineAreaViewerViewModel

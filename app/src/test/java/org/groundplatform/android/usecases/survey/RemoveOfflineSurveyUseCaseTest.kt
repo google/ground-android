@@ -23,6 +23,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.SURVEY
+import org.groundplatform.android.data.local.LocalValueStore
+import org.groundplatform.android.data.local.stores.LocalSurveyStore
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.persistence.local.LocalValueStore

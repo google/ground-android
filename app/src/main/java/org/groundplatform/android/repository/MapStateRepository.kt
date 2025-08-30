@@ -20,7 +20,7 @@ import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.model.map.MapType
-import org.groundplatform.android.persistence.local.LocalValueStore
+import org.groundplatform.android.data.local.LocalValueStore
 
 /** Provides access and storage of persistent map states. */
 @Singleton

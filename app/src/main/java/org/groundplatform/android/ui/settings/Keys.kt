@@ -27,5 +27,7 @@ object Keys {
 
   const val LANGUAGE = "language"
 
-  val ALL_KEYS = arrayOf(UPLOAD_MEDIA, VISIT_WEBSITE, FEEDBACK, LANGUAGE)
+  const val LENGTH_UNIT = "length_unit"
+
+  val ALL_KEYS = arrayOf(UPLOAD_MEDIA, VISIT_WEBSITE, FEEDBACK, LANGUAGE, LENGTH_UNIT)
 }

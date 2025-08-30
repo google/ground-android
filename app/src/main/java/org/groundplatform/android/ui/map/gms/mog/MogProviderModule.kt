@@ -20,7 +20,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import org.groundplatform.android.common.Constants
-import org.groundplatform.android.persistence.remote.RemoteStorageManager
+import org.groundplatform.android.data.remote.RemoteStorageManager
 
 @InstallIn(SingletonComponent::class)
 @Module

@@ -23,6 +23,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import org.groundplatform.android.common.Constants
+import org.groundplatform.android.data.local.stores.LocalOfflineAreaStore
+import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.android.model.imagery.LocalTileSource
 import org.groundplatform.android.model.imagery.OfflineArea
 import org.groundplatform.android.model.imagery.RemoteMogTileSource
@@ -102,7 +104,9 @@ constructor(
 
   // TODO: Generate local tiles path based on source base path.
   // Issue URL: https://github.com/google/ground-android/issues/1730
-  private fun getLocalTileSourcePath(): String = File(fileUtil.getFilesDir(), "tiles").path
+  private fun getLocalTileDirectory(): File = File(fileUtil.getFilesDir(), "tiles")
+
+  private fun getLocalTileSourcePath(): String = getLocalTileDirectory().path
 
   fun getOfflineTileSourcesFlow(): Flow<TileSource> =
     localOfflineAreaStore
@@ -147,6 +151,19 @@ constructor(
         delete()
         parentFile?.deleteIfEmpty()
         parentFile?.parentFile?.deleteIfEmpty()
+      }
+    }
+  }
+
+  suspend fun removeAllOfflineAreas() {
+    localOfflineAreaStore.offlineAreas().first().forEach { removeFromDevice(it) }
+    val directoryToDelete = getLocalTileDirectory()
+    if (directoryToDelete.exists()) {
+      val success = directoryToDelete.deleteRecursively()
+      if (success) {
+        Timber.d("Deleted directory: $directoryToDelete")
+      } else {
+        Timber.e("Failed to delete directory: $directoryToDelete")
       }
     }
   }
