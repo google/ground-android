@@ -43,9 +43,9 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.R
+import org.groundplatform.android.data.local.stores.LocalSurveyStore
 import org.groundplatform.android.launchFragmentWithNavController
 import org.groundplatform.android.model.Survey
-import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
 import org.groundplatform.android.repository.SurveyRepository
 import org.junit.Before
 import org.junit.Rule

@@ -25,9 +25,9 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import org.groundplatform.android.data.sync.MediaUploadWorkManager
+import org.groundplatform.android.data.sync.MutationSyncWorkManager
 import org.groundplatform.android.model.submission.DraftSubmission
-import org.groundplatform.android.persistence.sync.MediaUploadWorkManager
-import org.groundplatform.android.persistence.sync.MutationSyncWorkManager
 import org.groundplatform.android.repository.MutationRepository
 import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.android.repository.SubmissionRepository

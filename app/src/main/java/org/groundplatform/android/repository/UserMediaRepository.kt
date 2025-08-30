@@ -30,8 +30,8 @@ import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.groundplatform.android.common.Constants
-import org.groundplatform.android.persistence.remote.RemoteStorageManager
-import org.groundplatform.android.persistence.uuid.OfflineUuidGenerator
+import org.groundplatform.android.data.remote.RemoteStorageManager
+import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import timber.log.Timber
 
 /**

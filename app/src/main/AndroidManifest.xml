@@ -45,7 +45,7 @@
     android:usesCleartextTraffic="${usesCleartextTraffic}">
 
     <service
-      android:name="org.groundplatform.android.persistence.remote.firebase.FirebaseMessagingService"
+      android:name="org.groundplatform.android.data.remote.firebase.FirebaseMessagingService"
       android:exported="false">
       <intent-filter>
         <action android:name="com.google.firebase.MESSAGING_EVENT" />
