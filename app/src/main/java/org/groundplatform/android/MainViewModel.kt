@@ -32,15 +32,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.groundplatform.android.common.Constants.SURVEY_PATH_SEGMENT
 import org.groundplatform.android.coroutines.IoDispatcher
-import org.groundplatform.android.data.local.room.LocalDatabase
 import org.groundplatform.android.model.User
-import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.repository.TermsOfServiceRepository
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.auth.AuthenticationManager
 import org.groundplatform.android.system.auth.SignInState
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.common.SharedViewModel
+import org.groundplatform.android.usecases.session.ClearUserSessionUseCase
 import org.groundplatform.android.usecases.survey.ReactivateLastSurveyUseCase
 import org.groundplatform.android.util.isPermissionDeniedException
 import timber.log.Timber
@@ -50,8 +49,7 @@ import timber.log.Timber
 class MainViewModel
 @Inject
 constructor(
-  private val localDatabase: LocalDatabase,
-  private val surveyRepository: SurveyRepository,
+  private val clearUserSessionUseCase: ClearUserSessionUseCase,
   private val userRepository: UserRepository,
   private val termsOfServiceRepository: TermsOfServiceRepository,
   private val reactivateLastSurvey: ReactivateLastSurveyUseCase,
@@ -112,18 +110,7 @@ constructor(
   private fun onUserSignedOut(): MainUiState {
     // Scope of subscription is until view model is cleared. Dispose it manually otherwise, firebase
     // attempts to maintain a connection even after user has logged out and throws an error.
-
-    // TODO: Once multi-user login is supported, avoid clearing local db data. This is
-    //  currently being done to prevent one user's data to be submitted as another user after
-    //  re-login.
-    // Issue URL: https://github.com/google/ground-android/issues/1691
-    viewModelScope.launch {
-      withContext(ioDispatcher) {
-        surveyRepository.clearActiveSurvey()
-        userRepository.clearUserPreferences()
-        localDatabase.clearAllTables()
-      }
-    }
+    viewModelScope.launch { withContext(ioDispatcher) { clearUserSessionUseCase() } }
     return MainUiState.OnUserSignedOut
   }
 
