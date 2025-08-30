@@ -27,10 +27,10 @@ import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
-import org.groundplatform.android.MainActivity
 import org.groundplatform.android.R
 import org.groundplatform.android.common.Constants
 import org.groundplatform.android.data.local.LocalValueStore
+import org.groundplatform.android.ui.main.MainActivity
 
 /**
  * Fragment containing app preferences saved as shared preferences.

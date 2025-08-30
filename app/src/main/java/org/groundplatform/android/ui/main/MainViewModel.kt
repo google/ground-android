@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android
+package org.groundplatform.android.ui.main
 
 import android.net.Uri
 import androidx.core.view.WindowInsetsCompat
@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.groundplatform.android.BuildConfig
 import org.groundplatform.android.common.Constants.SURVEY_PATH_SEGMENT
 import org.groundplatform.android.coroutines.IoDispatcher
 import org.groundplatform.android.model.User
