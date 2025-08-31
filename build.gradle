@@ -18,8 +18,6 @@
 
 buildscript {
     ext {
-        // As of Gradle 8.5, Kotlin plugin only tested up to 1.9.20.
-        kotlinVersion = "1.9.23"
         hiltVersion = "2.51"
         roomVersion = "2.6.1"
     }
@@ -60,12 +58,12 @@ buildscript {
 }
 
 plugins {
-    id "org.jetbrains.kotlin.android" version "$kotlinVersion" apply false
-    id "org.jetbrains.kotlin.plugin.serialization" version "$kotlinVersion"
-    id "com.ncorti.ktfmt.gradle" version "0.22.0"
-    id "com.google.dagger.hilt.android" version "$hiltVersion" apply false
-    id "io.gitlab.arturbosch.detekt" version "1.23.5"
-    id "com.google.protobuf" version '0.9.4' apply false
+    alias libs.plugins.kotlin.android apply false
+    alias libs.plugins.kotlin.serialization apply false
+    alias libs.plugins.ktfmt
+    alias libs.plugins.hilt.android apply false
+    alias libs.plugins.detekt
+    alias libs.plugins.protobuf apply false
 }
 
 allprojects {

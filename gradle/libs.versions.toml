@@ -24,6 +24,7 @@ coreTesting = "2.2.0"
 coreTestingVersion = "1.1.1"
 coreVersion = "1.6.1"
 coroutinesVersion = "1.7.3"
+detektVersion = "1.23.5"
 espressoContribVersion = "3.6.1"
 exifinterfaceVersion = "1.4.1"
 firebaseBomVersion = "33.1.2"
@@ -43,6 +44,7 @@ junitVersion = "4.13.2"
 kotlinVersion = "1.9.23"
 kotlinxCollectionsImmutable = "0.3.7"
 kotlinxSerializationVersion = "1.6.3"
+ktfmtVersion = "0.22.0"
 legacySupportV4Version = "1.0.0"
 lifecycleExtensionsVersion = "2.2.0"
 lifecycleVersion = "2.8.4"
@@ -61,6 +63,7 @@ playServicesMapsVersion = "19.2.0"
 playServicesOssLicensesVersion = "17.1.0"
 preferenceKtx = "1.2.1"
 protobufKotlinLiteVersion = "4.26.1"
+protobufVersion = "0.9.4"
 recyclerviewSelection = "1.1.0"
 robolectricVersion = "4.11.1"
 roomVersion = "2.6.1"
@@ -168,3 +171,9 @@ truth = { module = "com.google.truth:truth", version.ref = "truthVersion" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbineVersion" }
 
 [plugins]
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlinVersion" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinVersion" }
+ktfmt = { id = "com.ncorti.ktfmt.gradle", version.ref = "ktfmtVersion" }
+hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hiltVersion" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detektVersion" }
+protobuf = { id = "com.google.protobuf", version.ref = "protobufVersion" }
