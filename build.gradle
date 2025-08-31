@@ -47,8 +47,8 @@ buildscript {
         classpath libs.firebase.crashlytics.gradle
 
         // Kotlin
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
-        classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlinVersion"
+        classpath libs.kotlin.gradle.plugin
+        classpath libs.kotlin.serialization
 
         // OSS Licenses Plugin
         classpath libs.oss.licenses.plugin

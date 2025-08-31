@@ -41,9 +41,7 @@ hiltNavigationFragmentVersion = "1.2.0"
 jsonVersion = "20180813"
 junitKtx = "1.2.1"
 junitVersion = "4.13.2"
-kotlinReflect = "1.9.23"
-kotlinStdlib = "2.0.0"
-kotlinTestVersion = "1.9.23"
+kotlinVersion = "1.9.23"
 kotlinxCollectionsImmutable = "0.3.7"
 kotlinxSerializationJson = "1.6.3"
 kotlinxSerializationProtobuf = "1.6.3"
@@ -143,9 +141,11 @@ hilt-android-testing = { module = "com.google.dagger:hilt-android-testing", vers
 jetbrains-kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 json = { module = "org.json:json", version.ref = "jsonVersion" }
 junit = { module = "junit:junit", version.ref = "junitVersion" }
-kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlinReflect" }
-kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlinStdlib" }
-kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlinTestVersion" }
+kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlinVersion" }
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlinVersion" }
+kotlin-serialization = { module = "org.jetbrains.kotlin:kotlin-serialization", version.ref = "kotlinVersion" }
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlinVersion" }
+kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlinVersion" }
 kotlinx-collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlinxCollectionsImmutable" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutinesVersion" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutinesVersion" }
