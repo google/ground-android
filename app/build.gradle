@@ -202,12 +202,12 @@ dependencies {
     // Jetpack Compose
     implementation libs.androidx.compiler
     implementation libs.androidx.material3.android
-    implementation "androidx.compose.ui:ui:$composeUi"
+    implementation libs.androidx.ui
     implementation libs.androidx.ui.tooling.preview.android
     implementation libs.androidx.runtime.livedata
-    testImplementation "androidx.compose.ui:ui-test-junit4:$composeUi"
+    testImplementation libs.androidx.ui.test.junit4
     debugImplementation libs.androidx.ui.test.manifest
-    debugImplementation "androidx.compose.ui:ui-tooling:$composeUi"
+    debugImplementation libs.androidx.ui.tooling
     stagingImplementation libs.androidx.ui.test.manifest
 
     // Image loading
@@ -256,10 +256,10 @@ dependencies {
     kapt "androidx.hilt:hilt-compiler:$project.hiltJetpackVersion"
 
     // Android Arch Lifecycle
-    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$project.lifecycleVersion"
     implementation libs.androidx.lifecycle.extensions
     implementation libs.androidx.lifecycle.livedata.ktx
     implementation libs.androidx.lifecycle.reactivestreams.ktx
+    implementation libs.androidx.lifecycle.runtime.ktx
 
     // Android Navigation
     implementation libs.androidx.navigation.fragment.ktx
@@ -277,8 +277,8 @@ dependencies {
     // Room
     implementation libs.androidx.room.runtime
     implementation libs.androidx.room.ktx
-    kapt "androidx.room:room-compiler:$roomVersion"
     testImplementation libs.androidx.room.testing
+    kapt "androidx.room:room-compiler:$roomVersion"
 
     // WorkManager
     implementation libs.androidx.work.runtime.ktx
