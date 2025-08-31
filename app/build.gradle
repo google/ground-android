@@ -34,7 +34,6 @@ project.ext {
     composeUi = "1.8.2"
     hiltJetpackVersion = "1.2.0"
     lifecycleVersion = "2.8.4"
-    coroutinesVersion = "1.6.4"
 }
 
 // Directory where downloaded Protocol Buffer definitions are extracted to.
