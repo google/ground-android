@@ -31,9 +31,7 @@ apply from: '../config/jacoco/jacoco.gradle'
 
 project.ext {
     autoValueVersion = "1.10.4"
-    composeUi = "1.8.2"
     hiltJetpackVersion = "1.2.0"
-    lifecycleVersion = "2.8.4"
 }
 
 // Directory where downloaded Protocol Buffer definitions are extracted to.
