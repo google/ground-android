@@ -21,9 +21,7 @@ buildscript {
         // As of Gradle 8.5, Kotlin plugin only tested up to 1.9.20.
         kotlinVersion = "1.9.23"
         hiltVersion = "2.51"
-        navigationVersion = "2.7.7"
         roomVersion = "2.6.1"
-        junitVersion = "4.13.2"
     }
     repositories {
         google()
@@ -34,7 +32,7 @@ buildscript {
         gradlePluginPortal()
     }
     dependencies {
-        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$navigationVersion"
+        classpath libs.androidx.navigation.safe.args.gradle.plugin
         classpath libs.gradle
         classpath libs.google.services
 

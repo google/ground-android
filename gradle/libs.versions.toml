@@ -35,21 +35,17 @@ googleServicesVersion = "4.4.2"
 gradleVersion = "8.3.2"
 groundPlatformVersion = "bc2596d"
 gsonVersion = "2.11.0"
-hiltAndroidVersion = "2.51"
-hiltAndroidTestingVersion = "2.51"
+hiltVersion = "2.51"
 hiltNavigationFragmentVersion = "1.2.0"
 jsonVersion = "20180813"
 junitKtx = "1.2.1"
 junitVersion = "4.13.2"
 kotlinVersion = "1.9.23"
 kotlinxCollectionsImmutable = "0.3.7"
-kotlinxSerializationJson = "1.6.3"
-kotlinxSerializationProtobuf = "1.6.3"
+kotlinxSerializationVersion = "1.6.3"
 legacySupportV4Version = "1.0.0"
 lifecycleExtensionsVersion = "2.2.0"
-lifecycleLivedataKtxVersion = "2.8.7"
-lifecycleReactivestreamsKtxVersion = "2.8.7"
-lifecycleRuntimeKtxVersion = "2.8.4"
+lifecycleVersion = "2.8.4"
 markdownVersion = "0.7.3"
 material3AndroidVersion = "1.3.2"
 materialVersion = "1.12.0"
@@ -57,8 +53,7 @@ mockitoInlineVersion = "4.5.1"
 mockitoKotlinVersion = "4.1.0"
 mockitoVersion = "5.11.0"
 multidex = "2.0.1"
-navigationFragmentKtxVersion = "2.7.7"
-navigationUiKtxVersion = "2.7.7"
+navigationKtxVersion = "2.7.7"
 ossLicensesPluginVersion = "0.10.6"
 perfPluginVersion = "1.4.2"
 playServicesAuthVersion = "21.3.0"
@@ -93,15 +88,16 @@ androidx-hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hiltNa
 androidx-junit = { module = "androidx.test.ext:junit", version.ref = "junitKtx" }
 androidx-junit-ktx = { module = "androidx.test.ext:junit-ktx", version.ref = "junitKtx" }
 androidx-legacy-support-v4 = { module = "androidx.legacy:legacy-support-v4", version.ref = "legacySupportV4Version" }
-androidx-lifecycle-reactivestreams-ktx = { module = "androidx.lifecycle:lifecycle-reactivestreams-ktx", version.ref = "lifecycleReactivestreamsKtxVersion" }
-androidx-lifecycle-livedata-ktx = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "lifecycleLivedataKtxVersion" }
+androidx-lifecycle-reactivestreams-ktx = { module = "androidx.lifecycle:lifecycle-reactivestreams-ktx", version.ref = "lifecycleVersion" }
+androidx-lifecycle-livedata-ktx = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "lifecycleVersion" }
 androidx-lifecycle-extensions = { module = "androidx.lifecycle:lifecycle-extensions", version.ref = "lifecycleExtensionsVersion" }
-androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtxVersion" }
+androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleVersion" }
 androidx-material3-android = { module = "androidx.compose.material3:material3-android", version.ref = "material3AndroidVersion" }
 androidx-multidex = { module = "androidx.multidex:multidex", version.ref = "multidex" }
-androidx-navigation-testing = { module = "androidx.navigation:navigation-testing", version.ref = "navigationFragmentKtxVersion" }
-androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationUiKtxVersion" }
-androidx-navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigationFragmentKtxVersion" }
+androidx-navigation-safe-args-gradle-plugin = { module = "androidx.navigation:navigation-safe-args-gradle-plugin", version.ref = "navigationKtxVersion" }
+androidx-navigation-testing = { module = "androidx.navigation:navigation-testing", version.ref = "navigationKtxVersion" }
+androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationKtxVersion" }
+androidx-navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigationKtxVersion" }
 androidx-preference-ktx = { module = "androidx.preference:preference-ktx", version.ref = "preferenceKtx" }
 androidx-recyclerview-selection = { module = "androidx.recyclerview:recyclerview-selection", version.ref = "recyclerviewSelection" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomVersion" }
@@ -136,9 +132,8 @@ google-services = { module = "com.google.gms:google-services", version.ref = "go
 gradle = { module = "com.android.tools.build:gradle", version.ref = "gradleVersion" }
 ground-platform = { module = "com.github.google:ground-platform", version.ref = "groundPlatformVersion" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gsonVersion" }
-hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroidVersion" }
-hilt-android-testing = { module = "com.google.dagger:hilt-android-testing", version.ref = "hiltAndroidTestingVersion" }
-jetbrains-kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltVersion" }
+hilt-android-testing = { module = "com.google.dagger:hilt-android-testing", version.ref = "hiltVersion" }
 json = { module = "org.json:json", version.ref = "jsonVersion" }
 junit = { module = "junit:junit", version.ref = "junitVersion" }
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlinVersion" }
@@ -150,7 +145,8 @@ kotlinx-collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collec
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutinesVersion" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutinesVersion" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutinesVersion" }
-kotlinx-serialization-protobuf = { module = "org.jetbrains.kotlinx:kotlinx-serialization-protobuf", version.ref = "kotlinxSerializationProtobuf" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationVersion" }
+kotlinx-serialization-protobuf = { module = "org.jetbrains.kotlinx:kotlinx-serialization-protobuf", version.ref = "kotlinxSerializationVersion" }
 markdown = { module = "org.jetbrains:markdown", version.ref = "markdownVersion" }
 material = { module = "com.google.android.material:material", version.ref = "materialVersion" }
 mockito-android = { module = "org.mockito:mockito-android", version.ref = "mockitoVersion" }
