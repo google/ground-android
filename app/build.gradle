@@ -187,9 +187,9 @@ dependencies {
     implementation libs.kotlinx.collections.immutable
 
     // Kotlin Coroutines
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
     implementation libs.kotlinx.coroutines.android
-    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion"
+    implementation libs.kotlinx.coroutines.core
+    testImplementation libs.kotlinx.coroutines.test
 
     // Android legacy support Libraries.
     implementation libs.androidx.legacy.support.v4
