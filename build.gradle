@@ -17,10 +17,6 @@
 // Top-level build file. Configuration specified here is inherited by all sub-projects/modules.
 
 buildscript {
-    ext {
-        hiltVersion = "2.51"
-        roomVersion = "2.6.1"
-    }
     repositories {
         google()
         mavenLocal()

@@ -29,11 +29,6 @@ apply from: '../config/checkstyle/checkstyle.gradle'
 apply from: '../config/lint/lint.gradle'
 apply from: '../config/jacoco/jacoco.gradle'
 
-project.ext {
-    autoValueVersion = "1.10.4"
-    hiltJetpackVersion = "1.2.0"
-}
-
 // Directory where downloaded Protocol Buffer definitions are extracted to.
 def extractedGroundProtoPath = layout.buildDirectory.dir('extracted-ground-protos')
 
@@ -241,11 +236,10 @@ dependencies {
     implementation libs.hilt.android
     testImplementation libs.hilt.android.testing
     androidTestImplementation libs.hilt.android.testing
-    kapt "androidx.hilt:hilt-compiler:$project.hiltJetpackVersion"
-    kapt "com.google.dagger:hilt-android-compiler:$project.hiltVersion"
-    kapt "androidx.hilt:hilt-compiler:$project.hiltJetpackVersion"
-    kaptTest "com.google.dagger:hilt-android-compiler:$project.hiltVersion"
-    kaptAndroidTest "com.google.dagger:hilt-android-compiler:$project.hiltVersion"
+    kapt libs.hilt.compiler
+    kapt libs.hilt.android.compiler
+    kaptTest libs.hilt.android.compiler
+    kaptAndroidTest libs.hilt.android.compiler
 
     // Android Arch Lifecycle
     implementation libs.androidx.lifecycle.extensions
@@ -259,7 +253,7 @@ dependencies {
 
     // Auto-value
     compileOnly libs.auto.value.annotations
-    kapt "com.google.auto.value:auto-value:$project.autoValueVersion"
+    kapt libs.auto.value
 
     implementation libs.androidx.exifinterface
 
@@ -270,7 +264,7 @@ dependencies {
     implementation libs.androidx.room.ktx
     implementation libs.androidx.room.runtime
     testImplementation libs.androidx.room.testing
-    kapt "androidx.room:room-compiler:$roomVersion"
+    kapt libs.androidx.room.compiler
 
     // WorkManager
     implementation libs.androidx.work.runtime.ktx

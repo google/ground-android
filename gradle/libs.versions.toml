@@ -15,7 +15,7 @@
 [versions]
 androidMapsUtilsVersion = "3.8.2"
 appcompatVersion = "1.7.0"
-autoValueAnnotationsVersion = "1.10.4"
+autoValueVersion = "1.10.4"
 cardviewVersion = "1.0.0"
 compilerVersion = "1.5.15"
 composeUi = "1.8.2"
@@ -37,8 +37,8 @@ googleServicesVersion = "4.4.2"
 gradleVersion = "8.3.2"
 groundPlatformVersion = "bc2596d"
 gsonVersion = "2.11.0"
+hiltJetpackVersion = "1.2.0"
 hiltVersion = "2.51"
-hiltNavigationFragmentVersion = "1.2.0"
 jsonVersion = "20180813"
 junitKtx = "1.2.1"
 junitVersion = "4.13.2"
@@ -91,8 +91,8 @@ androidx-espresso-core = { module = "androidx.test.espresso:espresso-core", vers
 androidx-exifinterface = { module = "androidx.exifinterface:exifinterface", version.ref = "exifinterfaceVersion" }
 androidx-fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref = "fragmentVersion" }
 androidx-fragment-testing = { module = "androidx.fragment:fragment-testing", version.ref = "fragmentVersion" }
-androidx-hilt-navigation-fragment = { module = "androidx.hilt:hilt-navigation-fragment", version.ref = "hiltNavigationFragmentVersion" }
-androidx-hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hiltNavigationFragmentVersion" }
+androidx-hilt-navigation-fragment = { module = "androidx.hilt:hilt-navigation-fragment", version.ref = "hiltJetpackVersion" }
+androidx-hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hiltJetpackVersion" }
 androidx-junit = { module = "androidx.test.ext:junit", version.ref = "junitKtx" }
 androidx-legacy-support-v4 = { module = "androidx.legacy:legacy-support-v4", version.ref = "legacySupportV4Version" }
 androidx-lifecycle-reactivestreams-ktx = { module = "androidx.lifecycle:lifecycle-reactivestreams-ktx", version.ref = "lifecycleVersion" }
@@ -108,6 +108,7 @@ androidx-navigation-fragment-ktx = { module = "androidx.navigation:navigation-fr
 androidx-orchestrator = { module = "androidx.test:orchestrator", version.ref = "orchestratorVersion" }
 androidx-preference-ktx = { module = "androidx.preference:preference-ktx", version.ref = "preferenceKtx" }
 androidx-recyclerview-selection = { module = "androidx.recyclerview:recyclerview-selection", version.ref = "recyclerviewSelection" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomVersion" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomVersion" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomVersion" }
 androidx-room-testing = { module = "androidx.room:room-testing", version.ref = "roomVersion" }
@@ -122,7 +123,8 @@ androidx-ui-tooling-preview-android = { module = "androidx.compose.ui:ui-tooling
 androidx-uiautomator = { module = "androidx.test.uiautomator:uiautomator", version.ref = "uiautomatorVersion" }
 androidx-work-testing = { module = "androidx.work:work-testing", version.ref = "workVersion" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workVersion" }
-auto-value-annotations = { module = "com.google.auto.value:auto-value-annotations", version.ref = "autoValueAnnotationsVersion" }
+auto-value = {module = "com.google.auto.value:auto-value", version.ref = "autoValueVersion"}
+auto-value-annotations = { module = "com.google.auto.value:auto-value-annotations", version.ref = "autoValueVersion" }
 core-testing = { module = "android.arch.core:core-testing", version.ref = "coreTestingVersion" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBomVersion" }
 firebase-config = { module = "com.google.firebase:firebase-config" }
@@ -144,7 +146,9 @@ gradle = { module = "com.android.tools.build:gradle", version.ref = "gradleVersi
 ground-platform = { module = "com.github.google:ground-platform", version.ref = "groundPlatformVersion" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gsonVersion" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltVersion" }
+hilt-android-compiler = {module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltVersion"}
 hilt-android-testing = { module = "com.google.dagger:hilt-android-testing", version.ref = "hiltVersion" }
+hilt-compiler = {module = "androidx.hilt:hilt-compiler", version.ref = "hiltJetpackVersion"}
 json = { module = "org.json:json", version.ref = "jsonVersion" }
 junit = { module = "junit:junit", version.ref = "junitVersion" }
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlinVersion" }
