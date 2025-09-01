@@ -301,12 +301,12 @@ dependencies {
 
     // Espresso
     testImplementation libs.androidx.espresso.contrib
-    testImplementation('androidx.test.espresso:espresso-core:3.5.1', {
+    testImplementation(libs.androidx.espresso.core) {
         exclude group: 'com.android.support', module: 'support-annotations'
-    })
-    androidTestImplementation('androidx.test.espresso:espresso-core:3.5.1', {
+    }
+    androidTestImplementation(libs.androidx.espresso.core) {
         exclude group: 'com.android.support', module: 'support-annotations'
-    })
+    }
 
     // Fragments
     implementation libs.androidx.fragment.ktx
