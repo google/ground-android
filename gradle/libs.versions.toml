@@ -89,7 +89,6 @@ androidx-fragment-testing = { module = "androidx.fragment:fragment-testing", ver
 androidx-hilt-navigation-fragment = { module = "androidx.hilt:hilt-navigation-fragment", version.ref = "hiltNavigationFragmentVersion" }
 androidx-hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hiltNavigationFragmentVersion" }
 androidx-junit = { module = "androidx.test.ext:junit", version.ref = "junitKtx" }
-androidx-junit-ktx = { module = "androidx.test.ext:junit-ktx", version.ref = "junitKtx" }
 androidx-legacy-support-v4 = { module = "androidx.legacy:legacy-support-v4", version.ref = "legacySupportV4Version" }
 androidx-lifecycle-reactivestreams-ktx = { module = "androidx.lifecycle:lifecycle-reactivestreams-ktx", version.ref = "lifecycleVersion" }
 androidx-lifecycle-livedata-ktx = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "lifecycleVersion" }
