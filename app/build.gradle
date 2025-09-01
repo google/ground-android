@@ -299,11 +299,11 @@ dependencies {
     testImplementation libs.truth
 
     // Mockito
-    androidTestImplementation libs.mockito.core
-    testImplementation libs.mockito.android
     testImplementation libs.mockito.core
     testImplementation libs.mockito.inline
     testImplementation libs.mockito.kotlin
+    testImplementation libs.mockito.android
+    androidTestImplementation libs.mockito.core
 
     // Espresso
     testImplementation libs.androidx.espresso.contrib
