@@ -37,7 +37,7 @@
   <string name="ok">OK</string>
   <string name="add_data">Thêm dữ liệu</string>
   <!-- Untranslated strings -->
-  <string name="offline_area_selector">Chọn khu vực để tải xuống</string>
+  <string name="offline_area_selector">Lựa chọn khu vực để tải xuống</string>
   <string name="offline_area_selector_prompt">Chọn bản đồ nền để sử dụng ngoại tuyến</string>
   <string name="offline_area_selector_download">Tải xuống</string>
   <string name="camera">Máy ảnh</string>
@@ -62,15 +62,15 @@
   <string name="sync_status">Trạng thái đồng bộ dữ liệu</string>
   <string name="add_point">Thêm điểm</string>
   <string name="complete_polygon">Hoàn thành</string>
-  <string name="road_map">Bản đồ đường đi</string>
+  <string name="road_map">Bản đồ đường giao thông</string>
   <string name="satellite">Vệ tinh</string>
   <string name="terrain">Địa hình</string>
   <string name="next">Tiếp theo</string>
   <string name="done">Xong</string>
   <string name="skip">Bỏ qua</string>
-  <string name="drop_pin">Thả ghim</string>
+  <string name="drop_pin">Vẽ điểm</string>
   <string name="add_site">Thêm địa điểm</string>
-  <string name="job_site_icon">Biểu tượng công trình</string>
+  <string name="job_site_icon">Biểu tượng vị trí công việc</string>
   <string name="drop_a_pin_tooltip_text">Kéo bản đồ cho đến khi ghim ở giữa nằm tại vị trí mong muốn</string>
   <string name="current_location">Vị trí hiện tại:</string>
   <string name="loading">Đang tải…</string>
@@ -98,7 +98,7 @@
   <string name="capture">Chụp ảnh</string>
   <string name="surveys">Khảo sát</string>
   <string name="offline_icon_description">Biểu tượng hiển thị khi khảo sát có sẵn ngoại tuyến</string>
-  <string name="more_options_icon_description">More options</string>
+  <string name="more_options_icon_description">Thêm tuỳ chọn</string>
   <string name="remove_offline_access_warning_title">Cảnh báo</string>
   <string name="remove_offline_access_warning_confirm_button">Gỡ bỏ</string>
   <string name="remove_offline_access_warning_dialog_body">Nếu bạn gỡ quyền truy cập ngoại tuyến:\n \u2022 • Mọi dữ liệu chưa đồng bộ sẽ bị xóa\n\nBạn có chắc chắn muốn gỡ quyền truy cập ngoại tuyến không?</string>
@@ -195,10 +195,13 @@
   <string name="access_restricted">Hạn chế</string>
   <string name="access_unlisted">Không công khai</string>
   <string name="access_public">Công khai</string>
-  <string name="section_on_device">On this device</string>
-  <string name="section_shared_with_me">Shared with me</string>
+  <string name="section_on_device">Trên thiết bị này</string>
+  <string name="section_shared_with_me">Được chia sẻ với tôi</string>
   <string name="section_public">Công khai</string>
 
+  <string name="dialog_title_update_required">Cần Cập nhật</string>
+  <string name="dialog_message_update_required">A new version of the app is available. Please update to continue using the app.</string>
+  <string name="dialog_button_update">Cập nhật</string>
   <string name="select_length_title">Đơn vị chiều dài</string>
   <string name="select_length_summary">Chọn đơn vị ưa thích của bạn</string>
   <string name="length_meters">Mét (m)</string>
