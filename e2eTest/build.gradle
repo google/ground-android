@@ -64,17 +64,17 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.core:core-ktx:1.13.1'
-    implementation 'androidx.appcompat:appcompat:1.7.0'
-    implementation 'androidx.test.ext:junit:1.2.1'
-    implementation 'androidx.test.espresso:espresso-core:3.6.1'
-    implementation 'androidx.cardview:cardview:1.0.0'
-    androidTestUtil 'androidx.test:orchestrator:1.5.0'
-    implementation "androidx.test:runner:1.6.1"
-    implementation "androidx.test:rules:1.6.1"
-    implementation "androidx.test.uiautomator:uiautomator:2.3.0"
-    implementation 'com.google.truth:truth:1.4.2'
-    implementation "junit:junit:$junitVersion"
+    androidTestUtil libs.androidx.orchestrator
+    implementation libs.androidx.appcompat
+    implementation libs.androidx.cardview
+    implementation libs.androidx.core.ktx
+    implementation libs.androidx.espresso.core
+    implementation libs.androidx.junit
+    implementation libs.androidx.rules
+    implementation libs.androidx.uiautomator
+    implementation libs.androidx.runner
+    implementation libs.junit
+    implementation libs.truth
     implementation project(':app')
 }
 
