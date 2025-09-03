@@ -48,7 +48,7 @@ data class Condition(
     when (matchType) {
       MatchType.MATCH_ANY -> expressions.any { it.fulfilledBy(taskSelections) }
       MatchType.MATCH_ALL -> expressions.all { it.fulfilledBy(taskSelections) }
-      MatchType.MATCH_ONE -> expressions.filter { it.fulfilledBy(taskSelections) }.size == 1
+      MatchType.MATCH_ONE -> expressions.count { it.fulfilledBy(taskSelections) } == 1
       MatchType.UNKNOWN -> throw IllegalArgumentException("Unknown match type: $matchType")
     }
 }
