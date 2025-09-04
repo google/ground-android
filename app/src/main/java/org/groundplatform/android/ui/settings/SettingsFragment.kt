@@ -16,10 +16,9 @@
 package org.groundplatform.android.ui.settings
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.net.toUri
 import androidx.core.os.LocaleListCompat
 import androidx.preference.DropDownPreference
 import androidx.preference.Preference
@@ -29,15 +28,11 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import org.groundplatform.android.R
 import org.groundplatform.android.common.Constants
+import org.groundplatform.android.common.PrefKeys
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.ui.main.MainActivity
 
-/**
- * Fragment containing app preferences saved as shared preferences.
- *
- * NOTE: It uses [PreferenceFragmentCompat] instead of [ ], so dagger can't inject into it like it
- * does in other fragments.
- */
+/** Fragment containing app preferences saved as shared preferences. */
 @AndroidEntryPoint
 class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClickListener {
 
@@ -48,7 +43,7 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
     preferenceManager.sharedPreferencesMode = Constants.SHARED_PREFS_MODE
 
     setPreferencesFromResource(R.xml.preferences, rootKey)
-    for (key in Keys.ALL_KEYS) {
+    for (key in ALL_KEYS) {
       val preference =
         findPreference<Preference>(key)
           ?: throw IllegalArgumentException("Key not found in preferences.xml: $key")
@@ -56,13 +51,13 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
       preference.onPreferenceClickListener = this
     }
 
-    val switchPreference = findPreference<SwitchPreferenceCompat>(Keys.UPLOAD_MEDIA)
+    val switchPreference = findPreference<SwitchPreferenceCompat>(PrefKeys.UPLOAD_MEDIA)
     switchPreference?.isChecked = loadSwitchPreferenceState()
 
-    setupDropDownPreference(Keys.LANGUAGE, localValueStore.selectedLanguage) {
+    setupDropDownPreference(PrefKeys.LANGUAGE, localValueStore.selectedLanguage) {
       updateLocaleAndRestart(it)
     }
-    setupDropDownPreference(Keys.LENGTH_UNIT, localValueStore.selectedLengthUnit)
+    setupDropDownPreference(PrefKeys.LENGTH_UNIT, localValueStore.selectedLengthUnit)
   }
 
   private fun setupDropDownPreference(
@@ -91,25 +86,22 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
   }
 
   private fun loadSwitchPreferenceState() =
-    preferenceManager.sharedPreferences?.getBoolean(Keys.UPLOAD_MEDIA, false) ?: false
+    preferenceManager.sharedPreferences?.getBoolean(PrefKeys.UPLOAD_MEDIA, false) ?: false
 
   override fun onPreferenceClick(preference: Preference): Boolean {
-    when (preference.key) {
-      Keys.VISIT_WEBSITE -> openUrl(preference.summary.toString())
-      Keys.FEEDBACK ->
-        Toast.makeText(context, R.string.not_yet_impl_title, Toast.LENGTH_SHORT).show()
+    if (preference.key == PrefKeys.VISIT_WEBSITE) {
+      openUrl(preference.summary.toString())
     }
     return true
   }
 
   private fun openUrl(url: String) {
-    val intent = Intent(Intent.ACTION_VIEW)
-    intent.data = Uri.parse(url)
+    val intent = Intent(Intent.ACTION_VIEW, url.toUri())
     startActivity(intent)
   }
 
   private fun updateLocaleAndRestart(languageCode: String) {
-    preferenceManager.sharedPreferences?.edit()?.putString(Keys.LANGUAGE, languageCode)?.apply()
+    preferenceManager.sharedPreferences?.edit()?.putString(PrefKeys.LANGUAGE, languageCode)?.apply()
 
     val appLocale = LocaleListCompat.forLanguageTags(languageCode)
     AppCompatDelegate.setApplicationLocales(appLocale)
@@ -119,5 +111,15 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
       }
     startActivity(intent)
+  }
+
+  companion object {
+    private val ALL_KEYS =
+      arrayOf(
+        PrefKeys.LANGUAGE,
+        PrefKeys.LENGTH_UNIT,
+        PrefKeys.UPLOAD_MEDIA,
+        PrefKeys.VISIT_WEBSITE,
+      )
   }
 }
