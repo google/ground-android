@@ -29,7 +29,6 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
@@ -41,21 +40,11 @@ import org.groundplatform.android.model.job.Style
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.theme.AppTheme
 
-private val verticalGradient =
-  Brush.verticalGradient(
-    colorStops =
-      arrayOf(
-        0.0f to Color.Black.copy(alpha = 0.75F),
-        0.9f to Color.DarkGray.copy(alpha = 0.6F),
-        1f to Color.Transparent,
-      )
-  )
-
 @Composable
 fun JobSelectionModal(jobs: List<Job>, onJobClicked: (job: Job) -> Unit, onDismiss: () -> Unit) {
   Column(
     Modifier.fillMaxWidth()
-      .background(verticalGradient)
+      .background(color = Color.Black.copy(alpha = 0.6f))
       .pointerInput(Unit) { detectTapGestures {} }
       .clickable(onClick = onDismiss)
   ) {
@@ -67,10 +56,11 @@ fun JobSelectionModal(jobs: List<Job>, onJobClicked: (job: Job) -> Unit, onDismi
       ShowJobCards(jobs, onJobClicked)
     }
     ActionButton(
-      modifier = Modifier.align(Alignment.CenterHorizontally).padding(bottom = 36.dp),
+      modifier = Modifier.align(Alignment.CenterHorizontally).padding(bottom = 35.dp),
       icon = Icons.Filled.Clear,
       contentDescription = stringResource(R.string.close),
       onClick = onDismiss,
+      mode = ButtonMode.SECONDARY,
     )
   }
 }
