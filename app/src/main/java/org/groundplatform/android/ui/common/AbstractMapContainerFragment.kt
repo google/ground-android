@@ -24,11 +24,11 @@ import kotlinx.coroutines.CoroutineDispatcher
 import org.groundplatform.android.R
 import org.groundplatform.android.coroutines.DefaultDispatcher
 import org.groundplatform.android.model.geometry.Coordinates
+import org.groundplatform.android.model.map.Bounds
 import org.groundplatform.android.system.GeocodingManager
 import org.groundplatform.android.system.PermissionDeniedException
 import org.groundplatform.android.system.SettingsChangeRequestCanceled
 import org.groundplatform.android.ui.home.mapcontainer.MapTypeDialogFragmentDirections
-import org.groundplatform.android.ui.map.Bounds
 import org.groundplatform.android.ui.map.CameraUpdateRequest
 import org.groundplatform.android.ui.map.MapFragment
 import org.groundplatform.android.ui.map.NewCameraPositionViaBounds

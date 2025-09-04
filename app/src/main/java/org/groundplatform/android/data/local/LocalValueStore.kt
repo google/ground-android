@@ -24,9 +24,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import org.groundplatform.android.common.Constants.DEFAULT_MAP_TYPE
 import org.groundplatform.android.common.Constants.LENGTH_UNIT_METER
-import org.groundplatform.android.ui.map.CameraPosition
-import org.groundplatform.android.ui.map.MapType
+import org.groundplatform.android.model.map.CameraPosition
+import org.groundplatform.android.model.map.MapType
 import org.groundplatform.android.ui.settings.Keys
 import org.groundplatform.android.util.allowThreadDiskReads
 import org.groundplatform.android.util.allowThreadDiskWrites
@@ -58,7 +59,7 @@ constructor(private val preferences: SharedPreferences, private val locale: Loca
   /** The last map type selected. */
   var mapType: MapType
     get() = allowThreadDiskReads {
-      val mapTypeIdx = preferences.getInt(MAP_TYPE, MapType.DEFAULT.ordinal)
+      val mapTypeIdx = preferences.getInt(MAP_TYPE, DEFAULT_MAP_TYPE.ordinal)
       MapType.entries[mapTypeIdx]
     }
     set(value) = allowThreadDiskWrites {

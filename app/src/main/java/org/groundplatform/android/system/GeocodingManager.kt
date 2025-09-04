@@ -26,7 +26,7 @@ import kotlinx.coroutines.withContext
 import org.groundplatform.android.R
 import org.groundplatform.android.coroutines.IoDispatcher
 import org.groundplatform.android.model.geometry.Coordinates
-import org.groundplatform.android.ui.map.Bounds
+import org.groundplatform.android.model.map.Bounds
 import org.groundplatform.android.ui.map.gms.GmsExt.center
 import timber.log.Timber
 

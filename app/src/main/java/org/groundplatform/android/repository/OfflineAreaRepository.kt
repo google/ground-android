@@ -29,8 +29,8 @@ import org.groundplatform.android.model.imagery.LocalTileSource
 import org.groundplatform.android.model.imagery.OfflineArea
 import org.groundplatform.android.model.imagery.RemoteMogTileSource
 import org.groundplatform.android.model.imagery.TileSource
+import org.groundplatform.android.model.map.Bounds
 import org.groundplatform.android.system.GeocodingManager
-import org.groundplatform.android.ui.map.Bounds
 import org.groundplatform.android.ui.map.gms.mog.MogClient
 import org.groundplatform.android.ui.map.gms.mog.MogTileDownloader
 import org.groundplatform.android.ui.map.gms.mog.getTilePath

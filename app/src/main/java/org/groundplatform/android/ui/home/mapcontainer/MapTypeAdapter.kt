@@ -19,12 +19,14 @@ package org.groundplatform.android.ui.home.mapcontainer
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.color.MaterialColors
 import org.groundplatform.android.R
 import org.groundplatform.android.databinding.MapTypeDialogItemBinding
+import org.groundplatform.android.model.map.MapType
 import org.groundplatform.android.ui.home.mapcontainer.MapTypeAdapter.ViewHolder
-import org.groundplatform.android.ui.map.MapType
 
 /**
  * An implementation of [RecyclerView.Adapter] that associates [MapType] data with the [ViewHolder]
@@ -46,9 +48,9 @@ class MapTypeAdapter(
 
   /** Binds [MapType] data to [ViewHolder]. */
   override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-    val itemsViewModel = itemsList[position]
-    holder.binding.imageView.setImageResource(itemsViewModel.imageId)
-    holder.binding.textView.text = context.getString(itemsViewModel.labelId)
+    val mapType = itemsList[position]
+    holder.binding.imageView.setImageResource(mapType.imageId())
+    holder.binding.textView.text = context.getString(mapType.labelId())
 
     val isItemSelected = selectedIndex == position
     holder.binding.textView.setTextColor(
@@ -84,4 +86,22 @@ class MapTypeAdapter(
   /** View item representing the [MapType] data in the list. */
   class ViewHolder(internal val binding: MapTypeDialogItemBinding) :
     RecyclerView.ViewHolder(binding.root)
+
+  companion object {
+    @StringRes
+    private fun MapType.labelId(): Int =
+      when (this) {
+        MapType.ROAD -> R.string.road_map
+        MapType.TERRAIN -> R.string.terrain
+        MapType.SATELLITE -> R.string.satellite
+      }
+
+    @DrawableRes
+    private fun MapType.imageId(): Int =
+      when (this) {
+        MapType.ROAD -> R.drawable.map_type_roadmap
+        MapType.TERRAIN -> R.drawable.map_type_terrain
+        MapType.SATELLITE -> R.drawable.map_type_satellite
+      }
+  }
 }

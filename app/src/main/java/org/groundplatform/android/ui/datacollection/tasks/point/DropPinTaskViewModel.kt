@@ -24,13 +24,12 @@ import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.getDefaultColor
+import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.model.submission.DropPinTaskData
 import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
-import org.groundplatform.android.ui.map.CameraPosition
 import org.groundplatform.android.ui.map.Feature
-import org.groundplatform.android.ui.map.FeatureType
 
 class DropPinTaskViewModel
 @Inject
@@ -77,7 +76,7 @@ constructor(
   private suspend fun createFeature(point: Point): Feature =
     Feature(
       id = uuidGenerator.generateUuid(),
-      type = FeatureType.USER_POINT.ordinal,
+      type = Feature.Type.USER_POINT,
       geometry = point,
       style = Feature.Style(pinColor),
       clusterable = false,
