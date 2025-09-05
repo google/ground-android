@@ -94,6 +94,31 @@ class PolygonUtilTest {
     assertTrue(isSelfIntersecting(FOUR_POINTS_X))
   }
 
+  @Test
+  fun `closed non-intersecting polygon does not self intersect`() {
+    val closedSquare = NON_INTERSECTING + NON_INTERSECTING.first() // close the ring
+    assertFalse(isSelfIntersecting(closedSquare))
+  }
+
+  @Test
+  fun `adjacent edges sharing a vertex are not treated as intersection`() {
+    val square =
+      listOf(
+        Coordinates(0.0, 0.0),
+        Coordinates(1.0, 0.0),
+        Coordinates(1.0, 1.0),
+        Coordinates(0.0, 1.0),
+        Coordinates(0.0, 0.0), // closed
+      )
+    assertFalse(isSelfIntersecting(square))
+  }
+
+  @Test
+  fun `open polyline that crosses itself is detected`() {
+    val openCross = listOf(P1, P2, Q1, Q2)
+    assertTrue(isSelfIntersecting(openCross))
+  }
+
   @org.junit.Test
   fun `calculateShoelacePolygonArea should return correct area for simple square`() {
     val coordinates =
