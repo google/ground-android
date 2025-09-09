@@ -20,8 +20,8 @@ buildscript {
     repositories {
         google()
         mavenLocal()
-        maven { url "https://maven.google.com" }
-        maven { url "https://plugins.gradle.org/m2/" }
+        maven { url = "https://maven.google.com" }
+        maven { url = "https://plugins.gradle.org/m2/" }
         mavenCentral()
         gradlePluginPortal()
     }
@@ -68,9 +68,9 @@ allprojects {
     repositories {
         google() // For github repos.
         mavenLocal()
-        maven { url "https://maven.google.com" }
-        maven { url "https://jitpack.io" }
-        maven { url "https://repo.osgeo.org/repository/release/" } // GeoTools
+        maven { url = "https://maven.google.com" }
+        maven { url = "https://jitpack.io" }
+        maven { url = "https://repo.osgeo.org/repository/release/" } // GeoTools
         mavenCentral()
     }
 }
