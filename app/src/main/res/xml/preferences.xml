@@ -59,15 +59,6 @@
       app:summary="@string/ground_website"
       app:title="@string/visit_website_title" />
 
-    <!-- TODO: Re-enable once the locationOfInterest is implemented -->
-    <!-- Issue URL: https://github.com/google/ground-android/issues/742 -->
-    <Preference
-      app:iconSpaceReserved="false"
-      app:isPreferenceVisible="false"
-      app:key="feedback"
-      app:summary="@string/report_summary"
-      app:title="@string/send_feedback_title" />
-
   </PreferenceCategory>
 
 </PreferenceScreen>
