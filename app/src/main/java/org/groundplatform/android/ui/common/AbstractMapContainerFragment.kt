@@ -29,6 +29,7 @@ import org.groundplatform.android.ui.home.mapcontainer.MapTypeDialogFragmentDire
 import org.groundplatform.android.ui.map.Bounds
 import org.groundplatform.android.ui.map.CameraUpdateRequest
 import org.groundplatform.android.ui.map.MapFragment
+import org.groundplatform.android.ui.map.MapType
 import org.groundplatform.android.ui.map.NewCameraPositionViaBounds
 import org.groundplatform.android.ui.map.NewCameraPositionViaCoordinates
 import org.groundplatform.android.ui.map.NewCameraPositionViaCoordinatesAndZoomLevel
