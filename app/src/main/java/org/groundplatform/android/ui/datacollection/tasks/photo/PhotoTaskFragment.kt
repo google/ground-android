@@ -86,7 +86,6 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
     val taskBinding = PhotoTaskFragBinding.inflate(inflater)
     taskBinding.lifecycleOwner = this
     taskBinding.fragment = this
-    taskBinding.dataCollectionViewModel = dataCollectionViewModel
     taskBinding.viewModel = viewModel
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
     return taskBinding.root
