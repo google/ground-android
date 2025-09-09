@@ -145,6 +145,10 @@ abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
       }
     }
 
+  fun setCenterMarkerVisibility(visible: Boolean) {
+    binding.centerMarker.visibility = if (visible) View.VISIBLE else View.GONE
+  }
+
   @MustBeInvokedByOverriders
   protected open fun onMapCameraMoved(position: CameraPosition) {
     if (getMapViewModel().locationLock.value.getOrDefault(false)) {

@@ -16,13 +16,13 @@
 package org.groundplatform.android.usecases.survey
 
 import javax.inject.Inject
-import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
+import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.repository.SurveyRepository
 
 class RemoveOfflineSurveyUseCase
 @Inject
 constructor(
-  private val localSurveyStore: LocalSurveyStore,
+  private val localValueStore: LocalValueStore,
   private val surveyRepository: SurveyRepository,
 ) {
 
@@ -35,7 +35,8 @@ constructor(
       surveyRepository.clearActiveSurvey()
     }
 
-    val survey = localSurveyStore.getSurveyById(surveyId) ?: return
-    localSurveyStore.deleteSurvey(survey)
+    localValueStore.clearLastCameraPosition(surveyId)
+
+    surveyRepository.removeOfflineSurvey(surveyId)
   }
 }

@@ -30,6 +30,7 @@ import org.groundplatform.android.model.geometry.Polygon
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.Style
 import org.groundplatform.android.model.submission.DrawAreaTaskData
+import org.groundplatform.android.model.submission.DrawAreaTaskIncompleteData
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.datacollection.tasks.polygon.DrawAreaTaskViewModel.Companion.DISTANCE_THRESHOLD_DP
 import org.groundplatform.android.ui.map.Feature
@@ -37,13 +38,12 @@ import org.groundplatform.android.ui.map.gms.GmsExt.getShellCoordinates
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.doNothing
-import org.mockito.Mockito.mock
 import org.robolectric.RobolectricTestRunner
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class DrawAreaTaskViewModelTest : BaseHiltTest() {
+
   @Inject lateinit var viewModel: DrawAreaTaskViewModel
 
   private lateinit var featureTestObserver: TestObserver<Feature>
@@ -63,22 +63,21 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
   @Test
   fun `Initializes with complete polygon`() {
     val polygon =
-      Polygon(
-        shell =
-          LinearRing(coordinates = listOf(COORDINATE_1, COORDINATE_2, COORDINATE_3, COORDINATE_1))
-      )
+      Polygon(LinearRing(listOf(COORDINATE_1, COORDINATE_2, COORDINATE_3, COORDINATE_1)))
+
     viewModel.initialize(JOB, TASK, taskData = DrawAreaTaskData(area = polygon))
+
     assertGeometry(4, isLineString = true)
     assertThat(viewModel.isMarkedComplete()).isTrue()
   }
 
   @Test
   fun `Initializes with incomplete polygon`() {
-    val linearRingMock = mock(LinearRing::class.java)
-    doNothing().`when`(linearRingMock).validate()
-    val polygon = Polygon(shell = linearRingMock)
-    viewModel.initialize(JOB, TASK, taskData = DrawAreaTaskData(area = polygon))
-    assertGeometry(0)
+    val lineString = LineString(coordinates = listOf(COORDINATE_1, COORDINATE_2, COORDINATE_3))
+
+    viewModel.initialize(JOB, TASK, taskData = DrawAreaTaskIncompleteData(lineString))
+
+    assertGeometry(3, isLineString = true)
     assertThat(viewModel.isMarkedComplete()).isFalse()
   }
 
@@ -178,7 +177,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     updateLastVertexAndAdd(COORDINATE_3)
     updateLastVertex(COORDINATE_4, true)
 
-    assertThat(featureTestObserver.value()?.tooltipText).isEqualTo("10,190,704 ft")
+    assertThat(featureTestObserver.value()?.tooltipText).isEqualTo("3,106,126 m")
   }
 
   @Test
@@ -188,7 +187,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     updateLastVertexAndAdd(COORDINATE_3)
     updateLastVertex(COORDINATE_4, false)
 
-    assertThat(featureTestObserver.value()?.tooltipText).isEqualTo("4,911,905 ft")
+    assertThat(featureTestObserver.value()?.tooltipText).isEqualTo("1,497,148 m")
   }
 
   @Test
@@ -206,7 +205,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
 
     viewModel.removeLastVertex()
 
-    assertThat(featureTestObserver.value()?.tooltipText).isEqualTo("5,134,872 ft")
+    assertThat(featureTestObserver.value()?.tooltipText).isEqualTo("1,565,109 m")
 
     viewModel.removeLastVertex()
 
@@ -222,6 +221,26 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
 
     viewModel.completePolygon()
     assertGeometry(4, isLineString = true)
+  }
+
+  @Test
+  fun `redoLastVertex re-adds last vertex`() {
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+
+    viewModel.removeLastVertex()
+    assertGeometry(2, isLineString = true)
+
+    viewModel.redoLastVertex()
+    assertGeometry(3, isLineString = true)
+  }
+
+  @Test
+  fun `redoLastVertex when redo stack is empty`() {
+    updateLastVertexAndAdd(COORDINATE_1)
+
+    viewModel.redoLastVertex()
+    assertThat(viewModel.redoVertexStack).isEqualTo(emptyList<Coordinates>())
   }
 
   private fun assertGeometry(

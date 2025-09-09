@@ -29,7 +29,8 @@ import org.groundplatform.android.R
 import org.groundplatform.android.databinding.FragmentDrawAreaTaskBinding
 import org.groundplatform.android.model.geometry.LineString
 import org.groundplatform.android.model.geometry.LineString.Companion.lineStringOf
-import org.groundplatform.android.ui.compose.ConfirmationDialog
+import org.groundplatform.android.model.submission.isNotNullOrEmpty
+import org.groundplatform.android.ui.components.ConfirmationDialog
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.InstructionsDialog
 import org.groundplatform.android.ui.datacollection.components.TaskButton
@@ -79,7 +80,14 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
 
   override fun onCreateActionButtons() {
     addSkipButton()
-    addUndoButton { removeLastVertex() }
+    addButton(ButtonAction.UNDO)
+      .setOnClickListener { removeLastVertex() }
+      .setOnValueChanged { button, value -> button.enableIfTrue(value.isNotNullOrEmpty()) }
+    addButton(ButtonAction.REDO)
+      .setOnClickListener { restoreLastVertex() }
+      .setOnValueChanged { button, value ->
+        button.enableIfTrue(viewModel.redoVertexStack.isNotEmpty() && value.isNotNullOrEmpty())
+      }
     nextButton = addNextButton()
     addPointButton =
       addButton(ButtonAction.ADD_POINT).setOnClickListener {
@@ -96,6 +104,16 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
     viewModel.removeLastVertex()
 
     // Move the camera to the last vertex, if any.
+    moveToPosition()
+  }
+
+  private fun restoreLastVertex() {
+    viewModel.redoLastVertex()
+
+    moveToPosition()
+  }
+
+  private fun moveToPosition() {
     val lastVertex = viewModel.getLastVertex() ?: return
     drawAreaTaskMapFragment.moveToPosition(lastVertex)
   }
@@ -136,9 +154,14 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
     val geometry = feature?.geometry ?: lineStringOf()
     check(geometry is LineString) { "Invalid area geometry type ${geometry.javaClass}" }
 
-    addPointButton.showIfTrue(!geometry.isClosed())
-    completeButton.showIfTrue(geometry.isClosed() && !viewModel.isMarkedComplete())
-    nextButton.showIfTrue(viewModel.isMarkedComplete())
+    val closed = geometry.isClosed()
+    val markedComplete = viewModel.isMarkedComplete()
+    val tooClose = viewModel.isTooClose.value
+
+    addPointButton.showIfTrue(!closed)
+    addPointButton.enableIfTrue(!closed && !tooClose)
+    completeButton.showIfTrue(closed && !markedComplete)
+    nextButton.showIfTrue(markedComplete)
   }
 
   private fun showInstructionsDialog() {

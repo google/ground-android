@@ -19,14 +19,14 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import org.groundplatform.android.Config
-import org.groundplatform.android.persistence.remote.RemoteStorageManager
+import org.groundplatform.android.common.Constants
+import org.groundplatform.android.data.remote.RemoteStorageManager
 
 @InstallIn(SingletonComponent::class)
 @Module
 class MogProviderModule {
 
-  private val defaultMogSources = Config.getMogSources(Config.DEFAULT_MOG_TILE_LOCATION)
+  private val defaultMogSources = Constants.getMogSources(Constants.DEFAULT_MOG_TILE_LOCATION)
   private val defaultMogCollection = MogCollection(defaultMogSources)
 
   @Provides

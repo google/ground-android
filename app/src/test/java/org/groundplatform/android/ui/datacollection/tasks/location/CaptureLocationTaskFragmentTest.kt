@@ -21,6 +21,7 @@ import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
+import org.groundplatform.android.FlakyTest
 import org.groundplatform.android.R
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.Point
@@ -71,14 +72,15 @@ class CaptureLocationTaskFragmentTest :
   }
 
   @Test
-  fun testHeader() {
+  fun `displays task without header correctly`() {
     setupTaskFragment<CaptureLocationTaskFragment>(job, task)
 
     hasTaskViewWithoutHeader(task.label)
   }
 
   @Test
-  fun testDropPin() = runWithTestDispatcher {
+  @FlakyTest
+  fun `drop pin`() = runWithTestDispatcher {
     setupTaskFragment<CaptureLocationTaskFragment>(job, task)
     setupLocation()
 
@@ -97,14 +99,14 @@ class CaptureLocationTaskFragmentTest :
   }
 
   @Test
-  fun testInfoCard_noValue() {
+  fun `info card when no value`() {
     setupTaskFragment<CaptureLocationTaskFragment>(job, task)
 
     runner().assertInfoCardHidden()
   }
 
   @Test
-  fun testUndo() = runWithTestDispatcher {
+  fun `undo resets location data`() = runWithTestDispatcher {
     setupTaskFragment<CaptureLocationTaskFragment>(job, task)
     setupLocation()
 
@@ -124,7 +126,7 @@ class CaptureLocationTaskFragmentTest :
   }
 
   @Test
-  fun testActionButtons() {
+  fun `displays correct action buttons`() {
     setupTaskFragment<CaptureLocationTaskFragment>(job, task)
 
     assertFragmentHasButtons(
@@ -137,7 +139,7 @@ class CaptureLocationTaskFragmentTest :
   }
 
   @Test
-  fun testActionButtons_whenTaskIsOptional() {
+  fun `action buttons when task is optional`() {
     setupTaskFragment<CaptureLocationTaskFragment>(job, task.copy(isRequired = false))
 
     runner()
@@ -148,7 +150,7 @@ class CaptureLocationTaskFragmentTest :
   }
 
   @Test
-  fun testActionButtons_whenTaskIsRequired() {
+  fun `action buttons when task is required`() {
     setupTaskFragment<CaptureLocationTaskFragment>(job, task.copy(isRequired = true))
 
     runner()
@@ -159,7 +161,7 @@ class CaptureLocationTaskFragmentTest :
   }
 
   @Test
-  fun testGetMapConfig() {
+  fun `get map config`() {
     setupTaskFragment<CaptureLocationTaskFragment>(job, task)
 
     assertThat(fragment.captureLocationTaskMapFragmentProvider.get().getMapConfig())

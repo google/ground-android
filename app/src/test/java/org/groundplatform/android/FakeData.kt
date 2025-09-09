@@ -58,6 +58,7 @@ object FakeData {
   const val USER_ID = "user id"
   const val SURVEY_ID = "survey id"
   const val SUBMISSION_ID = "submission id"
+  const val TASK_ID = "task_id"
 
   val JOB =
     Job(
@@ -86,6 +87,8 @@ object FakeData {
     customText = "## Introduction\n\nOnly one rule: **BE EXCELLENT TO ONE ANOTHER!**"
   }
 
+  val FAKE_GENERAL_ACCESS = org.groundplatform.android.proto.Survey.GeneralAccess.RESTRICTED
+
   val SURVEY: Survey =
     Survey(
       SURVEY_ID,
@@ -94,6 +97,7 @@ object FakeData {
       mapOf(JOB.id to JOB, ADHOC_JOB.id to ADHOC_JOB),
       mapOf(USER.email to "DATA_COLLECTOR"),
       DATA_SHARING_TERMS.copy {},
+      FAKE_GENERAL_ACCESS,
     )
 
   const val LOCATION_OF_INTEREST_NAME = "Test LOI Name"

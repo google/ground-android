@@ -40,7 +40,7 @@ class DownloadProgressDialogTest : BaseHiltTest() {
   @Inject lateinit var viewModel: OfflineAreaSelectorViewModel
 
   @Test
-  fun downloadProgressDialog_DisplaysTitleCorrectly() {
+  fun `DownloadProgressDialog displays title correctly`() {
     composeTestRule.setContent { DownloadProgressDialog(viewModel.downloadProgress.value!!, {}) }
 
     composeTestRule
@@ -54,7 +54,7 @@ class DownloadProgressDialogTest : BaseHiltTest() {
   }
 
   @Test
-  fun downloadProgressDialog_DisplaysCorrectMessage() {
+  fun `DownloadProgressDialog displays correct message`() {
     composeTestRule.setContent { DownloadProgressDialog(viewModel.downloadProgress.value!!, {}) }
 
     composeTestRule
@@ -67,7 +67,7 @@ class DownloadProgressDialogTest : BaseHiltTest() {
   }
 
   @Test
-  fun downloadProgressDialog_CallsOnDismissOnDismissButtonClick() {
+  fun `DownloadProgressDialog calls onDismiss when dismiss button is clicked`() {
     var isDismissed = false
 
     composeTestRule.setContent {
@@ -82,7 +82,7 @@ class DownloadProgressDialogTest : BaseHiltTest() {
   }
 
   @Test
-  fun downloadProgressDialog_DisplaysCorrectTitleForProgress() {
+  fun `DownloadProgressDialog displays correct title for progress percentage`() {
     viewModel.downloadProgress.value = 0.5f
 
     composeTestRule.setContent { DownloadProgressDialog(viewModel.downloadProgress.value!!, {}) }

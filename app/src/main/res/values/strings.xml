@@ -76,8 +76,6 @@
   <string name="satellite">Satellite</string>
   <string name="terrain">Terrain</string>
   <string name="next">Next</string>
-  <string name="select_survey_title">Select a survey</string>
-  <string name="survey_sync_hint">Once opened, surveys are available offline and synced automatically when online.</string>
   <string name="done">Done</string>
   <string name="skip">Skip</string>
 
@@ -111,7 +109,7 @@
   <string name="capture">Capture</string>
   <string name="surveys">Surveys</string>
   <string name="offline_icon_description">Icon shown when the survey is available offline</string>
-  <string name="remove_offline_access">Remove offline access</string>
+  <string name="more_options_icon_description">More options</string>
   <string name="remove_offline_access_warning_title">Warning</string>
   <string name="remove_offline_access_warning_confirm_button">Remove</string>
   <string name="remove_offline_access_warning_dialog_body">If you remove offline access:\n \u2022 Any unsynced data will be discarded\n\nAre you sure you want to remove the offline access?</string>
@@ -135,9 +133,7 @@
   <string name="map_location">Map location:</string>
   <string name="sign_out_dialog_title">Signout warning</string>
   <string name="sign_out_dialog_body">If you sign out:\n \u2022 Any unsynced data will be discarded\n \u2022 You won&#8217;t be able to sign in if you&#8217;re offline\n \u2022 Offline surveys won&#8217;t be available until you sign in again\n\nAre you sure you want to sign out?</string>
-  <string name="suggest_data_collection_hint">Zoom in to start collecting data</string>
   <string name="read_only_data_collection_hint">Survey is read-only</string>
-  <string name="predefined_data_collection_hint">Zoom in to a data collection site to collect data</string>
   <string name="no_submissions">No submissions</string>
   <string name="dismiss_info_popup">Dismiss</string>
   <string name="other">Other</string>
@@ -151,6 +147,7 @@
   <string name="switch_survey">Switch survey</string>
   <string name="no_survey_selected">No survey selected</string>
   <string name="undo">Undo</string>
+  <string name="redo">Redo</string>
   <string name="view_licenses_title">Licenses</string>
   <string name="about">About</string>
   <string name="terms_of_service">Terms of service</string>
@@ -173,10 +170,9 @@
   <string name="over_wifi_summary">Over Wi-Fi only</string>
   <string name="help_title">Help</string>
   <string name="visit_website_title">Visit website</string>
-  <string name="send_feedback_title">Send feedback</string>
-  <string name="report_summary">Report technical issues or suggest new locationsOfInterest</string>
-  <string name="not_yet_impl_title">Not yet implemented</string>
   <string name="accuracy">Accuracy:</string>
+  <string name="select_language_title">Select language</string>
+  <string name="select_language_summary">Select your preferred language</string>
   <!-- Data Sharing Consent Text -->
   <string name="data_sharing_no_terms">*No terms to display.*</string>
   <string name="data_sharing_private_message">
@@ -209,4 +205,27 @@
   <string name="text_task_data_character_limit">255 characters max</string>
 
   <string name="area_message">Area: %1$.2f m²</string>
+
+  <string name="lang_english">English</string>
+  <string name="lang_french">French</string>
+  <string name="lang_spanish">Spanish</string>
+  <string name="lang_portuguese">Portuguese</string>
+  <string name="lang_vietnamese">Vietnamese</string>
+
+  <string name="access_restricted">Restricted</string>
+  <string name="access_unlisted">Unlisted</string>
+  <string name="access_public">Public</string>
+
+  <string name="section_on_device">On this device</string>
+  <string name="section_shared_with_me">Shared with me</string>
+  <string name="section_public">Public</string>
+
+  <string name="dialog_title_update_required">Update Required</string>
+  <string name="dialog_message_update_required">A new version of the app is available. Please update to continue using the app.</string>
+  <string name="dialog_button_update">Update</string>
+
+  <string name="select_length_title">Unit of length</string>
+  <string name="select_length_summary">Select your preferred unit</string>
+  <string name="length_meters">Meters (m)</string>
+  <string name="length_feet">Feet (ft)</string>
 </resources>

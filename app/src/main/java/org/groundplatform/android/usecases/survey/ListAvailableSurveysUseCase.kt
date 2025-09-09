@@ -23,8 +23,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import org.groundplatform.android.model.SurveyListItem
 import org.groundplatform.android.model.toListItem
-import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
-import org.groundplatform.android.persistence.remote.RemoteDataStore
+import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.NetworkStatus
@@ -34,9 +33,8 @@ import org.groundplatform.android.system.NetworkStatus
 class ListAvailableSurveysUseCase
 @Inject
 constructor(
-  private val localSurveyStore: LocalSurveyStore,
   private val networkManager: NetworkManager,
-  private val remoteDataStore: RemoteDataStore,
+  private val surveyRepository: SurveyRepository,
   private val userRepository: UserRepository,
 ) {
 
@@ -50,17 +48,17 @@ constructor(
     }
 
   private fun getLocalSurveyList(): Flow<List<SurveyListItem>> =
-    localSurveyStore.surveys.map { localSurveys ->
+    surveyRepository.getOfflineSurveys().map { localSurveys ->
       localSurveys.map { localSurvey -> localSurvey.toListItem(true) }
     }
 
   private suspend fun getRemoteSurveyList(): Flow<List<SurveyListItem>> {
     val user = userRepository.getAuthenticatedUser()
-    val remoteSurveyListFlow = remoteDataStore.getSurveyList(user)
-    val localFlow = getLocalSurveyList()
-    return combine(remoteSurveyListFlow, localFlow) { remoteSurveys, localSurveys ->
+    val remoteSurveyFlow = surveyRepository.getRemoteSurveys(user)
+
+    return combine(remoteSurveyFlow, getLocalSurveyList()) { remoteSurveys, localSurveys ->
       val remoteSurveysWithOfflineStatus =
-        remoteSurveys.map { remote -> addOfflineStatus(remote, localSurveys) }
+        remoteSurveys.map { remoteSurvey -> addOfflineStatus(remoteSurvey, localSurveys) }
       val localOnlySurveys =
         localSurveys.filter { local -> remoteSurveys.none { it.id == local.id } }
       remoteSurveysWithOfflineStatus + localOnlySurveys

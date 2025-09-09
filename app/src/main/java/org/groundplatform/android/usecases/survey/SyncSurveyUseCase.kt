@@ -17,14 +17,10 @@
 package org.groundplatform.android.usecases.survey
 
 import javax.inject.Inject
-import kotlinx.coroutines.withTimeoutOrNull
 import org.groundplatform.android.model.Survey
-import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
-import org.groundplatform.android.persistence.remote.RemoteDataStore
 import org.groundplatform.android.repository.LocationOfInterestRepository
+import org.groundplatform.android.repository.SurveyRepository
 import timber.log.Timber
-
-private const val LOAD_REMOTE_SURVEY_TIMEOUT_MILLS: Long = 15 * 1000
 
 /**
  * Loads the survey with the specified id and related LOIs from remote and writes to local db.
@@ -37,22 +33,20 @@ private const val LOAD_REMOTE_SURVEY_TIMEOUT_MILLS: Long = 15 * 1000
 class SyncSurveyUseCase
 @Inject
 constructor(
-  private val localSurveyStore: LocalSurveyStore,
   private val loiRepository: LocationOfInterestRepository,
-  private val remoteDataStore: RemoteDataStore,
+  private val surveyRepository: SurveyRepository,
 ) {
 
   suspend operator fun invoke(surveyId: String): Survey? =
     fetchSurvey(surveyId)?.also { syncSurvey(it) }
 
-  private suspend fun fetchSurvey(surveyId: String): Survey? =
-    withTimeoutOrNull(LOAD_REMOTE_SURVEY_TIMEOUT_MILLS) {
-      Timber.d("Loading survey $surveyId")
-      remoteDataStore.loadSurvey(surveyId)
-    }
+  private suspend fun fetchSurvey(surveyId: String): Survey? {
+    Timber.d("Loading survey $surveyId")
+    return surveyRepository.getRemoteSurvey(surveyId)
+  }
 
   private suspend fun syncSurvey(survey: Survey) {
-    localSurveyStore.insertOrUpdateSurvey(survey)
+    surveyRepository.saveSurvey(survey)
     loiRepository.syncLocationsOfInterest(survey)
     Timber.d("Synced survey ${survey.id}")
   }

@@ -57,27 +57,28 @@ class DrawAreaTaskFragmentTest :
   private val job = Job("job", Style("#112233"))
 
   @Test
-  fun testHeader() {
+  fun `displays task header correctly`() {
     setupTaskFragment<DrawAreaTaskFragment>(job, task)
 
     hasTaskViewWithoutHeader(task.label)
   }
 
   @Test
-  fun testInfoCard_noValue() {
+  fun `info card when no value`() {
     setupTaskFragment<DrawAreaTaskFragment>(job, task)
 
     runner().assertInfoCardHidden()
   }
 
   @Test
-  fun testActionButtons() {
+  fun `action buttons`() {
     setupTaskFragment<DrawAreaTaskFragment>(job, task)
 
     assertFragmentHasButtons(
       ButtonAction.PREVIOUS,
       ButtonAction.SKIP,
       ButtonAction.UNDO,
+      ButtonAction.REDO,
       ButtonAction.NEXT,
       ButtonAction.ADD_POINT,
       ButtonAction.COMPLETE,
@@ -85,31 +86,33 @@ class DrawAreaTaskFragmentTest :
   }
 
   @Test
-  fun testActionButtons_whenTaskIsOptional() {
+  fun `action buttons when task is optional`() {
     setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = false))
 
     runner()
-      .assertButtonIsHidden("Next")
-      .assertButtonIsEnabled("Skip")
-      .assertButtonIsHidden("Undo", true)
-      .assertButtonIsEnabled("Add point")
-      .assertButtonIsHidden("Complete")
+      .assertButtonIsHidden(NEXT_POINT_BUTTON_TEXT)
+      .assertButtonIsEnabled(SKIP_POINT_BUTTON_TEXT)
+      .assertButtonIsDisabled(UNDO_POINT_BUTTON_TEXT, true)
+      .assertButtonIsDisabled(REDO_POINT_BUTTON_TEXT, true)
+      .assertButtonIsEnabled(ADD_POINT_BUTTON_TEXT)
+      .assertButtonIsHidden(COMPLETE_POINT_BUTTON_TEXT)
   }
 
   @Test
-  fun testActionButtons_whenTaskIsRequired() {
+  fun `action buttons when task is required`() {
     setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = true))
 
     runner()
-      .assertButtonIsHidden("Next")
-      .assertButtonIsHidden("Skip")
-      .assertButtonIsHidden("Undo", true)
-      .assertButtonIsEnabled("Add point")
-      .assertButtonIsHidden("Complete")
+      .assertButtonIsHidden(NEXT_POINT_BUTTON_TEXT)
+      .assertButtonIsHidden(SKIP_POINT_BUTTON_TEXT)
+      .assertButtonIsDisabled(UNDO_POINT_BUTTON_TEXT, true)
+      .assertButtonIsDisabled(REDO_POINT_BUTTON_TEXT, true)
+      .assertButtonIsEnabled(ADD_POINT_BUTTON_TEXT)
+      .assertButtonIsHidden(COMPLETE_POINT_BUTTON_TEXT)
   }
 
   @Test
-  fun testDrawArea_incompleteWhenTaskIsOptional() = runWithTestDispatcher {
+  fun `draw area when incomplete when task is optional`() = runWithTestDispatcher {
     setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = false))
     // Dismiss the instructions dialog
     ShadowDialog.getLatestDialog().dismiss()
@@ -131,17 +134,17 @@ class DrawAreaTaskFragmentTest :
       )
     )
 
-    // Only "Undo" and "Add point" buttons should be visible.
     runner()
-      .assertButtonIsHidden("Next")
-      .assertButtonIsHidden("Skip")
-      .assertButtonIsEnabled("Undo", true)
-      .assertButtonIsEnabled("Add point")
-      .assertButtonIsHidden("Complete")
+      .assertButtonIsHidden(NEXT_POINT_BUTTON_TEXT)
+      .assertButtonIsHidden(SKIP_POINT_BUTTON_TEXT)
+      .assertButtonIsEnabled(UNDO_POINT_BUTTON_TEXT, true)
+      .assertButtonIsDisabled(REDO_POINT_BUTTON_TEXT, true)
+      .assertButtonIsDisabled(ADD_POINT_BUTTON_TEXT)
+      .assertButtonIsHidden(COMPLETE_POINT_BUTTON_TEXT)
   }
 
   @Test
-  fun testDrawArea() = runWithTestDispatcher {
+  fun `draw area`() = runWithTestDispatcher {
     setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = false))
     // Dismiss the instructions dialog
     ShadowDialog.getLatestDialog().dismiss()
@@ -152,10 +155,11 @@ class DrawAreaTaskFragmentTest :
     updateLastVertex(COORDINATE_4, true)
 
     runner()
-      .clickButton("Complete")
-      .assertButtonIsHidden("Skip")
-      .assertButtonIsEnabled("Undo", true)
-      .assertButtonIsHidden("Add point")
+      .clickButton(COMPLETE_POINT_BUTTON_TEXT)
+      .assertButtonIsHidden(SKIP_POINT_BUTTON_TEXT)
+      .assertButtonIsEnabled(UNDO_POINT_BUTTON_TEXT, true)
+      .assertButtonIsDisabled(REDO_POINT_BUTTON_TEXT, true)
+      .assertButtonIsHidden(ADD_POINT_BUTTON_TEXT)
 
     hasValue(
       DrawAreaTaskData(
@@ -171,6 +175,53 @@ class DrawAreaTaskFragmentTest :
         )
       )
     )
+  }
+
+  @Test
+  fun `draw area when add point button disabled when too close`() = runWithTestDispatcher {
+    setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = false))
+    ShadowDialog.getLatestDialog().dismiss()
+
+    runner().assertButtonIsEnabled(ADD_POINT_BUTTON_TEXT)
+
+    updateLastVertexAndAddPoint(COORDINATE_1)
+    updateCloseVertex(COORDINATE_5)
+
+    runner().assertButtonIsDisabled(ADD_POINT_BUTTON_TEXT)
+  }
+
+  @Test
+  fun `redo button when is visible`() = runWithTestDispatcher {
+    setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = false))
+    ShadowDialog.getLatestDialog().dismiss()
+
+    runner().assertButtonIsDisabled(REDO_POINT_BUTTON_TEXT, true)
+
+    updateLastVertexAndAddPoint(COORDINATE_1)
+    updateLastVertexAndAddPoint(COORDINATE_2)
+
+    viewModel.removeLastVertex()
+
+    runner().assertButtonIsEnabled(REDO_POINT_BUTTON_TEXT, true)
+  }
+
+  @Test
+  fun `redo button when is disabled empty redo vertex stack`() = runWithTestDispatcher {
+    setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = false))
+    ShadowDialog.getLatestDialog().dismiss()
+
+    runner().assertButtonIsDisabled(REDO_POINT_BUTTON_TEXT, true)
+
+    updateLastVertexAndAddPoint(COORDINATE_1)
+    updateLastVertexAndAddPoint(COORDINATE_2)
+
+    viewModel.removeLastVertex()
+    runner().assertButtonIsEnabled(REDO_POINT_BUTTON_TEXT, true)
+
+    viewModel.removeLastVertex()
+    viewModel.removeLastVertex()
+    assertThat(viewModel.redoVertexStack).isEmpty()
+    runner().assertButtonIsDisabled(REDO_POINT_BUTTON_TEXT, true)
   }
 
   @Test
@@ -195,7 +246,7 @@ class DrawAreaTaskFragmentTest :
   private fun updateLastVertexAndAddPoint(coordinate: Coordinates) {
     updateLastVertex(coordinate, false)
 
-    runner().clickButton("Add point")
+    runner().clickButton(ADD_POINT_BUTTON_TEXT)
   }
 
   /** Updates the last vertex of the polygon with the given vertex. */
@@ -205,10 +256,24 @@ class DrawAreaTaskFragmentTest :
     viewModel.updateLastVertexAndMaybeCompletePolygon(coordinate) { _, _ -> distanceInPixels }
   }
 
+  /** Updates the last vertex of the polygon with the given vertex. */
+  private fun updateCloseVertex(coordinate: Coordinates) {
+    val threshold = DrawAreaTaskViewModel.DISTANCE_THRESHOLD_DP.toDouble()
+    viewModel.updateLastVertexAndMaybeCompletePolygon(coordinate) { _, _ -> threshold }
+  }
+
   companion object {
     private val COORDINATE_1 = Coordinates(0.0, 0.0)
     private val COORDINATE_2 = Coordinates(10.0, 10.0)
     private val COORDINATE_3 = Coordinates(20.0, 20.0)
     private val COORDINATE_4 = Coordinates(30.0, 30.0)
+    private val COORDINATE_5 = Coordinates(5.0, 5.0)
+
+    private const val ADD_POINT_BUTTON_TEXT = "Add point"
+    private const val NEXT_POINT_BUTTON_TEXT = "Next"
+    private const val SKIP_POINT_BUTTON_TEXT = "Skip"
+    private const val UNDO_POINT_BUTTON_TEXT = "Undo"
+    private const val REDO_POINT_BUTTON_TEXT = "Redo"
+    private const val COMPLETE_POINT_BUTTON_TEXT = "Complete"
   }
 }

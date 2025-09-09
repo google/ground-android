@@ -15,7 +15,6 @@
  */
 package org.groundplatform.android.ui.home
 
-import android.content.Context
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
@@ -36,7 +35,6 @@ import androidx.test.espresso.matcher.ViewMatchers.isEnabled
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.common.truth.Truth.assertThat
-import com.squareup.picasso.Picasso
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlin.test.assertFalse
@@ -45,9 +43,9 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.R
+import org.groundplatform.android.data.local.stores.LocalSurveyStore
 import org.groundplatform.android.launchFragmentWithNavController
 import org.groundplatform.android.model.Survey
-import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
 import org.groundplatform.android.repository.SurveyRepository
 import org.junit.Before
 import org.junit.Rule
@@ -60,7 +58,6 @@ abstract class AbstractHomeScreenFragmentTest : BaseHiltTest() {
 
   @Inject lateinit var localSurveyStore: LocalSurveyStore
   lateinit var fragment: HomeScreenFragment
-  private var initializedPicasso = false
   protected lateinit var navController: NavController
 
   @Before
@@ -71,21 +68,7 @@ abstract class AbstractHomeScreenFragmentTest : BaseHiltTest() {
       navControllerCallback = { navController = it },
     ) {
       fragment = this as HomeScreenFragment
-      initPicasso(fragment.requireContext())
     }
-  }
-
-  private fun initPicasso(context: Context) {
-    if (initializedPicasso) {
-      return
-    }
-    try {
-      Picasso.setSingletonInstance(Picasso.Builder(context).build())
-    } catch (_: Exception) {
-      // ignore failures if context is already set
-      // Tracking bug : https://github.com/square/picasso/issues/1929
-    }
-    initializedPicasso = true
   }
 
   protected fun openDrawer() {
@@ -157,7 +140,7 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
   }
 
   @Test
-  fun `signOut dialog is Displayed`() = runWithTestDispatcher {
+  fun `sign out dialog is displayed`() = runWithTestDispatcher {
     openDrawer()
 
     onView(withId(R.id.user_image)).check(matches(isDisplayed()))
@@ -211,7 +194,7 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
   }
 
   @Test
-  fun `onBack() should return false and do nothing`() {
+  fun `on back returns false and does nothing`() {
     assertFalse(fragment.onBack())
   }
 
@@ -238,7 +221,7 @@ class NavigationDrawerItemClickTest(
   @Inject lateinit var surveyRepository: SurveyRepository
 
   @Test
-  fun clickDrawerMenuItem() = runWithTestDispatcher {
+  fun `clicking drawer menu item navigates correctly`() = runWithTestDispatcher {
     localSurveyStore.insertOrUpdateSurvey(survey)
     surveyRepository.activateSurvey(survey.id)
     advanceUntilIdle()

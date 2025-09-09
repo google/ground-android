@@ -23,8 +23,8 @@ import javax.inject.Inject
 import kotlinx.coroutines.runBlocking
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
-import org.groundplatform.android.persistence.remote.DataStoreException
-import org.groundplatform.android.persistence.remote.FakeRemoteDataStore
+import org.groundplatform.android.data.remote.DataStoreException
+import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.system.NetworkManager
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -42,7 +42,7 @@ class TermsOfServiceRepositoryTest : BaseHiltTest() {
   @BindValue @Mock lateinit var mockNetworkManager: NetworkManager
 
   @Test
-  fun testGetTermsOfService() = runBlocking {
+  fun `get terms of service`() = runBlocking {
     whenever(mockNetworkManager.isNetworkConnected()).thenReturn(true)
     fakeRemoteDataStore.termsOfService = Result.success(FakeData.TERMS_OF_SERVICE)
 
@@ -50,14 +50,14 @@ class TermsOfServiceRepositoryTest : BaseHiltTest() {
   }
 
   @Test
-  fun testGetTermsOfService_whenMissing_returnsNull() = runBlocking {
+  fun `get terms of service when missing returns null`() = runBlocking {
     whenever(mockNetworkManager.isNetworkConnected()).thenReturn(true)
 
     assertThat(termsOfServiceRepository.getTermsOfService()).isNull()
   }
 
   @Test
-  fun testGetTermsOfService_whenRequestFails_throwsError() {
+  fun `get terms of service when request fails throws error`() {
     whenever(mockNetworkManager.isNetworkConnected()).thenReturn(true)
     fakeRemoteDataStore.termsOfService =
       Result.failure(
@@ -70,7 +70,7 @@ class TermsOfServiceRepositoryTest : BaseHiltTest() {
   }
 
   @Test
-  fun testGetTermsOfService_whenOffline_throwsError() {
+  fun `get terms of service when offline throws error`() {
     whenever(mockNetworkManager.isNetworkConnected()).thenReturn(false)
     fakeRemoteDataStore.termsOfService =
       Result.failure(
@@ -83,7 +83,7 @@ class TermsOfServiceRepositoryTest : BaseHiltTest() {
   }
 
   @Test
-  fun testGetTermsOfService_whenServiceUnavailable_throwsError() {
+  fun `get terms of service when service unavailable throws error`() {
     whenever(mockNetworkManager.isNetworkConnected()).thenReturn(true)
     fakeRemoteDataStore.termsOfService =
       Result.failure(
@@ -96,13 +96,13 @@ class TermsOfServiceRepositoryTest : BaseHiltTest() {
   }
 
   @Test
-  fun testTermsOfServiceAccepted() {
+  fun `terms of service accepted`() {
     termsOfServiceRepository.isTermsOfServiceAccepted = true
     assertThat(termsOfServiceRepository.isTermsOfServiceAccepted).isTrue()
   }
 
   @Test
-  fun testTermsOfServiceNotAccepted() {
+  fun `terms of service not accepted`() {
     assertThat(termsOfServiceRepository.isTermsOfServiceAccepted).isFalse()
   }
 }

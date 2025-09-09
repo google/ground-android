@@ -1,7 +1,10 @@
 <?xml version="1.0" ?>
 <SmellBaseline>
-  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <ManuallySuppressedIssues/>
   <CurrentIssues>
+    <ID>CyclomaticComplexMethod:ValueJsonConverter.kt$ValueJsonConverter$fun toResponse(task: Task, obj: Any): TaskData?</ID>
+    <ID>LongMethod:ValueJsonConverter.kt$ValueJsonConverter$fun toResponse(task: Task, obj: Any): TaskData?</ID>
+    <ID>NestedBlockDepth:SubmissionDataConverter.kt$SubmissionDataConverter$@JvmStatic fun fromString(job: Job, jsonString: String?): SubmissionData</ID>
     <ID>ReturnCount:HomeScreenViewModel.kt$HomeScreenViewModel$suspend fun getDraftSubmission(): DraftSubmission?</ID>
   </CurrentIssues>
 </SmellBaseline>

@@ -56,6 +56,7 @@
   <!-- Label of button used enter the offline area selector. -->
   <string name="offline_area_selector_select">Selecionar área</string>
   <string name="no_basemaps_downloaded">Nenhuma imagem de mapa descarregada para uso offline</string>
+  <string name="connect_to_download_message">You are offline. Connect to download offline map imager</string>
   <string name="signing_in">Iniciando sessão</string>
   <!-- Precedes the build number shown in the side menu of debug builds. -->
   <string name="build">Build %s</string>
@@ -75,8 +76,6 @@
   <string name="satellite">Satélite</string>
   <string name="terrain">Terreno</string>
   <string name="next">Próximo</string>
-  <string name="select_survey_title">Selecione um inquérito</string>
-  <string name="survey_sync_hint">Uma vez abertos, os inquéritos ficam disponíveis offline e são sincronizados automaticamente quando online.</string>
   <string name="done">Concluído</string>
   <string name="skip">Pular</string>
 
@@ -110,7 +109,7 @@
   <string name="capture">Capturar</string>
   <string name="surveys">Inquéritos</string>
   <string name="offline_icon_description">Ícone exibido quando o inquérito está disponível offline</string>
-  <string name="remove_offline_access">Remover acesso offline</string>
+  <string name="more_options_icon_description">Mais opções</string>
   <string name="remove_offline_access_warning_title">Aviso</string>
   <string name="remove_offline_access_warning_confirm_button">Remover</string>
   <string name="remove_offline_access_warning_dialog_body">Se remover o acesso offline:\n \u2022 Todos os dados não sincronizados serão descartados\n\nTem a certeza de que pretende remover o acesso offline?</string>
@@ -135,9 +134,7 @@
   <string name="sign_out_dialog_title">Aviso de fim de sessão</string>
   <string name="sign_out_dialog_body">Se você terminar sua sessão:\n \u2022 Quaisquer dados não sincronizados serão descartados.\n \u2022 Você não poderá iniciar sessão se estiver offline\n \u2022 Inquéritos offline não estarão disponíveis até você iniciar sessão novamente\n\nTem certeza de que deseja sair?</string>
 
-  <string name="suggest_data_collection_hint">Amplie para começar a coletar dados</string>
   <string name="read_only_data_collection_hint">Inquérito apenas para leitura</string>
-  <string name="predefined_data_collection_hint">Amplie até um local de coleta de dados para coletar informações</string>
   <string name="no_submissions">Nenhuma submissão</string>
   <string name="dismiss_info_popup">Ignorar</string>
   <string name="other">Outro</string>
@@ -151,6 +148,7 @@
   <string name="switch_survey">Alternar inquérito</string>
   <string name="no_survey_selected">Nenhum inquérito selecionado</string>
   <string name="undo">Desfazer</string>
+  <string name="redo">Refazer</string>
   <string name="view_licenses_title">Licenças</string>
   <string name="about">Sobre</string>
   <string name="terms_of_service">Termos de serviço</string>
@@ -174,10 +172,9 @@
   <string name="over_wifi_summary">Somente via Wi-Fi</string>
   <string name="help_title">Ajuda</string>
   <string name="visit_website_title">Visitar site</string>
-  <string name="send_feedback_title">Enviar feedback</string>
-  <string name="report_summary">Relatar problemas técnicos ou sugerir novos locais de interesse</string>
-  <string name="not_yet_impl_title">Ainda não implementado</string>
   <string name="accuracy">Precisão:</string>
+  <string name="select_language_title">Selecionar idioma</string>
+  <string name="select_language_summary">Selecione o seu idioma preferido</string>
   <!-- Data Sharing Consent Text -->
   <string name="data_sharing_no_terms">*Não há termos para exibir.*</string>
   <string name="data_sharing_private_message">
@@ -209,5 +206,29 @@
 
   <string name="clear">Clara</string>
 
+  <string name="text_task_data_character_limit">255 caracteres no máx.</string>
   <string name="area_message">Área: %1$.2f m²</string>
+
+  <string name="lang_english">Inglês</string>
+  <string name="lang_french">Francês</string>
+  <string name="lang_spanish">Espanhol</string>
+  <string name="lang_portuguese">Português</string>
+
+  <string name="lang_vietnamese">Vietnamita</string>
+  <string name="access_restricted">Restrito</string>
+  <string name="access_unlisted">Não listado</string>
+  <string name="access_public">Público</string>
+
+  <string name="section_on_device">Neste dispositivo</string>
+  <string name="section_shared_with_me">Compartilhado comigo</string>
+  <string name="section_public">Público</string>
+
+  <string name="dialog_title_update_required">Atualização necessária</string>
+  <string name="dialog_message_update_required">Uma nova versão do aplicativo está disponível. Atualize para continuar usando o aplicativo.</string>
+  <string name="dialog_button_update">Atualizar</string>
+
+  <string name="select_length_title">Unidade de comprimento</string>
+  <string name="select_length_summary">Selecione a sua unidade preferida</string>
+  <string name="length_meters">Metros (m)</string>
+  <string name="length_feet">Pés (ft)</string>
 </resources>

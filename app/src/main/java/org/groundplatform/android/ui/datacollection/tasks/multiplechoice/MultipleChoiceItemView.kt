@@ -29,8 +29,11 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
@@ -39,11 +42,11 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import org.groundplatform.android.Config
-import org.groundplatform.android.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.R
+import org.groundplatform.android.common.Constants
 import org.groundplatform.android.model.task.MultipleChoice
 import org.groundplatform.android.model.task.Option
+import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.theme.AppTheme
 
 const val MULTIPLE_CHOICE_ITEM_TEST_TAG = "multiple choice item test tag"
@@ -67,11 +70,16 @@ fun MultipleChoiceItemView(
 ) {
   val focusManager = LocalFocusManager.current
   val keyboardController = LocalSoftwareKeyboardController.current
+  val focusRequester = remember { FocusRequester() }
 
   LaunchedEffect(item.isSelected) {
-    if (item.isOtherOption && !item.isSelected) {
-      keyboardController?.hide()
-      focusManager.clearFocus()
+    if (item.isOtherOption) {
+      if (item.isSelected) {
+        focusRequester.requestFocus()
+      } else {
+        keyboardController?.hide()
+        focusManager.clearFocus()
+      }
     }
   }
 
@@ -101,22 +109,7 @@ fun MultipleChoiceItemView(
 
     if (item.isOtherOption) {
       Row(modifier = modifier.padding(horizontal = 48.dp)) {
-        OutlinedTextField(
-          supportingText = {
-            Row(modifier = modifier.fillMaxWidth()) {
-              Spacer(modifier = modifier.weight(1f))
-              Text(
-                "${item.otherText.length} / ${Config.TEXT_DATA_CHAR_LIMIT}",
-                textAlign = TextAlign.End,
-              )
-            }
-          },
-          isError = item.otherText.length > Config.TEXT_DATA_CHAR_LIMIT,
-          value = item.otherText,
-          textStyle = MaterialTheme.typography.bodyLarge,
-          onValueChange = { otherValueChanged(it) },
-          modifier = Modifier.testTag(OTHER_INPUT_TEXT_TEST_TAG),
-        )
+        OtherTextField(modifier, item, focusRequester, otherValueChanged)
       }
     }
 
@@ -124,6 +117,31 @@ fun MultipleChoiceItemView(
       HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
     }
   }
+}
+
+@Composable
+private fun OtherTextField(
+  modifier: Modifier,
+  item: MultipleChoiceItem,
+  focusRequester: FocusRequester,
+  otherValueChanged: (text: String) -> Unit,
+) {
+  OutlinedTextField(
+    supportingText = {
+      Row(modifier = modifier.fillMaxWidth()) {
+        Spacer(modifier = modifier.weight(1f))
+        Text(
+          "${item.otherText.length} / ${Constants.TEXT_DATA_CHAR_LIMIT}",
+          textAlign = TextAlign.End,
+        )
+      }
+    },
+    isError = item.otherText.length > Constants.TEXT_DATA_CHAR_LIMIT,
+    value = item.otherText,
+    textStyle = MaterialTheme.typography.bodyLarge,
+    onValueChange = { otherValueChanged(it) },
+    modifier = Modifier.testTag(OTHER_INPUT_TEXT_TEST_TAG).focusRequester(focusRequester),
+  )
 }
 
 @Composable

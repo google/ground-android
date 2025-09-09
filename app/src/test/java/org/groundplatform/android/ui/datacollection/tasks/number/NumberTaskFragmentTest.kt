@@ -48,14 +48,14 @@ class NumberTaskFragmentTest : BaseTaskFragmentTest<NumberTaskFragment, NumberTa
   private val job = Job("job1")
 
   @Test
-  fun testHeader() {
+  fun `displays task header correctly`() {
     setupTaskFragment<NumberTaskFragment>(job, task)
 
     hasTaskViewWithHeader(task)
   }
 
   @Test
-  fun testResponse_defaultIsEmpty() = runWithTestDispatcher {
+  fun `response when default is empty`() = runWithTestDispatcher {
     setupTaskFragment<NumberTaskFragment>(job, task)
 
     runner().assertInputNumberDisplayed("").assertButtonIsDisabled("Next")
@@ -64,7 +64,7 @@ class NumberTaskFragmentTest : BaseTaskFragmentTest<NumberTaskFragment, NumberTa
   }
 
   @Test
-  fun testResponse_onUserInput_nextButtonIsEnabled() = runWithTestDispatcher {
+  fun `response when on user input next button is enabled`() = runWithTestDispatcher {
     setupTaskFragment<NumberTaskFragment>(job, task)
 
     runner().inputNumber(123.1).assertInputNumberDisplayed("123.1").assertButtonIsEnabled("Next")
@@ -86,21 +86,21 @@ class NumberTaskFragmentTest : BaseTaskFragmentTest<NumberTaskFragment, NumberTa
   }
 
   @Test
-  fun testActionButtons() {
+  fun `action buttons`() {
     setupTaskFragment<NumberTaskFragment>(job, task)
 
     assertFragmentHasButtons(ButtonAction.PREVIOUS, ButtonAction.SKIP, ButtonAction.NEXT)
   }
 
   @Test
-  fun testActionButtons_whenTaskIsOptional() {
+  fun `action buttons when task is optional`() {
     setupTaskFragment<NumberTaskFragment>(job, task.copy(isRequired = false))
 
     runner().assertButtonIsDisabled("Next").assertButtonIsEnabled("Skip")
   }
 
   @Test
-  fun testActionButtons_whenTaskIsRequired() {
+  fun `action buttons when task is required`() {
     setupTaskFragment<NumberTaskFragment>(job, task.copy(isRequired = true))
 
     runner().assertButtonIsDisabled("Next").assertButtonIsHidden("Skip")

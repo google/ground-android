@@ -24,10 +24,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import org.groundplatform.android.BaseHiltTest
+import org.groundplatform.android.FakeData.FAKE_GENERAL_ACCESS
+import org.groundplatform.android.data.local.stores.LocalSurveyStore
+import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.toListItem
-import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
-import org.groundplatform.android.persistence.remote.FakeRemoteDataStore
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.NetworkStatus
 import org.junit.runner.RunWith
@@ -49,11 +50,15 @@ class ListAvailableSurveysUseCaseTest : BaseHiltTest() {
     localSurveyStore.insertOrUpdateSurvey(survey)
   }
 
-  private fun setupSurveys(localSurveys: List<Survey>, remoteSurveys: List<Survey>) =
-    runWithTestDispatcher {
-      localSurveys.forEach { setupLocalSurvey(it) }
-      fakeRemoteDataStore.surveys = remoteSurveys
-    }
+  private fun setupSurveys(
+    localSurveys: List<Survey>,
+    remoteSurveys: List<Survey>,
+    publicSurveys: List<Survey>,
+  ) = runWithTestDispatcher {
+    localSurveys.forEach { setupLocalSurvey(it) }
+    fakeRemoteDataStore.surveys = remoteSurveys
+    fakeRemoteDataStore.publicSurveys = publicSurveys
+  }
 
   @Test
   fun `when network is available, should return remote survey list`() = runWithTestDispatcher {
@@ -61,7 +66,8 @@ class ListAvailableSurveysUseCaseTest : BaseHiltTest() {
 
     val remoteSurveys = listOf(SURVEY_1, SURVEY_2)
     val localSurveys = listOf(SURVEY_1, SURVEY_3)
-    setupSurveys(localSurveys, remoteSurveys)
+    val publicSurveys = listOf(PUBLIC_SURVEY_A, PUBLIC_SURVEY_B)
+    setupSurveys(localSurveys, remoteSurveys, publicSurveys)
 
     val result = listAvailableSurveysUseCase().first()
 
@@ -70,6 +76,8 @@ class ListAvailableSurveysUseCaseTest : BaseHiltTest() {
         listOf(
           SURVEY_1.toListItem(availableOffline = true),
           SURVEY_2.toListItem(availableOffline = false),
+          PUBLIC_SURVEY_A.toListItem(availableOffline = false),
+          PUBLIC_SURVEY_B.toListItem(availableOffline = false),
           SURVEY_3.toListItem(availableOffline = true),
         )
       )
@@ -81,7 +89,8 @@ class ListAvailableSurveysUseCaseTest : BaseHiltTest() {
 
     val remoteSurveys = listOf(SURVEY_1, SURVEY_2)
     val localSurveys = listOf(SURVEY_1, SURVEY_3)
-    setupSurveys(localSurveys, remoteSurveys)
+    val publicSurveys = listOf(PUBLIC_SURVEY_A, PUBLIC_SURVEY_B)
+    setupSurveys(localSurveys, remoteSurveys, publicSurveys)
 
     val result = listAvailableSurveysUseCase().first()
 
@@ -101,7 +110,8 @@ class ListAvailableSurveysUseCaseTest : BaseHiltTest() {
 
     val remoteSurveys = listOf(SURVEY_1, SURVEY_2)
     val localSurveys = listOf(SURVEY_1, SURVEY_3)
-    setupSurveys(localSurveys, remoteSurveys)
+    val publicSurveys = listOf(PUBLIC_SURVEY_A, PUBLIC_SURVEY_B)
+    setupSurveys(localSurveys, remoteSurveys, publicSurveys)
 
     val resultFlow = listAvailableSurveysUseCase()
 
@@ -123,6 +133,8 @@ class ListAvailableSurveysUseCaseTest : BaseHiltTest() {
         listOf(
           SURVEY_1.toListItem(availableOffline = true),
           SURVEY_2.toListItem(availableOffline = false),
+          PUBLIC_SURVEY_A.toListItem(availableOffline = false),
+          PUBLIC_SURVEY_B.toListItem(availableOffline = false),
           SURVEY_3.toListItem(availableOffline = true),
         )
       )
@@ -135,7 +147,8 @@ class ListAvailableSurveysUseCaseTest : BaseHiltTest() {
 
       val remoteSurveys = listOf(SURVEY_1, SURVEY_2)
       val localSurveys = emptyList<Survey>()
-      setupSurveys(localSurveys, remoteSurveys)
+      val publicSurveys = listOf(PUBLIC_SURVEY_A, PUBLIC_SURVEY_B)
+      setupSurveys(localSurveys, remoteSurveys, publicSurveys)
 
       val resultFlow = listAvailableSurveysUseCase()
 
@@ -145,6 +158,8 @@ class ListAvailableSurveysUseCaseTest : BaseHiltTest() {
           listOf(
             SURVEY_1.toListItem(availableOffline = false),
             SURVEY_2.toListItem(availableOffline = false),
+            PUBLIC_SURVEY_A.toListItem(availableOffline = false),
+            PUBLIC_SURVEY_B.toListItem(availableOffline = false),
           )
         )
 
@@ -157,16 +172,53 @@ class ListAvailableSurveysUseCaseTest : BaseHiltTest() {
           listOf(
             SURVEY_1.toListItem(availableOffline = true),
             SURVEY_2.toListItem(availableOffline = false),
+            PUBLIC_SURVEY_A.toListItem(availableOffline = false),
+            PUBLIC_SURVEY_B.toListItem(availableOffline = false),
           )
         )
     }
 
   companion object {
     private val SURVEY_1 =
-      Survey(id = "1", title = "Survey 1", description = "", jobMap = emptyMap())
+      Survey(
+        id = "1",
+        title = "Survey 1",
+        description = "",
+        jobMap = emptyMap(),
+        generalAccess = FAKE_GENERAL_ACCESS,
+      )
     private val SURVEY_2 =
-      Survey(id = "2", title = "Survey 2", description = "", jobMap = emptyMap())
+      Survey(
+        id = "2",
+        title = "Survey 2",
+        description = "",
+        jobMap = emptyMap(),
+        generalAccess = FAKE_GENERAL_ACCESS,
+      )
     private val SURVEY_3 =
-      Survey(id = "3", title = "Survey 3", description = "", jobMap = emptyMap())
+      Survey(
+        id = "3",
+        title = "Survey 3",
+        description = "",
+        jobMap = emptyMap(),
+        generalAccess = FAKE_GENERAL_ACCESS,
+      )
+
+    private val PUBLIC_SURVEY_A =
+      Survey(
+        id = "A",
+        title = "Public Survey 1",
+        description = "",
+        jobMap = emptyMap(),
+        generalAccess = FAKE_GENERAL_ACCESS,
+      )
+    private val PUBLIC_SURVEY_B =
+      Survey(
+        id = "B",
+        title = "Public Survey 2",
+        description = "",
+        jobMap = emptyMap(),
+        generalAccess = FAKE_GENERAL_ACCESS,
+      )
   }
 }

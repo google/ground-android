@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright 2025 Google LLC
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources>
+  <!--
+    LOI DATA FORMS
+  -->
+  <!-- Shown below fields that are required but left empty (TBD). -->
+  <string name="required_task">Mục này bắt buộc phải điền</string>
+  <!--
+    LOCATION (GPS/CELL/WIFI) UPDATE ERROR MESSAGES
+  -->
+  <!-- Shown when user has refused to grant app fine grained location permission. -->
+  <string name="no_fine_location_permissions">Không thể hiển thị vị trí hiện tại nếu không có quyền truy cập</string>
+  <!-- Shown when an unknown error occurs obtaining fine grained location permission. -->
+  <string name="location_updates_unknown_error">Không thể bật cập nhật vị trí</string>
+  <!-- Shown when user has refused to enable location services in settings.-->
+  <string name="location_disabled_in_settings">Vui lòng bật vị trí trong cài đặt hệ thống</string>
+  <string name="map_view">Chế độ xem bản đồ</string>
+  <string name="unexpected_error">Đã xảy ra lỗi không mong muốn</string>
+  <string name="google_api_install_failed">Cài đặt Dịch vụ Google Play không thành công</string>
+  <string name="sign_out">Đăng xuất</string>
+  <string name="ok">OK</string>
+  <string name="add_data">Thêm dữ liệu</string>
+  <!-- Untranslated strings -->
+  <string name="offline_area_selector">Lựa chọn khu vực để tải xuống</string>
+  <string name="offline_area_selector_prompt">Chọn bản đồ nền để sử dụng ngoại tuyến</string>
+  <string name="offline_area_selector_download">Tải xuống</string>
+  <string name="camera">Máy ảnh</string>
+  <string name="photo_preview">Xem trước</string>
+  <string name="settings">Cài đặt</string>
+  <string name="offline_area_viewer_title">Khu vực đã tải xuống</string>
+  <string name="offline_area_viewer_remove_button">Xóa khỏi thiết bị</string>
+  <string name="offline_area_download_error">Tải xuống thất bại. Vui lòng thử lại</string>
+  <!-- Label of button used enter the offline area selector. -->
+  <string name="offline_area_selector_select">Chọn khu vực</string>
+  <string name="no_basemaps_downloaded">Chưa có hình ảnh bản đồ nào được tải xuống để sử dụng ngoại tuyến</string>
+  <string name="connect_to_download_message">Bạn đang ngoại tuyến. Hãy kết nối Internet để tải hình ảnh bản đồ ngoại tuyến</string>
+  <string name="signing_in">Đang đăng nhập</string>
+  <!-- Precedes the build number shown in the side menu of debug builds. -->
+  <string name="build">Phiên bản %s</string>
+  <string name="tos_title">Điều khoản dịch vụ</string>
+  <string name="agree_terms">Đồng ý</string>
+  <string name="agree_checkbox">Tôi đồng ý</string>
+  <string name="date">Ngày</string>
+  <string name="time">Thời gian</string>
+  <!-- Other strings (to be organized) -->
+  <string name="sync_status">Trạng thái đồng bộ dữ liệu</string>
+  <string name="add_point">Thêm điểm</string>
+  <string name="complete_polygon">Hoàn thành</string>
+  <string name="road_map">Bản đồ đường giao thông</string>
+  <string name="satellite">Vệ tinh</string>
+  <string name="terrain">Địa hình</string>
+  <string name="next">Tiếp theo</string>
+  <string name="done">Xong</string>
+  <string name="skip">Bỏ qua</string>
+  <string name="drop_pin">Vẽ điểm</string>
+  <string name="add_site">Thêm địa điểm</string>
+  <string name="job_site_icon">Biểu tượng vị trí công việc</string>
+  <string name="drop_a_pin_tooltip_text">Kéo bản đồ cho đến khi ghim ở giữa nằm tại vị trí mong muốn</string>
+  <string name="current_location">Vị trí hiện tại:</string>
+  <string name="loading">Đang tải…</string>
+  <string name="no_tasks_error">Công việc này không còn nhiệm vụ nào để hoàn thành</string>
+  <string name="invalid_data_sharing_terms">Khảo sát này bị cấu hình sai (không có điều khoản chia sẻ dữ liệu). Vui lòng liên hệ với người tổ chức khảo sát.</string>
+  <string name="collect_data_viewer_error">Không thể thu thập dữ liệu vì người dùng chỉ có quyền XEM</string>
+  <string name="offline_map_imagery">Hình ảnh bản đồ ngoại tuyến</string>
+  <string name="offline_map_imagery_no_areas_downloaded_image">Chưa tải hình ảnh nào</string>
+  <string name="offline_map_imagery_pref_description">Ẩn hoặc hiện hình ảnh đã tải về</string>
+  <string name="layers">Lớp bản đồ</string>
+  <string name="base_map">Bản đồ nền</string>
+  <string name="offline_map_imagery_download_progress_dialog_title">Đang tải xuống - %d%%</string>
+  <string name="offline_map_imagery_download_progress_dialog_message">Thời gian tải xuống có thể thay đổi tùy theo kích thước khu vực đã chọn và tốc độ kết nối Internet của bạn.</string>
+  <string name="multiple_regions">Nhiều khu vực</string>
+  <string name="permission_denied">Quyền truy cập bị từ chối</string>
+  <string name="close_app">Đóng ứng dụng</string>
+  <string name="cancel">Hủy</string>
+  <string name="save">Lưu</string>
+  <string name="no_imagery_available_for_area">Không có hình ảnh cho khu vực này. Hãy chọn khu vực có hình ảnh để tải về thiết bị.</string>
+  <string name="selected_offline_area_size">Khu vực đã chọn có thể chiếm tới %s\u00A0MB dung lượng trên thiết bị của bạn</string>
+  <string name="selected_offline_area_too_large">Phóng to và chọn khu vực nhỏ hơn để tải về thiết bị</string>
+  <string name="offline_area_size_loading_symbol">…</string>
+  <string name="offline_area_select_cancel_button">Hủy</string>
+  <string name="offline_area_selector_title">Tải xuống khu vực này?</string>
+  <string name="capture">Chụp ảnh</string>
+  <string name="surveys">Khảo sát</string>
+  <string name="offline_icon_description">Biểu tượng hiển thị khi khảo sát có sẵn ngoại tuyến</string>
+  <string name="more_options_icon_description">Thêm tuỳ chọn</string>
+  <string name="remove_offline_access_warning_title">Cảnh báo</string>
+  <string name="remove_offline_access_warning_confirm_button">Gỡ bỏ</string>
+  <string name="remove_offline_access_warning_dialog_body">Nếu bạn gỡ quyền truy cập ngoại tuyến:\n \u2022 • Mọi dữ liệu chưa đồng bộ sẽ bị xóa\n\nBạn có chắc chắn muốn gỡ quyền truy cập ngoại tuyến không?</string>
+  <string name="unnamed_point">Điểm chưa đặt tên</string>
+  <string name="unnamed_area">Khu vực chưa đặt tên</string>
+  <string name="unnamed_job">Công việc chưa đặt tên</string>
+  <string name="offline_area_size_on_disk_mb">%s\u00a0MB trên bộ nhớ</string>
+  <string name="offline_area_list_item_size_on_disk_mb">%s\u00a0MB</string>
+  <string name="offline_downloaded_areas">Khu vực đã tải xuống</string>
+  <string name="offline_area_list_tip">Có sẵn để xem ngoại tuyến</string>
+  <string name="offline_area_list_item_icon">Biểu tượng khu vực ngoại tuyến trong danh sách</string>
+  <string name="no_surveys_available">Không có khảo sát nào. Vui lòng liên hệ với người tổ chức khảo sát để được cấp quyền truy cập.</string>
+  <string name="previous">Trước</string>
+  <string name="network_error_when_signing_in">Kết nối Internet để đăng nhập</string>
+  <string name="camera_permissions_needed">Bạn cần cấp quyền sử dụng máy ảnh cho ứng dụng để gửi ảnh.</string>
+  <string name="incomplete_area">Khu vực chưa hoàn chỉnh</string>
+  <string name="initializing">Đang khởi tạo…</string>
+  <string name="draw_area_task_instruction">Di chuyển bản đồ và nhấn “Thêm điểm” để thêm các điểm xung quanh khu vực mong muốn.</string>
+  <string name="close">Đóng</string>
+  <string name="data_consent_dialog_title">Thỏa thuận chia sẻ dữ liệu</string>
+  <string name="map_location">Vị trí bản đồ:</string>
+  <string name="sign_out_dialog_title">Cảnh báo đăng xuất</string>
+  <string name="sign_out_dialog_body">Nếu bạn đăng xuất:\n \u2022 Mọi dữ liệu chưa đồng bộ sẽ bị xóa\n \u2022 Bạn sẽ không thể đăng nhập nếu đang ngoại tuyến\n \u2022 Các khảo sát ngoại tuyến sẽ không khả dụng cho đến khi bạn đăng nhập lại\n\nBạn có chắc chắn muốn đăng xuất không?</string>
+  <string name="read_only_data_collection_hint">Khảo sát chỉ được phép xem</string>
+  <string name="no_submissions">Chưa có bài gửi nào</string>
+  <string name="dismiss_info_popup">Đóng lại</string>
+  <string name="other">Khác</string>
+  <plurals name="submission_count">
+    <item quantity="other">%d bài gửi</item>
+  </plurals>
+  <string name="loi_name_dialog_title">Đặt tên cho vị trí này</string>
+  <string name="loi_name_dialog_body">Một địa điểm thu thập dữ liệu mới sẽ được tạo.</string>
+  <string name="current_survey">Khảo sát hiện tại</string>
+  <string name="switch_survey">Chuyển khảo sát</string>
+  <string name="no_survey_selected">Chưa chọn khảo sát nào</string>
+  <string name="undo">Hoàn tác</string>
+  <string name="redo">Làm lại</string>
+  <string name="view_licenses_title">Giấy phép</string>
+  <string name="about">Giới thiệu</string>
+  <string name="terms_of_service">Điều khoản dịch vụ</string>
+  <string name="about_ground">Ground là một dự án mã nguồn mở do Google và FAO phát triển trong khuôn khổ Đối tác Dữ liệu Rừng, với sự hỗ trợ từ SIG, Ecam và các cộng tác viên cộng đồng mã nguồn mở. \n\nDự án được cấp phép theo <annotation type="apache_license">Giấy phép Apache, Phiên bản 2.0</annotation>. \n\nXem các <annotation type="all_licenses">Giấy phép khác</annotation></string>
+  <string name="pending_retry">Mục đang chờ</string>
+  <string name="uploaded">Đã tải lên</string>
+  <string name="uploading_form_data">Đang tải dữ liệu lên</string>
+  <string name="pending">Đang chờ xử lý</string>
+  <string name="photos_pending">Ảnh đang chờ</string>
+  <string name="photos_pending_retry">Ảnh đang chờ thử lại</string>
+  <string name="uploading_photos">Đang tải ảnh lên</string>
+  <string name="data_sync_status">Trạng thái đồng bộ dữ liệu</string>
+  <string name="signout_warning">Nếu bạn đăng xuất, tất cả dữ liệu chưa lưu sẽ bị mất.</string>
+  <string name="admin_request_access">Để tiếp tục, hãy liên hệ với quản trị viên hệ thống để yêu cầu quyền truy cập.</string>
+  <string name="signup_request_access">Để tiếp tục, <annotation type="sign_up_link">đăng ký để yêu cầu quyền truy cập</annotation>.</string>
+  <!-- Settings -->
+  <string name="general_title">Chung</string>
+  <string name="upload_media_title">Tải ảnh lên</string>
+  <string name="over_wifi_summary">Chỉ khi có Wi-Fi</string>
+  <string name="help_title">Trợ giúp</string>
+  <string name="visit_website_title">Truy cập trang web</string>
+  <string name="accuracy">Độ chính xác:</string>
+  <string name="select_language_title">Chọn ngôn ngữ</string>
+  <string name="select_language_summary">Chọn ngôn ngữ ưu tiên</string>
+  <!-- Data Sharing Consent Text -->
+  <string name="data_sharing_no_terms">*Không có điều khoản nào để hiển thị*</string>
+  <string name="data_sharing_private_message">## Chia sẻ dữ liệu riêng tư
+\nDữ liệu chỉ được chia sẻ với người tổ chức khảo sát, và họ không được chia sẻ hoặc sử dụng dữ liệu đã thu thập công khai  </string>
+  <string name="data_sharing_public_message">## Chia sẻ dữ liệu công khai
+\nNgười tổ chức khảo sát có thể chia sẻ và sử dụng dữ liệu công khai theo Giấy phép *Creative Commons CC0 1.0*  </string>
+  <string name="draft_restored">Dữ liệu chưa lưu đã được khôi phục</string>
+  <string name="load_tos_failed">Không thể kết nối, vui lòng thử lại sau</string>
+  <string name="data_submitted_image">Ảnh đã được gửi kèm dữ liệu</string>
+  <string name="data_collection_complete">Thu thập dữ liệu hoàn tất!</string>
+  <string name="data_collection_complete_details">Dữ liệu của bạn đã được lưu và sẽ tự động đồng bộ khi bạn trực tuyến.</string>
+  <string name="allow_location_confirmation">Cho phép truy cập vị trí</string>
+  <string name="allow_location_title">Cho phép chia sẻ vị trí</string>
+  <string name="allow_location_description">Nếu bạn không cho phép Ground truy cập vị trí thiết bị, bạn sẽ không thể tiếp tục thu thập dữ liệu cho địa điểm này.</string>
+  <string name="data_collection_cancellation_title">Dừng thu thập dữ liệu?</string>
+  <string name="data_collection_cancellation_description">Nếu bạn thoát, dữ liệu chưa được gửi sẽ bị xóa.</string>
+  <string name="data_collection_cancellation_confirm_button">Xác nhận</string>
+  <string name="something_went_wrong">Đã xảy ra lỗi</string>
+  <string name="polygon_vertex_add_dialog_title">Lỗi</string>
+  <string name="polygon_vertex_add_dialog_message">Khu vực được phép không thể tự giao nhau</string>
+  <string name="polygon_vertex_add_dialog_positive_button">OK</string>
+  <string name="clear">Xóa</string>
+  <string name="text_task_data_character_limit">Tối đa 255 ký tự</string>
+  <string name="area_message">Diện tích: %1$.2f m²</string>
+  <string name="lang_english">Tiếng Anh</string>
+  <string name="lang_french">Tiếng Pháp</string>
+  <string name="lang_spanish">Tiếng Tây Ban Nha</string>
+  <string name="lang_portuguese">Tiếng Bồ Đào Nha</string>
+  <string name="lang_vietnamese">Tiếng Việt</string>
+  <string name="access_restricted">Hạn chế</string>
+  <string name="access_unlisted">Không công khai</string>
+  <string name="access_public">Công khai</string>
+  <string name="section_on_device">Trên thiết bị này</string>
+  <string name="section_shared_with_me">Được chia sẻ với tôi</string>
+  <string name="section_public">Công khai</string>
+
+  <string name="dialog_title_update_required">Cần Cập nhật</string>
+  <string name="dialog_message_update_required">A new version of the app is available. Please update to continue using the app.</string>
+  <string name="dialog_button_update">Cập nhật</string>
+  <string name="select_length_title">Đơn vị chiều dài</string>
+  <string name="select_length_summary">Chọn đơn vị ưa thích của bạn</string>
+  <string name="length_meters">Mét (m)</string>
+  <string name="length_feet">Bàn chân (ft)</string>
+</resources>

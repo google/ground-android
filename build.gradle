@@ -17,15 +17,6 @@
 // Top-level build file. Configuration specified here is inherited by all sub-projects/modules.
 
 buildscript {
-    ext {
-        // As of Gradle 8.5, Kotlin plugin only tested up to 1.9.20.
-        kotlinVersion = "1.9.23"
-        hiltVersion = "2.51"
-        navigationVersion = "2.7.7"
-        roomVersion = "2.6.1"
-        junitVersion = "4.13.2"
-        timberVersion = "5.0.1"
-    }
     repositories {
         google()
         mavenLocal()
@@ -35,27 +26,27 @@ buildscript {
         gradlePluginPortal()
     }
     dependencies {
-        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$navigationVersion"
-        classpath 'com.android.tools.build:gradle:8.3.2'
-        classpath 'com.google.gms:google-services:4.4.2'
+        classpath libs.androidx.navigation.safe.args.gradle.plugin
+        classpath libs.gradle
+        classpath libs.google.services
 
-        classpath "de.sharpmind:gitversioner:0.6.3"
+        classpath libs.gitversioner
 
         // Performance Monitoring plugin: https://firebase.google.com/docs/perf-mon
-        classpath 'com.google.firebase:perf-plugin:1.4.2'
+        classpath libs.perf.plugin
 
         // Crashlytics plugin
-        classpath 'com.google.firebase:firebase-crashlytics-gradle:3.0.2'
+        classpath libs.firebase.crashlytics.gradle
 
         // Kotlin
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
-        classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlinVersion"
+        classpath libs.kotlin.gradle.plugin
+        classpath libs.kotlin.serialization
 
         // OSS Licenses Plugin
-        classpath 'com.google.android.gms:oss-licenses-plugin:0.10.6'
+        classpath libs.oss.licenses.plugin
 
         // To fetch Maps API key from secrets.properties.
-        classpath 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin:secrets-gradle-plugin:2.0.1'
+        classpath libs.secrets.gradle.plugin
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -63,12 +54,12 @@ buildscript {
 }
 
 plugins {
-    id "org.jetbrains.kotlin.android" version "$kotlinVersion" apply false
-    id "org.jetbrains.kotlin.plugin.serialization" version "$kotlinVersion"
-    id "com.ncorti.ktfmt.gradle" version "0.20.0"
-    id "com.google.dagger.hilt.android" version "$hiltVersion" apply false
-    id "io.gitlab.arturbosch.detekt" version "1.23.5"
-    id "com.google.protobuf" version '0.9.4' apply false
+    alias libs.plugins.kotlin.android apply false
+    alias libs.plugins.kotlin.serialization apply false
+    alias libs.plugins.ktfmt
+    alias libs.plugins.hilt.android apply false
+    alias libs.plugins.detekt
+    alias libs.plugins.protobuf apply false
 }
 
 allprojects {
@@ -93,7 +84,7 @@ subprojects {
 }
 
 detekt {
-    toolVersion = "1.23.5"
+    toolVersion = "1.23.8"
 
     source = files("app/src")
     allRules = true
@@ -109,10 +100,6 @@ tasks.register('checkCode', GradleBuild) {
     tasks = ['checkstyle', 'lintLocalDebug', 'ktfmtCheck', 'detekt']
 }
 
-tasks.register('clean', Delete) {
-    delete rootProject.buildDir
-}
-
 // https://github.com/passsy/gradle-gitVersioner-plugin
 apply plugin: "de.sharpmind.gitversioner"
 gitVersioner {
@@ -120,8 +107,8 @@ gitVersioner {
 }
 
 ext {
-    androidCompileSdk = 34
+    androidCompileSdk = 35
     androidMinSdk = 24
-    androidTargetSdk = 34
+    androidTargetSdk = 35
     jvmToolchainVersion = 17
 }

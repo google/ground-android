@@ -40,14 +40,14 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.groundplatform.android.coroutines.ApplicationScope
 import org.groundplatform.android.coroutines.IoDispatcher
+import org.groundplatform.android.data.local.room.converter.SubmissionDeltasConverter
+import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.submission.ValueDelta
 import org.groundplatform.android.model.submission.isNotNullOrEmpty
 import org.groundplatform.android.model.task.Task
-import org.groundplatform.android.persistence.local.room.converter.SubmissionDeltasConverter
-import org.groundplatform.android.persistence.uuid.OfflineUuidGenerator
 import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.SubmissionRepository
 import org.groundplatform.android.repository.SurveyRepository
@@ -274,10 +274,9 @@ internal constructor(
     val taskId = getCurrentTaskId()
     val viewModel = getTaskViewModel(taskId) ?: error("ViewModel not found for task $taskId")
 
-    viewModel.validate()?.let {
-      Timber.d("Ignoring task $taskId with invalid data")
-      return
-    }
+    // We are not validating the data before saving as draft. This is needed for storing partially
+    // drawn polygons. Always ensure that draft doesn't get submitted without validation. Currently,
+    // it is being mitigated by validating on clicking previous/next buttons.
 
     taskDataHandler.setData(viewModel.task, viewModel.taskTaskData.value)
     savedStateHandle[TASK_POSITION_ID] = taskId

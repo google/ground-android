@@ -60,7 +60,7 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
   private val job = Job(id = "job1")
 
   @Test
-  fun testHeader() {
+  fun `displays task header correctly`() {
     setupTaskFragment<DateTaskFragment>(job, task)
 
     hasTaskViewWithHeader(task)
@@ -79,7 +79,7 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
   }
 
   @Test
-  fun testResponse_onUserInput() {
+  fun `response when on user input`() {
     setupTaskFragment<DateTaskFragment>(job, task)
     // NOTE: The task container layout is given 0dp height to allow Android's constraint system to
     // determine the appropriate height. Unfortunately, Espresso does not perform actions on views
@@ -146,20 +146,20 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
   }
 
   @Test
-  fun testActionButtons() {
+  fun `displays correct action buttons`() {
     setupTaskFragment<DateTaskFragment>(job, task)
     assertFragmentHasButtons(ButtonAction.PREVIOUS, ButtonAction.SKIP, ButtonAction.NEXT)
   }
 
   @Test
-  fun testActionButtons_whenTaskIsOptional() {
+  fun `action buttons when task is optional`() {
     setupTaskFragment<DateTaskFragment>(job, task.copy(isRequired = false))
 
     runner().assertButtonIsDisabled("Next").assertButtonIsEnabled("Skip")
   }
 
   @Test
-  fun testActionButtons_whenTaskIsRequired() {
+  fun `action buttons when task is required`() {
     setupTaskFragment<DateTaskFragment>(job, task.copy(isRequired = true))
 
     runner().assertButtonIsDisabled("Next").assertButtonIsHidden("Skip")

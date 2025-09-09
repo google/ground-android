@@ -16,8 +16,8 @@
 package org.groundplatform.android.model.geometry
 
 import com.google.common.truth.Truth.assertThat
-import org.groundplatform.android.persistence.local.room.converter.toLocalDataStoreObject
-import org.groundplatform.android.persistence.remote.firebase.schema.Path
+import org.groundplatform.android.data.local.room.converter.toLocalDataStoreObject
+import org.groundplatform.android.data.remote.firebase.schema.Path
 import org.junit.Assert
 import org.junit.Test
 
@@ -59,62 +59,62 @@ class GeometryTest {
     )
 
   @Test
-  fun testPointSerialization() {
+  fun `point serialization`() {
     val point = point(x, y)
 
     assertThat(point).isEqualTo(point.toLocalDataStoreObject().getGeometry())
   }
 
   @Test
-  fun testPointIsEmpty() {
+  fun `point is empty`() {
     val point = point(x, y)
 
     assertThat(point.isEmpty()).isEqualTo(false)
   }
 
   @Test
-  fun testPointArea() {
+  fun `point area`() {
     val point = point(x, y)
     assertThat(point.area).isEqualTo(0.0)
   }
 
   @Test
-  fun testPolygonSerialization() {
+  fun `polygon serialization`() {
     val polygon = polygon(path1, path2)
 
     assertThat(polygon).isEqualTo(polygon.toLocalDataStoreObject().getGeometry())
   }
 
   @Test
-  fun testPolygonArea() {
+  fun `polygon area`() {
     val polygon = polygon(path1, path2)
 
     assertThat(polygon.area).isEqualTo(4130.091187385864)
   }
 
   @Test
-  fun testPolygonCenter() {
+  fun `polygon center`() {
     val polygon = polygon(path1, path2)
 
     assertThat(polygon.center()).isEqualTo(Coordinates(lat = -89.633029365, lng = 41.89333657))
   }
 
   @Test
-  fun testMultiPolygonSerialization() {
+  fun `multi polygon serialization`() {
     val multiPolygon = multiPolygon(polygon(path1, path2), polygon(path3, path4))
 
     assertThat(multiPolygon).isEqualTo(multiPolygon.toLocalDataStoreObject().getGeometry())
   }
 
   @Test
-  fun testMultiPolygonArea() {
+  fun `multi polygon area`() {
     val multiPolygon = multiPolygon(polygon(path1, path2), polygon(path3, path4))
 
     assertThat(multiPolygon.area).isEqualTo(5953.0440156963905)
   }
 
   @Test
-  fun testMultiPolygonCenter() {
+  fun `multi polygon center`() {
     val multiPolygon = multiPolygon(polygon(path1, path2), polygon(path3, path4))
 
     assertThat(multiPolygon.center())
@@ -122,52 +122,52 @@ class GeometryTest {
   }
 
   @Test
-  fun testMultiPolygonIsEmpty() {
+  fun `multi polygon is empty`() {
     val multiPolygon = multiPolygon(polygon(path1, path2), polygon(path3, path4))
 
     assertThat(multiPolygon.isEmpty()).isEqualTo(false)
   }
 
   @Test
-  fun validateLinearRing_firstAndLastNotSame_throws() {
+  fun `validateLinearRing throws when first and last coordinates are not the same`() {
     Assert.assertThrows("Invalid linear ring", InvalidGeometryException::class.java) {
       LinearRing(OPEN_LOOP).validate()
     }
   }
 
   @Test
-  fun validateLinearRing_empty_doesNothing() {
+  fun `validateLinearRing does nothing when empty`() {
     LinearRing(listOf()).validate()
   }
 
   @Test
-  fun validateLinearRing_firstAndLastSame_doesNothing() {
+  fun `validateLinearRing does nothing when first and last coordinates are the same`() {
     LinearRing(CLOSED_LOOP).validate()
   }
 
   @Test
-  fun isComplete_whenCountIsLessThanFour() {
+  fun `isComplete returns false when count is less than four`() {
     assertThat(LineString(OPEN_LOOP).isClosed()).isFalse()
   }
 
   @Test
-  fun isComplete_whenCountIsFour_whenFirstAndLastAreNotSame() {
+  fun `isComplete returns false when count is four but first and last are not the same`() {
     assertThat(LineString(OPEN_LOOP + COORDINATE_4).isClosed()).isFalse()
   }
 
   @Test
-  fun isComplete_whenCountIsFour_whenFirstAndLastAreSame() {
+  fun `isComplete returns true when count is four and first and last are the same`() {
     assertThat(LineString(CLOSED_LOOP).isClosed()).isTrue()
   }
 
   @Test
-  fun testCenterOfLineString() {
+  fun `center of line string`() {
     assertThat(LineString(CLOSED_LOOP).center()).isEqualTo(COORDINATE_2)
     assertThat(LineString(OPEN_LOOP).center()).isEqualTo(COORDINATE_2)
   }
 
   @Test
-  fun testAreaOfLineString() {
+  fun `area of line string`() {
     assertThat(LineString(CLOSED_LOOP).area).isEqualTo(0.0)
   }
 

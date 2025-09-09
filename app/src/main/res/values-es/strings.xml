@@ -56,6 +56,7 @@
   <!-- Label of button used enter the offline area selector. -->
   <string name="offline_area_selector_select">Seleccionar área</string>
   <string name="no_basemaps_downloaded">No se ha descargado ningún mapa para su uso sin conexión</string>
+  <string name="connect_to_download_message">Estás desconectado. Conéctate para descargar imágenes de mapa sin conexión</string>
   <string name="signing_in">Iniciando sesión</string>
   <!-- Precedes the build number shown in the side menu of debug builds. -->
   <string name="build">Creado %s</string>
@@ -75,8 +76,6 @@
   <string name="satellite">Satélite</string>
   <string name="terrain">Relieve</string>
   <string name="next">Siguiente</string>
-  <string name="select_survey_title">Seleccionar una encuesta</string>
-  <string name="survey_sync_hint">Una vez abiertas, las encuestas están disponibles sin conexión y se sincronizan automáticamente cuando tenga conexión de nuevo.</string>
   <string name="done">Hecho</string>
   <string name="skip">Omitir</string>
 
@@ -110,7 +109,7 @@
   <string name="capture">Capturar</string>
   <string name="surveys">Encuestas</string>
   <string name="offline_icon_description">Icono mostrado cuando la encuesta está disponible sin conexión</string>
-  <string name="remove_offline_access">Eliminar acceso sin conexión</string>
+  <string name="more_options_icon_description">Más opciones</string>
   <string name="remove_offline_access_warning_title">Advertencia</string>
   <string name="remove_offline_access_warning_confirm_button">Eliminar</string>
   <string name="remove_offline_access_warning_dialog_body">Si elimina el acceso sin conexión:\n \u2022 Cualquier dato no sincronizado será descartado.\n\n¿Está seguro de que desea eliminar el acceso sin conexión?</string>
@@ -135,9 +134,7 @@
   <string name="map_location">Ubicación del mapa:</string>
   <string name="sign_out_dialog_title">Advertencia de cierre de sesión</string>
   <string name="sign_out_dialog_body">Si cierra sesión:\n \u2022 Cualquier dato no sincronizado se descartará\n \u2022 No podrá iniciar sesión si está sin conexión\n \u2022 Las encuestas sin conexión no estarán disponibles hasta que vuelva a iniciar sesión\n\n¿Está seguro de que quiere cerrar sesión?</string>
-  <string name="suggest_data_collection_hint">Acérquese para empezar a recopilar datos</string>
   <string name="read_only_data_collection_hint">Encuesta de solo lectura</string>
-  <string name="predefined_data_collection_hint">Acérquese a un sitio de recolección de datos para recopilar datos</string>
   <string name="no_submissions">Sin presentaciones</string>
   <string name="dismiss_info_popup">Descartar</string>
   <string name="other">Otro</string>
@@ -151,6 +148,7 @@
   <string name="switch_survey">Cambiar encuesta</string>
   <string name="no_survey_selected">No se ha seleccionado ninguna encuesta</string>
   <string name="undo">Deshacer</string>
+  <string name="redo">Rehacer</string>
   <string name="view_licenses_title">Licencias</string>
   <string name="about">Acerca de</string>
   <string name="terms_of_service">Términos de servicio</string>
@@ -173,10 +171,9 @@
   <string name="over_wifi_summary">Sólo a través de Wi-Fi</string>
   <string name="help_title">Ayuda</string>
   <string name="visit_website_title">Visitar sitio web</string>
-  <string name="send_feedback_title">Enviar comentarios</string>
-  <string name="report_summary">Informe de problemas técnicos o sugiera nuevas ubicaciones de interés</string>
-  <string name="not_yet_impl_title">Aún no implementado</string>
   <string name="accuracy">Precisión:</string>
+  <string name="select_language_title">Seleccionar idioma</string>
+  <string name="select_language_summary">Selecciona tu idioma preferido</string>
   <!-- Data Sharing Consent Text -->
   <string name="data_sharing_no_terms">*No hay términos para mostrar.*</string>
   <string name="data_sharing_private_message">
@@ -208,5 +205,29 @@
 
   <string name="clear">Clara</string>
 
+  <string name="text_task_data_character_limit">Máx. 255 caracteres</string>
   <string name="area_message">Área: %1$.2f m²</string>
+
+  <string name="lang_english">Inglés</string>
+  <string name="lang_french">Francés</string>
+  <string name="lang_spanish">Español</string>
+  <string name="lang_portuguese">Portugués</string>
+
+  <string name="lang_vietnamese">Vietnamita</string>
+  <string name="access_restricted">Restringido</string>
+  <string name="access_unlisted">No listado</string>
+  <string name="access_public">Público</string>
+
+  <string name="section_on_device">En este dispositivo</string>
+  <string name="section_shared_with_me">Compartido conmigo</string>
+  <string name="section_public">Público</string>
+
+  <string name="dialog_title_update_required">Actualización requerida</string>
+  <string name="dialog_message_update_required">Hay una nueva versión de la aplicación disponible. Por favor, actualiza para seguir usando la aplicación.</string>
+  <string name="dialog_button_update">Actualizar</string>
+
+  <string name="select_length_title">Unidad de longitud</string>
+  <string name="select_length_summary">Seleccione su unidad preferida</string>
+  <string name="length_meters">Metros (m)</string>
+  <string name="length_feet">Pies (pies)</string>
 </resources>

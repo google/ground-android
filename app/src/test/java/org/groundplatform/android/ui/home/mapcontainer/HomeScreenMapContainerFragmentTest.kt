@@ -23,8 +23,8 @@ import androidx.test.espresso.matcher.ViewMatchers.isEnabled
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
-import org.groundplatform.android.*
 import org.groundplatform.android.BaseHiltTest
+import org.groundplatform.android.R
 import org.groundplatform.android.launchFragmentWithNavController
 import org.junit.Before
 import org.junit.Test
@@ -47,7 +47,7 @@ class HomeScreenMapContainerFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun clickMapType_launchesMapTypeDialogFragment() = runWithTestDispatcher {
+  fun `Click map type launches MapTypeDialogFragment`() = runWithTestDispatcher {
     onView(withId(R.id.map_type_btn)).perform(click()).check(matches(isEnabled()))
     assertThat(navController.currentDestination?.id).isEqualTo(R.id.mapTypeDialogFragment)
   }

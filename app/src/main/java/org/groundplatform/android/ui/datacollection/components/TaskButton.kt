@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android.ui.datacollection.components
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -26,6 +27,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.unit.dp
 import org.groundplatform.android.model.submission.TaskData
 
 class TaskButton(initialAction: ButtonAction) {
@@ -49,7 +51,12 @@ class TaskButton(initialAction: ButtonAction) {
         ButtonAction.Theme.OUTLINED ->
           OutlinedButton(onClick = { clickCallback() }, enabled = enabled.value) { Content() }
         ButtonAction.Theme.TRANSPARENT ->
-          OutlinedButton(border = null, onClick = { clickCallback() }, enabled = enabled.value) {
+          OutlinedButton(
+            border = null,
+            onClick = { clickCallback() },
+            enabled = enabled.value,
+            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+          ) {
             Content()
           }
       }

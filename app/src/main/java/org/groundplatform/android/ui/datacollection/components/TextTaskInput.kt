@@ -31,8 +31,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import org.groundplatform.android.Config
-import org.groundplatform.android.ExcludeFromJacocoGeneratedReport
+import org.groundplatform.android.common.Constants
+import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.theme.AppTheme
 
 @Composable
@@ -46,10 +46,10 @@ fun TextTaskInput(
     supportingText = {
       Row(modifier = modifier.fillMaxWidth()) {
         Spacer(modifier = modifier.weight(1f))
-        Text("${value.length} / ${Config.TEXT_DATA_CHAR_LIMIT}", textAlign = TextAlign.End)
+        Text("${value.length} / ${Constants.TEXT_DATA_CHAR_LIMIT}", textAlign = TextAlign.End)
       }
     },
-    isError = value.length > Config.TEXT_DATA_CHAR_LIMIT,
+    isError = value.length > Constants.TEXT_DATA_CHAR_LIMIT,
     value = value,
     onValueChange = { valueChanged(it) },
     modifier =

@@ -24,11 +24,12 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
+import org.groundplatform.android.data.local.LocalValueStore
+import org.groundplatform.android.data.local.stores.LocalSurveyStore
+import org.groundplatform.android.data.local.stores.LocalUserStore
+import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.model.Role
-import org.groundplatform.android.persistence.local.LocalValueStore
-import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
-import org.groundplatform.android.persistence.local.stores.LocalUserStore
-import org.groundplatform.android.persistence.remote.FakeRemoteDataStore
+import org.groundplatform.android.proto.Survey
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
 import org.groundplatform.android.system.auth.SignInState
@@ -139,6 +140,35 @@ class UserRepositoryTest : BaseHiltTest() {
     localSurveyStore.insertOrUpdateSurvey(survey)
     surveyRepository.activateSurvey(survey.id)
     advanceUntilIdle()
+
+    assertThat(userRepository.canUserSubmitData()).isFalse()
+  }
+
+  @Test
+  fun `canUserSubmitData() returns true when general access is PUBLIC`() = runWithTestDispatcher {
+    val survey = FakeData.SURVEY.copy(generalAccess = Survey.GeneralAccess.PUBLIC)
+    localSurveyStore.insertOrUpdateSurvey(survey)
+    surveyRepository.activateSurvey(survey.id)
+
+    assertThat(userRepository.canUserSubmitData()).isTrue()
+  }
+
+  @Test
+  fun `canUserSubmitData() returns true when general access is UNLISTED`() = runWithTestDispatcher {
+    val survey = FakeData.SURVEY.copy(generalAccess = Survey.GeneralAccess.UNLISTED)
+    localSurveyStore.insertOrUpdateSurvey(survey)
+    surveyRepository.activateSurvey(survey.id)
+
+    assertThat(userRepository.canUserSubmitData()).isTrue()
+  }
+
+  @Test
+  fun `canUserSubmitData() returns false when user role is VIEWER`() = runWithTestDispatcher {
+    val user = FakeData.USER
+    val survey = FakeData.SURVEY.copy(acl = mapOf(user.email to Role.VIEWER.toString()))
+    fakeAuthenticationManager.setUser(user)
+    localSurveyStore.insertOrUpdateSurvey(survey)
+    surveyRepository.activateSurvey(survey.id)
 
     assertThat(userRepository.canUserSubmitData()).isFalse()
   }
