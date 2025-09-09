@@ -271,7 +271,6 @@ dependencies {
     implementation libs.timber
 
     // Room
-    implementation libs.androidx.room.ktx
     implementation libs.androidx.room.runtime
     testImplementation libs.androidx.room.testing
     ksp libs.androidx.room.compiler
