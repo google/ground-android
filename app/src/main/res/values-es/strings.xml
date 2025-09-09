@@ -56,6 +56,7 @@
   <!-- Label of button used enter the offline area selector. -->
   <string name="offline_area_selector_select">Seleccionar área</string>
   <string name="no_basemaps_downloaded">No se ha descargado ningún mapa para su uso sin conexión</string>
+  <string name="connect_to_download_message">Estás desconectado. Conéctate para descargar imágenes de mapa sin conexión</string>
   <string name="signing_in">Iniciando sesión</string>
   <!-- Precedes the build number shown in the side menu of debug builds. -->
   <string name="build">Creado %s</string>
@@ -207,6 +208,7 @@
 
   <string name="clear">Clara</string>
 
+  <string name="text_task_data_character_limit">Máx. 255 caracteres</string>
   <string name="area_message">Área: %1$.2f m²</string>
 
   <string name="lang_english">Inglés</string>
@@ -214,6 +216,7 @@
   <string name="lang_spanish">Español</string>
   <string name="lang_portuguese">Portugués</string>
 
+  <string name="lang_vietnamese">Vietnamita</string>
   <string name="access_restricted">Restringido</string>
   <string name="access_unlisted">No listado</string>
   <string name="access_public">Público</string>
@@ -226,7 +229,7 @@
   <string name="dialog_message_update_required">Hay una nueva versión de la aplicación disponible. Por favor, actualiza para seguir usando la aplicación.</string>
   <string name="dialog_button_update">Actualizar</string>
 
-  <string name="select_length_title">unidad de longitud</string>
+  <string name="select_length_title">Unidad de longitud</string>
   <string name="select_length_summary">Seleccione su unidad preferida</string>
   <string name="length_meters">Metros (m)</string>
   <string name="length_feet">Pies (pies)</string>

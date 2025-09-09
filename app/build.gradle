@@ -29,17 +29,6 @@ apply from: '../config/checkstyle/checkstyle.gradle'
 apply from: '../config/lint/lint.gradle'
 apply from: '../config/jacoco/jacoco.gradle'
 
-project.ext {
-    autoValueVersion = "1.10.4"
-    composeUi = "1.8.2"
-    fragmentVersion = "1.8.7"
-    hiltJetpackVersion = "1.2.0"
-    lifecycleVersion = "2.8.4"
-    workVersion = "2.9.1"
-    mockitoVersion = "5.11.0"
-    coroutinesVersion = "1.6.4"
-}
-
 // Directory where downloaded Protocol Buffer definitions are extracted to.
 def extractedGroundProtoPath = layout.buildDirectory.dir('extracted-ground-protos')
 
@@ -177,169 +166,160 @@ configurations {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'androidx.recyclerview:recyclerview-selection:1.1.0'
-    implementation 'androidx.test.ext:junit-ktx:1.2.1'
-    implementation 'androidx.multidex:multidex:2.0.1'
-    implementation 'androidx.preference:preference-ktx:1.2.1'
+    implementation libs.androidx.multidex
+    implementation libs.androidx.preference.ktx
 
     // Kotlin
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$project.kotlinVersion"
-    implementation "org.jetbrains.kotlin:kotlin-reflect:$project.kotlinVersion"
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3"
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-protobuf:1.6.3"
-    implementation "org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.7"
+    implementation libs.kotlin.reflect
+    implementation libs.kotlin.stdlib
+    implementation libs.kotlinx.collections.immutable
+    implementation libs.kotlinx.serialization.json
+    implementation libs.kotlinx.serialization.protobuf
 
     // Kotlin Coroutines
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
-    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion"
+    implementation libs.kotlinx.coroutines.android
+    implementation libs.kotlinx.coroutines.core
+    testImplementation libs.kotlinx.coroutines.test
 
-    // Android legacy support Libraries.
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.appcompat:appcompat:1.7.0'
+    // Android legacy support Libraries
+    implementation libs.androidx.legacy.support.v4
+    implementation libs.androidx.appcompat
 
-    // UI widgets.
-    implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'com.google.android.material:material:1.12.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
+    // UI Widgets
+    implementation libs.androidx.constraintlayout
+    implementation libs.androidx.cardview
+    implementation libs.androidx.recyclerview.selection
+    implementation libs.material
 
     // Jetpack Compose
-    implementation 'androidx.compose.compiler:compiler:1.5.15'
-    implementation 'androidx.compose.material3:material3-android:1.3.2'
-    implementation "androidx.compose.ui:ui:$composeUi"
-    implementation "androidx.compose.ui:ui-tooling-preview-android:$composeUi"
-    implementation "androidx.compose.runtime:runtime-livedata:$composeUi"
-    testImplementation "androidx.compose.ui:ui-test-junit4:$composeUi"
-    debugImplementation "androidx.compose.ui:ui-test-manifest:$composeUi"
-    debugImplementation "androidx.compose.ui:ui-tooling:$composeUi"
-    stagingImplementation "androidx.compose.ui:ui-test-manifest:$composeUi"
+    debugImplementation libs.androidx.ui.test.manifest
+    debugImplementation libs.androidx.ui.tooling
+    implementation libs.androidx.compiler
+    implementation libs.androidx.material3.android
+    implementation libs.androidx.runtime.livedata
+    implementation libs.androidx.ui
+    implementation libs.androidx.ui.tooling.preview.android
+    stagingImplementation libs.androidx.ui.test.manifest
+    testImplementation libs.androidx.ui.test.junit4
 
-    // Image loading
-    implementation "com.github.bumptech.glide:glide:4.16.0"
+    // Images
+    implementation libs.glide
 
-    // Google Play Services.
-    implementation 'com.google.android.gms:play-services-auth:21.3.0'
-    implementation 'com.google.android.gms:play-services-maps:19.2.0'
-    implementation 'com.google.android.gms:play-services-location:21.3.0'
+    // Google Play Services
+    implementation libs.play.services.auth
+    implementation libs.play.services.location
+    implementation libs.play.services.maps
 
-    implementation "com.google.maps.android:android-maps-utils:3.8.2"
+    // Maps Utils
+    implementation libs.android.maps.utils
 
-    // GeoJSON support
-    implementation 'com.google.code.gson:gson:2.11.0'
-
-    // Test Json
-    testImplementation 'org.json:json:20180813'
+    // GeoJSON Support
+    implementation libs.gson
 
     // Firebase and related libraries.
-    implementation platform('com.google.firebase:firebase-bom:33.1.2')
-    implementation 'com.google.firebase:firebase-analytics'
-    implementation 'com.google.firebase:firebase-firestore'
-    implementation 'com.google.firebase:firebase-functions-ktx'
-    implementation 'com.google.firebase:firebase-auth'
-    implementation 'com.google.firebase:firebase-perf'
-    implementation 'com.google.firebase:firebase-storage'
-    implementation 'com.google.firebase:firebase-crashlytics'
-    implementation 'com.google.firebase:firebase-messaging'
-    implementation 'com.google.firebase:firebase-messaging-directboot'
-    implementation 'com.google.firebase:firebase-messaging-ktx'
-    implementation 'com.google.firebase:firebase-config'
+    implementation platform(libs.firebase.bom)
+    implementation libs.firebase.auth
+    implementation libs.firebase.analytics
+    implementation libs.firebase.config
+    implementation libs.firebase.crashlytics
+    implementation libs.firebase.firestore
+    implementation libs.firebase.functions.ktx
+    implementation libs.firebase.messaging
+    implementation libs.firebase.messaging.directboot
+    implementation libs.firebase.messaging.ktx
+    implementation libs.firebase.perf
+    implementation libs.firebase.storage
 
     // Hilt
-    implementation "com.google.dagger:hilt-android:$project.hiltVersion"
-    kapt "com.google.dagger:hilt-android-compiler:$project.hiltVersion"
-    kapt "com.google.dagger:hilt-compiler:$project.hiltVersion"
-    implementation "androidx.hilt:hilt-navigation-fragment:$project.hiltJetpackVersion"
-    // For Robolectric tests.
-    testImplementation "com.google.dagger:hilt-android-testing:$project.hiltVersion"
-    kaptTest "com.google.dagger:hilt-android-compiler:$project.hiltVersion"
-    // For instrumented tests.
-    androidTestImplementation "com.google.dagger:hilt-android-testing:$project.hiltVersion"
-    kaptAndroidTest "com.google.dagger:hilt-android-compiler:$project.hiltVersion"
-    // Hilt Android Worker API support.
-    implementation "androidx.hilt:hilt-work:$project.hiltJetpackVersion"
-    kapt "androidx.hilt:hilt-compiler:$project.hiltJetpackVersion"
+    implementation libs.androidx.hilt.navigation.fragment
+    implementation libs.androidx.hilt.work
+    implementation libs.hilt.android
+    testImplementation libs.hilt.android.testing
+    androidTestImplementation libs.hilt.android.testing
+    kapt libs.hilt.compiler
+    kapt libs.hilt.android.compiler
+    kaptTest libs.hilt.android.compiler
+    kaptAndroidTest libs.hilt.android.compiler
 
     // Android Arch Lifecycle
-    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$project.lifecycleVersion"
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$project.lifecycleVersion"
-    implementation "androidx.lifecycle:lifecycle-reactivestreams-ktx:$project.lifecycleVersion"
+    implementation libs.androidx.lifecycle.extensions
+    implementation libs.androidx.lifecycle.livedata.ktx
+    implementation libs.androidx.lifecycle.reactivestreams.ktx
+    implementation libs.androidx.lifecycle.runtime.ktx
 
     // Android Navigation
-    implementation "androidx.navigation:navigation-fragment-ktx:$project.navigationVersion"
-    implementation "androidx.navigation:navigation-ui-ktx:$project.navigationVersion"
+    implementation libs.androidx.navigation.fragment.ktx
+    implementation libs.androidx.navigation.ui.ktx
 
     // Auto-value
-    compileOnly "com.google.auto.value:auto-value-annotations:$project.autoValueVersion"
-    kapt "com.google.auto.value:auto-value:$project.autoValueVersion"
+    compileOnly libs.auto.value.annotations
+    kapt libs.auto.value
 
-    implementation "androidx.exifinterface:exifinterface:1.4.1"
+    implementation libs.androidx.exifinterface
 
     // Logging
-    implementation "com.jakewharton.timber:timber:$timberVersion"
+    implementation libs.timber
 
     // Room
-    implementation "androidx.room:room-runtime:$roomVersion"
-    implementation "androidx.room:room-ktx:$roomVersion"
-    kapt "androidx.room:room-compiler:$roomVersion"
-    testImplementation "androidx.room:room-testing:$roomVersion"
+    implementation libs.androidx.room.ktx
+    implementation libs.androidx.room.runtime
+    testImplementation libs.androidx.room.testing
+    kapt libs.androidx.room.compiler
 
     // WorkManager
-    implementation "androidx.work:work-runtime-ktx:$workVersion"
-    testImplementation "androidx.work:work-testing:$workVersion"
+    implementation libs.androidx.work.runtime.ktx
+    testImplementation libs.androidx.work.testing
 
     // OSS Licenses Plugin
-    implementation 'com.google.android.gms:play-services-oss-licenses:17.1.0'
+    implementation libs.play.services.oss.licenses
 
     // Markdown Parser
-    implementation 'org.jetbrains:markdown:0.7.3'
+    implementation libs.markdown
 
     // Testing
-    testImplementation "junit:junit:$junitVersion"
-    androidTestImplementation "junit:junit:$junitVersion"
-    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
-    testImplementation 'com.google.truth:truth:1.4.2'
-    androidTestImplementation 'com.google.truth:truth:1.4.2'
-    testImplementation 'androidx.test:core:1.6.1'
-    testImplementation 'org.robolectric:robolectric:4.11.1'
-    testImplementation 'android.arch.core:core-testing:1.1.1'
-    androidTestImplementation 'android.arch.core:core-testing:1.1.1'
-    testImplementation 'com.jraska.livedata:testing:1.2.0'
-    testImplementation "androidx.arch.core:core-testing:2.2.0"
-    testImplementation "org.jetbrains.kotlin:kotlin-test:$project.kotlinVersion"
-    testImplementation "androidx.navigation:navigation-testing:$project.navigationVersion"
-    androidTestImplementation "androidx.navigation:navigation-testing:$project.navigationVersion"
-    testImplementation 'app.cash.turbine:turbine:0.12.3'
+    androidTestImplementation libs.androidx.junit
+    androidTestImplementation libs.core.testing
+    androidTestImplementation libs.truth
+    testImplementation libs.androidx.core
+    testImplementation libs.androidx.core.testing
+    testImplementation libs.androidx.navigation.testing
+    testImplementation libs.core.testing
+    testImplementation libs.json
+    testImplementation libs.junit
+    testImplementation libs.kotlin.test
+    testImplementation libs.robolectric
+    testImplementation libs.testing
+    testImplementation libs.turbine
+    testImplementation libs.truth
 
     // Mockito
-    testImplementation 'org.mockito:mockito-inline:4.5.1'
-    testImplementation "org.mockito:mockito-core:$mockitoVersion"
-    testImplementation "org.mockito:mockito-android:$mockitoVersion"
-    androidTestImplementation "org.mockito:mockito-core:$mockitoVersion"
-    androidTestImplementation "org.mockito:mockito-android:$mockitoVersion"
-    testImplementation 'org.mockito.kotlin:mockito-kotlin:4.1.0'
+    testImplementation libs.mockito.core
+    testImplementation libs.mockito.inline
+    testImplementation libs.mockito.kotlin
+    testImplementation libs.mockito.android
+    androidTestImplementation libs.mockito.core
 
     // Espresso
-    testImplementation 'androidx.test.espresso:espresso-contrib:3.6.1'
-    testImplementation('androidx.test.espresso:espresso-core:3.5.1', {
+    testImplementation libs.androidx.espresso.contrib
+    testImplementation(libs.androidx.espresso.core) {
         exclude group: 'com.android.support', module: 'support-annotations'
-    })
-    androidTestImplementation('androidx.test.espresso:espresso-core:3.5.1', {
+    }
+    androidTestImplementation(libs.androidx.espresso.core) {
         exclude group: 'com.android.support', module: 'support-annotations'
-    })
+    }
 
     // Fragments
-    implementation "androidx.fragment:fragment-ktx:$fragmentVersion"
-    debugImplementation "androidx.fragment:fragment-testing:$fragmentVersion"
+    implementation libs.androidx.fragment.ktx
+    debugImplementation libs.androidx.fragment.testing
     //noinspection AndroidLintFragmentGradleConfiguration
-    stagingImplementation "androidx.fragment:fragment-testing:$fragmentVersion"
+    stagingImplementation libs.androidx.fragment.testing
 
     // TODO: Move protos into shared module and set correct path here.
     // Issue URL: https://github.com/google/ground-android/issues/1748
-    api("com.google.protobuf:protobuf-kotlin-lite:4.26.1")
+    api(libs.protobuf.kotlin.lite)
 
     // Pulls protodefs from the specified commit in the ground-platform repo.
-    groundProtoJar "com.github.google:ground-platform:bc2596d@jar"
+    groundProtoJar libs.ground.platform
 }
 
 protobuf {
