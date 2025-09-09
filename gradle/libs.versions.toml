@@ -45,6 +45,7 @@ kotlinVersion = "2.0.21"
 kspVersion = "2.0.21-1.0.27"
 kotlinxCollectionsImmutable = "0.3.7"
 kotlinxSerializationVersion = "1.6.3"
+kspVersion = "2.0.21-1.0.27"
 ktfmtVersion = "0.22.0"
 legacySupportV4Version = "1.0.0"
 lifecycleExtensionsVersion = "2.2.0"
@@ -80,7 +81,6 @@ workVersion = "2.9.1"
 [libraries]
 android-maps-utils = { module = "com.google.maps.android:android-maps-utils", version.ref = "androidMapsUtilsVersion" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompatVersion" }
-androidx-compiler = { module = "androidx.compose.compiler:compiler", version.ref = "compilerVersion" }
 androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayoutVersion" }
 androidx-cardview = { module = "androidx.cardview:cardview", version.ref = "cardviewVersion" }
 androidx-core = { module = "androidx.test:core", version.ref = "coreVersion" }
@@ -181,12 +181,12 @@ truth = { module = "com.google.truth:truth", version.ref = "truthVersion" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbineVersion" }
 
 [plugins]
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlinVersion" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlinVersion" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinVersion" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "kspVersion" }
 ktfmt = { id = "com.ncorti.ktfmt.gradle", version.ref = "ktfmtVersion" }
 hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hiltVersion" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detektVersion" }
-ksp = {id = "com.google.devtools.ksp", version.ref = "kspVersion" }
 protobuf = { id = "com.google.protobuf", version.ref = "protobufVersion" }
 room = { id = "androidx.room", version.ref = "roomVersion" }

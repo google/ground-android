@@ -26,6 +26,7 @@ apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'com.google.android.gms.oss-licenses-plugin'
 apply plugin: 'com.google.protobuf'
 apply plugin: 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
+apply plugin: 'org.jetbrains.kotlin.plugin.compose'
 
 apply from: '../config/checkstyle/checkstyle.gradle'
 apply from: '../config/lint/lint.gradle'
@@ -204,7 +205,6 @@ dependencies {
     // Jetpack Compose
     debugImplementation libs.androidx.ui.test.manifest
     debugImplementation libs.androidx.ui.tooling
-    implementation libs.androidx.compiler
     implementation libs.androidx.material3.android
     implementation libs.androidx.runtime.livedata
     implementation libs.androidx.ui
