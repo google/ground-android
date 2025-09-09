@@ -20,15 +20,10 @@ import androidx.core.content.edit
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import org.groundplatform.android.common.Constants.DEFAULT_MAP_TYPE
 import org.groundplatform.android.common.Constants.LENGTH_UNIT_METER
 import org.groundplatform.android.common.PrefKeys
 import org.groundplatform.android.model.map.CameraPosition
-import org.groundplatform.android.model.map.MapType
 import org.groundplatform.android.util.allowThreadDiskReads
 import org.groundplatform.android.util.allowThreadDiskWrites
 import timber.log.Timber
@@ -42,11 +37,6 @@ import timber.log.Timber
 class LocalValueStore
 @Inject
 constructor(private val preferences: SharedPreferences, private val locale: Locale) {
-  private val _mapType = MutableStateFlow(mapType)
-  private val _offlineImageryEnabled = MutableStateFlow(isOfflineImageryEnabled)
-
-  val mapTypeFlow: StateFlow<MapType> = _mapType.asStateFlow()
-  val offlineImageryEnabledFlow: StateFlow<Boolean> = _offlineImageryEnabled.asStateFlow()
 
   /**
    * Id of the last survey successfully activated by the user. This value is only updated after the
@@ -61,15 +51,9 @@ constructor(private val preferences: SharedPreferences, private val locale: Loca
     }
 
   /** The last map type selected. */
-  var mapType: MapType
-    get() = allowThreadDiskReads {
-      val mapTypeIdx = preferences.getInt(PrefKeys.MAP_TYPE, DEFAULT_MAP_TYPE.ordinal)
-      MapType.entries[mapTypeIdx]
-    }
-    set(value) = allowThreadDiskWrites {
-      preferences.edit { putInt(PrefKeys.MAP_TYPE, value.ordinal) }
-      _mapType.update { value }
-    }
+  var mapType: Int
+    get() = allowThreadDiskReads { preferences.getInt(PrefKeys.MAP_TYPE, DEFAULT_MAP_TYPE.ordinal) }
+    set(value) = allowThreadDiskWrites { preferences.edit { putInt(PrefKeys.MAP_TYPE, value) } }
 
   /** Whether location lock is enabled or not. */
   var isLocationLockEnabled: Boolean
@@ -90,7 +74,6 @@ constructor(private val preferences: SharedPreferences, private val locale: Loca
     get() = allowThreadDiskReads { preferences.getBoolean(PrefKeys.OFFLINE_MAP_IMAGERY, true) }
     set(value) = allowThreadDiskReads {
       preferences.edit { putBoolean(PrefKeys.OFFLINE_MAP_IMAGERY, value) }
-      _offlineImageryEnabled.update { value }
     }
 
   /** Whether to display instructions when loading a draw area task. */
