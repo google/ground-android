@@ -32,14 +32,14 @@ import org.groundplatform.android.FakeData.SURVEY
 import org.groundplatform.android.FakeData.USER
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.model.geometry.Coordinates
+import org.groundplatform.android.model.map.Bounds
+import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
 import org.groundplatform.android.ui.home.mapcontainer.jobs.AdHocDataCollectionButtonData
 import org.groundplatform.android.ui.home.mapcontainer.jobs.SelectedLoiSheetData
-import org.groundplatform.android.ui.map.Bounds
-import org.groundplatform.android.ui.map.CameraPosition
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
 import org.junit.Before
 import org.junit.Test

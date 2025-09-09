@@ -27,11 +27,11 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.launch
 import org.groundplatform.android.databinding.OfflineAreaViewerFragBinding
+import org.groundplatform.android.model.map.MapType
 import org.groundplatform.android.ui.common.AbstractMapContainerFragment
 import org.groundplatform.android.ui.common.BaseMapViewModel
 import org.groundplatform.android.ui.common.MapConfig
 import org.groundplatform.android.ui.map.MapFragment
-import org.groundplatform.android.ui.map.MapType
 
 /** The fragment provides a UI for managing a single offline area on the user's device. */
 @AndroidEntryPoint

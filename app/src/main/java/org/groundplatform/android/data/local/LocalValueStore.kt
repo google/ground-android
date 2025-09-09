@@ -20,10 +20,10 @@ import androidx.core.content.edit
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
+import org.groundplatform.android.common.Constants.DEFAULT_MAP_TYPE
 import org.groundplatform.android.common.Constants.LENGTH_UNIT_METER
 import org.groundplatform.android.common.PrefKeys
-import org.groundplatform.android.ui.map.CameraPosition
-import org.groundplatform.android.ui.map.MapType
+import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.util.allowThreadDiskReads
 import org.groundplatform.android.util.allowThreadDiskWrites
 import timber.log.Timber
@@ -52,7 +52,7 @@ constructor(private val preferences: SharedPreferences, private val locale: Loca
 
   /** The last map type selected. */
   var mapType: Int
-    get() = allowThreadDiskReads { preferences.getInt(PrefKeys.MAP_TYPE, MapType.DEFAULT.ordinal) }
+    get() = allowThreadDiskReads { preferences.getInt(PrefKeys.MAP_TYPE, DEFAULT_MAP_TYPE.ordinal) }
     set(value) = allowThreadDiskWrites { preferences.edit { putInt(PrefKeys.MAP_TYPE, value) } }
 
   /** Whether location lock is enabled or not. */

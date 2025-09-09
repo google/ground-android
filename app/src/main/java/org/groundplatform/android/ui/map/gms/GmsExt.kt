@@ -23,7 +23,7 @@ import org.groundplatform.android.model.geometry.LinearRing
 import org.groundplatform.android.model.geometry.MultiPolygon
 import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.model.geometry.Polygon
-import org.groundplatform.android.ui.map.Bounds
+import org.groundplatform.android.model.map.Bounds
 
 /** Extensions for indirectly using GMS functions in map-provider agnostic codebase. */
 object GmsExt {

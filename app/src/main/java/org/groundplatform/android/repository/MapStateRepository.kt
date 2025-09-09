@@ -22,8 +22,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import org.groundplatform.android.data.local.LocalValueStore
-import org.groundplatform.android.ui.map.CameraPosition
-import org.groundplatform.android.ui.map.MapType
+import org.groundplatform.android.model.map.CameraPosition
+import org.groundplatform.android.model.map.MapType
 
 /** Provides access and storage of persistent map states. */
 @Singleton

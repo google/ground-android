@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.ui.map
+package org.groundplatform.android.model.map
+
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
 /**
- * Indicates the type of a geometric model object. Used to interpret other objects (e.g. map
- * features) back into model objects.
+ * The type of base map shown beneath all other layers. Google Maps SDK refers to these as "map
+ * type", or "map styles" in Mapbox, or "basemap" in Leaflet.
  */
-enum class FeatureType {
-  UNKNOWN,
-  LOCATION_OF_INTEREST,
-  USER_POINT,
-  USER_POLYGON,
+@Parcelize
+enum class MapType : Parcelable {
+  ROAD,
+  TERRAIN,
+  SATELLITE,
 }
-
-fun Feature.isLocationOfInterest(): Boolean = tag.type == FeatureType.LOCATION_OF_INTEREST.ordinal

@@ -29,9 +29,9 @@ import javax.inject.Inject
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.R
 import org.groundplatform.android.launchFragmentInHiltContainer
+import org.groundplatform.android.model.map.MapType
 import org.groundplatform.android.repository.MapStateRepository
 import org.groundplatform.android.shouldHaveTextAtPosition
-import org.groundplatform.android.ui.map.MapType
 import org.hamcrest.Matchers.allOf
 import org.junit.Before
 import org.junit.Test
