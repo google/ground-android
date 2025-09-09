@@ -21,9 +21,9 @@ import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 import org.groundplatform.android.common.Constants.LENGTH_UNIT_METER
+import org.groundplatform.android.common.PrefKeys
 import org.groundplatform.android.ui.map.CameraPosition
 import org.groundplatform.android.ui.map.MapType
-import org.groundplatform.android.ui.settings.Keys
 import org.groundplatform.android.util.allowThreadDiskReads
 import org.groundplatform.android.util.allowThreadDiskWrites
 import timber.log.Timber
@@ -43,82 +43,98 @@ constructor(private val preferences: SharedPreferences, private val locale: Loca
    * survey activation process is complete.
    */
   var lastActiveSurveyId: String
-    get() = allowThreadDiskReads { preferences.getString(ACTIVE_SURVEY_ID_KEY, "").orEmpty() }
-    set(id) = allowThreadDiskWrites { preferences.edit { putString(ACTIVE_SURVEY_ID_KEY, id) } }
+    get() = allowThreadDiskReads {
+      preferences.getString(PrefKeys.ACTIVE_SURVEY_ID_KEY, "").orEmpty()
+    }
+    set(id) = allowThreadDiskWrites {
+      preferences.edit { putString(PrefKeys.ACTIVE_SURVEY_ID_KEY, id) }
+    }
 
   /** The last map type selected. */
   var mapType: Int
-    get() = allowThreadDiskReads { preferences.getInt(MAP_TYPE, MapType.DEFAULT.ordinal) }
-    set(value) = allowThreadDiskWrites { preferences.edit { putInt(MAP_TYPE, value) } }
+    get() = allowThreadDiskReads { preferences.getInt(PrefKeys.MAP_TYPE, MapType.DEFAULT.ordinal) }
+    set(value) = allowThreadDiskWrites { preferences.edit { putInt(PrefKeys.MAP_TYPE, value) } }
 
   /** Whether location lock is enabled or not. */
   var isLocationLockEnabled: Boolean
-    get() = allowThreadDiskReads { preferences.getBoolean(LOCATION_LOCK_ENABLED, false) }
+    get() = allowThreadDiskReads { preferences.getBoolean(PrefKeys.LOCATION_LOCK_ENABLED, false) }
     set(value) = allowThreadDiskWrites {
-      preferences.edit { putBoolean(LOCATION_LOCK_ENABLED, value) }
+      preferences.edit { putBoolean(PrefKeys.LOCATION_LOCK_ENABLED, value) }
     }
 
   /** Terms of service acceptance state for the currently signed in user. */
   var isTermsOfServiceAccepted: Boolean
-    get() = allowThreadDiskReads { preferences.getBoolean(TOS_ACCEPTED, false) }
-    set(value) = allowThreadDiskWrites { preferences.edit { putBoolean(TOS_ACCEPTED, value) } }
+    get() = allowThreadDiskReads { preferences.getBoolean(PrefKeys.TOS_ACCEPTED, false) }
+    set(value) = allowThreadDiskWrites {
+      preferences.edit { putBoolean(PrefKeys.TOS_ACCEPTED, value) }
+    }
 
   /** Whether to overlay offline map imagery. */
   var isOfflineImageryEnabled: Boolean
-    get() = allowThreadDiskReads { preferences.getBoolean(OFFLINE_MAP_IMAGERY, true) }
+    get() = allowThreadDiskReads { preferences.getBoolean(PrefKeys.OFFLINE_MAP_IMAGERY, true) }
     set(value) = allowThreadDiskReads {
-      preferences.edit { putBoolean(OFFLINE_MAP_IMAGERY, value) }
+      preferences.edit { putBoolean(PrefKeys.OFFLINE_MAP_IMAGERY, value) }
     }
 
   /** Whether to display instructions when loading a draw area task. */
   var drawAreaInstructionsShown: Boolean
-    get() = allowThreadDiskReads { preferences.getBoolean(DRAW_AREA_INSTRUCTIONS_SHOWN, false) }
+    get() = allowThreadDiskReads {
+      preferences.getBoolean(PrefKeys.DRAW_AREA_INSTRUCTIONS_SHOWN, false)
+    }
     set(value) = allowThreadDiskReads {
-      preferences.edit { putBoolean(DRAW_AREA_INSTRUCTIONS_SHOWN, value) }
+      preferences.edit { putBoolean(PrefKeys.DRAW_AREA_INSTRUCTIONS_SHOWN, value) }
     }
 
   /** Whether to display instructions when loading a drop pin task. */
   var dropPinInstructionsShown: Boolean
-    get() = allowThreadDiskReads { preferences.getBoolean(DROP_PIN_INSTRUCTIONS_SHOWN, false) }
+    get() = allowThreadDiskReads {
+      preferences.getBoolean(PrefKeys.DROP_PIN_INSTRUCTIONS_SHOWN, false)
+    }
     set(value) = allowThreadDiskReads {
-      preferences.edit { putBoolean(DROP_PIN_INSTRUCTIONS_SHOWN, value) }
+      preferences.edit { putBoolean(PrefKeys.DROP_PIN_INSTRUCTIONS_SHOWN, value) }
     }
 
   var draftSubmissionId: String?
-    get() = allowThreadDiskReads { preferences.getString(DRAFT_SUBMISSION_ID, null) }
-    set(value) = allowThreadDiskReads { preferences.edit { putString(DRAFT_SUBMISSION_ID, value) } }
+    get() = allowThreadDiskReads { preferences.getString(PrefKeys.DRAFT_SUBMISSION_ID, null) }
+    set(value) = allowThreadDiskReads {
+      preferences.edit { putString(PrefKeys.DRAFT_SUBMISSION_ID, value) }
+    }
 
   var selectedLanguage: String
     get() = allowThreadDiskReads {
-      preferences.getString(Keys.LANGUAGE, locale.language) ?: locale.language
+      preferences.getString(PrefKeys.LANGUAGE, locale.language) ?: locale.language
     }
-    set(value) = allowThreadDiskReads { preferences.edit { putString(Keys.LANGUAGE, value) } }
+    set(value) = allowThreadDiskReads { preferences.edit { putString(PrefKeys.LANGUAGE, value) } }
 
   var selectedLengthUnit: String
     get() = allowThreadDiskReads {
-      preferences.getString(Keys.LENGTH_UNIT, LENGTH_UNIT_METER) ?: LENGTH_UNIT_METER
+      preferences.getString(PrefKeys.LENGTH_UNIT, LENGTH_UNIT_METER) ?: LENGTH_UNIT_METER
     }
-    set(value) = allowThreadDiskReads { preferences.edit { putString(Keys.LENGTH_UNIT, value) } }
+    set(value) = allowThreadDiskReads {
+      preferences.edit { putString(PrefKeys.LENGTH_UNIT, value) }
+    }
 
   /** Removes all values stored in the local store. */
   fun clear() = allowThreadDiskWrites { preferences.edit { clear() } }
 
   fun shouldUploadMediaOverUnmeteredConnectionOnly(): Boolean = allowThreadDiskReads {
-    preferences.getBoolean(Keys.UPLOAD_MEDIA, false)
+    preferences.getBoolean(PrefKeys.UPLOAD_MEDIA, false)
   }
 
   fun clearLastCameraPosition(surveyId: String) = allowThreadDiskReads {
-    preferences.edit { remove(LAST_VIEWPORT_PREFIX + surveyId) }
+    preferences.edit { remove(PrefKeys.LAST_VIEWPORT_PREFIX + surveyId) }
   }
 
   fun setLastCameraPosition(surveyId: String, cameraPosition: CameraPosition) =
     allowThreadDiskReads {
-      preferences.edit { putString(LAST_VIEWPORT_PREFIX + surveyId, cameraPosition.serialize()) }
+      preferences.edit {
+        putString(PrefKeys.LAST_VIEWPORT_PREFIX + surveyId, cameraPosition.serialize())
+      }
     }
 
   fun getLastCameraPosition(surveyId: String): CameraPosition? = allowThreadDiskReads {
     try {
-      val stringVal = preferences.getString(LAST_VIEWPORT_PREFIX + surveyId, "").orEmpty()
+      val stringVal = preferences.getString(PrefKeys.LAST_VIEWPORT_PREFIX + surveyId, "").orEmpty()
       CameraPosition.deserialize(stringVal)
     } catch (e: NumberFormatException) {
       Timber.e(e, "Invalid camera pos in prefs")
@@ -130,23 +146,10 @@ constructor(private val preferences: SharedPreferences, private val locale: Loca
   }
 
   fun setDataSharingConsent(surveyId: String, consent: Boolean) {
-    preferences.edit { putBoolean(DATA_SHARING_CONSENT_PREFIX + surveyId, consent) }
+    preferences.edit { putBoolean(PrefKeys.DATA_SHARING_CONSENT_PREFIX + surveyId, consent) }
   }
 
   fun getDataSharingConsent(surveyId: String): Boolean = allowThreadDiskReads {
-    return preferences.getBoolean(DATA_SHARING_CONSENT_PREFIX + surveyId, false)
-  }
-
-  companion object {
-    const val ACTIVE_SURVEY_ID_KEY = "activeSurveyId"
-    const val MAP_TYPE = "map_type"
-    const val LAST_VIEWPORT_PREFIX = "last_viewport_"
-    const val TOS_ACCEPTED = "tos_accepted"
-    const val LOCATION_LOCK_ENABLED = "location_lock_enabled"
-    const val OFFLINE_MAP_IMAGERY = "offline_map_imagery"
-    const val DRAW_AREA_INSTRUCTIONS_SHOWN = "draw_area_instructions_shown"
-    const val DROP_PIN_INSTRUCTIONS_SHOWN = "drop_pin_instructions_shown"
-    const val DRAFT_SUBMISSION_ID = "draft_submission_id"
-    const val DATA_SHARING_CONSENT_PREFIX = "data_consent_"
+    return preferences.getBoolean(PrefKeys.DATA_SHARING_CONSENT_PREFIX + surveyId, false)
   }
 }
