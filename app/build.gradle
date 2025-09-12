@@ -32,15 +32,6 @@ apply from: '../config/jacoco/jacoco.gradle'
 // Directory where downloaded Protocol Buffer definitions are extracted to.
 def extractedGroundProtoPath = layout.buildDirectory.dir('extracted-ground-protos')
 
-def getCommitSha1 = { ->
-    def stdout = new ByteArrayOutputStream()
-    exec {
-        commandLine 'git', 'show', '-s', '--format=%h'
-        standardOutput = stdout
-    }
-    return stdout.toString().trim()
-}
-
 // Gets the total number of commits
 static def getGitCommitCount() {
     return 'git rev-list --count HEAD'.execute().text.trim().toInteger()
