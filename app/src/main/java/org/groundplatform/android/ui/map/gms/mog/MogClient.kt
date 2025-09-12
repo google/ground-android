@@ -29,8 +29,8 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import org.groundplatform.android.persistence.remote.RemoteStorageManager
-import org.groundplatform.android.ui.map.Bounds
+import org.groundplatform.android.data.remote.RemoteStorageManager
+import org.groundplatform.android.model.map.Bounds
 import timber.log.Timber
 
 /** Aliases a relative path or a URL to a MOG. */

@@ -21,9 +21,6 @@
 
   <data>
     <variable
-      name="dataCollectionViewModel"
-      type="org.groundplatform.android.ui.datacollection.DataCollectionViewModel" />
-    <variable
       name="fragment"
       type="org.groundplatform.android.ui.datacollection.tasks.photo.PhotoTaskFragment" />
     <variable
@@ -58,7 +55,6 @@
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toBottomOf="parent"
-      app:photoViewModel="@{dataCollectionViewModel}"
       app:viewModel="@{viewModel}" />
   </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -16,8 +16,8 @@
 package org.groundplatform.android.model.geometry
 
 import com.google.common.truth.Truth.assertThat
-import org.groundplatform.android.persistence.local.room.converter.toLocalDataStoreObject
-import org.groundplatform.android.persistence.remote.firebase.schema.Path
+import org.groundplatform.android.data.local.room.converter.toLocalDataStoreObject
+import org.groundplatform.android.data.remote.firebase.schema.Path
 import org.junit.Assert
 import org.junit.Test
 

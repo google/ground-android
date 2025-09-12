@@ -38,6 +38,14 @@
       app:entryValues="@array/language_entry_values"
       app:defaultValue="en"/>
 
+    <DropDownPreference
+      app:iconSpaceReserved="false"
+      app:key="length_unit"
+      app:title="@string/select_length_title"
+      app:summary="@string/select_length_summary"
+      app:entries="@array/length_entries"
+      app:entryValues="@array/length_entry_values"
+      app:defaultValue="m"/>
   </PreferenceCategory>
 
   <PreferenceCategory
@@ -50,15 +58,6 @@
       app:key="visit_website"
       app:summary="@string/ground_website"
       app:title="@string/visit_website_title" />
-
-    <!-- TODO: Re-enable once the locationOfInterest is implemented -->
-    <!-- Issue URL: https://github.com/google/ground-android/issues/742 -->
-    <Preference
-      app:iconSpaceReserved="false"
-      app:isPreferenceVisible="false"
-      app:key="feedback"
-      app:summary="@string/report_summary"
-      app:title="@string/send_feedback_title" />
 
   </PreferenceCategory>
 

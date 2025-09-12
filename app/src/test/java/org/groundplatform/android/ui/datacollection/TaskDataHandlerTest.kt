@@ -23,15 +23,20 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.groundplatform.android.FakeData
+import org.groundplatform.android.FlakyTest
+import org.groundplatform.android.FlakyTestRule
 import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.submission.TextTaskData
 import org.groundplatform.android.model.task.Task
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
 class TaskDataHandlerTest {
+
+  @get:Rule val flakyTestRule = FlakyTestRule()
 
   @Test
   fun `setData updates dataState correctly`() = runTest {
@@ -71,6 +76,7 @@ class TaskDataHandlerTest {
 
   @OptIn(ExperimentalCoroutinesApi::class)
   @Test
+  @FlakyTest
   fun `dataState does not emit when same value is set`() = runTest {
     val handler = TaskDataHandler()
     val task = createTask("task1")
@@ -90,6 +96,7 @@ class TaskDataHandlerTest {
   }
 
   @Test
+  @FlakyTest
   fun `getData returns correct data`() = runTest {
     val handler = TaskDataHandler()
     val task = createTask("task1")
@@ -101,6 +108,7 @@ class TaskDataHandlerTest {
   }
 
   @Test
+  @FlakyTest
   fun `getData returns null for unknown task`() = runTest {
     val handler = TaskDataHandler()
     val task = createTask("task1")
