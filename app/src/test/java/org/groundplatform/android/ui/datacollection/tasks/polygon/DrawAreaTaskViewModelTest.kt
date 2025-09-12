@@ -177,7 +177,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     updateLastVertexAndAdd(COORDINATE_3)
     updateLastVertex(COORDINATE_4, true)
 
-    assertThat(featureTestObserver.value()?.tooltipText).isEqualTo("10,190,704 ft")
+    assertThat(featureTestObserver.value()?.tooltipText).isEqualTo("3,106,126 m")
   }
 
   @Test
@@ -187,7 +187,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     updateLastVertexAndAdd(COORDINATE_3)
     updateLastVertex(COORDINATE_4, false)
 
-    assertThat(featureTestObserver.value()?.tooltipText).isEqualTo("4,911,905 ft")
+    assertThat(featureTestObserver.value()?.tooltipText).isEqualTo("1,497,148 m")
   }
 
   @Test
@@ -205,7 +205,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
 
     viewModel.removeLastVertex()
 
-    assertThat(featureTestObserver.value()?.tooltipText).isEqualTo("5,134,872 ft")
+    assertThat(featureTestObserver.value()?.tooltipText).isEqualTo("1,565,109 m")
 
     viewModel.removeLastVertex()
 

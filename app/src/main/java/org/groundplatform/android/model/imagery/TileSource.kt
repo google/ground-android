@@ -15,7 +15,7 @@
  */
 package org.groundplatform.android.model.imagery
 
-import org.groundplatform.android.ui.map.Bounds
+import org.groundplatform.android.model.map.Bounds
 
 /** Represents a single source of tiled map imagery. */
 sealed class TileSource

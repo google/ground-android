@@ -37,9 +37,9 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.OFFLINE_AREA
 import org.groundplatform.android.R
+import org.groundplatform.android.data.local.stores.LocalOfflineAreaStore
 import org.groundplatform.android.launchFragmentInHiltContainer
 import org.groundplatform.android.launchFragmentWithNavController
-import org.groundplatform.android.persistence.local.stores.LocalOfflineAreaStore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner

@@ -38,11 +38,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.groundplatform.android.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.R
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.Style
 import org.groundplatform.android.model.job.getDefaultColor
+import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.theme.AppTheme
 
 @Composable
@@ -66,14 +66,14 @@ fun JobSelectionRow(job: Job, onClick: () -> Unit) {
       Icon(
         painter = painterResource(R.drawable.ic_ring_marker),
         contentDescription = stringResource(R.string.job_site_icon),
-        modifier = Modifier.size(32.dp),
+        modifier = Modifier.size(28.dp),
         tint = Color(job.getDefaultColor()),
       )
       Spacer(modifier = Modifier.size(8.dp))
       Text(
         job.name ?: stringResource(R.string.unnamed_job),
         modifier = Modifier.padding(16.dp),
-        fontSize = 24.sp,
+        fontSize = 20.sp,
       )
     }
   }

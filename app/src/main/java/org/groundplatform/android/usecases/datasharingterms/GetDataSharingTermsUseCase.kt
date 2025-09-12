@@ -16,7 +16,7 @@
 package org.groundplatform.android.usecases.datasharingterms
 
 import javax.inject.Inject
-import org.groundplatform.android.persistence.local.LocalValueStore
+import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.proto.Survey.DataSharingTerms
 import org.groundplatform.android.repository.SurveyRepository
 

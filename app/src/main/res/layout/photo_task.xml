@@ -21,9 +21,6 @@
   <data>
     <import type="android.view.View" />
     <variable
-      name="photoViewModel"
-      type="org.groundplatform.android.ui.common.AbstractViewModel" />
-    <variable
       name="viewModel"
       type="org.groundplatform.android.ui.datacollection.tasks.photo.PhotoTaskViewModel" />
   </data>
