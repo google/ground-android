@@ -41,6 +41,26 @@ def getCommitSha1 = { ->
     return stdout.toString().trim()
 }
 
+// Gets the total number of commits
+static def getGitCommitCount() {
+    return 'git rev-list --count HEAD'.execute().text.trim().toInteger()
+}
+
+// Gets the current git branch name and sanitizes it
+static def getGitBranchName() {
+    def branch = 'git rev-parse --abbrev-ref HEAD'.execute().text.trim()
+    if (branch && branch != "HEAD") {
+        return branch.replace('/', '-') // Replaces 'feature/login' with 'feature-login'
+    } else {
+        return "detached-head" // Fallback
+    }
+}
+
+// Gets the short 7-character hash
+static def getGitHash() {
+    return 'git rev-parse --short HEAD'.execute().text.trim()
+}
+
 android {
     compileSdk rootProject.androidCompileSdk
     sourceSets {
@@ -63,10 +83,9 @@ android {
         minSdkVersion rootProject.androidMinSdk
         targetSdkVersion rootProject.androidTargetSdk
 
-        // TODO: Calculate version code manually
-        // Issue URL: https://github.com/google/ground-android/pull/985
-        versionCode gitVersioner.versionCode
-        versionName gitVersioner.versionName + " " + getCommitSha1()
+        versionCode getGitCommitCount()
+        versionName "${getGitBranchName()}-${getGitHash()}-debug"
+
         multiDexEnabled true
         // For rendering vector map markers.
         vectorDrawables.useSupportLibrary = true
