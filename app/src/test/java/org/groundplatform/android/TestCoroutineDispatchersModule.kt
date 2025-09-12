@@ -23,10 +23,8 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import org.groundplatform.android.coroutines.CoroutineDispatchersModule
-import org.groundplatform.android.coroutines.DefaultDispatcher
 import org.groundplatform.android.coroutines.IoDispatcher
 import org.groundplatform.android.coroutines.MainDispatcher
-import org.groundplatform.android.coroutines.MainImmediateDispatcher
 
 @Module
 @TestInstallIn(
@@ -38,13 +36,7 @@ object TestCoroutineDispatchersModule {
 
   @Provides fun provideTestDispatcher(): TestDispatcher = testDispatcher
 
-  @DefaultDispatcher @Provides fun provideDefaultDispatcher(): CoroutineDispatcher = testDispatcher
-
   @IoDispatcher @Provides fun provideIoDispatcher(): CoroutineDispatcher = testDispatcher
 
   @MainDispatcher @Provides fun provideMainDispatcher(): CoroutineDispatcher = testDispatcher
-
-  @MainImmediateDispatcher
-  @Provides
-  fun provideMainImmediateDispatcher(): CoroutineDispatcher = testDispatcher
 }

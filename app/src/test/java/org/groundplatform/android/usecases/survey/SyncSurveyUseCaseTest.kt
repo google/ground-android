@@ -26,8 +26,8 @@ import kotlinx.coroutines.runBlocking
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST
 import org.groundplatform.android.FakeData.SURVEY
-import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
-import org.groundplatform.android.persistence.remote.FakeRemoteDataStore
+import org.groundplatform.android.data.local.stores.LocalSurveyStore
+import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.proto.Survey.DataVisibility
 import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.junit.Assert.assertThrows

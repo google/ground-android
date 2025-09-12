@@ -220,7 +220,7 @@
   </fragment>
   <activity
     android:id="@+id/settings_activity"
-    android:name="org.groundplatform.android.SettingsActivity"
+    android:name="org.groundplatform.android.ui.settings.SettingsActivity"
     android:label="settings_activity"
     tools:layout="@layout/settings_activity" />
   <action
@@ -271,7 +271,7 @@
     android:label="MapTypeDialogFragment">
     <argument
       android:name="mapTypes"
-      app:argType="org.groundplatform.android.ui.map.MapType[]" />
+      app:argType="org.groundplatform.android.model.map.MapType[]" />
   </dialog>
   <fragment
     android:id="@+id/aboutFragment"

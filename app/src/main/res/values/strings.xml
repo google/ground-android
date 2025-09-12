@@ -170,9 +170,6 @@
   <string name="over_wifi_summary">Over Wi-Fi only</string>
   <string name="help_title">Help</string>
   <string name="visit_website_title">Visit website</string>
-  <string name="send_feedback_title">Send feedback</string>
-  <string name="report_summary">Report technical issues or suggest new locationsOfInterest</string>
-  <string name="not_yet_impl_title">Not yet implemented</string>
   <string name="accuracy">Accuracy:</string>
   <string name="select_language_title">Select language</string>
   <string name="select_language_summary">Select your preferred language</string>
@@ -226,4 +223,9 @@
   <string name="dialog_title_update_required">Update Required</string>
   <string name="dialog_message_update_required">A new version of the app is available. Please update to continue using the app.</string>
   <string name="dialog_button_update">Update</string>
+
+  <string name="select_length_title">Unit of length</string>
+  <string name="select_length_summary">Select your preferred unit</string>
+  <string name="length_meters">Meters (m)</string>
+  <string name="length_feet">Feet (ft)</string>
 </resources>

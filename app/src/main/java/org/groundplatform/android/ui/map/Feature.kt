@@ -17,7 +17,6 @@ package org.groundplatform.android.ui.map
 
 import androidx.annotation.ColorInt
 import org.groundplatform.android.model.geometry.Geometry
-import org.groundplatform.android.ui.map.Feature.Tag
 
 /** Represents an individual feature on a map with a given [Geometry] and [Tag]. */
 data class Feature(
@@ -32,7 +31,7 @@ data class Feature(
 ) {
   constructor(
     id: String,
-    type: Int,
+    type: Type,
     geometry: Geometry,
     flag: Boolean = false,
     style: Style,
@@ -45,14 +44,22 @@ data class Feature(
   data class Tag(
     /** A unique identifier for the model object that this feature represents. */
     val id: String,
-    /**
-     * A integer that indicates how to interpret this feature as a model object. Interpretations of
-     * the value are decided by callers.
-     */
-    val type: Int,
+    /** Indicates how to interpret this feature as a model object. */
+    val type: Type,
   )
 
   data class Style(@ColorInt val color: Int, val vertexStyle: VertexStyle? = VertexStyle.NONE)
+
+  /**
+   * Indicates the type of a geometric model object. Used to interpret other objects (e.g. map
+   * features) back into model objects.
+   */
+  enum class Type {
+    UNKNOWN,
+    LOCATION_OF_INTEREST,
+    USER_POINT,
+    USER_POLYGON,
+  }
 
   /**
    * Returns an instance [Feature] with all fields unchanged except the [selected] state, which is
