@@ -42,7 +42,6 @@ import org.groundplatform.android.coroutines.ApplicationScope
 import org.groundplatform.android.coroutines.IoDispatcher
 import org.groundplatform.android.data.local.room.converter.SubmissionDeltasConverter
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
-import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.submission.ValueDelta
@@ -86,19 +85,6 @@ internal constructor(
   locationOfInterestRepository: LocationOfInterestRepository,
   surveyRepository: SurveyRepository,
 ) : AbstractViewModel() {
-
-  sealed interface LoadState {
-    object Loading : LoadState
-
-    data class Ready(
-      val survey: Survey,
-      val job: Job,
-      val tasks: List<Task>,
-      val surveyId: String,
-    ) : LoadState
-
-    data class Error(val cause: Throwable) : LoadState
-  }
 
   private val _uiState: MutableStateFlow<UiState?> = MutableStateFlow(null)
   val uiState = _uiState.asStateFlow()
@@ -165,17 +151,15 @@ internal constructor(
   init {
     viewModelScope.launch {
       _loadState.value = LoadState.Loading
-      val result = runCatching {
-        withTimeout(SURVEY_LOAD_TIMEOUT_MILLIS) {
-          val survey = surveyRepository.activeSurveyFlow.filterNotNull().first()
-          val job = survey.getJob(jobId) ?: error("couldn't retrieve job for $jobId")
-          val tasks =
-            if (isAddLoiFlow) job.tasksSorted else job.tasksSorted.filterNot { it.isAddLoiTask }
-          LoadState.Ready(survey = survey, job = job, tasks = tasks, surveyId = survey.id)
+      runCatching {
+          withTimeout(SURVEY_LOAD_TIMEOUT_MILLIS) {
+            val survey = surveyRepository.activeSurveyFlow.filterNotNull().first()
+            val job = survey.getJob(jobId) ?: error("couldn't retrieve job for $jobId")
+            val tasks =
+              if (isAddLoiFlow) job.tasksSorted else job.tasksSorted.filterNot { it.isAddLoiTask }
+            LoadState.Ready(survey = survey, job = job, tasks = tasks, surveyId = survey.id)
+          }
         }
-      }
-
-      result
         .onSuccess { ready ->
           this@DataCollectionViewModel.job = ready.job
           this@DataCollectionViewModel.tasks = ready.tasks
@@ -188,7 +172,7 @@ internal constructor(
           _loadState.value = ready
         }
         .onFailure { e ->
-          Timber.e(e, "Failed to load survey/job")
+          Timber.e(e, "Failed to initialize DataCollectionViewModel")
           _loadState.value = LoadState.Error(e)
         }
     }
@@ -258,7 +242,7 @@ internal constructor(
       try {
         viewModelFactory.create(getViewModelClass(task.type))
       } catch (e: Exception) {
-        Timber.e("ignoring task with invalid type: $task.type")
+        Timber.e("$e ignoring task with invalid type: $task.type")
         null
       }
 
