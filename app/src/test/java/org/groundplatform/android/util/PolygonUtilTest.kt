@@ -20,8 +20,9 @@ import kotlin.test.Test
 import kotlin.test.assertTrue
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.ui.util.calculateShoelacePolygonArea
-import org.groundplatform.android.ui.util.isIntersecting
+import org.groundplatform.android.ui.util.isClosed
 import org.groundplatform.android.ui.util.isSelfIntersecting
+import org.groundplatform.android.ui.util.segmentsIntersect
 import org.junit.Assert.assertEquals
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -31,32 +32,34 @@ class PolygonUtilTest {
 
   @Test
   fun `segments intersect at a point`() {
-    assertTrue(isIntersecting(P1, P2, Q1, Q2))
+    assertTrue(segmentsIntersect(P1 to P2, Q1 to Q2))
   }
 
   @Test
   fun `collinear but non-overlapping segments`() {
-    assertFalse(isIntersecting(P1, COLLINEAR1, Q2, COLLINEAR2))
+    assertFalse(segmentsIntersect(P1 to COLLINEAR1, Q2 to COLLINEAR2))
   }
 
   @Test
   fun `completely separate segments`() {
-    assertFalse(isIntersecting(P1, SEPARATE1, SEPARATE2, Q2))
+    assertFalse(segmentsIntersect(P1 to SEPARATE1, SEPARATE2 to Q2))
   }
 
   @Test
   fun `segments touching at an endpoint`() {
-    assertTrue(isIntersecting(P1, TOUCHING, TOUCHING, P2))
+    assertTrue(segmentsIntersect(P1 to TOUCHING, TOUCHING to P2))
   }
 
   @Test
   fun `parallel but non-overlapping segments`() {
-    assertFalse(isIntersecting(PARALLEL1, PARALLEL2, Coordinates(5.0, 2.0), Coordinates(7.0, 2.0)))
+    assertFalse(
+      segmentsIntersect(PARALLEL1 to PARALLEL2, Coordinates(5.0, 2.0) to Coordinates(7.0, 2.0))
+    )
   }
 
   @Test
   fun `collinear and overlapping segments`() {
-    assertTrue(isIntersecting(P1, COLLINEAR2, COLLINEAR1, P2))
+    assertTrue(segmentsIntersect(P1 to COLLINEAR2, COLLINEAR1 to P2))
   }
 
   @Test
@@ -119,7 +122,7 @@ class PolygonUtilTest {
     assertTrue(isSelfIntersecting(openCross))
   }
 
-  @org.junit.Test
+  @Test
   fun `calculateShoelacePolygonArea should return correct area for simple square`() {
     val coordinates =
       listOf(
@@ -134,12 +137,44 @@ class PolygonUtilTest {
     assertEquals(1.24, area, 0.01) // Allowing minor floating-point error
   }
 
-  @org.junit.Test
+  @Test
   fun `calculateShoelacePolygonArea should return 0 for less than 3 points`() {
     val coordinates = listOf(Coordinates(24.523740, 73.606673), Coordinates(24.523736, 73.606803))
 
     val area = calculateShoelacePolygonArea(coordinates)
     assertEquals(0.0, area, 0.01)
+  }
+
+  @Test
+  fun `isClosed returns true for closed polygon`() {
+    val closedPolygon =
+      listOf(
+        Coordinates(0.0, 0.0),
+        Coordinates(1.0, 0.0),
+        Coordinates(1.0, 1.0),
+        Coordinates(0.0, 1.0),
+        Coordinates(0.0, 0.0), // Same as first
+      )
+    assertTrue(isClosed(closedPolygon))
+  }
+
+  @Test
+  fun `isClosed returns false for open polygon`() {
+    val openPolygon =
+      listOf(
+        Coordinates(0.0, 0.0),
+        Coordinates(1.0, 0.0),
+        Coordinates(1.0, 1.0),
+        Coordinates(0.0, 1.0),
+      )
+    assertFalse(isClosed(openPolygon))
+  }
+
+  @Test
+  fun `isClosed returns false for polygons with less than 4 points`() {
+    assertFalse(isClosed(THREE_POINTS))
+    assertFalse(isClosed(SINGLE_POINT))
+    assertFalse(isClosed(emptyList()))
   }
 
   companion object {
