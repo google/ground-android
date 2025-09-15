@@ -90,9 +90,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   fun `Job and LOI names are displayed correctly`() {
     setupFragment()
 
-    runner()
-      .validateTextIsDisplayed("Unnamed point")
-      .validateTextIsDisplayed(requireNotNull(JOB.name))
+    runner().validateTextIsDisplayed(TASK_1_NAME).validateTextIsDisplayed(requireNotNull(JOB.name))
   }
 
   @Test
