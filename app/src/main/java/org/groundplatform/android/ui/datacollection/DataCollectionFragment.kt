@@ -102,9 +102,9 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     viewLifecycleOwner.lifecycleScope.launch {
       viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
         var uiStateJob: Job? = null
-        viewModel.loadState.collect { st ->
-          binding.progressBar.isVisible = st is LoadState.Loading
-          when (st) {
+        viewModel.loadState.collect { state ->
+          binding.progressBar.isVisible = state is LoadState.Loading
+          when (state) {
             is LoadState.Error -> {
               uiStateJob?.cancel()
             }
@@ -112,7 +112,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
             is LoadState.Ready -> {
               updateUI(
                 UiState.TaskListAvailable(
-                  viewModel.tasks,
+                  state.tasks,
                   viewModel.getTaskPosition(viewModel.getCurrentTaskId()),
                 )
               )

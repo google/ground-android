@@ -101,12 +101,17 @@ internal constructor(
   private var shouldLoadFromDraft: Boolean = savedStateHandle[TASK_SHOULD_LOAD_FROM_DRAFT] ?: false
   private var draftDeltas: List<ValueDelta>? = null
 
-  private lateinit var job: Job
   val surveyId: String
     get() = (loadState.value as? LoadState.Ready)?.surveyId ?: error("Survey not loaded yet")
 
-  lateinit var tasks: List<Task>
-    private set
+  private val readyState: LoadState.Ready?
+    get() = loadState.value as? LoadState.Ready
+
+  private fun requireReady(): LoadState.Ready = readyState ?: error("DataCollection not ready yet")
+
+  private fun requireJob(): Job = requireReady().job
+
+  private fun requireTasks(): List<Task> = requireReady().tasks
 
   private var customLoiName: String?
     get() = savedStateHandle[TASK_LOI_NAME_KEY]
@@ -161,14 +166,10 @@ internal constructor(
           }
         }
         .onSuccess { ready ->
-          this@DataCollectionViewModel.job = ready.job
-          this@DataCollectionViewModel.tasks = ready.tasks
-          taskSequenceHandler = TaskSequenceHandler(tasks, taskDataHandler)
-
+          taskSequenceHandler = TaskSequenceHandler(ready.tasks, taskDataHandler)
           if (currentTaskId.value.isBlank()) {
             savedStateHandle[TASK_POSITION_ID] = taskSequenceHandler.getValidTasks().first().id
           }
-
           _loadState.value = ready
         }
         .onFailure { e ->
@@ -210,7 +211,7 @@ internal constructor(
       return listOf()
     }
 
-    draftDeltas = SubmissionDeltasConverter.fromString(job, serializedDraftValues)
+    draftDeltas = SubmissionDeltasConverter.fromString(requireJob(), serializedDraftValues)
     return draftDeltas as List<ValueDelta>
   }
 
@@ -235,7 +236,7 @@ internal constructor(
 
     // Cleanup extra logs added for debugging: https://github.com/google/ground-android/issues/2998
     val task =
-      tasks.firstOrNull { it.id == taskId }
+      requireTasks().firstOrNull { it.id == taskId }
         ?: error("Task not found. taskId=$taskId, jobId=$jobId, loiId=$loiId, surveyId=$surveyId")
 
     val viewModel =
@@ -250,7 +251,7 @@ internal constructor(
       viewModels[task.id] = viewModel
 
       val taskData: TaskData? = if (shouldLoadFromDraft) getValueFromDraft(task) else null
-      viewModel.initialize(job, task, taskData)
+      viewModel.initialize(requireJob(), task, taskData)
       taskDataHandler.setData(task, taskData)
     }
   }
@@ -323,7 +324,7 @@ internal constructor(
   private fun saveChanges(deltas: List<ValueDelta>) {
     externalScope.launch(ioDispatcher) {
       val collectionId = offlineUuidGenerator.generateUuid()
-      submitDataUseCase.invoke(loiId, job, surveyId, deltas, customLoiName, collectionId)
+      submitDataUseCase.invoke(loiId, requireJob(), surveyId, deltas, customLoiName, collectionId)
     }
   }
 
