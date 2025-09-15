@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android.ui.util
 
+import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.cos
 import org.groundplatform.android.model.geometry.Coordinates
@@ -35,31 +36,73 @@ fun calculateShoelacePolygonArea(coordinates: List<Coordinates>): Double {
   val reference = coordinates[0]
   val points = coordinates.map { toMeters(reference, it) }
 
-  var area = 0.0
-  for (i in points.indices) {
-    val j = (i + 1) % points.size
-    area += points[i].first * points[j].second - points[j].first * points[i].second
-  }
-
-  return abs(area) / 2.0
+  return abs(
+    points.indices.sumOf { i ->
+      val j = (i + 1) % points.size
+      points[i].first * points[j].second - points[j].first * points[i].second
+    }
+  ) / 2.0
 }
 
-private fun toRadians(deg: Double): Double = deg * (Math.PI / 180.0)
-
-private const val EARTH_RADIUS = 6378137.0 // Radius of Earth in meters
-
+/** Converts geographic coordinate to meters relative to reference point. */
 private fun toMeters(reference: Coordinates, point: Coordinates): Pair<Double, Double> {
-  val dX =
-    (point.lng - reference.lng) *
-      EARTH_RADIUS *
-      cos(toRadians((reference.lat + point.lat) / 2.0)) *
-      (Math.PI / 180.0)
-  val dY = (point.lat - reference.lat) * EARTH_RADIUS * (Math.PI / 180.0)
+  val earthRadius = 6378137.0
+  val toRad = PI / 180.0
+  val avgLat = (reference.lat + point.lat) / 2.0
+
+  val dX = (point.lng - reference.lng) * earthRadius * cos(avgLat * toRad) * toRad
+  val dY = (point.lat - reference.lat) * earthRadius * toRad
   return Pair(dX, dY)
 }
 
+/**
+ * Checks if a polygon is self-intersecting.
+ *
+ * @param vertices Polygon vertices
+ * @return true if self-intersecting
+ */
+fun isSelfIntersecting(vertices: List<Coordinates>): Boolean {
+  if (vertices.size < 4) return false
+
+  val edges = buildEdges(vertices)
+
+  for (i in edges.indices) {
+    for (j in i + 2 until edges.size) {
+      // Skip if edges are adjacent (including wrap-around for closed polygons)
+      val isAdjacent = j == i + 1 || (j == edges.size - 1 && i == 0 && isClosed(vertices))
+      if (isAdjacent) continue
+
+      if (segmentsIntersect(edges[i], edges[j])) return true
+    }
+  }
+  return false
+}
+
+/** Builds edges from vertices, handling both open and closed polygons. */
+private fun buildEdges(vertices: List<Coordinates>): List<Pair<Coordinates, Coordinates>> {
+  val closed = isClosed(vertices)
+  val points = if (closed) vertices.dropLast(1) else vertices
+
+  return points
+    .mapIndexed { i, point ->
+      val nextIndex = if (closed) (i + 1) % points.size else i + 1
+      if (nextIndex < points.size) point to points[nextIndex] else null
+    }
+    .filterNotNull()
+}
+
+/** Checks if polygon is closed (first == last vertex). */
+fun isClosed(coordinates: List<Coordinates>): Boolean =
+  coordinates.size >= 4 && coordinates.first() == coordinates.last()
+
 /** Checks if two line segments intersect. */
-fun isIntersecting(p1: Coordinates, p2: Coordinates, q1: Coordinates, q2: Coordinates): Boolean {
+fun segmentsIntersect(
+  seg1: Pair<Coordinates, Coordinates>,
+  seg2: Pair<Coordinates, Coordinates>,
+): Boolean {
+  val (p1, p2) = seg1
+  val (q1, q2) = seg2
+
   val o1 = orientation(p1, p2, q1)
   val o2 = orientation(p1, p2, q2)
   val o3 = orientation(q1, q2, p1)
@@ -72,33 +115,21 @@ fun isIntersecting(p1: Coordinates, p2: Coordinates, q1: Coordinates, q2: Coordi
     (o4 == 0 && onSegment(q1, q2, p2))
 }
 
+/**
+ * Determines orientation of ordered triplet (a, b, c).
+ *
+ * @return 1 if clockwise, -1 if counter-clockwise, 0 if collinear
+ */
 private fun orientation(a: Coordinates, b: Coordinates, c: Coordinates): Int {
   val value = (b.lat - a.lat) * (c.lng - b.lng) - (b.lng - a.lng) * (c.lat - b.lat)
   return when {
-    value > 0 -> 1 // Clockwise
-    value < 0 -> -1 // Counter-clockwise
-    else -> 0 // Collinear
+    value > 0 -> 1
+    value < 0 -> -1
+    else -> 0
   }
 }
 
-private fun onSegment(a: Coordinates, b: Coordinates, c: Coordinates) =
+/** Checks if point c lies on line segment ab. */
+private fun onSegment(a: Coordinates, b: Coordinates, c: Coordinates): Boolean =
   c.lat in minOf(a.lat, b.lat)..maxOf(a.lat, b.lat) &&
     c.lng in minOf(a.lng, b.lng)..maxOf(a.lng, b.lng)
-
-/** Checks if a polygon formed by the given vertices is self-intersecting. */
-fun isSelfIntersecting(vertices: List<Coordinates>): Boolean {
-  if (vertices.size < 4) return false // A polygon must have at least 4 points to self-intersect
-
-  for (i in 0 until vertices.size - 1) {
-    val segment1 = Pair(vertices[i], vertices[i + 1])
-
-    for (j in i + 2 until vertices.size - 1) {
-      val segment2 = Pair(vertices[j], vertices[j + 1])
-
-      if (isIntersecting(segment1.first, segment1.second, segment2.first, segment2.second)) {
-        return true
-      }
-    }
-  }
-  return false
-}
