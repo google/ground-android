@@ -107,12 +107,6 @@ internal constructor(
   private val readyState: LoadState.Ready?
     get() = loadState.value as? LoadState.Ready
 
-  private fun requireReady(): LoadState.Ready = readyState ?: error("DataCollection not ready yet")
-
-  private fun requireJob(): Job = requireReady().job
-
-  private fun requireTasks(): List<Task> = requireReady().tasks
-
   private var customLoiName: String?
     get() = savedStateHandle[TASK_LOI_NAME_KEY]
     set(value) {
@@ -184,6 +178,12 @@ internal constructor(
       }
     }
   }
+
+  private fun requireReady(): LoadState.Ready = readyState ?: error("DataCollection not ready yet")
+
+  private fun requireJob(): Job = requireReady().job
+
+  private fun requireTasks(): List<Task> = requireReady().tasks
 
   /** Returns the ID of the user visible task. */
   fun getCurrentTaskId(): String {
