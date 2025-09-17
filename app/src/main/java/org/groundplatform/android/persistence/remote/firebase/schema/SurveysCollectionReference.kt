@@ -30,28 +30,31 @@ import org.groundplatform.android.proto.Survey as SurveyProto
 private const val ACL_FIELD = SurveyProto.ACL_FIELD_NUMBER.toString()
 private const val GENERAL_ACCESS_FIELD = SurveyProto.GENERAL_ACCESS_FIELD_NUMBER.toString()
 private const val STATE = SurveyProto.STATE_FIELD_NUMBER.toString()
+private val ALLOWED_ROLES =
+  listOf(Role.SURVEY_ORGANIZER.ordinal, Role.DATA_COLLECTOR.ordinal, Role.VIEWER.ordinal)
+private val ALLOWED_STATES = listOf(SurveyProto.State.READY_VALUE)
 
 class SurveysCollectionReference internal constructor(ref: CollectionReference) :
   FluentCollectionReference(ref) {
 
   fun survey(id: String) = SurveyDocumentReference(reference().document(id))
 
-  fun getReadable(user: User): Flow<List<Survey>> =
-    reference()
-      .whereIn(
-        GENERAL_ACCESS_FIELD,
-        listOf(
-          SurveyProto.GeneralAccess.GENERAL_ACCESS_UNSPECIFIED_VALUE,
-          SurveyProto.GeneralAccess.RESTRICTED_VALUE,
-        ),
-      )
-      .whereIn(STATE, listOf(SurveyProto.State.READY_VALUE))
-      .whereIn(
-        FieldPath.of(ACL_FIELD, user.email),
-        listOf(Role.SURVEY_ORGANIZER, Role.DATA_COLLECTOR, Role.VIEWER).map { it.ordinal },
-      )
-      .snapshots()
-      .map { it.documents.map { doc -> doc.let { SurveyConverter.toSurvey(doc) } } }
+  fun getReadable(user: User): Flow<List<Survey>> {
+    val references =
+      reference()
+        .whereIn(STATE, ALLOWED_STATES)
+        .whereIn(FieldPath.of(ACL_FIELD, user.email), ALLOWED_ROLES)
+
+    return references.snapshots().map { snapshot ->
+      snapshot.documents
+        .mapNotNull { SurveyConverter.toSurvey(it) }
+        .filter { survey ->
+          survey.generalAccess == null ||
+            survey.generalAccess == SurveyProto.GeneralAccess.GENERAL_ACCESS_UNSPECIFIED ||
+            survey.generalAccess == SurveyProto.GeneralAccess.RESTRICTED
+        }
+    }
+  }
 
   fun getPublicReadable(): Flow<List<Survey>> =
     reference()
