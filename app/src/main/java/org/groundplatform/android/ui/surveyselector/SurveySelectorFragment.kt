@@ -23,6 +23,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import org.groundplatform.android.R
 import org.groundplatform.android.databinding.SurveySelectorFragBinding
 import org.groundplatform.android.model.SurveyListItem
 import org.groundplatform.android.ui.common.AbstractFragment
