@@ -42,7 +42,7 @@ class PermissionsManagerTest : BaseHiltTest() {
   @Inject lateinit var permissionsManager: PermissionsManager
 
   @Test
-  fun permissionAvailable_granted() = runWithTestDispatcher {
+  fun `Permission is available when granted`() = runWithTestDispatcher {
     val shadowApplication = extract<ShadowApplication>(getInstrumentation().targetContext)
     shadowApplication.grantPermissions(testPermission)
 
@@ -50,14 +50,14 @@ class PermissionsManagerTest : BaseHiltTest() {
   }
 
   @Test
-  fun permissionNotAvailable_granted() = runWithTestDispatcher {
+  fun `Permission is not available when granted`() = runWithTestDispatcher {
     setupPermissionResult(true)
 
     permissionsManager.obtainPermission(testPermission)
   }
 
   @Test
-  fun permissionNotAvailable_notGranted_fails() = runWithTestDispatcher {
+  fun `Permission is not available and not granted fails`() = runWithTestDispatcher {
     setupPermissionResult(false)
 
     assertFailsWith<PermissionDeniedException> {

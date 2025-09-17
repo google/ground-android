@@ -17,25 +17,29 @@ package org.groundplatform.android.repository
 
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
+import org.groundplatform.android.data.local.stores.LocalLocationOfInterestStore
+import org.groundplatform.android.data.local.stores.LocalSurveyStore
+import org.groundplatform.android.data.remote.RemoteDataStore
+import org.groundplatform.android.data.sync.MutationSyncWorkManager
+import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.geometry.Geometry
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.locationofinterest.LocationOfInterest
 import org.groundplatform.android.model.locationofinterest.generateProperties
+import org.groundplatform.android.model.map.Bounds
 import org.groundplatform.android.model.mutation.LocationOfInterestMutation
 import org.groundplatform.android.model.mutation.Mutation
 import org.groundplatform.android.model.mutation.Mutation.SyncStatus
-import org.groundplatform.android.persistence.local.stores.LocalLocationOfInterestStore
-import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
-import org.groundplatform.android.persistence.remote.RemoteDataStore
-import org.groundplatform.android.persistence.sync.MutationSyncWorkManager
-import org.groundplatform.android.persistence.uuid.OfflineUuidGenerator
+import org.groundplatform.android.proto.Survey.DataVisibility
 import org.groundplatform.android.system.auth.AuthenticationManager
-import org.groundplatform.android.ui.map.Bounds
 import org.groundplatform.android.ui.map.gms.GmsExt.contains
 import timber.log.Timber
 
@@ -57,24 +61,36 @@ constructor(
   private val authenticationManager: AuthenticationManager,
 ) {
   /** Mirrors locations of interest in the specified survey from the remote db into the local db. */
-  suspend fun syncLocationsOfInterest(survey: Survey) {
-    // TODO: Allow survey organizers to make ad hoc LOIs visible to all data collectors.
-    // Issue URL: https://github.com/google/ground-android/issues/2384
+  suspend fun syncLocationsOfInterest(survey: Survey) = coroutineScope {
     val ownerUserId = authenticationManager.getAuthenticatedUser().id
-    val lois =
-      with(remoteDataStore) { loadPredefinedLois(survey) + loadUserLois(survey, ownerUserId) }
-    val loiMutations = localLoiStore.getAllSurveyMutations(survey).firstOrNull() ?: listOf()
+
+    val predefinedDeferred = async { remoteDataStore.loadPredefinedLois(survey) }
+    val userDeferred = async { remoteDataStore.loadUserLois(survey, ownerUserId) }
+    val sharedDeferred = async {
+      if (survey.dataVisibility == DataVisibility.ALL_SURVEY_PARTICIPANTS) {
+        remoteDataStore.loadSharedLois(survey)
+      } else {
+        emptyList()
+      }
+    }
+
+    val (predefinedLois, userLois, sharedLois) =
+      awaitAll(predefinedDeferred, userDeferred, sharedDeferred)
+
+    val allLois = predefinedLois + userLois + sharedLois
+
+    val mutations = localLoiStore.getAllSurveyMutations(survey).firstOrNull().orEmpty()
+
     // NOTE(#2652): Don't delete pending locations of interest, since we can accidentally delete
     // them here if we get to this routine before they can be synced up to the remote database.
     val pendingLois =
-      loiMutations.mapNotNull {
-        when (it.syncStatus) {
-          SyncStatus.PENDING,
-          SyncStatus.IN_PROGRESS -> it.locationOfInterestId
-          else -> null
-        }
-      }
-    mergeAll(survey.id, lois, pendingLois)
+      mutations
+        .asSequence()
+        .filter { it.syncStatus in setOf(SyncStatus.PENDING, SyncStatus.IN_PROGRESS) }
+        .map { it.locationOfInterestId }
+        .toList()
+
+    mergeAll(survey.id, allLois, pendingLois)
   }
 
   private suspend fun mergeAll(

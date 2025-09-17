@@ -33,17 +33,17 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.launch
 import org.groundplatform.android.BuildConfig
-import org.groundplatform.android.MainViewModel
 import org.groundplatform.android.R
+import org.groundplatform.android.data.local.room.converter.SubmissionDeltasConverter
 import org.groundplatform.android.databinding.HomeScreenFragBinding
 import org.groundplatform.android.databinding.NavDrawerHeaderBinding
 import org.groundplatform.android.model.User
-import org.groundplatform.android.persistence.local.room.converter.SubmissionDeltasConverter
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.common.BackPressListener
 import org.groundplatform.android.ui.common.EphemeralPopups
-import org.groundplatform.android.ui.compose.ConfirmationDialog
+import org.groundplatform.android.ui.components.ConfirmationDialog
+import org.groundplatform.android.ui.main.MainViewModel
 import org.groundplatform.android.util.setComposableContent
 import org.groundplatform.android.util.systemInsets
 
@@ -101,7 +101,7 @@ class HomeScreenFragment :
       showSignOutConfirmationDialogs()
     }
     updateNavHeader()
-    // Re-open data collection screen if any drafts are present
+    // Re-open data collection screen if draft submission is present.
     viewLifecycleOwner.lifecycleScope.launch {
       homeScreenViewModel.getDraftSubmission()?.let { draft ->
         findNavController()
@@ -226,9 +226,8 @@ class HomeScreenFragment :
           title = R.string.sign_out_dialog_title,
           description = R.string.sign_out_dialog_body,
           confirmButtonText = R.string.sign_out,
-        ) {
-          homeScreenViewModel.signOut()
-        }
+          onConfirmClicked = { homeScreenViewModel.signOut() },
+        )
       }
     }
   }

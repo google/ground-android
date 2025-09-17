@@ -15,34 +15,27 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
 <resources>
-
   <!--
     LOI DATA FORMS
   -->
-
   <!-- Shown below fields that are required but left empty (TBD). -->
   <string name="required_task">Ce champ est obligatoire</string>
-
   <!--
     LOCATION (GPS/CELL/WIFI) UPDATE ERROR MESSAGES
   -->
-
   <!-- Shown when user has refused to grant app fine grained location permission. -->
   <string name="no_fine_location_permissions">Impossible d&#8217;afficher la position actuelle sans autorisation</string>
   <!-- Shown when an unknown error occurs obtaining fine grained location permission. -->
   <string name="location_updates_unknown_error">Échec de l&#8217;activation des mises à jour de localisation</string>
   <!-- Shown when user has refused to enable location services in settings.-->
   <string name="location_disabled_in_settings">Veuillez activer la localisation dans les paramètres du système</string>
-
   <string name="map_view">Vue de carte</string>
   <string name="unexpected_error">Une erreur inattendue est survenue</string>
   <string name="google_api_install_failed">Échec de l&#8217;installation de Google Play Services</string>
   <string name="sign_out">Déconnexion</string>
   <string name="ok">OK</string>
   <string name="add_data">Enregistrer</string>
-
   <!-- Untranslated strings -->
   <string name="offline_area_selector">Sélectionnez une zone à télécharger</string>
   <string name="offline_area_selector_prompt">Sélectionnez une carte de base pour l&#8217;utilisation hors ligne</string>
@@ -56,10 +49,10 @@
   <!-- Label of button used enter the offline area selector. -->
   <string name="offline_area_selector_select">Sélectionnez une zone</string>
   <string name="no_basemaps_downloaded">Aucune image n&#8217;a été téléchargée pour l&#8217;utilisation hors ligne. Appuyez sur « Sélectionner et télécharger » pour commencer.</string>
+  <string name="connect_to_download_message">Vous êtes hors ligne. Connectez-vous pour télécharger la carte hors ligne</string>
   <string name="signing_in">Se connecter</string>
   <!-- Precedes the build number shown in the side menu of debug builds. -->
-  <string name="build">Build %s</string>
-
+  <string name="build">Générer %s</string>
   <string name="tos_title">Conditions générales</string>
   <string name="agree_terms">Accepter</string>
   <string name="agree_checkbox">J&#8217;accepte</string>
@@ -67,19 +60,14 @@
   <string name="time">l&#8217;heure</string>
   <!-- Other strings (to be organized) -->
   <string name="sync_status">État de synchronisation</string>
-
   <string name="add_point">Ajouter point</string>
   <string name="complete_polygon">Finir</string>
-
   <string name="road_map">Carte routière</string>
   <string name="satellite">Satellite</string>
   <string name="terrain">Relief</string>
   <string name="next">Suivant</string>
-  <string name="select_survey_title">Sélectionner une enquête</string>
-  <string name="survey_sync_hint">Une fois ouvertes, les enquêtes sont disponibles hors ligne et synchronisées automatiquement lorsqu&#8217;elles sont en ligne.</string>
   <string name="done">Soumettre</string>
   <string name="skip">Ignore</string>
-
   <string name="drop_pin">Placer une épingle</string>
   <string name="add_site">Ajouter un site</string>
   <string name="job_site_icon">Icône du site de la tâche</string>
@@ -110,7 +98,7 @@
   <string name="capture">Capturer</string>
   <string name="surveys">Enquêtes</string>
   <string name="offline_icon_description">Icône affichée lorsque l&#8217;enquête est disponible hors ligne</string>
-  <string name="remove_offline_access">Supprimer l&#8217;accès hors ligne</string>
+  <string name="more_options_icon_description">Plus d&#8217; options</string>
   <string name="remove_offline_access_warning_title">Avertissement</string>
   <string name="remove_offline_access_warning_confirm_button">Retirer</string>
   <string name="remove_offline_access_warning_dialog_body">Si vous supprimez l&#8217;accès hors ligne:\n \u2022 Toutes les données non synchronisées seront supprimées\n\nÊtes-vous sûr de vouloir supprimer l&#8217;accès hors ligne ?</string>
@@ -134,9 +122,7 @@
   <string name="map_location">Localisation sur la carte :</string>
   <string name="sign_out_dialog_title">Données non synchronisées</string>
   <string name="sign_out_dialog_body">Si vous vous déconnectez, toutes les données non synchronisées seront supprimées</string>
-  <string name="suggest_data_collection_hint">Zoomer pour commencer la collecte des données</string>
   <string name="read_only_data_collection_hint">L&#8217;enquête est en lecture seule</string>
-  <string name="predefined_data_collection_hint">Zoomer sur un site de collecte de données pour commencer la collecte</string>
   <string name="no_submissions">Aucune soumission</string>
   <string name="dismiss_info_popup">Rejeter</string>
   <string name="other">Autres</string>
@@ -150,7 +136,7 @@
   <string name="switch_survey">Changer l&#8217;enquête</string>
   <string name="no_survey_selected">Aucune enquête sélectionnée</string>
   <string name="undo">Annuler</string>
-  <string name="redo">Refaire</string>
+  <string name="redo">Rétablir</string>
   <string name="view_licenses_title">Licences</string>
   <string name="about">À propos</string>
   <string name="terms_of_service">Conditions générales d&#8217;utilisation</string>
@@ -166,19 +152,15 @@
   <string name="signout_warning">Si vous vous déconnectez, toutes les données non sauvegardées seront perdues.</string>
   <string name="admin_request_access">Pour continuer, contactez votre administrateur système pour demander l&#8217;accès.</string>
   <string name="signup_request_access">Pour continuer, <annotation type="sign_up_link">inscrivez-vous pour demander l&#8217;accès</annotation>.</string>
-
   <!-- Settings -->
   <string name="general_title">Configuration générale</string>
   <string name="upload_media_title">Télécharger des médias</string>
   <string name="over_wifi_summary">Uniquement par Wi-Fi</string>
   <string name="help_title">Aide</string>
   <string name="visit_website_title">Visiter le site web</string>
-  <string name="send_feedback_title">Envoyer un feedback</string>
-  <string name="report_summary">Signaler des problèmes techniques ou suggérer de nouveaux lieux d&#8217;intérêt</string>
-  <string name="not_yet_impl_title">Pas encore mis en œuvre</string>
   <string name="accuracy">Précision :</string>
-  <string name="select_language_title">Sélectionner la langue</string>
-  <string name="select_language_summary">Sélectionnez votre langue préférée</string>
+  <string name="select_language_title">Choix de la langue</string>
+  <string name="select_language_summary">Choisissez votre langue</string>
   <!-- Data Sharing Consent Text -->
   <string name="data_sharing_no_terms">*Aucune condition à afficher.*</string>
   <string name="data_sharing_private_message">
@@ -189,31 +171,42 @@
     ## Partage des données publiques
     \nLes organisateurs de l&#8217;enquête peuvent partager et utiliser les données publiquement sous la licence *Creative Commons CC0 1.0 License* :
   </string>
-  <string name="load_tos_failed">Impossible de se connecter, réessayer plus tard</string>
   <string name="draft_restored">Données non sauvegardées ont été restaurées</string>
+  <string name="load_tos_failed">Impossible de se connecter, réessayer plus tard</string>
   <string name="data_submitted_image">Données d&#8217;image soumises</string>
   <string name="data_collection_complete">Collecte des données terminée !</string>
   <string name="data_collection_complete_details">Vos données ont été sauvegardées et seront automatiquement synchronisées lorsque vous serez en ligne.</string>
-
   <string name="allow_location_confirmation">Autoriser la localisation</string>
   <string name="allow_location_title">Autoriser le partage de la localisation</string>
   <string name="allow_location_description">Si vous n&#8217;autorisez pas Ground à accéder à la localisation de cet appareil, vous ne pourrez pas continuer à collecter des données pour ce site.</string>
-
   <string name="data_collection_cancellation_title">Arrêter la collecte de données ?</string>
   <string name="data_collection_cancellation_description">Si vous quittez, les données que vous n&#8217;avez pas encore soumises seront supprimées.</string>
   <string name="data_collection_cancellation_confirm_button">Confirmer</string>
   <string name="something_went_wrong">Quelque chose s&#8217;est mal passé</string>
-
   <string name="polygon_vertex_add_dialog_title">Erreur</string>
   <string name="polygon_vertex_add_dialog_message">La zone ne peut pas s&#8217;auto-intersecter</string>
   <string name="polygon_vertex_add_dialog_positive_button">D&#8217;accord</string>
-
   <string name="clear">Claire</string>
-
+  <string name="text_task_data_character_limit">255 caractères maximum</string>
   <string name="area_message">Surface: %1$.2f m²</string>
-
   <string name="lang_english">Anglais</string>
   <string name="lang_french">Français</string>
   <string name="lang_spanish">Espagnol</string>
   <string name="lang_portuguese">Portugais</string>
+  <string name="lang_vietnamese">Vietnamien</string>
+  <string name="access_restricted">Restreint</string>
+  <string name="access_unlisted">Non répertorié</string>
+  <string name="access_public">Public</string>
+  <string name="section_on_device">Sur cet appareil</string>
+  <string name="section_shared_with_me">Partagé avec moi</string>
+  <string name="section_public">Public</string>
+
+  <string name="dialog_title_update_required">Mise à jour requise</string>
+  <string name="dialog_message_update_required">Une nouvelle version de l&#8217;application est disponible. Veuillez mettre à jour pour continuer à utiliser l&#8217;application.</string>
+  <string name="dialog_button_update">Mettre à jour</string>
+
+  <string name="select_length_title">Unité de longueur</string>
+  <string name="select_length_summary">Sélectionnez votre unité préférée</string>
+  <string name="length_meters">Mètres (m)</string>
+  <string name="length_feet">Pieds (pi)</string>
 </resources>

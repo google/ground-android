@@ -29,9 +29,10 @@
       type="org.groundplatform.android.ui.common.BaseMapViewModel" />
   </data>
 
-  <FrameLayout
+  <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="false">
 
     <!-- Placeholder for map implementation -->
     <FrameLayout
@@ -84,5 +85,14 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
-  </FrameLayout>
+
+    <View
+      android:layout_width="match_parent"
+      android:layout_height="166dp"
+      android:background="@drawable/bottom_container_shim"
+      android:fitsSystemWindows="true"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent" />
+  </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -40,19 +40,19 @@ class MogCollectionTest {
   }
 
   @Test
-  fun getMogSource_validZoom1_returnsSource() {
+  fun `getMogSource returns source for valid zoom level 1`() {
     val mogSource = mogCollection.getMogSource(4)
     assertThat(mogSource).isEqualTo(MOG_SOURCE_0_TO_4)
   }
 
   @Test
-  fun getMogSource_validZoom2_returnsSource() {
+  fun `getMogSource returns source for valid zoom level 2`() {
     val mogSource = mogCollection.getMogSource(5)
     assertThat(mogSource).isEqualTo(MOG_SOURCE_5_TO_14)
   }
 
   @Test
-  fun getMogSource_invalidZoom_returnsNull() {
+  fun `getMogSource returns null for invalid zoom level`() {
     val mogSource = mogCollection.getMogSource(15)
     assertThat(mogSource).isNull()
   }

@@ -44,18 +44,18 @@ import kotlin.math.sqrt
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
-import org.groundplatform.android.Config
+import org.groundplatform.android.common.Constants
+import org.groundplatform.android.data.remote.RemoteStorageManager
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.imagery.LocalTileSource
 import org.groundplatform.android.model.imagery.RemoteMogTileSource
 import org.groundplatform.android.model.imagery.TileSource
-import org.groundplatform.android.persistence.remote.RemoteStorageManager
+import org.groundplatform.android.model.map.Bounds
+import org.groundplatform.android.model.map.CameraPosition
+import org.groundplatform.android.model.map.MapType
 import org.groundplatform.android.ui.common.AbstractFragment
-import org.groundplatform.android.ui.map.Bounds
-import org.groundplatform.android.ui.map.CameraPosition
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.MapFragment
-import org.groundplatform.android.ui.map.MapType
 import org.groundplatform.android.ui.map.gms.features.FeatureManager
 import org.groundplatform.android.ui.map.gms.mog.MogCollection
 import org.groundplatform.android.ui.map.gms.mog.MogTileProvider
@@ -282,7 +282,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   private fun addRemoteMogTileOverlay(url: String) {
     // TODO: Make sub-paths configurable and stop hardcoding here.
     // Issue URL: https://github.com/google/ground-android/issues/1730
-    val mogCollection = MogCollection(Config.getMogSources(url))
+    val mogCollection = MogCollection(Constants.getMogSources(url))
     addTileOverlay(MogTileProvider(mogCollection, remoteStorageManager))
   }
 

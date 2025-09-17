@@ -29,7 +29,7 @@ import javax.inject.Provider
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.model.submission.isNullOrEmpty
-import org.groundplatform.android.ui.compose.ConfirmationDialog
+import org.groundplatform.android.ui.components.ConfirmationDialog
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.TaskView
 import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
@@ -90,12 +90,13 @@ class CaptureLocationTaskFragment @Inject constructor() :
         title = R.string.allow_location_title,
         description = R.string.allow_location_description,
         confirmButtonText = R.string.allow_location_confirmation,
-      ) {
-        // Open the app settings
-        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-        intent.data = Uri.fromParts("package", context?.packageName, null)
-        context?.startActivity(intent)
-      }
+        onConfirmClicked = {
+          // Open the app settings
+          val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+          intent.data = Uri.fromParts("package", context?.packageName, null)
+          context?.startActivity(intent)
+        },
+      )
     }
   }
 }

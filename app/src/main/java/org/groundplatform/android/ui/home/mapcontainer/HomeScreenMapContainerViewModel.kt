@@ -35,12 +35,12 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
-import org.groundplatform.android.Config.CLUSTERING_ZOOM_THRESHOLD
+import org.groundplatform.android.common.Constants.CLUSTERING_ZOOM_THRESHOLD
+import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.getDefaultColor
 import org.groundplatform.android.model.locationofinterest.LocationOfInterest
-import org.groundplatform.android.persistence.local.LocalValueStore
 import org.groundplatform.android.proto.Survey.DataSharingTerms
 import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.MapStateRepository
@@ -57,8 +57,6 @@ import org.groundplatform.android.ui.home.mapcontainer.jobs.AdHocDataCollectionB
 import org.groundplatform.android.ui.home.mapcontainer.jobs.DataCollectionEntryPointData
 import org.groundplatform.android.ui.home.mapcontainer.jobs.SelectedLoiSheetData
 import org.groundplatform.android.ui.map.Feature
-import org.groundplatform.android.ui.map.FeatureType
-import org.groundplatform.android.ui.map.isLocationOfInterest
 import org.groundplatform.android.usecases.datasharingterms.GetDataSharingTermsUseCase
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -125,7 +123,7 @@ internal constructor(
   private val adHocLoiJobs: Flow<List<Job>>
 
   /** Emits whether the current zoom has crossed the zoomed-in threshold or not to cluster LOIs. */
-  val isZoomedInFlow: Flow<Boolean>
+  private val isZoomedInFlow: Flow<Boolean>
 
   init {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
@@ -212,7 +210,11 @@ internal constructor(
     selectedLoiId: String?,
   ): Set<Feature> =
     features
-      .map { it.withSelected(it.isLocationOfInterest() && it.tag.id == selectedLoiId) }
+      .map {
+        it.withSelected(
+          it.tag.type == Feature.Type.LOCATION_OF_INTEREST && it.tag.id == selectedLoiId
+        )
+      }
       .toSet()
 
   /**
@@ -236,7 +238,7 @@ internal constructor(
   private suspend fun LocationOfInterest.toFeature() =
     Feature(
       id = id,
-      type = FeatureType.LOCATION_OF_INTEREST.ordinal,
+      type = Feature.Type.LOCATION_OF_INTEREST,
       flag = submissionRepository.getTotalSubmissionCount(this) > 0,
       geometry = geometry,
       style = Feature.Style(job.getDefaultColor()),

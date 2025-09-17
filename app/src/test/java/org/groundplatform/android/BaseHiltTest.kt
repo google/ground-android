@@ -24,7 +24,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
-import org.groundplatform.android.persistence.local.room.LocalDatabase
+import org.groundplatform.android.data.local.room.LocalDatabase
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -46,6 +46,8 @@ open class BaseHiltTest {
 
   @get:Rule(order = 3) open val composeTestRule = createComposeRule()
 
+  @get:Rule(order = 4) val flakyTestRule = FlakyTestRule()
+
   @Inject lateinit var database: LocalDatabase
   @Inject lateinit var testDispatcher: TestDispatcher
 
@@ -59,7 +61,7 @@ open class BaseHiltTest {
   }
 
   @After
-  fun closeDb() {
+  open fun closeDb() {
     database.close()
   }
 }

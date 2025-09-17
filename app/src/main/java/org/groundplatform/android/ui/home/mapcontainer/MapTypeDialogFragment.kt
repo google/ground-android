@@ -24,8 +24,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import org.groundplatform.android.databinding.MapTypeDialogFragmentBinding
+import org.groundplatform.android.model.map.MapType
 import org.groundplatform.android.ui.common.ViewModelFactory
-import org.groundplatform.android.ui.map.MapType
 
 /** Dialog fragment containing a list of [MapType] for updating basemap layer. */
 @AndroidEntryPoint
@@ -58,7 +58,10 @@ class MapTypeDialogFragment : BottomSheetDialogFragment() {
 
     val index = mapTypes.indexOfFirst { it == viewModel.mapType }
     binding.recyclerView.adapter =
-      MapTypeAdapter(requireContext(), mapTypes, index) { viewModel.mapType = mapTypes[it] }
+      MapTypeAdapter(requireContext(), mapTypes, index) {
+        viewModel.mapType = mapTypes[it]
+        dismiss()
+      }
     binding.recyclerView.addItemDecoration(AdaptiveSpacingItemDecorator(resources, 80))
   }
 }

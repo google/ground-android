@@ -16,12 +16,21 @@
 
 package org.groundplatform.android.model
 
+import org.groundplatform.android.proto.Survey.GeneralAccess
+
 data class SurveyListItem(
   val id: String,
   val title: String,
   val description: String,
   val availableOffline: Boolean,
+  val generalAccess: GeneralAccess,
 )
 
 fun Survey.toListItem(availableOffline: Boolean): SurveyListItem =
-  SurveyListItem(id, title, description, availableOffline)
+  SurveyListItem(
+    id,
+    title,
+    description,
+    availableOffline,
+    generalAccess ?: GeneralAccess.GENERAL_ACCESS_UNSPECIFIED,
+  )

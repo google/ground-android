@@ -29,9 +29,9 @@ import javax.inject.Inject
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.R
 import org.groundplatform.android.launchFragmentInHiltContainer
+import org.groundplatform.android.model.map.MapType
 import org.groundplatform.android.repository.MapStateRepository
 import org.groundplatform.android.shouldHaveTextAtPosition
-import org.groundplatform.android.ui.map.MapType
 import org.hamcrest.Matchers.allOf
 import org.junit.Before
 import org.junit.Test
@@ -53,7 +53,7 @@ class MapTypeDialogFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun render() {
+  fun `renders dialog correctly`() {
     assertThat(fragment.isVisible).isTrue()
 
     onView(withText("Layers")).check(matches(isDisplayed()))
@@ -67,12 +67,22 @@ class MapTypeDialogFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun defaultMapType() {
+  fun `dismiss dialog after map type selection`() {
+    assertThat(fragment.isVisible).isTrue()
+
+    onView(withId(R.id.recycler_view)).check(matches(allOf(isDisplayed(), hasChildCount(3))))
+    onView(withText("Terrain")).perform(click())
+    assertThat(fragment.isVisible).isFalse()
+  }
+
+  @Test
+  fun `displays default map type correctly`() {
+
     assertThat(mapStateRepository.mapType).isEqualTo(MapType.TERRAIN)
   }
 
   @Test
-  fun changeMapType() {
+  fun `changes map type when selected`() {
     onView(withText("Terrain")).perform(click())
 
     assertThat(mapStateRepository.mapType).isEqualTo(MapType.TERRAIN)

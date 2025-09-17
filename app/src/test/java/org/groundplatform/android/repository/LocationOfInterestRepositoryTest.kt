@@ -22,20 +22,23 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
+import org.groundplatform.android.data.local.stores.LocalLocationOfInterestStore
+import org.groundplatform.android.data.remote.FakeRemoteDataStore
+import org.groundplatform.android.data.sync.MutationSyncWorkManager
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.LinearRing
 import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.model.geometry.Polygon
+import org.groundplatform.android.model.map.Bounds
 import org.groundplatform.android.model.mutation.Mutation.Type.CREATE
-import org.groundplatform.android.persistence.local.stores.LocalLocationOfInterestStore
-import org.groundplatform.android.persistence.remote.FakeRemoteDataStore
-import org.groundplatform.android.persistence.sync.MutationSyncWorkManager
+import org.groundplatform.android.proto.Survey.DataVisibility
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
-import org.groundplatform.android.ui.map.Bounds
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
+import org.groundplatform.android.usecases.survey.SyncSurveyUseCase
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -58,6 +61,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   @Inject lateinit var mutationRepository: MutationRepository
   @Inject lateinit var userRepository: UserRepository
   @Inject lateinit var activateSurvey: ActivateSurveyUseCase
+  @Inject lateinit var syncSurvey: SyncSurveyUseCase
 
   private val mutation = LOCATION_OF_INTEREST.toMutation(CREATE, TEST_USER.id)
 
@@ -78,7 +82,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   }
 
   @Test
-  fun testApplyAndEnqueue_createsLocalLoi() = runWithTestDispatcher {
+  fun `apply and enqueue when creates local loi`() = runWithTestDispatcher {
     // TODO: Remove once customId and caption are handled consistently.
     // Issue URL: https://github.com/google/ground-android/issues/1559
     val loi =
@@ -94,7 +98,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   }
 
   @Test
-  fun testApplyAndEnqueue_enqueuesLoiMutation() = runWithTestDispatcher {
+  fun `apply and enqueue when enqueues loi mutation`() = runWithTestDispatcher {
     locationOfInterestRepository.applyAndEnqueue(mutation)
 
     mutationRepository.getSurveyMutationsFlow(TEST_SURVEY).test {
@@ -103,14 +107,14 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   }
 
   @Test
-  fun testApplyAndEnqueue_enqueuesWorker() = runWithTestDispatcher {
+  fun `apply and enqueue when enqueues worker`() = runWithTestDispatcher {
     locationOfInterestRepository.applyAndEnqueue(mutation)
 
     verify(mockWorkManager).enqueueSyncWorker()
   }
 
   @Test
-  fun testApplyAndEnqueue_returnsErrorOnWorkerSyncFailure() = runWithTestDispatcher {
+  fun `apply and enqueue when returns error on worker sync failure`() = runWithTestDispatcher {
     `when`(mockWorkManager.enqueueSyncWorker()).thenThrow(Error())
 
     assertFailsWith<Error> {
@@ -129,7 +133,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   // Issue URL: https://github.com/google/ground-android/issues/1373
 
   @Test
-  fun testLoiWithinBounds_whenOutOfBounds_returnsEmptyList() = runWithTestDispatcher {
+  fun `loi within bounds when out of bounds returns empty list`() = runWithTestDispatcher {
     val southwest = Coordinates(-60.0, -60.0)
     val northeast = Coordinates(-50.0, -50.0)
 
@@ -139,34 +143,36 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   }
 
   @Test
-  fun testLoiWithinBounds_whenSomeLOIsInsideBounds_returnsPartialList() = runWithTestDispatcher {
-    val southwest = Coordinates(-20.0, -20.0)
-    val northeast = Coordinates(-10.0, -10.0)
+  fun `loi within bounds when some lo is inside bounds returns partial list`() =
+    runWithTestDispatcher {
+      val southwest = Coordinates(-20.0, -20.0)
+      val northeast = Coordinates(-10.0, -10.0)
 
-    locationOfInterestRepository.getWithinBounds(TEST_SURVEY, Bounds(southwest, northeast)).test {
-      assertThat(expectMostRecentItem())
-        .isEqualTo(listOf(TEST_POINT_OF_INTEREST_1, TEST_AREA_OF_INTEREST_1))
+      locationOfInterestRepository.getWithinBounds(TEST_SURVEY, Bounds(southwest, northeast)).test {
+        assertThat(expectMostRecentItem())
+          .isEqualTo(listOf(TEST_POINT_OF_INTEREST_1, TEST_AREA_OF_INTEREST_1))
+      }
     }
-  }
 
   @Test
-  fun testLoiWithinBounds_whenAllLOIsInsideBounds_returnsCompleteList() = runWithTestDispatcher {
-    val southwest = Coordinates(-20.0, -20.0)
-    val northeast = Coordinates(20.0, 20.0)
+  fun `loi within bounds when all lo is inside bounds returns complete list`() =
+    runWithTestDispatcher {
+      val southwest = Coordinates(-20.0, -20.0)
+      val northeast = Coordinates(20.0, 20.0)
 
-    locationOfInterestRepository.getWithinBounds(TEST_SURVEY, Bounds(southwest, northeast)).test {
-      assertThat(expectMostRecentItem())
-        .isEqualTo(
-          listOf(
-            TEST_POINT_OF_INTEREST_1,
-            TEST_POINT_OF_INTEREST_2,
-            TEST_POINT_OF_INTEREST_3,
-            TEST_AREA_OF_INTEREST_1,
-            TEST_AREA_OF_INTEREST_2,
+      locationOfInterestRepository.getWithinBounds(TEST_SURVEY, Bounds(southwest, northeast)).test {
+        assertThat(expectMostRecentItem())
+          .isEqualTo(
+            listOf(
+              TEST_POINT_OF_INTEREST_1,
+              TEST_POINT_OF_INTEREST_2,
+              TEST_POINT_OF_INTEREST_3,
+              TEST_AREA_OF_INTEREST_1,
+              TEST_AREA_OF_INTEREST_2,
+            )
           )
-        )
+      }
     }
-  }
 
   @Test
   fun `hasValidLois when survey has no lois returns false`() = runWithTestDispatcher {
@@ -188,6 +194,48 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
 
     assertThat(locationOfInterestRepository.hasValidLois(TEST_SURVEY.id)).isTrue()
   }
+
+  @Test
+  fun `should load all types of LOIs when visibility is ALL_SURVEY_PARTICIPANTS`() =
+    runWithTestDispatcher {
+      val survey = TEST_SURVEY.copy(dataVisibility = DataVisibility.ALL_SURVEY_PARTICIPANTS)
+      fakeRemoteDataStore.surveys = listOf(survey)
+
+      val predefinedLoi = FakeData.LOCATION_OF_INTEREST.copy(id = "predefined_id")
+      val userLoi = FakeData.LOCATION_OF_INTEREST.copy(id = "user_id")
+      val sharedLoi = FakeData.LOCATION_OF_INTEREST.copy(id = "shared_id")
+      fakeRemoteDataStore.predefinedLois = listOf(predefinedLoi)
+      fakeRemoteDataStore.userLois = listOf(userLoi)
+      fakeRemoteDataStore.sharedLois = listOf(sharedLoi)
+
+      val expected = setOf(predefinedLoi, userLoi, sharedLoi)
+
+      syncSurvey(survey.id)
+
+      val actual = locationOfInterestRepository.getValidLois(survey).first()
+
+      assertThat(actual).isEqualTo(expected)
+    }
+
+  @Test
+  fun `should not load shared LOIs when visibility is not ALL_SURVEY_PARTICIPANTS`() =
+    runWithTestDispatcher {
+      val survey = TEST_SURVEY.copy(dataVisibility = DataVisibility.CONTRIBUTOR_AND_ORGANIZERS)
+      fakeRemoteDataStore.surveys = listOf(survey)
+
+      val predefinedLoi = FakeData.LOCATION_OF_INTEREST.copy(id = "predefined_id")
+      val userLoi = FakeData.LOCATION_OF_INTEREST.copy(id = "user_id")
+      fakeRemoteDataStore.predefinedLois = listOf(predefinedLoi)
+      fakeRemoteDataStore.userLois = listOf(userLoi)
+
+      val expected = setOf(predefinedLoi, userLoi)
+
+      syncSurvey(survey.id)
+
+      val actual = locationOfInterestRepository.getValidLois(survey).first()
+
+      assertThat(actual).isEqualTo(expected)
+    }
 
   companion object {
     private val COORDINATE_1 = Coordinates(-20.0, -20.0)

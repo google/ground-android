@@ -136,10 +136,6 @@
     <item name="fontFamily">@font/text_500</item>
   </style>
 
-  <style name="TextAppearance.App.BodySmall.OnSurfaceContainer">
-    <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
-  </style>
-
   <style name="TextAppearance.App.BodyMedium" parent="TextAppearance.Material3.BodyMedium">
     <item name="fontFamily">@font/text_500</item>
     <item name="android:textColor">?attr/colorOnSurface</item>
@@ -164,16 +160,6 @@
     <item name="backgroundTint">?attr/colorErrorContainer</item>
     <item name="iconTint">?attr/colorOnErrorContainer</item>
     <item name="android:textColor">?attr/colorOnErrorContainer</item>
-  </style>
-
-  <style name="Widget.App.CardView" parent="Base.Widget.Material3.CardView">
-    <item name="cardCornerRadius">12dp</item>
-    <item name="strokeWidth">0dp</item>
-  </style>
-
-  <style name="Widget.App.CardView.SurfaceContainerLowest">
-    <item name="cardBackgroundColor">?attr/colorSurfaceContainerLowest</item>
-    <item name="cardElevation">0dp</item>
   </style>
 
   <style name="TextAppearance.App.MapClusterLabel" parent="TextAppearance.Material3.LabelMedium">

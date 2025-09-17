@@ -29,9 +29,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.groundplatform.android.Config
-import org.groundplatform.android.persistence.remote.RemoteStorageManager
-import org.groundplatform.android.persistence.uuid.OfflineUuidGenerator
+import org.groundplatform.android.common.Constants
+import org.groundplatform.android.data.remote.RemoteStorageManager
+import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import timber.log.Timber
 
 /**
@@ -53,7 +53,7 @@ constructor(
     get() = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
 
   private suspend fun createImageFilename(fieldId: String): String =
-    fieldId + "-" + uuidGenerator.generateUuid() + Config.PHOTO_EXT
+    fieldId + "-" + uuidGenerator.generateUuid() + Constants.PHOTO_EXT
 
   suspend fun createImageFile(fieldId: String): File = File(rootDir, createImageFilename(fieldId))
 

@@ -26,8 +26,9 @@ import java.util.concurrent.Executors
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.asExecutor
+import org.groundplatform.android.common.Constants
 import org.groundplatform.android.coroutines.IoDispatcher
-import org.groundplatform.android.persistence.local.room.LocalDatabase
+import org.groundplatform.android.data.local.room.LocalDatabase
 
 @InstallIn(SingletonComponent::class)
 @Module
@@ -42,7 +43,7 @@ object LocalDatabaseModule {
     @IoDispatcher ioDispatcher: CoroutineDispatcher,
   ): LocalDatabase {
     return INSTANCE
-      ?: Room.databaseBuilder(context, LocalDatabase::class.java, Config.DB_NAME)
+      ?: Room.databaseBuilder(context, LocalDatabase::class.java, Constants.DB_NAME)
         // Use a separate thread for Room transactions to avoid deadlocks. This means that tests
         // that run Room
         // transactions can't use testCoroutines.scope.runBlockingTest, and have to simply use

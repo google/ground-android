@@ -20,8 +20,8 @@ import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
-import org.groundplatform.android.Config
 import org.groundplatform.android.R
+import org.groundplatform.android.common.Constants
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.submission.TextTaskData
 import org.groundplatform.android.model.task.Task
@@ -46,14 +46,14 @@ class TextTaskFragmentTest : BaseTaskFragmentTest<TextTaskFragment, TextTaskView
   private val job = Job("job")
 
   @Test
-  fun testHeader() {
+  fun `displays task header correctly`() {
     setupTaskFragment<TextTaskFragment>(job, task)
 
     hasTaskViewWithHeader(task)
   }
 
   @Test
-  fun testResponse_defaultIsEmpty() = runWithTestDispatcher {
+  fun `response when default is empty`() = runWithTestDispatcher {
     setupTaskFragment<TextTaskFragment>(job, task)
 
     runner().assertInputTextDisplayed("").assertButtonIsDisabled("Next")
@@ -87,7 +87,7 @@ class TextTaskFragmentTest : BaseTaskFragmentTest<TextTaskFragment, TextTaskView
   fun `text over the character limit is invalid`() = runWithTestDispatcher {
     setupTaskFragment<TextTaskFragment>(job, task)
 
-    runner().inputText("a".repeat(Config.TEXT_DATA_CHAR_LIMIT + 1))
+    runner().inputText("a".repeat(Constants.TEXT_DATA_CHAR_LIMIT + 1))
     // TODO: We should actually validate that the error toast is displayed after Next is clicked.
     // Unfortunately, matching toasts with espresso is not straightforward, so we leave it at
     // an explicit validation check for now.
@@ -95,7 +95,7 @@ class TextTaskFragmentTest : BaseTaskFragmentTest<TextTaskFragment, TextTaskView
   }
 
   @Test
-  fun testResponse_onUserInput_nextButtonIsEnabled() = runWithTestDispatcher {
+  fun `response when on user input next button is enabled`() = runWithTestDispatcher {
     setupTaskFragment<TextTaskFragment>(job, task)
 
     runner().inputText("Hello world").clickNextButton()
@@ -104,21 +104,21 @@ class TextTaskFragmentTest : BaseTaskFragmentTest<TextTaskFragment, TextTaskView
   }
 
   @Test
-  fun testActionButtons() {
+  fun `displays correct action buttons`() {
     setupTaskFragment<TextTaskFragment>(job, task)
 
     assertFragmentHasButtons(ButtonAction.PREVIOUS, ButtonAction.SKIP, ButtonAction.NEXT)
   }
 
   @Test
-  fun testActionButtons_whenTaskIsOptional() {
+  fun `action buttons when task is optional`() {
     setupTaskFragment<TextTaskFragment>(job, task.copy(isRequired = false))
 
     runner().assertButtonIsDisabled("Next").assertButtonIsEnabled("Skip")
   }
 
   @Test
-  fun testActionButtons_whenTaskIsRequired() {
+  fun `action buttons when task is required`() {
     setupTaskFragment<TextTaskFragment>(job, task.copy(isRequired = true))
 
     runner().assertButtonIsDisabled("Next").assertButtonIsHidden("Skip")

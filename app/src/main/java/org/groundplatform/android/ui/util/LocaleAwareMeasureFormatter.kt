@@ -25,29 +25,31 @@ import kotlin.math.floor
 import kotlin.math.pow
 
 private const val METERS_TO_FEET = 3.28084
+
 /** Distances equal to or greater than this value are rounded down to the nearest integer. */
 private const val MIN_ROUNDED_DISTANCE = 10
+
 /** The number of decimal places shown for distances < MIN_ROUNDED_DISTANCE. */
 private const val SMALL_DISTANCE_DECIMAL_PLACES = 1
 
-class LocaleAwareMeasureFormatter @Inject constructor(private val locale: Locale) {
+class LocaleAwareMeasureFormatter @Inject constructor(locale: Locale) {
+
   private val uLocale = ULocale.forLocale(locale)
   private val distanceFormatter =
     MeasureFormat.getInstance(uLocale, MeasureFormat.FormatWidth.SHORT)
 
-  fun formatDistance(distanceInMeters: Double): String {
-    val isImperial = isImperialSystem()
-    val distance = if (isImperial) distanceInMeters.toFeet() else distanceInMeters
-    val measureUnit = if (isImperial) MeasureUnit.FOOT else MeasureUnit.METER
-    val roundedDistance =
-      if (distance < MIN_ROUNDED_DISTANCE)
-        distance.floorToDecimalPlaces(SMALL_DISTANCE_DECIMAL_PLACES)
-      else floor(distance)
-    return roundedDistance.formatDistance(measureUnit)
+  fun formatDistance(distanceInMeters: Double, unit: MeasureUnit): String {
+    val distance = if (unit == MeasureUnit.FOOT) distanceInMeters.toFeet() else distanceInMeters
+    val roundedDistance = getRoundedDistance(distance)
+    return distanceFormatter.format(Measure(roundedDistance, unit))
   }
 
-  private fun Double.formatDistance(measureUnit: MeasureUnit) =
-    distanceFormatter.format(Measure(this, measureUnit))
+  private fun getRoundedDistance(distance: Double): Double =
+    if (distance < MIN_ROUNDED_DISTANCE) {
+      distance.floorToDecimalPlaces(SMALL_DISTANCE_DECIMAL_PLACES)
+    } else {
+      floor(distance)
+    }
 
   private fun Double.toFeet() = this * METERS_TO_FEET
 
@@ -55,7 +57,4 @@ class LocaleAwareMeasureFormatter @Inject constructor(private val locale: Locale
     val factor = 10.0.pow(n)
     return floor(this * factor) / factor
   }
-
-  private fun isImperialSystem(): Boolean =
-    locale.country.uppercase(Locale.ROOT) in setOf("US", "LR", "MM")
 }

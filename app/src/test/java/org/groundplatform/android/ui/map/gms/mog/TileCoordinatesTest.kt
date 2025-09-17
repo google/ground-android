@@ -17,24 +17,24 @@ package org.groundplatform.android.ui.map.gms.mog
 
 import com.google.common.truth.Truth.assertThat
 import org.groundplatform.android.model.geometry.Coordinates
-import org.groundplatform.android.ui.map.Bounds
+import org.groundplatform.android.model.map.Bounds
 import org.junit.Test
 
 class TileCoordinatesTest {
 
   @Test
-  fun fromLatLng() {
+  fun `creates tile coordinates from lat lng correctly`() {
     assertThat(TileCoordinates.fromCoordinates(Coordinates(10.5, 20.5), 10))
       .isEqualTo(TileCoordinates(570, 481, 10))
   }
 
   @Test
-  fun toStringCustomValue() {
+  fun `toString returns custom formatted value`() {
     assertThat(TileCoordinates(10, 20, 10).toString()).isEqualTo("(10, 20) at zoom 10")
   }
 
   @Test
-  fun withinBounds() {
+  fun `returns tiles within bounds correctly`() {
     val tiles = TileCoordinates.withinBounds(Bounds(10.0, 10.0, 11.0, 11.0), 10)
 
     assertThat(tiles).hasSize(16)

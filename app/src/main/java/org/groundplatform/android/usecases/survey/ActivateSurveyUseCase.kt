@@ -17,8 +17,8 @@
 package org.groundplatform.android.usecases.survey
 
 import javax.inject.Inject
+import org.groundplatform.android.data.sync.SurveySyncWorker
 import org.groundplatform.android.model.isUsable
-import org.groundplatform.android.persistence.sync.SurveySyncWorker
 import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.SurveyRepository
 

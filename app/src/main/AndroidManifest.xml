@@ -45,7 +45,7 @@
     android:usesCleartextTraffic="${usesCleartextTraffic}">
 
     <service
-      android:name="org.groundplatform.android.persistence.remote.firebase.FirebaseMessagingService"
+      android:name="org.groundplatform.android.data.remote.firebase.FirebaseMessagingService"
       android:exported="false">
       <intent-filter>
         <action android:name="com.google.firebase.MESSAGING_EVENT" />
@@ -64,7 +64,7 @@
       android:value="${MAPS_API_KEY}" />
 
     <activity
-      android:name="org.groundplatform.android.MainActivity"
+      android:name="org.groundplatform.android.ui.main.MainActivity"
       android:exported="true"
       android:windowSoftInputMode="stateHidden|adjustResize">
       <intent-filter>
@@ -84,7 +84,7 @@
       </intent-filter>
     </activity>
     <activity
-      android:name="org.groundplatform.android.SettingsActivity"
+      android:name="org.groundplatform.android.ui.settings.SettingsActivity"
       android:theme="@style/AppTheme" />
 
     <!--

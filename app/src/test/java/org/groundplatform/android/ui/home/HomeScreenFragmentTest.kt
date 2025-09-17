@@ -43,9 +43,9 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.R
+import org.groundplatform.android.data.local.stores.LocalSurveyStore
 import org.groundplatform.android.launchFragmentWithNavController
 import org.groundplatform.android.model.Survey
-import org.groundplatform.android.persistence.local.stores.LocalSurveyStore
 import org.groundplatform.android.repository.SurveyRepository
 import org.junit.Before
 import org.junit.Rule
@@ -140,7 +140,7 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
   }
 
   @Test
-  fun `signOut dialog is Displayed`() = runWithTestDispatcher {
+  fun `sign out dialog is displayed`() = runWithTestDispatcher {
     openDrawer()
 
     onView(withId(R.id.user_image)).check(matches(isDisplayed()))
@@ -194,7 +194,7 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
   }
 
   @Test
-  fun `onBack() should return false and do nothing`() {
+  fun `on back returns false and does nothing`() {
     assertFalse(fragment.onBack())
   }
 
@@ -221,7 +221,7 @@ class NavigationDrawerItemClickTest(
   @Inject lateinit var surveyRepository: SurveyRepository
 
   @Test
-  fun clickDrawerMenuItem() = runWithTestDispatcher {
+  fun `clicking drawer menu item navigates correctly`() = runWithTestDispatcher {
     localSurveyStore.insertOrUpdateSurvey(survey)
     surveyRepository.activateSurvey(survey.id)
     advanceUntilIdle()
