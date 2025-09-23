@@ -31,7 +31,6 @@ exifinterfaceVersion = "1.4.1"
 firebaseBomVersion = "33.1.2"
 firebaseCrashlyticsGradleVersion = "3.0.2"
 fragmentVersion = "1.8.7"
-gitversionerVersion = "0.6.3"
 glideVersion = "4.16.0"
 googleServicesVersion = "4.4.2"
 gradleVersion = "8.3.2"
@@ -139,7 +138,6 @@ firebase-messaging = { module = "com.google.firebase:firebase-messaging" }
 firebase-storage = { module = "com.google.firebase:firebase-storage" }
 firebase-perf = { module = "com.google.firebase:firebase-perf" }
 firebase-functions-ktx = { module = "com.google.firebase:firebase-functions-ktx" }
-gitversioner = { module = "de.sharpmind:gitversioner", version.ref = "gitversionerVersion" }
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glideVersion" }
 google-services = { module = "com.google.gms:google-services", version.ref = "googleServicesVersion" }
 gradle = { module = "com.android.tools.build:gradle", version.ref = "gradleVersion" }
