@@ -30,8 +30,6 @@ buildscript {
         classpath libs.gradle
         classpath libs.google.services
 
-        classpath libs.gitversioner
-
         // Performance Monitoring plugin: https://firebase.google.com/docs/perf-mon
         classpath libs.perf.plugin
 
@@ -98,12 +96,6 @@ detekt {
 
 tasks.register('checkCode', GradleBuild) {
     tasks = ['checkstyle', 'lintLocalDebug', 'ktfmtCheck', 'detekt']
-}
-
-// https://github.com/passsy/gradle-gitVersioner-plugin
-apply plugin: "de.sharpmind.gitversioner"
-gitVersioner {
-    baseBranch "master"
 }
 
 ext {
