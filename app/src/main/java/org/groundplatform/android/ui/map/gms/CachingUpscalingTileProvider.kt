@@ -53,12 +53,10 @@ class CachingUpscalingTileProvider(
           Tile(tileSize, tileSize, cached)
         } else {
           val bytes = synthesizeUpscaledTileBytes(x, y, z)
-          if (bytes != null) {
+          bytes?.let {
             cache.put(key, bytes)
             Tile(tileSize, tileSize, bytes)
-          } else {
-            null
-          }
+          } ?: run { null }
         }
     }
 
@@ -77,46 +75,54 @@ class CachingUpscalingTileProvider(
     val qx = x % scale
     val qy = y % scale
 
-    val srcTile = source.getTile(srcX, srcY, dataMaxZoom) ?: return null
-    val bytes = srcTile.data ?: return null
+    var decoded: Bitmap? = null
+    var result: ByteArray? = null
 
-    var srcBmp: Bitmap? = null
+    try {
+      val bytes: ByteArray? = source.getTile(srcX, srcY, dataMaxZoom)?.data
+      decoded = bytes?.let { BitmapFactory.decodeByteArray(it, 0, it.size) }
+
+      val crop: Rect? =
+        decoded?.let { bmp ->
+          val cw = bmp.width / scale
+          val ch = bmp.height / scale
+          val left = qx * cw
+          val top = qy * ch
+          if (left >= 0 && top >= 0 && left + cw <= bmp.width && top + ch <= bmp.height) {
+            Rect(left, top, left + cw, top + ch)
+          } else {
+            null
+          }
+        }
+
+      result = decoded?.let { d -> crop?.let { c -> drawUpscaled256(d, c) } }
+    } catch (_: Throwable) {} finally {
+      decoded?.recycle()
+    }
+
+    return result
+  }
+
+  /** Crops the given area and upscales to 256×256 PNG using bilinear filtering. */
+  private fun drawUpscaled256(src: Bitmap, crop: Rect): ByteArray? {
     var cropped: Bitmap? = null
-    var upscaled: Bitmap? = null
+    var up: Bitmap? = null
     return try {
-      srcBmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return null
+      cropped = Bitmap.createBitmap(src, crop.left, crop.top, crop.width(), crop.height())
+      up = createBitmap(256, 256)
 
-      val cropW = srcBmp.width / scale
-      val cropH = srcBmp.height / scale
-      val cropLeft = qx * cropW
-      val cropTop = qy * cropH
-      if (
-        cropLeft < 0 ||
-          cropTop < 0 ||
-          cropLeft + cropW > srcBmp.width ||
-          cropTop + cropH > srcBmp.height
-      ) {
-        return null
-      }
-
-      cropped = Bitmap.createBitmap(srcBmp, cropLeft, cropTop, cropW, cropH)
-
-      upscaled = createBitmap(tileSize, tileSize)
-      val canvas = Canvas(upscaled)
-      val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { isFilterBitmap = true } // bilinear
-      canvas.drawBitmap(cropped, null, Rect(0, 0, tileSize, tileSize), paint)
+      val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { isFilterBitmap = true }
+      Canvas(up).drawBitmap(cropped, null, Rect(0, 0, 256, 256), paint)
 
       ByteArrayOutputStream().use { os ->
-        upscaled.compress(Bitmap.CompressFormat.PNG, 100, os)
+        up.compress(Bitmap.CompressFormat.PNG, 100, os)
         os.toByteArray()
       }
     } catch (_: Throwable) {
       null
     } finally {
-      // Ensure we always recycle to avoid memory pressure while panning/zooming
-      upscaled?.recycle()
+      up?.recycle()
       cropped?.recycle()
-      srcBmp?.recycle()
     }
   }
 }
