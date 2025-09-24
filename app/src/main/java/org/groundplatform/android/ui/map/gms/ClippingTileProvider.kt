@@ -19,36 +19,25 @@ package org.groundplatform.android.ui.map.gms
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.Tile
 import com.google.android.gms.maps.model.TileProvider
-import com.google.android.gms.maps.model.TileProvider.NO_TILE
 import org.groundplatform.android.ui.map.gms.mog.ImageEditor
 import org.groundplatform.android.ui.map.gms.mog.TileCoordinates
-import org.groundplatform.android.ui.map.gms.mog.toPixelBounds
-import org.groundplatform.android.ui.map.gms.mog.toPixelCoordinate
-
-private const val MAX_ZOOM = 19
 
 class ClippingTileProvider(
   private val sourceTileProvider: TileProvider,
-  clipBounds: List<LatLngBounds>,
+  private val clipBounds: List<LatLngBounds>,
 ) : TileProvider {
 
-  private val pixelBounds = clipBounds.map { it.toPixelBounds(MAX_ZOOM) }
+  override fun getTile(x: Int, y: Int, z: Int): Tile {
+    val t = sourceTileProvider.getTile(x, y, z) ?: return TileProvider.NO_TILE
+    val data = t.data ?: return TileProvider.NO_TILE
 
-  override fun getTile(x: Int, y: Int, zoom: Int): Tile {
-    val sourceTile = sourceTileProvider.getTile(x, y, zoom) ?: NO_TILE
-    if (sourceTile == NO_TILE) return sourceTile
-    // We assume if a tile is returned by the source provider that at least some pixels are within
-    // the clip bounds, so there's no need to optimize by checking before clipping.
-    return clipToBounds(TileCoordinates(x, y, zoom), sourceTile)
-  }
-
-  private fun clipToBounds(tileCoords: TileCoordinates, tile: Tile): Tile {
-    if (tile.data == null) return NO_TILE
+    val coords = TileCoordinates(x, y, z)
     val output =
-      ImageEditor.setTransparentIf(tile.data!!) { _, x, y ->
-        val pixelCoords = tileCoords.toPixelCoordinate(x, y)
-        pixelBounds.none { it.contains(pixelCoords) }
+      ImageEditor.setTransparentIf(data) { _, px, py ->
+        val latLng = coords.pixelToLatLng(px, py)
+        val insideAny = clipBounds.any { it.contains(latLng) }
+        !insideAny // make transparent if NOT inside any bound
       }
-    return Tile(tile.width, tile.height, output)
+    return Tile(t.width, t.height, output)
   }
 }

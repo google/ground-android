@@ -18,7 +18,9 @@ package org.groundplatform.android.ui.map.gms.mog
 
 import com.google.android.gms.maps.model.Tile
 import com.google.android.gms.maps.model.TileProvider
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.groundplatform.android.data.remote.RemoteStorageManager
 import timber.log.Timber
 
@@ -29,14 +31,16 @@ class MogTileProvider(collection: MogCollection, remoteStorageManager: RemoteSto
   TileProvider {
   private val client = MogClient(collection, remoteStorageManager)
 
-  override fun getTile(x: Int, y: Int, zoom: Int): Tile? = runBlocking {
-    val tileCoordinates = TileCoordinates(x, y, zoom)
-    try {
-      client.getTile(tileCoordinates)?.toGmsTile()
-    } catch (e: Throwable) {
-      // Maps SDK doesn't log exceptions thrown by [TileProvider] implementations, so we do it here.
-      Timber.d(e, "Error fetching tile at $tileCoordinates")
-      null
+  override fun getTile(x: Int, y: Int, zoom: Int): Tile? =
+    runBlocking(Dispatchers.IO) {
+      val tileCoordinates = TileCoordinates(x, y, zoom)
+      try {
+        withTimeout(4_000L) { client.getTile(tileCoordinates)?.toGmsTile() } ?: TileProvider.NO_TILE
+      } catch (e: Throwable) {
+        // Maps SDK doesn't log exceptions thrown by [TileProvider] implementations, so we do it
+        // here.
+        Timber.d(e, "Error fetching tile at $tileCoordinates")
+        TileProvider.NO_TILE
+      }
     }
-  }
 }
