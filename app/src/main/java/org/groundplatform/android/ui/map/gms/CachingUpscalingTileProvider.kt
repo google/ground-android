@@ -15,7 +15,11 @@
  */
 package org.groundplatform.android.ui.map.gms
 
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Rect
 import android.util.LruCache
 import androidx.core.graphics.createBitmap
 import com.google.android.gms.maps.model.Tile
@@ -36,13 +40,36 @@ class CachingUpscalingTileProvider(
     }
 
   override fun getTile(x: Int, y: Int, z: Int): Tile {
-    if (z <= dataMaxZoom) return source.getTile(x, y, z) ?: TileProvider.NO_TILE
+    var result: Tile?
 
-    val key = "$z/$x/$y"
-    cache.get(key)?.let {
-      return Tile(tileSize, tileSize, it)
+    if (z <= dataMaxZoom) {
+      // Base tiles: just delegate; no caching here
+      result = source.getTile(x, y, z)
+    } else {
+      val key = "$z/$x/$y"
+      val cached = cache.get(key)
+      result =
+        if (cached != null) {
+          Tile(tileSize, tileSize, cached)
+        } else {
+          val bytes = synthesizeUpscaledTileBytes(x, y, z)
+          if (bytes != null) {
+            cache.put(key, bytes)
+            Tile(tileSize, tileSize, bytes)
+          } else {
+            null
+          }
+        }
     }
 
+    return result ?: TileProvider.NO_TILE
+  }
+
+  /**
+   * Build a 256×256 PNG byte array by cropping the appropriate quadrant of the source tile at
+   * z=dataMaxZoom and upscaling it with bilinear filtering. Returns null on any failure.
+   */
+  private fun synthesizeUpscaledTileBytes(x: Int, y: Int, z: Int): ByteArray? {
     val dz = z - dataMaxZoom
     val scale = 1 shl dz
     val srcX = x / scale
@@ -50,41 +77,46 @@ class CachingUpscalingTileProvider(
     val qx = x % scale
     val qy = y % scale
 
-    val src = source.getTile(srcX, srcY, dataMaxZoom) ?: return TileProvider.NO_TILE
-    val bytes = src.data ?: return TileProvider.NO_TILE
+    val srcTile = source.getTile(srcX, srcY, dataMaxZoom) ?: return null
+    val bytes = srcTile.data ?: return null
 
-    val srcBmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return TileProvider.NO_TILE
+    var srcBmp: Bitmap? = null
+    var cropped: Bitmap? = null
+    var upscaled: Bitmap? = null
+    return try {
+      srcBmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return null
 
-    val cropW = srcBmp.width / scale
-    val cropH = srcBmp.height / scale
-    val cropLeft = qx * cropW
-    val cropTop = qy * cropH
-    if (
-      cropLeft < 0 ||
-        cropTop < 0 ||
-        cropLeft + cropW > srcBmp.width ||
-        cropTop + cropH > srcBmp.height
-    ) {
-      srcBmp.recycle()
-      return TileProvider.NO_TILE
-    }
+      val cropW = srcBmp.width / scale
+      val cropH = srcBmp.height / scale
+      val cropLeft = qx * cropW
+      val cropTop = qy * cropH
+      if (
+        cropLeft < 0 ||
+          cropTop < 0 ||
+          cropLeft + cropW > srcBmp.width ||
+          cropTop + cropH > srcBmp.height
+      ) {
+        return null
+      }
 
-    val cropped = Bitmap.createBitmap(srcBmp, cropLeft, cropTop, cropW, cropH)
-    srcBmp.recycle()
+      cropped = Bitmap.createBitmap(srcBmp, cropLeft, cropTop, cropW, cropH)
 
-    val upscaled = createBitmap(tileSize, tileSize)
-    val canvas = Canvas(upscaled)
-    val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { isFilterBitmap = true } // bilinear
-    canvas.drawBitmap(cropped, null, Rect(0, 0, tileSize, tileSize), paint)
-    cropped.recycle()
+      upscaled = createBitmap(tileSize, tileSize)
+      val canvas = Canvas(upscaled)
+      val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { isFilterBitmap = true } // bilinear
+      canvas.drawBitmap(cropped, null, Rect(0, 0, tileSize, tileSize), paint)
 
-    val out =
       ByteArrayOutputStream().use { os ->
         upscaled.compress(Bitmap.CompressFormat.PNG, 100, os)
-        upscaled.recycle()
         os.toByteArray()
       }
-    cache.put(key, out)
-    return Tile(tileSize, tileSize, out)
+    } catch (_: Throwable) {
+      null
+    } finally {
+      // Ensure we always recycle to avoid memory pressure while panning/zooming
+      upscaled?.recycle()
+      cropped?.recycle()
+      srcBmp?.recycle()
+    }
   }
 }

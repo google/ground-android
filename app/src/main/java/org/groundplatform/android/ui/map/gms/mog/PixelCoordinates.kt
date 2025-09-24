@@ -16,7 +16,9 @@
 package org.groundplatform.android.ui.map.gms.mog
 
 import com.google.android.gms.maps.model.LatLng
+import kotlin.math.atan
 import kotlin.math.ln
+import kotlin.math.sinh
 import kotlin.math.tan
 
 data class PixelCoordinates(val x: Int, val y: Int, val zoom: Int) {
@@ -36,3 +38,12 @@ fun LatLng.toPixelCoordinates(zoom: Int): PixelCoordinates {
 
 fun TileCoordinates.toPixelCoordinate(xOffset: Int, yOffset: Int) =
   PixelCoordinates(x * 256 + xOffset, y * 256 + yOffset, zoom)
+
+fun TileCoordinates.pixelToLatLng(px: Int, py: Int): LatLng {
+  val n = 1 shl zoom
+  val fx = (x * 256.0 + px) / (n * 256.0)
+  val fy = (y * 256.0 + py) / (n * 256.0)
+  val lon = fx * 360.0 - 180.0
+  val latRad = atan(sinh(Math.PI * (1.0 - 2.0 * fy)))
+  return LatLng(Math.toDegrees(latRad), lon)
+}

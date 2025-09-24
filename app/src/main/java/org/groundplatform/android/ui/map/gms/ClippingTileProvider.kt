@@ -19,25 +19,27 @@ package org.groundplatform.android.ui.map.gms
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.Tile
 import com.google.android.gms.maps.model.TileProvider
+import com.google.android.gms.maps.model.TileProvider.NO_TILE
 import org.groundplatform.android.ui.map.gms.mog.ImageEditor
 import org.groundplatform.android.ui.map.gms.mog.TileCoordinates
+import org.groundplatform.android.ui.map.gms.mog.pixelToLatLng
 
 class ClippingTileProvider(
   private val sourceTileProvider: TileProvider,
   private val clipBounds: List<LatLngBounds>,
 ) : TileProvider {
 
-  override fun getTile(x: Int, y: Int, z: Int): Tile {
-    val t = sourceTileProvider.getTile(x, y, z) ?: return TileProvider.NO_TILE
-    val data = t.data ?: return TileProvider.NO_TILE
+  override fun getTile(x: Int, y: Int, zoom: Int): Tile {
+    val sourceTile = sourceTileProvider.getTile(x, y, zoom) ?: NO_TILE
+    val data = sourceTile.data ?: return NO_TILE
 
-    val coords = TileCoordinates(x, y, z)
+    val coords = TileCoordinates(x, y, zoom)
     val output =
-      ImageEditor.setTransparentIf(data) { _, px, py ->
-        val latLng = coords.pixelToLatLng(px, py)
+      ImageEditor.setTransparentIf(data) { _, x, y ->
+        val latLng = coords.pixelToLatLng(x, y)
         val insideAny = clipBounds.any { it.contains(latLng) }
         !insideAny // make transparent if NOT inside any bound
       }
-    return Tile(t.width, t.height, output)
+    return Tile(sourceTile.width, sourceTile.height, output)
   }
 }

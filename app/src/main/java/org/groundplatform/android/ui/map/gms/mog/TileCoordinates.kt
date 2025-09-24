@@ -16,10 +16,7 @@
 
 package org.groundplatform.android.ui.map.gms.mog
 
-import com.google.android.gms.maps.model.LatLng
-import kotlin.math.atan
 import kotlin.math.ln
-import kotlin.math.sinh
 import kotlin.math.tan
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.map.Bounds
@@ -33,15 +30,6 @@ data class TileCoordinates(val x: Int, val y: Int, val zoom: Int) {
   fun originAtZoom(targetZoom: Int): TileCoordinates {
     val zoomDelta = targetZoom - zoom
     return TileCoordinates(x.shiftLeft(zoomDelta), y.shiftLeft(zoomDelta), targetZoom)
-  }
-
-  fun pixelToLatLng(px: Int, py: Int): LatLng {
-    val n = 1 shl zoom
-    val fx = (x * 256.0 + px) / (n * 256.0)
-    val fy = (y * 256.0 + py) / (n * 256.0)
-    val lon = fx * 360.0 - 180.0
-    val latRad = atan(sinh(Math.PI * (1.0 - 2.0 * fy)))
-    return LatLng(Math.toDegrees(latRad), lon)
   }
 
   override fun toString(): String = "($x, $y) at zoom $zoom"
