@@ -96,6 +96,9 @@ internal constructor(
   private val _showSelfIntersectionDialog = MutableSharedFlow<Unit>()
   val showSelfIntersectionDialog = _showSelfIntersectionDialog.asSharedFlow()
 
+  var hasSelfIntersection: Boolean = false
+    private set
+
   private var strokeColor: Int = 0
 
   override fun initialize(job: Job, task: Task, taskData: TaskData?) {
@@ -129,14 +132,6 @@ internal constructor(
   fun isMarkedComplete(): Boolean = isMarkedComplete.value
 
   fun getLastVertex() = vertices.lastOrNull()
-
-  fun markComplete() {
-    _isMarkedComplete.value = true
-  }
-
-  fun setTooClose(value: Boolean) {
-    _isTooClose.value = value
-  }
 
   private fun onSelfIntersectionDetected() {
     viewModelScope.launch { _showSelfIntersectionDialog.emit(Unit) }
@@ -246,11 +241,33 @@ internal constructor(
     }
   }
 
-  fun checkVertexIntersection() {
-    if (isSelfIntersecting(vertices)) {
+  fun checkVertexIntersection(): Boolean {
+    hasSelfIntersection = isSelfIntersecting(vertices)
+    if (hasSelfIntersection) {
       vertices = vertices.dropLast(1)
       onSelfIntersectionDetected()
     }
+    return hasSelfIntersection
+  }
+
+  fun validatePolygonCompletion(): Boolean {
+    if (vertices.size < 3) {
+      return false
+    }
+
+    val ring =
+      if (vertices.first() != vertices.last()) {
+        vertices + vertices.first()
+      } else {
+        vertices
+      }
+
+    hasSelfIntersection = isSelfIntersecting(ring)
+    if (hasSelfIntersection) {
+      onSelfIntersectionDetected()
+      return false
+    }
+    return true
   }
 
   private fun updateVertices(newVertices: List<Coordinates>) {
