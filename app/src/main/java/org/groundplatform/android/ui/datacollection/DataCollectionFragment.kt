@@ -222,8 +222,10 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
 
   private fun navigateBack() {
     isNavigatingUp = true
-    viewModel.clearDraft()
-    findNavController().navigateUp()
+    viewLifecycleOwner.lifecycleScope.launch {
+      viewModel.clearDraftBlocking()
+      findNavController().navigateUp()
+    }
   }
 
   private companion object {

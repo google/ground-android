@@ -28,6 +28,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.core.view.doOnAttach
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import kotlin.properties.Delegates
 import kotlinx.coroutines.launch
@@ -109,12 +110,16 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
       onActionButtonsCreated()
 
       onTaskViewAttached()
+
+      if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+        onTaskResume()
+      }
     }
   }
 
   override fun onResume() {
     super.onResume()
-    onTaskResume()
+    if (isViewModelInitialized) onTaskResume()
   }
 
   /** Creates the view for common task template with/without header. */

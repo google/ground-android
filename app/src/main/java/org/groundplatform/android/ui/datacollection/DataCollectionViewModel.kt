@@ -130,6 +130,7 @@ internal constructor(
 
   @Volatile private var draftCache: List<ValueDelta>? = null
   @Volatile private var draftMapCache: Map<Pair<String, Task.Type>, TaskData?>? = null
+  @Volatile private var draftsEnabled = true
   private val draftLock = Any()
 
   init {
@@ -269,6 +270,7 @@ internal constructor(
 
   /** Persists the current UI state locally which can be resumed whenever the app re-opens. */
   fun saveCurrentState() {
+    if (!draftsEnabled) return
     withReadyOrNull { state ->
       val taskId = state.currentTaskId
       getTaskViewModel(taskId)?.let { vm ->
@@ -279,8 +281,13 @@ internal constructor(
     }
   }
 
+  fun clearDraftBlocking() {
+    suppressDrafts()
+    clearDraft()
+  }
+
   /** Clears all persisted drafts from local storage. */
-  fun clearDraft() {
+  private fun clearDraft() {
     viewModelScope.launch(ioDispatcher) { submissionRepository.deleteDraftSubmission() }
   }
 
@@ -368,7 +375,6 @@ internal constructor(
     val safeId = if (taskId in validIds) taskId else validIds.first()
 
     savedStateHandle[TASK_POSITION_ID] = safeId
-    clearDraft()
     saveDraft(safeId)
 
     val newPos = taskSequenceHandler.getTaskPosition(safeId)
@@ -405,6 +411,10 @@ internal constructor(
           parsed.associate { (taskId, taskType, value) -> (taskId to taskType) to value }
       }
     }
+  }
+
+  private fun suppressDrafts() {
+    draftsEnabled = false
   }
 
   private fun resolveInitialTaskId(validIds: List<String>, saved: String?): String =
