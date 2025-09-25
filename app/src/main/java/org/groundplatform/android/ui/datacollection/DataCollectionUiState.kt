@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,24 @@
  */
 package org.groundplatform.android.ui.datacollection
 
+import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.task.Task
 
-sealed class UiState {
+sealed interface DataCollectionUiState {
+  data object Loading : DataCollectionUiState
 
-  data class TaskListAvailable(val tasks: List<Task>, val taskPosition: TaskPosition) : UiState()
+  data class Ready(
+    val surveyId: String,
+    val job: Job,
+    val tasks: List<Task>,
+    val isAddLoiFlow: Boolean,
+    val currentTaskId: String,
+    val position: TaskPosition,
+  ) : DataCollectionUiState
 
-  data class TaskUpdated(val taskPosition: TaskPosition) : UiState()
+  data class Error(val message: String) : DataCollectionUiState
 
-  data object TaskSubmitted : UiState()
+  data class TaskUpdated(val position: TaskPosition) : DataCollectionUiState
+
+  data object TaskSubmitted : DataCollectionUiState
 }

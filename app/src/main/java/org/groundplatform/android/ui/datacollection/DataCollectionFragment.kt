@@ -26,14 +26,14 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnLayout
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.databinding.DataCollectionFragBinding
@@ -77,7 +77,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     binding.viewModel = viewModel
-    binding.lifecycleOwner = this
+    binding.lifecycleOwner = viewLifecycleOwner
 
     viewPager.isUserInputEnabled = false
     viewPager.offscreenPageLimit = 1
@@ -87,8 +87,8 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
         override fun onPageScrollStateChanged(state: Int) {
           super.onPageScrollStateChanged(state)
           if (state == ViewPager2.SCROLL_STATE_IDLE) {
-            lifecycleScope.launch(Dispatchers.Main) {
-              delay(100) // Wait for the keyboard to close
+            viewLifecycleOwner.lifecycleScope.launch {
+              delay(100) // give IME time to settle
               setProgressBarPosition(view)
             }
           }
@@ -96,14 +96,12 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
       }
     )
 
-    updateUI(
-      UiState.TaskListAvailable(
-        viewModel.tasks,
-        viewModel.getTaskPosition(viewModel.getCurrentTaskId()),
-      )
-    )
-
-    lifecycleScope.launch { viewModel.uiState.filterNotNull().collect { updateUI(it) } }
+    // Collect UI state safely across the Fragment view lifecycle.
+    viewLifecycleOwner.lifecycleScope.launch {
+      viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        viewModel.uiState.collect { ui -> updateUI(ui) }
+      }
+    }
   }
 
   override fun onResume() {
@@ -113,16 +111,28 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
 
   override fun onPause() {
     super.onPause()
-    if (!isNavigatingUp) {
+    if (!isNavigatingUp && viewModel.uiState.value is DataCollectionUiState.Ready) {
       viewModel.saveCurrentState()
     }
   }
 
-  private fun updateUI(uiState: UiState) {
+  private fun updateUI(uiState: DataCollectionUiState) {
     when (uiState) {
-      is UiState.TaskListAvailable -> loadTasks(uiState.tasks, uiState.taskPosition)
-      is UiState.TaskUpdated -> onTaskChanged(uiState.taskPosition)
-      is UiState.TaskSubmitted -> onTaskSubmitted()
+      is DataCollectionUiState.Loading -> {
+        // Optional: show loading state, disable actions
+      }
+
+      is DataCollectionUiState.Error -> {
+        // Optional: show error + retry; keeping existing UX minimal
+      }
+
+      is DataCollectionUiState.Ready -> {
+        // Ensure adapter has the task list; then jump to the current position.
+        loadTasks(uiState.tasks, uiState.position)
+      }
+      is DataCollectionUiState.TaskUpdated -> onTaskChanged(uiState.position)
+
+      is DataCollectionUiState.TaskSubmitted -> onTaskSubmitted()
     }
   }
 
@@ -174,24 +184,30 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     // Reset progress bar
     progressBar.max = (taskPosition.sequenceSize - 1) * PROGRESS_SCALE
 
+    val target = taskPosition.relativeIndex * PROGRESS_SCALE
     if (shouldAnimate) {
       progressBar.clearAnimation()
-      with(ValueAnimator.ofInt(progressBar.progress, taskPosition.relativeIndex * PROGRESS_SCALE)) {
-        duration = 400L
-        interpolator = FastOutSlowInInterpolator()
-        addUpdateListener { progressBar.progress = it.animatedValue as Int }
-        start()
-      }
+      ValueAnimator.ofInt(progressBar.progress, target)
+        .apply {
+          duration = 400L
+          interpolator = FastOutSlowInInterpolator()
+          addUpdateListener { progressBar.progress = it.animatedValue as Int }
+        }
+        .start()
     } else {
-      progressBar.progress = taskPosition.relativeIndex
+      progressBar.progress = target
     }
   }
 
   override fun onBack(): Boolean {
-    if (viewModel.uiState.value == UiState.TaskSubmitted) {
+    val state = viewModel.uiState.value
+    if (state == DataCollectionUiState.TaskSubmitted) {
       // Pressing back button after submitting task should navigate back to home screen.
       navigateBack()
-    } else if (viewPager.currentItem == 0) {
+      return true
+    }
+
+    if (viewModel.isAtFirstTask()) {
       showExitWarningDialog()
     } else {
       viewModel.moveToPreviousTask()
@@ -213,7 +229,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   private fun navigateBack() {
     isNavigatingUp = true
     viewModel.clearDraft()
-    findNavController().navigateUp()
+    if (isAdded) findNavController().navigateUp()
   }
 
   private companion object {
