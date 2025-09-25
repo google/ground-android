@@ -88,7 +88,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
           super.onPageScrollStateChanged(state)
           if (state == ViewPager2.SCROLL_STATE_IDLE) {
             viewLifecycleOwner.lifecycleScope.launch {
-              delay(100) // give IME time to settle
+              delay(100) // Wait for the keyboard to close
               setProgressBarPosition(view)
             }
           }
@@ -118,13 +118,9 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
 
   private fun updateUI(uiState: DataCollectionUiState) {
     when (uiState) {
-      is DataCollectionUiState.Loading -> {
-        // Optional: show loading state, disable actions
-      }
+      is DataCollectionUiState.Loading -> Unit
 
-      is DataCollectionUiState.Error -> {
-        // Optional: show error + retry; keeping existing UX minimal
-      }
+      is DataCollectionUiState.Error -> Unit
 
       is DataCollectionUiState.Ready -> {
         // Ensure adapter has the task list; then jump to the current position.
@@ -200,8 +196,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   }
 
   override fun onBack(): Boolean {
-    val state = viewModel.uiState.value
-    if (state == DataCollectionUiState.TaskSubmitted) {
+    if (viewModel.uiState.value == DataCollectionUiState.TaskSubmitted) {
       // Pressing back button after submitting task should navigate back to home screen.
       navigateBack()
       return true
@@ -229,7 +224,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   private fun navigateBack() {
     isNavigatingUp = true
     viewModel.clearDraft()
-    if (isAdded) findNavController().navigateUp()
+    findNavController().navigateUp()
   }
 
   private companion object {
