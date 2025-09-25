@@ -368,6 +368,7 @@ internal constructor(
     val safeId = if (taskId in validIds) taskId else validIds.first()
 
     savedStateHandle[TASK_POSITION_ID] = safeId
+    clearDraft()
     saveDraft(safeId)
 
     val newPos = taskSequenceHandler.getTaskPosition(safeId)
