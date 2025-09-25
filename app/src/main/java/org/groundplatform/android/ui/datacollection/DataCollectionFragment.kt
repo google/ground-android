@@ -122,10 +122,9 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
 
       is DataCollectionUiState.Error -> Unit
 
-      is DataCollectionUiState.Ready -> {
-        // Ensure adapter has the task list; then jump to the current position.
-        loadTasks(uiState.tasks, uiState.position)
-      }
+      // Ensure adapter has the task list; then jump to the current position.
+      is DataCollectionUiState.Ready -> loadTasks(uiState.tasks, uiState.position)
+
       is DataCollectionUiState.TaskUpdated -> onTaskChanged(uiState.position)
 
       is DataCollectionUiState.TaskSubmitted -> onTaskSubmitted()
