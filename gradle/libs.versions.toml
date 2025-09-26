@@ -15,7 +15,7 @@
 [versions]
 androidMapsUtilsVersion = "3.8.2"
 appcompatVersion = "1.7.0"
-autoValueVersion = "1.10.4"
+autoValueVersion = "1.11.0"
 cardviewVersion = "1.0.0"
 compilerVersion = "1.5.15"
 composeUi = "1.8.2"
