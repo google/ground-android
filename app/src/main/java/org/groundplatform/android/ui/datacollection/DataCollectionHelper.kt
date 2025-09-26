@@ -86,10 +86,10 @@ constructor(
   }
 
   private suspend fun initUiState() {
-    _uiState.value = computeInitialUiState()
+    _uiState.value = initialStateProvider()
   }
 
-  private suspend fun computeInitialUiState(): DataCollectionUiState {
+  private suspend fun initialStateProvider(): DataCollectionUiState {
     // 1) Load survey
     val survey =
       loadSurveyOrReturnError()
