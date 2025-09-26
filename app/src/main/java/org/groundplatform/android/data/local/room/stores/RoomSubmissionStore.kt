@@ -224,7 +224,7 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
       .map { mutations ->
         mutations.filter { it.surveyId == survey.id }.map { it.toModelObject(survey) }
       }
-      .catch { Timber.e(it, "Ignoring invalid submission mutation for survey $survey") }
+      .catch { Timber.e(it, "Ignoring invalid submission mutation for survey ${survey.id}") }
 
   override fun getAllMutationsFlow(): Flow<List<SubmissionMutation>> =
     submissionMutationDao
