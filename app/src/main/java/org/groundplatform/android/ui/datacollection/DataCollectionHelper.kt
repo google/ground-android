@@ -33,6 +33,7 @@ import org.groundplatform.android.coroutines.ApplicationScope
 import org.groundplatform.android.coroutines.IoDispatcher
 import org.groundplatform.android.data.local.room.converter.SubmissionDeltasConverter
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
+import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.submission.ValueDelta
@@ -118,76 +119,72 @@ constructor(
   }
 
   private suspend fun computeInitialUiState(): DataCollectionUiState {
-    var errorMessage: String? = null
-
-    // 1) Load survey with timeout
+    // 1) Load survey
     val survey =
-      withTimeoutOrNull(SURVEY_LOAD_TIMEOUT_MILLIS) {
-          surveyRepository.activeSurveyFlow.filterNotNull().first()
-        }
-        .also { if (it == null) errorMessage = "Survey failed to load. Please try again." }
+      loadSurveyOrReturnError()
+        ?: return DataCollectionUiState.Error("Survey failed to load. Please try again.")
 
     // 2) Resolve job
     val job =
-      survey?.getJob(jobId).also {
-        if (survey != null && it == null) errorMessage = "Invalid jobId: $jobId"
-      }
+      resolveJobOrReturnError(survey) ?: return DataCollectionUiState.Error("Invalid jobId: $jobId")
 
-    // 3) Choose tasks
-    val tasks =
-      if (job != null) {
-        if (loiId == null) job.tasksSorted else job.tasksSorted.filterNot { it.isAddLoiTask }
-      } else {
-        emptyList()
-      }
+    // 3) Choose tasks (exclude Add-LOI task if an LOI is already selected)
+    val tasks = pickTasks(job, loiId)
 
-    // 4) Sequence + validation
-    if (job != null) {
-      taskSequenceHandler = TaskSequenceHandler(tasks, taskDataHandler)
-      val valid = taskSequenceHandler.getValidTasks()
-      if (valid.isEmpty()) errorMessage = "No valid tasks for this job."
+    // 4) Init sequence + validate
+    if (!initSequenceOrReturnError(tasks)) {
+      return DataCollectionUiState.Error("No valid tasks for this job.")
     }
 
-    // 5) Error short-circuit
-    errorMessage?.let {
-      return DataCollectionUiState.Error(it)
-    }
-
-    // 6) Happy path
-    val valid = taskSequenceHandler.getValidTasks()
-    val initialTaskId =
-      resolveInitialTaskId(
-        validIds = valid.map { it.id },
-        saved = savedStateHandle[TASK_POSITION_ID],
-      )
+    // 5) Position & LOI name
+    val initialTaskId = computeInitialTaskId()
     savedStateHandle[TASK_POSITION_ID] = initialTaskId
 
-    val loiName =
-      when {
-        loiId == null -> {
-          // user is adding a new LOI, so we may rely on savedStateHandle value
-          savedStateHandle[TASK_LOI_NAME_KEY] ?: ""
-        }
-        else -> {
-          // look up the LOI in repository
-          withContext(ioDispatcher) {
-            locationOfInterestRepository.getOfflineLoi(survey!!.id, loiId!!)?.let {
-              locationOfInterestHelper.getDisplayLoiName(it)
-            }
-          }
-        }
-      }
+    val loiName = computeLoiName(survey.id, loiId)
 
+    // 6) Ready
     return DataCollectionUiState.Ready(
-      surveyId = requireNotNull(survey!!.id),
-      job = job!!,
-      loiName = loiName ?: "",
+      surveyId = survey.id,
+      job = job,
+      loiName = loiName.orEmpty(),
       tasks = tasks,
-      isAddLoiFlow = (loiId == null),
+      isAddLoiFlow = loiId == null,
       currentTaskId = initialTaskId,
       position = taskSequenceHandler.getTaskPosition(initialTaskId),
     )
   }
+
+  private suspend fun loadSurveyOrReturnError(): Survey? =
+    withTimeoutOrNull(SURVEY_LOAD_TIMEOUT_MILLIS) {
+      surveyRepository.activeSurveyFlow.filterNotNull().first()
+    }
+
+  private fun resolveJobOrReturnError(survey: Survey): Job? = survey.getJob(jobId)
+
+  private fun pickTasks(job: Job, loiId: String?): List<Task> =
+    if (loiId == null) job.tasksSorted else job.tasksSorted.filterNot { it.isAddLoiTask }
+
+  private fun initSequenceOrReturnError(tasks: List<Task>): Boolean {
+    taskSequenceHandler = TaskSequenceHandler(tasks, taskDataHandler)
+    return taskSequenceHandler.getValidTasks().isNotEmpty()
+  }
+
+  private fun computeInitialTaskId(): String {
+    val validIds = taskSequenceHandler.getValidTasks().map { it.id }
+    return resolveInitialTaskId(validIds = validIds, saved = savedStateHandle[TASK_POSITION_ID])
+  }
+
+  private suspend fun computeLoiName(surveyId: String, loiId: String?): String? =
+    if (loiId == null) {
+      // user is adding a new LOI; pull whatever user typed (may be null/empty)
+      savedStateHandle[TASK_LOI_NAME_KEY]
+    } else {
+      withContext(ioDispatcher) {
+        locationOfInterestRepository.getOfflineLoi(surveyId, loiId)?.let {
+          locationOfInterestHelper.getDisplayLoiName(it)
+        }
+      }
+    }
 
   fun setLoiName(name: String) {
     savedStateHandle[TASK_LOI_NAME_KEY] = name
@@ -340,12 +337,13 @@ constructor(
     val deltas = getDeltas()
     if (uiState.value == DataCollectionUiState.TaskSubmitted || deltas.isEmpty()) return
 
+    val readyState = uiState.value as? DataCollectionUiState.Ready ?: return
+
     scope.launch(ioDispatcher) {
-      val state = uiState.value as? DataCollectionUiState.Ready ?: return@launch
       submissionRepository.saveDraftSubmission(
         jobId = jobId,
         loiId = loiId,
-        surveyId = state.surveyId,
+        surveyId = readyState.surveyId,
         deltas = deltas,
         loiName = savedStateHandle[TASK_LOI_NAME_KEY],
         currentTaskId = taskId,
