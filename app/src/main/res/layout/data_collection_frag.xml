@@ -21,8 +21,11 @@
 
   <data>
     <variable
-      name="viewModel"
-      type="org.groundplatform.android.ui.datacollection.DataCollectionViewModel" />
+      name="jobName"
+      type="String" />
+    <variable
+      name="loiName"
+      type="String" />
   </data>
 
   <androidx.constraintlayout.widget.ConstraintLayout
@@ -38,9 +41,9 @@
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent"
       app:navigationIcon="@drawable/baseline_close_24"
-      app:subtitle="@{viewModel.loiName}"
+      app:subtitle="@{loiName}"
       app:subtitleCentered="true"
-      app:title="@{viewModel.jobName}" />
+      app:title="@{jobName}" />
 
     <androidx.viewpager2.widget.ViewPager2
       android:id="@+id/pager"

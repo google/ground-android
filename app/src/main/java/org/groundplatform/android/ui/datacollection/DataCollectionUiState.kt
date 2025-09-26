@@ -15,13 +15,25 @@
  */
 package org.groundplatform.android.ui.datacollection
 
+import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.task.Task
 
-sealed class UiState {
+sealed interface DataCollectionUiState {
+  data object Loading : DataCollectionUiState
 
-  data class TaskListAvailable(val tasks: List<Task>, val taskPosition: TaskPosition) : UiState()
+  data class Ready(
+    val surveyId: String,
+    val job: Job,
+    val loiName: String,
+    val tasks: List<Task>,
+    val isAddLoiFlow: Boolean,
+    val currentTaskId: String,
+    val position: TaskPosition,
+  ) : DataCollectionUiState
 
-  data class TaskUpdated(val taskPosition: TaskPosition) : UiState()
+  data class Error(val message: String) : DataCollectionUiState
 
-  data object TaskSubmitted : UiState()
+  data class TaskUpdated(val position: TaskPosition) : DataCollectionUiState
+
+  data object TaskSubmitted : DataCollectionUiState
 }
