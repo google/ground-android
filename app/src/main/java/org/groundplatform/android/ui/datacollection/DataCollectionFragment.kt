@@ -76,7 +76,6 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    binding.viewModel = viewModel
     binding.lifecycleOwner = viewLifecycleOwner
 
     viewPager.isUserInputEnabled = false
@@ -123,7 +122,11 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
       is DataCollectionUiState.Error -> Unit
 
       // Ensure adapter has the task list; then jump to the current position.
-      is DataCollectionUiState.Ready -> loadTasks(uiState.tasks, uiState.position)
+      is DataCollectionUiState.Ready -> {
+        binding.jobName = uiState.job.name
+        binding.loiName = uiState.loiName
+        loadTasks(uiState.tasks, uiState.position)
+      }
 
       is DataCollectionUiState.TaskUpdated -> onTaskChanged(uiState.position)
 

@@ -24,6 +24,7 @@ sealed interface DataCollectionUiState {
   data class Ready(
     val surveyId: String,
     val job: Job,
+    val loiName: String,
     val tasks: List<Task>,
     val isAddLoiFlow: Boolean,
     val currentTaskId: String,
