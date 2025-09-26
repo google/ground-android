@@ -28,11 +28,11 @@ jobs:
 
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ github.head_ref }}
       - name: "TODO to Issue"
-        uses: alstr/todo-to-issue-action@v5.1.7
+        uses: alstr/todo-to-issue-action@v5.1.13
         with:
           AUTO_ASSIGN: "true"
           INSERT_ISSUE_URLS: "true"
