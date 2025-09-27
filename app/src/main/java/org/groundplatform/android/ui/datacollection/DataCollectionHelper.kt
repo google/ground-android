@@ -79,7 +79,7 @@ constructor(
       job = job,
       loiName = loiName.orEmpty(),
       tasks = tasks,
-      isAddLoiFlow = (loiId == null),
+      isAddLoiFlow = loiId == null,
       currentTaskId = initialTaskId,
       position = taskSequenceHandler.getTaskPosition(initialTaskId),
     )
