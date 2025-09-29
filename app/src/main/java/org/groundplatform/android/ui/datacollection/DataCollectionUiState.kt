@@ -65,11 +65,11 @@ sealed interface DataCollectionUiState {
   /**
    * Terminal error state for failures that prevent rendering a usable screen.
    *
-   * The message is safe to show to the user (or mapped to a localized string).
-   *
-   * @property message Human-readable description of the failure.
+   * @property code Stable error code to map into localized UI strings.
+   * @property cause Optional underlying throwable for logging/diagnostics.
    */
-  data class Error(val message: String) : DataCollectionUiState
+  data class Error(val code: DataCollectionErrorCode, val cause: Throwable? = null) :
+    DataCollectionUiState
 
   /**
    * Ephemeral state emitted when a task update causes navigation or sequence changes (e.g.,
@@ -86,4 +86,31 @@ sealed interface DataCollectionUiState {
    * save further draft data for this session.
    */
   data object TaskSubmitted : DataCollectionUiState
+}
+
+/** Stable, UI-mappable error codes for data collection bootstrapping and flow. */
+enum class DataCollectionErrorCode {
+  SURVEY_LOAD_FAILED,
+  INVALID_JOB_ID,
+  NO_VALID_TASKS,
+  INITIAL_TASK_RESOLUTION_FAILED,
+  LOI_NAME_COMPUTE_FAILED,
+  NETWORK,
+  PERMISSION_DENIED,
+  IO,
+  UNKNOWN,
+}
+
+sealed class DataCollectionException(val code: DataCollectionErrorCode, cause: Throwable? = null) :
+  Exception(cause) {
+  object SurveyLoadFailed : DataCollectionException(DataCollectionErrorCode.SURVEY_LOAD_FAILED)
+
+  object InvalidJobId : DataCollectionException(DataCollectionErrorCode.INVALID_JOB_ID)
+
+  object NoValidTasks : DataCollectionException(DataCollectionErrorCode.NO_VALID_TASKS)
+
+  object LoiNameFailed : DataCollectionException(DataCollectionErrorCode.LOI_NAME_COMPUTE_FAILED)
+
+  class Wrapped(code: DataCollectionErrorCode, cause: Throwable) :
+    DataCollectionException(code, cause)
 }

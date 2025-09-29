@@ -17,6 +17,7 @@ package org.groundplatform.android.ui.datacollection
 
 import androidx.lifecycle.SavedStateHandle
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeoutOrNull
@@ -50,41 +51,64 @@ constructor(
   private val taskDataHandler = TaskDataHandler()
   private lateinit var taskSequenceHandler: TaskSequenceHandler
 
+  /**
+   * Initializes this helper with persisted navigation/context state.
+   *
+   * @throws DataCollectionException.InvalidJobId if the required jobId is absent.
+   */
   fun initialize(savedStateHandle: SavedStateHandle) {
     this.savedStateHandle = savedStateHandle
-    jobId = requireNotNull(savedStateHandle[TASK_JOB_ID_KEY])
+    jobId = savedStateHandle[TASK_JOB_ID_KEY] ?: throw DataCollectionException.InvalidJobId
     loiId = savedStateHandle[TASK_LOI_ID_KEY]
   }
 
-  suspend fun initialStateProvider(): DataCollectionUiState {
-    val survey =
-      loadSurveyOrReturnError()
-        ?: return DataCollectionUiState.Error("Survey failed to load. Please try again.")
-    val job =
-      resolveJobOrReturnError(survey) ?: return DataCollectionUiState.Error("Invalid jobId: $jobId")
+  /**
+   * Produces the initial UI state by resolving survey, job, tasks, and LOI name.
+   *
+   * Contract:
+   * - Returns [DataCollectionUiState.Ready] when all dependencies resolve within timeouts.
+   * - Returns [DataCollectionUiState.Error] with a stable error code otherwise.
+   *
+   * Cancellation:
+   * - Propagates [CancellationException] to respect coroutine structured concurrency.
+   */
+  suspend fun initialStateProvider(): DataCollectionUiState =
+    try {
+      val survey = loadSurveyOrThrow()
+      val job = resolveJobOrThrow(survey)
 
-    val tasks = pickTasks(job, loiId)
-    if (!initSequenceOrReturnError(tasks)) {
-      return DataCollectionUiState.Error("No valid tasks for this job.")
+      val tasks = pickTasks(job, loiId)
+      initSequenceOrThrow(tasks)
+
+      val initialTaskId = computeInitialTaskId()
+      savedStateHandle[TASK_POSITION_ID] = initialTaskId
+
+      val loiName = computeLoiNameOrThrow(survey.id, loiId)
+
+      DataCollectionUiState.Ready(
+        surveyId = survey.id,
+        job = job,
+        loiName = loiName.orEmpty(),
+        tasks = tasks,
+        isAddLoiFlow = loiId == null,
+        currentTaskId = initialTaskId,
+        position = taskSequenceHandler.getTaskPosition(initialTaskId),
+      )
+    } catch (e: DataCollectionException) {
+      DataCollectionUiState.Error(e.code, e)
+    } catch (c: CancellationException) {
+      throw c
+    } catch (t: Throwable) {
+      DataCollectionUiState.Error(mapThrowableToCode(t), t)
     }
 
-    val initialTaskId = computeInitialTaskId()
-    savedStateHandle[TASK_POSITION_ID] = initialTaskId
-
-    val loiName = computeLoiName(survey.id, loiId)
-
-    // 6) Ready
-    return DataCollectionUiState.Ready(
-      surveyId = survey.id,
-      job = job,
-      loiName = loiName.orEmpty(),
-      tasks = tasks,
-      isAddLoiFlow = loiId == null,
-      currentTaskId = initialTaskId,
-      position = taskSequenceHandler.getTaskPosition(initialTaskId),
-    )
-  }
-
+  /**
+   * Loads the active [Survey] or throws if not available within the configured timeout.
+   *
+   * @throws DataCollectionException.SurveyLoadFailed on timeout or missing active survey.
+   * @throws CancellationException if the coroutine is cancelled.
+   */
+  @Suppress("UnusedPrivateMember")
   private suspend fun loadSurveyOrReturnError(): Survey? =
     withTimeoutOrNull(SURVEY_LOAD_TIMEOUT_MILLIS) {
       surveyRepository.activeSurveyFlow.filterNotNull().first()
@@ -100,6 +124,10 @@ constructor(
     return taskSequenceHandler.getValidTasks().isNotEmpty()
   }
 
+  /**
+   * Picks the first task to show. Precondition: [initSequenceOrThrow] has ensured there is at least
+   * one valid task ID.
+   */
   private fun computeInitialTaskId(): String {
     val validIds = taskSequenceHandler.getValidTasks().map { it.id }
     return resolveInitialTaskId(validIds = validIds, saved = savedStateHandle[TASK_POSITION_ID])
@@ -116,6 +144,51 @@ constructor(
       locationOfInterestRepository.getOfflineLoi(surveyId, loiId)?.let {
         locationOfInterestHelper.getDisplayLoiName(it)
       }
+    }
+
+  /**
+   * Loads the active survey or throws a [DataCollectionException] if none is available within
+   * [SURVEY_LOAD_TIMEOUT_MILLIS].
+   */
+  private suspend fun loadSurveyOrThrow(): Survey =
+    withTimeoutOrNull(SURVEY_LOAD_TIMEOUT_MILLIS) {
+      surveyRepository.activeSurveyFlow.filterNotNull().first()
+    } ?: throw DataCollectionException.SurveyLoadFailed
+
+  /**
+   * Resolves the [Job] for the current [jobId] within the given [survey].
+   *
+   * @throws DataCollectionException.InvalidJobId if not found.
+   */
+  private fun resolveJobOrThrow(survey: Survey): Job =
+    resolveJobOrReturnError(survey) ?: throw DataCollectionException.InvalidJobId
+
+  /**
+   * Builds a task sequence and verifies there is at least one valid task.
+   *
+   * @throws DataCollectionException.NoValidTasks if validation yields an empty sequence.
+   */
+  private fun initSequenceOrThrow(tasks: List<Task>) {
+    if (!initSequenceOrReturnError(tasks)) throw DataCollectionException.NoValidTasks
+  }
+
+  /**
+   * Computes a user-visible LOI name. For "Add LOI" flows, returns the user-typed value (possibly
+   * empty). For existing LOIs, resolves and formats the persisted name.
+   *
+   * @throws DataCollectionException.LoiNameFailed if resolution fails or no value is available.
+   */
+  private suspend fun computeLoiNameOrThrow(surveyId: String, loiId: String?): String =
+    computeLoiName(surveyId, loiId) ?: throw DataCollectionException.LoiNameFailed
+
+  private fun mapThrowableToCode(t: Throwable): DataCollectionErrorCode =
+    when (t) {
+      is CancellationException -> throw t
+      is java.net.SocketTimeoutException,
+      is java.net.UnknownHostException -> DataCollectionErrorCode.NETWORK
+      is java.io.IOException -> DataCollectionErrorCode.IO
+      is SecurityException -> DataCollectionErrorCode.PERMISSION_DENIED
+      else -> DataCollectionErrorCode.UNKNOWN
     }
 
   companion object {
