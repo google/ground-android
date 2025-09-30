@@ -99,7 +99,7 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   }
 
   override fun onTaskViewAttached() {
-    val ready = (dataCollectionViewModel.uiState.value as? DataCollectionUiState.Ready)
+    val ready = dataCollectionViewModel.uiState.value as? DataCollectionUiState.Ready
     val surveyId = ready?.surveyId ?: return
 
     viewModel.surveyId = surveyId

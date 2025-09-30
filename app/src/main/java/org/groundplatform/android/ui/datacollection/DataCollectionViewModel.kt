@@ -104,16 +104,19 @@ internal constructor(
   init {
     viewModelScope.launch {
       when (val initResult = initializer.initialize(savedStateHandle, jobId, loiId)) {
-        is DataCollectionUiState.Ready -> {
-          taskSequenceHandler = TaskSequenceHandler(initResult.tasks, taskDataHandler)
-          _uiState.value = initResult
-        }
-
-        is DataCollectionUiState.Error -> {
-          Timber.e(initResult.cause, "Initialization failed code=%s", initResult.code)
-          _uiState.value = initResult
-        }
-        else -> Unit
+        is DataCollectionUiState.Ready ->
+          run {
+            taskSequenceHandler = TaskSequenceHandler(initResult.tasks, taskDataHandler)
+            _uiState.value = initResult
+          }
+        is DataCollectionUiState.Error ->
+          run {
+            Timber.e(initResult.cause, "Initialization failed code=%s", initResult.code)
+            _uiState.value = initResult
+          }
+        DataCollectionUiState.Loading -> Unit
+        is DataCollectionUiState.TaskUpdated -> Unit
+        DataCollectionUiState.TaskSubmitted -> Unit
       }
     }
 
@@ -135,23 +138,33 @@ internal constructor(
   }
 
   private fun getDraftDeltas(): List<ValueDelta> {
-    val currentState = uiState.value
-    if (currentState !is DataCollectionUiState.Ready) {
-      Timber.w("getDraftDeltas called when UI State is not ready: $currentState")
-      return emptyList()
-    }
+    val ready = uiState.value as? DataCollectionUiState.Ready
 
-    if (!shouldLoadFromDraft) return listOf()
-    if (draftDeltas != null) return draftDeltas as List<ValueDelta>
-
-    val serializedDraftValues = savedStateHandle[TASK_DRAFT_VALUES] ?: ""
-    if (serializedDraftValues.isEmpty()) {
-      Timber.e("Attempting load from draft submission failed, not found")
-      return listOf()
-    }
-
-    draftDeltas = SubmissionDeltasConverter.fromString(currentState.job, serializedDraftValues)
-    return draftDeltas as List<ValueDelta>
+    val result: List<ValueDelta> =
+      when {
+        ready == null -> {
+          Timber.w("getDraftDeltas called when UI State is not ready: ${uiState.value}")
+          emptyList()
+        }
+        !shouldLoadFromDraft -> {
+          emptyList()
+        }
+        draftDeltas != null -> {
+          draftDeltas!!
+        }
+        else -> {
+          val serialized: String = savedStateHandle.get<String>(TASK_DRAFT_VALUES).orEmpty()
+          if (serialized.isEmpty()) {
+            Timber.e("Attempting load from draft submission failed, not found")
+            emptyList()
+          } else {
+            SubmissionDeltasConverter.fromString(ready.job, serialized).also { parsed ->
+              draftDeltas = parsed
+            }
+          }
+        }
+      }
+    return result
   }
 
   private fun getValueFromDraft(task: Task): TaskData? {
@@ -166,40 +179,42 @@ internal constructor(
   }
 
   fun getTaskViewModel(taskId: String): AbstractTaskViewModel? {
-    val currentState = uiState.value
-
-    if (currentState !is DataCollectionUiState.Ready) {
-      Timber.w("GetTaskViewModel called when UI State is not ready: $currentState")
+    val ready = uiState.value as? DataCollectionUiState.Ready
+    if (ready == null) {
+      Timber.w("GetTaskViewModel called when UI State is not ready: ${uiState.value}")
       return null
     }
 
-    val viewModels = taskViewModels.value
-    if (viewModels.containsKey(taskId)) {
-      return viewModels[taskId]
-    }
+    val map = taskViewModels.value
+    val existing = map[taskId]
 
-    // Cleanup extra logs added for debugging: https://github.com/google/ground-android/issues/2998
-    val task =
-      currentState.tasks.firstOrNull { it.id == taskId }
-        ?: error(
-          "Task not found. taskId=$taskId, jobId=$jobId, loiId=$loiId, surveyId=${currentState.surveyId}"
-        )
+    val vm: AbstractTaskViewModel? =
+      existing
+        ?: run {
+          val task =
+            ready.tasks.firstOrNull { it.id == taskId }
+              ?: error(
+                "Task not found. taskId=$taskId, jobId=$jobId, loiId=$loiId, surveyId=${ready.surveyId}"
+              )
 
-    val viewModel =
-      try {
-        viewModelFactory.create(getViewModelClass(task.type))
-      } catch (e: Exception) {
-        Timber.e("ignoring task with invalid type: $task.type")
-        null
-      }
+          val created =
+            try {
+              viewModelFactory.create(getViewModelClass(task.type))
+            } catch (e: Exception) {
+              Timber.e(e, "Ignoring task with invalid type: %s", task.type)
+              null
+            }
 
-    return viewModel?.apply {
-      viewModels[task.id] = viewModel
+          created?.also { newVm ->
+            map[task.id] = newVm
+            taskViewModels.value = map // ensure state update if observers rely on a new reference
+            val taskData: TaskData? = if (shouldLoadFromDraft) getValueFromDraft(task) else null
+            newVm.initialize(ready.job, task, taskData)
+            taskDataHandler.setData(task, taskData)
+          }
+        }
 
-      val taskData: TaskData? = if (shouldLoadFromDraft) getValueFromDraft(task) else null
-      viewModel.initialize(currentState.job, task, taskData)
-      taskDataHandler.setData(task, taskData)
-    }
+    return vm
   }
 
   /** Moves back to the previous task in the sequence if the current value is valid or empty. */

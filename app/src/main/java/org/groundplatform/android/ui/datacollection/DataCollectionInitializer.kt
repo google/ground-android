@@ -157,8 +157,8 @@ constructor(
     savedStateHandle: SavedStateHandle,
     surveyId: String,
     loiId: String?,
-  ): String {
-    return try {
+  ): String =
+    try {
       if (loiId == null) {
         // Add-LOI flow: user may not have typed a name yet
         savedStateHandle[TASK_LOI_NAME_KEY] ?: ""
@@ -176,7 +176,6 @@ constructor(
     } catch (_: Throwable) {
       ""
     }
-  }
 
   private fun mapThrowableToCode(t: Throwable): DataCollectionErrorCode =
     when (t) {

@@ -122,10 +122,18 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
         binding.loiName = uiState.loiName
         loadTasks(uiState.tasks, uiState.taskPosition)
       }
-      is DataCollectionUiState.TaskUpdated -> onTaskChanged(uiState.taskPosition)
-      is DataCollectionUiState.TaskSubmitted -> onTaskSubmitted()
-      is DataCollectionUiState.Loading -> Unit // TODO
-      is DataCollectionUiState.Error -> Unit // TODO
+      is DataCollectionUiState.TaskUpdated -> {
+        onTaskChanged(uiState.taskPosition)
+      }
+      DataCollectionUiState.TaskSubmitted -> {
+        onTaskSubmitted()
+      }
+      DataCollectionUiState.Loading -> {
+        // TODO: show loading UI
+      }
+      is DataCollectionUiState.Error -> {
+        // TODO: surface error; or no-op
+      }
     }
   }
 
