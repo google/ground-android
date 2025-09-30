@@ -77,6 +77,7 @@ internal constructor(
 
   private val jobId: String = requireNotNull(savedStateHandle[TASK_JOB_ID_KEY])
   private val loiId: String? = savedStateHandle[TASK_LOI_ID_KEY]
+  private val loiName: String? = savedStateHandle[TASK_LOI_NAME_KEY]
 
   private val taskDataHandler = TaskDataHandler()
   private lateinit var taskSequenceHandler: TaskSequenceHandler
@@ -89,7 +90,10 @@ internal constructor(
 
   init {
     viewModelScope.launch {
-      when (val initResult = dataCollectionInitializer.initialize(savedStateHandle, jobId, loiId)) {
+      when (
+        val initResult =
+          dataCollectionInitializer.initialize(savedStateHandle, jobId, loiId, loiName)
+      ) {
         is DataCollectionUiState.Ready ->
           run {
             taskSequenceHandler = TaskSequenceHandler(initResult.tasks, taskDataHandler)
