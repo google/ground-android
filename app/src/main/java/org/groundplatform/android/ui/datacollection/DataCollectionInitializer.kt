@@ -86,7 +86,7 @@ constructor(
           )
 
       val typedName: String? = savedStateHandle[TASK_LOI_NAME_KEY]
-      val loiName = computeLoiNameOrThrow(survey.id, loiId, typedName)
+      val loiName = computeLoiName(survey.id, loiId, typedName)
 
       DataCollectionUiState.Ready(
         surveyId = survey.id,
@@ -149,17 +149,14 @@ constructor(
    *
    * @throws DataCollectionException.LoiNameFailed when unavailable.
    */
-  private suspend fun computeLoiNameOrThrow(
-    surveyId: String,
-    loiId: String?,
-    typedName: String?,
-  ): String =
+  private suspend fun computeLoiName(surveyId: String, loiId: String?, typedName: String?): String =
     if (loiId == null) {
-      typedName ?: throw DataCollectionException.LoiNameFailed
+      typedName.orEmpty()
     } else {
-      locationOfInterestRepository.getOfflineLoi(surveyId, loiId)?.let {
-        locationOfInterestHelper.getDisplayLoiName(it)
-      } ?: throw DataCollectionException.LoiNameFailed
+      locationOfInterestRepository
+        .getOfflineLoi(surveyId, loiId)
+        ?.let { locationOfInterestHelper.getDisplayLoiName(it) }
+        .orEmpty()
     }
 
   private fun mapThrowableToCode(t: Throwable): DataCollectionErrorCode =

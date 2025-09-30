@@ -117,20 +117,19 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
 
   private fun updateUI(uiState: DataCollectionUiState) {
     when (uiState) {
-      is DataCollectionUiState.Loading -> Unit
-
-      is DataCollectionUiState.Error -> Unit
-
       // Ensure adapter has the task list; then jump to the current position.
-      is DataCollectionUiState.Ready -> {
-        binding.jobName = uiState.job.name
-        binding.loiName = uiState.loiName
-        loadTasks(uiState.tasks, uiState.position)
-      }
+      is DataCollectionUiState.Ready ->
+        run {
+          binding.jobName = uiState.job.name
+          binding.loiName = uiState.loiName
+          loadTasks(uiState.tasks, uiState.position)
+        }
 
       is DataCollectionUiState.TaskUpdated -> onTaskChanged(uiState.position)
 
       is DataCollectionUiState.TaskSubmitted -> onTaskSubmitted()
+
+      else -> Unit
     }
   }
 
