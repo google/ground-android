@@ -77,8 +77,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    binding.viewModel = viewModel
-    binding.lifecycleOwner = this
+    binding.lifecycleOwner = viewLifecycleOwner
 
     viewPager.isUserInputEnabled = false
     viewPager.offscreenPageLimit = 1
@@ -97,7 +96,6 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
       }
     )
 
-    // Collect UI state safely across the Fragment view lifecycle.
     viewLifecycleOwner.lifecycleScope.launch {
       viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
         viewModel.uiState.collect { ui -> updateUI(ui) }
@@ -119,11 +117,15 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
 
   private fun updateUI(uiState: DataCollectionUiState) {
     when (uiState) {
-      is DataCollectionUiState.Ready -> loadTasks(uiState.tasks, uiState.taskPosition)
+      is DataCollectionUiState.Ready -> {
+        binding.jobName = uiState.job.name
+        binding.loiName = uiState.loiName
+        loadTasks(uiState.tasks, uiState.taskPosition)
+      }
       is DataCollectionUiState.TaskUpdated -> onTaskChanged(uiState.taskPosition)
       is DataCollectionUiState.TaskSubmitted -> onTaskSubmitted()
-      is DataCollectionUiState.Loading -> Unit
-      is DataCollectionUiState.Error -> Unit
+      is DataCollectionUiState.Loading -> Unit // TODO
+      is DataCollectionUiState.Error -> Unit // TODO
     }
   }
 

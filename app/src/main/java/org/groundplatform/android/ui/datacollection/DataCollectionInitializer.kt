@@ -19,9 +19,12 @@ import androidx.lifecycle.SavedStateHandle
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.cancellation.CancellationException
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
+import org.groundplatform.android.coroutines.IoDispatcher
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.task.Task
@@ -49,6 +52,7 @@ constructor(
   private val locationOfInterestHelper: LocationOfInterestHelper,
   private val locationOfInterestRepository: LocationOfInterestRepository,
   private val surveyRepository: SurveyRepository,
+  @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) {
 
   /**
@@ -86,9 +90,7 @@ constructor(
             DataCollectionErrorCode.INITIAL_TASK_RESOLUTION_FAILED,
             IllegalStateException("Could not compute TaskPosition for $currentTaskId"),
           )
-
-      val typedName: String? = savedStateHandle[TASK_LOI_NAME_KEY]
-      val loiName = computeLoiNameOrThrow(survey.id, loiId, typedName)
+      val loiName = computeLoiNameOrEmpty(savedStateHandle = savedStateHandle, survey.id, loiId)
 
       DataCollectionUiState.Ready(
         surveyId = survey.id,
@@ -151,18 +153,30 @@ constructor(
    *
    * @throws DataCollectionException.LoiNameFailed when unavailable.
    */
-  private suspend fun computeLoiNameOrThrow(
+  private suspend fun computeLoiNameOrEmpty(
+    savedStateHandle: SavedStateHandle,
     surveyId: String,
     loiId: String?,
-    typedName: String?,
-  ): String =
-    if (loiId == null) {
-      typedName ?: throw DataCollectionException.LoiNameFailed
-    } else {
-      locationOfInterestRepository.getOfflineLoi(surveyId, loiId)?.let {
-        locationOfInterestHelper.getDisplayLoiName(it)
-      } ?: throw DataCollectionException.LoiNameFailed
+  ): String {
+    return try {
+      if (loiId == null) {
+        // Add-LOI flow: user may not have typed a name yet
+        savedStateHandle[TASK_LOI_NAME_KEY] ?: ""
+      } else {
+        withContext(ioDispatcher) {
+          val offline = locationOfInterestRepository.getOfflineLoi(surveyId, loiId)
+          if (offline != null) {
+            runCatching { locationOfInterestHelper.getDisplayLoiName(offline) }.getOrElse { "" }
+          } else {
+            // Fallbacks you may prefer: loiId, "Unnamed LOI", etc.
+            ""
+          }
+        }
+      }
+    } catch (_: Throwable) {
+      ""
     }
+  }
 
   private fun mapThrowableToCode(t: Throwable): DataCollectionErrorCode =
     when (t) {
@@ -175,8 +189,8 @@ constructor(
     }
 
   companion object {
-    private const val TASK_LOI_NAME_KEY = "locationOfInterestName"
-    private const val TASK_POSITION_ID = "currentTaskId"
+    const val TASK_LOI_NAME_KEY = "locationOfInterestName"
+    const val TASK_POSITION_ID = "currentTaskId"
     private const val SURVEY_LOAD_TIMEOUT_MILLIS = 3_000L
   }
 }

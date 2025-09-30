@@ -41,6 +41,7 @@ import org.groundplatform.android.system.PermissionDeniedException
 import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.ui.common.EphemeralPopups
 import org.groundplatform.android.ui.components.ConfirmationDialog
+import org.groundplatform.android.ui.datacollection.DataCollectionUiState
 import org.groundplatform.android.ui.datacollection.components.TaskView
 import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
@@ -98,7 +99,10 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   }
 
   override fun onTaskViewAttached() {
-    viewModel.surveyId = dataCollectionViewModel.surveyId
+    val ready = (dataCollectionViewModel.uiState.value as? DataCollectionUiState.Ready)
+    val surveyId = ready?.surveyId ?: return
+
+    viewModel.surveyId = surveyId
     viewModel.taskWaitingForPhoto = taskWaitingForPhoto
 
     viewModel.capturedUri?.let { uri ->

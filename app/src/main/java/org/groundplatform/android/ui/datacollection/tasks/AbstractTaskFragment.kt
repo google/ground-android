@@ -37,6 +37,7 @@ import org.groundplatform.android.model.submission.isNotNullOrEmpty
 import org.groundplatform.android.model.submission.isNullOrEmpty
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.common.AbstractFragment
+import org.groundplatform.android.ui.datacollection.DataCollectionUiState
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.LoiNameDialog
@@ -238,13 +239,11 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   private fun getTask(): Task = viewModel.task
 
-  fun getCurrentValue(): TaskData? = viewModel.taskTaskData.value
-
   private fun launchLoiNameDialog() {
     dataCollectionViewModel.loiNameDialogOpen.value = true
     renderComposableDialog {
       // The LOI NameDialog should call `handleLoiNameSet()` to continue to the next task.
-      ShowLoiNameDialog(dataCollectionViewModel.loiName.value ?: "") {
+      ShowLoiNameDialog((dataCollectionViewModel.uiState as DataCollectionUiState.Ready).loiName) {
         handleLoiNameSet(loiName = it)
       }
     }

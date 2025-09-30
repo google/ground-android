@@ -24,37 +24,26 @@ import javax.inject.Inject
 import javax.inject.Provider
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withTimeout
 import org.groundplatform.android.coroutines.ApplicationScope
 import org.groundplatform.android.coroutines.IoDispatcher
 import org.groundplatform.android.data.local.room.converter.SubmissionDeltasConverter
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
-import org.groundplatform.android.model.Survey
-import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.submission.ValueDelta
 import org.groundplatform.android.model.submission.isNotNullOrEmpty
 import org.groundplatform.android.model.task.Task
-import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.SubmissionRepository
-import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.common.EphemeralPopups
-import org.groundplatform.android.ui.common.LocationOfInterestHelper
 import org.groundplatform.android.ui.common.ViewModelFactory
+import org.groundplatform.android.ui.datacollection.DataCollectionInitializer.Companion.TASK_LOI_NAME_KEY
+import org.groundplatform.android.ui.datacollection.DataCollectionInitializer.Companion.TASK_POSITION_ID
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.date.DateTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.instruction.InstructionTaskViewModel
@@ -75,7 +64,6 @@ class DataCollectionViewModel
 @Inject
 internal constructor(
   private val viewModelFactory: ViewModelFactory,
-  private val locationOfInterestHelper: LocationOfInterestHelper,
   private val popups: Provider<EphemeralPopups>,
   private val submitDataUseCase: SubmitDataUseCase,
   @ApplicationScope private val externalScope: CoroutineScope,
@@ -83,8 +71,6 @@ internal constructor(
   private val savedStateHandle: SavedStateHandle,
   private val submissionRepository: SubmissionRepository,
   private val offlineUuidGenerator: OfflineUuidGenerator,
-  locationOfInterestRepository: LocationOfInterestRepository,
-  surveyRepository: SurveyRepository,
   private val initializer: DataCollectionInitializer,
 ) : AbstractViewModel() {
 
@@ -95,52 +81,14 @@ internal constructor(
   private val jobId: String = requireNotNull(savedStateHandle[TASK_JOB_ID_KEY])
   private val loiId: String? = savedStateHandle[TASK_LOI_ID_KEY]
 
-  /** True iff the user is expected to produce a new LOI in the current data collection flow. */
-  private val isAddLoiFlow = loiId == null
-
   private var shouldLoadFromDraft: Boolean = savedStateHandle[TASK_SHOULD_LOAD_FROM_DRAFT] ?: false
   private var draftDeltas: List<ValueDelta>? = null
 
-  private val activeSurvey: Survey = runBlocking {
-    try {
-      withTimeout(SURVEY_LOAD_TIMEOUT_MILLIS) {
-        surveyRepository.activeSurveyFlow.filterNotNull().first()
-      }
-    } catch (e: TimeoutCancellationException) {
-      Timber.e(e, "Failed to get survey due to timeout")
-      throw e
-    }
-  }
-
-  private val job: Job = activeSurvey.getJob(jobId) ?: error("couldn't retrieve job for $jobId")
   private var customLoiName: String?
     get() = savedStateHandle[TASK_LOI_NAME_KEY]
     set(value) {
       savedStateHandle[TASK_LOI_NAME_KEY] = value
     }
-
-  // LOI creation task is included only on "new data collection site" flow..
-  val tasks: List<Task> =
-    if (isAddLoiFlow) job.tasksSorted else job.tasksSorted.filterNot { it.isAddLoiTask }
-
-  val surveyId: String = requireNotNull(surveyRepository.activeSurvey?.id)
-
-  val jobName: StateFlow<String> =
-    MutableStateFlow(job.name ?: "").stateIn(viewModelScope, SharingStarted.Lazily, "")
-
-  val loiName: StateFlow<String?> =
-    (if (loiId == null) {
-        // User supplied LOI name during LOI creation task. Use to save the LOI name later.
-        savedStateHandle.getStateFlow(TASK_LOI_NAME_KEY, "")
-      } else
-      // LOI name pulled from LOI properties, if it exists.
-      flow {
-          locationOfInterestRepository.getOfflineLoi(surveyId, loiId)?.let {
-            val label = locationOfInterestHelper.getDisplayLoiName(it)
-            emit(label)
-          }
-        })
-      .stateIn(viewModelScope, SharingStarted.Lazily, "")
 
   val loiNameDialogOpen: MutableState<Boolean> = mutableStateOf(false)
 
@@ -148,26 +96,24 @@ internal constructor(
     MutableStateFlow(mutableMapOf())
 
   private val taskDataHandler = TaskDataHandler()
-  private val taskSequenceHandler = TaskSequenceHandler(tasks, taskDataHandler)
+  private lateinit var taskSequenceHandler: TaskSequenceHandler
 
   // Tracks the current task ID to compute the position in the list of tasks for the current job.
   private val currentTaskId: StateFlow<String> = savedStateHandle.getStateFlow(TASK_POSITION_ID, "")
 
   init {
-    // If we don't have a current task yet, delegate to the initializer.
-    if (currentTaskId.value.isBlank()) {
-      viewModelScope.launch {
-        when (val init = initializer.initialize(savedStateHandle, jobId, loiId)) {
-          is DataCollectionUiState.Ready -> {
-            _uiState.update { DataCollectionUiState.TaskUpdated(init.taskPosition) }
-          }
-          is DataCollectionUiState.Error -> {
-            Timber.e(init.cause, "Initialization failed with code=%s", init.code)
-          }
-          is DataCollectionUiState.Loading -> {}
-          is DataCollectionUiState.TaskUpdated -> {}
-          is DataCollectionUiState.TaskSubmitted -> {}
+    viewModelScope.launch {
+      when (val initResult = initializer.initialize(savedStateHandle, jobId, loiId)) {
+        is DataCollectionUiState.Ready -> {
+          taskSequenceHandler = TaskSequenceHandler(initResult.tasks, taskDataHandler)
+          _uiState.value = initResult
         }
+
+        is DataCollectionUiState.Error -> {
+          Timber.e(initResult.cause, "Initialization failed code=%s", initResult.code)
+          _uiState.value = initResult
+        }
+        else -> Unit
       }
     }
 
@@ -189,6 +135,12 @@ internal constructor(
   }
 
   private fun getDraftDeltas(): List<ValueDelta> {
+    val currentState = uiState.value
+    if (currentState !is DataCollectionUiState.Ready) {
+      Timber.w("getDraftDeltas called when UI State is not ready: $currentState")
+      return emptyList()
+    }
+
     if (!shouldLoadFromDraft) return listOf()
     if (draftDeltas != null) return draftDeltas as List<ValueDelta>
 
@@ -198,7 +150,7 @@ internal constructor(
       return listOf()
     }
 
-    draftDeltas = SubmissionDeltasConverter.fromString(job, serializedDraftValues)
+    draftDeltas = SubmissionDeltasConverter.fromString(currentState.job, serializedDraftValues)
     return draftDeltas as List<ValueDelta>
   }
 
@@ -214,16 +166,24 @@ internal constructor(
   }
 
   fun getTaskViewModel(taskId: String): AbstractTaskViewModel? {
-    val viewModels = taskViewModels.value
+    val currentState = uiState.value
 
+    if (currentState !is DataCollectionUiState.Ready) {
+      Timber.w("GetTaskViewModel called when UI State is not ready: $currentState")
+      return null
+    }
+
+    val viewModels = taskViewModels.value
     if (viewModels.containsKey(taskId)) {
       return viewModels[taskId]
     }
 
     // Cleanup extra logs added for debugging: https://github.com/google/ground-android/issues/2998
     val task =
-      tasks.firstOrNull { it.id == taskId }
-        ?: error("Task not found. taskId=$taskId, jobId=$jobId, loiId=$loiId, surveyId=$surveyId")
+      currentState.tasks.firstOrNull { it.id == taskId }
+        ?: error(
+          "Task not found. taskId=$taskId, jobId=$jobId, loiId=$loiId, surveyId=${currentState.surveyId}"
+        )
 
     val viewModel =
       try {
@@ -237,7 +197,7 @@ internal constructor(
       viewModels[task.id] = viewModel
 
       val taskData: TaskData? = if (shouldLoadFromDraft) getValueFromDraft(task) else null
-      viewModel.initialize(job, task, taskData)
+      viewModel.initialize(currentState.job, task, taskData)
       taskDataHandler.setData(task, taskData)
     }
   }
@@ -308,14 +268,35 @@ internal constructor(
 
   /** Persists the changes locally and enqueues a worker to sync with remote datastore. */
   private fun saveChanges(deltas: List<ValueDelta>) {
+    val currentState = uiState.value
+    if (currentState !is DataCollectionUiState.Ready) {
+      Timber.w("saveChanges called when UI State is not ready: $currentState")
+      return
+    }
+
     externalScope.launch(ioDispatcher) {
       val collectionId = offlineUuidGenerator.generateUuid()
-      submitDataUseCase.invoke(loiId, job, surveyId, deltas, customLoiName, collectionId)
+      val effectiveLoiId = if (currentState.isAddLoiFlow) null else loiId
+      val nameForSubmission = if (currentState.isAddLoiFlow) customLoiName else null
+      submitDataUseCase.invoke(
+        effectiveLoiId,
+        currentState.job,
+        currentState.surveyId,
+        deltas,
+        nameForSubmission,
+        collectionId,
+      )
     }
   }
 
   /** Persists the collected data as draft to local storage. */
   private fun saveDraft(taskId: String) {
+    val currentState = uiState.value
+    if (currentState !is DataCollectionUiState.Ready) {
+      Timber.w("saveDraft called when UI State is not ready: $currentState")
+      return
+    }
+
     val deltas = getDeltas()
 
     // Prevent saving draft if the task is submitted or there are no deltas.
@@ -327,7 +308,7 @@ internal constructor(
       submissionRepository.saveDraftSubmission(
         jobId = jobId,
         loiId = loiId,
-        surveyId = surveyId,
+        surveyId = currentState.surveyId,
         deltas = deltas,
         loiName = customLoiName,
         currentTaskId = taskId,
@@ -385,11 +366,8 @@ internal constructor(
   companion object {
     private const val TASK_JOB_ID_KEY = "jobId"
     private const val TASK_LOI_ID_KEY = "locationOfInterestId"
-    private const val TASK_LOI_NAME_KEY = "locationOfInterestName"
-    private const val TASK_POSITION_ID = "currentTaskId"
     private const val TASK_SHOULD_LOAD_FROM_DRAFT = "shouldLoadFromDraft"
     private const val TASK_DRAFT_VALUES = "draftValues"
-    private const val SURVEY_LOAD_TIMEOUT_MILLIS = 3000L
 
     fun getViewModelClass(taskType: Task.Type): Class<out AbstractTaskViewModel> =
       when (taskType) {
