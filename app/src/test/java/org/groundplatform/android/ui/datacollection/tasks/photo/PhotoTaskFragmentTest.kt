@@ -18,11 +18,14 @@ package org.groundplatform.android.ui.datacollection.tasks.photo
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.Style
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.common.ViewModelFactory
+import org.groundplatform.android.ui.datacollection.DataCollectionUiState
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
+import org.groundplatform.android.ui.datacollection.TaskPosition
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.tasks.BaseTaskFragmentTest
 import org.junit.Test
@@ -51,7 +54,20 @@ class PhotoTaskFragmentTest : BaseTaskFragmentTest<PhotoTaskFragment, PhotoTaskV
   override fun setUp() {
     super.setUp()
 
-    whenever(dataCollectionViewModel.surveyId).thenReturn("test survey id")
+    val ui =
+      MutableStateFlow<DataCollectionUiState>(
+        DataCollectionUiState.Ready(
+          surveyId = "test survey id",
+          job = job,
+          loiName = "",
+          tasks = emptyList(),
+          isAddLoiFlow = false,
+          currentTaskId = "t1",
+          taskPosition = TaskPosition(0, 0, 0),
+        )
+      )
+
+    whenever(dataCollectionViewModel.uiState).thenReturn(ui)
   }
 
   @Test
