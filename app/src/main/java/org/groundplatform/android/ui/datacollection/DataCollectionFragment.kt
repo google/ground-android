@@ -26,14 +26,15 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnLayout
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.databinding.DataCollectionFragBinding
@@ -96,14 +97,12 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
       }
     )
 
-    updateUI(
-      UiState.TaskListAvailable(
-        viewModel.tasks,
-        viewModel.getTaskPosition(viewModel.getCurrentTaskId()),
-      )
-    )
-
-    lifecycleScope.launch { viewModel.uiState.filterNotNull().collect { updateUI(it) } }
+    // Collect UI state safely across the Fragment view lifecycle.
+    viewLifecycleOwner.lifecycleScope.launch {
+      viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        viewModel.uiState.collect { ui -> updateUI(ui) }
+      }
+    }
   }
 
   override fun onResume() {
@@ -118,11 +117,13 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     }
   }
 
-  private fun updateUI(uiState: UiState) {
+  private fun updateUI(uiState: DataCollectionUiState) {
     when (uiState) {
-      is UiState.TaskListAvailable -> loadTasks(uiState.tasks, uiState.taskPosition)
-      is UiState.TaskUpdated -> onTaskChanged(uiState.taskPosition)
-      is UiState.TaskSubmitted -> onTaskSubmitted()
+      is DataCollectionUiState.Ready -> loadTasks(uiState.tasks, uiState.taskPosition)
+      is DataCollectionUiState.TaskUpdated -> onTaskChanged(uiState.taskPosition)
+      is DataCollectionUiState.TaskSubmitted -> onTaskSubmitted()
+      is DataCollectionUiState.Loading -> Unit
+      is DataCollectionUiState.Error -> Unit
     }
   }
 
@@ -188,7 +189,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   }
 
   override fun onBack(): Boolean {
-    if (viewModel.uiState.value == UiState.TaskSubmitted) {
+    if (viewModel.uiState.value == DataCollectionUiState.TaskSubmitted) {
       // Pressing back button after submitting task should navigate back to home screen.
       navigateBack()
     } else if (viewPager.currentItem == 0) {

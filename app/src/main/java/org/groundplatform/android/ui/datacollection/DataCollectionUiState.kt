@@ -50,7 +50,7 @@ sealed interface DataCollectionUiState {
    * @property isAddLoiFlow `true` when creating a new LOI (no preselected LOI), `false` when
    *   editing/collecting against an existing LOI.
    * @property currentTaskId ID of the task currently displayed to the user.
-   * @property position Metadata for navigation (e.g., index/first/last) for [currentTaskId].
+   * @property taskPosition Metadata for navigation (e.g., index/first/last) for [currentTaskId].
    */
   data class Ready(
     val surveyId: String,
@@ -59,7 +59,7 @@ sealed interface DataCollectionUiState {
     val tasks: List<Task>,
     val isAddLoiFlow: Boolean,
     val currentTaskId: String,
-    val position: TaskPosition,
+    val taskPosition: TaskPosition,
   ) : DataCollectionUiState
 
   /**
@@ -76,9 +76,9 @@ sealed interface DataCollectionUiState {
    * next/previous validation alters the current position). The view can react (animate/scroll) and
    * then immediately transition back to [Ready] with the new position.
    *
-   * @property position Updated navigation/position metadata after the change.
+   * @property taskPosition Updated navigation/position metadata after the change.
    */
-  data class TaskUpdated(val position: TaskPosition) : DataCollectionUiState
+  data class TaskUpdated(val taskPosition: TaskPosition) : DataCollectionUiState
 
   /**
    * Terminal state indicating that submission succeeded. The view should display a success

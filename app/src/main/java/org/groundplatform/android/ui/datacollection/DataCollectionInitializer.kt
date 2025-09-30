@@ -17,6 +17,7 @@ package org.groundplatform.android.ui.datacollection
 
 import androidx.lifecycle.SavedStateHandle
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
@@ -41,6 +42,7 @@ import org.groundplatform.android.ui.common.LocationOfInterestHelper
  * - Compute a simple [TaskPosition] from list order.
  * - Resolve a user-visible LOI name (typed for Add-LOI, formatted for existing LOI).
  */
+@Singleton
 class DataCollectionInitializer
 @Inject
 constructor(
@@ -95,7 +97,7 @@ constructor(
         tasks = tasks,
         isAddLoiFlow = loiId == null,
         currentTaskId = currentTaskId,
-        position = position,
+        taskPosition = position,
       )
     } catch (e: DataCollectionException) {
       DataCollectionUiState.Error(e.code, e)

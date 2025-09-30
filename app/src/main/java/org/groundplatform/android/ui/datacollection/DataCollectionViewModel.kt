@@ -85,9 +85,11 @@ internal constructor(
   private val offlineUuidGenerator: OfflineUuidGenerator,
   locationOfInterestRepository: LocationOfInterestRepository,
   surveyRepository: SurveyRepository,
+  private val initializer: DataCollectionInitializer,
 ) : AbstractViewModel() {
 
-  private val _uiState: MutableStateFlow<UiState?> = MutableStateFlow(null)
+  private val _uiState: MutableStateFlow<DataCollectionUiState> =
+    MutableStateFlow(DataCollectionUiState.Loading)
   val uiState = _uiState.asStateFlow()
 
   private val jobId: String = requireNotNull(savedStateHandle[TASK_JOB_ID_KEY])
@@ -152,9 +154,21 @@ internal constructor(
   private val currentTaskId: StateFlow<String> = savedStateHandle.getStateFlow(TASK_POSITION_ID, "")
 
   init {
-    // Set current task's ID for new task submissions.
-    if (currentTaskId.value == "") {
-      savedStateHandle[TASK_POSITION_ID] = taskSequenceHandler.getValidTasks().first().id
+    // If we don't have a current task yet, delegate to the initializer.
+    if (currentTaskId.value.isBlank()) {
+      viewModelScope.launch {
+        when (val init = initializer.initialize(savedStateHandle, jobId, loiId)) {
+          is DataCollectionUiState.Ready -> {
+            _uiState.update { DataCollectionUiState.TaskUpdated(init.taskPosition) }
+          }
+          is DataCollectionUiState.Error -> {
+            Timber.e(init.cause, "Initialization failed with code=%s", init.code)
+          }
+          is DataCollectionUiState.Loading -> {}
+          is DataCollectionUiState.TaskUpdated -> {}
+          is DataCollectionUiState.TaskSubmitted -> {}
+        }
+      }
     }
 
     // Invalidates the cache if any of the task's data is updated.
@@ -265,7 +279,7 @@ internal constructor(
     } else {
       clearDraft()
       saveChanges(getDeltas())
-      _uiState.update { UiState.TaskSubmitted }
+      _uiState.update { DataCollectionUiState.TaskSubmitted }
     }
   }
 
@@ -305,7 +319,7 @@ internal constructor(
     val deltas = getDeltas()
 
     // Prevent saving draft if the task is submitted or there are no deltas.
-    if (_uiState.value == UiState.TaskSubmitted || deltas.isEmpty()) {
+    if (_uiState.value == DataCollectionUiState.TaskSubmitted || deltas.isEmpty()) {
       return
     }
 
@@ -343,7 +357,7 @@ internal constructor(
     clearDraft()
     saveDraft(taskId)
 
-    _uiState.update { UiState.TaskUpdated(getTaskPosition(taskId)) }
+    _uiState.update { DataCollectionUiState.TaskUpdated(getTaskPosition(taskId)) }
   }
 
   fun getTaskPosition(taskId: String) = taskSequenceHandler.getTaskPosition(taskId)
