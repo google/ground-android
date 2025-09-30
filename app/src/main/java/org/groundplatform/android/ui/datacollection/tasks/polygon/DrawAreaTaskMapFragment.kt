@@ -17,9 +17,11 @@ package org.groundplatform.android.ui.datacollection.tasks.polygon
 
 import android.os.Bundle
 import android.view.View
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.flow.combine
@@ -46,11 +48,27 @@ class DrawAreaTaskMapFragment @Inject constructor() :
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    lifecycleScope.launch {
-      combine(taskViewModel.isMarkedComplete, taskViewModel.isTooClose) { isComplete, tooClose ->
-          !tooClose && !isComplete
+
+    viewLifecycleOwner.lifecycleScope.launch {
+      viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        launch {
+          combine(taskViewModel.isMarkedComplete, taskViewModel.isTooClose) { isComplete, tooClose
+              ->
+              !tooClose && !isComplete
+            }
+            .collect { shouldShow -> setCenterMarkerVisibility(shouldShow) }
         }
-        .collect { shouldShow -> setCenterMarkerVisibility(shouldShow) }
+
+        launch {
+          map.cameraDragPositions.collect { coord ->
+            if (!taskViewModel.isMarkedComplete()) {
+              taskViewModel.updateLastVertexAndMaybeCompletePolygon(coord) { c1, c2 ->
+                map.getDistanceInPixels(c1, c2)
+              }
+            }
+          }
+        }
+      }
     }
   }
 
