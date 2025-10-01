@@ -91,18 +91,17 @@ constructor(
     }
 
   /**
-   * Syncs the map with the provided [Feature]s by simple add/remove diffing. No knowledge of CUJs
-   * (e.g., drafts) should live here.
+   * Updates the current set of features managed by the manager, adding and removing items from the
+   * map as needed to sync the map state with the provided collection.
    */
   fun setFeatures(updatedFeatures: Collection<Feature>) {
-    val updatedSet = updatedFeatures.toSet()
-
-    val removedOrChanged = features - updatedSet
+    // remove stale
+    val removedOrChanged = features - updatedFeatures.toSet()
     removedOrChanged.forEach(this::remove)
-
-    val newOrChanged = updatedSet - features
+    // add missing
+    val newOrChanged = updatedFeatures - features
     newOrChanged.forEach(this::add)
-
+    // cluster and update visibility
     clusterManager.cluster()
     Timber.v("${removedOrChanged.size} features removed, ${newOrChanged.size} added")
   }
