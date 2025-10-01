@@ -90,24 +90,16 @@ internal constructor(
 
   init {
     viewModelScope.launch {
-      when (
-        val initResult =
-          dataCollectionInitializer.initialize(savedStateHandle, jobId, loiId, loiName)
-      ) {
-        is DataCollectionUiState.Ready ->
-          run {
-            taskSequenceHandler = TaskSequenceHandler(initResult.tasks, taskDataHandler)
-            _uiState.value = initResult
-          }
-        is DataCollectionUiState.Error ->
-          run {
-            Timber.e(initResult.cause, "Initialization failed code=%s", initResult.code)
-            _uiState.value = initResult
-          }
-        DataCollectionUiState.Loading -> Unit
-        is DataCollectionUiState.TaskUpdated -> Unit
-        DataCollectionUiState.TaskSubmitted -> Unit
+      val initResult = dataCollectionInitializer.initialize(savedStateHandle, jobId, loiId, loiName)
+
+      if (initResult is DataCollectionUiState.Ready) {
+        taskSequenceHandler = TaskSequenceHandler(initResult.tasks, taskDataHandler)
       }
+
+      if (initResult is DataCollectionUiState.Error) {
+        Timber.e(initResult.cause, "Initialization failed code=%s", initResult.code)
+      }
+      _uiState.value = initResult
     }
   }
 
@@ -218,6 +210,8 @@ internal constructor(
   }
 
   fun getTypedLoiNameOrEmpty(): String = savedStateHandle.get<String>(TASK_LOI_NAME_KEY).orEmpty()
+
+  fun isReady(): Boolean = uiState.value is DataCollectionUiState.Ready
 
   private fun moveToNextTask() {
     moveToTask(withReady { taskSequenceHandler.getNextTask(it.currentTaskId) })

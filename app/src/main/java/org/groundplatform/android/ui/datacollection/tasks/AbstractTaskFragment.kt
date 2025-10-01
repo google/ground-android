@@ -249,12 +249,12 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     dataCollectionViewModel.loiNameDialogOpen.value = true
     renderComposableDialog {
       val uiState by dataCollectionViewModel.uiState.collectAsStateWithLifecycle()
-      val initialName =
+      val loiName =
         (uiState as? DataCollectionUiState.Ready)?.loiName
           ?: dataCollectionViewModel.getTypedLoiNameOrEmpty()
 
       // The LOI NameDialog should call `handleLoiNameSet()` to continue to the next task.
-      ShowLoiNameDialog(initialName) { handleLoiNameSet(it) }
+      ShowLoiNameDialog(loiName) { handleLoiNameSet(it) }
     }
   }
 
