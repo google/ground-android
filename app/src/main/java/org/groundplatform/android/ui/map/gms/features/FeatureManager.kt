@@ -57,11 +57,6 @@ constructor(
   val markerClicks = _markerClicks.asSharedFlow()
 
   /**
-   * Tracks the current "in-progress" user-drawn line (draft). This ensures subsequent updates to
-   * the draft re-use the same polyline instance instead of constantly removing/re-adding it.
-   */
-  private var activeDraftTag: Feature.Tag? = null
-  /**
    * The camera's current zoom level. This must be set here since this impl can't access
    * `map.cameraPosition` from off the main UI thread.
    */
@@ -96,53 +91,12 @@ constructor(
     }
 
   /**
-   * Syncs the map state with the provided set of [Feature]s.
-   *
-   * Behavior:
-   * - If there is an **active draft line** already on the map (tracked via [activeDraftTag]), and a
-   *   new draft `Feature` comes in, we update its polyline geometry and style **in place** using
-   *   [updateLineString] instead of removing/re-adding. This keeps the line smooth while dragging.
-   * - If no draft is currently active but a new one arrives, we "adopt" its tag as the active
-   *   draft.
-   * - If no draft is present in [updatedFeatures], we clear [activeDraftTag].
-   * - All non-draft features are reconciled using the standard "diff": remove stale, add new.
-   *
-   * Clustering:
-   * - Clustering is always refreshed after applying the diff. For draft updates we skip diffing
-   *   entirely and just update the geometry directly.
+   * Syncs the map with the provided [Feature]s by simple add/remove diffing. No knowledge of CUJs
+   * (e.g., drafts) should live here.
    */
   fun setFeatures(updatedFeatures: Collection<Feature>) {
-    val incomingDraft = updatedFeatures.firstOrNull { isDraftLineString(it) }
-
-    // Case 1: We already have a draft rendered and got another draft update → update in place.
-    if (activeDraftTag != null && incomingDraft != null) {
-      val oldTag = activeDraftTag!!
-      val ls = incomingDraft.geometry as? LineString
-      if (ls != null && featuresByTag.containsKey(oldTag)) {
-        updateLineString(
-          oldTag,
-          ls,
-          incomingDraft.style,
-          incomingDraft.selected,
-          incomingDraft.tooltipText,
-        )
-        Timber.d("Updated draft line in place for tag=$oldTag")
-        return
-      }
-    }
-
-    // Case 2: No active draft yet, but a draft arrived → adopt it.
-    if (activeDraftTag == null && incomingDraft != null) {
-      activeDraftTag = incomingDraft.tag
-    }
-
-    // Case 3: No draft in the update set → clear our pointer.
-    if (incomingDraft == null) {
-      activeDraftTag = null
-    }
-
-    // Default path: reconcile all non-draft features.
     val updatedSet = updatedFeatures.toSet()
+
     val removedOrChanged = features - updatedSet
     removedOrChanged.forEach(this::remove)
 
@@ -185,20 +139,9 @@ constructor(
     clusterManager.onCameraIdle()
   }
 
-  /** Helper to detect whether a [Feature] is a draft line that should be updated in place. */
-  private fun isDraftLineString(feature: Feature): Boolean =
-    feature.geometry is LineString &&
-      !feature.clusterable &&
-      feature.selected &&
-      feature.tag.type == Feature.Type.USER_POLYGON
-
   /**
-   * Updates the geometry + style of an existing polyline on the map in place.
-   *
-   * This is used primarily for draft lines during dragging, where vertices are updated
-   * continuously. The map item stays the same; only its points/style change.
-   *
-   * Also keeps [features] and [featuresByTag] in sync so future diffing sees the updated state.
+   * Generic in-place polyline updater. Callers that do incremental updates (e.g. while dragging)
+   * can use this without forcing a full add/remove diff.
    */
   fun updateLineString(
     tag: Feature.Tag,
@@ -209,8 +152,7 @@ constructor(
   ) {
     coroutineScope.launch {
       mapsItemManager.updateLineString(tag, geometry, style, selected, tooltipText)
-
-      // keep local indices consistent
+      // keep indices consistent for future diffs
       featuresByTag[tag]?.let { prev ->
         val updated =
           prev.copy(

@@ -47,6 +47,7 @@ import kotlinx.coroutines.launch
 import org.groundplatform.android.common.Constants
 import org.groundplatform.android.data.remote.RemoteStorageManager
 import org.groundplatform.android.model.geometry.Coordinates
+import org.groundplatform.android.model.geometry.LineString
 import org.groundplatform.android.model.imagery.LocalTileSource
 import org.groundplatform.android.model.imagery.RemoteMogTileSource
 import org.groundplatform.android.model.imagery.TileSource
@@ -57,6 +58,7 @@ import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.MapFragment
 import org.groundplatform.android.ui.map.gms.features.FeatureManager
+import org.groundplatform.android.ui.map.gms.features.isDraftLineString
 import org.groundplatform.android.ui.map.gms.mog.MogCollection
 import org.groundplatform.android.ui.map.gms.mog.MogTileProvider
 import org.groundplatform.android.util.invert
@@ -89,6 +91,9 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   override val supportedMapTypes: List<MapType> = IDS_BY_MAP_TYPE.keys.toList()
 
   private val tileOverlays = mutableListOf<TileOverlay>()
+
+  // Keep track of active draft tag for in-place updates
+  private var activeDraftTag: Feature.Tag? = null
 
   override val featureClicks = MutableSharedFlow<Set<Feature>>()
 
@@ -241,7 +246,31 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   override fun setFeatures(newFeatures: Set<Feature>) {
     Timber.v("setFeatures() called with ${newFeatures.size} features")
-    featureManager.setFeatures(newFeatures)
+
+    val draft = newFeatures.firstOrNull { it.isDraftLineString() }
+    if (draft != null) {
+      // If first time seeing a draft, remember its tag
+      if (activeDraftTag == null) {
+        activeDraftTag = draft.tag
+        featureManager.setFeatures(newFeatures)
+      } else {
+        // Update the existing draft polyline in place
+        val ls = draft.geometry as? LineString
+        if (ls != null) {
+          featureManager.updateLineString(
+            tag = activeDraftTag!!,
+            geometry = ls,
+            style = draft.style,
+            selected = draft.selected,
+            tooltipText = draft.tooltipText,
+          )
+        }
+      }
+    } else {
+      // No draft present → reset pointer + update features normally
+      activeDraftTag = null
+      featureManager.setFeatures(newFeatures)
+    }
   }
 
   private fun onCameraIdle() {
