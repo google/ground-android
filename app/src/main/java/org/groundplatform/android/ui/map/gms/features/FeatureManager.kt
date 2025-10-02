@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import org.groundplatform.android.coroutines.MainScope
+import org.groundplatform.android.model.geometry.LineString
 import org.groundplatform.android.ui.map.Feature
 import timber.log.Timber
 
@@ -135,5 +136,34 @@ constructor(
 
   fun onCameraIdle() {
     clusterManager.onCameraIdle()
+  }
+
+  /**
+   * Generic in-place polyline updater. Callers that do incremental updates (e.g. while dragging)
+   * can use this without forcing a full add/remove diff.
+   */
+  fun updateLineString(
+    tag: Feature.Tag,
+    geometry: LineString,
+    style: Feature.Style,
+    selected: Boolean,
+    tooltipText: String?,
+  ) {
+    coroutineScope.launch {
+      mapsItemManager.updateLineString(tag, geometry, style, selected, tooltipText)
+      // keep indices consistent for future diffs
+      featuresByTag[tag]?.let { prev ->
+        val updated =
+          prev.copy(
+            geometry = geometry,
+            style = style,
+            selected = selected,
+            tooltipText = tooltipText ?: prev.tooltipText,
+          )
+        features.remove(prev)
+        features.add(updated)
+        featuresByTag[tag] = updated
+      }
+    }
   }
 }

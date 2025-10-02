@@ -58,26 +58,18 @@ constructor(
     visible: Boolean,
     tooltipText: String?,
   ): Polyline {
-    val options = PolylineOptions()
-    with(options) {
-      clickable(false)
-      addAll(geometry.coordinates.toLatLngList())
-      visible(visible)
-    }
-    val polyline = map.addPolyline(options)
-    polyline.tag = tag
-    with(polyline) {
-      if (style.vertexStyle == Feature.VertexStyle.CIRCLE) {
-        startCap = circleCap
-        endCap = circleCap
+    val options =
+      PolylineOptions()
+        .clickable(false)
+        .addAll(geometry.coordinates.toLatLngList())
+        .visible(visible)
+
+    val polyline =
+      map.addPolyline(options).apply {
+        this.tag = tag
+        applyStyle(style, selected)
       }
 
-      val strokeScale = if (selected) 2f else 1f
-      width = defaultStrokeWidth * strokeScale
-      color = style.color
-      jointType = JointType.ROUND
-      zIndex = POLYLINE_Z
-    }
     updateTooltipMarker(geometry, map, tooltipText)
     return polyline
   }
@@ -86,5 +78,41 @@ constructor(
     val coords = geometry.coordinates
     val midpoint = if (coords.size < 2) null else coords.last().midpoint(coords.penult())
     tooltipMarkerRenderer.update(map, midpoint, tooltipText)
+  }
+
+  private fun Polyline.applyStyle(style: Feature.Style, selected: Boolean) {
+    if (style.vertexStyle == Feature.VertexStyle.CIRCLE) {
+      startCap = circleCap
+      endCap = circleCap
+    }
+    val strokeScale = if (selected) 2f else 1f
+    width = defaultStrokeWidth * strokeScale
+    color = style.color
+    jointType = JointType.ROUND
+    zIndex = POLYLINE_Z
+    isVisible = true
+  }
+
+  fun updateExistingPolyline(
+    polyline: Polyline,
+    geometry: LineString,
+    style: Feature.Style,
+    selected: Boolean,
+    map: GoogleMap,
+    tooltipText: String?,
+  ) {
+    // Update geometry every tick
+    polyline.points = geometry.coordinates.toLatLngList()
+
+    // Only re-apply style if it changed (cheap guard)
+    if (
+      polyline.color != style.color ||
+        polyline.width != defaultStrokeWidth * if (selected) 2f else 1f
+    ) {
+      polyline.applyStyle(style, selected)
+    }
+
+    // Tooltip throttled
+    updateTooltipMarker(geometry, map, tooltipText)
   }
 }

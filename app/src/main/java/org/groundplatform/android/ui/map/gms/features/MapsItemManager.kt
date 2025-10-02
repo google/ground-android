@@ -98,4 +98,34 @@ class MapsItemManager(
       .map { it.tag as Feature.Tag }
       .toSet()
   }
+
+  /**
+   * Updates an already-rendered line feature (polyline) with new geometry and style.
+   *
+   * This is used primarily for "draft" line updates during dragging: instead of removing and
+   * re-adding a polyline, we update its points in-place.
+   *
+   * @param tag The feature tag used to look up the existing map items.
+   * @param geometry The new [LineString] geometry containing updated coordinates.
+   * @param style The visual style (color, stroke width, vertex caps, etc.) to apply.
+   * @param selected Whether the line is currently selected (affects stroke scaling).
+   * @param tooltipText Optional text to display as a tooltip marker near the line.
+   */
+  fun updateLineString(
+    tag: Feature.Tag,
+    geometry: LineString,
+    style: Feature.Style,
+    selected: Boolean,
+    tooltipText: String?,
+  ) {
+    // Find the map items currently associated with this feature tag.
+    val items = itemsByTag[tag] ?: return
+
+    // Only polylines are relevant here. For each one, update its points and style.
+    items.forEach { item ->
+      if (item is Polyline) {
+        lineStringRenderer.updateExistingPolyline(item, geometry, style, selected, map, tooltipText)
+      }
+    }
+  }
 }
