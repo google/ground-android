@@ -58,7 +58,6 @@ import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.MapFragment
 import org.groundplatform.android.ui.map.gms.features.FeatureManager
-import org.groundplatform.android.ui.map.gms.features.isDraftLineString
 import org.groundplatform.android.ui.map.gms.mog.MogCollection
 import org.groundplatform.android.ui.map.gms.mog.MogTileProvider
 import org.groundplatform.android.util.invert
@@ -243,6 +242,13 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
       map.isMyLocationEnabled = true
     }
   }
+
+  /**
+   * Returns true if this [Feature] represents a user-drawn "draft" line string (i.e. in-progress
+   * polygon drawing that should be updated in place).
+   */
+  fun Feature.isDraftLineString(): Boolean =
+    geometry is LineString && !clusterable && selected && tag.type == Feature.Type.USER_POLYGON
 
   override fun setFeatures(newFeatures: Set<Feature>) {
     Timber.v("setFeatures() called with ${newFeatures.size} features")
