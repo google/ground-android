@@ -24,6 +24,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import javax.inject.Provider
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.databinding.FragmentDrawAreaTaskBinding
@@ -124,7 +126,9 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
 
   override fun onTaskViewAttached() {
     viewLifecycleOwner.lifecycleScope.launch {
-      viewModel.draftArea.collectLatest { onFeatureUpdated(it) }
+      merge(viewModel.draftArea, viewModel.draftUpdates).filterNotNull().collectLatest { feature ->
+        onFeatureUpdated(feature)
+      }
     }
   }
 
