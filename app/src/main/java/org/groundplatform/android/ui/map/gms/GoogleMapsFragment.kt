@@ -91,9 +91,6 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   private val tileOverlays = mutableListOf<TileOverlay>()
 
-  // Keep track of active draft tag for in-place updates
-  private var activeDraftTag: Feature.Tag? = null
-
   override val featureClicks = MutableSharedFlow<Set<Feature>>()
 
   override val cameraDragPositions = MutableSharedFlow<Coordinates>(extraBufferCapacity = 1)
@@ -243,6 +240,16 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     }
   }
 
+  override fun updateLineString(
+    tag: Feature.Tag,
+    geometry: LineString,
+    style: Feature.Style,
+    selected: Boolean,
+    tooltipText: String?,
+  ) {
+    featureManager.updateLineString(tag, geometry, style, selected, tooltipText)
+  }
+
   /**
    * Returns true if this [Feature] represents a user-drawn "draft" line string (i.e. in-progress
    * polygon drawing that should be updated in place).
@@ -251,32 +258,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     geometry is LineString && !clusterable && selected && tag.type == Feature.Type.USER_POLYGON
 
   override fun setFeatures(newFeatures: Set<Feature>) {
-    Timber.v("setFeatures() called with ${newFeatures.size} features")
-
-    val draft = newFeatures.firstOrNull { it.isDraftLineString() }
-    if (draft != null) {
-      // If first time seeing a draft, remember its tag
-      if (activeDraftTag == null) {
-        activeDraftTag = draft.tag
-        featureManager.setFeatures(newFeatures)
-      } else {
-        // Update the existing draft polyline in place
-        val ls = draft.geometry as? LineString
-        if (ls != null) {
-          featureManager.updateLineString(
-            tag = activeDraftTag!!,
-            geometry = ls,
-            style = draft.style,
-            selected = draft.selected,
-            tooltipText = draft.tooltipText,
-          )
-        }
-      }
-    } else {
-      // No draft present → reset pointer + update features normally
-      activeDraftTag = null
-      featureManager.setFeatures(newFeatures)
-    }
+    featureManager.setFeatures(newFeatures)
   }
 
   private fun onCameraIdle() {

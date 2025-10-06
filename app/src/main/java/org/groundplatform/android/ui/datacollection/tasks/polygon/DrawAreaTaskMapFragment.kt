@@ -27,6 +27,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import org.groundplatform.android.model.geometry.LineString
 import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment
 import org.groundplatform.android.ui.map.Feature
@@ -66,6 +67,18 @@ class DrawAreaTaskMapFragment @Inject constructor() :
                 map.getDistanceInPixels(c1, c2)
               }
             }
+          }
+        }
+
+        launch {
+          taskViewModel.draftUpdates.collect { feature ->
+            map.updateLineString(
+              tag = feature.tag,
+              geometry = feature.geometry as LineString,
+              style = feature.style,
+              selected = feature.selected,
+              tooltipText = feature.tooltipText,
+            )
           }
         }
       }
