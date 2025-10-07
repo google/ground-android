@@ -69,8 +69,30 @@ internal constructor(
   private val _draftArea: MutableStateFlow<Feature?> = MutableStateFlow(null)
   val draftArea: StateFlow<Feature?> = _draftArea.asStateFlow()
 
+  /**
+   * Unique identifier for the currently active draft polygon or line being drawn.
+   *
+   * This tag helps the ViewModel distinguish between multiple user-created features and ensures
+   * that updates are applied to the correct draft feature until completion.
+   */
   private var draftTag: Feature.Tag? = null
+
+  /**
+   * Emits incremental updates to the currently drawn draft feature (e.g., polygon or line string).
+   *
+   * The flow sends partial geometry updates—such as when a new vertex is added or moved— allowing
+   * the map UI to update the in-progress shape in real-time.
+   *
+   * Uses [MutableSharedFlow] with a small buffer to avoid missing updates during rapid emissions.
+   */
   private val _draftUpdates = MutableSharedFlow<Feature>(extraBufferCapacity = 1)
+
+  /**
+   * Public read-only access to the stream of draft feature updates.
+   *
+   * UI components (e.g., map fragments) collect from this flow to render live geometry updates as
+   * the user draws or modifies a shape.
+   */
   val draftUpdates = _draftUpdates.asSharedFlow()
 
   /** Whether the instructions dialog has been shown or not. */
