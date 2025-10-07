@@ -149,19 +149,21 @@ constructor(
     selected: Boolean,
     tooltipText: String?,
   ) {
-    mapsItemManager.updateLineString(tag, geometry, style, selected, tooltipText)
-    // keep indices consistent for future diffs
-    featuresByTag[tag]?.let { prev ->
-      val updated =
-        prev.copy(
-          geometry = geometry,
-          style = style,
-          selected = selected,
-          tooltipText = tooltipText ?: prev.tooltipText,
-        )
-      features.remove(prev)
-      features.add(updated)
-      featuresByTag[tag] = updated
+    coroutineScope.launch {
+      mapsItemManager.updateLineString(tag, geometry, style, selected, tooltipText)
+      // keep indices consistent for future diffs
+      featuresByTag[tag]?.let { prev ->
+        val updated =
+          prev.copy(
+            geometry = geometry,
+            style = style,
+            selected = selected,
+            tooltipText = tooltipText ?: prev.tooltipText,
+          )
+        features.remove(prev)
+        features.add(updated)
+        featuresByTag[tag] = updated
+      }
     }
   }
 }
