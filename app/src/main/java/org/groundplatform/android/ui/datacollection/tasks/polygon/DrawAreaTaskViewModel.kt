@@ -340,7 +340,7 @@ internal constructor(
 
   private suspend fun buildPolygonFeature(style: Feature.Style) =
     Feature(
-      id = uuidGenerator.generateUuid(), // suspend, called only once per draft
+      id = uuidGenerator.generateUuid(),
       type = Feature.Type.USER_POLYGON,
       geometry = LineString(vertices),
       style = style,
