@@ -32,7 +32,6 @@ import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.tasks.BaseTaskFragmentTest
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -86,27 +85,25 @@ class DrawAreaTaskFragmentTest :
     )
   }
 
-  @Ignore
   @Test
   fun `action buttons when task is optional`() {
     setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = false))
 
     runner()
-      .assertButtonIsHidden(NEXT_POINT_BUTTON_TEXT)
+      .assertButtonIsDisabled(NEXT_POINT_BUTTON_TEXT)
       .assertButtonIsEnabled(SKIP_POINT_BUTTON_TEXT)
       .assertButtonIsDisabled(UNDO_POINT_BUTTON_TEXT, true)
       .assertButtonIsDisabled(REDO_POINT_BUTTON_TEXT, true)
-      .assertButtonIsEnabled(ADD_POINT_BUTTON_TEXT)
+      .assertButtonIsHidden(ADD_POINT_BUTTON_TEXT)
       .assertButtonIsHidden(COMPLETE_POINT_BUTTON_TEXT)
   }
 
-  @Ignore
   @Test
   fun `action buttons when task is required`() {
     setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = true))
 
     runner()
-      .assertButtonIsHidden(NEXT_POINT_BUTTON_TEXT)
+      .assertButtonIsDisabled(NEXT_POINT_BUTTON_TEXT)
       .assertButtonIsHidden(SKIP_POINT_BUTTON_TEXT)
       .assertButtonIsDisabled(UNDO_POINT_BUTTON_TEXT, true)
       .assertButtonIsDisabled(REDO_POINT_BUTTON_TEXT, true)
@@ -180,13 +177,12 @@ class DrawAreaTaskFragmentTest :
     )
   }
 
-  @Ignore
   @Test
   fun `draw area when add point button disabled when too close`() = runWithTestDispatcher {
     setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = false))
     ShadowDialog.getLatestDialog().dismiss()
 
-    runner().assertButtonIsEnabled(ADD_POINT_BUTTON_TEXT)
+    runner().assertButtonIsHidden(ADD_POINT_BUTTON_TEXT)
 
     updateLastVertexAndAddPoint(COORDINATE_1)
     updateCloseVertex(COORDINATE_5)

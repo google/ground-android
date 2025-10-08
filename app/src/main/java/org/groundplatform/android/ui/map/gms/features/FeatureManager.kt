@@ -48,6 +48,9 @@ constructor(
   private val features = mutableSetOf<Feature>()
   private val featuresByTag = mutableMapOf<Feature.Tag, Feature>()
 
+  private val mapReady: Boolean
+    get() = this::mapsItemManager.isInitialized
+
   private lateinit var map: GoogleMap
   private lateinit var mapsItemManager: MapsItemManager
   private lateinit var clusterManager: FeatureClusterManager
@@ -149,21 +152,21 @@ constructor(
     selected: Boolean,
     tooltipText: String?,
   ) {
-    coroutineScope.launch {
-      mapsItemManager.updateLineString(tag, geometry, style, selected, tooltipText)
-      // keep indices consistent for future diffs
-      featuresByTag[tag]?.let { prev ->
-        val updated =
-          prev.copy(
-            geometry = geometry,
-            style = style,
-            selected = selected,
-            tooltipText = tooltipText ?: prev.tooltipText,
-          )
-        features.remove(prev)
-        features.add(updated)
-        featuresByTag[tag] = updated
-      }
+    if (!mapReady) return
+
+    mapsItemManager.updateLineString(tag, geometry, style, selected, tooltipText)
+    // keep indices consistent for future diffs
+    featuresByTag[tag]?.let { prev ->
+      val updated =
+        prev.copy(
+          geometry = geometry,
+          style = style,
+          selected = selected,
+          tooltipText = tooltipText ?: prev.tooltipText,
+        )
+      features.remove(prev)
+      features.add(updated)
+      featuresByTag[tag] = updated
     }
   }
 }
