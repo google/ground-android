@@ -145,28 +145,23 @@ constructor(
    * Generic in-place polyline updater. Callers that do incremental updates (e.g. while dragging)
    * can use this without forcing a full add/remove diff.
    */
-  fun updateLineString(
-    tag: Feature.Tag,
-    geometry: LineString,
-    style: Feature.Style,
-    selected: Boolean,
-    tooltipText: String?,
-  ) {
+  fun updateLineString(feature: Feature) {
     if (!mapReady) return
 
-    mapsItemManager.updateLineString(tag, geometry, style, selected, tooltipText)
-    // keep indices consistent for future diffs
-    featuresByTag[tag]?.let { prev ->
-      val updated =
-        prev.copy(
-          geometry = geometry,
-          style = style,
-          selected = selected,
-          tooltipText = tooltipText ?: prev.tooltipText,
-        )
-      features.remove(prev)
-      features.add(updated)
-      featuresByTag[tag] = updated
+    if (feature.geometry is LineString) {
+      mapsItemManager.updateLineString(
+        tag = feature.tag,
+        geometry = feature.geometry,
+        style = feature.style,
+        selected = feature.selected,
+        tooltipText = feature.tooltipText,
+      )
+      featuresByTag[feature.tag] = feature
+    } else {
+      val got = feature.geometry::class.simpleName ?: "UnknownGeometry"
+      throw UnsupportedOperationException(
+        "updateFeature currently supports LineString only; got $got for tag=${feature.tag}"
+      )
     }
   }
 }

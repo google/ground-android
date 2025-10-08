@@ -19,7 +19,6 @@ import android.annotation.SuppressLint
 import androidx.annotation.IdRes
 import kotlinx.coroutines.flow.SharedFlow
 import org.groundplatform.android.model.geometry.Coordinates
-import org.groundplatform.android.model.geometry.LineString
 import org.groundplatform.android.model.imagery.TileSource
 import org.groundplatform.android.model.map.Bounds
 import org.groundplatform.android.model.map.CameraPosition
@@ -115,26 +114,6 @@ interface MapFragment {
   /** Removes all markers, overlays, polylines and polygons from the map. */
   fun clear()
 
-  /**
-   * Updates an existing line feature on the map in place.
-   *
-   * This method is used to efficiently modify the geometry or style of an existing `LineString`
-   * without re-creating or re-adding the entire feature set.
-   *
-   * It is typically called during an active polygon or polyline drawing session, when the user
-   * drags or adds vertices and we need to reflect those changes smoothly on the map.
-   *
-   * @param tag Unique [Feature.Tag] identifying the feature to update.
-   * @param geometry New [LineString] geometry to render.
-   * @param style Visual [Feature.Style] for the updated feature (e.g., stroke color, vertex style).
-   * @param selected Whether this feature is currently selected or being edited.
-   * @param tooltipText Optional text shown as a tooltip or distance label.
-   */
-  fun updateLineString(
-    tag: Feature.Tag,
-    geometry: LineString,
-    style: Feature.Style,
-    selected: Boolean,
-    tooltipText: String?,
-  )
+  /** Update an existing Feature in place (same tag). */
+  suspend fun updateFeature(feature: Feature)
 }
