@@ -92,7 +92,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   override val featureClicks = MutableSharedFlow<Set<Feature>>()
 
-  override val cameraDragPositions = MutableSharedFlow<Coordinates>(extraBufferCapacity = 1)
+  override val cameraDragEvents = MutableSharedFlow<Coordinates>(extraBufferCapacity = 1)
 
   override var mapType: MapType
     get() = MAP_TYPES_BY_ID[map.mapType]!!
@@ -271,15 +271,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   private fun onCameraMoving() {
     val cameraPosition = map.cameraPosition
-    val projection = map.projection
-    cameraMovedEvents.tryEmit(
-      CameraPosition(
-        cameraPosition.target.toCoordinates(),
-        cameraPosition.zoom,
-        projection.visibleRegion.latLngBounds.toModelObject(),
-      )
-    )
-    cameraDragPositions.tryEmit(cameraPosition.target.toCoordinates())
+    cameraDragEvents.tryEmit(cameraPosition.target.toCoordinates())
   }
 
   override fun addTileOverlay(source: TileSource) =

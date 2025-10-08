@@ -49,7 +49,7 @@ class DrawAreaTaskMapFragment @Inject constructor() :
         }
 
         launch {
-          map.cameraDragPositions.collect { coord ->
+          map.cameraDragEvents.collect { coord ->
             if (!taskViewModel.isMarkedComplete()) {
               taskViewModel.updateLastVertexAndMaybeCompletePolygon(coord) { c1, c2 ->
                 map.getDistanceInPixels(c1, c2)

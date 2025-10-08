@@ -53,16 +53,8 @@ interface MapFragment {
    */
   val cameraMovedEvents: SharedFlow<CameraPosition>
 
-  /**
-   * A flow that continuously emits the camera target coordinates while the user is dragging.
-   * - Published by [GoogleMapsFragment.onCameraMoving].
-   * - Consumed by task fragments (e.g., DrawAreaTaskMapFragment) to update draft geometries
-   *   (vertices) in real-time as the map moves.
-   *
-   * Unlike [cameraMovedEvents] which only emits when the camera stops (idle), this stream fires on
-   * every movement tick.
-   */
-  val cameraDragPositions: SharedFlow<Coordinates>
+  /** Emits camera target coordinates in real time while the user drags the map. */
+  val cameraDragEvents: SharedFlow<Coordinates>
 
   /** Attaches this [MapFragment] to its parent [Fragment]. */
   fun attachToParent(

@@ -74,6 +74,24 @@ constructor(
     return polyline
   }
 
+  fun updateExistingPolyline(
+    polyline: Polyline,
+    geometry: LineString,
+    style: Feature.Style,
+    selected: Boolean,
+    map: GoogleMap,
+    tooltipText: String?,
+  ) {
+    polyline.points = geometry.coordinates.toLatLngList()
+
+    val expectedWidth = calculateStrokeWidth(selected)
+    if (polyline.color != style.color || polyline.width != expectedWidth) {
+      polyline.applyStyle(style, selected)
+    }
+
+    updateTooltipMarker(geometry, map, tooltipText)
+  }
+
   private fun updateTooltipMarker(geometry: LineString, map: GoogleMap, tooltipText: String?) {
     val coords = geometry.coordinates
     val midpoint = if (coords.size < 2) null else coords.last().midpoint(coords.penult())
@@ -85,34 +103,15 @@ constructor(
       startCap = circleCap
       endCap = circleCap
     }
-    val strokeScale = if (selected) 2f else 1f
-    width = defaultStrokeWidth * strokeScale
+    width = calculateStrokeWidth(selected)
     color = style.color
     jointType = JointType.ROUND
     zIndex = POLYLINE_Z
     isVisible = true
   }
 
-  fun updateExistingPolyline(
-    polyline: Polyline,
-    geometry: LineString,
-    style: Feature.Style,
-    selected: Boolean,
-    map: GoogleMap,
-    tooltipText: String?,
-  ) {
-    // Update geometry every tick
-    polyline.points = geometry.coordinates.toLatLngList()
-
-    // Only re-apply style if it changed (cheap guard)
-    if (
-      polyline.color != style.color ||
-        polyline.width != defaultStrokeWidth * if (selected) 2f else 1f
-    ) {
-      polyline.applyStyle(style, selected)
-    }
-
-    // Tooltip throttled
-    updateTooltipMarker(geometry, map, tooltipText)
+  private fun calculateStrokeWidth(selected: Boolean): Float {
+    val strokeScale = if (selected) 2f else 1f
+    return defaultStrokeWidth * strokeScale
   }
 }

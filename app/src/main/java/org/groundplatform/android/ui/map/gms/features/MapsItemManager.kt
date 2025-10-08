@@ -121,10 +121,13 @@ class MapsItemManager(
     // Find the map items currently associated with this feature tag.
     val items = itemsByTag[tag] ?: return
 
-    // Only polylines are relevant here. For each one, update its points and style.
     items.forEach { item ->
       if (item is Polyline) {
         lineStringRenderer.updateExistingPolyline(item, geometry, style, selected, map, tooltipText)
+      } else {
+        error(
+          "updateLineString() expected Polyline but found ${item::class.simpleName} for tag=$tag"
+        )
       }
     }
   }
