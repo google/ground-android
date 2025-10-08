@@ -239,7 +239,6 @@ class TaskFragmentRunner(
     text: String,
     isContentDescription: Boolean = false,
   ): TaskFragmentRunner {
-    baseHiltTest.composeTestRule.waitForIdle()
     if (isContentDescription) {
       baseHiltTest.composeTestRule.onNodeWithContentDescription(text).assertIsNotDisplayed()
     } else {
