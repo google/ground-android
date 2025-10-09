@@ -15,13 +15,21 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.polygon
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
+import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import com.jraska.livedata.TestObserver
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlin.test.assertNotNull
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.LineString
@@ -47,10 +55,17 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
   @Inject lateinit var viewModel: DrawAreaTaskViewModel
 
   private lateinit var featureTestObserver: TestObserver<Feature>
+  private lateinit var draftAreaObserver: TestObserver<Feature?>
+  private lateinit var mergedFeatureFlow: Flow<Feature>
+  private lateinit var mergedFeatureLiveData: LiveData<Feature>
 
   override fun setUp() {
     super.setUp()
-    featureTestObserver = TestObserver.test(viewModel.draftArea.asLiveData())
+    mergedFeatureFlow = merge(viewModel.draftArea.filterNotNull(), viewModel.draftUpdates)
+
+    mergedFeatureLiveData = mergedFeatureFlow.asLiveData()
+    featureTestObserver = TestObserver.test(mergedFeatureLiveData)
+    draftAreaObserver = TestObserver.test(viewModel.draftArea.asLiveData())
   }
 
   @Test
@@ -243,28 +258,94 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     assertThat(viewModel.redoVertexStack).isEqualTo(emptyList<Coordinates>())
   }
 
+  @OptIn(ExperimentalCoroutinesApi::class)
+  @Test
+  fun `First feature is emitted on draftArea and not on draftUpdates`() = runWithTestDispatcher {
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+
+    viewModel.draftArea.test {
+      val first = awaitItem()
+      assertThat(first).isNotNull()
+      assertThat(first!!.geometry).isInstanceOf(LineString::class.java)
+      cancelAndIgnoreRemainingEvents()
+    }
+
+    viewModel.draftUpdates.test {
+      expectNoEvents()
+      cancelAndIgnoreRemainingEvents()
+    }
+  }
+
+  @OptIn(ExperimentalCoroutinesApi::class)
+  @Test
+  fun `Subsequent vertex move emits in-place update on draftUpdates with stable tag`() =
+    runWithTestDispatcher {
+      updateLastVertexAndAdd(COORDINATE_1)
+      updateLastVertexAndAdd(COORDINATE_2)
+      advanceUntilIdle()
+
+      val initialTag = viewModel.draftArea.first()!!.tag
+
+      viewModel.draftUpdates.test {
+        updateLastVertex(Coordinates(15.0, 15.0), isNearFirstVertex = false)
+        advanceUntilIdle()
+
+        val upd = awaitItem()
+        assertThat(upd.tag).isEqualTo(initialTag)
+        val ls = upd.geometry as LineString
+        assertThat(ls.coordinates.last()).isEqualTo(Coordinates(15.0, 15.0))
+        assertThat(upd.tooltipText).isNotNull()
+        cancelAndIgnoreRemainingEvents()
+      }
+    }
+
+  @OptIn(ExperimentalCoroutinesApi::class)
+  @Test
+  fun `Tooltip updates along with in-place geometry updates`() = runWithTestDispatcher {
+    updateLastVertexAndAdd(COORDINATE_1)
+    advanceUntilIdle()
+
+    val firstFeature = viewModel.draftArea.first()
+    val firstLine = firstFeature!!.geometry as LineString
+    assertThat(firstLine.coordinates.size).isEqualTo(1)
+    assertThat(firstFeature.tooltipText).isNull()
+
+    updateLastVertexAndAdd(COORDINATE_2)
+    advanceUntilIdle()
+    val secondFeature = viewModel.draftArea.first()
+    val secondLine = secondFeature!!.geometry as LineString
+    assertThat(secondLine.coordinates.size).isEqualTo(1)
+    assertThat(secondFeature.tooltipText).isNull()
+
+    viewModel.removeLastVertex()
+  }
+
   private fun assertGeometry(
     expectedVerticesCount: Int,
     isLineString: Boolean = false,
     isLinearRing: Boolean = false,
     isPolygon: Boolean = false,
   ) {
-    val geometry = featureTestObserver.value()?.geometry
     if (expectedVerticesCount == 0) {
-      assertThat(geometry).isNull()
-    } else {
-      assertNotNull(geometry)
-      assertWithMessage(geometry.getShellCoordinates().toString())
-        .that(geometry.getShellCoordinates().size)
-        .isEqualTo(expectedVerticesCount)
-      assertThat(geometry)
-        .isInstanceOf(
-          if (isLineString) LineString::class.java
-          else if (isLinearRing) LinearRing::class.java
-          else if (isPolygon) Polygon::class.java
-          else error("Must be one of LineString, LinearRing, or Polygon")
-        )
+      assertThat(draftAreaObserver.value()).isNull()
+      return
     }
+
+    val geometry = featureTestObserver.value()?.geometry
+    assertNotNull(geometry)
+    assertWithMessage(geometry.getShellCoordinates().toString())
+      .that(geometry.getShellCoordinates().size)
+      .isEqualTo(expectedVerticesCount)
+    assertThat(geometry)
+      .isInstanceOf(
+        when {
+          isLineString -> LineString::class.java
+          isLinearRing -> LinearRing::class.java
+          isPolygon -> Polygon::class.java
+          else -> error("Must be one of LineString, LinearRing, or Polygon")
+        }
+      )
   }
 
   /** Overwrites the last vertex and also adds a new one. */
