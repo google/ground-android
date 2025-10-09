@@ -110,7 +110,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
 
   override fun onPause() {
     super.onPause()
-    if (!isNavigatingUp && viewModel.isReady()) {
+    if (!isNavigatingUp) {
       viewModel.saveCurrentState()
     }
   }
@@ -134,7 +134,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
 
       is DataCollectionUiState.Loading,
       is DataCollectionUiState.Error -> {
-        // TODO
+        // TODO: add loading and error support as per ui
       }
     }
   }
@@ -230,10 +230,8 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
 
   private fun navigateBack() {
     isNavigatingUp = true
-    viewLifecycleOwner.lifecycleScope.launch {
-      viewModel.clearDraftBlocking()
-      findNavController().navigateUp()
-    }
+    viewModel.clearDraftBlocking()
+    findNavController().navigateUp()
   }
 
   private companion object {

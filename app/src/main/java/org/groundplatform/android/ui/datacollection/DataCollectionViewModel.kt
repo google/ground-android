@@ -137,7 +137,8 @@ internal constructor(
   fun requireSurveyId(): String = withReady { it.surveyId }
 
   fun saveCurrentState() {
-    if (!draftsEnabled) return
+    if (!isReady() || !draftsEnabled) return
+
     withReadyOrNull { state ->
       val taskId = state.currentTaskId
       getTaskViewModel(taskId)?.let { vm ->
