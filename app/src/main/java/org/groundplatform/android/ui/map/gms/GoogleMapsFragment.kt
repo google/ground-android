@@ -47,6 +47,7 @@ import kotlinx.coroutines.launch
 import org.groundplatform.android.common.Constants
 import org.groundplatform.android.data.remote.RemoteStorageManager
 import org.groundplatform.android.model.geometry.Coordinates
+import org.groundplatform.android.model.geometry.LineString
 import org.groundplatform.android.model.imagery.LocalTileSource
 import org.groundplatform.android.model.imagery.RemoteMogTileSource
 import org.groundplatform.android.model.imagery.TileSource
@@ -239,6 +240,23 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     }
   }
 
+  override fun updateLineString(
+    tag: Feature.Tag,
+    geometry: LineString,
+    style: Feature.Style,
+    selected: Boolean,
+    tooltipText: String?,
+  ) {
+    featureManager.updateLineString(tag, geometry, style, selected, tooltipText)
+  }
+
+  /**
+   * Returns true if this [Feature] represents a user-drawn "draft" line string (i.e. in-progress
+   * polygon drawing that should be updated in place).
+   */
+  fun Feature.isDraftLineString(): Boolean =
+    geometry is LineString && !clusterable && selected && tag.type == Feature.Type.USER_POLYGON
+
   override fun setFeatures(newFeatures: Set<Feature>) {
     featureManager.setFeatures(newFeatures)
   }
@@ -314,10 +332,6 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   override fun clear() {
     map.clear()
     featureManager.setFeatures(emptySet())
-  }
-
-  override suspend fun updateFeature(feature: Feature) {
-    featureManager.updateLineString(feature)
   }
 
   companion object {

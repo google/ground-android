@@ -27,6 +27,8 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import org.groundplatform.android.model.geometry.LineString
+import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.gms.GmsExt.toBounds
@@ -34,6 +36,16 @@ import org.groundplatform.android.ui.map.gms.GmsExt.toBounds
 @AndroidEntryPoint
 class DrawAreaTaskMapFragment @Inject constructor() :
   AbstractTaskMapFragment<DrawAreaTaskViewModel>() {
+
+  override fun onMapCameraMoved(position: CameraPosition) {
+    super.onMapCameraMoved(position)
+    if (!taskViewModel.isMarkedComplete()) {
+      val mapCenter = position.coordinates
+      taskViewModel.updateLastVertexAndMaybeCompletePolygon(mapCenter) { c1, c2 ->
+        map.getDistanceInPixels(c1, c2)
+      }
+    }
+  }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
@@ -60,7 +72,13 @@ class DrawAreaTaskMapFragment @Inject constructor() :
 
         launch {
           taskViewModel.draftUpdates.collect { feature ->
-            launch { taskViewModel.draftUpdates.collect { feature -> map.updateFeature(feature) } }
+            map.updateLineString(
+              tag = feature.tag,
+              geometry = feature.geometry as LineString,
+              style = feature.style,
+              selected = feature.selected,
+              tooltipText = feature.tooltipText,
+            )
           }
         }
       }
