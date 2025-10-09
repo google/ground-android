@@ -25,6 +25,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.groundplatform.android.coroutines.ApplicationScope
 import org.groundplatform.android.coroutines.IoDispatcher
@@ -73,7 +74,7 @@ internal constructor(
   val uiState: StateFlow<DataCollectionUiState> = _uiState
 
   val loiNameDialogOpen = mutableStateOf(false)
-  private var shouldLoadFromDraft: Boolean = false
+  private var shouldLoadFromDraft: Boolean = savedStateHandle[TASK_SHOULD_LOAD_FROM_DRAFT] ?: false
 
   private val jobId: String = requireNotNull(savedStateHandle[TASK_JOB_ID_KEY])
   private val loiId: String? = savedStateHandle[TASK_LOI_ID_KEY]
@@ -105,6 +106,9 @@ internal constructor(
 
   fun setLoiName(name: String) {
     savedStateHandle[TASK_LOI_NAME_KEY] = name
+    _uiState.update { state ->
+      (state as? DataCollectionUiState.Ready)?.copy(loiName = name) ?: state
+    }
   }
 
   fun isFirstPosition(taskId: String): Boolean = withReady {
@@ -279,7 +283,7 @@ internal constructor(
   }
 
   private fun clearDraft() {
-    viewModelScope.launch(ioDispatcher) { submissionRepository.deleteDraftSubmission() }
+    externalScope.launch(ioDispatcher) { submissionRepository.deleteDraftSubmission() }
   }
 
   private inline fun <T> withReadyOrNull(block: (DataCollectionUiState.Ready) -> T): T? {
@@ -349,6 +353,7 @@ internal constructor(
     private const val TASK_LOI_NAME_KEY = "locationOfInterestName"
     private const val TASK_POSITION_ID = "currentTaskId"
     private const val TASK_DRAFT_VALUES = "draftValues"
+    private const val TASK_SHOULD_LOAD_FROM_DRAFT = "shouldLoadFromDraft"
 
     fun getViewModelClass(taskType: Task.Type): Class<out AbstractTaskViewModel> =
       when (taskType) {
