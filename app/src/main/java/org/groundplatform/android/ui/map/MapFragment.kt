@@ -19,6 +19,7 @@ import android.annotation.SuppressLint
 import androidx.annotation.IdRes
 import kotlinx.coroutines.flow.SharedFlow
 import org.groundplatform.android.model.geometry.Coordinates
+import org.groundplatform.android.model.geometry.LineString
 import org.groundplatform.android.model.imagery.TileSource
 import org.groundplatform.android.model.map.Bounds
 import org.groundplatform.android.model.map.CameraPosition
@@ -52,6 +53,9 @@ interface MapFragment {
    * Returns camera movement events. Emits the new camera position each time the map stops moving.
    */
   val cameraMovedEvents: SharedFlow<CameraPosition>
+
+  /** Emits camera target coordinates in real time while the user drags the map. */
+  val cameraDragEvents: SharedFlow<Coordinates>
 
   /** Attaches this [MapFragment] to its parent [Fragment]. */
   fun attachToParent(
@@ -102,4 +106,13 @@ interface MapFragment {
 
   /** Removes all markers, overlays, polylines and polygons from the map. */
   fun clear()
+
+  /** Update an existing Feature in place (same tag). */
+  fun updateLineString(
+    tag: Feature.Tag,
+    geometry: LineString,
+    style: Feature.Style,
+    selected: Boolean,
+    tooltipText: String?,
+  )
 }

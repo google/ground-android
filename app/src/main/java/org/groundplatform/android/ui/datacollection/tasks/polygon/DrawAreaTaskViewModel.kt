@@ -69,6 +69,32 @@ internal constructor(
   private val _draftArea: MutableStateFlow<Feature?> = MutableStateFlow(null)
   val draftArea: StateFlow<Feature?> = _draftArea.asStateFlow()
 
+  /**
+   * Unique identifier for the currently active draft polygon or line being drawn.
+   *
+   * This tag helps the ViewModel distinguish between multiple user-created features and ensures
+   * that updates are applied to the correct draft feature until completion.
+   */
+  private var draftTag: Feature.Tag? = null
+
+  /**
+   * Emits incremental updates to the currently drawn draft feature (e.g., polygon or line string).
+   *
+   * The flow sends partial geometry updates—such as when a new vertex is added or moved— allowing
+   * the map UI to update the in-progress shape in real-time.
+   *
+   * Uses [MutableSharedFlow] with a small buffer to avoid missing updates during rapid emissions.
+   */
+  private val _draftUpdates = MutableSharedFlow<Feature>(extraBufferCapacity = 1)
+
+  /**
+   * Public read-only access to the stream of draft feature updates.
+   *
+   * UI components (e.g., map fragments) collect from this flow to render live geometry updates as
+   * the user draws or modifies a shape.
+   */
+  val draftUpdates = _draftUpdates.asSharedFlow()
+
   /** Whether the instructions dialog has been shown or not. */
   var instructionsDialogShown: Boolean by localValueStore::drawAreaInstructionsShown
 
@@ -286,24 +312,60 @@ internal constructor(
     _polygonArea.value = calculateShoelacePolygonArea(vertices)
   }
 
-  /** Updates the [Feature] drawn on map based on the value of [vertices]. */
+  /**
+   * Emits the current draft polygon or line feature state to the map.
+   *
+   * This function is responsible for keeping the map view in sync with the user's drawing
+   * interactions:
+   * - When vertices are empty → clears the current draft from the map.
+   * - On the first vertex → creates a new [Feature] and emits it to [_draftArea].
+   * - On subsequent updates → reuses the same [Feature.Tag] and emits updated geometry through
+   *   [_draftUpdates] for in-place map updates.
+   *
+   * The goal is to ensure smooth, flicker-free rendering by avoiding unnecessary feature
+   * re-creation. Only the geometry and style of the active draft are updated in place on the map.
+   *
+   * This coroutine runs on [viewModelScope] to ensure lifecycle safety.
+   *
+   * @see _draftArea
+   * @see _draftUpdates
+   * @see FeatureManager.updateLineString
+   */
   private fun refreshMap() =
     viewModelScope.launch {
-      _draftArea.emit(
-        if (vertices.isEmpty()) {
-          null
+      if (vertices.isEmpty()) {
+        _draftArea.emit(null)
+        draftTag = null
+      } else {
+        val style = Feature.Style(strokeColor, Feature.VertexStyle.CIRCLE)
+        val line = LineString(vertices)
+        val tooltip = getDistanceTooltipText()
+
+        if (draftTag == null) {
+          val feature = buildPolygonFeature(style)
+          draftTag = feature.tag
+          _draftArea.emit(feature)
         } else {
-          buildPolygonFeature()
+          val feature =
+            Feature(
+              tag = draftTag!!,
+              geometry = line,
+              style = style,
+              clusterable = false,
+              selected = true,
+              tooltipText = tooltip,
+            )
+          _draftUpdates.tryEmit(feature)
         }
-      )
+      }
     }
 
-  private suspend fun buildPolygonFeature() =
+  private suspend fun buildPolygonFeature(style: Feature.Style) =
     Feature(
       id = uuidGenerator.generateUuid(),
       type = Feature.Type.USER_POLYGON,
       geometry = LineString(vertices),
-      style = Feature.Style(strokeColor, Feature.VertexStyle.CIRCLE),
+      style = style,
       clusterable = false,
       selected = true,
       tooltipText = getDistanceTooltipText(),

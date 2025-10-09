@@ -58,33 +58,60 @@ constructor(
     visible: Boolean,
     tooltipText: String?,
   ): Polyline {
-    val options = PolylineOptions()
-    with(options) {
-      clickable(false)
-      addAll(geometry.coordinates.toLatLngList())
-      visible(visible)
-    }
-    val polyline = map.addPolyline(options)
-    polyline.tag = tag
-    with(polyline) {
-      if (style.vertexStyle == Feature.VertexStyle.CIRCLE) {
-        startCap = circleCap
-        endCap = circleCap
+    val options =
+      PolylineOptions()
+        .clickable(false)
+        .addAll(geometry.coordinates.toLatLngList())
+        .visible(visible)
+
+    val polyline =
+      map.addPolyline(options).apply {
+        this.tag = tag
+        applyStyle(style, selected)
       }
 
-      val strokeScale = if (selected) 2f else 1f
-      width = defaultStrokeWidth * strokeScale
-      color = style.color
-      jointType = JointType.ROUND
-      zIndex = POLYLINE_Z
-    }
     updateTooltipMarker(geometry, map, tooltipText)
     return polyline
+  }
+
+  fun updateExistingPolyline(
+    polyline: Polyline,
+    geometry: LineString,
+    style: Feature.Style,
+    selected: Boolean,
+    map: GoogleMap,
+    tooltipText: String?,
+  ) {
+    polyline.points = geometry.coordinates.toLatLngList()
+
+    val expectedWidth = calculateStrokeWidth(selected)
+    if (polyline.color != style.color || polyline.width != expectedWidth) {
+      polyline.applyStyle(style, selected)
+    }
+
+    updateTooltipMarker(geometry, map, tooltipText)
   }
 
   private fun updateTooltipMarker(geometry: LineString, map: GoogleMap, tooltipText: String?) {
     val coords = geometry.coordinates
     val midpoint = if (coords.size < 2) null else coords.last().midpoint(coords.penult())
     tooltipMarkerRenderer.update(map, midpoint, tooltipText)
+  }
+
+  private fun Polyline.applyStyle(style: Feature.Style, selected: Boolean) {
+    if (style.vertexStyle == Feature.VertexStyle.CIRCLE) {
+      startCap = circleCap
+      endCap = circleCap
+    }
+    width = calculateStrokeWidth(selected)
+    color = style.color
+    jointType = JointType.ROUND
+    zIndex = POLYLINE_Z
+    isVisible = true
+  }
+
+  private fun calculateStrokeWidth(selected: Boolean): Float {
+    val strokeScale = if (selected) 2f else 1f
+    return defaultStrokeWidth * strokeScale
   }
 }
