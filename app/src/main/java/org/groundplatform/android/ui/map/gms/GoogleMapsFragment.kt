@@ -47,6 +47,7 @@ import kotlinx.coroutines.launch
 import org.groundplatform.android.common.Constants
 import org.groundplatform.android.data.remote.RemoteStorageManager
 import org.groundplatform.android.model.geometry.Coordinates
+import org.groundplatform.android.model.geometry.LineString
 import org.groundplatform.android.model.imagery.LocalTileSource
 import org.groundplatform.android.model.imagery.RemoteMogTileSource
 import org.groundplatform.android.model.imagery.TileSource
@@ -91,6 +92,8 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   private val tileOverlays = mutableListOf<TileOverlay>()
 
   override val featureClicks = MutableSharedFlow<Set<Feature>>()
+
+  override val cameraDragEvents = MutableSharedFlow<Coordinates>(extraBufferCapacity = 1)
 
   override var mapType: MapType
     get() = MAP_TYPES_BY_ID[map.mapType]!!
@@ -167,6 +170,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
     map.setOnCameraIdleListener(this::onCameraIdle)
     map.setOnCameraMoveStartedListener(this::onCameraMoveStarted)
+    map.setOnCameraMoveListener(this::onCameraMoving)
     map.setOnMapClickListener { onMapClick(it) }
 
     with(map.uiSettings) {
@@ -236,8 +240,17 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     }
   }
 
+  override fun updateLineString(
+    tag: Feature.Tag,
+    geometry: LineString,
+    style: Feature.Style,
+    selected: Boolean,
+    tooltipText: String?,
+  ) {
+    featureManager.updateLineString(tag, geometry, style, selected, tooltipText)
+  }
+
   override fun setFeatures(newFeatures: Set<Feature>) {
-    Timber.v("setFeatures() called with ${newFeatures.size} features")
     featureManager.setFeatures(newFeatures)
   }
 
@@ -265,6 +278,11 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     if (reason == OnCameraMoveStartedListener.REASON_GESTURE) {
       viewLifecycleOwner.lifecycleScope.launch { startDragEvents.emit(Unit) }
     }
+  }
+
+  private fun onCameraMoving() {
+    val cameraPosition = map.cameraPosition
+    cameraDragEvents.tryEmit(cameraPosition.target.toCoordinates())
   }
 
   override fun addTileOverlay(source: TileSource) =
