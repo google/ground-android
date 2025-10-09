@@ -125,10 +125,11 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
   }
 
   override fun onTaskViewAttached() {
+    onFeatureUpdated(null)
     viewLifecycleOwner.lifecycleScope.launch {
-      merge(viewModel.draftArea, viewModel.draftUpdates).filterNotNull().collectLatest { feature ->
-        onFeatureUpdated(feature)
-      }
+      merge(viewModel.draftArea, viewModel.draftUpdates)
+        .filterNotNull()
+        .collectLatest(::onFeatureUpdated)
     }
   }
 

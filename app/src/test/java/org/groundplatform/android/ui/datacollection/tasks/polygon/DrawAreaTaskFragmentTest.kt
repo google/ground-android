@@ -90,11 +90,11 @@ class DrawAreaTaskFragmentTest :
     setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = false))
 
     runner()
-      .assertButtonIsDisabled(NEXT_POINT_BUTTON_TEXT)
+      .assertButtonIsHidden(NEXT_POINT_BUTTON_TEXT)
       .assertButtonIsEnabled(SKIP_POINT_BUTTON_TEXT)
       .assertButtonIsDisabled(UNDO_POINT_BUTTON_TEXT, true)
       .assertButtonIsDisabled(REDO_POINT_BUTTON_TEXT, true)
-      .assertButtonIsHidden(ADD_POINT_BUTTON_TEXT)
+      .assertButtonIsEnabled(ADD_POINT_BUTTON_TEXT)
       .assertButtonIsHidden(COMPLETE_POINT_BUTTON_TEXT)
   }
 
@@ -103,7 +103,7 @@ class DrawAreaTaskFragmentTest :
     setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = true))
 
     runner()
-      .assertButtonIsDisabled(NEXT_POINT_BUTTON_TEXT)
+      .assertButtonIsHidden(NEXT_POINT_BUTTON_TEXT)
       .assertButtonIsHidden(SKIP_POINT_BUTTON_TEXT)
       .assertButtonIsDisabled(UNDO_POINT_BUTTON_TEXT, true)
       .assertButtonIsDisabled(REDO_POINT_BUTTON_TEXT, true)
@@ -182,7 +182,7 @@ class DrawAreaTaskFragmentTest :
     setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = false))
     ShadowDialog.getLatestDialog().dismiss()
 
-    runner().assertButtonIsHidden(ADD_POINT_BUTTON_TEXT)
+    runner().assertButtonIsEnabled(ADD_POINT_BUTTON_TEXT)
 
     updateLastVertexAndAddPoint(COORDINATE_1)
     updateCloseVertex(COORDINATE_5)
