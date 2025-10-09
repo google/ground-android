@@ -250,13 +250,6 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     featureManager.updateLineString(tag, geometry, style, selected, tooltipText)
   }
 
-  /**
-   * Returns true if this [Feature] represents a user-drawn "draft" line string (i.e. in-progress
-   * polygon drawing that should be updated in place).
-   */
-  fun Feature.isDraftLineString(): Boolean =
-    geometry is LineString && !clusterable && selected && tag.type == Feature.Type.USER_POLYGON
-
   override fun setFeatures(newFeatures: Set<Feature>) {
     featureManager.setFeatures(newFeatures)
   }

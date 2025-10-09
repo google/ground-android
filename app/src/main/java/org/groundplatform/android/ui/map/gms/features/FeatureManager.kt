@@ -155,7 +155,6 @@ constructor(
     if (!mapReady) return
 
     mapsItemManager.updateLineString(tag, geometry, style, selected, tooltipText)
-    // keep indices consistent for future diffs
     featuresByTag[tag]?.let { prev ->
       val updated =
         prev.copy(
