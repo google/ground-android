@@ -47,7 +47,6 @@ import kotlinx.coroutines.launch
 import org.groundplatform.android.common.Constants
 import org.groundplatform.android.data.remote.RemoteStorageManager
 import org.groundplatform.android.model.geometry.Coordinates
-import org.groundplatform.android.model.geometry.LineString
 import org.groundplatform.android.model.imagery.LocalTileSource
 import org.groundplatform.android.model.imagery.RemoteMogTileSource
 import org.groundplatform.android.model.imagery.TileSource
@@ -83,6 +82,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   override val cameraMovedEvents = MutableSharedFlow<CameraPosition>()
 
   @Inject lateinit var featureManager: FeatureManager
+
   @Inject lateinit var remoteStorageManager: RemoteStorageManager
 
   private lateinit var map: GoogleMap
@@ -240,18 +240,12 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     }
   }
 
-  override fun updateLineString(
-    tag: Feature.Tag,
-    geometry: LineString,
-    style: Feature.Style,
-    selected: Boolean,
-    tooltipText: String?,
-  ) {
-    featureManager.updateLineString(tag, geometry, style, selected, tooltipText)
-  }
-
   override fun setFeatures(newFeatures: Set<Feature>) {
     featureManager.setFeatures(newFeatures)
+  }
+
+  override fun updateFeature(feature: Feature) {
+    featureManager.update(feature)
   }
 
   private fun onCameraIdle() {

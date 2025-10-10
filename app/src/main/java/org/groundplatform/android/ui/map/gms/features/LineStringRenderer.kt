@@ -74,23 +74,30 @@ constructor(
     return polyline
   }
 
-  fun updateExistingPolyline(
-    polyline: Polyline,
+  override fun update(
+    map: GoogleMap,
+    mapFeature: Polyline,
     geometry: LineString,
     style: Feature.Style,
     selected: Boolean,
-    map: GoogleMap,
     tooltipText: String?,
   ) {
-    polyline.points = geometry.coordinates.toLatLngList()
+    mapFeature.points = geometry.coordinates.toLatLngList()
 
-    val expectedWidth = calculateStrokeWidth(selected)
-    if (polyline.color != style.color || polyline.width != expectedWidth) {
-      polyline.applyStyle(style, selected)
+    if (shouldUpdatePolyline(mapFeature, style, selected)) {
+      mapFeature.applyStyle(style, selected)
     }
 
+    // TODO: Move tooltip rendering out of the LineStringRenderer.
     updateTooltipMarker(geometry, map, tooltipText)
   }
+
+  private fun shouldUpdatePolyline(
+    polyline: Polyline,
+    newStyle: Feature.Style,
+    newSelected: Boolean,
+  ): Boolean =
+    polyline.color != newStyle.color || polyline.width != calculateStrokeWidth(newSelected)
 
   private fun updateTooltipMarker(geometry: LineString, map: GoogleMap, tooltipText: String?) {
     val coords = geometry.coordinates
