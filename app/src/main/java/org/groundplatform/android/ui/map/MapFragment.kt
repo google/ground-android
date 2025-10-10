@@ -19,7 +19,6 @@ import android.annotation.SuppressLint
 import androidx.annotation.IdRes
 import kotlinx.coroutines.flow.SharedFlow
 import org.groundplatform.android.model.geometry.Coordinates
-import org.groundplatform.android.model.geometry.LineString
 import org.groundplatform.android.model.imagery.TileSource
 import org.groundplatform.android.model.map.Bounds
 import org.groundplatform.android.model.map.CameraPosition
@@ -96,6 +95,9 @@ interface MapFragment {
   /** Update the set of map [Feature]s present on the map. */
   fun setFeatures(newFeatures: Set<Feature>)
 
+  /** Updates an existing [Feature] present on the map. */
+  fun updateFeature(feature: Feature)
+
   /** Returns the actual distance in pixels between provided [Coordinates]s. */
   fun getDistanceInPixels(coordinates1: Coordinates, coordinates2: Coordinates): Double
 
@@ -106,13 +108,4 @@ interface MapFragment {
 
   /** Removes all markers, overlays, polylines and polygons from the map. */
   fun clear()
-
-  /** Update an existing Feature in place (same tag). */
-  fun updateLineString(
-    tag: Feature.Tag,
-    geometry: LineString,
-    style: Feature.Style,
-    selected: Boolean,
-    tooltipText: String?,
-  )
 }
