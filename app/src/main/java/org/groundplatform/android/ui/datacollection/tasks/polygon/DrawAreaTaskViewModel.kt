@@ -125,11 +125,11 @@ internal constructor(
   var hasSelfIntersection: Boolean = false
     private set
 
-  private var strokeColor: Int = 0
+  private lateinit var featureStyle: Feature.Style
 
   override fun initialize(job: Job, task: Task, taskData: TaskData?) {
     super.initialize(job, task, taskData)
-    strokeColor = job.getDefaultColor()
+    featureStyle = Feature.Style(job.getDefaultColor(), Feature.VertexStyle.CIRCLE)
 
     // Apply saved state if it exists.
     when (taskData) {
@@ -326,10 +326,6 @@ internal constructor(
    * re-creation. Only the geometry and style of the active draft are updated in place on the map.
    *
    * This coroutine runs on [viewModelScope] to ensure lifecycle safety.
-   *
-   * @see _draftArea
-   * @see _draftUpdates
-   * @see FeatureManager.updateLineString
    */
   private fun refreshMap() =
     viewModelScope.launch {
@@ -337,35 +333,31 @@ internal constructor(
         _draftArea.emit(null)
         draftTag = null
       } else {
-        val style = Feature.Style(strokeColor, Feature.VertexStyle.CIRCLE)
-        val line = LineString(vertices)
-        val tooltip = getDistanceTooltipText()
-
         if (draftTag == null) {
-          val feature = buildPolygonFeature(style)
+          val feature = buildPolygonFeature()
           draftTag = feature.tag
           _draftArea.emit(feature)
         } else {
           val feature =
             Feature(
               tag = draftTag!!,
-              geometry = line,
-              style = style,
+              geometry = LineString(vertices),
+              style = featureStyle,
               clusterable = false,
               selected = true,
-              tooltipText = tooltip,
+              tooltipText = getDistanceTooltipText(),
             )
           _draftUpdates.tryEmit(feature)
         }
       }
     }
 
-  private suspend fun buildPolygonFeature(style: Feature.Style) =
+  private suspend fun buildPolygonFeature() =
     Feature(
       id = uuidGenerator.generateUuid(),
       type = Feature.Type.USER_POLYGON,
       geometry = LineString(vertices),
-      style = style,
+      style = featureStyle,
       clusterable = false,
       selected = true,
       tooltipText = getDistanceTooltipText(),
