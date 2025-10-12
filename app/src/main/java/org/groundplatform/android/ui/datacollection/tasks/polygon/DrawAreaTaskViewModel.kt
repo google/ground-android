@@ -338,23 +338,15 @@ internal constructor(
           draftTag = feature.tag
           _draftArea.emit(feature)
         } else {
-          val feature =
-            Feature(
-              tag = draftTag!!,
-              geometry = LineString(vertices),
-              style = featureStyle,
-              clusterable = false,
-              selected = true,
-              tooltipText = getDistanceTooltipText(),
-            )
+          val feature = buildPolygonFeature(id = draftTag!!.id)
           _draftUpdates.tryEmit(feature)
         }
       }
     }
 
-  private suspend fun buildPolygonFeature() =
+  private suspend fun buildPolygonFeature(id: String? = null) =
     Feature(
-      id = uuidGenerator.generateUuid(),
+      id = id ?: uuidGenerator.generateUuid(),
       type = Feature.Type.USER_POLYGON,
       geometry = LineString(vertices),
       style = featureStyle,
