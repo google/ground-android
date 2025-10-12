@@ -106,7 +106,7 @@ class TooltipMarkerRenderer @Inject constructor() {
     // Calculate y-coordinate for vertically centered text.
     val yPos = (canvas.height / 2f) - ((textPaint.descent() + textPaint.ascent()) / 2f)
 
-    canvas.drawText(text, (bitmap.width / 2f), yPos, textPaint)
+    canvas.drawText(text, bitmap.width / 2f, yPos, textPaint)
 
     return BitmapDescriptorFactory.fromBitmap(bitmap)
   }
