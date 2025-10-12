@@ -102,7 +102,7 @@ constructor(
   private fun updateTooltipMarker(geometry: LineString, map: GoogleMap, tooltipText: String?) {
     val coords = geometry.coordinates
     val midpoint = if (coords.size < 2) null else coords.last().midpoint(coords.penult())
-    tooltipMarkerRenderer.update(map, midpoint, tooltipText)
+    tooltipMarkerRenderer.show(map, midpoint, tooltipText)
   }
 
   private fun Polyline.applyStyle(style: Feature.Style, selected: Boolean) {
