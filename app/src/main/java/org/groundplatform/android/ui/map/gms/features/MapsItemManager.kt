@@ -76,7 +76,7 @@ class MapsItemManager(
     with(feature) {
       itemsByTag[feature.tag]?.forEach {
         if (it is Polyline) {
-          lineStringRenderer.update(map, it, geometry as LineString, style, selected, tooltipText)
+          lineStringRenderer.update(map, it, geometry as LineString, tooltipText)
         } else {
           error("Unsupported map feature: ${it::class.java}")
         }

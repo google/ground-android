@@ -30,14 +30,7 @@ interface MapsItemRenderer<T : Geometry, U> {
     tooltipText: String? = null,
   ): U
 
-  fun update(
-    map: GoogleMap,
-    mapFeature: U,
-    geometry: T,
-    style: Feature.Style,
-    selected: Boolean,
-    tooltipText: String? = null,
-  ) {
+  fun update(map: GoogleMap, mapFeature: U, geometry: T, tooltipText: String? = null) {
     UnsupportedOperationException("update() not supported")
   }
 }
