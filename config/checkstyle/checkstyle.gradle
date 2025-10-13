@@ -36,8 +36,8 @@ checkstyle.toolVersion = '8.36.2'
 tasks.register("checkstyle", Checkstyle) {
     configFile file("../third_party/checkstyle/google_checks.xml")
 
-    ignoreFailures false // Fail early
-    showViolations true
+    ignoreFailures = false // Fail early
+    showViolations = true
 
     source 'src'
     include '**/*.xml'

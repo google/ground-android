@@ -55,7 +55,7 @@ interface SubmissionMutationDao : BaseDao<SubmissionMutationEntity> {
   suspend fun findBySubmissionId(
     submissionId: String,
     vararg allowedStates: MutationEntitySyncStatus,
-  ): List<SubmissionMutationEntity>?
+  ): List<SubmissionMutationEntity>
 
   @Query(
     "SELECT * FROM submission_mutation " +

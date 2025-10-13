@@ -133,6 +133,21 @@ constructor(
       clusterManager.removeFeature(tag)
     }
 
+  /** Updates the existing feature on the map with it's new properties (geometry, styling, etc). */
+  fun update(feature: Feature) =
+    with(feature) {
+      val prevFeature = featuresByTag[tag]
+      if (prevFeature == null) {
+        Timber.e("Feature not found for update: $tag")
+        return
+      }
+
+      features.remove(prevFeature)
+      features.add(this)
+      mapsItemManager.update(this)
+      featuresByTag[tag] = this
+    }
+
   fun onCameraIdle() {
     clusterManager.onCameraIdle()
   }

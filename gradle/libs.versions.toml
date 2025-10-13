@@ -15,33 +15,33 @@
 [versions]
 androidMapsUtilsVersion = "3.8.2"
 appcompatVersion = "1.7.0"
-autoValueVersion = "1.10.4"
+autoValueVersion = "1.11.0"
 cardviewVersion = "1.0.0"
-compilerVersion = "1.5.15"
-composeUi = "1.8.2"
+composeUi = "1.9.0"
 constraintlayoutVersion = "2.2.1"
 coreKtxVersion = "1.13.1"
 coreTesting = "2.2.0"
 coreTestingVersion = "1.1.1"
-coreVersion = "1.6.1"
+coreVersion = "1.7.0"
 coroutinesVersion = "1.7.3"
-detektVersion = "1.23.5"
+detektVersion = "1.23.8"
 espressoContribVersion = "3.6.1"
 exifinterfaceVersion = "1.4.1"
 firebaseBomVersion = "33.1.2"
 firebaseCrashlyticsGradleVersion = "3.0.2"
-fragmentVersion = "1.8.7"
-glideVersion = "4.16.0"
+fragmentVersion = "1.8.9"
+glideVersion = "5.0.5"
 googleServicesVersion = "4.4.2"
-gradleVersion = "8.3.2"
+gradleVersion = "8.13.0"
 groundPlatformVersion = "bc2596d"
-gsonVersion = "2.11.0"
+gsonVersion = "2.13.2"
 hiltJetpackVersion = "1.2.0"
-hiltVersion = "2.51"
+hiltVersion = "2.57.2"
 jsonVersion = "20180813"
 junitKtx = "1.2.1"
 junitVersion = "4.13.2"
-kotlinVersion = "1.9.23"
+kotlinVersion = "2.2.10"
+kspVersion = "2.2.10-2.0.2"
 kotlinxCollectionsImmutable = "0.3.7"
 kotlinxSerializationVersion = "1.9.0"
 ktfmtVersion = "0.22.0"
@@ -56,9 +56,9 @@ mockitoKotlinVersion = "4.1.0"
 mockitoVersion = "5.11.0"
 multidex = "2.0.1"
 navigationKtxVersion = "2.7.7"
-orchestratorVersion = "1.5.0"
+orchestratorVersion = "1.6.1"
 ossLicensesPluginVersion = "0.10.6"
-perfPluginVersion = "1.4.2"
+perfPluginVersion = "2.0.1"
 playServicesAuthVersion = "21.3.0"
 playServicesMapsVersion = "19.2.0"
 playServicesOssLicensesVersion = "17.1.0"
@@ -67,11 +67,11 @@ protobufKotlinLiteVersion = "4.26.1"
 protobufVersion = "0.9.4"
 recyclerviewSelection = "1.1.0"
 robolectricVersion = "4.11.1"
-roomVersion = "2.6.1"
+roomVersion = "2.7.2"
 secretsGradlePluginVersion = "2.0.1"
 testingVersion = "1.2.0"
 timberVersion = "5.0.1"
-truthVersion = "1.4.2"
+truthVersion = "1.4.5"
 turbineVersion = "0.12.3"
 uiautomatorVersion = "2.3.0"
 workVersion = "2.9.1"
@@ -79,7 +79,6 @@ workVersion = "2.9.1"
 [libraries]
 android-maps-utils = { module = "com.google.maps.android:android-maps-utils", version.ref = "androidMapsUtilsVersion" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompatVersion" }
-androidx-compiler = { module = "androidx.compose.compiler:compiler", version.ref = "compilerVersion" }
 androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayoutVersion" }
 androidx-cardview = { module = "androidx.cardview:cardview", version.ref = "cardviewVersion" }
 androidx-core = { module = "androidx.test:core", version.ref = "coreVersion" }
@@ -108,7 +107,6 @@ androidx-orchestrator = { module = "androidx.test:orchestrator", version.ref = "
 androidx-preference-ktx = { module = "androidx.preference:preference-ktx", version.ref = "preferenceKtx" }
 androidx-recyclerview-selection = { module = "androidx.recyclerview:recyclerview-selection", version.ref = "recyclerviewSelection" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomVersion" }
-androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomVersion" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomVersion" }
 androidx-room-testing = { module = "androidx.room:room-testing", version.ref = "roomVersion" }
 androidx-rules = { module = "androidx.test:rules", version.ref = "coreVersion" }
@@ -181,9 +179,12 @@ truth = { module = "com.google.truth:truth", version.ref = "truthVersion" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbineVersion" }
 
 [plugins]
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlinVersion" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlinVersion" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinVersion" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "kspVersion" }
 ktfmt = { id = "com.ncorti.ktfmt.gradle", version.ref = "ktfmtVersion" }
 hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hiltVersion" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detektVersion" }
 protobuf = { id = "com.google.protobuf", version.ref = "protobufVersion" }
+room = { id = "androidx.room", version.ref = "roomVersion" }
