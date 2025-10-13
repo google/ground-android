@@ -84,16 +84,16 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
   ): List<Submission> =
     submissionDao
       .findByLocationOfInterestId(locationOfInterest.id, jobId, EntityDeletionState.DEFAULT)
-      ?.mapNotNull { logOnFailure { it.toModelObject(locationOfInterest) } } ?: listOf()
+      .mapNotNull { logOnFailure { it.toModelObject(locationOfInterest) } }
 
   override suspend fun merge(model: Submission) {
-    submissionMutationDao
-      .findBySubmissionId(
+    val mutations =
+      submissionMutationDao.findBySubmissionId(
         model.id,
         MutationEntitySyncStatus.PENDING,
         MutationEntitySyncStatus.IN_PROGRESS,
       )
-      ?.let { mergeSubmission(model.job, model.toLocalDataStoreObject(), it) }
+    mergeSubmission(model.job, model.toLocalDataStoreObject(), mutations)
   }
 
   override suspend fun enqueue(mutation: SubmissionMutation) =

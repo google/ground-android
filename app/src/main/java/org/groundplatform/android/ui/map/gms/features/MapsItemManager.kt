@@ -71,6 +71,18 @@ class MapsItemManager(
       }
     }
 
+  /** Updates an already-rendered feature with new geometry and style. */
+  fun update(feature: Feature) =
+    with(feature) {
+      itemsByTag[feature.tag]?.forEach {
+        if (it is Polyline) {
+          lineStringRenderer.update(map, it, geometry as LineString, tooltipText)
+        } else {
+          error("Unsupported map feature: ${it::class.java}")
+        }
+      }
+    }
+
   /**
    * Shows or hides the items associated with the specified tag. Does nothing if there are no items
    * with that tag present.

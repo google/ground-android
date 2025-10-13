@@ -53,6 +53,9 @@ interface MapFragment {
    */
   val cameraMovedEvents: SharedFlow<CameraPosition>
 
+  /** Emits camera target coordinates in real time while the user drags the map. */
+  val cameraDragEvents: SharedFlow<Coordinates>
+
   /** Attaches this [MapFragment] to its parent [Fragment]. */
   fun attachToParent(
     containerFragment: AbstractFragment,
@@ -91,6 +94,9 @@ interface MapFragment {
 
   /** Update the set of map [Feature]s present on the map. */
   fun setFeatures(newFeatures: Set<Feature>)
+
+  /** Updates an existing [Feature] present on the map. */
+  fun updateFeature(feature: Feature)
 
   /** Returns the actual distance in pixels between provided [Coordinates]s. */
   fun getDistanceInPixels(coordinates1: Coordinates, coordinates2: Coordinates): Double
