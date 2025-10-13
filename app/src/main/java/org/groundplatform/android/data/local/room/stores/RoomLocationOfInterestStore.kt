@@ -124,7 +124,7 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
     id: String,
     vararg states: MutationEntitySyncStatus,
   ): List<LocationOfInterestMutationEntity> =
-    locationOfInterestMutationDao.getMutations(id, *states) ?: listOf()
+    locationOfInterestMutationDao.getMutations(id, *states)
 
   override suspend fun insertOrUpdate(loi: LocationOfInterest) =
     locationOfInterestDao.insertOrUpdate(loi.toLocalDataStoreObject())
