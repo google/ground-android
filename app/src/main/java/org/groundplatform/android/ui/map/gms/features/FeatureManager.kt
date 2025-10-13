@@ -28,7 +28,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import org.groundplatform.android.coroutines.MainScope
-import org.groundplatform.android.model.geometry.LineString
 import org.groundplatform.android.ui.map.Feature
 import timber.log.Timber
 
@@ -47,9 +46,6 @@ constructor(
 ) {
   private val features = mutableSetOf<Feature>()
   private val featuresByTag = mutableMapOf<Feature.Tag, Feature>()
-
-  private val mapReady: Boolean
-    get() = this::mapsItemManager.isInitialized
 
   private lateinit var map: GoogleMap
   private lateinit var mapsItemManager: MapsItemManager
@@ -137,35 +133,22 @@ constructor(
       clusterManager.removeFeature(tag)
     }
 
+  /** Updates the existing feature on the map with it's new properties (geometry, styling, etc). */
+  fun update(feature: Feature) =
+    with(feature) {
+      val prevFeature = featuresByTag[tag]
+      if (prevFeature == null) {
+        Timber.e("Feature not found for update: $tag")
+        return
+      }
+
+      features.remove(prevFeature)
+      features.add(this)
+      mapsItemManager.update(this)
+      featuresByTag[tag] = this
+    }
+
   fun onCameraIdle() {
     clusterManager.onCameraIdle()
-  }
-
-  /**
-   * Generic in-place polyline updater. Callers that do incremental updates (e.g. while dragging)
-   * can use this without forcing a full add/remove diff.
-   */
-  fun updateLineString(
-    tag: Feature.Tag,
-    geometry: LineString,
-    style: Feature.Style,
-    selected: Boolean,
-    tooltipText: String?,
-  ) {
-    if (!mapReady) return
-
-    mapsItemManager.updateLineString(tag, geometry, style, selected, tooltipText)
-    featuresByTag[tag]?.let { prev ->
-      val updated =
-        prev.copy(
-          geometry = geometry,
-          style = style,
-          selected = selected,
-          tooltipText = tooltipText ?: prev.tooltipText,
-        )
-      features.remove(prev)
-      features.add(updated)
-      featuresByTag[tag] = updated
-    }
   }
 }

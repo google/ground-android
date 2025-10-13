@@ -15,13 +15,13 @@
  */
 package org.groundplatform.android.ui.map.gms.features
 
-import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.Typeface
+import androidx.core.graphics.createBitmap
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
@@ -35,82 +35,88 @@ import javax.inject.Inject
  *
  * This class handles creating, updating, and removing a marker that displays custom tooltip text.
  * It uses a bitmap with rounded corners and stylized text to show the tooltip content.
- *
- * @constructor Creates an instance of [TooltipMarkerRenderer].
  */
 class TooltipMarkerRenderer @Inject constructor() {
   private var tooltipMarker: Marker? = null
 
   /**
-   * Updates the tooltip marker on the map at the specified midpoint with the given text.
+   * Shows or updates the tooltip marker on the map.
    *
-   * If no tooltip marker exists, a new one is created at [midPoint] with [tooltipText]. If a
-   * tooltip marker already exists, its position is updated to [midPoint] and its icon is updated
-   * using [tooltipText].
+   * If the marker doesn't exist, a new one is created. If it does, its position and text are
+   * updated.
    *
-   * @param map The [GoogleMap] instance where the tooltip marker should be rendered.
-   * @param midPoint The [LatLng] position for the tooltip marker.
-   * @param tooltipText The text to be displayed on the tooltip marker.
+   * @param map The [GoogleMap] instance to render on.
+   * @param midPoint The [LatLng] position for the tooltip.
+   * @param tooltipText The text to display. A null or blank string with hide the marker.
    */
-  fun update(map: GoogleMap, midPoint: LatLng?, tooltipText: String?) {
-    if (midPoint == null) {
+  fun show(map: GoogleMap, midPoint: LatLng?, tooltipText: String?) {
+    if (midPoint == null || tooltipText.isNullOrBlank()) {
       remove()
       return
     }
 
-    tooltipText ?: return
-
-    if (tooltipMarker == null) {
-      tooltipMarker = create(map, midPoint, tooltipText)
+    val currentMarker = tooltipMarker
+    if (currentMarker == null) {
+      tooltipMarker =
+        map.addMarker(
+          MarkerOptions()
+            .position(midPoint)
+            .icon(createTextMarker(tooltipText))
+            .anchor(ANCHOR_U, ANCHOR_V)
+        )
     } else {
-      tooltipMarker?.apply {
-        position = midPoint
-        setIcon(createTextMarker(tooltipText))
-      }
+      currentMarker.position = midPoint
+      currentMarker.setIcon(createTextMarker(tooltipText))
     }
   }
 
-  /** Removes the current tooltip marker from the map, if it exists. */
-  fun remove() {
+  /** Removes the current tooltip marker from the map. */
+  private fun remove() {
     tooltipMarker?.remove()
     tooltipMarker = null
   }
 
-  private fun create(map: GoogleMap, position: LatLng, text: String): Marker {
-    val markerOptions =
-      MarkerOptions().position(position).icon(createTextMarker(text)).anchor(0.5f, 1f)
-
-    return map.addMarker(markerOptions)!!
-  }
-
   private fun createTextMarker(text: String): BitmapDescriptor {
-    val paint =
+    val textPaint =
       Paint().apply {
         color = Color.BLACK
-        textSize = 40f
+        textSize = TEXT_SIZE
         typeface = Typeface.DEFAULT_BOLD
         textAlign = Paint.Align.CENTER
       }
 
-    val bounds = Rect()
-    paint.getTextBounds(text, 0, text.length, bounds)
+    val textBounds = Rect()
+    textPaint.getTextBounds(text, 0, text.length, textBounds)
 
-    val bitmap =
-      Bitmap.createBitmap(bounds.width() + 40, bounds.height() + 40, Bitmap.Config.ARGB_8888)
+    val bitmapWidth = textBounds.width() + H_PADDING
+    val bitmapHeight = textBounds.height() + V_PADDING
+
+    val bitmap = createBitmap(bitmapWidth, bitmapHeight)
     val canvas = Canvas(bitmap)
 
     val bgPaint =
       Paint().apply {
         color = Color.WHITE
         style = Paint.Style.FILL
-        isAntiAlias = true
       }
 
-    val rectF = RectF(0f, 0f, bitmap.width.toFloat(), bitmap.height.toFloat())
-    canvas.drawRoundRect(rectF, 20f, 20f, bgPaint)
+    val rectF = RectF(0f, 0f, bitmapWidth.toFloat(), bitmapHeight.toFloat())
+    canvas.drawRoundRect(rectF, CORNER_RADIUS, CORNER_RADIUS, bgPaint)
 
-    canvas.drawText(text, (bitmap.width / 2).toFloat(), (bitmap.height / 1.5).toFloat(), paint)
+    // Calculate y-coordinate for vertically centered text.
+    val yPos = (canvas.height / 2f) - ((textPaint.descent() + textPaint.ascent()) / 2f)
+
+    canvas.drawText(text, bitmap.width / 2f, yPos, textPaint)
 
     return BitmapDescriptorFactory.fromBitmap(bitmap)
+  }
+
+  companion object {
+    private const val TEXT_SIZE = 40f
+    private const val H_PADDING = 40
+    private const val V_PADDING = 30
+    private const val CORNER_RADIUS = 20f
+    private const val ANCHOR_U = 0.5f
+    private const val ANCHOR_V = 1.0f
   }
 }
