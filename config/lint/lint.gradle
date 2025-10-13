@@ -30,11 +30,11 @@ def reportsDir = "${project.buildDir}/reports"
 
 android {
     lint {
-        abortOnError true
-        htmlOutput file("$reportsDir/lint/lint-result.html")
-        htmlReport true
-        lintConfig file("$configDir/lint.xml")
-        xmlOutput file("$reportsDir/lint/lint-result.xml")
-        xmlReport true
+        abortOnError = true
+        htmlOutput = file("$reportsDir/lint/lint-result.html")
+        htmlReport = true
+        lintConfig = file("$configDir/lint.xml")
+        xmlOutput = file("$reportsDir/lint/lint-result.xml")
+        xmlReport = true
     }
 }

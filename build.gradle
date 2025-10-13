@@ -20,8 +20,8 @@ buildscript {
     repositories {
         google()
         mavenLocal()
-        maven { url "https://maven.google.com" }
-        maven { url "https://plugins.gradle.org/m2/" }
+        maven { url = "https://maven.google.com" }
+        maven { url = "https://plugins.gradle.org/m2/" }
         mavenCentral()
         gradlePluginPortal()
     }
@@ -54,6 +54,7 @@ buildscript {
 plugins {
     alias libs.plugins.kotlin.android apply false
     alias libs.plugins.kotlin.serialization apply false
+    alias libs.plugins.compose.compiler apply false
     alias libs.plugins.ksp apply false
     alias libs.plugins.room apply false
     alias libs.plugins.ktfmt
@@ -67,9 +68,9 @@ allprojects {
     repositories {
         google() // For github repos.
         mavenLocal()
-        maven { url "https://maven.google.com" }
-        maven { url "https://jitpack.io" }
-        maven { url "https://repo.osgeo.org/repository/release/" } // GeoTools
+        maven { url = "https://maven.google.com" }
+        maven { url = "https://jitpack.io" }
+        maven { url = "https://repo.osgeo.org/repository/release/" } // GeoTools
         mavenCentral()
     }
 }

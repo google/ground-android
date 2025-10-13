@@ -39,5 +39,5 @@ interface SubmissionDao : BaseDao<SubmissionEntity> {
     locationOfInterestId: String,
     jobId: String,
     deletionState: EntityDeletionState,
-  ): List<SubmissionEntity>?
+  ): List<SubmissionEntity>
 }

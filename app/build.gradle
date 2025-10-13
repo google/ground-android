@@ -26,6 +26,7 @@ apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'com.google.android.gms.oss-licenses-plugin'
 apply plugin: 'com.google.protobuf'
 apply plugin: 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
+apply plugin: 'org.jetbrains.kotlin.plugin.compose'
 
 apply from: '../config/checkstyle/checkstyle.gradle'
 apply from: '../config/lint/lint.gradle'
@@ -79,7 +80,7 @@ android {
         versionCode getGitCommitCount()
         versionName "${getGitBranchName()}-${getGitHash()}-debug"
 
-        multiDexEnabled true
+        multiDexEnabled = true
         // For rendering vector map markers.
         vectorDrawables.useSupportLibrary = true
         buildConfigField "String", "EMULATOR_HOST", "\"10.0.2.2\""
@@ -90,7 +91,7 @@ android {
     }
 
     // Use flag -PtestBuildType with desired variant to change default behavior.
-    testBuildType project.getProperties().getOrDefault("testBuildType", "debug")
+    testBuildType = project.getProperties().getOrDefault("testBuildType", "debug")
 
     // gradle doesn't sign debug test apk (needed for running instrumentation tests on firebase)
     // https://stackoverflow.com/questions/3082780/java-lang-securityexception-permission-denial/38202106
@@ -112,15 +113,15 @@ android {
             ext.enableCrashlytics = false
             ext.alwaysUpdateBuildId = false
             FirebasePerformance {
-                instrumentationEnabled false
+                instrumentationEnabled = false
             }
         }
         staging {
             ext.enableCrashlytics = false
             ext.alwaysUpdateBuildId = false
-            signingConfig signingConfigs.staging
+            signingConfig = signingConfigs.staging
             FirebasePerformance {
-                instrumentationEnabled false
+                instrumentationEnabled = false
             }
         }
     }
@@ -145,13 +146,10 @@ android {
     }
 
     buildFeatures {
-        buildConfig true
-        compose true
-        dataBinding true
-        viewBinding true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion "1.5.13"
+        buildConfig = true
+        compose = true
+        dataBinding = true
+        viewBinding = true
     }
     testOptions {
         unitTests {
@@ -167,7 +165,7 @@ android {
         schemaDirectory("$projectDir/schemas")
     }
 
-    namespace 'org.groundplatform.android'
+    namespace = 'org.groundplatform.android'
 }
 
 configurations {
@@ -204,7 +202,6 @@ dependencies {
     // Jetpack Compose
     debugImplementation libs.androidx.ui.test.manifest
     debugImplementation libs.androidx.ui.tooling
-    implementation libs.androidx.compiler
     implementation libs.androidx.material3.android
     implementation libs.androidx.runtime.livedata
     implementation libs.androidx.ui
@@ -271,7 +268,6 @@ dependencies {
     implementation libs.timber
 
     // Room
-    implementation libs.androidx.room.ktx
     implementation libs.androidx.room.runtime
     testImplementation libs.androidx.room.testing
     ksp libs.androidx.room.compiler
