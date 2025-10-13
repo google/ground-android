@@ -66,11 +66,11 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     mergedFeatureLiveData = mergedFeatureFlow.asLiveData()
     featureTestObserver = TestObserver.test(mergedFeatureLiveData)
     draftAreaObserver = TestObserver.test(viewModel.draftArea.asLiveData())
+    viewModel.initialize(JOB, TASK, taskData = null)
   }
 
   @Test
   fun `Initializes with null task data`() {
-    viewModel.initialize(JOB, TASK, taskData = null)
     assertGeometry(0)
     assertThat(viewModel.isMarkedComplete()).isFalse()
   }
