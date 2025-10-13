@@ -19,11 +19,14 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-parcelize'
 apply plugin: 'kotlinx-serialization'
 apply plugin: 'com.google.dagger.hilt.android'
+apply plugin: 'com.google.devtools.ksp'
+apply plugin: 'androidx.room'
 apply plugin: 'com.google.firebase.firebase-perf'
 apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'com.google.android.gms.oss-licenses-plugin'
 apply plugin: 'com.google.protobuf'
 apply plugin: 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
+apply plugin: 'org.jetbrains.kotlin.plugin.compose'
 
 apply from: '../config/checkstyle/checkstyle.gradle'
 apply from: '../config/lint/lint.gradle'
@@ -77,7 +80,7 @@ android {
         versionCode getGitCommitCount()
         versionName "${getGitBranchName()}-${getGitHash()}-debug"
 
-        multiDexEnabled true
+        multiDexEnabled = true
         // For rendering vector map markers.
         vectorDrawables.useSupportLibrary = true
         buildConfigField "String", "EMULATOR_HOST", "\"10.0.2.2\""
@@ -85,17 +88,10 @@ android {
         buildConfigField "int", "AUTH_EMULATOR_PORT", "9099"
         buildConfigField "String", "SIGNUP_FORM_LINK", "\"\""
         manifestPlaceholders.usesCleartextTraffic = true
-
-        // Room DB schema export directory
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments["room.schemaLocation"] = "$projectDir/schemas"
-            }
-        }
     }
 
     // Use flag -PtestBuildType with desired variant to change default behavior.
-    testBuildType project.getProperties().getOrDefault("testBuildType", "debug")
+    testBuildType = project.getProperties().getOrDefault("testBuildType", "debug")
 
     // gradle doesn't sign debug test apk (needed for running instrumentation tests on firebase)
     // https://stackoverflow.com/questions/3082780/java-lang-securityexception-permission-denial/38202106
@@ -117,15 +113,15 @@ android {
             ext.enableCrashlytics = false
             ext.alwaysUpdateBuildId = false
             FirebasePerformance {
-                instrumentationEnabled false
+                instrumentationEnabled = false
             }
         }
         staging {
             ext.enableCrashlytics = false
             ext.alwaysUpdateBuildId = false
-            signingConfig signingConfigs.staging
+            signingConfig = signingConfigs.staging
             FirebasePerformance {
-                instrumentationEnabled false
+                instrumentationEnabled = false
             }
         }
     }
@@ -150,13 +146,10 @@ android {
     }
 
     buildFeatures {
-        buildConfig true
-        compose true
-        dataBinding true
-        viewBinding true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion "1.5.13"
+        buildConfig = true
+        compose = true
+        dataBinding = true
+        viewBinding = true
     }
     testOptions {
         unitTests {
@@ -167,7 +160,12 @@ android {
         }
         animationsDisabled = true
     }
-    namespace 'org.groundplatform.android'
+
+    room {
+        schemaDirectory("$projectDir/schemas")
+    }
+
+    namespace = 'org.groundplatform.android'
 }
 
 configurations {
@@ -204,7 +202,6 @@ dependencies {
     // Jetpack Compose
     debugImplementation libs.androidx.ui.test.manifest
     debugImplementation libs.androidx.ui.tooling
-    implementation libs.androidx.compiler
     implementation libs.androidx.material3.android
     implementation libs.androidx.runtime.livedata
     implementation libs.androidx.ui
@@ -246,10 +243,10 @@ dependencies {
     implementation libs.hilt.android
     testImplementation libs.hilt.android.testing
     androidTestImplementation libs.hilt.android.testing
-    kapt libs.hilt.compiler
-    kapt libs.hilt.android.compiler
-    kaptTest libs.hilt.android.compiler
-    kaptAndroidTest libs.hilt.android.compiler
+    ksp libs.hilt.compiler
+    ksp libs.hilt.android.compiler
+    kspTest libs.hilt.android.compiler
+    kspAndroidTest libs.hilt.android.compiler
 
     // Android Arch Lifecycle
     implementation libs.androidx.lifecycle.extensions
@@ -263,7 +260,7 @@ dependencies {
 
     // Auto-value
     compileOnly libs.auto.value.annotations
-    kapt libs.auto.value
+    ksp libs.auto.value
 
     implementation libs.androidx.exifinterface
 
@@ -271,10 +268,9 @@ dependencies {
     implementation libs.timber
 
     // Room
-    implementation libs.androidx.room.ktx
     implementation libs.androidx.room.runtime
     testImplementation libs.androidx.room.testing
-    kapt libs.androidx.room.compiler
+    ksp libs.androidx.room.compiler
 
     // WorkManager
     implementation libs.androidx.work.runtime.ktx
@@ -365,11 +361,6 @@ task extractGroundProtoJar(type: Copy) {
         })
     into extractedGroundProtoPath
     include "**/*.proto"
-}
-
-// Allow references to generated code.
-kapt {
-    correctErrorTypes true
 }
 
 apply plugin: 'androidx.navigation.safeargs'
