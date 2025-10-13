@@ -20,7 +20,7 @@ plugins {
 
 android {
     targetProjectPath ':app'
-    namespace 'org.groundplatform.android.e2etest'
+    namespace = 'org.groundplatform.android.e2etest'
     compileSdk rootProject.androidCompileSdk
 
     defaultConfig {
@@ -31,7 +31,7 @@ android {
     }
 
     testOptions {
-        execution 'ANDROIDX_TEST_ORCHESTRATOR'
+        execution = 'ANDROIDX_TEST_ORCHESTRATOR'
     }
 
     buildFeatures {

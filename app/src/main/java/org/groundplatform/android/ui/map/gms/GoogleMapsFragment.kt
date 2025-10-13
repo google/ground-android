@@ -82,6 +82,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   override val cameraMovedEvents = MutableSharedFlow<CameraPosition>()
 
   @Inject lateinit var featureManager: FeatureManager
+
   @Inject lateinit var remoteStorageManager: RemoteStorageManager
 
   private lateinit var map: GoogleMap
@@ -91,6 +92,8 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   private val tileOverlays = mutableListOf<TileOverlay>()
 
   override val featureClicks = MutableSharedFlow<Set<Feature>>()
+
+  override val cameraDragEvents = MutableSharedFlow<Coordinates>(extraBufferCapacity = 1)
 
   override var mapType: MapType
     get() = MAP_TYPES_BY_ID[map.mapType]!!
@@ -167,6 +170,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
     map.setOnCameraIdleListener(this::onCameraIdle)
     map.setOnCameraMoveStartedListener(this::onCameraMoveStarted)
+    map.setOnCameraMoveListener(this::onCameraMoving)
     map.setOnMapClickListener { onMapClick(it) }
 
     with(map.uiSettings) {
@@ -237,8 +241,11 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   }
 
   override fun setFeatures(newFeatures: Set<Feature>) {
-    Timber.v("setFeatures() called with ${newFeatures.size} features")
     featureManager.setFeatures(newFeatures)
+  }
+
+  override fun updateFeature(feature: Feature) {
+    featureManager.update(feature)
   }
 
   private fun onCameraIdle() {
@@ -265,6 +272,11 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     if (reason == OnCameraMoveStartedListener.REASON_GESTURE) {
       viewLifecycleOwner.lifecycleScope.launch { startDragEvents.emit(Unit) }
     }
+  }
+
+  private fun onCameraMoving() {
+    val cameraPosition = map.cameraPosition
+    cameraDragEvents.tryEmit(cameraPosition.target.toCoordinates())
   }
 
   override fun addTileOverlay(source: TileSource) =
