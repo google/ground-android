@@ -24,10 +24,6 @@ updates:
       interval: "daily"
     open-pull-requests-limit: 10
     target-branch: "master"
-    reviewers:
-      - shobhitagarwal1612
-    assignees:
-      - shobhitagarwal1612
 
   # Enable version updates for GitHub Actions
   - package-ecosystem: "github-actions"
@@ -36,7 +32,3 @@ updates:
       interval: "daily"
     open-pull-requests-limit: 10
     target-branch: "master"
-    reviewers:
-      - shobhitagarwal1612
-    assignees:
-      - shobhitagarwal1612

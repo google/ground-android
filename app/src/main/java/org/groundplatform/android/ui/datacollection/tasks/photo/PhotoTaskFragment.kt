@@ -98,7 +98,7 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   }
 
   override fun onTaskViewAttached() {
-    viewModel.surveyId = dataCollectionViewModel.surveyId
+    viewModel.surveyId = dataCollectionViewModel.requireSurveyId()
     viewModel.taskWaitingForPhoto = taskWaitingForPhoto
 
     viewModel.capturedUri?.let { uri ->
