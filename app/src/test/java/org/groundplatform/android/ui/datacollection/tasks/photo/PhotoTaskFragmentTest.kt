@@ -51,7 +51,7 @@ class PhotoTaskFragmentTest : BaseTaskFragmentTest<PhotoTaskFragment, PhotoTaskV
   override fun setUp() {
     super.setUp()
 
-    whenever(dataCollectionViewModel.surveyId).thenReturn("test survey id")
+    whenever(dataCollectionViewModel.requireSurveyId()).thenReturn("test survey id")
   }
 
   @Test
