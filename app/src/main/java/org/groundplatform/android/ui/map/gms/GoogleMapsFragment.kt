@@ -283,15 +283,21 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   override fun addTileOverlay(source: TileSource) =
     when (source) {
-      is LocalTileSource -> addLocalTileOverlay(source.localFilePath, source.clipBounds)
+      is LocalTileSource ->
+        addLocalTileOverlay(source.localFilePath, source.clipBounds, source.maxZoom)
       is RemoteMogTileSource ->
         addRemoteMogTileOverlay(url = source.remotePath, zIndex = TILE_OVERLAY_Z)
     }
 
-  private fun addLocalTileOverlay(url: String, bounds: List<Bounds>) {
-    addTileOverlay(
-      ClippingTileProvider(TemplateUrlTileProvider(url), bounds.map { it.toGoogleMapsObject() })
-    )
+  private fun addLocalTileOverlay(url: String, bounds: List<Bounds>, maxZoom: Int) {
+    val baseProvider = TemplateUrlTileProvider(url)
+    // Upscale from the max downloaded zoom level to higher levels (e.g., 15, 16, 17, 18) by
+    // splitting each tile into four quadrants and doubling each pixel to create 256x256 output
+    // tiles
+    val upscaledProvider = CachingUpscalingTileProvider(baseProvider, dataMaxZoom = maxZoom)
+    val clippedProvider =
+      ClippingTileProvider(upscaledProvider, bounds.map { it.toGoogleMapsObject() })
+    addTileOverlay(clippedProvider)
   }
 
   private fun addRemoteMogTileOverlay(

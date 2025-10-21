@@ -20,6 +20,10 @@ import org.groundplatform.android.model.map.Bounds
 /** Represents a single source of tiled map imagery. */
 sealed class TileSource
 
-data class LocalTileSource(val localFilePath: String, val clipBounds: List<Bounds>) : TileSource()
+data class LocalTileSource(
+  val localFilePath: String,
+  val clipBounds: List<Bounds>,
+  val maxZoom: Int,
+) : TileSource()
 
 data class RemoteMogTileSource(val remotePath: String) : TileSource()
