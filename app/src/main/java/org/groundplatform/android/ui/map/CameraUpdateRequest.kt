@@ -40,8 +40,8 @@ data class NewCameraPositionViaCoordinatesAndZoomLevel(
 ) : CameraUpdateRequest() {
 
   /** Returns the resolved zoom level based on request parameters. */
-  fun getZoomLevel(currentZoomLevel: Float): Float {
-    val target = if (isAllowZoomOut) zoomLevel else max(zoomLevel, currentZoomLevel)
-    return target.coerceIn(2f, 21f)
+  fun getZoomLevel(currentZoomLevel: Float, min: Float = 2f, max: Float = 21f): Float {
+    val target = if (isAllowZoomOut) zoomLevel else kotlin.math.max(zoomLevel, currentZoomLevel)
+    return target.coerceIn(min, max)
   }
 }

@@ -114,6 +114,7 @@ constructor(
       } else {
         val bounds = list.map { it.bounds }
         val maxZoom = list.maxOfOrNull { it.zoomRange.last } ?: Constants.DEFAULT_MOG_MAX_ZOOM
+        Timber.d("Found ${list.size} offline areas with maxZoom=$maxZoom")
         LocalTileSource("file://${getLocalTileSourcePath()}/{z}/{x}/{y}.jpg", bounds, maxZoom)
       }
     }
@@ -124,10 +125,7 @@ constructor(
 
   suspend fun hasHiResImagery(bounds: Bounds): Boolean {
     val maxZoom = mogClient.collection.sources.maxZoom()
-    Timber.d("Checking hi-res imagery at max zoom: $maxZoom for bounds: $bounds")
-    val hasImagery = mogClient.buildTilesRequests(bounds, maxZoom..maxZoom).isNotEmpty()
-    Timber.d("Hi-res imagery available: $hasImagery")
-    return hasImagery
+    return mogClient.buildTilesRequests(bounds, maxZoom..maxZoom).isNotEmpty()
   }
 
   suspend fun estimateSizeOnDisk(bounds: Bounds): Int {

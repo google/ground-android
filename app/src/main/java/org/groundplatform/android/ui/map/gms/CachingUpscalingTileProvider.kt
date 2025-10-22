@@ -25,128 +25,104 @@ import androidx.core.graphics.createBitmap
 import com.google.android.gms.maps.model.Tile
 import com.google.android.gms.maps.model.TileProvider
 import java.io.ByteArrayOutputStream
-import timber.log.Timber
 
-/**
- * A [TileProvider] implementation that caches and upscales map tiles when higher zoom levels are
- * requested than those available in the base data source.
- *
- * This class is typically used when offline or low-resolution tiles must be reused at higher zoom
- * levels by cropping and bilinearly upscaling them to fit the target resolution.
- *
- * **Performance Note:** Upscaling operations involve decoding and re-encoding bitmaps in memory. To
- * prevent UI jank or ANRs, callers should invoke this provider within appropriate coroutines or
- * background dispatchers (e.g., `Dispatchers.IO`).
- *
- * @param source The base [TileProvider] supplying the original imagery.
- * @param dataMaxZoom The maximum zoom level available in the source tiles.
- * @param tileSize The pixel dimension of each tile (default = 256).
- * @param maxCacheBytes The maximum cache size (in bytes) for storing synthesized tiles (default =
- *   16 MB).
- */
+/** Wraps a TileProvider and synthesizes tiles for z > dataMaxZoom via crop+upscale. */
 class CachingUpscalingTileProvider(
   private val source: TileProvider,
   private val dataMaxZoom: Int,
-  private val tileSize: Int = DEFAULT_TILE_SIZE,
-  maxCacheBytes: Int = DEFAULT_CACHE_SIZE_BYTES,
+  private val tileSize: Int = 256,
+  maxCacheBytes: Int = 16 * 1024 * 1024, // ~16 MB
 ) : TileProvider {
 
-  /** In-memory cache for synthesized tiles, keyed by "zoom/x/y". */
   private val cache =
     object : LruCache<String, ByteArray>(maxCacheBytes) {
-      override fun sizeOf(key: String, value: ByteArray): Int = value.size
+      override fun sizeOf(key: String, value: ByteArray) = value.size
     }
 
-  /**
-   * Retrieves a map tile for the given coordinates.
-   * - If [z] ≤ [dataMaxZoom], the tile is fetched directly from [source].
-   * - If [z] > [dataMaxZoom], an upscaled tile is synthesized from lower-zoom data and cached.
-   */
   override fun getTile(x: Int, y: Int, z: Int): Tile {
-    // Base-level tiles: delegate directly to source
-    if (z <= dataMaxZoom) return source.getTile(x, y, z) ?: TileProvider.NO_TILE
+    var result: Tile?
 
-    val key = "$z/$x/$y"
-    cache.get(key)?.let { cachedBytes ->
-      return Tile(tileSize, tileSize, cachedBytes)
+    if (z <= dataMaxZoom) {
+      // Base tiles: just delegate; no caching here
+      result = source.getTile(x, y, z)
+    } else {
+      val key = "$z/$x/$y"
+      val cached = cache.get(key)
+      result =
+        if (cached != null) {
+          Tile(tileSize, tileSize, cached)
+        } else {
+          val bytes = synthesizeUpscaledTileBytes(x, y, z)
+          bytes?.let {
+            cache.put(key, bytes)
+            Tile(tileSize, tileSize, bytes)
+          } ?: run { null }
+        }
     }
 
-    val synthesizedBytes = synthesizeUpscaledTileBytes(x, y, z)
-    return synthesizedBytes?.let { bytes ->
-      cache.put(key, bytes)
-      Tile(tileSize, tileSize, bytes)
-    } ?: TileProvider.NO_TILE
+    return result ?: TileProvider.NO_TILE
   }
 
-  /** Builds a PNG tile byte array by cropping and upscaling a lower-zoom tile from [source]. */
+  /**
+   * Build a 256×256 PNG byte array by cropping the appropriate quadrant of the source tile at
+   * z=dataMaxZoom and upscaling it with bilinear filtering. Returns null on any failure.
+   */
   private fun synthesizeUpscaledTileBytes(x: Int, y: Int, z: Int): ByteArray? {
-    val zoomDelta = z - dataMaxZoom
-    val scale = 1 shl zoomDelta
+    val dz = z - dataMaxZoom
+    val scale = 1 shl dz
     val srcX = x / scale
     val srcY = y / scale
-    val quadrantX = x % scale
-    val quadrantY = y % scale
+    val qx = x % scale
+    val qy = y % scale
 
     var decoded: Bitmap? = null
-    return try {
-      val sourceBytes = source.getTile(srcX, srcY, dataMaxZoom)?.data
-      decoded = sourceBytes?.let { BitmapFactory.decodeByteArray(it, 0, it.size) }
+    var result: ByteArray? = null
 
-      val cropRect =
+    try {
+      val bytes: ByteArray? = source.getTile(srcX, srcY, dataMaxZoom)?.data
+      decoded = bytes?.let { BitmapFactory.decodeByteArray(it, 0, it.size) }
+
+      val crop: Rect? =
         decoded?.let { bmp ->
-          val cropWidth = bmp.width / scale
-          val cropHeight = bmp.height / scale
-          val left = quadrantX * cropWidth
-          val top = quadrantY * cropHeight
-          if (
-            left >= 0 && top >= 0 && left + cropWidth <= bmp.width && top + cropHeight <= bmp.height
-          ) {
-            Rect(left, top, left + cropWidth, top + cropHeight)
-          } else null
+          val cw = bmp.width / scale
+          val ch = bmp.height / scale
+          val left = qx * cw
+          val top = qy * ch
+          if (left >= 0 && top >= 0 && left + cw <= bmp.width && top + ch <= bmp.height) {
+            Rect(left, top, left + cw, top + ch)
+          } else {
+            null
+          }
         }
 
-      decoded?.let { bitmap -> cropRect?.let { rect -> drawUpscaledTile(bitmap, rect) } }
-    } catch (t: Throwable) {
-      Timber.d(t, "Failed to synthesize upscaled tile for z=$z ($x,$y)")
-      null
-    } finally {
+      result = decoded?.let { d -> crop?.let { c -> drawUpscaled256(d, c) } }
+    } catch (_: Throwable) {} finally {
       decoded?.recycle()
     }
+
+    return result
   }
 
-  /**
-   * Crops a bitmap to the given [cropRect] and upscales it to a [tileSize] × [tileSize] PNG using
-   * bilinear filtering.
-   */
-  private fun drawUpscaledTile(src: Bitmap, cropRect: Rect): ByteArray? {
+  /** Crops the given area and upscales to 256×256 PNG using bilinear filtering. */
+  private fun drawUpscaled256(src: Bitmap, crop: Rect): ByteArray? {
     var cropped: Bitmap? = null
-    var upscaled: Bitmap? = null
+    var up: Bitmap? = null
     return try {
-      cropped =
-        Bitmap.createBitmap(src, cropRect.left, cropRect.top, cropRect.width(), cropRect.height())
-      upscaled = Bitmap.createBitmap(tileSize, tileSize, Bitmap.Config.ARGB_8888)
+      cropped = Bitmap.createBitmap(src, crop.left, crop.top, crop.width(), crop.height())
+      up = createBitmap(256, 256)
 
       val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { isFilterBitmap = true }
-      Canvas(upscaled).drawBitmap(cropped, null, Rect(0, 0, tileSize, tileSize), paint)
+      Canvas(up).drawBitmap(cropped, null, Rect(0, 0, 256, 256), paint)
 
-      ByteArrayOutputStream().use { output ->
-        upscaled.compress(Bitmap.CompressFormat.PNG, 100, output)
-        output.toByteArray()
+      ByteArrayOutputStream().use { os ->
+        up.compress(Bitmap.CompressFormat.PNG, 100, os)
+        os.toByteArray()
       }
-    } catch (t: Throwable) {
-      Timber.d(t, "Error during tile upscaling")
+    } catch (_: Throwable) {
       null
     } finally {
+      up?.recycle()
       cropped?.recycle()
-      upscaled?.recycle()
     }
-  }
-
-  companion object {
-    /** Default tile size in pixels (Google Maps standard = 256). */
-    private const val DEFAULT_TILE_SIZE = 256
-
-    /** Default maximum cache size in bytes (~16 MB). */
-    private const val DEFAULT_CACHE_SIZE_BYTES = 16 * 1024 * 1024
   }
 }
