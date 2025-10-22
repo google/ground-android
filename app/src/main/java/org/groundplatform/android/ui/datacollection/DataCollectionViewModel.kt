@@ -15,7 +15,6 @@
  */
 package org.groundplatform.android.ui.datacollection
 
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
@@ -24,36 +23,22 @@ import javax.inject.Inject
 import javax.inject.Provider
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withTimeout
 import org.groundplatform.android.coroutines.ApplicationScope
 import org.groundplatform.android.coroutines.IoDispatcher
 import org.groundplatform.android.data.local.room.converter.SubmissionDeltasConverter
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
-import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.submission.ValueDelta
 import org.groundplatform.android.model.submission.isNotNullOrEmpty
 import org.groundplatform.android.model.task.Task
-import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.SubmissionRepository
-import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.common.EphemeralPopups
-import org.groundplatform.android.ui.common.LocationOfInterestHelper
 import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.date.DateTaskViewModel
@@ -74,298 +59,293 @@ import timber.log.Timber
 class DataCollectionViewModel
 @Inject
 internal constructor(
-  private val viewModelFactory: ViewModelFactory,
-  private val locationOfInterestHelper: LocationOfInterestHelper,
-  private val popups: Provider<EphemeralPopups>,
-  private val submitDataUseCase: SubmitDataUseCase,
+  private val savedStateHandle: SavedStateHandle,
   @ApplicationScope private val externalScope: CoroutineScope,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-  private val savedStateHandle: SavedStateHandle,
   private val submissionRepository: SubmissionRepository,
+  private val submitDataUseCase: SubmitDataUseCase,
   private val offlineUuidGenerator: OfflineUuidGenerator,
-  locationOfInterestRepository: LocationOfInterestRepository,
-  surveyRepository: SurveyRepository,
+  private val popups: Provider<EphemeralPopups>,
+  private val viewModelFactory: ViewModelFactory,
+  private val dataCollectionInitializer: DataCollectionInitializer,
 ) : AbstractViewModel() {
 
-  private val _uiState: MutableStateFlow<UiState?> = MutableStateFlow(null)
-  val uiState = _uiState.asStateFlow()
+  private val _uiState = MutableStateFlow<DataCollectionUiState>(DataCollectionUiState.Loading)
+  val uiState: StateFlow<DataCollectionUiState> = _uiState
+
+  val loiNameDialogOpen = mutableStateOf(false)
+  private var shouldLoadFromDraft: Boolean = savedStateHandle[TASK_SHOULD_LOAD_FROM_DRAFT] ?: false
 
   private val jobId: String = requireNotNull(savedStateHandle[TASK_JOB_ID_KEY])
   private val loiId: String? = savedStateHandle[TASK_LOI_ID_KEY]
-
-  /** True iff the user is expected to produce a new LOI in the current data collection flow. */
-  private val isAddLoiFlow = loiId == null
-
-  private var shouldLoadFromDraft: Boolean = savedStateHandle[TASK_SHOULD_LOAD_FROM_DRAFT] ?: false
-  private var draftDeltas: List<ValueDelta>? = null
-
-  private val activeSurvey: Survey = runBlocking {
-    try {
-      withTimeout(SURVEY_LOAD_TIMEOUT_MILLIS) {
-        surveyRepository.activeSurveyFlow.filterNotNull().first()
-      }
-    } catch (e: TimeoutCancellationException) {
-      Timber.e(e, "Failed to get survey due to timeout")
-      throw e
-    }
-  }
-
-  private val job: Job = activeSurvey.getJob(jobId) ?: error("couldn't retrieve job for $jobId")
-  private var customLoiName: String?
-    get() = savedStateHandle[TASK_LOI_NAME_KEY]
-    set(value) {
-      savedStateHandle[TASK_LOI_NAME_KEY] = value
-    }
-
-  // LOI creation task is included only on "new data collection site" flow..
-  val tasks: List<Task> =
-    if (isAddLoiFlow) job.tasksSorted else job.tasksSorted.filterNot { it.isAddLoiTask }
-
-  val surveyId: String = requireNotNull(surveyRepository.activeSurvey?.id)
-
-  val jobName: StateFlow<String> =
-    MutableStateFlow(job.name ?: "").stateIn(viewModelScope, SharingStarted.Lazily, "")
-
-  val loiName: StateFlow<String?> =
-    (if (loiId == null) {
-        // User supplied LOI name during LOI creation task. Use to save the LOI name later.
-        savedStateHandle.getStateFlow(TASK_LOI_NAME_KEY, "")
-      } else
-      // LOI name pulled from LOI properties, if it exists.
-      flow {
-          locationOfInterestRepository.getOfflineLoi(surveyId, loiId)?.let {
-            val label = locationOfInterestHelper.getDisplayLoiName(it)
-            emit(label)
-          }
-        })
-      .stateIn(viewModelScope, SharingStarted.Lazily, "")
-
-  val loiNameDialogOpen: MutableState<Boolean> = mutableStateOf(false)
-
-  private val taskViewModels: MutableStateFlow<MutableMap<String, AbstractTaskViewModel>> =
-    MutableStateFlow(mutableMapOf())
+  private val loiName: String? = savedStateHandle[TASK_LOI_NAME_KEY]
 
   private val taskDataHandler = TaskDataHandler()
-  private val taskSequenceHandler = TaskSequenceHandler(tasks, taskDataHandler)
+  private lateinit var taskSequenceHandler: TaskSequenceHandler
+  private val taskViewModels = MutableStateFlow(mutableMapOf<String, AbstractTaskViewModel>())
 
-  // Tracks the current task ID to compute the position in the list of tasks for the current job.
-  private val currentTaskId: StateFlow<String> = savedStateHandle.getStateFlow(TASK_POSITION_ID, "")
+  private val draftLock = Any()
+  @Volatile private var draftCache: List<ValueDelta>? = null
+  @Volatile private var draftMapCache: Map<Pair<String, Task.Type>, TaskData?>? = null
+  @Volatile private var draftsEnabled = true
 
   init {
-    // Set current task's ID for new task submissions.
-    if (currentTaskId.value == "") {
-      savedStateHandle[TASK_POSITION_ID] = taskSequenceHandler.getValidTasks().first().id
-    }
-
-    // Invalidates the cache if any of the task's data is updated.
     viewModelScope.launch {
-      taskDataHandler.dataState.collectLatest { taskSequenceHandler.invalidateCache() }
-    }
-  }
+      val initResult = dataCollectionInitializer.initialize(savedStateHandle, jobId, loiId, loiName)
 
-  /** Returns the ID of the user visible task. */
-  fun getCurrentTaskId(): String {
-    val taskId = currentTaskId.value
-    check(taskId.isNotBlank()) { "Task ID can't be blank" }
-    return taskId
+      if (initResult is DataCollectionUiState.Ready) {
+        taskSequenceHandler = TaskSequenceHandler(initResult.tasks, taskDataHandler)
+      }
+
+      if (initResult is DataCollectionUiState.Error) {
+        Timber.e(initResult.cause, "Initialization failed code=%s", initResult.code)
+      }
+      _uiState.value = initResult
+    }
   }
 
   fun setLoiName(name: String) {
-    customLoiName = name
-  }
-
-  private fun getDraftDeltas(): List<ValueDelta> {
-    if (!shouldLoadFromDraft) return listOf()
-    if (draftDeltas != null) return draftDeltas as List<ValueDelta>
-
-    val serializedDraftValues = savedStateHandle[TASK_DRAFT_VALUES] ?: ""
-    if (serializedDraftValues.isEmpty()) {
-      Timber.e("Attempting load from draft submission failed, not found")
-      return listOf()
+    savedStateHandle[TASK_LOI_NAME_KEY] = name
+    _uiState.update { state ->
+      (state as? DataCollectionUiState.Ready)?.copy(loiName = name) ?: state
     }
-
-    draftDeltas = SubmissionDeltasConverter.fromString(job, serializedDraftValues)
-    return draftDeltas as List<ValueDelta>
   }
 
-  private fun getValueFromDraft(task: Task): TaskData? {
-    for ((taskId, taskType, value) in getDraftDeltas()) {
-      if (taskId == task.id && taskType == task.type) {
-        Timber.d("Value $value found for task $task")
-        return value
+  fun isFirstPosition(taskId: String): Boolean = withReady {
+    taskSequenceHandler.isFirstPosition(taskId)
+  }
+
+  fun isLastPosition(taskId: String): Boolean = withReady {
+    taskSequenceHandler.isLastPosition(taskId)
+  }
+
+  fun isLastPositionWithValue(task: Task, newValue: TaskData?): Boolean = withReady {
+    if (taskDataHandler.getData(task) == newValue) {
+      taskSequenceHandler.isLastPosition(task.id)
+    } else {
+      taskSequenceHandler.checkIfTaskIsLastWithValue(task.id to newValue)
+    }
+  }
+
+  fun isAtFirstTask(): Boolean = withReady { taskSequenceHandler.isFirstPosition(it.currentTaskId) }
+
+  fun clearDraftBlocking() {
+    suppressDrafts()
+    clearDraft()
+  }
+
+  fun requireSurveyId(): String = withReady { it.surveyId }
+
+  fun saveCurrentState() {
+    if (!isReady() || !draftsEnabled) return
+
+    withReadyOrNull { state ->
+      val taskId = state.currentTaskId
+      getTaskViewModel(taskId)?.let { vm ->
+        taskDataHandler.setData(vm.task, vm.taskTaskData.value)
+        savedStateHandle[TASK_POSITION_ID] = taskId
+        saveDraft(taskId)
       }
     }
-    Timber.w("Value not found for task $task")
-    return null
   }
 
-  fun getTaskViewModel(taskId: String): AbstractTaskViewModel? {
-    val viewModels = taskViewModels.value
+  fun moveToPreviousTask() {
+    moveToTask(withReady { taskSequenceHandler.getPreviousTask(it.currentTaskId) })
+  }
 
-    if (viewModels.containsKey(taskId)) {
-      return viewModels[taskId]
+  fun onNextClicked(taskViewModel: AbstractTaskViewModel) = withReady { st ->
+    validateOrShow(taskViewModel) {
+      val task = taskViewModel.task
+      val value = taskViewModel.taskTaskData.value
+      taskDataHandler.setData(task, value)
+      taskSequenceHandler.invalidateCache()
+
+      if (!taskSequenceHandler.isLastPosition(task.id)) {
+        moveToNextTask()
+      } else {
+        clearDraft()
+        saveChanges(st, getDeltas())
+        _uiState.value = DataCollectionUiState.TaskSubmitted
+      }
+    }
+  }
+
+  fun onPreviousClicked(taskViewModel: AbstractTaskViewModel) = withReady { _ ->
+    val task = taskViewModel.task
+    val taskValue = taskViewModel.taskTaskData.value
+
+    val validationError =
+      if (taskValue?.isNotNullOrEmpty() == true) taskViewModel.validate() else null
+
+    if (validationError != null) {
+      popups.get().ErrorPopup().show(validationError)
+    } else {
+      taskDataHandler.setData(task, taskValue)
+      taskSequenceHandler.invalidateCache()
+      moveToPreviousTask()
+    }
+  }
+
+  fun getTaskViewModel(taskId: String): AbstractTaskViewModel? = withReady { state ->
+    taskViewModels.value[taskId]?.let {
+      return it
     }
 
-    // Cleanup extra logs added for debugging: https://github.com/google/ground-android/issues/2998
     val task =
-      tasks.firstOrNull { it.id == taskId }
-        ?: error("Task not found. taskId=$taskId, jobId=$jobId, loiId=$loiId, surveyId=$surveyId")
+      state.tasks.firstOrNull { it.id == taskId }
+        ?: error(
+          "Task not found. taskId=$taskId, jobId=$jobId, loiId=$loiId, surveyId=${state.surveyId}"
+        )
 
     val viewModel =
       try {
         viewModelFactory.create(getViewModelClass(task.type))
       } catch (e: Exception) {
-        Timber.e("ignoring task with invalid type: $task.type")
+        Timber.e(e, "Ignoring task with invalid type: ${task.type}")
         null
       }
 
-    return viewModel?.apply {
-      viewModels[task.id] = viewModel
-
-      val taskData: TaskData? = if (shouldLoadFromDraft) getValueFromDraft(task) else null
-      viewModel.initialize(job, task, taskData)
+    viewModel?.let { created ->
+      val taskData = if (shouldLoadFromDraft) getValueFromDraft(state.job, task) else null
+      created.initialize(state.job, task, taskData)
       taskDataHandler.setData(task, taskData)
+      taskViewModels.value[task.id] = created
+    }
+    viewModel
+  }
+
+  fun getTypedLoiNameOrEmpty(): String = savedStateHandle.get<String>(TASK_LOI_NAME_KEY).orEmpty()
+
+  fun isReady(): Boolean = uiState.value is DataCollectionUiState.Ready
+
+  private fun moveToNextTask() {
+    moveToTask(withReady { taskSequenceHandler.getNextTask(it.currentTaskId) })
+  }
+
+  private fun saveChanges(state: DataCollectionUiState.Ready, deltas: List<ValueDelta>) {
+    externalScope.launch(ioDispatcher) {
+      val collectionId = offlineUuidGenerator.generateUuid()
+      submitDataUseCase.invoke(
+        loiId,
+        state.job,
+        state.surveyId,
+        deltas,
+        savedStateHandle[TASK_LOI_NAME_KEY],
+        collectionId,
+      )
     }
   }
 
-  /** Moves back to the previous task in the sequence if the current value is valid or empty. */
-  fun onPreviousClicked(taskViewModel: AbstractTaskViewModel) {
-    val task = taskViewModel.task
-    val taskValue = taskViewModel.taskTaskData.value
-
-    taskValue
-      ?.takeIf { it.isNotNullOrEmpty() } // Skip validation if the task is empty
-      ?.let {
-        taskViewModel.validate()?.let {
-          popups.get().ErrorPopup().show(it)
-          return
-        }
-      }
-
-    taskDataHandler.setData(task, taskValue)
-    moveToPreviousTask()
+  private fun suppressDrafts() {
+    draftsEnabled = false
   }
 
-  /**
-   * Validates the user's input and displays an error if the user input was invalid. Progresses to
-   * the next Data Collection screen if the user input was valid.
-   */
-  fun onNextClicked(taskViewModel: AbstractTaskViewModel) {
-    taskViewModel.validate()?.let {
-      popups.get().ErrorPopup().show(it)
-      return
-    }
+  private fun moveToTask(taskId: String) = withReady { st ->
+    val validIds = taskSequenceHandler.getValidTasks().map { it.id }.toSet()
+    val safeId = if (taskId in validIds) taskId else validIds.first()
 
-    val task = taskViewModel.task
-    val taskValue = taskViewModel.taskTaskData
-    taskDataHandler.setData(task, taskValue.value)
+    savedStateHandle[TASK_POSITION_ID] = safeId
+    saveDraft(safeId)
 
-    if (!isLastPosition(task.id)) {
-      moveToNextTask()
-    } else {
-      clearDraft()
-      saveChanges(getDeltas())
-      _uiState.update { UiState.TaskSubmitted }
-    }
+    val newPos = taskSequenceHandler.getTaskPosition(safeId)
+    _uiState.value = st.copy(currentTaskId = safeId, position = newPos)
   }
 
-  /** Persists the current UI state locally which can be resumed whenever the app re-opens. */
-  fun saveCurrentState() {
-    val taskId = getCurrentTaskId()
-    val viewModel = getTaskViewModel(taskId) ?: error("ViewModel not found for task $taskId")
-
-    // We are not validating the data before saving as draft. This is needed for storing partially
-    // drawn polygons. Always ensure that draft doesn't get submitted without validation. Currently,
-    // it is being mitigated by validating on clicking previous/next buttons.
-
-    taskDataHandler.setData(viewModel.task, viewModel.taskTaskData.value)
-    savedStateHandle[TASK_POSITION_ID] = taskId
-    saveDraft(taskId)
-  }
-
-  /** Retrieves a list of [ValueDelta] for tasks that are part of the current sequence. */
   private fun getDeltas(): List<ValueDelta> {
     val tasksDataMap = taskDataHandler.dataState.value
     val validTasks = taskSequenceHandler.getValidTasks()
     return tasksDataMap
-      .filterKeys { validTasks.contains(it) }
+      .filterKeys { it in validTasks }
       .map { (task, taskData) -> ValueDelta(task.id, task.type, taskData) }
   }
 
-  /** Persists the changes locally and enqueues a worker to sync with remote datastore. */
-  private fun saveChanges(deltas: List<ValueDelta>) {
-    externalScope.launch(ioDispatcher) {
-      val collectionId = offlineUuidGenerator.generateUuid()
-      submitDataUseCase.invoke(loiId, job, surveyId, deltas, customLoiName, collectionId)
-    }
-  }
-
-  /** Persists the collected data as draft to local storage. */
   private fun saveDraft(taskId: String) {
     val deltas = getDeltas()
+    val state = uiState.value
 
-    // Prevent saving draft if the task is submitted or there are no deltas.
-    if (_uiState.value == UiState.TaskSubmitted || deltas.isEmpty()) {
+    if (
+      state == DataCollectionUiState.TaskSubmitted ||
+        deltas.isEmpty() ||
+        state !is DataCollectionUiState.Ready
+    ) {
       return
     }
 
-    externalScope.launch(ioDispatcher) {
+    viewModelScope.launch(ioDispatcher) {
       submissionRepository.saveDraftSubmission(
         jobId = jobId,
         loiId = loiId,
-        surveyId = surveyId,
+        surveyId = state.surveyId,
         deltas = deltas,
-        loiName = customLoiName,
+        loiName = savedStateHandle.get<String>(TASK_LOI_NAME_KEY),
         currentTaskId = taskId,
       )
     }
   }
 
-  /** Clears all persisted drafts from local storage. */
-  fun clearDraft() {
+  private fun clearDraft() {
     externalScope.launch(ioDispatcher) { submissionRepository.deleteDraftSubmission() }
   }
 
-  private fun moveToNextTask() {
-    val taskId = taskSequenceHandler.getNextTask(getCurrentTaskId())
-    moveToTask(taskId)
+  private inline fun <T> withReadyOrNull(block: (DataCollectionUiState.Ready) -> T): T? {
+    val s = uiState.value
+    return if (s is DataCollectionUiState.Ready) block(s) else null
   }
 
-  fun moveToPreviousTask() {
-    val taskId = taskSequenceHandler.getPreviousTask(getCurrentTaskId())
-    moveToTask(taskId)
+  private inline fun <T> withReady(block: (DataCollectionUiState.Ready) -> T): T {
+    val s = uiState.value
+    check(s is DataCollectionUiState.Ready) { "UI state not Ready, was: $s" }
+    return block(s)
   }
 
-  private fun moveToTask(taskId: String) {
-    savedStateHandle[TASK_POSITION_ID] = taskId
+  private fun ensureDraftCaches(job: Job) {
+    if (!shouldLoadFromDraft || draftCache != null) return
 
-    // Save collected data as draft
-    clearDraft()
-    saveDraft(taskId)
-
-    _uiState.update { UiState.TaskUpdated(getTaskPosition(taskId)) }
-  }
-
-  fun getTaskPosition(taskId: String) = taskSequenceHandler.getTaskPosition(taskId)
-
-  /** Returns true if the given [taskId] is first task in the sequence of displayed tasks. */
-  fun isFirstPosition(taskId: String): Boolean = taskSequenceHandler.isFirstPosition(taskId)
-
-  /** Returns true if the given [taskId] is last task in the sequence of displayed tasks. */
-  fun isLastPosition(taskId: String): Boolean = taskSequenceHandler.isLastPosition(taskId)
-
-  /**
-   * Returns true if the given [task] with [newValue] would be last in the sequence of displayed
-   * tasks. Required for handling conditional tasks, see #2394.
-   */
-  fun isLastPositionWithValue(task: Task, newValue: TaskData?): Boolean {
-    if (taskDataHandler.getData(task) == newValue) {
-      // Reuse the existing task sequence if the value has already been saved (i.e. after pressing
-      // "Next" and going back).
-      return isLastPosition(task.id)
+    val serialized: String = savedStateHandle[TASK_DRAFT_VALUES] ?: ""
+    if (serialized.isEmpty()) {
+      Timber.w("No draft values found; skipping load")
+      synchronized(draftLock) {
+        if (draftCache == null) {
+          draftCache = emptyList()
+          draftMapCache = emptyMap()
+        }
+      }
+      return
     }
 
-    return taskSequenceHandler.checkIfTaskIsLastWithValue(taskValueOverride = task.id to newValue)
+    val parsed =
+      try {
+        SubmissionDeltasConverter.fromString(job, serialized)
+      } catch (e: Exception) {
+        Timber.e(e, "Failed to parse draft submission")
+        emptyList()
+      }
+
+    synchronized(draftLock) {
+      if (draftCache == null) {
+        draftCache = parsed
+        draftMapCache =
+          parsed.associate { (taskId, taskType, value) -> (taskId to taskType) to value }
+      }
+    }
+  }
+
+  private fun getValueFromDraft(job: Job, task: Task): TaskData? {
+    if (!shouldLoadFromDraft) return null
+    ensureDraftCaches(job)
+    val value = draftMapCache?.get(task.id to task.type)
+    if (value == null) Timber.w("Value not found for task $task")
+    else Timber.d("Value $value found for task $task")
+    return value
+  }
+
+  private inline fun validateOrShow(taskVm: AbstractTaskViewModel, onValid: () -> Unit) {
+    val error = taskVm.validate()
+    if (error != null) {
+      popups.get().ErrorPopup().show(error)
+    } else {
+      onValid()
+    }
   }
 
   companion object {
@@ -373,9 +353,8 @@ internal constructor(
     private const val TASK_LOI_ID_KEY = "locationOfInterestId"
     private const val TASK_LOI_NAME_KEY = "locationOfInterestName"
     private const val TASK_POSITION_ID = "currentTaskId"
-    private const val TASK_SHOULD_LOAD_FROM_DRAFT = "shouldLoadFromDraft"
     private const val TASK_DRAFT_VALUES = "draftValues"
-    private const val SURVEY_LOAD_TIMEOUT_MILLIS = 3000L
+    private const val TASK_SHOULD_LOAD_FROM_DRAFT = "shouldLoadFromDraft"
 
     fun getViewModelClass(taskType: Task.Type): Class<out AbstractTaskViewModel> =
       when (taskType) {
