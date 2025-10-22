@@ -21,29 +21,51 @@ import kotlin.math.ln
 import kotlin.math.sinh
 import kotlin.math.tan
 
+/** Represents pixel coordinates of a point on a map at a specific zoom level. */
 data class PixelCoordinates(val x: Int, val y: Int, val zoom: Int) {
+
+  /** Converts these pixel coordinates to another zoom level. */
   fun atZoom(targetZoom: Int): PixelCoordinates {
-    val delta = targetZoom - zoom
-    return PixelCoordinates(x.shiftLeft(delta), y.shiftLeft(delta), targetZoom)
+    val zoomDelta = targetZoom - zoom
+    return PixelCoordinates(x = x shl zoomDelta, y = y shl zoomDelta, zoom = targetZoom)
   }
 }
 
+/**
+ * Converts a [LatLng] coordinate to its corresponding [PixelCoordinates] at a given zoom level.
+ *
+ * Uses the Web Mercator projection formula:
+ * - X maps longitude linearly
+ * - Y maps latitude via Mercator transformation
+ */
 fun LatLng.toPixelCoordinates(zoom: Int): PixelCoordinates {
   val zoomFactor = 1 shl zoom
-  val latRad = this.latitude.toRadians()
-  val x = zoomFactor * (this.longitude + 180) / 360
-  val y = zoomFactor * (1 - (ln(tan(latRad) + sec(latRad)) / Math.PI)) / 2
-  return PixelCoordinates((x * 256.0).toInt(), (y * 256.0).toInt(), zoom)
+  val latRadians = latitude.toRadians()
+  val normalizedX = (longitude + 180.0) / 360.0
+  val normalizedY = (1.0 - ln(tan(latRadians) + sec(latRadians)) / Math.PI) / 2.0
+
+  val pixelX = (normalizedX * zoomFactor * 256.0).toInt()
+  val pixelY = (normalizedY * zoomFactor * 256.0).toInt()
+
+  return PixelCoordinates(pixelX, pixelY, zoom)
 }
 
+/** Converts [TileCoordinates] to [PixelCoordinates] by applying pixel offsets within the tile. */
 fun TileCoordinates.toPixelCoordinate(xOffset: Int, yOffset: Int) =
-  PixelCoordinates(x * 256 + xOffset, y * 256 + yOffset, zoom)
+  PixelCoordinates(x = x * 256 + xOffset, y = y * 256 + yOffset, zoom = zoom)
 
-fun TileCoordinates.pixelToLatLng(px: Int, py: Int): LatLng {
-  val n = 1 shl zoom
-  val fx = (x * 256.0 + px) / (n * 256.0)
-  val fy = (y * 256.0 + py) / (n * 256.0)
-  val lon = fx * 360.0 - 180.0
-  val latRad = atan(sinh(Math.PI * (1.0 - 2.0 * fy)))
-  return LatLng(Math.toDegrees(latRad), lon)
+/**
+ * Converts a pixel position within a tile back to a geographic [LatLng]. This performs the inverse
+ * Web Mercator projection.
+ */
+fun TileCoordinates.pixelToLatLng(pixelX: Int, pixelY: Int): LatLng {
+  val zoomFactor = 1 shl zoom
+  val normalizedX = (x * 256.0 + pixelX) / (zoomFactor * 256.0)
+  val normalizedY = (y * 256.0 + pixelY) / (zoomFactor * 256.0)
+
+  val longitude = normalizedX * 360.0 - 180.0
+  val latitudeRadians = atan(sinh(Math.PI * (1.0 - 2.0 * normalizedY)))
+  val latitude = Math.toDegrees(latitudeRadians)
+
+  return LatLng(latitude, longitude)
 }

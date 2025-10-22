@@ -18,7 +18,7 @@ package org.groundplatform.android.ui.map.gms.mog
 
 import com.google.android.gms.maps.model.Tile
 import com.google.android.gms.maps.model.TileProvider
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.groundplatform.android.data.remote.RemoteStorageManager
@@ -27,15 +27,21 @@ import timber.log.Timber
 // TODO: Add unit tests.
 // Issue URL: https://github.com/google/ground-android/issues/1596
 /** Fetches and returns MOG tiles to Maps SDK for display as a tile overlay. */
-class MogTileProvider(collection: MogCollection, remoteStorageManager: RemoteStorageManager) :
-  TileProvider {
+class MogTileProvider(
+  collection: MogCollection,
+  remoteStorageManager: RemoteStorageManager,
+  private val ioDispatcher: CoroutineDispatcher,
+) : TileProvider {
+
   private val client = MogClient(collection, remoteStorageManager)
 
   override fun getTile(x: Int, y: Int, zoom: Int): Tile? =
-    runBlocking(Dispatchers.IO) {
+    runBlocking(ioDispatcher) {
       val tileCoordinates = TileCoordinates(x, y, zoom)
       try {
-        withTimeout(4_000L) { client.getTile(tileCoordinates)?.toGmsTile() } ?: TileProvider.NO_TILE
+        withTimeout(TILE_FETCH_TIMEOUT_MS) {
+          client.getTile(tileCoordinates)?.toGmsTile() ?: TileProvider.NO_TILE
+        }
       } catch (e: Throwable) {
         // Maps SDK doesn't log exceptions thrown by [TileProvider] implementations, so we do it
         // here.
@@ -43,4 +49,8 @@ class MogTileProvider(collection: MogCollection, remoteStorageManager: RemoteSto
         TileProvider.NO_TILE
       }
     }
+
+  companion object {
+    private const val TILE_FETCH_TIMEOUT_MS = 4_000L
+  }
 }

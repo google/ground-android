@@ -43,9 +43,11 @@ import javax.inject.Inject
 import kotlin.math.min
 import kotlin.math.sqrt
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import org.groundplatform.android.common.Constants
+import org.groundplatform.android.coroutines.IoDispatcher
 import org.groundplatform.android.data.remote.RemoteStorageManager
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.imagery.LocalTileSource
@@ -85,6 +87,8 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   @Inject lateinit var featureManager: FeatureManager
 
   @Inject lateinit var remoteStorageManager: RemoteStorageManager
+
+  @Inject @IoDispatcher lateinit var ioDispatcher: CoroutineDispatcher
 
   private lateinit var map: GoogleMap
 
@@ -302,15 +306,13 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   private fun addRemoteMogTileOverlay(
     url: String,
-    dataMaxZoom: Int = 15,
+    zIndex: Float,
     clipBounds: List<LatLngBounds>? = null,
-    zIndex: Float = 0f,
-    visible: Boolean = true,
   ) {
     val mogCollection = MogCollection(Constants.getMogSources(url))
-    val source = MogTileProvider(mogCollection, remoteStorageManager)
+    val source = MogTileProvider(mogCollection, remoteStorageManager, ioDispatcher)
 
-    val upscaled = CachingUpscalingTileProvider(source, dataMaxZoom)
+    val upscaled = CachingUpscalingTileProvider(source, 15)
     val finalProvider =
       if (!clipBounds.isNullOrEmpty()) ClippingTileProvider(upscaled, clipBounds) else upscaled
 
@@ -322,7 +324,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
           .zIndex(zIndex)
           .fadeIn(true)
           .transparency(0f)
-          .visible(visible)
+          .visible(true)
       )
   }
 
