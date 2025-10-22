@@ -31,7 +31,7 @@ import timber.log.Timber
  * A [TileProvider] that provides upscaled map tiles beyond the available data zoom level.
  *
  * This provider attempts to synthesize higher-zoom tiles by:
- * - Fetching the base tile at [dataMaxZoom]
+ * - Fetching the base tile at [zoomThreshold]
  * - Cropping the appropriate quadrant
  * - Upscaling it using bilinear filtering to a 256×256 PNG
  *
@@ -48,8 +48,8 @@ import timber.log.Timber
  * )
  * ```
  *
- * @param source The underlying [TileProvider] that supplies base tiles up to [dataMaxZoom].
- * @param dataMaxZoom The maximum zoom level for which base tiles are available. Tiles beyond this
+ * @param source The underlying [TileProvider] that supplies base tiles up to [zoomThreshold].
+ * @param zoomThreshold The maximum zoom level for which base tiles are available. Tiles beyond this
  *   level will be synthesized by cropping and upscaling.
  * @param tileSize The size (in pixels) of each output tile. Defaults to [DEFAULT_TILE_SIZE] (256
  *   px).
@@ -57,13 +57,11 @@ import timber.log.Timber
  */
 class CachingUpscalingTileProvider(
   private val source: TileProvider,
-  private val dataMaxZoom: Int,
-  private val tileSize: Int = DEFAULT_TILE_SIZE,
-  maxCacheBytes: Int = DEFAULT_CACHE_SIZE_BYTES,
+  private val zoomThreshold: Int,
 ) : TileProvider {
 
   private val cache =
-    object : LruCache<String, ByteArray>(maxCacheBytes) {
+    object : LruCache<String, ByteArray>(DEFAULT_CACHE_SIZE_BYTES) {
       override fun sizeOf(key: String, value: ByteArray) = value.size
     }
 
@@ -73,19 +71,19 @@ class CachingUpscalingTileProvider(
 
     val tile =
       when {
-        zoom <= dataMaxZoom -> {
+        zoom <= zoomThreshold -> {
           source.getTile(x, y, zoom)
         }
 
         cache.get(cacheKey) != null -> {
-          Tile(tileSize, tileSize, cache.get(cacheKey))
+          Tile(DEFAULT_TILE_SIZE, DEFAULT_TILE_SIZE, cache.get(cacheKey))
         }
 
         else -> {
           val upscaledBytes = synthesizeUpscaledTileBytes(x, y, zoom)
           upscaledBytes?.let {
             cache.put(cacheKey, it)
-            Tile(tileSize, tileSize, it)
+            Tile(DEFAULT_TILE_SIZE, DEFAULT_TILE_SIZE, it)
           }
         }
       }
@@ -98,7 +96,7 @@ class CachingUpscalingTileProvider(
    * z=dataMaxZoom and upscaling it with bilinear filtering. Returns null on any failure.
    */
   private fun synthesizeUpscaledTileBytes(x: Int, y: Int, z: Int): ByteArray? {
-    val dz = z - dataMaxZoom
+    val dz = z - zoomThreshold
     val scale = 1 shl dz
     val srcX = x / scale
     val srcY = y / scale
@@ -109,7 +107,7 @@ class CachingUpscalingTileProvider(
     var result: ByteArray? = null
 
     try {
-      val bytes: ByteArray? = source.getTile(srcX, srcY, dataMaxZoom)?.data
+      val bytes: ByteArray? = source.getTile(srcX, srcY, zoomThreshold)?.data
       decoded = bytes?.let { BitmapFactory.decodeByteArray(it, 0, it.size) }
 
       val crop: Rect? =
@@ -139,7 +137,7 @@ class CachingUpscalingTileProvider(
     var up: Bitmap? = null
     return try {
       cropped = Bitmap.createBitmap(src, crop.left, crop.top, crop.width(), crop.height())
-      up = createBitmap(tileSize, tileSize)
+      up = createBitmap(DEFAULT_TILE_SIZE, DEFAULT_TILE_SIZE)
 
       val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { isFilterBitmap = true }
       Canvas(up).drawBitmap(cropped, null, Rect(0, 0, 256, 256), paint)
@@ -161,7 +159,16 @@ class CachingUpscalingTileProvider(
     /** Default tile size in pixels (Google Maps standard = 256). */
     private const val DEFAULT_TILE_SIZE = 256
 
-    /** Default maximum cache size in bytes (~16 MB). */
+    /**
+     * Default maximum cache size in bytes (~16 MB).
+     *
+     * 💡 Approximation:
+     * - Each 256×256 tile (JPEG/WebP) ≈ 20–40 KB.
+     * - 16 MB cache can hold roughly 400 – 800 tiles.
+     * - This is generally sufficient for a few zoom levels worth of visible area.
+     *
+     * If using uncompressed PNG tiles (~196 KB each), the cache fits only ~80 tiles.
+     */
     private const val DEFAULT_CACHE_SIZE_BYTES = 16 * 1024 * 1024
   }
 }

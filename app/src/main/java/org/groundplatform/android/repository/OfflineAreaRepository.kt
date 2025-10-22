@@ -106,15 +106,21 @@ constructor(
 
   private fun getLocalTileSourcePath(): String = getLocalTileDirectory().path
 
-  fun getOfflineTileSourcesFlow(): Flow<TileSource?> =
+  fun getOfflineTileSourcesFlow(): Flow<TileSource> =
     localOfflineAreaStore.offlineAreas().map { list ->
-      if (list.isEmpty()) {
-        null
-      } else {
-        val bounds = list.map { it.bounds }
-        val maxZoom = list.maxOfOrNull { it.zoomRange.last } ?: Constants.DEFAULT_MOG_MAX_ZOOM
-        LocalTileSource("file://${getLocalTileSourcePath()}/{z}/{x}/{y}.jpg", bounds, maxZoom)
-      }
+      val bounds = list.map { it.bounds }
+
+      val maxZoom =
+        list.maxOfOrNull { it.zoomRange.last }
+          ?: error(
+            "No zoom range found in offline areas — expected at least one valid area with zoom metadata."
+          )
+
+      LocalTileSource(
+        localFilePath = "file://${getLocalTileSourcePath()}/{z}/{x}/{y}.jpg",
+        clipBounds = bounds,
+        maxZoom = maxZoom,
+      )
     }
 
   /** Returns the default configured tile source. */

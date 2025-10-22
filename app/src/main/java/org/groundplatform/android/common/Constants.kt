@@ -68,6 +68,11 @@ object Constants {
   const val DEFAULT_MOG_TILE_LOCATION = "/offline-imagery/default"
   private const val DEFAULT_MOG_MIN_ZOOM = 8
   const val DEFAULT_MOG_MAX_ZOOM = 14
+  const val DEFAULT_MOG_UPSCALE_MAX_ZOOM = 15
+
+  // These relate to map zoom bounds (float values for runtime rendering)
+  const val DEFAULT_MAP_MIN_ZOOM = 2f
+  const val DEFAULT_MAP_MAX_ZOOM = 21f
 
   // TODO: Move to a util class
   fun getMogSources(path: String) =

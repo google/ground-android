@@ -34,7 +34,6 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.GoogleMap.OnCameraMoveStartedListener
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.TileOverlay
 import com.google.android.gms.maps.model.TileOverlayOptions
 import com.google.android.gms.maps.model.TileProvider
@@ -47,6 +46,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import org.groundplatform.android.common.Constants
+import org.groundplatform.android.common.Constants.DEFAULT_MOG_UPSCALE_MAX_ZOOM
 import org.groundplatform.android.coroutines.IoDispatcher
 import org.groundplatform.android.data.remote.RemoteStorageManager
 import org.groundplatform.android.model.geometry.Coordinates
@@ -289,39 +289,29 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     when (source) {
       is LocalTileSource ->
         addLocalTileOverlay(source.localFilePath, source.clipBounds, source.maxZoom)
-      is RemoteMogTileSource ->
-        addRemoteMogTileOverlay(url = source.remotePath, zIndex = TILE_OVERLAY_Z)
+      is RemoteMogTileSource -> addRemoteMogTileOverlay(url = source.remotePath)
     }
 
   private fun addLocalTileOverlay(url: String, bounds: List<Bounds>, maxZoom: Int) {
     val baseProvider = TemplateUrlTileProvider(url)
-    // Upscale from the max downloaded zoom level to higher levels (e.g., 15, 16, 17, 18) by
-    // splitting each tile into four quadrants and doubling each pixel to create 256x256 output
-    // tiles
-    val upscaledProvider = CachingUpscalingTileProvider(baseProvider, dataMaxZoom = maxZoom)
+    val upscaledProvider = CachingUpscalingTileProvider(baseProvider, zoomThreshold = maxZoom)
     val clippedProvider =
       ClippingTileProvider(upscaledProvider, bounds.map { it.toGoogleMapsObject() })
     addTileOverlay(clippedProvider)
   }
 
-  private fun addRemoteMogTileOverlay(
-    url: String,
-    clipBounds: List<LatLngBounds>? = null,
-    zIndex: Float = 0f,
-  ) {
+  private fun addRemoteMogTileOverlay(url: String) {
     val mogCollection = MogCollection(Constants.getMogSources(url))
     val source = MogTileProvider(mogCollection, remoteStorageManager, ioDispatcher)
 
-    val upscaled = CachingUpscalingTileProvider(source, 15)
-    val finalProvider =
-      if (!clipBounds.isNullOrEmpty()) ClippingTileProvider(upscaled, clipBounds) else upscaled
+    val upscaled = CachingUpscalingTileProvider(source, DEFAULT_MOG_UPSCALE_MAX_ZOOM)
 
     mogOverlay?.remove()
     mogOverlay =
       map.addTileOverlay(
         TileOverlayOptions()
-          .tileProvider(finalProvider)
-          .zIndex(zIndex)
+          .tileProvider(upscaled)
+          .zIndex(TILE_OVERLAY_Z)
           .fadeIn(true)
           .transparency(0f)
           .visible(true)

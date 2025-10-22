@@ -16,6 +16,8 @@
 package org.groundplatform.android.ui.map
 
 import kotlin.math.max
+import org.groundplatform.android.common.Constants.DEFAULT_MAP_MAX_ZOOM
+import org.groundplatform.android.common.Constants.DEFAULT_MAP_MIN_ZOOM
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.map.Bounds
 
@@ -48,6 +50,6 @@ data class NewCameraPositionViaCoordinatesAndZoomLevel(
    */
   fun getZoomLevel(currentZoomLevel: Float): Float {
     val target = if (isAllowZoomOut) zoomLevel else max(zoomLevel, currentZoomLevel)
-    return target.coerceIn(2f, 21f)
+    return target.coerceIn(DEFAULT_MAP_MIN_ZOOM, DEFAULT_MAP_MAX_ZOOM)
   }
 }

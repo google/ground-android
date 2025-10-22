@@ -52,7 +52,7 @@ class CachingUpscalingTileProviderTest : BaseHiltTest() {
     provider =
       CachingUpscalingTileProvider(
         source = fakeTileProvider,
-        dataMaxZoom = dataMaxZoom,
+        zoomThreshold = dataMaxZoom,
         tileSize = tileSize,
         maxCacheBytes = 1024 * 1024,
       )
@@ -323,7 +323,7 @@ class CachingUpscalingTileProviderTest : BaseHiltTest() {
     val customProvider =
       CachingUpscalingTileProvider(
         source = fakeTileProvider,
-        dataMaxZoom = dataMaxZoom,
+        zoomThreshold = dataMaxZoom,
         tileSize = customTileSize,
       )
     fakeTileProvider.addTile(0, 0, dataMaxZoom, createTestTileWithBitmap(customTileSize))
@@ -338,7 +338,7 @@ class CachingUpscalingTileProviderTest : BaseHiltTest() {
   fun `provider respects custom dataMaxZoom`() {
     val customDataMaxZoom = 10
     val customProvider =
-      CachingUpscalingTileProvider(source = fakeTileProvider, dataMaxZoom = customDataMaxZoom)
+      CachingUpscalingTileProvider(source = fakeTileProvider, zoomThreshold = customDataMaxZoom)
     fakeTileProvider.addTile(100, 100, customDataMaxZoom, createTestTile())
     fakeTileProvider.addTile(100, 100, customDataMaxZoom, createTestTileWithBitmap())
 

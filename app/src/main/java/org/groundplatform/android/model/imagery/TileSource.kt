@@ -28,13 +28,10 @@ sealed class TileSource
 /**
  * Represents a locally stored set of map tiles, typically used for offline map rendering.
  *
- * These tiles are fetched from the device’s local storage and may be limited by bounding
- * coordinates and zoom levels.
- *
  * @property localFilePath The absolute file path on device storage where the local tile files are
  *   stored.
- * @property clipBounds The list of geographic bounding boxes (in lat/lng) within which these tiles
- *   are valid.
+ * @property clipBounds The list of geographic bounding boxes (in lat/lng), where each bound
+ *   corresponds to an individual offline tile stored on the device.
  * @property maxZoom The maximum zoom level supported by this offline tile source.
  */
 data class LocalTileSource(
@@ -43,11 +40,4 @@ data class LocalTileSource(
   val maxZoom: Int,
 ) : TileSource()
 
-/**
- * Represents a remote map tile source hosted on a server, such as MOG (Map Over the Grid).
- *
- * This source type is typically used for streaming or caching map imagery over the network.
- *
- * @property remotePath The base URL or endpoint from which remote map tiles are fetched.
- */
 data class RemoteMogTileSource(val remotePath: String) : TileSource()
