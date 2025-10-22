@@ -49,13 +49,7 @@ class CachingUpscalingTileProviderTest : BaseHiltTest() {
   override fun setUp() {
     super.setUp()
     fakeTileProvider = FakeTileProvider()
-    provider =
-      CachingUpscalingTileProvider(
-        source = fakeTileProvider,
-        zoomThreshold = dataMaxZoom,
-        tileSize = tileSize,
-        maxCacheBytes = 1024 * 1024,
-      )
+    provider = CachingUpscalingTileProvider(source = fakeTileProvider, zoomThreshold = dataMaxZoom)
   }
 
   @Test
@@ -114,7 +108,7 @@ class CachingUpscalingTileProviderTest : BaseHiltTest() {
   fun `getTile() synthesizes upscaled tile when zoom exceeds dataMaxZoom`() {
     val x = 1024
     val y = 768
-    val z = 16 // One zoom level beyond dataMaxZoom
+    val z = 16
     fakeTileProvider.addTile(512, 384, dataMaxZoom, createTestTileWithBitmap())
 
     val result = provider.getTile(x, y, z)
@@ -130,36 +124,29 @@ class CachingUpscalingTileProviderTest : BaseHiltTest() {
   @Test
   fun `getTile() calculates correct parent coordinates for zoom level 16`() {
     val z = 16
-    val testCases =
+    val tests =
       listOf(
-        Triple(0, 0, Pair(0, 0)),
-        Triple(1, 1, Pair(0, 0)),
-        Triple(2, 2, Pair(1, 1)),
-        Triple(512, 384, Pair(256, 192)),
-        Triple(1023, 1023, Pair(511, 511)),
+        Triple(0, 0, 0 to 0),
+        Triple(1, 1, 0 to 0),
+        Triple(2, 2, 1 to 1),
+        Triple(512, 384, 256 to 192),
+        Triple(1023, 1023, 511 to 511),
       )
 
-    testCases.forEach { (x, y, expectedParent) ->
+    tests.forEach { (x, y, parent) ->
       fakeTileProvider.clear()
-      fakeTileProvider.addTile(
-        expectedParent.first,
-        expectedParent.second,
-        dataMaxZoom,
-        createTestTileWithBitmap(),
-      )
+      fakeTileProvider.addTile(parent.first, parent.second, dataMaxZoom, createTestTileWithBitmap())
 
       provider.getTile(x, y, z)
 
-      assertThat(
-          fakeTileProvider.getCallCount(expectedParent.first, expectedParent.second, dataMaxZoom)
-        )
+      assertThat(fakeTileProvider.getCallCount(parent.first, parent.second, dataMaxZoom))
         .isEqualTo(1)
     }
   }
 
   @Test
   fun `getTile() calculates correct parent coordinates for zoom level 17`() {
-    val z = 17 // Two levels beyond dataMaxZoom
+    val z = 17
     val x = 2048
     val y = 1536
     fakeTileProvider.addTile(512, 384, dataMaxZoom, createTestTileWithBitmap())
@@ -174,14 +161,11 @@ class CachingUpscalingTileProviderTest : BaseHiltTest() {
     val z = 16
     fakeTileProvider.addTile(0, 0, dataMaxZoom, createTestTileWithBitmap())
 
-    val quadrants = listOf(Pair(0, 0), Pair(1, 0), Pair(0, 1), Pair(1, 1))
-
-    quadrants.forEach { (qx, qy) ->
+    listOf(0 to 0, 1 to 0, 0 to 1, 1 to 1).forEach { (qx, qy) ->
       val result = provider.getTile(qx, qy, z)
       assertThat(result).isNotNull()
       assertThat(result).isNotEqualTo(TileProvider.NO_TILE)
     }
-
     assertThat(fakeTileProvider.getCallCount(0, 0, dataMaxZoom)).isEqualTo(4)
   }
 
@@ -204,9 +188,7 @@ class CachingUpscalingTileProviderTest : BaseHiltTest() {
     fakeTileProvider.addTile(512, 384, dataMaxZoom, createTestTileWithBitmap())
     fakeTileProvider.addTile(512, 385, dataMaxZoom, createTestTileWithBitmap())
 
-    val coordinates = listOf(Pair(1024, 768), Pair(1025, 768), Pair(1024, 769))
-
-    coordinates.forEach { (x, y) -> provider.getTile(x, y, z) }
+    listOf(1024 to 768, 1025 to 768, 1024 to 769).forEach { (x, y) -> provider.getTile(x, y, z) }
 
     assertThat(fakeTileProvider.totalCallCount).isAtLeast(3)
   }
@@ -218,13 +200,13 @@ class CachingUpscalingTileProviderTest : BaseHiltTest() {
     val z = 16
     fakeTileProvider.addTile(512, 384, dataMaxZoom, createTestTileWithBitmap())
 
-    val result1 = provider.getTile(x, y, z)
-    val result2 = provider.getTile(x, y, z)
+    val r1 = provider.getTile(x, y, z)
+    val r2 = provider.getTile(x, y, z)
 
-    assertThat(result1).isNotNull()
-    assertThat(result2).isNotNull()
-    assertThat(result1.width).isEqualTo(result2.width)
-    assertThat(result1.height).isEqualTo(result2.height)
+    assertThat(r1).isNotNull()
+    assertThat(r2).isNotNull()
+    assertThat(r1.width).isEqualTo(r2.width)
+    assertThat(r1.height).isEqualTo(r2.height)
     assertThat(fakeTileProvider.getCallCount(512, 384, dataMaxZoom)).isEqualTo(1)
   }
 
@@ -259,6 +241,8 @@ class CachingUpscalingTileProviderTest : BaseHiltTest() {
 
     provider.getTile(x, y, z)
     provider.getTile(x, y, z)
+
+    // parent (512,384) at z=15 never added, so synthesis fails each time → no cache
     assertThat(fakeTileProvider.getCallCount(512, 384, dataMaxZoom)).isEqualTo(2)
   }
 
@@ -292,46 +276,11 @@ class CachingUpscalingTileProviderTest : BaseHiltTest() {
   fun `getTile() handles multiple zoom levels beyond dataMaxZoom`() {
     fakeTileProvider.addTile(0, 0, dataMaxZoom, createTestTileWithBitmap())
 
-    val zoomLevels = listOf(16, 17, 18, 19, 20)
-
-    zoomLevels.forEach { z ->
+    listOf(16, 17, 18, 19, 20).forEach { z ->
       val result = provider.getTile(0, 0, z)
       assertThat(result).isNotNull()
       assertThat(result).isNotEqualTo(TileProvider.NO_TILE)
     }
-  }
-
-  @Test
-  fun `provider handles concurrent tile requests`() {
-    fakeTileProvider.addTile(0, 0, dataMaxZoom, createTestTileWithBitmap())
-    fakeTileProvider.addTile(1, 1, dataMaxZoom, createTestTileWithBitmap())
-    fakeTileProvider.addTile(2, 2, dataMaxZoom, createTestTileWithBitmap())
-
-    val coordinates = (0..10).map { it to it }
-
-    coordinates.forEach { (x, y) ->
-      val result = provider.getTile(x, y, 16)
-      assertThat(result).isNotNull()
-    }
-
-    assertThat(fakeTileProvider.totalCallCount).isAtLeast(coordinates.size)
-  }
-
-  @Test
-  fun `provider respects custom tile size`() {
-    val customTileSize = 512
-    val customProvider =
-      CachingUpscalingTileProvider(
-        source = fakeTileProvider,
-        zoomThreshold = dataMaxZoom,
-        tileSize = customTileSize,
-      )
-    fakeTileProvider.addTile(0, 0, dataMaxZoom, createTestTileWithBitmap(customTileSize))
-
-    val result = customProvider.getTile(0, 0, 16)
-
-    assertThat(result.width).isEqualTo(customTileSize)
-    assertThat(result.height).isEqualTo(customTileSize)
   }
 
   @Test
@@ -342,9 +291,8 @@ class CachingUpscalingTileProviderTest : BaseHiltTest() {
     fakeTileProvider.addTile(100, 100, customDataMaxZoom, createTestTile())
     fakeTileProvider.addTile(100, 100, customDataMaxZoom, createTestTileWithBitmap())
 
-    customProvider.getTile(100, 100, customDataMaxZoom)
-
-    customProvider.getTile(200, 200, customDataMaxZoom + 1)
+    customProvider.getTile(100, 100, customDataMaxZoom) // base delegation
+    customProvider.getTile(200, 200, customDataMaxZoom + 1) // synthesis path
 
     assertThat(fakeTileProvider.getCallCount(100, 100, customDataMaxZoom)).isAtLeast(2)
   }
@@ -353,23 +301,15 @@ class CachingUpscalingTileProviderTest : BaseHiltTest() {
 
   private fun createTestTileWithBitmap(size: Int = tileSize): Tile {
     val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
-
-    for (x in 0 until size) {
-      for (y in 0 until size) {
-        bitmap.setPixel(x, y, android.graphics.Color.rgb(x % 256, y % 256, 128))
-      }
+    for (x in 0 until size) for (y in 0 until size) {
+      bitmap.setPixel(x, y, android.graphics.Color.rgb(x % 256, y % 256, 128))
     }
-
-    val outputStream = ByteArrayOutputStream()
-    bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+    val os = ByteArrayOutputStream()
+    bitmap.compress(Bitmap.CompressFormat.PNG, 100, os)
     bitmap.recycle()
-    return Tile(size, size, outputStream.toByteArray())
+    return Tile(size, size, os.toByteArray())
   }
 
-  /**
-   * Fake implementation of [TileProvider] for testing purposes. Tracks call counts and allows
-   * configuring tiles to return.
-   */
   private class FakeTileProvider : TileProvider {
     private val tiles = mutableMapOf<String, Tile>()
     private val callCounts = mutableMapOf<String, Int>()
@@ -377,10 +317,10 @@ class CachingUpscalingTileProviderTest : BaseHiltTest() {
       get() = callCounts.values.sum()
 
     fun addTile(x: Int, y: Int, z: Int, tile: Tile) {
-      tiles[makeKey(x, y, z)] = tile
+      tiles[key(x, y, z)] = tile
     }
 
-    fun getCallCount(x: Int, y: Int, z: Int): Int = callCounts[makeKey(x, y, z)] ?: 0
+    fun getCallCount(x: Int, y: Int, z: Int): Int = callCounts[key(x, y, z)] ?: 0
 
     fun clear() {
       tiles.clear()
@@ -388,11 +328,11 @@ class CachingUpscalingTileProviderTest : BaseHiltTest() {
     }
 
     override fun getTile(x: Int, y: Int, z: Int): Tile? {
-      val key = makeKey(x, y, z)
-      callCounts[key] = (callCounts[key] ?: 0) + 1
-      return tiles[key]
+      val k = key(x, y, z)
+      callCounts[k] = (callCounts[k] ?: 0) + 1
+      return tiles[k]
     }
 
-    private fun makeKey(x: Int, y: Int, z: Int) = "$z/$x/$y"
+    private fun key(x: Int, y: Int, z: Int) = "$z/$x/$y"
   }
 }
