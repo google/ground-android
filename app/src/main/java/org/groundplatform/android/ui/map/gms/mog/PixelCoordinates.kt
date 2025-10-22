@@ -39,11 +39,14 @@ fun LatLng.toPixelCoordinates(zoom: Int): PixelCoordinates {
 fun TileCoordinates.toPixelCoordinate(xOffset: Int, yOffset: Int) =
   PixelCoordinates(x * 256 + xOffset, y * 256 + yOffset, zoom)
 
-fun TileCoordinates.pixelToLatLng(px: Int, py: Int): LatLng {
-  val n = 1 shl zoom
-  val fx = (x * 256.0 + px) / (n * 256.0)
-  val fy = (y * 256.0 + py) / (n * 256.0)
-  val lon = fx * 360.0 - 180.0
-  val latRad = atan(sinh(Math.PI * (1.0 - 2.0 * fy)))
-  return LatLng(Math.toDegrees(latRad), lon)
+fun TileCoordinates.pixelToLatLng(pixelX: Int, pixelY: Int): LatLng {
+  val zoomFactor = 1 shl zoom
+  val normalizedX = (x * 256.0 + pixelX) / (zoomFactor * 256.0)
+  val normalizedY = (y * 256.0 + pixelY) / (zoomFactor * 256.0)
+
+  val longitude = normalizedX * 360.0 - 180.0
+  val latitudeRadians = atan(sinh(Math.PI * (1.0 - 2.0 * normalizedY)))
+  val latitude = Math.toDegrees(latitudeRadians)
+
+  return LatLng(latitude, longitude)
 }

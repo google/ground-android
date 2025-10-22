@@ -39,9 +39,15 @@ data class NewCameraPositionViaCoordinatesAndZoomLevel(
   val shouldAnimate: Boolean = false,
 ) : CameraUpdateRequest() {
 
-  /** Returns the resolved zoom level based on request parameters. */
-  fun getZoomLevel(currentZoomLevel: Float, min: Float = 2f, max: Float = 21f): Float {
-    val target = if (isAllowZoomOut) zoomLevel else kotlin.math.max(zoomLevel, currentZoomLevel)
-    return target.coerceIn(min, max)
+  /**
+   * Determines the effective zoom level to use when centering or restoring the map view.
+   *
+   * Ensures we never zoom in or out beyond a safe range [2f, 21f]. When [isAllowZoomOut] is false,
+   * prevents accidental zoom-out by keeping at least the current zoom level (avoids sudden
+   * jump-outs when reloading or switching maps).
+   */
+  fun getZoomLevel(currentZoomLevel: Float): Float {
+    val target = if (isAllowZoomOut) zoomLevel else max(zoomLevel, currentZoomLevel)
+    return target.coerceIn(2f, 21f)
   }
 }

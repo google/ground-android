@@ -25,13 +25,41 @@ import androidx.core.graphics.createBitmap
 import com.google.android.gms.maps.model.Tile
 import com.google.android.gms.maps.model.TileProvider
 import java.io.ByteArrayOutputStream
+import timber.log.Timber
 
-/** Wraps a TileProvider and synthesizes tiles for z > dataMaxZoom via crop+upscale. */
+/**
+ * A [TileProvider] that provides upscaled map tiles beyond the available data zoom level.
+ *
+ * This provider attempts to synthesize higher-zoom tiles by:
+ * - Fetching the base tile at [dataMaxZoom]
+ * - Cropping the appropriate quadrant
+ * - Upscaling it using bilinear filtering to a 256×256 PNG
+ *
+ * **Performance Note:** The upscaling operation performed by [synthesizeUpscaledTileBytes] is **CPU
+ * and memory intensive** due to bitmap decoding and scaling. Callers should ensure this provider
+ * runs in a background coroutine with an appropriate [CoroutineDispatcher] (e.g. `Dispatchers.IO`)
+ * to prevent blocking the main thread or UI rendering.
+ *
+ * Typical usage:
+ * ```kotlin
+ * val provider = CachingUpscalingTileProvider(source, dataMaxZoom)
+ * val overlay = map.addTileOverlay(
+ *     TileOverlayOptions().tileProvider(provider)
+ * )
+ * ```
+ *
+ * @param source The underlying [TileProvider] that supplies base tiles up to [dataMaxZoom].
+ * @param dataMaxZoom The maximum zoom level for which base tiles are available. Tiles beyond this
+ *   level will be synthesized by cropping and upscaling.
+ * @param tileSize The size (in pixels) of each output tile. Defaults to [DEFAULT_TILE_SIZE] (256
+ *   px).
+ * @param maxCacheBytes The maximum in-memory cache size in bytes for storing upscaled tiles.
+ */
 class CachingUpscalingTileProvider(
   private val source: TileProvider,
   private val dataMaxZoom: Int,
-  private val tileSize: Int = 256,
-  maxCacheBytes: Int = 16 * 1024 * 1024, // ~16 MB
+  private val tileSize: Int = DEFAULT_TILE_SIZE,
+  maxCacheBytes: Int = DEFAULT_CACHE_SIZE_BYTES,
 ) : TileProvider {
 
   private val cache =
@@ -39,28 +67,30 @@ class CachingUpscalingTileProvider(
       override fun sizeOf(key: String, value: ByteArray) = value.size
     }
 
-  override fun getTile(x: Int, y: Int, z: Int): Tile {
-    var result: Tile?
+  // Returning early helps prevent deep nesting and keeps the flow simple.
+  override fun getTile(x: Int, y: Int, zoom: Int): Tile {
+    val cacheKey = "$zoom/$x/$y"
 
-    if (z <= dataMaxZoom) {
-      // Base tiles: just delegate; no caching here
-      result = source.getTile(x, y, z)
-    } else {
-      val key = "$z/$x/$y"
-      val cached = cache.get(key)
-      result =
-        if (cached != null) {
-          Tile(tileSize, tileSize, cached)
-        } else {
-          val bytes = synthesizeUpscaledTileBytes(x, y, z)
-          bytes?.let {
-            cache.put(key, bytes)
-            Tile(tileSize, tileSize, bytes)
-          } ?: run { null }
+    val tile =
+      when {
+        zoom <= dataMaxZoom -> {
+          source.getTile(x, y, zoom)
         }
-    }
 
-    return result ?: TileProvider.NO_TILE
+        cache.get(cacheKey) != null -> {
+          Tile(tileSize, tileSize, cache.get(cacheKey))
+        }
+
+        else -> {
+          val upscaledBytes = synthesizeUpscaledTileBytes(x, y, zoom)
+          upscaledBytes?.let {
+            cache.put(cacheKey, it)
+            Tile(tileSize, tileSize, it)
+          }
+        }
+      }
+
+    return tile ?: TileProvider.NO_TILE
   }
 
   /**
@@ -109,7 +139,7 @@ class CachingUpscalingTileProvider(
     var up: Bitmap? = null
     return try {
       cropped = Bitmap.createBitmap(src, crop.left, crop.top, crop.width(), crop.height())
-      up = createBitmap(256, 256)
+      up = createBitmap(tileSize, tileSize)
 
       val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { isFilterBitmap = true }
       Canvas(up).drawBitmap(cropped, null, Rect(0, 0, 256, 256), paint)
@@ -118,11 +148,20 @@ class CachingUpscalingTileProvider(
         up.compress(Bitmap.CompressFormat.PNG, 100, os)
         os.toByteArray()
       }
-    } catch (_: Throwable) {
+    } catch (t: Throwable) {
+      Timber.d(t, "Failed to draw upscaled tile (crop=$crop, srcSize=${src.width}x${src.height})")
       null
     } finally {
       up?.recycle()
       cropped?.recycle()
     }
+  }
+
+  companion object {
+    /** Default tile size in pixels (Google Maps standard = 256). */
+    private const val DEFAULT_TILE_SIZE = 256
+
+    /** Default maximum cache size in bytes (~16 MB). */
+    private const val DEFAULT_CACHE_SIZE_BYTES = 16 * 1024 * 1024
   }
 }

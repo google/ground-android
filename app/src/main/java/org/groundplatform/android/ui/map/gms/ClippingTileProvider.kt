@@ -36,9 +36,10 @@ class ClippingTileProvider(
     val coords = TileCoordinates(x, y, zoom)
     val output =
       ImageEditor.setTransparentIf(data) { _, x, y ->
+        // Keep only the pixels inside any clip bound — transparent elsewhere.
         val latLng = coords.pixelToLatLng(x, y)
         val insideAny = clipBounds.any { it.contains(latLng) }
-        !insideAny // make transparent if NOT inside any bound
+        !insideAny // transparent if outside all clip bounds
       }
     return Tile(sourceTile.width, sourceTile.height, output)
   }
