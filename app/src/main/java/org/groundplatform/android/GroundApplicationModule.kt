@@ -34,20 +34,15 @@ object GroundApplicationModule {
 
   @Provides
   @Singleton
-  fun googleApiAvailability(): GoogleApiAvailability {
-    return GoogleApiAvailability.getInstance()
-  }
+  fun googleApiAvailability(): GoogleApiAvailability = GoogleApiAvailability.getInstance()
 
   @Provides
-  fun provideResources(@ApplicationContext context: Context): Resources {
-    return context.resources
-  }
+  fun provideResources(@ApplicationContext context: Context): Resources = context.resources
 
   @Provides fun provideLocale(): Locale = Locale.getDefault()
 
   @Provides
   @Singleton
-  fun provideWorkManager(@ApplicationContext context: Context): WorkManager {
-    return WorkManager.getInstance(context)
-  }
+  fun provideWorkManager(@ApplicationContext context: Context): WorkManager =
+    WorkManager.getInstance(context)
 }
