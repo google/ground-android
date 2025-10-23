@@ -17,6 +17,7 @@ package org.groundplatform.android
 
 import android.content.Context
 import android.content.res.Resources
+import androidx.work.WorkManager
 import com.google.android.gms.common.GoogleApiAvailability
 import dagger.Module
 import dagger.Provides
@@ -42,5 +43,11 @@ object GroundApplicationModule {
     return context.resources
   }
 
-  @Provides fun provideLocale() = Locale.getDefault()
+  @Provides fun provideLocale(): Locale = Locale.getDefault()
+
+  @Provides
+  @Singleton
+  fun provideWorkManager(@ApplicationContext context: Context): WorkManager {
+    return WorkManager.getInstance(context)
+  }
 }
