@@ -17,6 +17,7 @@ androidMapsUtilsVersion = "3.8.2"
 appcompatVersion = "1.7.1"
 autoValueVersion = "1.11.0"
 cardviewVersion = "1.0.0"
+composeMaterial = "1.7.8"
 composeUi = "1.9.3"
 constraintlayoutVersion = "2.2.1"
 coreKtxVersion = "1.17.0"
@@ -97,6 +98,7 @@ androidx-lifecycle-reactivestreams-ktx = { module = "androidx.lifecycle:lifecycl
 androidx-lifecycle-livedata-ktx = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "lifecycleVersion" }
 androidx-lifecycle-extensions = { module = "androidx.lifecycle:lifecycle-extensions", version.ref = "lifecycleExtensionsVersion" }
 androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleVersion" }
+androidx-material-icons = { module = "androidx.compose.material:material-icons-core", version.ref = "composeMaterial" }
 androidx-material3-android = { module = "androidx.compose.material3:material3-android", version.ref = "material3AndroidVersion" }
 androidx-multidex = { module = "androidx.multidex:multidex", version.ref = "multidex" }
 androidx-navigation-safe-args-gradle-plugin = { module = "androidx.navigation:navigation-safe-args-gradle-plugin", version.ref = "navigationKtxVersion" }
