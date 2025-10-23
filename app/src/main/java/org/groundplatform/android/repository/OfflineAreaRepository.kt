@@ -111,10 +111,7 @@ constructor(
       val bounds = list.map { it.bounds }
 
       val maxZoom =
-        list.maxOfOrNull { it.zoomRange.last }
-          ?: error(
-            "No zoom range found in offline areas — expected at least one valid area with zoom metadata."
-          )
+        list.maxOfOrNull { it.zoomRange.last } ?: error("No zoom range found in offline areas")
 
       LocalTileSource(
         localFilePath = "file://${getLocalTileSourcePath()}/{z}/{x}/{y}.jpg",

@@ -68,25 +68,22 @@ class CachingUpscalingTileProvider(
   // Returning early helps prevent deep nesting and keeps the flow simple.
   override fun getTile(x: Int, y: Int, zoom: Int): Tile {
     val cacheKey = "$zoom/$x/$y"
+    var tile: Tile? = null
 
-    val tile =
-      when {
-        zoom <= zoomThreshold -> {
-          source.getTile(x, y, zoom)
-        }
-
-        cache.get(cacheKey) != null -> {
-          Tile(DEFAULT_TILE_SIZE, DEFAULT_TILE_SIZE, cache.get(cacheKey))
-        }
-
-        else -> {
-          val upscaledBytes = synthesizeUpscaledTileBytes(x, y, zoom)
-          upscaledBytes?.let {
-            cache.put(cacheKey, it)
-            Tile(DEFAULT_TILE_SIZE, DEFAULT_TILE_SIZE, it)
-          }
+    if (zoom <= zoomThreshold) {
+      tile = source.getTile(x, y, zoom)
+    } else {
+      val cached = cache.get(cacheKey)
+      if (cached != null) {
+        tile = Tile(DEFAULT_TILE_SIZE, DEFAULT_TILE_SIZE, cached)
+      } else {
+        val upscaledBytes = synthesizeUpscaledTileBytes(x, y, zoom)
+        if (upscaledBytes != null) {
+          cache.put(cacheKey, upscaledBytes)
+          tile = Tile(DEFAULT_TILE_SIZE, DEFAULT_TILE_SIZE, upscaledBytes)
         }
       }
+    }
 
     return tile ?: TileProvider.NO_TILE
   }

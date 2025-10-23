@@ -46,7 +46,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import org.groundplatform.android.common.Constants
-import org.groundplatform.android.common.Constants.DEFAULT_MOG_UPSCALE_MAX_ZOOM
+import org.groundplatform.android.common.Constants.DEFAULT_MOG_MAX_ZOOM
 import org.groundplatform.android.coroutines.IoDispatcher
 import org.groundplatform.android.data.remote.RemoteStorageManager
 import org.groundplatform.android.model.geometry.Coordinates
@@ -304,7 +304,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     val mogCollection = MogCollection(Constants.getMogSources(url))
     val source = MogTileProvider(mogCollection, remoteStorageManager, ioDispatcher)
 
-    val upscaled = CachingUpscalingTileProvider(source, DEFAULT_MOG_UPSCALE_MAX_ZOOM)
+    val upscaled = CachingUpscalingTileProvider(source, DEFAULT_MOG_MAX_ZOOM)
 
     mogOverlay?.remove()
     mogOverlay =
