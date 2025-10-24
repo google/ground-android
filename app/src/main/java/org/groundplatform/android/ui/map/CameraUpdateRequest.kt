@@ -16,8 +16,6 @@
 package org.groundplatform.android.ui.map
 
 import kotlin.math.max
-import org.groundplatform.android.common.Constants.DEFAULT_MAP_MAX_ZOOM
-import org.groundplatform.android.common.Constants.DEFAULT_MAP_MIN_ZOOM
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.map.Bounds
 
@@ -41,15 +39,7 @@ data class NewCameraPositionViaCoordinatesAndZoomLevel(
   val shouldAnimate: Boolean = false,
 ) : CameraUpdateRequest() {
 
-  /**
-   * Determines the effective zoom level to use when centering or restoring the map view.
-   *
-   * Ensures we never zoom in or out beyond a safe range [2f, 21f]. When [isAllowZoomOut] is false,
-   * prevents accidental zoom-out by keeping at least the current zoom level (avoids sudden
-   * jump-outs when reloading or switching maps).
-   */
-  fun getZoomLevel(currentZoomLevel: Float): Float {
-    val target = if (isAllowZoomOut) zoomLevel else max(zoomLevel, currentZoomLevel)
-    return target.coerceIn(DEFAULT_MAP_MIN_ZOOM, DEFAULT_MAP_MAX_ZOOM)
-  }
+  /** Returns the resolved zoom level based on request parameters. */
+  fun getZoomLevel(currentZoomLevel: Float) =
+    if (isAllowZoomOut) zoomLevel else max(zoomLevel, currentZoomLevel)
 }
