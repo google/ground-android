@@ -70,4 +70,72 @@ class PixelCoordinatesTest {
     val actual = TileCoordinates(2, 2, 2).toPixelCoordinate(15, 25)
     assertEquals(expected, actual)
   }
+
+  @Test
+  fun `TileCoordinates#pixelToLatLng() at intermediate zoom returns correct values`() {
+    val actual = TileCoordinates(4, 2, 3).pixelToLatLng(70, 249)
+
+    assertEquals(41.9023, actual.latitude, 0.01)
+    assertEquals(12.3047, actual.longitude, 0.01)
+  }
+
+  @Test
+  fun `TileCoordinates#pixelToLatLng() handles bottom-right corner of world`() {
+    val actual = TileCoordinates(0, 0, 0).pixelToLatLng(255, 255)
+
+    assertEquals(-84.93, actual.latitude, 0.1)
+    assertEquals(178.59, actual.longitude, 1.0)
+  }
+
+  @Test
+  fun `TileCoordinates#pixelToLatLng() at zoom 0 returns correct values`() {
+    val actual = TileCoordinates(0, 0, 0).pixelToLatLng(128, 128)
+
+    assertEquals(0.0, actual.latitude, 0.01)
+    assertEquals(0.0, actual.longitude, 0.01)
+  }
+
+  @Test
+  fun `TileCoordinates#pixelToLatLng() round-trip conversion preserves coordinates`() {
+    val original = LatLng(40.6874, -73.9306)
+    val zoom = 10
+
+    val pixelCoords = original.toPixelCoordinates(zoom)
+
+    val tileX = pixelCoords.x / 256
+    val tileY = pixelCoords.y / 256
+    val px = pixelCoords.x % 256
+    val py = pixelCoords.y % 256
+
+    val actual = TileCoordinates(tileX, tileY, zoom).pixelToLatLng(px, py)
+
+    assertEquals(original.latitude, actual.latitude, 0.01)
+    assertEquals(original.longitude, actual.longitude, 0.01)
+  }
+
+  @Test
+  fun `TileCoordinates#pixelToLatLng() handles top-left corner of world`() {
+    val actual = TileCoordinates(0, 0, 0).pixelToLatLng(0, 0)
+
+    assertEquals(85.05, actual.latitude, 0.1)
+    assertEquals(-180.0, actual.longitude, 0.1)
+  }
+
+  @Test
+  fun `TileCoordinates#pixelToLatLng() handles southern hemisphere location`() {
+    val actual = TileCoordinates(7, 5, 3).pixelToLatLng(128, 128)
+
+    assert(actual.latitude < 0) { "Expected southern hemisphere latitude" }
+    assert(actual.longitude > 0) { "Expected eastern hemisphere longitude" }
+  }
+
+  @Test
+  fun `TileCoordinates#pixelToLatLng() handles higher zoom levels`() {
+    val actual = TileCoordinates(10000, 12000, 15).pixelToLatLng(128, 128)
+
+    assert(actual.latitude >= -90.0 && actual.latitude <= 90.0) { "Latitude out of valid range" }
+    assert(actual.longitude >= -180.0 && actual.longitude <= 180.0) {
+      "Longitude out of valid range"
+    }
+  }
 }
