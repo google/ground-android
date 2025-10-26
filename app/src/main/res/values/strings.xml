@@ -198,8 +198,8 @@
   <string name="data_collection_cancellation_confirm_button">Confirm</string>
   <string name="something_went_wrong">Something went wrong</string>
 
-  <string name="polygon_vertex_add_dialog_title">Error</string>
-  <string name="polygon_vertex_add_dialog_message">Area permit can&#8217;t intersect with itself</string>
+  <string name="polygon_vertex_add_dialog_title">Invalid area</string>
+  <string name="polygon_vertex_add_dialog_message">Area perimeter can&#8217;t intersect with itself</string>
   <string name="polygon_vertex_add_dialog_positive_button">OK</string>
   <string name="clear">Clear</string>
   <string name="text_task_data_character_limit">255 characters max</string>

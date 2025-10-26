@@ -199,7 +199,7 @@
   <string name="data_collection_cancellation_confirm_button">Confirmar</string>
   <string name="something_went_wrong">algo salió mal</string>
 
-  <string name="polygon_vertex_add_dialog_title">Error</string>
+  <string name="polygon_vertex_add_dialog_title">Área no válida</string>
   <string name="polygon_vertex_add_dialog_message">El área no puede intersectarse consigo misma</string>
   <string name="polygon_vertex_add_dialog_positive_button">Aceptar</string>
 
