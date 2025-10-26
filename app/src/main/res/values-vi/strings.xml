@@ -178,7 +178,7 @@
   <string name="data_collection_cancellation_description">Nếu bạn thoát, dữ liệu chưa được gửi sẽ bị xóa.</string>
   <string name="data_collection_cancellation_confirm_button">Xác nhận</string>
   <string name="something_went_wrong">Đã xảy ra lỗi</string>
-  <string name="polygon_vertex_add_dialog_title">Lỗi</string>
+  <string name="polygon_vertex_add_dialog_title">Khu vực không hợp lệ</string>
   <string name="polygon_vertex_add_dialog_message">Khu vực được phép không thể tự giao nhau</string>
   <string name="polygon_vertex_add_dialog_positive_button">OK</string>
   <string name="clear">Xóa</string>
