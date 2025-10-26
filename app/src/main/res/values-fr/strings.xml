@@ -183,7 +183,7 @@
   <string name="data_collection_cancellation_description">Si vous quittez, les données que vous n&#8217;avez pas encore soumises seront supprimées.</string>
   <string name="data_collection_cancellation_confirm_button">Confirmer</string>
   <string name="something_went_wrong">Quelque chose s&#8217;est mal passé</string>
-  <string name="polygon_vertex_add_dialog_title">Erreur</string>
+  <string name="polygon_vertex_add_dialog_title">Zone invalide</string>
   <string name="polygon_vertex_add_dialog_message">La zone ne peut pas s&#8217;auto-intersecter</string>
   <string name="polygon_vertex_add_dialog_positive_button">D&#8217;accord</string>
   <string name="clear">Claire</string>
