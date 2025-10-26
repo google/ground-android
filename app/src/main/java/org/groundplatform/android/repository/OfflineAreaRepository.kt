@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import org.groundplatform.android.common.Constants
 import org.groundplatform.android.data.local.stores.LocalOfflineAreaStore
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
@@ -107,11 +108,11 @@ constructor(
   private fun getLocalTileSourcePath(): String = getLocalTileDirectory().path
 
   fun getOfflineTileSourcesFlow(): Flow<TileSource> =
-    localOfflineAreaStore.offlineAreas().map { list ->
-      val bounds = list.map { it.bounds }
+    localOfflineAreaStore.offlineAreas().mapNotNull { list ->
+      if (list.isEmpty()) return@mapNotNull null
 
-      val maxZoom =
-        list.maxOfOrNull { it.zoomRange.last } ?: error("No zoom range found in offline areas")
+      val bounds = list.map { it.bounds }
+      val maxZoom = list.maxOfOrNull { it.zoomRange.last } ?: return@mapNotNull null
 
       LocalTileSource(
         localFilePath = "file://${getLocalTileSourcePath()}/{z}/{x}/{y}.jpg",

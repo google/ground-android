@@ -133,25 +133,33 @@ class CachingUpscalingTileProvider(
 
   /** Crops the given area and upscales to 256×256 PNG using bilinear filtering. */
   private fun drawUpscaled256(src: Bitmap, crop: Rect): ByteArray? {
-    var cropped: Bitmap? = null
     var up: Bitmap? = null
     return try {
-      cropped = Bitmap.createBitmap(src, crop.left, crop.top, crop.width(), crop.height())
       up = createBitmap(DEFAULT_TILE_SIZE, DEFAULT_TILE_SIZE)
-
       val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { isFilterBitmap = true }
-      Canvas(up).drawBitmap(cropped, null, Rect(0, 0, 256, 256), paint)
 
-      ByteArrayOutputStream().use { os ->
-        up.compress(Bitmap.CompressFormat.PNG, 100, os)
+      // Draw directly from the source bitmap region into the 256×256 tile
+      Canvas(up)
+        .drawBitmap(
+          src,
+          crop, // use the source rect; no intermediate crop allocation
+          Rect(0, 0, 256, 256),
+          paint,
+        )
+
+      // Use WebP lossless to keep bytes smaller (optional; PNG also fine)
+      ByteArrayOutputStream(32_768).use { os ->
+        up.compress(Bitmap.CompressFormat.WEBP, 100, os)
         os.toByteArray()
       }
+    } catch (oom: OutOfMemoryError) {
+      Timber.w(oom, "OOM while upscaling tile (crop=$crop, src=${src.width}x${src.height})")
+      null
     } catch (t: Throwable) {
-      Timber.d(t, "Failed to draw upscaled tile (crop=$crop, srcSize=${src.width}x${src.height})")
+      Timber.d(t, "Failed to draw upscaled tile (crop=$crop, src=${src.width}x${src.height})")
       null
     } finally {
       up?.recycle()
-      cropped?.recycle()
     }
   }
 
