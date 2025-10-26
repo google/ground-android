@@ -25,25 +25,25 @@ import org.groundplatform.android.ui.map.gms.mog.TileCoordinates
 import org.groundplatform.android.ui.map.gms.mog.toPixelBounds
 import org.groundplatform.android.ui.map.gms.mog.toPixelCoordinate
 
-private const val CLIP_PROJECTION_ZOOM = 19
+private const val MAX_ZOOM = 19
 
 class ClippingTileProvider(
   private val sourceTileProvider: TileProvider,
   clipBounds: List<LatLngBounds>,
 ) : TileProvider {
 
-  private val pixelBounds = clipBounds.map { it.toPixelBounds(CLIP_PROJECTION_ZOOM) }
+  private val pixelBounds = clipBounds.map { it.toPixelBounds(MAX_ZOOM) }
 
   override fun getTile(x: Int, y: Int, zoom: Int): Tile {
-    val sourceTile = sourceTileProvider.getTile(x, y, zoom) ?: NO_TILE
-    val data = sourceTile.data ?: return NO_TILE
+    val tile = sourceTileProvider.getTile(x, y, zoom) ?: NO_TILE
+    val data = tile.data ?: return NO_TILE
 
-    val coords = TileCoordinates(x, y, zoom)
+    val tileCoords = TileCoordinates(x, y, zoom)
     val output =
       ImageEditor.setTransparentIf(data) { _, px, py ->
-        val pixel = coords.toPixelCoordinate(px, py) // project to pixel space
-        pixelBounds.none { it.contains(pixel) } // transparent if outside bounds
+        val pixelCoords = tileCoords.toPixelCoordinate(px, py)
+        pixelBounds.none { it.contains(pixelCoords) }
       }
-    return Tile(sourceTile.width, sourceTile.height, output)
+    return Tile(tile.width, tile.height, output)
   }
 }
