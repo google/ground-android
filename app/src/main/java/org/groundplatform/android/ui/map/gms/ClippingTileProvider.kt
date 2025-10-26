@@ -40,8 +40,8 @@ class ClippingTileProvider(
 
     val tileCoords = TileCoordinates(x, y, zoom)
     val output =
-      ImageEditor.setTransparentIf(data) { _, px, py ->
-        val pixelCoords = tileCoords.toPixelCoordinate(px, py)
+      ImageEditor.setTransparentIf(data) { _, x, y ->
+        val pixelCoords = tileCoords.toPixelCoordinate(x, y)
         pixelBounds.none { it.contains(pixelCoords) }
       }
     return Tile(tile.width, tile.height, output)
