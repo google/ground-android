@@ -79,6 +79,9 @@ class CachingUpscalingTileProvider(
     }
 
     if (result == null) {
+
+      // TODO: Upscaling optimisation -
+      // https://github.com/google/ground-android/pull/3259#discussion_r2454376062
       val upscaledBytes = synthesizeUpscaledTileBytes(x, y, zoom)
       if (upscaledBytes != null) {
         cache.put(cacheKey, upscaledBytes)

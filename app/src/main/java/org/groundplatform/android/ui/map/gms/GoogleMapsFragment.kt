@@ -303,19 +303,9 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   private fun addRemoteMogTileOverlay(url: String) {
     val mogCollection = MogCollection(Constants.getMogSources(url))
     val source = MogTileProvider(mogCollection, remoteStorageManager, ioDispatcher)
-
     val upscaled = CachingUpscalingTileProvider(source, DEFAULT_MOG_MAX_ZOOM)
 
-    mogOverlay?.remove()
-    mogOverlay =
-      map.addTileOverlay(
-        TileOverlayOptions()
-          .tileProvider(upscaled)
-          .zIndex(TILE_OVERLAY_Z)
-          .fadeIn(true)
-          .transparency(0f)
-          .visible(true)
-      )
+    addTileOverlay(upscaled)
   }
 
   private fun addTileOverlay(tileProvider: TileProvider) {
