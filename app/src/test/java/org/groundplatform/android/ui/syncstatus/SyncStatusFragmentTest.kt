@@ -84,9 +84,8 @@ class SyncStatusFragmentTest : BaseHiltTest() {
     setupFragment()
 
     composeTestRule.onNodeWithTag("sync list").assertIsDisplayed()
-    composeTestRule.onNodeWithText("User").assertIsDisplayed() // User's display name
+    composeTestRule.onNodeWithText("Job • User").assertIsDisplayed() // User's display name
     composeTestRule.onNodeWithText("Pending").assertIsDisplayed() // Status
-    composeTestRule.onNodeWithText("Job").assertIsDisplayed() // Label
     composeTestRule.onNodeWithText("Test LOI Name").assertIsDisplayed() // Subtitle
   }
 
@@ -103,9 +102,8 @@ class SyncStatusFragmentTest : BaseHiltTest() {
     setupFragment()
 
     composeTestRule.onNodeWithTag("sync list").assertIsDisplayed()
-    composeTestRule.onNodeWithText("User").assertIsDisplayed() // User's display name
+    composeTestRule.onNodeWithText("Job • User").assertIsDisplayed() // User's display name
     composeTestRule.onNodeWithText("Pending").assertIsDisplayed() // Status
-    composeTestRule.onNodeWithText("Job").assertIsDisplayed() // Label
     composeTestRule.onNodeWithText("Survey title").assertIsDisplayed() // Subtitle
   }
 
