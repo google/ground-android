@@ -67,7 +67,7 @@ object Constants {
   // Issue URL: https://github.com/google/ground-android/issues/1730
   const val DEFAULT_MOG_TILE_LOCATION = "/offline-imagery/default"
   private const val DEFAULT_MOG_MIN_ZOOM = 8
-  private const val DEFAULT_MOG_MAX_ZOOM = 14
+  const val DEFAULT_MOG_MAX_ZOOM = 14
 
   // TODO: Move to a util class
   fun getMogSources(path: String) =

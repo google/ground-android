@@ -162,7 +162,9 @@ internal constructor(
   }
 
   private suspend fun updateDownloadSize(bounds: Bounds) {
+    Timber.d("Checking imagery availability for bounds: $bounds")
     if (!offlineAreaRepository.hasHiResImagery(bounds)) {
+      Timber.d("No hi-res imagery available for selected area")
       onUnavailableAreaSelected()
       return
     }
@@ -170,9 +172,12 @@ internal constructor(
       resources.getString(R.string.selected_offline_area_size, offlineAreaSizeLoadingSymbol)
     )
     val sizeInMb = offlineAreaRepository.estimateSizeOnDisk(bounds).toMb()
+    Timber.d("Estimated download size: ${sizeInMb}MB")
     if (sizeInMb > MAX_AREA_DOWNLOAD_SIZE_MB) {
+      Timber.d("Area too large: ${sizeInMb}MB > ${MAX_AREA_DOWNLOAD_SIZE_MB}MB")
       onLargeAreaSelected()
     } else {
+      Timber.d("Area downloadable: ${sizeInMb}MB, enabling download button")
       onDownloadableAreaSelected(sizeInMb)
     }
   }
