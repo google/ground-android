@@ -65,7 +65,6 @@ class CachingUpscalingTileProvider(
       override fun sizeOf(key: String, value: ByteArray) = value.size
     }
 
-  // Returning early helps prevent deep nesting and keeps the flow simple.
   override fun getTile(x: Int, y: Int, zoom: Int): Tile {
     val cacheKey = "$zoom/$x/$y"
     var result: Tile? = null

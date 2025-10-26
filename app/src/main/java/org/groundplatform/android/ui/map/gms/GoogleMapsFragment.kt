@@ -95,7 +95,6 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   override val supportedMapTypes: List<MapType> = IDS_BY_MAP_TYPE.keys.toList()
 
   private val tileOverlays = mutableListOf<TileOverlay>()
-  private var mogOverlay: TileOverlay? = null
 
   override val featureClicks = MutableSharedFlow<Set<Feature>>()
 
@@ -301,6 +300,8 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   }
 
   private fun addRemoteMogTileOverlay(url: String) {
+    // TODO: Make sub-paths configurable and stop hardcoding here.
+    // Issue URL: https://github.com/google/ground-android/issues/1730
     val mogCollection = MogCollection(Constants.getMogSources(url))
     val source = MogTileProvider(mogCollection, remoteStorageManager, ioDispatcher)
     val upscaled = CachingUpscalingTileProvider(source, DEFAULT_MOG_MAX_ZOOM)
@@ -324,8 +325,6 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
     tileOverlays.toImmutableList().forEach { it.remove() }
     tileOverlays.clear()
-    mogOverlay?.remove()
-    mogOverlay = null
   }
 
   override fun clear() {
