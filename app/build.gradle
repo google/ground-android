@@ -202,6 +202,7 @@ dependencies {
     // Jetpack Compose
     debugImplementation libs.androidx.ui.test.manifest
     debugImplementation libs.androidx.ui.tooling
+    implementation libs.androidx.material.icons
     implementation libs.androidx.material3.android
     implementation libs.androidx.runtime.livedata
     implementation libs.androidx.ui

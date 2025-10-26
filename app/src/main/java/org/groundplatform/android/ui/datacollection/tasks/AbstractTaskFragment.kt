@@ -28,6 +28,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.core.view.doOnAttach
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import kotlin.properties.Delegates
 import kotlinx.coroutines.launch
@@ -37,6 +38,7 @@ import org.groundplatform.android.model.submission.isNotNullOrEmpty
 import org.groundplatform.android.model.submission.isNullOrEmpty
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.common.AbstractFragment
+import org.groundplatform.android.ui.datacollection.DataCollectionUiState
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.LoiNameDialog
@@ -114,7 +116,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   override fun onResume() {
     super.onResume()
-    onTaskResume()
+    if (isViewModelInitialized) onTaskResume()
   }
 
   /** Creates the view for common task template with/without header. */
@@ -238,15 +240,16 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   private fun getTask(): Task = viewModel.task
 
-  fun getCurrentValue(): TaskData? = viewModel.taskTaskData.value
-
   private fun launchLoiNameDialog() {
     dataCollectionViewModel.loiNameDialogOpen.value = true
     renderComposableDialog {
+      val uiState by dataCollectionViewModel.uiState.collectAsStateWithLifecycle()
+      val loiName =
+        (uiState as? DataCollectionUiState.Ready)?.loiName
+          ?: dataCollectionViewModel.getTypedLoiNameOrEmpty()
+
       // The LOI NameDialog should call `handleLoiNameSet()` to continue to the next task.
-      ShowLoiNameDialog(dataCollectionViewModel.loiName.value ?: "") {
-        handleLoiNameSet(loiName = it)
-      }
+      ShowLoiNameDialog(loiName) { handleLoiNameSet(it) }
     }
   }
 

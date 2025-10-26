@@ -18,12 +18,12 @@ package org.groundplatform.android.data.sync
 
 import android.content.Context
 import android.util.Log
+import androidx.concurrent.futures.await
 import androidx.work.Configuration
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
-import androidx.work.await
 import androidx.work.testing.SynchronousExecutor
 import androidx.work.testing.TestDriver
 import androidx.work.testing.WorkManagerTestInitHelper
@@ -40,7 +40,6 @@ import org.groundplatform.android.FakeData.SURVEY
 import org.groundplatform.android.coroutines.IoDispatcher
 import org.groundplatform.android.usecases.survey.SyncSurveyUseCase
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -82,7 +81,6 @@ class SurveySyncServiceTest : BaseHiltTest() {
     testDriver = WorkManagerTestInitHelper.getTestDriver(context)!!
   }
 
-  @Ignore
   @Test
   fun `calls sync survey with id when constraints are met`() = runWithTestDispatcher {
     `when`(syncSurvey(SURVEY.id)).thenReturn(SURVEY)
@@ -97,6 +95,6 @@ class SurveySyncServiceTest : BaseHiltTest() {
     advanceUntilIdle()
 
     verify(syncSurvey).invoke(surveyId)
-    assertEquals(WorkInfo.State.SUCCEEDED, workManager.getWorkInfoById(requestId).await().state)
+    assertEquals(WorkInfo.State.SUCCEEDED, workManager.getWorkInfoById(requestId).await()?.state)
   }
 }
