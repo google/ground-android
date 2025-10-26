@@ -35,12 +35,17 @@ class ClippingTileProvider(
   private val pixelBounds = clipBounds.map { it.toPixelBounds(MAX_ZOOM) }
 
   override fun getTile(x: Int, y: Int, zoom: Int): Tile {
-    val tile = sourceTileProvider.getTile(x, y, zoom) ?: NO_TILE
-    val data = tile.data ?: return NO_TILE
+    val sourceTile = sourceTileProvider.getTile(x, y, zoom) ?: NO_TILE
+    if (sourceTile == NO_TILE) return sourceTile
+    // We assume if a tile is returned by the source provider that at least some pixels are within
+    // the clip bounds, so there's no need to optimize by checking before clipping.
+    return clipToBounds(TileCoordinates(x, y, zoom), sourceTile)
+  }
 
-    val tileCoords = TileCoordinates(x, y, zoom)
+  private fun clipToBounds(tileCoords: TileCoordinates, tile: Tile): Tile {
+    if (tile.data == null) return NO_TILE
     val output =
-      ImageEditor.setTransparentIf(data) { _, x, y ->
+      ImageEditor.setTransparentIf(tile.data!!) { _, x, y ->
         val pixelCoords = tileCoords.toPixelCoordinate(x, y)
         pixelBounds.none { it.contains(pixelCoords) }
       }
