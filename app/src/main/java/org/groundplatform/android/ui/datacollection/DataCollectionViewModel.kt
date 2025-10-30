@@ -143,6 +143,7 @@ internal constructor(
       val taskId = state.currentTaskId
       getTaskViewModel(taskId)?.let { vm ->
         taskDataHandler.setData(vm.task, vm.taskTaskData.value)
+        taskSequenceHandler.invalidateCache()
         savedStateHandle[TASK_POSITION_ID] = taskId
         saveDraft(taskId)
       }
@@ -209,6 +210,7 @@ internal constructor(
       val taskData = if (shouldLoadFromDraft) getValueFromDraft(state.job, task) else null
       created.initialize(state.job, task, taskData)
       taskDataHandler.setData(task, taskData)
+      taskSequenceHandler.invalidateCache()
       taskViewModels.value[task.id] = created
     }
     viewModel
