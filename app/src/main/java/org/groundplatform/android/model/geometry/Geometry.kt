@@ -164,9 +164,11 @@ data class LinearRing(val coordinates: List<Coordinates>) : Geometry {
 
 /**
  * Returns the center coordinates of the bounding box from the given list of coordinates.
+ * Returns Coordinates(0.0, 0.0) if the list is null or empty.
  *
  * Note: This might return an unexpected result for oddly shaped polygons. Check if this can be
  * replaced with a centroid. See (#1737) for more info.
  */
 private fun List<Coordinates>?.centerOrError(): Coordinates =
-  this?.map { Point(it) }?.toBounds()?.center() ?: error("missing vertices")
+  this?.takeIf { it.isNotEmpty() }?.map { Point(it) }?.toBounds()?.center()
+    ?: Coordinates(0.0, 0.0)
