@@ -109,15 +109,43 @@ internal object ValueJsonConverter {
         }
       }
       Task.Type.DROP_PIN -> {
-        DataStoreException.checkType(String::class.java, obj)
-        val geometry = GeometryWrapperTypeConverter.fromString(obj as String)?.getGeometry()
-        DataStoreException.checkNotNull(geometry, "Missing geometry in drop pin task result")
-        DataStoreException.checkType(Point::class.java, geometry!!)
-        DropPinTaskData(geometry as Point)
+        when (obj) {
+          is String -> {
+            // Legacy format: just the geometry
+            val geometry = GeometryWrapperTypeConverter.fromString(obj)?.getGeometry()
+            DataStoreException.checkNotNull(geometry, "Missing geometry in drop pin task result")
+            DataStoreException.checkType(Point::class.java, geometry!!)
+            DropPinTaskData(geometry as Point)
+          }
+
+          is JSONObject -> {
+            // New format: CaptureLocationTaskData with altitude and accuracy
+            obj.toCaptureLocationTaskData()
+          }
+
+          else -> throw DataStoreException("Invalid data type for DROP_PIN task: ${obj.javaClass.name}")
+        }
       }
       Task.Type.CAPTURE_LOCATION -> {
-        DataStoreException.checkType(JSONObject::class.java, obj)
-        (obj as JSONObject).toCaptureLocationTaskData()
+        when (obj) {
+          is JSONObject -> {
+            // Standard format: CaptureLocationTaskData
+            obj.toCaptureLocationTaskData()
+          }
+
+          is String -> {
+            // Legacy format: just the geometry (for backward compatibility)
+            val geometry = GeometryWrapperTypeConverter.fromString(obj)?.getGeometry()
+            DataStoreException.checkNotNull(
+              geometry,
+              "Missing geometry in capture location task result"
+            )
+            DataStoreException.checkType(Point::class.java, geometry!!)
+            DropPinTaskData(geometry as Point)
+          }
+
+          else -> throw DataStoreException("Invalid data type for CAPTURE_LOCATION task: ${obj.javaClass.name}")
+        }
       }
       Task.Type.INSTRUCTIONS -> {
         null

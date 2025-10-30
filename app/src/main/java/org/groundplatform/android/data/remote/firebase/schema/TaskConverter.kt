@@ -74,6 +74,16 @@ internal object TaskConverter {
         } else {
           null
         }
+
+      // For DROP_PIN tasks: allowMovingPoint controls whether user can pan map
+      // Default to true (can drop pin anywhere). This will be configurable via proto.
+      // For CAPTURE_LOCATION tasks: always set to false (GPS only)
+      val allowMovingPoint = when (taskType) {
+        Task.Type.CAPTURE_LOCATION -> false
+        Task.Type.DROP_PIN -> true // TODO: Read from proto when field is added
+        else -> true
+      }
+
       Task(
         id,
         index,
@@ -83,6 +93,7 @@ internal object TaskConverter {
         multipleChoice,
         task.level == DataCollectionLevel.LOI_METADATA,
         condition = condition,
+        allowMovingPoint = allowMovingPoint,
       )
     }
 }

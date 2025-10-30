@@ -33,6 +33,9 @@ constructor(
   val multipleChoice: MultipleChoice? = null,
   val isAddLoiTask: Boolean = false,
   val condition: Condition? = null,
+  /** Whether the user can pan/zoom the map to place a point anywhere (true),
+   * or can only capture their GPS location (false). Only applies to DROP_PIN tasks. */
+  val allowMovingPoint: Boolean = true,
 ) {
 
   // TODO: Define these in data layer!

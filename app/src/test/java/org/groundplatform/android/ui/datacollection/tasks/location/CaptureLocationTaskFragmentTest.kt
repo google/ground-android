@@ -23,6 +23,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import org.groundplatform.android.FlakyTest
 import org.groundplatform.android.R
+import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.model.job.Job
@@ -35,6 +36,9 @@ import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.tasks.BaseTaskFragmentTest
+import org.groundplatform.android.ui.datacollection.tasks.point.DropPinTaskFragment
+import org.groundplatform.android.ui.datacollection.tasks.point.DropPinTaskViewModel
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -45,12 +49,14 @@ import org.robolectric.RobolectricTestRunner
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class CaptureLocationTaskFragmentTest :
-  BaseTaskFragmentTest<CaptureLocationTaskFragment, CaptureLocationTaskViewModel>() {
+  BaseTaskFragmentTest<DropPinTaskFragment, DropPinTaskViewModel>() {
 
   @BindValue @Mock lateinit var locationManager: LocationManager
   @BindValue @Mock override lateinit var dataCollectionViewModel: DataCollectionViewModel
   @Inject lateinit var mapStateRepository: MapStateRepository
   @Inject override lateinit var viewModelFactory: ViewModelFactory
+  @Inject
+  lateinit var localValueStore: LocalValueStore
 
   private val task =
     Task(
@@ -59,12 +65,16 @@ class CaptureLocationTaskFragmentTest :
       type = Task.Type.CAPTURE_LOCATION,
       label = "Task for capturing current location",
       isRequired = false,
+      allowMovingPoint = false, // GPS-only mode
     )
   private val job = Job(id = "job1")
   private val lastLocationFlow = MutableSharedFlow<Location>(replay = 1)
 
+  @Before
   override fun setUp() {
     super.setUp()
+    // Disable the instructions dialog to prevent click jacking.
+    localValueStore.dropPinInstructionsShown = true
     // TODO: Add unit tests when card is hidden due to current button click
     // Issue URL: https://github.com/google/ground-android/issues/2952
     mapStateRepository.isLocationLockEnabled = true
@@ -73,7 +83,7 @@ class CaptureLocationTaskFragmentTest :
 
   @Test
   fun `displays task without header correctly`() {
-    setupTaskFragment<CaptureLocationTaskFragment>(job, task)
+    setupTaskFragment<DropPinTaskFragment>(job, task)
 
     hasTaskViewWithoutHeader(task.label)
   }
@@ -81,7 +91,7 @@ class CaptureLocationTaskFragmentTest :
   @Test
   @FlakyTest
   fun `drop pin`() = runWithTestDispatcher {
-    setupTaskFragment<CaptureLocationTaskFragment>(job, task)
+    setupTaskFragment<DropPinTaskFragment>(job, task)
     setupLocation()
 
     runner()
@@ -100,14 +110,14 @@ class CaptureLocationTaskFragmentTest :
 
   @Test
   fun `info card when no value`() {
-    setupTaskFragment<CaptureLocationTaskFragment>(job, task)
+    setupTaskFragment<DropPinTaskFragment>(job, task)
 
     runner().assertInfoCardHidden()
   }
 
   @Test
   fun `undo resets location data`() = runWithTestDispatcher {
-    setupTaskFragment<CaptureLocationTaskFragment>(job, task)
+    setupTaskFragment<DropPinTaskFragment>(job, task)
     setupLocation()
 
     runner()
@@ -127,7 +137,7 @@ class CaptureLocationTaskFragmentTest :
 
   @Test
   fun `displays correct action buttons`() {
-    setupTaskFragment<CaptureLocationTaskFragment>(job, task)
+    setupTaskFragment<DropPinTaskFragment>(job, task)
 
     assertFragmentHasButtons(
       ButtonAction.PREVIOUS,
@@ -140,7 +150,7 @@ class CaptureLocationTaskFragmentTest :
 
   @Test
   fun `action buttons when task is optional`() {
-    setupTaskFragment<CaptureLocationTaskFragment>(job, task.copy(isRequired = false))
+    setupTaskFragment<DropPinTaskFragment>(job, task.copy(isRequired = false))
 
     runner()
       .assertButtonIsHidden("Next")
@@ -151,7 +161,7 @@ class CaptureLocationTaskFragmentTest :
 
   @Test
   fun `action buttons when task is required`() {
-    setupTaskFragment<CaptureLocationTaskFragment>(job, task.copy(isRequired = true))
+    setupTaskFragment<DropPinTaskFragment>(job, task.copy(isRequired = true))
 
     runner()
       .assertButtonIsHidden("Next")
@@ -162,9 +172,9 @@ class CaptureLocationTaskFragmentTest :
 
   @Test
   fun `get map config`() {
-    setupTaskFragment<CaptureLocationTaskFragment>(job, task)
+    setupTaskFragment<DropPinTaskFragment>(job, task)
 
-    assertThat(fragment.captureLocationTaskMapFragmentProvider.get().getMapConfig())
+    assertThat(fragment.dropPinTaskMapFragmentProvider.get().getMapConfig())
       .isEqualTo(MapConfig(showOfflineImagery = true, allowGestures = false))
   }
 

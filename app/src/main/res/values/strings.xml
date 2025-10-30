@@ -83,6 +83,8 @@
   <string name="add_site">Add a site</string>
   <string name="job_site_icon">Job site icon</string>
   <string name="drop_a_pin_tooltip_text">Drag your map until the center pin is on the desired location</string>
+  <string name="add_point_tooltip_text">Location lock is enabled. Pan the map to place a point anywhere, or keep location lock on to use your current GPS location.</string>
+  <string name="capture_location_tooltip_text">Capturing your current GPS location. Make sure you have a clear view of the sky for best accuracy.</string>
   <string name="current_location">Current location:</string>
   <string name="loading">Loading…</string>
   <string name="no_tasks_error">This job has no more tasks to complete</string>
