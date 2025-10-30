@@ -55,8 +55,7 @@ class CaptureLocationTaskFragmentTest :
   @BindValue @Mock override lateinit var dataCollectionViewModel: DataCollectionViewModel
   @Inject lateinit var mapStateRepository: MapStateRepository
   @Inject override lateinit var viewModelFactory: ViewModelFactory
-  @Inject
-  lateinit var localValueStore: LocalValueStore
+  @Inject lateinit var localValueStore: LocalValueStore
 
   private val task =
     Task(

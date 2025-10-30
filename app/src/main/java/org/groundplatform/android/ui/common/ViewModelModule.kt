@@ -24,7 +24,6 @@ import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.IntoMap
 import org.groundplatform.android.ui.datacollection.tasks.date.DateTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.instruction.InstructionTaskViewModel
-import org.groundplatform.android.ui.datacollection.tasks.location.CaptureLocationTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.number.NumberTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.photo.PhotoTaskViewModel
@@ -137,11 +136,6 @@ abstract class ViewModelModule {
   @IntoMap
   @ViewModelKey(DropPinTaskViewModel::class)
   abstract fun bindDropPinTaskViewModel(viewModel: DropPinTaskViewModel): ViewModel
-
-  @Binds
-  @IntoMap
-  @ViewModelKey(CaptureLocationTaskViewModel::class)
-  abstract fun bindCaptureLocationTaskViewModel(viewModel: CaptureLocationTaskViewModel): ViewModel
 
   @Binds
   @IntoMap

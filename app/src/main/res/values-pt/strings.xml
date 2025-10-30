@@ -82,7 +82,6 @@
   <string name="drop_pin">Marcar ponto</string>
   <string name="add_site">Adicionar um site</string>
   <string name="job_site_icon">Ícone do site de tarefas</string>
-  <string name="drop_a_pin_tooltip_text">Arraste o mapa até que o ponto central esteja na localização desejada</string>
   <string name="current_location">Localização atual:</string>
   <string name="loading">Carregando…</string>
   <string name="no_tasks_error">Este trabalho não tem mais tarefas para concluir</string>

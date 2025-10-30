@@ -82,7 +82,6 @@
   <string name="drop_pin">Colocar marcador</string>
   <string name="add_site">Añadir un sitio</string>
   <string name="job_site_icon">Icono del sitio de tareas</string>
-  <string name="drop_a_pin_tooltip_text">Arrastre el mapa hasta que el marcador central esté en la ubicación deseada</string>
   <string name="current_location">Ubicación actual:</string>
   <string name="loading">Cargando…</string>
   <string name="no_tasks_error">Este trabajo no tiene más tareas por completar</string>

@@ -71,7 +71,6 @@
   <string name="drop_pin">Vẽ điểm</string>
   <string name="add_site">Thêm địa điểm</string>
   <string name="job_site_icon">Biểu tượng vị trí công việc</string>
-  <string name="drop_a_pin_tooltip_text">Kéo bản đồ cho đến khi ghim ở giữa nằm tại vị trí mong muốn</string>
   <string name="current_location">Vị trí hiện tại:</string>
   <string name="loading">Đang tải…</string>
   <string name="no_tasks_error">Công việc này không còn nhiệm vụ nào để hoàn thành</string>

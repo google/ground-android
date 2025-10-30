@@ -106,15 +106,12 @@ class DropPinTaskFragment @Inject constructor() : AbstractTaskFragment<DropPinTa
     renderComposableDialog {
       if (viewModel.task.allowMovingPoint) {
         // Show instructions for drop pin mode
-        InstructionsDialog(
-          iconId = R.drawable.swipe_24,
-          stringId = R.string.add_point_tooltip_text
-        )
+        InstructionsDialog(iconId = R.drawable.swipe_24, stringId = R.string.add_point_tooltip_text)
       } else {
-        // Show instructions for GPS capture mode  
+        // Show instructions for GPS capture mode
         InstructionsDialog(
           iconId = R.drawable.swipe_24,
-          stringId = R.string.capture_location_tooltip_text
+          stringId = R.string.capture_location_tooltip_text,
         )
       }
     }
