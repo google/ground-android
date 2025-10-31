@@ -48,8 +48,9 @@ class JobMapComposables {
     onOpen: () -> Unit,
     onDismiss: () -> Unit,
     onCollectData: (DataCollectionEntryPointData) -> Unit,
+    onDeleteSite: (SelectedLoiSheetData) -> Unit,
   ) {
-    InitializeJobCard(onCollectClicked = onCollectData)
+    InitializeJobCard(onCollectClicked = onCollectData, onDeleteClicked = onDeleteSite)
     InitializeAddLoiButton(onCollectData = onCollectData)
     InitializeJobSelectionModal(onOpen, onDismiss, onCollectData)
   }
@@ -129,7 +130,10 @@ class JobMapComposables {
   }
 
   @Composable
-  private fun InitializeJobCard(onCollectClicked: (SelectedLoiSheetData) -> Unit) {
+  private fun InitializeJobCard(
+    onCollectClicked: (SelectedLoiSheetData) -> Unit,
+    onDeleteClicked: (SelectedLoiSheetData) -> Unit,
+  ) {
     val loi by remember { loiJobCardDataState }
     val showJobCard by remember { showLoiJobCardState }
 
@@ -142,7 +146,9 @@ class JobMapComposables {
         loi = loiData.loi,
         canUserSubmitData = loiData.canCollectData,
         submissionCount = loiData.submissionCount,
+        canDelete = loiData.canDelete,
         onCollectClicked = { onCollectClicked(loiData) },
+        onDeleteClicked = { onDeleteClicked(loiData) },
         onDismiss = { closeJobCard() },
       )
     }

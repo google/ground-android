@@ -171,4 +171,28 @@ constructor(
     getValidLois(survey)
       .map { lois -> lois.filter { bounds.contains(it.geometry) } }
       .distinctUntilChanged()
+
+  /**
+   * Deletes a LOI by creating a DELETE mutation, applying it to the local db, and scheduling a task
+   * for remote sync. In free-form jobs, this will also delete associated submissions.
+   *
+   * @param loi The LocationOfInterest to delete
+   */
+  suspend fun deleteLoi(loi: LocationOfInterest) {
+    val user = userRepository.getAuthenticatedUser()
+    val mutation =
+      LocationOfInterestMutation(
+        jobId = loi.job.id,
+        type = Mutation.Type.DELETE,
+        syncStatus = SyncStatus.PENDING,
+        surveyId = loi.surveyId,
+        locationOfInterestId = loi.id,
+        userId = user.id,
+        geometry = loi.geometry,
+        properties = loi.properties,
+        isPredefined = loi.isPredefined,
+        collectionId = uuidGenerator.generateUuid(),
+      )
+    applyAndEnqueue(mutation)
+  }
 }
