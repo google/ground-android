@@ -75,9 +75,10 @@ constructor(
     val geometry =
       when (addLoiTask.type) {
         Task.Type.DROP_PIN -> {
-          when (addLoiTaskValue) {
-            is DropPinTaskData -> addLoiTaskValue.geometry
-            else -> error("Invalid AddLoi task data type: ${addLoiTaskValue?.javaClass}")
+          if (addLoiTaskValue is DropPinTaskData) {
+            addLoiTaskValue.geometry
+          } else {
+            error("Invalid AddLoi task data type: ${addLoiTaskValue?.javaClass}")
           }
         }
         Task.Type.CAPTURE_LOCATION -> {

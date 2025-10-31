@@ -106,7 +106,11 @@ internal object TaskConverter {
         !task.drawGeometry.requireDeviceLocation
       }
 
-      Task.Type.CAPTURE_LOCATION -> false // Legacy: always locked to device location
-      else -> true
+      Task.Type.CAPTURE_LOCATION -> {
+        false
+      } // Legacy: always locked to device location
+      else -> {
+        true
+      }
     }
 }
