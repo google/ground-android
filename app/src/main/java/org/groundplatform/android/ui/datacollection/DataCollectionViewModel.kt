@@ -142,8 +142,7 @@ internal constructor(
     withReadyOrNull { state ->
       val taskId = state.currentTaskId
       getTaskViewModel(taskId)?.let { vm ->
-        taskDataHandler.setData(vm.task, vm.taskTaskData.value)
-        invalidateCache()
+        updateDataAndInvalidateTasks(vm.task, vm.taskTaskData.value)
         savedStateHandle[TASK_POSITION_ID] = taskId
         saveDraft(taskId)
       }
@@ -158,8 +157,7 @@ internal constructor(
     validateOrShow(taskViewModel) {
       val task = taskViewModel.task
       val value = taskViewModel.taskTaskData.value
-      taskDataHandler.setData(task, value)
-      invalidateCache()
+      updateDataAndInvalidateTasks(task, value)
 
       if (!taskSequenceHandler.isLastPosition(task.id)) {
         moveToNextTask()
@@ -181,8 +179,7 @@ internal constructor(
     if (validationError != null) {
       popups.get().ErrorPopup().show(validationError)
     } else {
-      taskDataHandler.setData(task, taskValue)
-      invalidateCache()
+      updateDataAndInvalidateTasks(task, taskValue)
       moveToPreviousTask()
     }
   }
@@ -209,8 +206,7 @@ internal constructor(
     viewModel?.let { created ->
       val taskData = if (shouldLoadFromDraft) getValueFromDraft(state.job, task) else null
       created.initialize(state.job, task, taskData)
-      taskDataHandler.setData(task, taskData)
-      invalidateCache()
+      updateDataAndInvalidateTasks(task, taskData)
       taskViewModels.value[task.id] = created
     }
     viewModel
@@ -220,7 +216,10 @@ internal constructor(
 
   fun isReady(): Boolean = uiState.value is DataCollectionUiState.Ready
 
-  private fun invalidateCache() = taskSequenceHandler.invalidateCache()
+  private fun updateDataAndInvalidateTasks(task: Task, taskData: TaskData?) {
+    taskDataHandler.setData(task, taskData)
+    taskSequenceHandler.invalidateCache()
+  }
 
   private fun moveToNextTask() {
     moveToTask(withReady { taskSequenceHandler.getNextTask(it.currentTaskId) })
