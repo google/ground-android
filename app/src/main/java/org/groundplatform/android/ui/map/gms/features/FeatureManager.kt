@@ -115,13 +115,14 @@ constructor(
   /**
    * Adds a feature to the map, cluster, and to this class' internal index. Clusterable features are
    * initialized as hidden so that the clusterer can determine whether they should be shown based on
-   * zoom level.
+   * zoom level. Empty geometries are not added to the cluster manager to avoid errors when
+   * calculating cluster positions.
    */
   private fun add(feature: Feature) =
     with(feature) {
       features.add(this)
       featuresByTag[tag] = this
-      if (clusterable) clusterManager.addFeature(this)
+      if (clusterable && !geometry.isEmpty()) clusterManager.addFeature(this)
       mapsItemManager.put(this, visible = !clusterable)
     }
 
