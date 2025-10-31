@@ -84,9 +84,9 @@ class SyncStatusFragmentTest : BaseHiltTest() {
     setupFragment()
 
     composeTestRule.onNodeWithTag("sync list").assertIsDisplayed()
-    composeTestRule.onNodeWithText("Job • User").assertIsDisplayed() // User's display name
+    composeTestRule.onNodeWithText("Job • Test LOI Name").assertIsDisplayed()
     composeTestRule.onNodeWithText("Pending").assertIsDisplayed() // Status
-    composeTestRule.onNodeWithText("Test LOI Name").assertIsDisplayed() // Subtitle
+    composeTestRule.onNodeWithText("Test survey description").assertIsDisplayed() // Description
   }
 
   @Test
@@ -102,9 +102,8 @@ class SyncStatusFragmentTest : BaseHiltTest() {
     setupFragment()
 
     composeTestRule.onNodeWithTag("sync list").assertIsDisplayed()
-    composeTestRule.onNodeWithText("Job • User").assertIsDisplayed() // User's display name
+    composeTestRule.onNodeWithText("Job • Survey title").assertIsDisplayed()
     composeTestRule.onNodeWithText("Pending").assertIsDisplayed() // Status
-    composeTestRule.onNodeWithText("Survey title").assertIsDisplayed() // Subtitle
   }
 
   private fun setupSurvey() = runWithTestDispatcher {

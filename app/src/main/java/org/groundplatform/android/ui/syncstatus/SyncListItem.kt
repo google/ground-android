@@ -65,7 +65,7 @@ fun SyncListItem(modifier: Modifier, detail: SyncStatusDetail) {
         )
         Spacer(Modifier.height(4.dp))
         Text(
-          text = "${detail.label} • ${detail.user}",
+          text = "${detail.label} • ${detail.subtitle}",
           style =
             TextStyle(
               fontSize = 16.sp,
@@ -81,7 +81,7 @@ fun SyncListItem(modifier: Modifier, detail: SyncStatusDetail) {
             fontWeight = FontWeight(400),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
           )
-        Text(text = detail.subtitle, style = textStyle)
+        Text(text = detail.description, style = textStyle)
         Spacer(Modifier.height(4.dp))
         Text(text = stringResource(id = detail.status.toLabel()), fontSize = 11.sp)
       }
@@ -166,6 +166,7 @@ fun PreviewSyncListItem(
       label = "Map the farms",
       subtitle = "IDX21311",
       status = Mutation.SyncStatus.PENDING,
+      description = "Lacuna Fund Cocoa Mapping",
     )
 ) {
   AppTheme { SyncListItem(Modifier, detail) }
