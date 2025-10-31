@@ -74,6 +74,13 @@ internal object TaskConverter {
         } else {
           null
         }
+
+      // Determine if user can move the point or if it's locked to device location
+      val allowMovingPoint = getAllowMovingPoint(taskType, task)
+
+      // Determine if user can manually override location lock for draw area tasks
+      val allowManualOverride = getAllowManualOverride(taskType, task)
+
       Task(
         id,
         index,
@@ -83,6 +90,49 @@ internal object TaskConverter {
         multipleChoice,
         task.level == DataCollectionLevel.LOI_METADATA,
         condition = condition,
+        allowMovingPoint = allowMovingPoint,
+        allowManualOverride = allowManualOverride,
       )
+    }
+
+  /**
+   * Determines whether the user can pan/zoom the map to place a point anywhere.
+   * - For DROP_PIN tasks: Reads from DrawGeometry.requireDeviceLocation. When true, the point is
+   *   locked to device GPS location. When false, user can drop pin anywhere on map.
+   * - For CAPTURE_LOCATION tasks (legacy): Always locked to device location.
+   * - For other tasks: Defaults to true (allow moving).
+   */
+  private fun getAllowMovingPoint(taskType: Task.Type, task: TaskProto): Boolean =
+    when (taskType) {
+      Task.Type.DROP_PIN -> {
+        // When requireDeviceLocation is true, do NOT allow moving point (locked to GPS)
+        // When requireDeviceLocation is false or unset, allow moving point (can drop anywhere)
+        !task.drawGeometry.requireDeviceLocation
+      }
+
+      Task.Type.CAPTURE_LOCATION -> {
+        false
+      } // Legacy: always locked to device location
+      else -> {
+        true
+      }
+    }
+
+  /**
+   * Determines whether the user can manually override location lock by panning the map.
+   * - For DRAW_AREA tasks: Reads from DrawGeometry.allowManualOverride. When true (default), the
+   *   location lock starts enabled but can be disengaged by panning. When false, location lock
+   *   cannot be turned off and map gestures are disabled.
+   * - For other tasks: Defaults to true (not applicable).
+   */
+  private fun getAllowManualOverride(taskType: Task.Type, task: TaskProto): Boolean =
+    if (taskType == Task.Type.DRAW_AREA) {
+      // Read the allowManualOverride field from proto. Default to true if not set.
+      // TODO: Once the proto field is added, update this to read the actual value:
+      // task.drawGeometry.allowManualOverride
+      // For now, default to true for backward compatibility
+      true
+    } else {
+      true
     }
 }

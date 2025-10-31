@@ -109,15 +109,40 @@ internal object ValueJsonConverter {
         }
       }
       Task.Type.DROP_PIN -> {
-        DataStoreException.checkType(String::class.java, obj)
-        val geometry = GeometryWrapperTypeConverter.fromString(obj as String)?.getGeometry()
-        DataStoreException.checkNotNull(geometry, "Missing geometry in drop pin task result")
-        DataStoreException.checkType(Point::class.java, geometry!!)
-        DropPinTaskData(geometry as Point)
+        when (obj) {
+          is String -> {
+            val geometry = GeometryWrapperTypeConverter.fromString(obj)?.getGeometry()
+            DataStoreException.checkNotNull(geometry, "Missing geometry in drop pin task result")
+            DataStoreException.checkType(Point::class.java, geometry!!)
+            DropPinTaskData(geometry as Point)
+          }
+
+          is JSONObject -> {
+            obj.toCaptureLocationTaskData()
+          }
+          else -> {
+            invalidDataTypeError(task.type, obj)
+          }
+        }
       }
       Task.Type.CAPTURE_LOCATION -> {
-        DataStoreException.checkType(JSONObject::class.java, obj)
-        (obj as JSONObject).toCaptureLocationTaskData()
+        when (obj) {
+          is JSONObject -> {
+            obj.toCaptureLocationTaskData()
+          }
+          is String -> {
+            val geometry = GeometryWrapperTypeConverter.fromString(obj)?.getGeometry()
+            DataStoreException.checkNotNull(
+              geometry,
+              "Missing geometry in capture location task result",
+            )
+            DataStoreException.checkType(Point::class.java, geometry!!)
+            DropPinTaskData(geometry as Point)
+          }
+          else -> {
+            invalidDataTypeError(task.type, obj)
+          }
+        }
       }
       Task.Type.INSTRUCTIONS -> {
         null
@@ -126,6 +151,10 @@ internal object ValueJsonConverter {
         throw DataStoreException("Unknown type in task: " + obj.javaClass.name)
       }
     }
+  }
+
+  private fun invalidDataTypeError(taskType: Task.Type, obj: Any): Nothing {
+    throw DataStoreException("Invalid data type for $taskType task: ${obj.javaClass.name}")
   }
 
   private fun toList(jsonArray: JSONArray): List<String> {
