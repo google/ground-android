@@ -249,6 +249,27 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   }
 
   @Test
+  fun `Load tasks from draft with conditional task data shows conditional task`() =
+    runWithTestDispatcher {
+      // Create draft with data that fulfills the conditional task condition
+      val expectedDeltas =
+        listOf(TASK_1_VALUE_DELTA, TASK_2_CONDITIONAL_VALUE_DELTA, TASK_CONDITIONAL_VALUE_DELTA)
+
+      setupFragmentWithDraft(expectedDeltas)
+
+      // Verify first task is loaded with data
+      runner()
+        .assertInputTextDisplayed(TASK_1_RESPONSE)
+        .clickNextButton()
+        // Verify second task has the conditional option selected
+        .assertOptionsDisplayed(TASK_2_OPTION_CONDITIONAL_LABEL)
+        .clickNextButton()
+        // Verify conditional task is shown and has its data
+        .validateTextIsDisplayed(TASK_CONDITIONAL_NAME)
+        .assertInputTextDisplayed(TASK_CONDITIONAL_RESPONSE)
+    }
+
+  @Test
   fun `Clicking done on final task saves the submission`() = runWithTestDispatcher {
     setupFragment()
 
