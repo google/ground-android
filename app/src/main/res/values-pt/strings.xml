@@ -231,4 +231,9 @@
   <string name="select_length_summary">Selecione a sua unidade preferida</string>
   <string name="length_meters">Metros (m)</string>
   <string name="length_feet">Pés (ft)</string>
+
+  <string name="delete_site">Excluir site</string>
+  <string name="delete_site_dialog_title">Excluir site?</string>
+  <string name="delete_site_dialog_message">Este site e todos os dados associados serão excluídos permanentemente. Esta ação não pode ser desfeita.</string>
+  <string name="delete">Excluir</string>
 </resources>

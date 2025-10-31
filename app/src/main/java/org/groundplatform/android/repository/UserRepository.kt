@@ -99,4 +99,26 @@ constructor(
       false
     }
   }
+
+  /**
+   * Returns true if the currently logged in user can delete the given LOI. This is allowed if:
+   * - The user is a survey organizer, OR
+   * - The user created the LOI (data collector who created their own site)
+   */
+  suspend fun canDeleteLoi(creatorUserId: String): Boolean {
+    val user = getAuthenticatedUser()
+
+    // Check if user is the creator
+    if (user.id == creatorUserId) {
+      return true
+    }
+
+    // Check if user is a survey organizer
+    return try {
+      surveyRepository.activeSurvey?.getRole(user.email) == Role.SURVEY_ORGANIZER
+    } catch (e: IllegalStateException) {
+      Timber.e(e, "Error getting role for user $user")
+      false
+    }
+  }
 }

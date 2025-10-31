@@ -140,6 +140,11 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       }
   }
 
+  /** Invoked when user clicks delete on a site. */
+  private fun onDeleteSite(loiData: SelectedLoiSheetData) {
+    launchWhenStarted { mapContainerViewModel.deleteLoi(loiData.loi) }
+  }
+
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
@@ -168,7 +173,12 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     }
     binding.bottomContainer.addView(
       createComposeView {
-        jobMapComposables.Render(onOpen, onDismiss, onCollectData = { onCollectData(it) })
+        jobMapComposables.Render(
+          onOpen = onOpen,
+          onDismiss = onDismiss,
+          onCollectData = { onCollectData(it) },
+          onDeleteSite = { onDeleteSite(it) },
+        )
       }
     )
     binding.bottomContainer.bringToFront()

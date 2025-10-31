@@ -28,6 +28,7 @@ data class SelectedLoiSheetData(
   override val canCollectData: Boolean,
   val loi: LocationOfInterest,
   val submissionCount: Int,
+  val canDelete: Boolean = false,
 ) : DataCollectionEntryPointData
 
 data class AdHocDataCollectionButtonData(override val canCollectData: Boolean, val job: Job) :
