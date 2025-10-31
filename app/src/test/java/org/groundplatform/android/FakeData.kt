@@ -164,6 +164,7 @@ object FakeData {
     isAddLoiTask: Boolean = false,
     condition: Condition? = null,
     allowMovingPoint: Boolean = true,
+    allowManualOverride: Boolean = true,
   ): Task =
     Task(
       id = id,
@@ -175,6 +176,7 @@ object FakeData {
       isAddLoiTask = isAddLoiTask,
       condition = condition,
       allowMovingPoint = allowMovingPoint,
+      allowManualOverride = allowManualOverride,
     )
 
   fun newLoiMutation(

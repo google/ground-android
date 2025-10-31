@@ -27,19 +27,32 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import org.groundplatform.android.ui.common.MapConfig
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment
 import org.groundplatform.android.ui.map.Feature
+import org.groundplatform.android.ui.map.MapFragment
 import org.groundplatform.android.ui.map.gms.GmsExt.toBounds
 
 @AndroidEntryPoint
 class DrawAreaTaskMapFragment @Inject constructor() :
   AbstractTaskMapFragment<DrawAreaTaskViewModel>() {
 
+  override fun getMapConfig(): MapConfig {
+    // If allowManualOverride is false, disable gestures (location lock enforced)
+    val allowGestures = !taskViewModel.isLocationLockEnforced()
+    return super.getMapConfig().copy(allowGestures = allowGestures)
+  }
+
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
 
     viewLifecycleOwner.lifecycleScope.launch {
       viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        // Initialize location updates for location lock if enforced
+        if (taskViewModel.isLocationLockEnforced()) {
+          launch { taskViewModel.initLocationUpdates(getMapViewModel()) }
+        }
+
         launch {
           combine(taskViewModel.isMarkedComplete, taskViewModel.isTooClose) { isComplete, tooClose
               ->
@@ -59,6 +72,18 @@ class DrawAreaTaskMapFragment @Inject constructor() :
         }
 
         launch { taskViewModel.draftUpdates.collect { map.updateFeature(it) } }
+      }
+    }
+  }
+
+  override fun onMapReady(map: MapFragment) {
+    super.onMapReady(map)
+
+    viewLifecycleOwner.lifecycleScope.launch {
+      taskViewModel.isMarkedComplete.collect { isComplete ->
+        if (isComplete) {
+          map.disableGestures()
+        }
       }
     }
   }

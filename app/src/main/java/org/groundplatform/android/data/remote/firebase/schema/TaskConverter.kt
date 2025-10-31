@@ -78,6 +78,9 @@ internal object TaskConverter {
       // Determine if user can move the point or if it's locked to device location
       val allowMovingPoint = getAllowMovingPoint(taskType, task)
 
+      // Determine if user can manually override location lock for draw area tasks
+      val allowManualOverride = getAllowManualOverride(taskType, task)
+
       Task(
         id,
         index,
@@ -88,6 +91,7 @@ internal object TaskConverter {
         task.level == DataCollectionLevel.LOI_METADATA,
         condition = condition,
         allowMovingPoint = allowMovingPoint,
+        allowManualOverride = allowManualOverride,
       )
     }
 
@@ -112,5 +116,23 @@ internal object TaskConverter {
       else -> {
         true
       }
+    }
+
+  /**
+   * Determines whether the user can manually override location lock by panning the map.
+   * - For DRAW_AREA tasks: Reads from DrawGeometry.allowManualOverride. When true (default), the
+   *   location lock starts enabled but can be disengaged by panning. When false, location lock
+   *   cannot be turned off and map gestures are disabled.
+   * - For other tasks: Defaults to true (not applicable).
+   */
+  private fun getAllowManualOverride(taskType: Task.Type, task: TaskProto): Boolean =
+    if (taskType == Task.Type.DRAW_AREA) {
+      // Read the allowManualOverride field from proto. Default to true if not set.
+      // TODO: Once the proto field is added, update this to read the actual value:
+      // task.drawGeometry.allowManualOverride
+      // For now, default to true for backward compatibility
+      true
+    } else {
+      true
     }
 }
