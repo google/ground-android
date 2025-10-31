@@ -77,7 +77,6 @@ constructor(
         Task.Type.DROP_PIN -> {
           when (addLoiTaskValue) {
             is DropPinTaskData -> addLoiTaskValue.geometry
-            is CaptureLocationTaskData -> addLoiTaskValue.location
             else -> error("Invalid AddLoi task data type: ${addLoiTaskValue?.javaClass}")
           }
         }

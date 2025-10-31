@@ -75,15 +75,8 @@ internal object TaskConverter {
           null
         }
 
-      // For DROP_PIN tasks: allowMovingPoint controls whether user can pan map
-      // Default to true (can drop pin anywhere). This will be configurable via proto.
-      // For CAPTURE_LOCATION tasks: always set to false (GPS only)
-      val allowMovingPoint =
-        when (taskType) {
-          Task.Type.CAPTURE_LOCATION -> false
-          Task.Type.DROP_PIN -> true // TODO: Read from proto when field is added
-          else -> true
-        }
+      // Determine if user can move the point or if it's locked to device location
+      val allowMovingPoint = getAllowMovingPoint(taskType, task)
 
       Task(
         id,
@@ -96,5 +89,24 @@ internal object TaskConverter {
         condition = condition,
         allowMovingPoint = allowMovingPoint,
       )
+    }
+
+  /**
+   * Determines whether the user can pan/zoom the map to place a point anywhere.
+   * - For DROP_PIN tasks: Reads from DrawGeometry.requireDeviceLocation. When true, the point is
+   *   locked to device GPS location. When false, user can drop pin anywhere on map.
+   * - For CAPTURE_LOCATION tasks (legacy): Always locked to device location.
+   * - For other tasks: Defaults to true (allow moving).
+   */
+  private fun getAllowMovingPoint(taskType: Task.Type, task: TaskProto): Boolean =
+    when (taskType) {
+      Task.Type.DROP_PIN -> {
+        // When requireDeviceLocation is true, do NOT allow moving point (locked to GPS)
+        // When requireDeviceLocation is false or unset, allow moving point (can drop anywhere)
+        !task.drawGeometry.requireDeviceLocation
+      }
+
+      Task.Type.CAPTURE_LOCATION -> false // Legacy: always locked to device location
+      else -> true
     }
 }
