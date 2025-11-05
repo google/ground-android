@@ -68,7 +68,7 @@ fun LoiJobSheet(
   loi: LocationOfInterest,
   canUserSubmitData: Boolean,
   submissionCount: Int,
-  canDelete: Boolean = false,
+  showDeleteLoiButton: Boolean = false,
   onCollectClicked: () -> Unit,
   onDeleteClicked: (() -> Unit)? = null,
   onDismiss: () -> Unit,
@@ -82,7 +82,7 @@ fun LoiJobSheet(
     containerColor = MaterialTheme.colorScheme.surface,
     dragHandle = { BottomSheetDefaults.DragHandle(width = 32.dp) },
   ) {
-    ModalContents(loi, canUserSubmitData, submissionCount, canDelete, onDeleteClicked) {
+    ModalContents(loi, canUserSubmitData, submissionCount, showDeleteLoiButton, onDeleteClicked) {
       scope.launch { sheetState.hide() }.invokeOnCompletion { onCollectClicked() }
     }
   }
@@ -93,7 +93,7 @@ private fun ModalContents(
   loi: LocationOfInterest,
   canUserSubmitData: Boolean,
   submissionCount: Int,
-  canDelete: Boolean,
+  showDeleteLoiButton: Boolean,
   onDeleteClicked: (() -> Unit)?,
   onCollectClicked: () -> Unit,
 ) {
@@ -111,7 +111,7 @@ private fun ModalContents(
       onCollectClicked = onCollectClicked,
     )
     DeleteSiteSection(
-      canDelete = canDelete,
+      showDeleteLoiButton = showDeleteLoiButton,
       isPredefined = loi.isPredefined == true,
       onClick = { showDeleteDialog.value = true },
     )
@@ -185,8 +185,12 @@ private fun SubmissionRow(
 }
 
 @Composable
-private fun DeleteSiteSection(canDelete: Boolean, isPredefined: Boolean, onClick: () -> Unit) {
-  if (canDelete && !isPredefined) {
+private fun DeleteSiteSection(
+  showDeleteLoiButton: Boolean,
+  isPredefined: Boolean,
+  onClick: () -> Unit,
+) {
+  if (showDeleteLoiButton && !isPredefined) {
     Spacer(modifier = Modifier.size(16.dp))
     OutlinedButton(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
       Text(stringResource(R.string.delete_site))
@@ -235,7 +239,7 @@ fun PreviewModalContentsWhenJobHasNoTasks() {
       loi = loi,
       canUserSubmitData = true,
       submissionCount = 0,
-      canDelete = false,
+      showDeleteLoiButton = false,
       onDeleteClicked = null,
     ) {}
   }
@@ -277,7 +281,7 @@ fun PreviewModalContentsWhenUserCannotSubmitData() {
       loi = loi,
       canUserSubmitData = false,
       submissionCount = 1,
-      canDelete = false,
+      showDeleteLoiButton = false,
       onDeleteClicked = null,
     ) {}
   }
@@ -321,7 +325,7 @@ fun PreviewModalContentsWhenJobHasTasks() {
       loi = loi,
       canUserSubmitData = true,
       submissionCount = 20,
-      canDelete = false,
+      showDeleteLoiButton = false,
       onDeleteClicked = null,
     ) {}
   }
@@ -365,7 +369,7 @@ fun PreviewModalContentsWhenJobHasTasksAndIsPredefined() {
       loi = loi,
       canUserSubmitData = true,
       submissionCount = 20,
-      canDelete = false,
+      showDeleteLoiButton = false,
       onDeleteClicked = null,
     ) {}
   }

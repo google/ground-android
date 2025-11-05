@@ -110,20 +110,14 @@ constructor(
     if (loi.isPredefined == true) return false
 
     val user = getAuthenticatedUser()
-    if (user.id == loi.created.user.id) {
-      return true
-    }
+    val ownerId = loi.created.user.id
+    if (ownerId == user.id) return true
 
     // Check if user is a survey organizer
-    return try {
-      if (loi.surveyId == surveyRepository.activeSurvey?.id) {
-        surveyRepository.activeSurvey?.getRole(user.email) == Role.SURVEY_ORGANIZER
-      } else {
-        false
-      }
-    } catch (e: IllegalStateException) {
-      Timber.e(e, "Error getting role for user $user")
-      false
-    }
+    val isOrganizer =
+      runCatching { surveyRepository.activeSurvey?.getRole(user.email) == Role.SURVEY_ORGANIZER }
+        .getOrElse { false }
+
+    return isOrganizer
   }
 }

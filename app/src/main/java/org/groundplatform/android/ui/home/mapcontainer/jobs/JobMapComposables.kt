@@ -146,7 +146,7 @@ class JobMapComposables {
         loi = loiData.loi,
         canUserSubmitData = loiData.canCollectData,
         submissionCount = loiData.submissionCount,
-        canDelete = loiData.showDeleteLoiButton,
+        showDeleteLoiButton = loiData.showDeleteLoiButton,
         onCollectClicked = { onCollectClicked(loiData) },
         onDeleteClicked = { onDeleteClicked(loiData) },
         onDismiss = { closeJobCard() },
