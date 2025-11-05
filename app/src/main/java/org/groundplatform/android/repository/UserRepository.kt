@@ -22,6 +22,7 @@ import org.groundplatform.android.data.local.stores.LocalUserStore
 import org.groundplatform.android.data.remote.RemoteDataStore
 import org.groundplatform.android.model.Role
 import org.groundplatform.android.model.User
+import org.groundplatform.android.model.locationofinterest.LocationOfInterest
 import org.groundplatform.android.proto.Survey
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.auth.AuthenticationManager
@@ -105,17 +106,21 @@ constructor(
    * - The user is a survey organizer, OR
    * - The user created the LOI (data collector who created their own site)
    */
-  suspend fun canDeleteLoi(creatorUserId: String): Boolean {
-    val user = getAuthenticatedUser()
+  suspend fun canDeleteLoi(loi: LocationOfInterest): Boolean {
+    if (loi.isPredefined == true) return false
 
-    // Check if user is the creator
-    if (user.id == creatorUserId) {
+    val user = getAuthenticatedUser()
+    if (user.id == loi.created.user.id) {
       return true
     }
 
     // Check if user is a survey organizer
     return try {
-      surveyRepository.activeSurvey?.getRole(user.email) == Role.SURVEY_ORGANIZER
+      if (loi.surveyId == surveyRepository.activeSurvey?.id) {
+        surveyRepository.activeSurvey?.getRole(user.email) == Role.SURVEY_ORGANIZER
+      } else {
+        false
+      }
     } catch (e: IllegalStateException) {
       Timber.e(e, "Error getting role for user $user")
       false

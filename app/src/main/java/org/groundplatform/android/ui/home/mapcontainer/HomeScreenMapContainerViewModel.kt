@@ -190,13 +190,12 @@ internal constructor(
         loisInView
           .firstOrNull { it.geometry == feature?.geometry }
           ?.let { loi ->
-            val canDelete =
-              loi.isPredefined == false && userRepository.canDeleteLoi(loi.created.user.id)
+            val canDelete = userRepository.canDeleteLoi(loi)
             SelectedLoiSheetData(
               canCollectData = canUserSubmitData,
               loi = loi,
               submissionCount = submissionRepository.getTotalSubmissionCount(loi),
-              canDelete = canDelete,
+              showDeleteLoiButton = canDelete,
             )
           }
       if (loiCard == null && feature != null) {
@@ -240,7 +239,6 @@ internal constructor(
    */
   suspend fun deleteLoi(loi: LocationOfInterest) {
     loiRepository.deleteLoi(loi)
-    // Clear the selected feature after deletion
     selectLocationOfInterest(null)
   }
 

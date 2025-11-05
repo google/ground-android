@@ -180,19 +180,8 @@ constructor(
    */
   suspend fun deleteLoi(loi: LocationOfInterest) {
     val user = userRepository.getAuthenticatedUser()
-    val mutation =
-      LocationOfInterestMutation(
-        jobId = loi.job.id,
-        type = Mutation.Type.DELETE,
-        syncStatus = SyncStatus.PENDING,
-        surveyId = loi.surveyId,
-        locationOfInterestId = loi.id,
-        userId = user.id,
-        geometry = loi.geometry,
-        properties = loi.properties,
-        isPredefined = loi.isPredefined,
-        collectionId = uuidGenerator.generateUuid(),
-      )
+
+    val mutation = loi.toMutation(Mutation.Type.DELETE, user.id)
     applyAndEnqueue(mutation)
   }
 }
