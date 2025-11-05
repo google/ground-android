@@ -72,7 +72,7 @@ class LoiJobSheetTest : BaseHiltTest() {
 
   @Test
   fun `delete button is shown for free-form LOIs when user can delete`() {
-    setContent(FREE_FORM_LOI, canDelete = true)
+    setContent(FREE_FORM_LOI, showDeleteLoiButton = true)
 
     composeTestRule
       .onNodeWithText(composeTestRule.activity.getString(R.string.delete_site))
@@ -81,7 +81,7 @@ class LoiJobSheetTest : BaseHiltTest() {
 
   @Test
   fun `delete button is not shown for predefined LOIs`() {
-    setContent(TASK_AND_PREDEFINED_LOI, canDelete = true)
+    setContent(TASK_AND_PREDEFINED_LOI, showDeleteLoiButton = true)
 
     composeTestRule
       .onNodeWithText(composeTestRule.activity.getString(R.string.delete_site))
@@ -90,20 +90,20 @@ class LoiJobSheetTest : BaseHiltTest() {
 
   @Test
   fun `delete button is not shown when user cannot delete`() {
-    setContent(FREE_FORM_LOI, canDelete = false)
+    setContent(FREE_FORM_LOI, showDeleteLoiButton = false)
 
     composeTestRule
       .onNodeWithText(composeTestRule.activity.getString(R.string.delete_site))
       .assertIsNotDisplayed()
   }
 
-  private fun setContent(loi: LocationOfInterest, canDelete: Boolean = false) {
+  private fun setContent(loi: LocationOfInterest, showDeleteLoiButton: Boolean = false) {
     composeTestRule.setContent {
       LoiJobSheet(
         loi = loi,
         canUserSubmitData = true,
         submissionCount = 0,
-        canDelete = canDelete,
+        showDeleteLoiButton = showDeleteLoiButton,
         onCollectClicked = {},
       ) {}
     }
