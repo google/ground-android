@@ -85,7 +85,7 @@ class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
     viewModel.onFeatureClicked(features = setOf(LOCATION_OF_INTEREST_FEATURE))
     val pair = viewModel.processDataCollectionEntryPoints().first()
     assertThat(pair.first)
-      .isEqualTo(SelectedLoiSheetData(canCollectData = true, LOCATION_OF_INTEREST, 0))
+      .isEqualTo(SelectedLoiSheetData(canCollectData = true, LOCATION_OF_INTEREST, 0, true))
     assertThat(pair.second)
       .isEqualTo(listOf(AdHocDataCollectionButtonData(canCollectData = true, ADHOC_JOB)))
   }
