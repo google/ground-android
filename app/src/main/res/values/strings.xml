@@ -229,4 +229,9 @@
   <string name="select_length_summary">Select your preferred unit</string>
   <string name="length_meters">Meters (m)</string>
   <string name="length_feet">Feet (ft)</string>
+
+  <string name="delete_site">Delete site</string>
+  <string name="delete_site_dialog_title">Delete site?</string>
+  <string name="delete_site_dialog_message">This site and all associated data will be permanently deleted. This action cannot be undone.</string>
+  <string name="delete">Delete</string>
 </resources>

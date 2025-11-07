@@ -70,12 +70,40 @@ class LoiJobSheetTest : BaseHiltTest() {
       .assertIsNotDisplayed()
   }
 
-  private fun setContent(loi: LocationOfInterest) {
+  @Test
+  fun `delete button is shown for free-form LOIs when user can delete`() {
+    setContent(FREE_FORM_LOI, showDeleteLoiButton = true)
+
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.delete_site))
+      .assertIsDisplayed()
+  }
+
+  @Test
+  fun `delete button is not shown for predefined LOIs`() {
+    setContent(TASK_AND_PREDEFINED_LOI, showDeleteLoiButton = true)
+
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.delete_site))
+      .assertIsNotDisplayed()
+  }
+
+  @Test
+  fun `delete button is not shown when user cannot delete`() {
+    setContent(FREE_FORM_LOI, showDeleteLoiButton = false)
+
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.delete_site))
+      .assertIsNotDisplayed()
+  }
+
+  private fun setContent(loi: LocationOfInterest, showDeleteLoiButton: Boolean = false) {
     composeTestRule.setContent {
       LoiJobSheet(
         loi = loi,
         canUserSubmitData = true,
         submissionCount = 0,
+        showDeleteLoiButton = showDeleteLoiButton,
         onCollectClicked = {},
       ) {}
     }
@@ -146,6 +174,35 @@ class LoiJobSheetTest : BaseHiltTest() {
         created = AuditInfo(USER),
         lastModified = AuditInfo(USER),
         geometry = Point(coordinates = Coordinates(lat = 20.0, lng = 20.0)),
+      )
+
+    private val FREE_FORM_LOI =
+      LocationOfInterest(
+        id = FakeData.LOI_ID,
+        surveyId = FakeData.SURVEY_ID,
+        job =
+          Job(
+            id = FakeData.JOB_ID,
+            style = Style(color = "#4169E1"),
+            name = "Job name",
+            tasks =
+              mapOf(
+                Pair(
+                  FakeData.TASK_ID,
+                  Task(
+                    id = FakeData.TASK_ID,
+                    index = 1,
+                    type = Task.Type.TEXT,
+                    label = "task",
+                    isRequired = false,
+                  ),
+                )
+              ),
+          ),
+        created = AuditInfo(USER),
+        lastModified = AuditInfo(USER),
+        geometry = Point(coordinates = Coordinates(lat = 20.0, lng = 20.0)),
+        isPredefined = false,
       )
   }
 }

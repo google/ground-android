@@ -202,4 +202,9 @@
   <string name="select_length_summary">Chọn đơn vị ưa thích của bạn</string>
   <string name="length_meters">Mét (m)</string>
   <string name="length_feet">Bàn chân (ft)</string>
+
+  <string name="delete_site">Xóa địa điểm</string>
+  <string name="delete_site_dialog_title">Xóa địa điểm?</string>
+  <string name="delete_site_dialog_message">Địa điểm này và tất cả dữ liệu liên quan sẽ bị xóa vĩnh viễn. Không thể hoàn tác hành động này.</string>
+  <string name="delete">Xóa</string>
 </resources>

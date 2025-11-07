@@ -189,11 +189,13 @@ internal constructor(
       val loiCard =
         loisInView
           .firstOrNull { it.geometry == feature?.geometry }
-          ?.let {
+          ?.let { loi ->
+            val canDelete = userRepository.canDeleteLoi(loi)
             SelectedLoiSheetData(
               canCollectData = canUserSubmitData,
-              loi = it,
-              submissionCount = submissionRepository.getTotalSubmissionCount(it),
+              loi = loi,
+              submissionCount = submissionRepository.getTotalSubmissionCount(loi),
+              showDeleteLoiButton = canDelete,
             )
           }
       if (loiCard == null && feature != null) {
@@ -230,6 +232,14 @@ internal constructor(
   fun grantDataSharingConsent() {
     val survey = requireNotNull(surveyRepository.activeSurvey)
     localValueStore.setDataSharingConsent(survey.id, true)
+  }
+
+  /**
+   * Deletes the given LOI and all associated data. This should only be called for free-form jobs.
+   */
+  suspend fun deleteLoi(loi: LocationOfInterest) {
+    loiRepository.deleteLoi(loi)
+    selectLocationOfInterest(null)
   }
 
   private fun getLocationOfInterestFeatures(survey: Survey): Flow<Set<Feature>> =
