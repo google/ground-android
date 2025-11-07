@@ -129,6 +129,7 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
     locationOfInterestMutationDao.getMutations(id, *states)
 
   override suspend fun insertOrUpdate(loi: LocationOfInterest) {
+    require(loi.geometry.isValid()) { "Cannot save LOI with invalid geometry" }
     locationOfInterestDao.insertOrUpdate(loi.toLocalDataStoreObject())
   }
 
