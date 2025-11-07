@@ -32,8 +32,6 @@ import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.android.model.Role
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.geometry.Geometry
-import org.groundplatform.android.model.geometry.MultiPolygon
-import org.groundplatform.android.model.geometry.Polygon
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.locationofinterest.LocationOfInterest
 import org.groundplatform.android.model.locationofinterest.generateProperties
@@ -171,12 +169,7 @@ constructor(
       // Filter out LOIs with invalid/empty geometries to prevent crashes
       lois
         .filter { loi ->
-          val isValid =
-            when (val geometry = loi.geometry) {
-              is Polygon -> geometry.shell.coordinates.isNotEmpty()
-              is MultiPolygon -> geometry.polygons.all { it.shell.coordinates.isNotEmpty() }
-              else -> true // Point, LineString, LinearRing are always valid if they exist
-            }
+          val isValid = loi.geometry.isValid()
           if (!isValid) {
             Timber.w("Filtering out LOI ${loi.id} with empty coordinates: $loi")
           }
