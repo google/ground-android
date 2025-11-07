@@ -230,4 +230,9 @@
   <string name="select_length_summary">Seleccione su unidad preferida</string>
   <string name="length_meters">Metros (m)</string>
   <string name="length_feet">Pies (pies)</string>
+
+  <string name="delete_site">Eliminar sitio</string>
+  <string name="delete_site_dialog_title">¿Eliminar sitio?</string>
+  <string name="delete_site_dialog_message">Este sitio y todos los datos asociados se eliminarán permanentemente. Esta acción no se puede deshacer.</string>
+  <string name="delete">Eliminar</string>
 </resources>

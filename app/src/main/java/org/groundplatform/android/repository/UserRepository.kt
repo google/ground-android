@@ -22,6 +22,7 @@ import org.groundplatform.android.data.local.stores.LocalUserStore
 import org.groundplatform.android.data.remote.RemoteDataStore
 import org.groundplatform.android.model.Role
 import org.groundplatform.android.model.User
+import org.groundplatform.android.model.locationofinterest.LocationOfInterest
 import org.groundplatform.android.proto.Survey
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.auth.AuthenticationManager
@@ -98,5 +99,25 @@ constructor(
       Timber.e(e, "Error getting role for user $user")
       false
     }
+  }
+
+  /**
+   * Returns true if the currently logged in user can delete the given LOI. This is allowed if:
+   * - The user is a survey organizer, OR
+   * - The user created the LOI (data collector who created their own site)
+   */
+  suspend fun canDeleteLoi(loi: LocationOfInterest): Boolean {
+    if (loi.isPredefined == true) return false
+
+    val user = getAuthenticatedUser()
+    val ownerId = loi.created.user.id
+    if (ownerId == user.id) return true
+
+    // Check if user is a survey organizer
+    val isOrganizer =
+      runCatching { surveyRepository.activeSurvey?.getRole(user.email) == Role.SURVEY_ORGANIZER }
+        .getOrElse { false }
+
+    return isOrganizer
   }
 }

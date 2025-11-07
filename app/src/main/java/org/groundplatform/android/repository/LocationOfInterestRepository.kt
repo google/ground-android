@@ -29,6 +29,7 @@ import org.groundplatform.android.data.local.stores.LocalSurveyStore
 import org.groundplatform.android.data.remote.RemoteDataStore
 import org.groundplatform.android.data.sync.MutationSyncWorkManager
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
+import org.groundplatform.android.model.Role
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.geometry.Geometry
 import org.groundplatform.android.model.job.Job
@@ -171,4 +172,40 @@ constructor(
     getValidLois(survey)
       .map { lois -> lois.filter { bounds.contains(it.geometry) } }
       .distinctUntilChanged()
+
+  /**
+   * Deletes a LOI by creating a DELETE mutation, applying it to the local db, and scheduling a task
+   * for remote sync. In free-form jobs, this will also delete associated submissions.
+   *
+   * @param loi The LocationOfInterest to delete
+   * @throws IllegalStateException if the LOI is predefined or the user doesn't have permission to
+   *   delete it
+   */
+  suspend fun deleteLoi(loi: LocationOfInterest) {
+    if (loi.isPredefined == true) {
+      error("Cannot delete predefined LOI: ${loi.id}")
+    }
+
+    val user = userRepository.getAuthenticatedUser()
+    val ownerId = loi.created.user.id
+    val isOwner = ownerId == user.id
+
+    val survey = localSurveyStore.getSurveyById(loi.surveyId)
+    val isOrganizer =
+      survey?.let {
+        runCatching { it.getRole(user.email) }
+          .getOrNull()
+          ?.let { role -> role == Role.SURVEY_ORGANIZER } ?: false
+      } ?: false
+
+    if (!isOwner && !isOrganizer) {
+      error(
+        "User ${user.id} does not have permission to delete LOI ${loi.id}. " +
+          "User must be the owner or a survey organizer."
+      )
+    }
+
+    val mutation = loi.toMutation(Mutation.Type.DELETE, user.id)
+    applyAndEnqueue(mutation)
+  }
 }
