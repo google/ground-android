@@ -81,6 +81,7 @@ internal constructor(
             status = status,
             label = locationOfInterestHelper.getJobName(loi) ?: "",
             subtitle = locationOfInterestHelper.getDisplayLoiName(loi),
+            description = surveyRepository.getOfflineSurvey(mutation.surveyId)?.description ?: "",
           )
         }
       }
@@ -92,6 +93,7 @@ internal constructor(
           status = status,
           label = mutation.job.name ?: "",
           subtitle = surveyRepository.getOfflineSurvey(mutation.surveyId)?.title ?: "",
+          description = surveyRepository.getOfflineSurvey(mutation.surveyId)?.description ?: "",
         )
       }
     }
