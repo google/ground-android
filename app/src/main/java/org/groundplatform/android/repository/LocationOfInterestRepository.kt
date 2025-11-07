@@ -32,6 +32,8 @@ import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.android.model.Role
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.geometry.Geometry
+import org.groundplatform.android.model.geometry.MultiPolygon
+import org.groundplatform.android.model.geometry.Polygon
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.locationofinterest.LocationOfInterest
 import org.groundplatform.android.model.locationofinterest.generateProperties
@@ -165,7 +167,23 @@ constructor(
 
   /** Returns a flow of all valid (not deleted) [LocationOfInterest] in the given [Survey]. */
   fun getValidLois(survey: Survey): Flow<Set<LocationOfInterest>> =
-    localLoiStore.getValidLois(survey)
+    localLoiStore.getValidLois(survey).map { lois ->
+      // Filter out LOIs with invalid/empty geometries to prevent crashes
+      lois
+        .filter { loi ->
+          val isValid =
+            when (val geometry = loi.geometry) {
+              is Polygon -> geometry.shell.coordinates.isNotEmpty()
+              is MultiPolygon -> geometry.polygons.all { it.shell.coordinates.isNotEmpty() }
+              else -> true // Point, LineString, LinearRing are always valid if they exist
+            }
+          if (!isValid) {
+            Timber.w("Filtering out LOI ${loi.id} with empty coordinates: $loi")
+          }
+          isValid
+        }
+        .toSet()
+    }
 
   /** Returns a flow of all [LocationOfInterest] within the map bounds (viewport). */
   fun getWithinBounds(survey: Survey, bounds: Bounds): Flow<List<LocationOfInterest>> =

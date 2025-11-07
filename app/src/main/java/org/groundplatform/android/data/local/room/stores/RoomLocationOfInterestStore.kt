@@ -53,26 +53,9 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
     locationOfInterestDao.countByDeletionState(surveyId, EntityDeletionState.DEFAULT)
 
   override fun getValidLois(survey: Survey): Flow<Set<LocationOfInterest>> =
-    locationOfInterestDao
-      .getByDeletionState(survey.id, EntityDeletionState.DEFAULT)
-      .map { toLocationsOfInterest(survey, it) }
-      .map { lois ->
-        // Filter out LOIs with invalid/empty geometries to prevent crashes
-        lois
-          .filter { loi ->
-            val isValid =
-              when (val geometry = loi.geometry) {
-                is Polygon -> geometry.shell.coordinates.isNotEmpty()
-                is MultiPolygon -> geometry.polygons.all { it.shell.coordinates.isNotEmpty() }
-                else -> true // Point, LineString, LinearRing are always valid if they exist
-              }
-            if (!isValid) {
-              Timber.w("Filtering out LOI ${loi.id} with empty coordinates: $loi")
-            }
-            isValid
-          }
-          .toSet()
-      }
+    locationOfInterestDao.getByDeletionState(survey.id, EntityDeletionState.DEFAULT).map {
+      toLocationsOfInterest(survey, it)
+    }
 
   override suspend fun getLocationOfInterest(
     survey: Survey,

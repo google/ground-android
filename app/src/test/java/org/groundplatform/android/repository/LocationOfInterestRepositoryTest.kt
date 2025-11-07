@@ -26,6 +26,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
+import org.groundplatform.android.data.local.room.converter.toLocalDataStoreObject
+import org.groundplatform.android.data.local.room.dao.LocationOfInterestDao
 import org.groundplatform.android.data.local.stores.LocalLocationOfInterestStore
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.data.sync.MutationSyncWorkManager
@@ -58,6 +60,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
   @Inject lateinit var locationOfInterestRepository: LocationOfInterestRepository
   @Inject lateinit var localLoiStore: LocalLocationOfInterestStore
+  @Inject lateinit var locationOfInterestDao: LocationOfInterestDao
   @Inject lateinit var mutationRepository: MutationRepository
   @Inject lateinit var userRepository: UserRepository
   @Inject lateinit var activateSurvey: ActivateSurveyUseCase
@@ -236,6 +239,32 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
 
       assertThat(actual).isEqualTo(expected)
     }
+
+  @Test
+  fun `getValidLois filters out LOIs with empty polygon coordinates`() = runWithTestDispatcher {
+    // Insert a valid LOI
+    locationOfInterestRepository.applyAndEnqueue(
+      LOCATION_OF_INTEREST.toMutation(CREATE, TEST_USER.id)
+    )
+
+    // Directly insert an invalid LOI with empty coordinates (bypassing validation)
+    val invalidLoi =
+      FakeData.LOCATION_OF_INTEREST.copy(
+        id = "invalid-loi-id",
+        geometry = Polygon(LinearRing(emptyList())),
+        surveyId = TEST_SURVEY.id,
+      )
+    // Use DAO directly to bypass validation
+    locationOfInterestDao.insert(invalidLoi.toLocalDataStoreObject())
+
+    // Verify that repository filters out the invalid LOI
+    locationOfInterestRepository.getValidLois(TEST_SURVEY).test {
+      val lois = expectMostRecentItem()
+      // Should only contain the valid LOI, not the invalid one
+      assertThat(lois.size).isEqualTo(1)
+      assertThat(lois.first().id).isEqualTo(LOCATION_OF_INTEREST.id)
+    }
+  }
 
   companion object {
     private val COORDINATE_1 = Coordinates(-20.0, -20.0)

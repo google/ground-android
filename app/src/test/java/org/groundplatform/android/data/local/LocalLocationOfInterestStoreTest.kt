@@ -228,31 +228,32 @@ class LocalLocationOfInterestStoreTest : BaseHiltTest() {
   }
 
   @Test
-  fun `getValidLois filters out LOIs with empty polygon coordinates`() = runWithTestDispatcher {
-    localUserStore.insertOrUpdateUser(TEST_USER)
-    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
+  fun `getValidLois returns all LOIs including those with empty polygon coordinates`() =
+    runWithTestDispatcher {
+      localUserStore.insertOrUpdateUser(TEST_USER)
+      localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
 
-    // Insert a valid LOI
-    localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION)
+      // Insert a valid LOI
+      localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION)
 
-    // Directly insert an invalid LOI with empty coordinates (bypassing validation)
-    val invalidLoi =
-      FakeData.LOCATION_OF_INTEREST.copy(
-        id = "invalid-loi-id",
-        geometry = Polygon(LinearRing(emptyList())),
-        surveyId = TEST_SURVEY.id,
-        job = TEST_JOB,
-      )
-    // Use DAO directly to bypass validation
-    locationOfInterestDao.insert(invalidLoi.toLocalDataStoreObject())
+      // Directly insert an invalid LOI with empty coordinates (bypassing validation)
+      val invalidLoi =
+        FakeData.LOCATION_OF_INTEREST.copy(
+          id = "invalid-loi-id",
+          geometry = Polygon(LinearRing(emptyList())),
+          surveyId = TEST_SURVEY.id,
+          job = TEST_JOB,
+        )
+      // Use DAO directly to bypass validation
+      locationOfInterestDao.insert(invalidLoi.toLocalDataStoreObject())
 
-    // Verify that only the valid LOI is returned
-    localLoiStore.getValidLois(TEST_SURVEY).test {
-      val lois = expectMostRecentItem()
-      assertThat(lois.size).isEqualTo(1)
-      assertThat(lois.first().id).isEqualTo(FakeData.LOI_ID)
+      // Verify that both LOIs are returned (store doesn't filter, repository does)
+      localLoiStore.getValidLois(TEST_SURVEY).test {
+        val lois = expectMostRecentItem()
+        assertThat(lois.size).isEqualTo(2)
+        assertThat(lois.map { it.id }).containsExactly(FakeData.LOI_ID, "invalid-loi-id")
+      }
     }
-  }
 
   @Test
   fun `insertOrUpdate throws exception when attempting to save LOI with empty polygon coordinates`() =
