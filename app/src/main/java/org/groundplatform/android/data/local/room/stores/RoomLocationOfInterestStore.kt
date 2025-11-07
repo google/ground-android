@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("UNUSED_IMPORT", "UNRESOLVED_REFERENCE")
+
 package org.groundplatform.android.data.local.room.stores
 
 import javax.inject.Inject
@@ -31,9 +33,12 @@ import org.groundplatform.android.data.local.room.fields.EntityDeletionState
 import org.groundplatform.android.data.local.room.fields.MutationEntitySyncStatus
 import org.groundplatform.android.data.local.stores.LocalLocationOfInterestStore
 import org.groundplatform.android.model.Survey
+import org.groundplatform.android.model.geometry.MultiPolygon
+import org.groundplatform.android.model.geometry.Polygon
 import org.groundplatform.android.model.locationofinterest.LocationOfInterest
 import org.groundplatform.android.model.mutation.LocationOfInterestMutation
 import org.groundplatform.android.model.mutation.Mutation
+import org.groundplatform.android.proto.geometry
 import org.groundplatform.android.util.Debug.logOnFailure
 import timber.log.Timber
 
@@ -48,9 +53,26 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
     locationOfInterestDao.countByDeletionState(surveyId, EntityDeletionState.DEFAULT)
 
   override fun getValidLois(survey: Survey): Flow<Set<LocationOfInterest>> =
-    locationOfInterestDao.getByDeletionState(survey.id, EntityDeletionState.DEFAULT).map {
-      toLocationsOfInterest(survey, it)
-    }
+    locationOfInterestDao
+      .getByDeletionState(survey.id, EntityDeletionState.DEFAULT)
+      .map { toLocationsOfInterest(survey, it) }
+      .map { lois ->
+        // Filter out LOIs with invalid/empty geometries to prevent crashes
+        lois
+          .filter { loi ->
+            val isValid =
+              when (val geometry = loi.geometry) {
+                is Polygon -> geometry.shell.coordinates.isNotEmpty()
+                is MultiPolygon -> geometry.polygons.all { it.shell.coordinates.isNotEmpty() }
+                else -> true // Point, LineString, LinearRing are always valid if they exist
+              }
+            if (!isValid) {
+              Timber.w("Filtering out LOI ${loi.id} with empty coordinates: $loi")
+            }
+            isValid
+          }
+          .toSet()
+      }
 
   override suspend fun getLocationOfInterest(
     survey: Survey,
@@ -61,6 +83,25 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
   // TODO: Apply pending local mutations before saving.
   // Issue URL: https://github.com/google/ground-android/issues/706
   override suspend fun merge(model: LocationOfInterest) {
+    // Validate geometry before saving to detect root cause of empty coordinates
+    when (val geometry = model.geometry) {
+      is Polygon -> {
+        require(geometry.shell.coordinates.isNotEmpty()) {
+          "Attempted to merge LOI ${model.id} with empty Polygon coordinates. " + "LOI: $model"
+        }
+      }
+
+      is MultiPolygon -> {
+        require(geometry.polygons.all { it.shell.coordinates.isNotEmpty() }) {
+          "Attempted to merge LOI ${model.id} with empty MultiPolygon coordinates. " + "LOI: $model"
+        }
+      }
+
+      else -> {
+        // Point, LineString, LinearRing don't need empty coordinate validation
+      }
+    }
+
     locationOfInterestDao.insertOrUpdate(model.toLocalDataStoreObject())
   }
 
@@ -71,6 +112,26 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
     when (mutation.type) {
       Mutation.Type.CREATE,
       Mutation.Type.UPDATE -> {
+        // Validate geometry before saving to detect root cause of empty coordinates
+        when (val geometry = mutation.geometry) {
+          is Polygon -> {
+            require(geometry.shell.coordinates.isNotEmpty()) {
+              "Attempted to apply mutation with empty Polygon coordinates. " + "Mutation: $mutation"
+            }
+          }
+
+          is MultiPolygon -> {
+            require(geometry.polygons.all { it.shell.coordinates.isNotEmpty() }) {
+              "Attempted to apply mutation with empty MultiPolygon coordinates. " +
+                "Mutation: $mutation"
+            }
+          }
+
+          else -> {
+            // Point, LineString, LinearRing, or null don't need empty coordinate validation
+          }
+        }
+
         val user = userStore.getUser(mutation.userId)
         val entity = mutation.toLocalDataStoreObject(user)
         locationOfInterestDao.insertOrUpdate(entity)
@@ -126,8 +187,26 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
   ): List<LocationOfInterestMutationEntity> =
     locationOfInterestMutationDao.getMutations(id, *states)
 
-  override suspend fun insertOrUpdate(loi: LocationOfInterest) =
+  override suspend fun insertOrUpdate(loi: LocationOfInterest) {
+    // Validate geometry before saving to detect root cause of empty coordinates
+    when (val geometry = loi.geometry) {
+      is Polygon -> {
+        require(geometry.shell.coordinates.isNotEmpty()) {
+          "Attempted to save LOI ${loi.id} with empty Polygon coordinates. " + "LOI: $loi"
+        }
+      }
+      is MultiPolygon -> {
+        require(geometry.polygons.all { it.shell.coordinates.isNotEmpty() }) {
+          "Attempted to save LOI ${loi.id} with empty MultiPolygon coordinates. " + "LOI: $loi"
+        }
+      }
+      else -> {
+        // Point, LineString, LinearRing don't need empty coordinate validation
+      }
+    }
+
     locationOfInterestDao.insertOrUpdate(loi.toLocalDataStoreObject())
+  }
 
   override suspend fun deleteNotIn(surveyId: String, ids: List<String>) =
     locationOfInterestDao.deleteNotIn(surveyId, ids)

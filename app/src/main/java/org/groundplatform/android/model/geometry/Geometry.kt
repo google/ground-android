@@ -81,7 +81,7 @@ data class MultiPolygon(val polygons: List<Polygon>) : Geometry {
   override val area: Double
     get() = polygons.sumOf { it.area }
 
-  override fun center(): Coordinates = polygons.map { it.center() }.centerOrError()
+  override fun center(): Coordinates = polygons.map { it.center() }.centerOrDefault()
 
   override fun isEmpty() = polygons.all { it.isEmpty() }
 }
@@ -93,7 +93,7 @@ data class LineString(val coordinates: List<Coordinates>) : Geometry {
   override val area: Double
     get() = 0.0
 
-  override fun center(): Coordinates = coordinates.centerOrError()
+  override fun center(): Coordinates = coordinates.centerOrDefault()
 
   override fun isEmpty() = coordinates.isEmpty()
 
@@ -118,7 +118,7 @@ data class LinearRing(val coordinates: List<Coordinates>) : Geometry {
     validate()
   }
 
-  override fun center(): Coordinates = coordinates.centerOrError()
+  override fun center(): Coordinates = coordinates.centerOrDefault()
 
   override fun isEmpty() = coordinates.isEmpty()
 
@@ -164,10 +164,10 @@ data class LinearRing(val coordinates: List<Coordinates>) : Geometry {
 
 /**
  * Returns the center coordinates of the bounding box from the given list of coordinates. Returns
- * Coordinates(0.0, 0.0) if the list is null or empty.
+ * Coordinates(0.0, 0.0) as a default value if the list is null or empty.
  *
  * Note: This might return an unexpected result for oddly shaped polygons. Check if this can be
  * replaced with a centroid. See (#1737) for more info.
  */
-private fun List<Coordinates>?.centerOrError(): Coordinates =
+private fun List<Coordinates>?.centerOrDefault(): Coordinates =
   this?.takeIf { it.isNotEmpty() }?.map { Point(it) }?.toBounds()?.center() ?: Coordinates(0.0, 0.0)
