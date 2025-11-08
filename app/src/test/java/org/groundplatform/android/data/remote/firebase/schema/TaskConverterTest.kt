@@ -214,14 +214,15 @@ class TaskConverterTest(
       isLoiTask: Boolean = false,
       allowMovingPoint: Boolean = true,
       allowManualOverride: Boolean = true,
-    ) = arrayOf(
-      testLabel,
-      protoBuilderLambda,
-      taskType,
-      multipleChoice,
-      isLoiTask,
-      allowMovingPoint,
-      allowManualOverride
-    )
+    ) =
+      arrayOf(
+        testLabel,
+        protoBuilderLambda,
+        taskType,
+        multipleChoice,
+        isLoiTask,
+        allowMovingPoint,
+        allowManualOverride,
+      )
   }
 }

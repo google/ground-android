@@ -175,7 +175,8 @@ class CaptureLocationTaskFragmentTest :
     setupTaskFragment<DropPinTaskFragment>(job, task)
 
     val mapFragment =
-      fragment.childFragmentManager.findFragmentByTag("Drop a pin fragment") as DropPinTaskMapFragment
+      fragment.childFragmentManager.findFragmentByTag("Drop a pin fragment")
+        as DropPinTaskMapFragment
     assertThat(mapFragment.getMapConfig())
       .isEqualTo(MapConfig(showOfflineImagery = true, allowGestures = false))
   }

@@ -102,6 +102,7 @@ internal object TaskConverter {
    * - For CAPTURE_LOCATION tasks (legacy): Always locked to device location.
    * - For other tasks: Defaults to true (allow moving).
    */
+  @Suppress("UnusedParameter")
   private fun getAllowMovingPoint(taskType: Task.Type, task: TaskProto): Boolean =
     when (taskType) {
       Task.Type.DROP_PIN -> {
