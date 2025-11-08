@@ -41,6 +41,8 @@ class TaskConverterTest(
   private val taskType: Type,
   private val multipleChoice: MultipleChoice?,
   private val isLoiTask: Boolean,
+  private val allowMovingPoint: Boolean,
+  private val allowManualOverride: Boolean,
 ) {
 
   @Test
@@ -59,11 +61,15 @@ class TaskConverterTest(
           isRequired = true,
           multipleChoice = multipleChoice,
           isAddLoiTask = isLoiTask,
+          allowMovingPoint = allowMovingPoint,
+          allowManualOverride = allowManualOverride,
         )
       )
   }
 
   companion object {
+    private const val TASK_ID = "task_1"
+
     @Suppress("LongMethod")
     @JvmStatic
     @Parameterized.Parameters(name = "{0}")
@@ -75,6 +81,8 @@ class TaskConverterTest(
             taskBuilder.setTextQuestion(textQuestion { type = Task.TextQuestion.Type.SHORT_TEXT })
           },
           taskType = Type.TEXT,
+          allowMovingPoint = true,
+          allowManualOverride = true,
         ),
         testCase(
           testLabel = "number",
@@ -82,6 +90,8 @@ class TaskConverterTest(
             taskBuilder.setNumberQuestion(numberQuestion { type = Task.NumberQuestion.Type.FLOAT })
           },
           taskType = Type.NUMBER,
+          allowMovingPoint = true,
+          allowManualOverride = true,
         ),
         testCase(
           testLabel = "date",
@@ -91,6 +101,8 @@ class TaskConverterTest(
             )
           },
           taskType = Type.DATE,
+          allowMovingPoint = true,
+          allowManualOverride = true,
         ),
         testCase(
           testLabel = "time",
@@ -100,6 +112,8 @@ class TaskConverterTest(
             )
           },
           taskType = Type.TIME,
+          allowMovingPoint = true,
+          allowManualOverride = true,
         ),
         // Defaults to date when set to BOTH_DATE_AND_TIME
         testCase(
@@ -110,6 +124,8 @@ class TaskConverterTest(
             )
           },
           taskType = Type.DATE,
+          allowMovingPoint = true,
+          allowManualOverride = true,
         ),
         testCase(
           testLabel = "multiple_choice",
@@ -125,6 +141,8 @@ class TaskConverterTest(
               cardinality = MultipleChoice.Cardinality.SELECT_ONE,
               hasOtherOption = false,
             ),
+          allowMovingPoint = true,
+          allowManualOverride = true,
         ),
         testCase(
           testLabel = "draw_area",
@@ -135,6 +153,8 @@ class TaskConverterTest(
           },
           taskType = Type.DRAW_AREA,
           isLoiTask = true,
+          allowMovingPoint = true,
+          allowManualOverride = true,
         ),
         testCase(
           testLabel = "drop_pin",
@@ -145,6 +165,8 @@ class TaskConverterTest(
           },
           taskType = Type.DROP_PIN,
           isLoiTask = true,
+          allowMovingPoint = true,
+          allowManualOverride = true,
         ),
         testCase(
           testLabel = "capture_location",
@@ -155,6 +177,8 @@ class TaskConverterTest(
           },
           taskType = Type.CAPTURE_LOCATION,
           isLoiTask = true,
+          allowMovingPoint = false,
+          allowManualOverride = true,
         ),
         testCase(
           testLabel = "photo",
@@ -167,6 +191,8 @@ class TaskConverterTest(
             )
           },
           taskType = Type.PHOTO,
+          allowMovingPoint = true,
+          allowManualOverride = true,
         ),
         testCase(
           testLabel = "instructions",
@@ -174,6 +200,8 @@ class TaskConverterTest(
             taskBuilder.setInstructions(taskBuilder.instructions)
           },
           taskType = Type.INSTRUCTIONS,
+          allowMovingPoint = true,
+          allowManualOverride = true,
         ),
       )
 
@@ -184,6 +212,16 @@ class TaskConverterTest(
       taskType: Type,
       multipleChoice: MultipleChoice? = null,
       isLoiTask: Boolean = false,
-    ) = arrayOf(testLabel, protoBuilderLambda, taskType, multipleChoice, isLoiTask)
+      allowMovingPoint: Boolean = true,
+      allowManualOverride: Boolean = true,
+    ) = arrayOf(
+      testLabel,
+      protoBuilderLambda,
+      taskType,
+      multipleChoice,
+      isLoiTask,
+      allowMovingPoint,
+      allowManualOverride
+    )
   }
 }

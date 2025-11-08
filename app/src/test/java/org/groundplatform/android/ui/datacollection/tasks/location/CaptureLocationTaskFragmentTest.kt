@@ -37,6 +37,7 @@ import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.tasks.BaseTaskFragmentTest
 import org.groundplatform.android.ui.datacollection.tasks.point.DropPinTaskFragment
+import org.groundplatform.android.ui.datacollection.tasks.point.DropPinTaskMapFragment
 import org.groundplatform.android.ui.datacollection.tasks.point.DropPinTaskViewModel
 import org.junit.Before
 import org.junit.Test
@@ -173,7 +174,9 @@ class CaptureLocationTaskFragmentTest :
   fun `get map config`() {
     setupTaskFragment<DropPinTaskFragment>(job, task)
 
-    assertThat(fragment.dropPinTaskMapFragmentProvider.get().getMapConfig())
+    val mapFragment =
+      fragment.childFragmentManager.findFragmentByTag("Drop a pin fragment") as DropPinTaskMapFragment
+    assertThat(mapFragment.getMapConfig())
       .isEqualTo(MapConfig(showOfflineImagery = true, allowGestures = false))
   }
 

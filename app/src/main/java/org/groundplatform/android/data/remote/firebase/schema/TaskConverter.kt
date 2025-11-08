@@ -105,9 +105,10 @@ internal object TaskConverter {
   private fun getAllowMovingPoint(taskType: Task.Type, task: TaskProto): Boolean =
     when (taskType) {
       Task.Type.DROP_PIN -> {
-        // When requireDeviceLocation is true, do NOT allow moving point (locked to GPS)
-        // When requireDeviceLocation is false or unset, allow moving point (can drop anywhere)
-        !task.drawGeometry.requireDeviceLocation
+        // TODO: Once the proto field is added, update this to read the actual value:
+        // !task.drawGeometry.requireDeviceLocation
+        // For now, default to true (allow moving point) for backward compatibility
+        true
       }
 
       Task.Type.CAPTURE_LOCATION -> {

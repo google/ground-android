@@ -53,6 +53,6 @@ class SubmitDataUseCaseTest : BaseHiltTest() {
         }
       }
 
-    assertThat(exception.message).isEqualTo("Invalid AddLoi task")
+    assertThat(exception.message).isEqualTo("Invalid AddLoi task type: TEXT")
   }
 }
