@@ -125,6 +125,7 @@ internal object TaskConverter {
    *   cannot be turned off and map gestures are disabled.
    * - For other tasks: Defaults to true (not applicable).
    */
+  @Suppress("UnusedParameter")
   private fun getAllowManualOverride(taskType: Task.Type, task: TaskProto): Boolean =
     if (taskType == Task.Type.DRAW_AREA) {
       // Read the allowManualOverride field from proto. Default to true if not set.
