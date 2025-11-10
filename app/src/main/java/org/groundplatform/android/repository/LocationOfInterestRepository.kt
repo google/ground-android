@@ -220,7 +220,7 @@ constructor(
       // Filter out LOIs with invalid/empty geometries to prevent crashes
       lois
         .filter { loi ->
-          val isValid = loi.geometry.isValid()
+          val isValid = !loi.geometry.isEmpty()
           if (!isValid) {
             Timber.w("Filtering out LOI ${loi.id} with empty coordinates: $loi")
           }

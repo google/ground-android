@@ -41,9 +41,6 @@ sealed interface Geometry {
   fun validate() {
     // default no-op implementation
   }
-
-  /** Returns true if the geometry is valid and has non-empty coordinates. */
-  fun isValid(): Boolean = true
 }
 
 /**
@@ -62,8 +59,6 @@ data class Polygon(val shell: LinearRing, val holes: List<LinearRing> = listOf()
 
   override fun isEmpty() = shell.isEmpty()
 
-  override fun isValid(): Boolean = shell.coordinates.isNotEmpty()
-
   fun getShellCoordinates() = shell.coordinates
 }
 
@@ -77,8 +72,6 @@ data class Point(val coordinates: Coordinates) : Geometry {
   override fun center(): Coordinates = coordinates
 
   override fun isEmpty() = false
-
-  override fun isValid(): Boolean = true
 }
 
 /** A collection of [Polygon]s. */
@@ -91,8 +84,6 @@ data class MultiPolygon(val polygons: List<Polygon>) : Geometry {
   override fun center(): Coordinates = polygons.map { it.center() }.centerOrDefault()
 
   override fun isEmpty() = polygons.all { it.isEmpty() }
-
-  override fun isValid(): Boolean = polygons.all { it.shell.coordinates.isNotEmpty() }
 }
 
 /** A sequence of two or more vertices modelling an OCG style line string. */
@@ -105,8 +96,6 @@ data class LineString(val coordinates: List<Coordinates>) : Geometry {
   override fun center(): Coordinates = coordinates.centerOrDefault()
 
   override fun isEmpty() = coordinates.isEmpty()
-
-  override fun isValid(): Boolean = coordinates.isNotEmpty()
 
   fun isClosed(): Boolean = isClosed(coordinates)
 
@@ -132,8 +121,6 @@ data class LinearRing(val coordinates: List<Coordinates>) : Geometry {
   override fun center(): Coordinates = coordinates.centerOrDefault()
 
   override fun isEmpty() = coordinates.isEmpty()
-
-  override fun isValid(): Boolean = coordinates.isNotEmpty()
 
   override fun validate() {
     // TODO: Check for vertices count > 3
