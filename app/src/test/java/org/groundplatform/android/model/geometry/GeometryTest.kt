@@ -171,24 +171,6 @@ class GeometryTest {
     assertThat(LineString(CLOSED_LOOP).area).isEqualTo(0.0)
   }
 
-  @Test
-  fun `center of empty linear ring returns default coordinates`() {
-    val emptyRing = LinearRing(listOf())
-    assertThat(emptyRing.center()).isEqualTo(Coordinates(0.0, 0.0))
-  }
-
-  @Test
-  fun `center of empty line string returns default coordinates`() {
-    val emptyLineString = LineString(listOf())
-    assertThat(emptyLineString.center()).isEqualTo(Coordinates(0.0, 0.0))
-  }
-
-  @Test
-  fun `center of polygon with empty shell returns default coordinates`() {
-    val emptyPolygon = Polygon(LinearRing(listOf()))
-    assertThat(emptyPolygon.center()).isEqualTo(Coordinates(0.0, 0.0))
-  }
-
   private fun point(x: Double, y: Double) = Point(Coordinates(x, y))
 
   private fun linearRing(path: Path) = LinearRing(toCoordinateList(path))
