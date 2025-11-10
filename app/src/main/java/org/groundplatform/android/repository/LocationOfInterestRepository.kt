@@ -32,8 +32,6 @@ import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.android.model.Role
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.geometry.Geometry
-import org.groundplatform.android.model.geometry.MultiPolygon
-import org.groundplatform.android.model.geometry.Polygon
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.locationofinterest.LocationOfInterest
 import org.groundplatform.android.model.locationofinterest.generateProperties
@@ -112,24 +110,10 @@ constructor(
    * IllegalArgumentException if the geometry has empty coordinates.
    */
   private suspend fun validateAndInsertOrUpdate(loi: LocationOfInterest) {
-    // Validate geometry before saving to detect root cause of empty coordinates
-    when (val geometry = loi.geometry) {
-      is Polygon -> {
-        require(geometry.shell.coordinates.isNotEmpty()) {
-          "Attempted to save LOI ${loi.id} with empty Polygon coordinates. LOI: $loi"
-        }
-      }
-
-      is MultiPolygon -> {
-        require(geometry.polygons.all { it.shell.coordinates.isNotEmpty() }) {
-          "Attempted to save LOI ${loi.id} with empty MultiPolygon coordinates. LOI: $loi"
-        }
-      }
-
-      else -> {
-        // Point, LineString, LinearRing don't need empty coordinate validation
-      }
+    require(!loi.geometry.isEmpty()) {
+      "Attempted to save LOI ${loi.id} with empty geometry. LOI: $loi"
     }
+
     localLoiStore.insertOrUpdate(loi)
   }
 
@@ -181,26 +165,28 @@ constructor(
    * @return If successful, returns the provided locations of interest wrapped as `Loadable`
    */
   suspend fun applyAndEnqueue(mutation: LocationOfInterestMutation) {
-    // Validate geometry for CREATE and UPDATE mutations before applying
-    if (mutation.type == Mutation.Type.CREATE || mutation.type == Mutation.Type.UPDATE) {
-      mutation.geometry?.let { geometry ->
-        when (geometry) {
-          is Polygon -> {
-            require(geometry.shell.coordinates.isNotEmpty()) {
-              "Attempted to apply mutation with empty Polygon coordinates. Mutation: $mutation"
-            }
+    when (mutation.type) {
+      Mutation.Type.CREATE -> {
+        val geometry =
+          requireNotNull(mutation.geometry) {
+            "CREATE mutation requires geometry. Mutation: $mutation"
           }
+        require(!geometry.isEmpty()) {
+          "Attempted to apply CREATE with empty ${geometry::class.simpleName} geometry. Mutation: $mutation"
+        }
+      }
 
-          is MultiPolygon -> {
-            require(geometry.polygons.all { it.shell.coordinates.isNotEmpty() }) {
-              "Attempted to apply mutation with empty MultiPolygon coordinates. Mutation: $mutation"
-            }
-          }
-
-          else -> {
-            // Point, LineString, LinearRing don't need empty coordinate validation
+      Mutation.Type.UPDATE -> {
+        // Partial updates may omit geometry. If present, it must be non-empty.
+        mutation.geometry?.let { g ->
+          require(!g.isEmpty()) {
+            "Attempted to apply UPDATE with empty ${g::class.simpleName} geometry. Mutation: $mutation"
           }
         }
+      }
+
+      else -> {
+        // DELETE / others — no geometry validation needed
       }
     }
 
