@@ -100,9 +100,21 @@ constructor(
     pendingLois: List<String>,
   ) {
     // Insert new or update existing LOIs in local db.
-    lois.forEach { localLoiStore.insertOrUpdate(it) }
+    lois.forEach { validateAndInsertOrUpdate(it) }
     // Delete LOIs in local db not returned in latest list from server, skipping pending mutations.
     localLoiStore.deleteNotIn(surveyId, lois.map { it.id } + pendingLois)
+  }
+
+  /**
+   * Validates LOI geometry before inserting or updating it in the local store. Throws
+   * IllegalArgumentException if the geometry has empty coordinates.
+   */
+  private suspend fun validateAndInsertOrUpdate(loi: LocationOfInterest) {
+    require(!loi.geometry.isEmpty()) {
+      "Attempted to save LOI ${loi.id} with empty geometry. LOI: $loi"
+    }
+
+    localLoiStore.insertOrUpdate(loi)
   }
 
   /** This only works if the survey and location of interests are already cached to local db. */
@@ -153,6 +165,31 @@ constructor(
    * @return If successful, returns the provided locations of interest wrapped as `Loadable`
    */
   suspend fun applyAndEnqueue(mutation: LocationOfInterestMutation) {
+    when (mutation.type) {
+      Mutation.Type.CREATE -> {
+        val geometry =
+          requireNotNull(mutation.geometry) {
+            "CREATE mutation requires geometry. Mutation: $mutation"
+          }
+        require(!geometry.isEmpty()) {
+          "Attempted to apply CREATE with empty ${geometry::class.simpleName} geometry. Mutation: $mutation"
+        }
+      }
+
+      Mutation.Type.UPDATE -> {
+        // Partial updates may omit geometry. If present, it must be non-empty.
+        mutation.geometry?.let { g ->
+          require(!g.isEmpty()) {
+            "Attempted to apply UPDATE with empty ${g::class.simpleName} geometry. Mutation: $mutation"
+          }
+        }
+      }
+
+      else -> {
+        // DELETE / others — no geometry validation needed
+      }
+    }
+
     localLoiStore.applyAndEnqueue(mutation)
     mutationSyncWorkManager.enqueueSyncWorker()
   }
@@ -165,7 +202,18 @@ constructor(
 
   /** Returns a flow of all valid (not deleted) [LocationOfInterest] in the given [Survey]. */
   fun getValidLois(survey: Survey): Flow<Set<LocationOfInterest>> =
-    localLoiStore.getValidLois(survey)
+    localLoiStore.getValidLois(survey).map { lois ->
+      // Filter out LOIs with invalid/empty geometries to prevent crashes
+      lois
+        .filter { loi ->
+          val isValid = !loi.geometry.isEmpty()
+          if (!isValid) {
+            Timber.w("Filtering out LOI ${loi.id} with empty coordinates: $loi")
+          }
+          isValid
+        }
+        .toSet()
+    }
 
   /** Returns a flow of all [LocationOfInterest] within the map bounds (viewport). */
   fun getWithinBounds(survey: Survey, bounds: Bounds): Flow<List<LocationOfInterest>> =
