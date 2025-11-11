@@ -27,6 +27,7 @@ import org.groundplatform.android.FakeData.FAKE_GENERAL_ACCESS
 import org.groundplatform.android.data.local.room.LocalDataStoreException
 import org.groundplatform.android.data.local.room.converter.formatVertices
 import org.groundplatform.android.data.local.room.converter.parseVertices
+import org.groundplatform.android.data.local.room.converter.toLocalDataStoreObject
 import org.groundplatform.android.data.local.room.dao.LocationOfInterestDao
 import org.groundplatform.android.data.local.room.fields.EntityDeletionState
 import org.groundplatform.android.data.local.stores.LocalLocationOfInterestStore
@@ -225,6 +226,50 @@ class LocalLocationOfInterestStoreTest : BaseHiltTest() {
   fun `terms of service not accepted`() {
     assertThat(localValueStore.isTermsOfServiceAccepted).isFalse()
   }
+
+  @Test
+  fun `getValidLois returns all LOIs including those with empty polygon coordinates`() =
+    runWithTestDispatcher {
+      localUserStore.insertOrUpdateUser(TEST_USER)
+      localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
+
+      // Insert a valid LOI
+      localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION)
+
+      // Directly insert an invalid LOI with empty coordinates (bypassing validation)
+      val invalidLoi =
+        FakeData.LOCATION_OF_INTEREST.copy(
+          id = "invalid-loi-id",
+          geometry = Polygon(LinearRing(emptyList())),
+          surveyId = TEST_SURVEY.id,
+          job = TEST_JOB,
+        )
+      // Use DAO directly to bypass validation
+      locationOfInterestDao.insert(invalidLoi.toLocalDataStoreObject())
+
+      // Verify that both LOIs are returned (store doesn't filter, repository does)
+      localLoiStore.getValidLois(TEST_SURVEY).test {
+        val lois = expectMostRecentItem()
+        assertThat(lois.size).isEqualTo(2)
+        assertThat(lois.map { it.id }).containsExactly(FakeData.LOI_ID, "invalid-loi-id")
+      }
+    }
+
+  @Test
+  fun `insertOrUpdate throws exception when attempting to save LOI with empty polygon coordinates`() =
+    runWithTestDispatcher {
+      localUserStore.insertOrUpdateUser(TEST_USER)
+      localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
+
+      val invalidLoi =
+        FakeData.LOCATION_OF_INTEREST.copy(
+          geometry = Polygon(LinearRing(emptyList())),
+          surveyId = TEST_SURVEY.id,
+          job = TEST_JOB,
+        )
+
+      assertFailsWith<IllegalArgumentException> { localLoiStore.insertOrUpdate(invalidLoi) }
+    }
 
   companion object {
     private val TEST_USER = User(FakeData.USER_ID, "user@gmail.com", "user 1")
