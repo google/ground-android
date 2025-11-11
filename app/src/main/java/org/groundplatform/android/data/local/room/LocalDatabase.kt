@@ -62,6 +62,7 @@ import org.groundplatform.android.data.local.room.fields.MutationEntityType
 import org.groundplatform.android.data.local.room.fields.OfflineAreaEntityState
 import org.groundplatform.android.data.local.room.fields.TaskEntityType
 import org.groundplatform.android.data.local.room.fields.TileSetEntityState
+import org.groundplatform.android.data.local.room.migration.Migration_124_125
 
 /**
  * Main entry point to local database API, exposing data access objects (DAOs) for interacting with
@@ -95,7 +96,7 @@ import org.groundplatform.android.data.local.room.fields.TileSetEntityState
       AutoMigration(from = 120, to = 121),
       AutoMigration(from = 121, to = 122),
       AutoMigration(from = 122, to = 123),
-      AutoMigration(from = 123, to = 124),
+      AutoMigration(from = 123, to = 124)
     ],
 )
 @TypeConverters(
