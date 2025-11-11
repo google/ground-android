@@ -19,13 +19,33 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.core.view.doOnAttach
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -229,8 +249,52 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   /** Adds the action buttons to the UI. */
   private fun renderButtons() {
     taskView.actionButtonsContainer.composeView.setComposableContent {
-      Row(horizontalArrangement = Arrangement.SpaceBetween) {
-        buttonDataList.sortedBy { it.index }.forEach { (_, button) -> button.CreateButton() }
+      Column(modifier = Modifier.fillMaxWidth()) {
+        AccuracyWarningCard(onDismiss = {})
+
+        Spacer(Modifier.height(12.dp))
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+          buttonDataList.sortedBy { it.index }.forEach { (_, button) -> button.CreateButton() }
+        }
+      }
+    }
+  }
+
+  @Composable
+  private fun AccuracyWarningCard(onDismiss: () -> Unit, modifier: Modifier = Modifier) {
+    Card(
+      modifier = modifier.fillMaxWidth(),
+      shape = RoundedCornerShape(16.dp),
+      colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF3E7)),
+      elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    ) {
+      Row(modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp)) {
+        Image(
+          painter = painterResource(R.drawable.baseline_warning_24),
+          contentDescription = null,
+          modifier = Modifier.size(20.dp),
+        )
+
+        Spacer(Modifier.width(12.dp))
+
+        Column(modifier = Modifier.weight(1f)) {
+          Text(
+            text = stringResource(R.string.location_not_accurate_heading),
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurface,
+          )
+          Spacer(Modifier.height(2.dp))
+          Text(
+            text = stringResource(R.string.location_not_accurate_description),
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f),
+          )
+        }
+
+        Spacer(Modifier.width(8.dp))
+
+        IconButton(onClick = onDismiss, modifier = Modifier.size(28.dp)) {
+          Image(painter = painterResource(R.drawable.baseline_close_24), contentDescription = null)
+        }
       }
     }
   }
