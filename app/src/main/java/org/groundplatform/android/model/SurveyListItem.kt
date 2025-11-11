@@ -32,5 +32,5 @@ fun Survey.toListItem(availableOffline: Boolean): SurveyListItem =
     title,
     description,
     availableOffline,
-    generalAccess ?: GeneralAccess.GENERAL_ACCESS_UNSPECIFIED,
+    generalAccess,
   )
