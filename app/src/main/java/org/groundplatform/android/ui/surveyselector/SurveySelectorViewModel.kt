@@ -95,9 +95,9 @@ internal constructor(
     }
     viewModelScope.launch {
       runCatching {
-          _uiState.emit(UiState.ActivatingSurvey)
-          activateSurveyUseCase(surveyId)
-        }
+        _uiState.emit(UiState.ActivatingSurvey)
+        activateSurveyUseCase(surveyId)
+      }
         .fold(
           onSuccess = { result ->
             if (result) {
@@ -135,6 +135,7 @@ internal constructor(
         when {
           it.availableOffline -> "onDevice"
           it.generalAccess == Survey.GeneralAccess.PUBLIC -> "public"
+          it.generalAccess == Survey.GeneralAccess.GENERAL_ACCESS_UNSPECIFIED ||
           it.generalAccess == Survey.GeneralAccess.RESTRICTED ||
             it.generalAccess == Survey.GeneralAccess.UNLISTED -> "sharedWith"
           else -> "other"
