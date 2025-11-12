@@ -49,7 +49,7 @@ fun HeaderRow(item: SurveyListItem, menuClick: (String) -> Unit) {
   Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
     Icon(
       painter = painterResource(iconRes),
-      contentDescription = stringResource(R.string.offline_icon_description),
+      contentDescription = stringResource(labelRes),
       modifier = Modifier.size(24.dp).padding(end = 4.dp),
     )
 
