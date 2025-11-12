@@ -86,10 +86,16 @@ fun HeaderRow(item: SurveyListItem, menuClick: (String) -> Unit) {
 
 private fun Survey.GeneralAccess.iconRes(): Int? =
   when (ordinal) {
-    Survey.GeneralAccess.UNLISTED.ordinal -> R.drawable.ic_unlisted
-    Survey.GeneralAccess.PUBLIC.ordinal -> R.drawable.ic_public
+    Survey.GeneralAccess.UNLISTED.ordinal -> {
+      R.drawable.ic_unlisted
+    }
+    Survey.GeneralAccess.PUBLIC.ordinal -> {
+      R.drawable.ic_public
+    }
     Survey.GeneralAccess.GENERAL_ACCESS_UNSPECIFIED.ordinal,
-    Survey.GeneralAccess.RESTRICTED.ordinal -> R.drawable.ic_restricted
+    Survey.GeneralAccess.RESTRICTED.ordinal -> {
+      R.drawable.ic_restricted
+    }
     else -> {
       Timber.w("Unsupported GeneralAccess: $this")
       null
@@ -98,10 +104,16 @@ private fun Survey.GeneralAccess.iconRes(): Int? =
 
 private fun Survey.GeneralAccess.labelString(): Int? =
   when (ordinal) {
-    Survey.GeneralAccess.UNLISTED.ordinal -> R.string.access_unlisted
-    Survey.GeneralAccess.PUBLIC.ordinal -> R.string.access_public
+    Survey.GeneralAccess.UNLISTED.ordinal -> {
+      R.string.access_unlisted
+    }
+    Survey.GeneralAccess.PUBLIC.ordinal -> {
+      R.string.access_public
+    }
     Survey.GeneralAccess.GENERAL_ACCESS_UNSPECIFIED.ordinal,
-    Survey.GeneralAccess.RESTRICTED.ordinal -> R.string.access_restricted
+    Survey.GeneralAccess.RESTRICTED.ordinal -> {
+      R.string.access_restricted
+    }
     else -> {
       Timber.w("Unsupported GeneralAccess: $this")
       null
