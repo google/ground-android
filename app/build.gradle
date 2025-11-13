@@ -70,6 +70,7 @@ android {
             proto {
                 srcDir 'src/test/proto'
             }
+            androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
         }
     }
     defaultConfig {
@@ -88,6 +89,8 @@ android {
         buildConfigField "int", "AUTH_EMULATOR_PORT", "9099"
         buildConfigField "String", "SIGNUP_FORM_LINK", "\"\""
         manifestPlaceholders.usesCleartextTraffic = true
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     // Use flag -PtestBuildType with desired variant to change default behavior.
@@ -270,7 +273,7 @@ dependencies {
 
     // Room
     implementation libs.androidx.room.runtime
-    testImplementation libs.androidx.room.testing
+    androidTestImplementation libs.androidx.room.testing
     ksp libs.androidx.room.compiler
 
     // WorkManager
@@ -285,6 +288,7 @@ dependencies {
 
     // Testing
     androidTestImplementation libs.androidx.junit
+    androidTestImplementation libs.androidx.runner
     androidTestImplementation libs.core.testing
     androidTestImplementation libs.truth
     testImplementation libs.androidx.core
