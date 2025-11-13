@@ -18,6 +18,7 @@ package org.groundplatform.android.usecases.submission
 import androidx.room.Transaction
 import javax.inject.Inject
 import org.groundplatform.android.model.job.Job
+import org.groundplatform.android.model.submission.CaptureLocationTaskData
 import org.groundplatform.android.model.submission.DrawAreaTaskData
 import org.groundplatform.android.model.submission.DropPinTaskData
 import org.groundplatform.android.model.submission.ValueDelta
@@ -70,11 +71,29 @@ constructor(
     val addLoiTaskIndex = deltas.indexOfFirst { it.taskId == addLoiTask.id }
     if (addLoiTaskIndex < 0) error("AddLoi task response missing")
     val addLoiTaskValue = deltas.removeAt(addLoiTaskIndex).newTaskData
+
     val geometry =
       when (addLoiTask.type) {
-        Task.Type.DROP_PIN -> (addLoiTaskValue as (DropPinTaskData)).geometry
-        Task.Type.DRAW_AREA -> (addLoiTaskValue as (DrawAreaTaskData)).geometry
-        else -> error("Invalid AddLoi task")
+        Task.Type.DROP_PIN -> {
+          if (addLoiTaskValue is DropPinTaskData) {
+            addLoiTaskValue.geometry
+          } else {
+            error("Invalid AddLoi task data type: ${addLoiTaskValue?.javaClass}")
+          }
+        }
+        Task.Type.CAPTURE_LOCATION -> {
+          when (addLoiTaskValue) {
+            is CaptureLocationTaskData -> addLoiTaskValue.location
+            is DropPinTaskData -> addLoiTaskValue.geometry
+            else -> error("Invalid AddLoi task data type: ${addLoiTaskValue?.javaClass}")
+          }
+        }
+        Task.Type.DRAW_AREA -> {
+          (addLoiTaskValue as DrawAreaTaskData).geometry
+        }
+        else -> {
+          error("Invalid AddLoi task type: ${addLoiTask.type}")
+        }
       }
     return locationOfInterestRepository.saveLoi(geometry, job, surveyId, loiName, collectionId)
   }

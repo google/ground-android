@@ -15,7 +15,10 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.polygon
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
@@ -40,6 +43,7 @@ import org.groundplatform.android.ui.datacollection.components.TaskView
 import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment.Companion.TASK_ID_FRAGMENT_ARG_KEY
+import org.groundplatform.android.ui.datacollection.tasks.point.LocationLockEnabledState
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.util.renderComposableDialog
 
@@ -137,6 +141,18 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
     if (isVisible && !viewModel.instructionsDialogShown) {
       showInstructionsDialog()
     }
+
+    // For tasks where location lock is enforced, ensure location lock is enabled
+    if (viewModel.isLocationLockEnforced()) {
+      lifecycleScope.launch {
+        viewModel.enableLocationLockFlow.collect {
+          if (it == LocationLockEnabledState.NEEDS_ENABLE) {
+            showLocationPermissionDialog()
+          }
+        }
+      }
+    }
+
     viewModel.polygonArea.observe(
       viewLifecycleOwner,
       { area ->
@@ -159,6 +175,22 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
     }
   }
 
+  private fun showLocationPermissionDialog() {
+    renderComposableDialog {
+      ConfirmationDialog(
+        title = R.string.allow_location_title,
+        description = R.string.allow_location_description,
+        confirmButtonText = R.string.allow_location_confirmation,
+        onConfirmClicked = {
+          // Open the app settings
+          val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+          intent.data = Uri.fromParts("package", context?.packageName, null)
+          context?.startActivity(intent)
+        },
+      )
+    }
+  }
+
   private fun onFeatureUpdated(feature: Feature?) {
     val geometry = feature?.geometry ?: lineStringOf()
     check(geometry is LineString) { "Invalid area geometry type ${geometry.javaClass}" }
@@ -178,10 +210,15 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
   private fun showInstructionsDialog() {
     viewModel.instructionsDialogShown = true
     renderComposableDialog {
-      InstructionsDialog(
-        iconId = R.drawable.touch_app_24,
-        stringId = R.string.draw_area_task_instruction,
-      )
+      val stringId =
+        if (viewModel.isLocationLockEnforced()) {
+          // Show GPS-locked instructions (similar to capture location)
+          R.string.capture_location_tooltip_text
+        } else {
+          // Show normal draw area instructions
+          R.string.draw_area_task_instruction
+        }
+      InstructionsDialog(iconId = R.drawable.touch_app_24, stringId = stringId)
     }
   }
 }

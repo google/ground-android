@@ -23,7 +23,6 @@ import javax.inject.Provider
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.datacollection.tasks.date.DateTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.instruction.InstructionTaskFragment
-import org.groundplatform.android.ui.datacollection.tasks.location.CaptureLocationTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.number.NumberTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.photo.PhotoTaskFragment
@@ -39,7 +38,6 @@ class DataCollectionViewPagerAdapter
 @AssistedInject
 constructor(
   private val drawAreaTaskFragmentProvider: Provider<DrawAreaTaskFragment>,
-  private val captureLocationTaskFragmentProvider: Provider<CaptureLocationTaskFragment>,
   private val dropPinTaskFragmentProvider: Provider<DropPinTaskFragment>,
   @Assisted fragment: Fragment,
   @Assisted val tasks: List<Task>,
@@ -59,7 +57,7 @@ constructor(
         Task.Type.NUMBER -> NumberTaskFragment()
         Task.Type.DATE -> DateTaskFragment()
         Task.Type.TIME -> TimeTaskFragment()
-        Task.Type.CAPTURE_LOCATION -> captureLocationTaskFragmentProvider.get()
+        Task.Type.CAPTURE_LOCATION -> dropPinTaskFragmentProvider.get()
         Task.Type.INSTRUCTIONS -> InstructionTaskFragment()
         Task.Type.UNKNOWN ->
           throw UnsupportedOperationException("Unsupported task type: ${task.type}")
