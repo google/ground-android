@@ -36,7 +36,7 @@ import org.groundplatform.android.R
 import org.groundplatform.android.model.locationofinterest.LocationOfInterest
 
 /** Manages a set of [Composable] components that renders [LocationOfInterest] cards and dialogs. */
-class JobMapComposables {
+class JobMapComposabless {
   private var loiJobCardDataState = mutableStateOf<SelectedLoiSheetData?>(null)
   private val newLoiJobCardDataListState = mutableStateListOf<AdHocDataCollectionButtonData>()
   private var selectedFeatureListener: ((String?) -> Unit) = {}
