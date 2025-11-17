@@ -21,19 +21,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
 import org.groundplatform.android.R
-import org.groundplatform.android.coroutines.ApplicationScope
-import org.groundplatform.android.coroutines.IoDispatcher
-import org.groundplatform.android.coroutines.MainDispatcher
 import org.groundplatform.android.databinding.BasemapLayoutBinding
 import org.groundplatform.android.databinding.MenuButtonBinding
 import org.groundplatform.android.model.locationofinterest.LOI_NAME_PROPERTY
 import org.groundplatform.android.proto.Survey.DataSharingTerms
-import org.groundplatform.android.repository.SubmissionRepository
-import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.ui.common.AbstractMapContainerFragment
 import org.groundplatform.android.ui.common.BaseMapViewModel
 import org.groundplatform.android.ui.common.EphemeralPopups
@@ -49,17 +41,13 @@ import org.groundplatform.android.usecases.datasharingterms.GetDataSharingTermsU
 import org.groundplatform.android.util.createComposeView
 import org.groundplatform.android.util.renderComposableDialog
 import timber.log.Timber
+import javax.inject.Inject
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
 @AndroidEntryPoint
 class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
   @Inject lateinit var ephemeralPopups: EphemeralPopups
-  @Inject lateinit var submissionRepository: SubmissionRepository
-  @Inject lateinit var userRepository: UserRepository
-  @Inject @IoDispatcher lateinit var ioDispatcher: CoroutineDispatcher
-  @Inject @MainDispatcher lateinit var mainDispatcher: CoroutineDispatcher
-  @Inject @ApplicationScope lateinit var externalScope: CoroutineScope
 
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
   private lateinit var homeScreenViewModel: HomeScreenViewModel
