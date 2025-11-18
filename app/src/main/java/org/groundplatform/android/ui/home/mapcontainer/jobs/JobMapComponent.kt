@@ -17,14 +17,13 @@
 package org.groundplatform.android.ui.home.mapcontainer.jobs
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -32,57 +31,59 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.groundplatform.android.R
 import org.groundplatform.android.model.job.Job
+import org.groundplatform.android.model.job.Style
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentAction.OnAddDataClicked
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentAction.OnDeleteSiteClicked
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentAction.OnJobSelected
+import org.groundplatform.android.ui.theme.AppTheme
 
 @Composable
-fun JobMapComponent(
-  state: JobMapComponentState,
-  onAction: (JobMapComponentAction) -> Unit,
-) {
+fun JobMapComponent(state: JobMapComponentState, onAction: (JobMapComponentAction) -> Unit) {
   var showJobSelectionModal by rememberSaveable { mutableStateOf(false) }
+  LaunchedEffect(showJobSelectionModal) {
+    onAction(JobMapComponentAction.OnJobSelectionModalVisibilityChanged(showJobSelectionModal))
+  }
 
-    when (state) {
-      is JobMapComponentState.AddNewLoi ->
-        if (showJobSelectionModal) {
-          JobSelectionModal(
-            jobs = state.data.map { it.job },
-            onJobClicked = { job ->
-              showJobSelectionModal = false
-              onAction(OnJobSelected(job))
-            },
-            onDismiss = { showJobSelectionModal = false },
-          )
-        } else {
-          AddLoiButton(
-            onClick = {
-              if (state.data.size > 1) {
-                showJobSelectionModal = true
-              } else {
-                onAction(OnJobSelected(state.data.first().job))
-              }
-            }
-          )
-        }
-
-      is JobMapComponentState.ShowLoiJobSheet ->
-        LoiJobSheet(
-          loi = state.data.loi,
-          canUserSubmitData = state.data.canCollectData,
-          submissionCount = state.data.submissionCount,
-          showDeleteLoiButton = state.data.showDeleteLoiButton,
-          onCollectClicked = { onAction(OnAddDataClicked(state.data)) },
-          onDeleteClicked = { onAction(OnDeleteSiteClicked(state.data)) },
-          onDismiss = { onAction(JobMapComponentAction.OnJobCardDismissed) },
+  state.adHocDataCollectionButtonData
+    .takeIf { it.isNotEmpty() }
+    ?.let { data ->
+      if (showJobSelectionModal) {
+        JobSelectionModal(
+          jobs = data.map { it.job },
+          onJobClicked = { job ->
+            showJobSelectionModal = false
+            onAction(OnJobSelected(job))
+          },
+          onDismiss = { showJobSelectionModal = false },
         )
-
-      JobMapComponentState.Empty ->
-        return
+      } else {
+        AddLoiButton(
+          onClick = {
+            if (data.size > 1) {
+              showJobSelectionModal = true
+            } else {
+              onAction(OnJobSelected(data.first().job))
+            }
+          }
+        )
+      }
     }
+
+  state.selectedLoi?.let { loi ->
+    LoiJobSheet(
+      loi = loi.loi,
+      canUserSubmitData = loi.canCollectData,
+      submissionCount = loi.submissionCount,
+      showDeleteLoiButton = loi.showDeleteLoiButton,
+      onCollectClicked = { onAction(OnAddDataClicked(loi)) },
+      onDeleteClicked = { onAction(OnDeleteSiteClicked(loi)) },
+      onDismiss = { onAction(JobMapComponentAction.OnJobCardDismissed) },
+    )
+  }
 }
 
 @Composable
@@ -100,17 +101,46 @@ private fun AddLoiButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
   }
 }
 
-sealed class JobMapComponentState {
-  data class AddNewLoi(val data: List<AdHocDataCollectionButtonData>) : JobMapComponentState()
-
-  data class ShowLoiJobSheet(val data: SelectedLoiSheetData) : JobMapComponentState()
-  data object Empty: JobMapComponentState()
-}
+data class JobMapComponentState(
+  val selectedLoi: SelectedLoiSheetData? = null,
+  val adHocDataCollectionButtonData: List<AdHocDataCollectionButtonData> = emptyList(),
+)
 
 sealed interface JobMapComponentAction {
+  data class OnJobSelectionModalVisibilityChanged(val isShown: Boolean) : JobMapComponentAction
+
   data class OnJobSelected(val job: Job) : JobMapComponentAction
+
   data class OnAddDataClicked(val selectedLoi: SelectedLoiSheetData) : JobMapComponentAction
 
   data class OnDeleteSiteClicked(val selectedLoi: SelectedLoiSheetData) : JobMapComponentAction
+
   data object OnJobCardDismissed : JobMapComponentAction
+}
+
+@Suppress("UnusedPrivateMember")
+@Preview
+@Composable
+private fun JobMapComponentPreview() {
+  AppTheme {
+    JobMapComponent(
+      state =
+        JobMapComponentState(
+          selectedLoi = null,
+          adHocDataCollectionButtonData =
+            listOf(
+              AdHocDataCollectionButtonData(
+                canCollectData = true,
+                job =
+                  Job(
+                    id = "1",
+                    style = Style(color = "#4169E1"),
+                    name = "job 1",
+                    tasks = emptyMap(),
+                  ),
+              )
+            ),
+        )
+    ) {}
+  }
 }

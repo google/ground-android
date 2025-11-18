@@ -20,6 +20,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.fragment.findNavController
@@ -44,9 +45,9 @@ import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentActio
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentState
 import org.groundplatform.android.ui.home.mapcontainer.jobs.SelectedLoiSheetData
 import org.groundplatform.android.ui.map.MapFragment
-import org.groundplatform.android.ui.theme.AppTheme
 import org.groundplatform.android.usecases.datasharingterms.GetDataSharingTermsUseCase
 import org.groundplatform.android.util.renderComposableDialog
+import org.groundplatform.android.util.setComposableContent
 import timber.log.Timber
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
@@ -148,38 +149,33 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
     binding.jobMapComponent.apply {
       setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-      setContent {
+      setComposableContent {
         val jobMapComponentState by
-        mapContainerViewModel
-          .processDataCollectionEntryPoints()
-          .map { (selectedLoiData, adHocCollectionData) ->
-            when {
-              selectedLoiData != null -> JobMapComponentState.ShowLoiJobSheet(selectedLoiData)
-
-              adHocCollectionData.any { it.canCollectData } ->
-                JobMapComponentState.AddNewLoi(adHocCollectionData)
-
-              else -> JobMapComponentState.Empty
-            }
-          }
-          .collectAsStateWithLifecycle(JobMapComponentState.Empty)
-
-        AppTheme {
-          JobMapComponent(
-            state = jobMapComponentState,
-            onAction = { action ->
-              when (action) {
-                is JobMapComponentAction.OnJobSelected ->
-                  (jobMapComponentState as? JobMapComponentState.AddNewLoi)?.let { state ->
-                    onCollectData(state.data.first { it.job == action.job })
-                  }
-                is JobMapComponentAction.OnAddDataClicked -> onCollectData(action.selectedLoi)
-                is JobMapComponentAction.OnDeleteSiteClicked -> onDeleteSite(action.selectedLoi)
-                JobMapComponentAction.OnJobCardDismissed -> mapContainerViewModel.selectLocationOfInterest(null)
+          remember {
+              mapContainerViewModel.processDataCollectionEntryPoints().map {
+                (selectedLoiData, adHocCollectionData) ->
+                JobMapComponentState(selectedLoiData, adHocCollectionData)
               }
-            },
-          )
-        }
+            }
+            .collectAsStateWithLifecycle(JobMapComponentState())
+
+        JobMapComponent(
+          state = jobMapComponentState,
+          onAction = { action ->
+            when (action) {
+              is JobMapComponentAction.OnJobSelected ->
+                jobMapComponentState.adHocDataCollectionButtonData
+                  .firstOrNull { it.job == action.job }
+                  ?.let { onCollectData(it) }
+              is JobMapComponentAction.OnAddDataClicked -> onCollectData(action.selectedLoi)
+              is JobMapComponentAction.OnDeleteSiteClicked -> onDeleteSite(action.selectedLoi)
+              JobMapComponentAction.OnJobCardDismissed ->
+                mapContainerViewModel.selectLocationOfInterest(null)
+              is JobMapComponentAction.OnJobSelectionModalVisibilityChanged ->
+                shouldShowMapButtons(!action.isShown)
+            }
+          },
+        )
       }
     }
     binding.bottomContainer.bringToFront()
@@ -190,7 +186,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     launchWhenStarted { mapContainerViewModel.maybeEnableLocationLock() }
   }
 
-  private fun shouldShowMapButtons(show: Boolean) { // TODO
+  private fun shouldShowMapButtons(show: Boolean) {
     val menuBinding = setupMenuFab()
     if (show) {
       binding.mapTypeBtn.show()
