@@ -20,13 +20,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
-import kotlinx.coroutines.flow.map
 import org.groundplatform.android.R
 import org.groundplatform.android.databinding.BasemapLayoutBinding
 import org.groundplatform.android.databinding.MenuButtonBinding
@@ -42,7 +40,6 @@ import org.groundplatform.android.ui.home.mapcontainer.jobs.AdHocDataCollectionB
 import org.groundplatform.android.ui.home.mapcontainer.jobs.DataCollectionEntryPointData
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponent
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentAction
-import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentState
 import org.groundplatform.android.ui.home.mapcontainer.jobs.SelectedLoiSheetData
 import org.groundplatform.android.ui.map.MapFragment
 import org.groundplatform.android.usecases.datasharingterms.GetDataSharingTermsUseCase
@@ -151,13 +148,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
       setComposableContent {
         val jobMapComponentState by
-          remember {
-              mapContainerViewModel.processDataCollectionEntryPoints().map {
-                (selectedLoiData, adHocCollectionData) ->
-                JobMapComponentState(selectedLoiData, adHocCollectionData)
-              }
-            }
-            .collectAsStateWithLifecycle(JobMapComponentState())
+          mapContainerViewModel.jobMapComponentState.collectAsStateWithLifecycle()
 
         JobMapComponent(
           state = jobMapComponentState,
