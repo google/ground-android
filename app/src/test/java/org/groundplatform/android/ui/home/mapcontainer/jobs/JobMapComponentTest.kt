@@ -28,7 +28,9 @@ import kotlin.test.Test
 import kotlin.test.assertTrue
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.ADHOC_JOB
+import org.groundplatform.android.FakeData.JOB
 import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST
+import org.groundplatform.android.FakeData.newTask
 import org.groundplatform.android.R
 import org.junit.Rule
 import org.junit.runner.RunWith
@@ -190,7 +192,44 @@ class JobMapComponentTest : BaseHiltTest() {
       .onNodeWithText(composeTestRule.activity.getString(R.string.delete))
       .performClick()
 
-    assertTrue(performedActions.any { it is JobMapComponentAction.OnDeleteSiteClicked })
+    assertTrue(
+      performedActions.any {
+        it is JobMapComponentAction.OnDeleteSiteClicked && it.selectedLoi == selectedLoiSheetData
+      }
+    )
+  }
+
+  @Test
+  fun `Clicking to add data in the LoiJobSheet should dispatch the OnAddDataClicked action`() {
+    val performedActions = mutableListOf<JobMapComponentAction>()
+    val predefinedTask = newTask()
+    val selectedLoiSheetData =
+      SelectedLoiSheetData(
+        canCollectData = true,
+        loi =
+          LOCATION_OF_INTEREST.copy(
+            isPredefined = true,
+            job = JOB.copy(tasks = mapOf(predefinedTask.id to predefinedTask)),
+          ),
+        submissionCount = 20,
+        showDeleteLoiButton = false,
+      )
+    setContent(
+      state = JobMapComponentState(selectedLoi = selectedLoiSheetData),
+      onAction = { performedActions += it },
+    )
+
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.add_data))
+      .performClick()
+
+    composeTestRule.waitForIdle()
+
+    assertTrue(
+      performedActions.any {
+        it is JobMapComponentAction.OnAddDataClicked && it.selectedLoi == selectedLoiSheetData
+      }
+    )
   }
 
   private fun setContent(
