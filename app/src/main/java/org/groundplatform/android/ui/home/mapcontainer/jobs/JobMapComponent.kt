@@ -17,8 +17,12 @@
 package org.groundplatform.android.ui.home.mapcontainer.jobs
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
@@ -86,10 +90,13 @@ fun JobMapComponent(state: JobMapComponentState, onAction: (JobMapComponentActio
 }
 
 @Composable
-private fun AddLoiButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
-  Box(modifier.fillMaxWidth()) {
+private fun AddLoiButton(onClick: () -> Unit) {
+  Box {
     ActionButton(
-      modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 36.dp),
+      modifier =
+        Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom))
+          .align(Alignment.BottomCenter)
+          .padding(bottom = 36.dp),
       icon = Icons.Filled.Add,
       contentDescription = stringResource(id = R.string.add_site),
       onClick = onClick,
