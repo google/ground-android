@@ -89,7 +89,7 @@
     <androidx.compose.ui.platform.ComposeView
       android:id="@+id/job_map_component"
       android:layout_width="match_parent"
-      android:layout_height="166dp"
+      android:layout_height="match_parent"
       android:background="@drawable/bottom_container_shim"
       android:fitsSystemWindows="true"
       app:layout_constraintBottom_toBottomOf="parent"

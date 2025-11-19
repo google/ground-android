@@ -184,9 +184,9 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       binding.locationLockBtn.show()
       menuBinding.hamburgerBtn.show()
     } else {
-      binding.mapTypeBtn.show()
-      binding.locationLockBtn.show()
-      menuBinding.hamburgerBtn.show()
+      binding.mapTypeBtn.hide()
+      binding.locationLockBtn.hide()
+      menuBinding.hamburgerBtn.hide()
     }
   }
 

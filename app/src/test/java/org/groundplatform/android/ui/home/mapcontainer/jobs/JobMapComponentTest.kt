@@ -25,6 +25,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.ADHOC_JOB
@@ -126,13 +127,15 @@ class JobMapComponentTest : BaseHiltTest() {
 
     composeTestRule.onNodeWithText("Job 1").performClick()
 
+    composeTestRule.waitForIdle()
+
     assertTrue(
       performedActions.any { it is JobMapComponentAction.OnJobSelected && it.job.name == "Job 1" }
     )
-    assertTrue(
-      performedActions.any {
-        it is JobMapComponentAction.OnJobSelectionModalVisibilityChanged && it.isShown
-      }
+    assertEquals(
+      (performedActions.last() as JobMapComponentAction.OnJobSelectionModalVisibilityChanged)
+        .isShown,
+      false,
     )
   }
 
@@ -151,6 +154,7 @@ class JobMapComponentTest : BaseHiltTest() {
       .onNodeWithContentDescription(composeTestRule.activity.getString(R.string.add_site))
       .performClick()
 
+    composeTestRule.onNodeWithText(ADHOC_JOB.name!!).assertDoesNotExist()
     assertTrue(
       performedActions.any {
         it is JobMapComponentAction.OnJobSelected && it.job.id == ADHOC_JOB.id
