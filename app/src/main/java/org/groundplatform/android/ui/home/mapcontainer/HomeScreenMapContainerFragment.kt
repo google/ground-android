@@ -143,7 +143,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-
+    val menuBinding = setupMenuFab()
     binding.jobMapComponent.apply {
       setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
       setComposableContent {
@@ -163,7 +163,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
               JobMapComponentAction.OnJobCardDismissed ->
                 mapContainerViewModel.selectLocationOfInterest(null)
               is JobMapComponentAction.OnJobSelectionModalVisibilityChanged ->
-                shouldShowMapButtons(!action.isShown)
+                shouldShowMapButtons(menuBinding, !action.isShown)
             }
           },
         )
@@ -177,8 +177,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     launchWhenStarted { mapContainerViewModel.maybeEnableLocationLock() }
   }
 
-  private fun shouldShowMapButtons(show: Boolean) {
-    val menuBinding = setupMenuFab()
+  private fun shouldShowMapButtons(menuBinding: MenuButtonBinding, show: Boolean) {
     if (show) {
       binding.mapTypeBtn.show()
       binding.locationLockBtn.show()
