@@ -20,10 +20,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.StringRes
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import java.math.RoundingMode
@@ -34,11 +38,13 @@ import org.groundplatform.android.databinding.MapTaskFragBinding
 import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.ui.common.AbstractMapContainerFragment
 import org.groundplatform.android.ui.common.BaseMapViewModel
+import org.groundplatform.android.ui.components.MapFloatingActionButton
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.MapFragment
 import org.groundplatform.android.ui.map.gms.getAccuracyOrNull
 import org.groundplatform.android.ui.map.gms.toCoordinates
+import org.groundplatform.android.util.setComposableContent
 import org.groundplatform.android.util.toDmsFormat
 import org.jetbrains.annotations.MustBeInvokedByOverriders
 
@@ -76,9 +82,7 @@ abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
     super.onCreateView(inflater, container, savedInstanceState)
 
     binding = MapTaskFragBinding.inflate(inflater, container, false)
-    binding.fragment = this
-    binding.viewModel = getMapViewModel()
-    binding.lifecycleOwner = this
+    setupMapActionButtons()
 
     viewLifecycleOwner.lifecycleScope.launch {
       repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -95,6 +99,32 @@ abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
     }
 
     return binding.root
+  }
+
+  private fun setupMapActionButtons() {
+    binding.mapTypeBtn.apply {
+      setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+      setComposableContent {
+        MapFloatingActionButton(
+          iconRes = R.drawable.map_layers,
+          onClick = { showMapTypeSelectorDialog() },
+        )
+      }
+    }
+
+    binding.locationLockBtn.apply {
+      setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+      setComposableContent {
+        val icon by viewModel.locationLockIcon.collectAsStateWithLifecycle()
+        val iconTint by viewModel.locationLockIconTint.collectAsStateWithLifecycle()
+
+        MapFloatingActionButton(
+          iconRes = icon,
+          iconTint = Color(context.getColor(iconTint)),
+          onClick = { viewModel.onLocationLockClick() },
+        )
+      }
+    }
   }
 
   override fun getMapViewModel(): BaseMapViewModel = viewModel
