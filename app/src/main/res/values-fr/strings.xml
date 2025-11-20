@@ -214,4 +214,6 @@
   <string name="delete_site_dialog_title">Supprimer le site ?</string>
   <string name="delete_site_dialog_message">Ce site et toutes les données associées seront définitivement supprimés. Cette action ne peut pas être annulée.</string>
   <string name="delete">Supprimer</string>
+
+  <string name="recenter">Recentrer</string>
 </resources>

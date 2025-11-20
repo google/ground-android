@@ -20,8 +20,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.StringRes
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LiveData
@@ -121,6 +126,26 @@ abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
           type = locationLockButton,
           onClick = { viewModel.onLocationLockClick() },
         )
+      }
+    }
+
+    binding.recenterBtn.apply {
+      setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+      setComposableContent {
+        val shouldShowRecenter by viewModel.shouldShowRecenterButton.collectAsStateWithLifecycle()
+
+        if (shouldShowRecenter)
+          OutlinedButton(
+            colors =
+              ButtonDefaults.buttonColors()
+                .copy(
+                  containerColor = MaterialTheme.colorScheme.background,
+                  contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                ),
+            onClick = { viewModel.onLocationLockClick() },
+          ) {
+            Text(text = stringResource(R.string.recenter))
+          }
       }
     }
   }
