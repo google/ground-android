@@ -39,18 +39,22 @@ import androidx.compose.ui.unit.sp
 import org.groundplatform.android.R
 import org.groundplatform.android.model.SurveyListItem
 import org.groundplatform.android.proto.Survey
+import timber.log.Timber
 
 @Composable
 fun HeaderRow(item: SurveyListItem, menuClick: (String) -> Unit) {
+  val iconRes = item.generalAccess.iconRes() ?: return
+  val labelRes = item.generalAccess.labelString() ?: return
+
   Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
     Icon(
-      painter = painterResource(item.generalAccess.iconRes()),
-      contentDescription = stringResource(R.string.offline_icon_description),
+      painter = painterResource(iconRes),
+      contentDescription = stringResource(labelRes),
       modifier = Modifier.size(24.dp).padding(end = 4.dp),
     )
 
     Text(
-      text = stringResource(item.generalAccess.labelString()),
+      text = stringResource(labelRes),
       fontFamily = FontFamily(Font(R.font.text_500)),
       fontSize = 12.sp,
       fontWeight = FontWeight.Medium,
@@ -80,18 +84,38 @@ fun HeaderRow(item: SurveyListItem, menuClick: (String) -> Unit) {
   }
 }
 
-private fun Survey.GeneralAccess.iconRes(): Int =
+private fun Survey.GeneralAccess.iconRes(): Int? =
   when (ordinal) {
-    Survey.GeneralAccess.UNLISTED.ordinal -> R.drawable.ic_unlisted
-    Survey.GeneralAccess.PUBLIC.ordinal -> R.drawable.ic_public
-    Survey.GeneralAccess.RESTRICTED.ordinal -> R.drawable.ic_restricted
-    else -> throw IllegalArgumentException("Unknown GeneralAccess: $this")
+    Survey.GeneralAccess.UNLISTED.ordinal -> {
+      R.drawable.ic_unlisted
+    }
+    Survey.GeneralAccess.PUBLIC.ordinal -> {
+      R.drawable.ic_public
+    }
+    Survey.GeneralAccess.GENERAL_ACCESS_UNSPECIFIED.ordinal,
+    Survey.GeneralAccess.RESTRICTED.ordinal -> {
+      R.drawable.ic_restricted
+    }
+    else -> {
+      Timber.w("Unsupported GeneralAccess: $this")
+      null
+    }
   }
 
-private fun Survey.GeneralAccess.labelString(): Int =
+private fun Survey.GeneralAccess.labelString(): Int? =
   when (ordinal) {
-    Survey.GeneralAccess.UNLISTED.ordinal -> R.string.access_unlisted
-    Survey.GeneralAccess.PUBLIC.ordinal -> R.string.access_public
-    Survey.GeneralAccess.RESTRICTED.ordinal -> R.string.access_restricted
-    else -> throw IllegalArgumentException("Unknown GeneralAccess: $this")
+    Survey.GeneralAccess.UNLISTED.ordinal -> {
+      R.string.access_unlisted
+    }
+    Survey.GeneralAccess.PUBLIC.ordinal -> {
+      R.string.access_public
+    }
+    Survey.GeneralAccess.GENERAL_ACCESS_UNSPECIFIED.ordinal,
+    Survey.GeneralAccess.RESTRICTED.ordinal -> {
+      R.string.access_restricted
+    }
+    else -> {
+      Timber.w("Unsupported GeneralAccess: $this")
+      null
+    }
   }
