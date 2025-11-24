@@ -21,7 +21,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.StringRes
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.Lifecycle
@@ -39,6 +38,7 @@ import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.ui.common.AbstractMapContainerFragment
 import org.groundplatform.android.ui.common.BaseMapViewModel
 import org.groundplatform.android.ui.components.MapFloatingActionButton
+import org.groundplatform.android.ui.components.MapFloatingActionButtonType
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.MapFragment
@@ -54,7 +54,7 @@ abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
   protected lateinit var binding: MapTaskFragBinding
 
   protected val dataCollectionViewModel: DataCollectionViewModel by
-    hiltNavGraphViewModels(R.id.data_collection)
+  hiltNavGraphViewModels(R.id.data_collection)
 
   protected val taskViewModel: TVM by lazy {
     // Access to this viewModel is lazy for testing. This is because the NavHostController could
@@ -106,7 +106,7 @@ abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
       setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
       setComposableContent {
         MapFloatingActionButton(
-          iconRes = R.drawable.map_layers,
+          type = MapFloatingActionButtonType.MapType(),
           onClick = { showMapTypeSelectorDialog() },
         )
       }
@@ -115,12 +115,12 @@ abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
     binding.locationLockBtn.apply {
       setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
       setComposableContent {
-        val icon by viewModel.locationLockIcon.collectAsStateWithLifecycle()
-        val iconTint by viewModel.locationLockIconTint.collectAsStateWithLifecycle()
+        val isLocationLocked by viewModel.locationLock.collectAsStateWithLifecycle()
 
         MapFloatingActionButton(
-          iconRes = icon,
-          iconTint = Color(context.getColor(iconTint)),
+          type =
+            if (isLocationLocked.getOrDefault(false)) MapFloatingActionButtonType.LocationLocked()
+            else MapFloatingActionButtonType.LocationNotLocked(),
           onClick = { viewModel.onLocationLockClick() },
         )
       }
