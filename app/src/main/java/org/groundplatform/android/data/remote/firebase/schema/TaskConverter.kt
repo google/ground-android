@@ -117,7 +117,7 @@ internal object TaskConverter {
         false
       } // Legacy: always locked to device location
       else -> {
-       true
+        true
       }
     }
 
