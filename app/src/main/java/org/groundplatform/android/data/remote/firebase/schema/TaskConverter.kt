@@ -97,8 +97,9 @@ internal object TaskConverter {
 
   /**
    * Determines whether the user can pan/zoom the map to place a point anywhere.
-   * - For DROP_PIN tasks: Reads from DrawGeometry.requireDeviceLocation. When true, the point is
-   *   locked to device GPS location. When false, user can drop pin anywhere on map.
+   * - For DROP_PIN tasks: RWhether the user can pan/zoom the map to place a point anywhere (true),
+   *   or can only capture
+   *     * their GPS location (false). Only applies to DROP_PIN tasks.
    * - For CAPTURE_LOCATION tasks (legacy): Always locked to device location.
    * - For other tasks: Defaults to true (allow moving).
    */
@@ -116,7 +117,7 @@ internal object TaskConverter {
         false
       } // Legacy: always locked to device location
       else -> {
-        true
+        error("Unknown task type: $taskType in getAllowMovingPoint()")
       }
     }
 
@@ -127,15 +128,10 @@ internal object TaskConverter {
    *   cannot be turned off and map gestures are disabled.
    * - For other tasks: Defaults to true (not applicable).
    */
-  @Suppress("UnusedParameter")
-  private fun getAllowManualOverride(taskType: Task.Type, task: TaskProto): Boolean =
-    if (taskType == Task.Type.DRAW_AREA) {
-      // Read the allowManualOverride field from proto. Default to true if not set.
-      // TODO: Once the proto field is added, update this to read the actual value:
-      // task.drawGeometry.allowManualOverride
-      // For now, default to true for backward compatibility
-      true
-    } else {
-      true
-    }
+  @Suppress("UnusedParameter", "FunctionOnlyReturningConstant", "ExpressionBodySyntax")
+  private fun getAllowManualOverride(taskType: Task.Type, task: TaskProto): Boolean {
+    // TODO: Read actual value from proto once allowManualOverride is available.
+    // For now, always allow manual override for backward compatibility.
+    return true
+  }
 }

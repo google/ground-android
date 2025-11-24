@@ -110,6 +110,7 @@ internal object ValueJsonConverter {
       }
       Task.Type.DROP_PIN -> {
         when (obj) {
+          // Legacy format: older clients stored geometry as a serialized string
           is String -> {
             val geometry = GeometryWrapperTypeConverter.fromString(obj)?.getGeometry()
             DataStoreException.checkNotNull(geometry, "Missing geometry in drop pin task result")
@@ -117,6 +118,7 @@ internal object ValueJsonConverter {
             DropPinTaskData(geometry as Point)
           }
 
+          // New format: structured JSON used by newer clients
           is JSONObject -> {
             obj.toCaptureLocationTaskData()
           }
@@ -127,9 +129,15 @@ internal object ValueJsonConverter {
       }
       Task.Type.CAPTURE_LOCATION -> {
         when (obj) {
+          // Legacy format:
+          // Older clients stored geometry as a serialized string.
+          // We decode it using the old GeometryWrapperTypeConverter.
           is JSONObject -> {
             obj.toCaptureLocationTaskData()
           }
+          // New structured format:
+          // Modern clients write task results as JSON → convert using the
+          // dedicated parser for CaptureLocation tasks.
           is String -> {
             val geometry = GeometryWrapperTypeConverter.fromString(obj)?.getGeometry()
             DataStoreException.checkNotNull(

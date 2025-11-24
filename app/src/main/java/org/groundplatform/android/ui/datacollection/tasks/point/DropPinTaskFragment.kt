@@ -81,20 +81,19 @@ class DropPinTaskFragment @Inject constructor() : AbstractTaskFragment<DropPinTa
   }
 
   override fun onTaskResume() {
-    if (isVisible) {
-      // Show instructions dialog if not shown yet
-      if (!viewModel.instructionsDialogShown) {
-        showInstructionsDialog()
-      }
+    if (!isVisible) return
 
-      // For GPS-only mode, ensure location lock is enabled
-      if (!viewModel.task.allowMovingPoint) {
-        viewModel.enableLocationLock()
-        lifecycleScope.launch {
-          viewModel.enableLocationLockFlow.collect {
-            if (it == LocationLockEnabledState.NEEDS_ENABLE) {
-              showLocationPermissionDialog()
-            }
+    if (!viewModel.instructionsDialogShown) {
+      showInstructionsDialog()
+    }
+
+    if (!viewModel.task.allowMovingPoint) {
+      viewModel.enableLocationLock()
+
+      lifecycleScope.launch {
+        viewModel.enableLocationLockFlow.collect { state ->
+          if (state == LocationLockEnabledState.NEEDS_ENABLE) {
+            showLocationPermissionDialog()
           }
         }
       }
