@@ -21,9 +21,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
@@ -36,9 +39,12 @@ import org.groundplatform.android.ui.common.AbstractMapContainerFragment
 import org.groundplatform.android.ui.common.BaseMapViewModel
 import org.groundplatform.android.ui.common.EphemeralPopups
 import org.groundplatform.android.ui.common.MapConfig
+import org.groundplatform.android.ui.components.MapFloatingActionButton
+import org.groundplatform.android.ui.components.MapFloatingActionButtonType
 import org.groundplatform.android.ui.home.mapcontainer.HomeScreenMapContainerViewModel
 import org.groundplatform.android.ui.map.MapFragment
 import org.groundplatform.android.util.renderComposableDialog
+import org.groundplatform.android.util.setComposableContent
 
 /** Map UI used to select areas for download and viewing offline. */
 @AndroidEntryPoint
@@ -48,6 +54,8 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
 
   @Inject lateinit var popups: EphemeralPopups
+
+  private lateinit var binding: OfflineAreaSelectorFragBinding
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -61,7 +69,7 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
     savedInstanceState: Bundle?,
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
-    val binding = OfflineAreaSelectorFragBinding.inflate(inflater, container, false)
+    binding = OfflineAreaSelectorFragBinding.inflate(inflater, container, false)
     binding.viewModel = viewModel
     binding.lifecycleOwner = this
     return binding.root
@@ -69,6 +77,19 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
+    binding.locationLockBtn.apply {
+      setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+      setComposableContent {
+        val isLocationLocked by mapContainerViewModel.locationLock.collectAsStateWithLifecycle()
+        MapFloatingActionButton(
+          type =
+            if (isLocationLocked.getOrDefault(false)) MapFloatingActionButtonType.LocationLocked()
+            else MapFloatingActionButtonType.LocationNotLocked(),
+          onClick = { viewModel.onLocationLockClick() },
+        )
+      }
+    }
+
     viewLifecycleOwner.lifecycleScope.launch {
       viewModel.isDownloadProgressVisible.observe(viewLifecycleOwner) {
         showDownloadProgressDialog(it)

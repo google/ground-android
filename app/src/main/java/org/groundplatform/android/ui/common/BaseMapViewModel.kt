@@ -85,24 +85,6 @@ constructor(
 
   val mapType: Flow<MapType> = mapStateRepository.mapTypeFlow
 
-  val locationLockIconTint =
-    locationLock
-      .map { lockState ->
-        if (lockState.getOrDefault(false)) R.color.md_theme_primary
-        else R.color.md_theme_onSurfaceVariant
-      }
-      .stateIn(viewModelScope, SharingStarted.Lazily, R.color.md_theme_onSurfaceVariant)
-
-  // TODO: Consider adding another icon for representing "GPS disabled" state.
-  // Issue URL: https://github.com/google/ground-android/issues/1789
-  val locationLockIcon =
-    locationLock
-      .map { lockState ->
-        if (lockState.getOrDefault(false)) R.drawable.ic_gps_lock
-        else R.drawable.ic_gps_lock_not_fixed
-      }
-      .stateIn(viewModelScope, SharingStarted.Lazily, R.drawable.ic_gps_lock_not_fixed)
-
   val location: StateFlow<Location?> =
     locationLock
       .combine(getLocationUpdates()) { locationLock, latestLocation ->
@@ -125,6 +107,9 @@ constructor(
         if (enabled) offlineSources else null
       }
       .asLiveData()
+
+  private val _shouldShowMapActions: MutableStateFlow<Boolean> = MutableStateFlow(false)
+  val shouldShowMapActions: StateFlow<Boolean> = _shouldShowMapActions
 
   /** Returns whether the user has granted fine location permission. */
   fun hasLocationPermission() =
@@ -271,5 +256,9 @@ constructor(
     Timber.v("Camera moved : ${newCameraPosition.coordinates}")
     currentCameraPosition.value = newCameraPosition
     mapStateRepository.setCameraPosition(newCameraPosition)
+  }
+
+  fun onJobSelectionModalVisibilityChanged(isShown: Boolean) {
+    _shouldShowMapActions.value = !isShown
   }
 }

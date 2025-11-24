@@ -19,15 +19,22 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.flow.first
 import org.groundplatform.android.R
 import org.groundplatform.android.databinding.BasemapLayoutBinding
-import org.groundplatform.android.databinding.MenuButtonBinding
 import org.groundplatform.android.model.locationofinterest.LOI_NAME_PROPERTY
 import org.groundplatform.android.proto.Survey.DataSharingTerms
 import org.groundplatform.android.ui.common.AbstractMapContainerFragment
@@ -38,8 +45,8 @@ import org.groundplatform.android.ui.home.HomeScreenFragmentDirections
 import org.groundplatform.android.ui.home.HomeScreenViewModel
 import org.groundplatform.android.ui.home.mapcontainer.jobs.AdHocDataCollectionButtonData
 import org.groundplatform.android.ui.home.mapcontainer.jobs.DataCollectionEntryPointData
-import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponent
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentAction
+import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentState
 import org.groundplatform.android.ui.home.mapcontainer.jobs.SelectedLoiSheetData
 import org.groundplatform.android.ui.map.MapFragment
 import org.groundplatform.android.usecases.datasharingterms.GetDataSharingTermsUseCase
@@ -135,40 +142,35 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
     binding = BasemapLayoutBinding.inflate(inflater, container, false)
-    binding.fragment = this
-    binding.viewModel = mapContainerViewModel
-    binding.lifecycleOwner = this
     return binding.root
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    val menuBinding = setupMenuFab()
-    binding.jobMapComponent.apply {
+    binding.composeContent.apply {
       setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
       setComposableContent {
+        val isLocationLocked by mapContainerViewModel.locationLock.collectAsStateWithLifecycle()
         val jobMapComponentState by
           mapContainerViewModel.jobMapComponentState.collectAsStateWithLifecycle()
+        val shouldShowMapActions by
+          mapContainerViewModel.shouldShowMapActions.collectAsStateWithLifecycle()
+        val shouldShowRecenter =
+          isLocationLocked.isSuccess && (isLocationLocked.getOrNull() == false)
 
-        JobMapComponent(
-          state = jobMapComponentState,
-          onAction = { action ->
-            when (action) {
-              is JobMapComponentAction.OnJobSelected ->
-                jobMapComponentState.adHocDataCollectionButtonData
-                  .firstOrNull { it.job == action.job }
-                  ?.let { onCollectData(it) }
-              is JobMapComponentAction.OnAddDataClicked -> onCollectData(action.selectedLoi)
-              is JobMapComponentAction.OnDeleteSiteClicked -> onDeleteSite(action.selectedLoi)
-              JobMapComponentAction.OnJobCardDismissed ->
-                mapContainerViewModel.selectLocationOfInterest(null)
-              is JobMapComponentAction.OnJobSelectionModalVisibilityChanged ->
-                shouldShowMapButtons(menuBinding, !action.isShown)
-            }
+        BaseMapScreen(
+          isLocationLocked = isLocationLocked.getOrDefault(false),
+          shouldShowMapActions = shouldShowMapActions,
+          shouldShowRecenter = shouldShowRecenter,
+          jobComponentState = jobMapComponentState,
+          onBaseMapAction = { handleMapAction(it) },
+          onJobComponentAction = {
+            handleJobMapComponentAction(jobMapComponentState = jobMapComponentState, action = it)
           },
         )
       }
     }
+
     binding.bottomContainer.bringToFront()
     showDataCollectionHint()
 
@@ -177,15 +179,29 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     launchWhenStarted { mapContainerViewModel.maybeEnableLocationLock() }
   }
 
-  private fun shouldShowMapButtons(menuBinding: MenuButtonBinding, show: Boolean) {
-    if (show) {
-      binding.mapTypeBtn.show()
-      binding.locationLockBtn.show()
-      menuBinding.hamburgerBtn.show()
-    } else {
-      binding.mapTypeBtn.hide()
-      binding.locationLockBtn.hide()
-      menuBinding.hamburgerBtn.hide()
+  private fun handleMapAction(action: BaseMapAction) {
+    when (action) {
+      BaseMapAction.OnLocationLockClicked -> mapContainerViewModel.onLocationLockClick()
+      BaseMapAction.OnMapTypeClicked -> showMapTypeSelectorDialog()
+      BaseMapAction.OnOpenNavDrawerClicked -> homeScreenViewModel.openNavDrawer()
+    }
+  }
+
+  private fun handleJobMapComponentAction(
+    jobMapComponentState: JobMapComponentState,
+    action: JobMapComponentAction,
+  ) {
+    when (action) {
+      is JobMapComponentAction.OnAddDataClicked -> onCollectData(action.selectedLoi)
+      is JobMapComponentAction.OnDeleteSiteClicked -> onDeleteSite(action.selectedLoi)
+      JobMapComponentAction.OnJobCardDismissed ->
+        mapContainerViewModel.selectLocationOfInterest(null)
+      is JobMapComponentAction.OnJobSelected ->
+        jobMapComponentState.adHocDataCollectionButtonData
+          .firstOrNull { it.job == action.job }
+          ?.let { onCollectData(it) }
+      is JobMapComponentAction.OnJobSelectionModalVisibilityChanged ->
+        mapContainerViewModel.onJobSelectionModalVisibilityChanged(action.isShown)
     }
   }
 
@@ -220,14 +236,6 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     ephemeralPopups
       .InfoPopup(binding.bottomContainer, messageId, EphemeralPopups.PopupDuration.LONG)
       .show()
-  }
-
-  private fun setupMenuFab(): MenuButtonBinding {
-    val mapOverlay = binding.overlay
-    val menuBinding = MenuButtonBinding.inflate(layoutInflater, mapOverlay, true)
-    menuBinding.homeScreenViewModel = homeScreenViewModel
-    menuBinding.lifecycleOwner = this
-    return menuBinding
   }
 
   private fun navigateToDataCollectionFragment(cardUiData: DataCollectionEntryPointData) {
