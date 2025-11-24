@@ -106,7 +106,7 @@ abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
       setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
       setComposableContent {
         MapFloatingActionButton(
-          type = MapFloatingActionButtonType.MapType(),
+          type = MapFloatingActionButtonType.MapType,
           onClick = { showMapTypeSelectorDialog() },
         )
       }

@@ -149,7 +149,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
         val shouldShowMapActions by
           mapContainerViewModel.shouldShowMapActions.collectAsStateWithLifecycle()
 
-        BaseMapScreen(
+        HomeScreenMapContainerScreen(
           locationLockButtonType = locationLockButton,
           shouldShowMapActions = shouldShowMapActions,
           jobComponentState = jobMapComponentState,

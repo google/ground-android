@@ -102,14 +102,10 @@ constructor(
         if (lockState.getOrDefault(false)) {
           MapFloatingActionButtonType.LocationLocked()
         } else {
-          MapFloatingActionButtonType.LocationNotLocked()
+          MapFloatingActionButtonType.LocationNotLocked
         }
       }
-      .stateIn(
-        viewModelScope,
-        SharingStarted.Lazily,
-        MapFloatingActionButtonType.LocationNotLocked(),
-      )
+      .stateIn(viewModelScope, SharingStarted.Lazily, MapFloatingActionButtonType.LocationNotLocked)
 
   private val _shouldShowMapActions: MutableStateFlow<Boolean> = MutableStateFlow(false)
   val shouldShowMapActions: StateFlow<Boolean> = _shouldShowMapActions

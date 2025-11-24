@@ -22,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -36,7 +37,7 @@ fun MapFloatingActionButton(
   onClick: () -> Unit,
 ) {
   FloatingActionButton(
-    modifier = modifier.padding(16.dp),
+    modifier = modifier.testTag(type.testTag).padding(16.dp),
     containerColor = MaterialTheme.colorScheme.secondaryContainer,
     onClick = onClick,
   ) {
@@ -49,24 +50,30 @@ fun MapFloatingActionButton(
 }
 
 sealed class MapFloatingActionButtonType(
-  open val iconRes: Int,
+  val iconRes: Int,
   open val iconTintRes: Int = R.color.md_theme_onSurfaceVariant,
+  val testTag: String,
 ) {
-  data class OpenNavDrawer(override val iconRes: Int = R.drawable.baseline_menu_24) :
-    MapFloatingActionButtonType(iconRes)
+  data object OpenNavDrawer :
+    MapFloatingActionButtonType(iconRes = R.drawable.baseline_menu_24, testTag = "open_nav_drawer")
 
-  data class MapType(override val iconRes: Int = R.drawable.map_layers) :
-    MapFloatingActionButtonType(iconRes)
+  data object MapType :
+    MapFloatingActionButtonType(iconRes = R.drawable.map_layers, testTag = "choose_map_type")
 
   // TODO: Consider adding another icon for representing "GPS disabled" state.
   // Issue URL: https://github.com/google/ground-android/issues/1789
-  data class LocationLocked(
-    override val iconRes: Int = R.drawable.ic_gps_lock,
-    override val iconTintRes: Int = R.color.md_theme_primary,
-  ) : MapFloatingActionButtonType(iconRes, iconTintRes)
+  data class LocationLocked(override val iconTintRes: Int = R.color.md_theme_primary) :
+    MapFloatingActionButtonType(
+      iconRes = R.drawable.ic_gps_lock,
+      iconTintRes = iconTintRes,
+      testTag = "location_locked",
+    )
 
-  data class LocationNotLocked(override val iconRes: Int = R.drawable.ic_gps_lock_not_fixed) :
-    MapFloatingActionButtonType(iconRes)
+  data object LocationNotLocked :
+    MapFloatingActionButtonType(
+      iconRes = R.drawable.ic_gps_lock_not_fixed,
+      testTag = "location_not_locked",
+    )
 }
 
 @Suppress("UnusedPrivateMember")

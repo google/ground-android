@@ -39,7 +39,7 @@ import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentState
 import org.groundplatform.android.ui.theme.AppTheme
 
 @Composable
-fun BaseMapScreen(
+fun HomeScreenMapContainerScreen(
   modifier: Modifier = Modifier,
   locationLockButtonType: MapFloatingActionButtonType,
   shouldShowMapActions: Boolean,
@@ -53,7 +53,7 @@ fun BaseMapScreen(
         modifier =
           Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top))
             .align(Alignment.TopStart),
-        type = MapFloatingActionButtonType.OpenNavDrawer(),
+        type = MapFloatingActionButtonType.OpenNavDrawer,
         onClick = { onBaseMapAction(BaseMapAction.OnOpenNavDrawerClicked) },
       )
 
@@ -61,7 +61,7 @@ fun BaseMapScreen(
         modifier =
           Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top))
             .align(Alignment.TopEnd),
-        type = MapFloatingActionButtonType.MapType(),
+        type = MapFloatingActionButtonType.MapType,
         onClick = { onBaseMapAction(BaseMapAction.OnMapTypeClicked) },
       )
     }
@@ -78,11 +78,7 @@ fun BaseMapScreen(
         )
       }
 
-      JobMapComponent(
-        modifier = Modifier,
-        state = jobComponentState,
-        onAction = onJobComponentAction,
-      )
+      JobMapComponent(state = jobComponentState, onAction = onJobComponentAction)
     }
   }
 }
@@ -98,10 +94,10 @@ sealed interface BaseMapAction {
 @Suppress("UnusedPrivateMember")
 @Preview(showSystemUi = true)
 @Composable
-private fun BaseMapScreenPreview() {
+private fun HomeScreenMapContainerScreenPreview() {
   AppTheme {
-    BaseMapScreen(
-      locationLockButtonType = MapFloatingActionButtonType.LocationNotLocked(),
+    HomeScreenMapContainerScreen(
+      locationLockButtonType = MapFloatingActionButtonType.LocationNotLocked,
       jobComponentState =
         JobMapComponentState(
           selectedLoi = null,
