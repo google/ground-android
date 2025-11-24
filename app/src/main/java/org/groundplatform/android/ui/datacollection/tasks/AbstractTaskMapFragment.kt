@@ -54,7 +54,7 @@ abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
   protected lateinit var binding: MapTaskFragBinding
 
   protected val dataCollectionViewModel: DataCollectionViewModel by
-  hiltNavGraphViewModels(R.id.data_collection)
+    hiltNavGraphViewModels(R.id.data_collection)
 
   protected val taskViewModel: TVM by lazy {
     // Access to this viewModel is lazy for testing. This is because the NavHostController could
@@ -115,12 +115,10 @@ abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
     binding.locationLockBtn.apply {
       setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
       setComposableContent {
-        val isLocationLocked by viewModel.locationLock.collectAsStateWithLifecycle()
+        val locationLockButton by viewModel.locationLockIconType.collectAsStateWithLifecycle()
 
         MapFloatingActionButton(
-          type =
-            if (isLocationLocked.getOrDefault(false)) MapFloatingActionButtonType.LocationLocked()
-            else MapFloatingActionButtonType.LocationNotLocked(),
+          type = locationLockButton,
           onClick = { viewModel.onLocationLockClick() },
         )
       }

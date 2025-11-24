@@ -44,7 +44,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.withIndex
 import kotlinx.coroutines.launch
-import org.groundplatform.android.R
 import org.groundplatform.android.common.Constants.DEFAULT_LOI_ZOOM_LEVEL
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.geometry.Coordinates
@@ -59,6 +58,7 @@ import org.groundplatform.android.system.FINE_LOCATION_UPDATES_REQUEST
 import org.groundplatform.android.system.LocationManager
 import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.system.SettingsManager
+import org.groundplatform.android.ui.components.MapFloatingActionButtonType
 import org.groundplatform.android.ui.map.CameraUpdateRequest
 import org.groundplatform.android.ui.map.NewCameraPositionViaBounds
 import org.groundplatform.android.ui.map.NewCameraPositionViaCoordinates
@@ -96,6 +96,24 @@ constructor(
       }
       .stateIn(viewModelScope, SharingStarted.Lazily, null)
 
+  val locationLockIconType: StateFlow<MapFloatingActionButtonType> =
+    locationLock
+      .map { lockState ->
+        if (lockState.getOrDefault(false)) {
+          MapFloatingActionButtonType.LocationLocked()
+        } else {
+          MapFloatingActionButtonType.LocationNotLocked()
+        }
+      }
+      .stateIn(
+        viewModelScope,
+        SharingStarted.Lazily,
+        MapFloatingActionButtonType.LocationNotLocked(),
+      )
+
+  private val _shouldShowMapActions: MutableStateFlow<Boolean> = MutableStateFlow(false)
+  val shouldShowMapActions: StateFlow<Boolean> = _shouldShowMapActions
+
   /** Flow of current position of camera. */
   var currentCameraPosition = MutableStateFlow<CameraPosition?>(null)
     private set
@@ -107,9 +125,6 @@ constructor(
         if (enabled) offlineSources else null
       }
       .asLiveData()
-
-  private val _shouldShowMapActions: MutableStateFlow<Boolean> = MutableStateFlow(false)
-  val shouldShowMapActions: StateFlow<Boolean> = _shouldShowMapActions
 
   /** Returns whether the user has granted fine location permission. */
   fun hasLocationPermission() =

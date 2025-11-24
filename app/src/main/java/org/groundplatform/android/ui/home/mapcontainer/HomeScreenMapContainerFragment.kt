@@ -19,20 +19,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
-import kotlinx.coroutines.flow.first
 import org.groundplatform.android.R
 import org.groundplatform.android.databinding.BasemapLayoutBinding
 import org.groundplatform.android.model.locationofinterest.LOI_NAME_PROPERTY
@@ -150,18 +142,16 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     binding.composeContent.apply {
       setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
       setComposableContent {
-        val isLocationLocked by mapContainerViewModel.locationLock.collectAsStateWithLifecycle()
+        val locationLockButton by
+          mapContainerViewModel.locationLockIconType.collectAsStateWithLifecycle()
         val jobMapComponentState by
           mapContainerViewModel.jobMapComponentState.collectAsStateWithLifecycle()
         val shouldShowMapActions by
           mapContainerViewModel.shouldShowMapActions.collectAsStateWithLifecycle()
-        val shouldShowRecenter =
-          isLocationLocked.isSuccess && (isLocationLocked.getOrNull() == false)
 
         BaseMapScreen(
-          isLocationLocked = isLocationLocked.getOrDefault(false),
+          locationLockButtonType = locationLockButton,
           shouldShowMapActions = shouldShowMapActions,
-          shouldShowRecenter = shouldShowRecenter,
           jobComponentState = jobMapComponentState,
           onBaseMapAction = { handleMapAction(it) },
           onJobComponentAction = {

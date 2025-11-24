@@ -40,7 +40,6 @@ import org.groundplatform.android.ui.common.BaseMapViewModel
 import org.groundplatform.android.ui.common.EphemeralPopups
 import org.groundplatform.android.ui.common.MapConfig
 import org.groundplatform.android.ui.components.MapFloatingActionButton
-import org.groundplatform.android.ui.components.MapFloatingActionButtonType
 import org.groundplatform.android.ui.home.mapcontainer.HomeScreenMapContainerViewModel
 import org.groundplatform.android.ui.map.MapFragment
 import org.groundplatform.android.util.renderComposableDialog
@@ -80,11 +79,11 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
     binding.locationLockBtn.apply {
       setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
       setComposableContent {
-        val isLocationLocked by mapContainerViewModel.locationLock.collectAsStateWithLifecycle()
+        val locationLockButton by
+          mapContainerViewModel.locationLockIconType.collectAsStateWithLifecycle()
+
         MapFloatingActionButton(
-          type =
-            if (isLocationLocked.getOrDefault(false)) MapFloatingActionButtonType.LocationLocked()
-            else MapFloatingActionButtonType.LocationNotLocked(),
+          type = locationLockButton,
           onClick = { viewModel.onLocationLockClick() },
         )
       }
