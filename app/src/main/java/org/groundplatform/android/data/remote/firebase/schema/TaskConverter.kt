@@ -117,7 +117,7 @@ internal object TaskConverter {
         false
       } // Legacy: always locked to device location
       else -> {
-        error("Unknown task type: $taskType in getAllowMovingPoint()")
+       true
       }
     }
 
