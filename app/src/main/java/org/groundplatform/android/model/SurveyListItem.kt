@@ -27,10 +27,4 @@ data class SurveyListItem(
 )
 
 fun Survey.toListItem(availableOffline: Boolean): SurveyListItem =
-  SurveyListItem(
-    id,
-    title,
-    description,
-    availableOffline,
-    generalAccess ?: GeneralAccess.GENERAL_ACCESS_UNSPECIFIED,
-  )
+  SurveyListItem(id, title, description, availableOffline, generalAccess)
