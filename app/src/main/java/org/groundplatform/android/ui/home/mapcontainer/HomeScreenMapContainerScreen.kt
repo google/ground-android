@@ -27,21 +27,16 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import org.groundplatform.android.R
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.Style
 import org.groundplatform.android.ui.components.MapFloatingActionButton
 import org.groundplatform.android.ui.components.MapFloatingActionButtonType
+import org.groundplatform.android.ui.components.RecenterButton
 import org.groundplatform.android.ui.home.mapcontainer.jobs.AdHocDataCollectionButtonData
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponent
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentAction
@@ -113,18 +108,10 @@ private fun LocationLockComponent(
     verticalAlignment = Alignment.CenterVertically,
   ) {
     if (shouldShowRecenter)
-      OutlinedButton(
+      RecenterButton(
         modifier = Modifier.padding(start = 16.dp),
-        colors =
-          ButtonDefaults.buttonColors()
-            .copy(
-              containerColor = MaterialTheme.colorScheme.background,
-              contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            ),
         onClick = { onAction(BaseMapAction.OnLocationLockClicked) },
-      ) {
-        Text(text = stringResource(R.string.recenter))
-      }
+      )
 
     Spacer(modifier = Modifier.weight(1f))
 

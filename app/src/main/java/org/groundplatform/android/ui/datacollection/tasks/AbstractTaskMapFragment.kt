@@ -20,13 +20,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.StringRes
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LiveData
@@ -44,6 +42,7 @@ import org.groundplatform.android.ui.common.AbstractMapContainerFragment
 import org.groundplatform.android.ui.common.BaseMapViewModel
 import org.groundplatform.android.ui.components.MapFloatingActionButton
 import org.groundplatform.android.ui.components.MapFloatingActionButtonType
+import org.groundplatform.android.ui.components.RecenterButton
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.MapFragment
@@ -135,17 +134,10 @@ abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
         val shouldShowRecenter by viewModel.shouldShowRecenterButton.collectAsStateWithLifecycle()
 
         if (shouldShowRecenter)
-          OutlinedButton(
-            colors =
-              ButtonDefaults.buttonColors()
-                .copy(
-                  containerColor = MaterialTheme.colorScheme.background,
-                  contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                ),
+          RecenterButton(
+            modifier = Modifier.padding(start = 16.dp),
             onClick = { viewModel.onLocationLockClick() },
-          ) {
-            Text(text = stringResource(R.string.recenter))
-          }
+          )
       }
     }
   }
