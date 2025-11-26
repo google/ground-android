@@ -79,8 +79,7 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
     binding.locationLockBtn.apply {
       setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
       setComposableContent {
-        val locationLockButton by
-          mapContainerViewModel.locationLockIconType.collectAsStateWithLifecycle()
+        val locationLockButton by viewModel.locationLockIconType.collectAsStateWithLifecycle()
 
         MapFloatingActionButton(
           type = locationLockButton,

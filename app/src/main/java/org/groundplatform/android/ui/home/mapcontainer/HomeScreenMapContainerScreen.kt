@@ -72,7 +72,9 @@ fun HomeScreenMapContainerScreen(
     ) {
       if (shouldShowMapActions) {
         MapFloatingActionButton(
-          modifier = Modifier.align(Alignment.End),
+          modifier =
+            Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom))
+              .align(Alignment.End),
           type = locationLockButtonType,
           onClick = { onBaseMapAction(BaseMapAction.OnLocationLockClicked) },
         )
