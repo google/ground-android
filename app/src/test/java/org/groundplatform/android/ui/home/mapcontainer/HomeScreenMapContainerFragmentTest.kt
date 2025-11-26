@@ -15,27 +15,32 @@
  */
 package org.groundplatform.android.ui.home.mapcontainer
 
+import androidx.activity.ComponentActivity
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
 import androidx.navigation.NavController
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isEnabled
-import androidx.test.espresso.matcher.ViewMatchers.withId
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.R
 import org.groundplatform.android.launchFragmentWithNavController
+import org.groundplatform.android.ui.components.MapFloatingActionButtonType
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class HomeScreenMapContainerFragmentTest : BaseHiltTest() {
 
   private lateinit var navController: NavController
+  @get:Rule override val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
   @Before
   override fun setUp() {
@@ -48,7 +53,8 @@ class HomeScreenMapContainerFragmentTest : BaseHiltTest() {
 
   @Test
   fun `Click map type launches MapTypeDialogFragment`() = runWithTestDispatcher {
-    onView(withId(R.id.map_type_btn)).perform(click()).check(matches(isEnabled()))
+    composeTestRule.onNodeWithTag(MapFloatingActionButtonType.MapType.testTag).performClick()
+    advanceUntilIdle()
     assertThat(navController.currentDestination?.id).isEqualTo(R.id.mapTypeDialogFragment)
   }
 }
