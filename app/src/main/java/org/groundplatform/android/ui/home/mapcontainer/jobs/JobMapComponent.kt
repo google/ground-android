@@ -45,53 +45,46 @@ import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentActio
 import org.groundplatform.android.ui.theme.AppTheme
 
 @Composable
-fun JobMapComponent(
-  modifier: Modifier = Modifier,
-  state: JobMapComponentState,
-  onAction: (JobMapComponentAction) -> Unit,
-) {
+fun JobMapComponent(state: JobMapComponentState, onAction: (JobMapComponentAction) -> Unit) {
   var showJobSelectionModal by rememberSaveable { mutableStateOf(false) }
   LaunchedEffect(showJobSelectionModal) {
     onAction(JobMapComponentAction.OnJobSelectionModalVisibilityChanged(showJobSelectionModal))
   }
 
-  Box(modifier = modifier) {
-    state.adHocDataCollectionButtonData
-      .takeIf { it.isNotEmpty() }
-      ?.let { data ->
-        if (showJobSelectionModal) {
-          JobSelectionModal(
-            jobs = data.map { it.job },
-            onJobClicked = { job ->
-              showJobSelectionModal = false
-              onAction(OnJobSelected(job))
-            },
-            onDismiss = { showJobSelectionModal = false },
-          )
-        } else {
-          AddLoiButton(
-            onClick = {
-              if (data.size > 1) {
-                showJobSelectionModal = true
-              } else {
-                onAction(OnJobSelected(data.first().job))
-              }
+  state.adHocDataCollectionButtonData
+    .takeIf { it.isNotEmpty() }
+    ?.let { data ->
+      if (showJobSelectionModal) {
+        JobSelectionModal(
+          jobs = data.map { it.job },
+          onJobClicked = { job ->
+            showJobSelectionModal = false
+            onAction(OnJobSelected(job))
+          },
+          onDismiss = { showJobSelectionModal = false },
+        )
+      } else {
+        AddLoiButton(
+          onClick = {
+            if (data.size > 1) {
+              showJobSelectionModal = true
+            } else {
+              onAction(OnJobSelected(data.first().job))
             }
-          )
-        }
+          }
+        )
       }
-
-    state.selectedLoi?.let { loi ->
-      LoiJobSheet(
-        loi = loi.loi,
-        canUserSubmitData = loi.canCollectData,
-        submissionCount = loi.submissionCount,
-        showDeleteLoiButton = loi.showDeleteLoiButton,
-        onCollectClicked = { onAction(OnAddDataClicked(loi)) },
-        onDeleteClicked = { onAction(OnDeleteSiteClicked(loi)) },
-        onDismiss = { onAction(JobMapComponentAction.OnJobCardDismissed) },
-      )
     }
+  state.selectedLoi?.let { loi ->
+    LoiJobSheet(
+      loi = loi.loi,
+      canUserSubmitData = loi.canCollectData,
+      submissionCount = loi.submissionCount,
+      showDeleteLoiButton = loi.showDeleteLoiButton,
+      onCollectClicked = { onAction(OnAddDataClicked(loi)) },
+      onDeleteClicked = { onAction(OnDeleteSiteClicked(loi)) },
+      onDismiss = { onAction(JobMapComponentAction.OnJobCardDismissed) },
+    )
   }
 }
 

@@ -84,11 +84,7 @@ fun HomeScreenMapContainerScreen(
         )
       }
 
-      JobMapComponent(
-        modifier = Modifier,
-        state = jobComponentState,
-        onAction = onJobComponentAction,
-      )
+      JobMapComponent(state = jobComponentState, onAction = onJobComponentAction)
     }
   }
 }

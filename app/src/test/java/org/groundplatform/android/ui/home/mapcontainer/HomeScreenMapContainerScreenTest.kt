@@ -21,6 +21,7 @@ import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlin.test.Test
@@ -85,6 +86,24 @@ class HomeScreenMapContainerScreenTest : BaseHiltTest() {
   }
 
   @Test
+  fun `Should display the recenter button`() {
+    setContent(shouldShowRecenterButton = true)
+
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.recenter))
+      .assertIsDisplayed()
+  }
+
+  @Test
+  fun `Should not display the recenter button`() {
+    setContent(shouldShowRecenterButton = false)
+
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.recenter))
+      .assertIsNotDisplayed()
+  }
+
+  @Test
   fun `Should trigger OnOpenNavDrawerClicked when the correct button is clicked`() {
     val performedActions = mutableListOf<BaseMapAction>()
     setContent(onBaseMapAction = { performedActions += it })
@@ -107,12 +126,25 @@ class HomeScreenMapContainerScreenTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Should trigger OnLocationLockClicked when the correct button is clicked`() {
+  fun `Should trigger OnLocationLockClicked when the location button is clicked`() {
     val performedActions = mutableListOf<BaseMapAction>()
     setContent(onBaseMapAction = { performedActions += it })
 
     composeTestRule
       .onNodeWithTag(MapFloatingActionButtonType.LocationNotLocked.testTag)
+      .performClick()
+
+    assertTrue(performedActions.contains(BaseMapAction.OnLocationLockClicked))
+    assert(performedActions.size == 1)
+  }
+
+  @Test
+  fun `Should trigger OnLocationLockClicked when the recenter button is clicked`() {
+    val performedActions = mutableListOf<BaseMapAction>()
+    setContent(onBaseMapAction = { performedActions += it })
+
+    composeTestRule
+      .onNodeWithText(composeTestRule.activity.getString(R.string.recenter))
       .performClick()
 
     assertTrue(performedActions.contains(BaseMapAction.OnLocationLockClicked))
@@ -142,6 +174,7 @@ class HomeScreenMapContainerScreenTest : BaseHiltTest() {
     locationLockButtonType: MapFloatingActionButtonType =
       MapFloatingActionButtonType.LocationNotLocked,
     shouldShowMapActions: Boolean = true,
+    shouldShowRecenterButton: Boolean = true,
     jobComponentState: JobMapComponentState = JobMapComponentState(),
     onBaseMapAction: (BaseMapAction) -> Unit = {},
     onJobComponentAction: (JobMapComponentAction) -> Unit = {},
@@ -150,6 +183,7 @@ class HomeScreenMapContainerScreenTest : BaseHiltTest() {
       HomeScreenMapContainerScreen(
         locationLockButtonType = locationLockButtonType,
         shouldShowMapActions = shouldShowMapActions,
+        shouldShowRecenter = shouldShowRecenterButton,
         jobComponentState = jobComponentState,
         onBaseMapAction = onBaseMapAction,
         onJobComponentAction = onJobComponentAction,

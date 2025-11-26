@@ -149,7 +149,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
         val shouldShowMapActions by
           mapContainerViewModel.shouldShowMapActions.collectAsStateWithLifecycle()
         val shouldShowRecenter by
-        mapContainerViewModel.shouldShowRecenterButton.collectAsStateWithLifecycle()
+          mapContainerViewModel.shouldShowRecenterButton.collectAsStateWithLifecycle()
 
         HomeScreenMapContainerScreen(
           locationLockButtonType = locationLockButton,
