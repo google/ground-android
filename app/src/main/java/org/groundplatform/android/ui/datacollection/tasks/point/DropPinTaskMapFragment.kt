@@ -38,10 +38,6 @@ class DropPinTaskMapFragment @Inject constructor() :
         map.disableGestures()
       }
     }
-
-    /*map.setOnMyLocationChangedListener { location ->
-      taskViewModel.updateAccuracy(location?.accuracy) // meters (Float)
-    }*/
   }
 
   override fun onMapCameraMoved(position: CameraPosition) {
