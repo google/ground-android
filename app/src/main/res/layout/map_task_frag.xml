@@ -58,7 +58,6 @@
     android:id="@+id/recenter_btn"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginStart="20dp"
     app:layout_constraintBottom_toTopOf="@+id/location_lock_btn"
     app:layout_constraintStart_toStartOf="parent" />
 

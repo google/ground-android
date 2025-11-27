@@ -135,7 +135,7 @@ abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
 
         if (shouldShowRecenter)
           RecenterButton(
-            modifier = Modifier.padding(start = 16.dp),
+            modifier = Modifier.padding(start = 20.dp),
             onClick = { viewModel.onLocationLockClick() },
           )
       }
