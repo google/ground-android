@@ -32,6 +32,8 @@ import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 import org.groundplatform.android.ui.map.Feature
 
+private const val REQUIRED_ACCURACY_METERS = 15f
+
 class DropPinTaskViewModel
 @Inject
 constructor(
@@ -45,7 +47,6 @@ constructor(
   /** Whether the instructions dialog has been shown or not. */
   var instructionsDialogShown: Boolean by localValueStore::dropPinInstructionsShown
 
-  private val REQUIRED_ACCURACY_METERS = 15f
   val accuracyMeters = MutableLiveData<Float?>(null)
   val canCapture =
     MediatorLiveData<Boolean>().apply {

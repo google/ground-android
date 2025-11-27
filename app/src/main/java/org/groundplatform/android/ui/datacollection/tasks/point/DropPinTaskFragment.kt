@@ -64,10 +64,6 @@ class DropPinTaskFragment @Inject constructor() : AbstractTaskFragment<DropPinTa
 
     viewModel.canCapture.observe(viewLifecycleOwner) { ok -> dropBtn.showIfTrue(ok) }
 
-    viewModel.accuracyMeters.observe(viewLifecycleOwner) { acc ->
-      val poor = (acc == null) || (acc > 15f)
-      if (poor) {} else {}
-    }
     addNextButton(hideIfEmpty = true)
   }
 
