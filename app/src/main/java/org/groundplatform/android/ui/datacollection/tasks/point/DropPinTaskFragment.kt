@@ -57,12 +57,9 @@ class DropPinTaskFragment @Inject constructor() : AbstractTaskFragment<DropPinTa
   override fun onCreateActionButtons() {
     addSkipButton()
     addUndoButton()
-    val dropBtn =
-      addButton(ButtonAction.DROP_PIN)
-        .setOnClickListener { viewModel.dropPin() }
-        .setOnValueChanged { button, value -> button.showIfTrue(value.isNullOrEmpty()) }
-
-    viewModel.canCapture.observe(viewLifecycleOwner) { ok -> dropBtn.showIfTrue(ok) }
+    addButton(ButtonAction.DROP_PIN)
+      .setOnClickListener { viewModel.dropPin() }
+      .setOnValueChanged { button, value -> button.showIfTrue(value.isNullOrEmpty()) }
 
     addNextButton(hideIfEmpty = true)
   }
