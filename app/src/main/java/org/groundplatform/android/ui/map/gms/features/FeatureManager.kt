@@ -82,7 +82,7 @@ constructor(
     object : MarkerManager(map) {
       override fun onMarkerClick(marker: Marker): Boolean {
         if (super.onMarkerClick(marker)) return true
-        val tag = marker.tag as Feature.Tag
+        val tag = marker.tag as? Feature.Tag ?: return false
         val feature = featuresByTag[tag] ?: error("Feature not found for tag: $tag")
         coroutineScope.launch { _markerClicks.emit(feature) }
         return true
