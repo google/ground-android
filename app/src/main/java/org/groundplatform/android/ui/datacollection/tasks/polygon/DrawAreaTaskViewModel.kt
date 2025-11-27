@@ -41,8 +41,10 @@ import org.groundplatform.android.model.submission.DrawAreaTaskData
 import org.groundplatform.android.model.submission.DrawAreaTaskIncompleteData
 import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.task.Task
+import org.groundplatform.android.ui.common.BaseMapViewModel
 import org.groundplatform.android.ui.common.SharedViewModel
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
+import org.groundplatform.android.ui.datacollection.tasks.point.LocationLockEnabledState
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.util.LocaleAwareMeasureFormatter
 import org.groundplatform.android.ui.util.VibrationHelper
@@ -127,9 +129,19 @@ internal constructor(
 
   private lateinit var featureStyle: Feature.Style
 
+  /** Allows control for triggering the location lock programmatically. */
+  private val _enableLocationLockFlow = MutableStateFlow(LocationLockEnabledState.UNKNOWN)
+  val enableLocationLockFlow = _enableLocationLockFlow.asStateFlow()
+
+  /** Whether location lock should be enforced based on task configuration. */
+  private var shouldEnforceLocationLock = false
+
   override fun initialize(job: Job, task: Task, taskData: TaskData?) {
     super.initialize(job, task, taskData)
     featureStyle = Feature.Style(job.getDefaultColor(), Feature.VertexStyle.CIRCLE)
+
+    // Determine if location lock should be enforced for this task
+    shouldEnforceLocationLock = !task.allowManualOverride
 
     // Apply saved state if it exists.
     when (taskData) {
@@ -383,6 +395,42 @@ internal constructor(
   fun triggerVibration() {
     vibrationHelper.vibrate()
   }
+
+  private fun updateLocationLock(newState: LocationLockEnabledState) {
+    _enableLocationLockFlow.value = newState
+  }
+
+  fun enableLocationLock() {
+    if (_enableLocationLockFlow.value == LocationLockEnabledState.NEEDS_ENABLE) {
+      updateLocationLock(LocationLockEnabledState.ENABLE)
+    }
+  }
+
+  suspend fun initLocationUpdates(mapViewModel: BaseMapViewModel) {
+    val locationLockEnabledState =
+      if (mapViewModel.hasLocationPermission()) {
+        // User has permission to enable location updates, enable it now.
+        mapViewModel.enableLocationLockAndGetUpdates()
+        LocationLockEnabledState.ALREADY_ENABLED
+      } else {
+        // Otherwise, wait to enable location lock until later.
+        LocationLockEnabledState.NEEDS_ENABLE
+      }
+    updateLocationLock(locationLockEnabledState)
+    _enableLocationLockFlow.collect {
+      if (it == LocationLockEnabledState.ENABLE) {
+        // No-op if permission is already granted and location updates are enabled.
+        mapViewModel.enableLocationLockAndGetUpdates()
+        updateLocationLock(LocationLockEnabledState.ALREADY_ENABLED)
+      }
+    }
+  }
+
+  /**
+   * Returns true if location lock is enforced (cannot be manually overridden). This is based on the
+   * task's allowManualOverride setting.
+   */
+  fun isLocationLockEnforced(): Boolean = shouldEnforceLocationLock
 
   companion object {
     /** Min. distance in dp between two points for them be considered as overlapping. */

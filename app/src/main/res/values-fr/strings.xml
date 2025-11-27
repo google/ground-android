@@ -71,7 +71,6 @@
   <string name="drop_pin">Placer une épingle</string>
   <string name="add_site">Ajouter un site</string>
   <string name="job_site_icon">Icône du site de la tâche</string>
-  <string name="drop_a_pin_tooltip_text">Faites glisser votre carte jusqu&#8217;à ce que l&#8217;épingle au centre se trouve à l&#8217;endroit souhaité.</string>
   <string name="current_location">Localisation actuelle :</string>
   <string name="loading">Chargement…</string>
   <string name="no_tasks_error">Ce boulot n&#8217;a plus de tâches à effectuer</string>
