@@ -22,6 +22,16 @@ import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
+import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -98,5 +108,26 @@ class CaptureLocationTaskFragment @Inject constructor() :
         },
       )
     }
+  }
+
+  @Composable
+  override fun HeaderCard() {
+    val location by viewModel.lastLocation.collectAsState()
+    var showAccuracyCard by remember { mutableStateOf(false) }
+
+    LaunchedEffect(location) {
+      showAccuracyCard = location != null && location!!.accuracy > MIN_DESIRED_ACCURACY
+    }
+
+    if (showAccuracyCard) {
+      LocationAccuracyCard(
+        onDismiss = { showAccuracyCard = false },
+        modifier = Modifier.padding(bottom = 12.dp),
+      )
+    }
+  }
+
+  companion object {
+    private const val MIN_DESIRED_ACCURACY = 15.0f
   }
 }
