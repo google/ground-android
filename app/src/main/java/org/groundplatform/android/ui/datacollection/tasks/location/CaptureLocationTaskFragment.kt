@@ -110,6 +110,8 @@ class CaptureLocationTaskFragment @Inject constructor() :
     }
   }
 
+  override fun shouldShowHeader() = true
+
   @Composable
   override fun HeaderCard() {
     val location by viewModel.lastLocation.collectAsState()

@@ -236,16 +236,27 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   /** Adds the action buttons to the UI. */
   private fun renderButtons() {
     taskView.actionButtonsContainer.composeView.setComposableContent {
-      Column(modifier = Modifier.fillMaxWidth()) {
-        HeaderCard()
-
-        Spacer(Modifier.height(12.dp))
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-          buttonDataList.sortedBy { it.index }.forEach { (_, button) -> button.CreateButton() }
+      if (shouldShowHeader()) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+          HeaderCard()
+          Spacer(Modifier.height(12.dp))
+          ActionButtonsRow()
         }
+      } else {
+        ActionButtonsRow()
       }
     }
   }
+
+  @Composable
+  private fun ActionButtonsRow() {
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+      buttonDataList.sortedBy { it.index }.forEach { (_, button) -> button.CreateButton() }
+    }
+  }
+
+  // This function can allow any task to show a Header card on top of the Button row.
+  open fun shouldShowHeader() = false
 
   @Composable open fun HeaderCard() {}
 
