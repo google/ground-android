@@ -95,19 +95,13 @@
         app:layout_constraintRight_toLeftOf="@id/right_mask"
         app:layout_constraintTop_toBottomOf="@id/top_mask" />
 
-      <com.google.android.material.floatingactionbutton.FloatingActionButton
+      <androidx.compose.ui.platform.ComposeView
         android:id="@+id/location_lock_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:onClick="@{() -> viewModel.onLocationLockClick()}"
-        app:backgroundTint="?attr/colorSurface"
-        app:fabSize="mini"
-        app:imageResource="@{viewModel.getLocationLockIcon()}"
         app:layout_constraintBottom_toBottomOf="@id/viewport_outline"
-        app:layout_constraintEnd_toEndOf="@id/viewport_outline"
-        app:tint="@{viewModel.getLocationLockIconTint()}"
-        app:useCompatPadding="true" />
+        app:layout_constraintEnd_toEndOf="@id/viewport_outline" />
 
       <FrameLayout
         android:id="@+id/bottom_mask"
