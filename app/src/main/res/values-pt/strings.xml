@@ -231,10 +231,14 @@
   <string name="select_length_summary">Selecione a sua unidade preferida</string>
   <string name="length_meters">Metros (m)</string>
   <string name="length_feet">Pés (ft)</string>
-  <string name="delete_site">Eliminar local</string>
-  <string name="delete_site_dialog_title">Eliminar local?</string>
-  <string name="delete_site_dialog_message">Este local e todos os dados associados serão excluídos permanentemente. Esta ação não pode ser desfeita.</string>
-  <string name="delete">Eliminar</string>
+
+  <string name="delete_site">Excluir site</string>
+  <string name="delete_site_dialog_title">Excluir site?</string>
+  <string name="delete_site_dialog_message">Este site e todos os dados associados serão excluídos permanentemente. Esta ação não pode ser desfeita.</string>
+  <string name="delete">Excluir</string>
+
+  <string name="location_not_accurate_heading">Sua localização não é precisa</string>
+  <string name="location_not_accurate_description">Tente ficar parado ou aguarde uma posição mais precisa</string>
 
   <string name="recenter">Recentrar</string>
 </resources>

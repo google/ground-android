@@ -233,5 +233,9 @@
   <string name="delete_site_dialog_title">Delete site?</string>
   <string name="delete_site_dialog_message">This site and all associated data will be permanently deleted. This action cannot be undone.</string>
   <string name="delete">Delete</string>
+
+  <string name="location_not_accurate_heading">Your location is not accurate</string>
+  <string name="location_not_accurate_description">Try standing still or waiting for a more accurate position</string>
+
   <string name="recenter">Re-center</string>
 </resources>

@@ -20,12 +20,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.core.view.doOnAttach
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -229,11 +236,18 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   /** Adds the action buttons to the UI. */
   private fun renderButtons() {
     taskView.actionButtonsContainer.composeView.setComposableContent {
-      Row(horizontalArrangement = Arrangement.SpaceBetween) {
-        buttonDataList.sortedBy { it.index }.forEach { (_, button) -> button.CreateButton() }
+      Column(modifier = Modifier.fillMaxWidth()) {
+        HeaderCard()
+
+        Spacer(Modifier.height(12.dp))
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+          buttonDataList.sortedBy { it.index }.forEach { (_, button) -> button.CreateButton() }
+        }
       }
     }
   }
+
+  @Composable open fun HeaderCard() {}
 
   /** Returns true if the current task is in the last position in the sequence. */
   private fun isLastPosition() = dataCollectionViewModel.isLastPosition(taskId)

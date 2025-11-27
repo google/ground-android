@@ -215,5 +215,8 @@
   <string name="delete_site_dialog_message">Ce site et toutes les données associées seront définitivement supprimés. Cette action ne peut pas être annulée.</string>
   <string name="delete">Supprimer</string>
 
+  <string name="location_not_accurate_heading">Votre position n&#8217;est pas précise</string>
+  <string name="location_not_accurate_description">Essayez de rester immobile ou d&#8217;attendre une position plus précise</string>
+
   <string name="recenter">Recentrer</string>
 </resources>
