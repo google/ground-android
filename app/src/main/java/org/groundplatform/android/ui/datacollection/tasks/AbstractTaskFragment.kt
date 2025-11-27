@@ -255,6 +255,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     }
   }
 
+  // This function can allow any task to show a Header card on top of the Button row.
   open fun shouldShowHeader() = false
 
   @Composable open fun HeaderCard() {}
