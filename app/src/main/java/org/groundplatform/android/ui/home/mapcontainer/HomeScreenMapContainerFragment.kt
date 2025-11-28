@@ -148,10 +148,13 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
           mapContainerViewModel.jobMapComponentState.collectAsStateWithLifecycle()
         val shouldShowMapActions by
           mapContainerViewModel.shouldShowMapActions.collectAsStateWithLifecycle()
+        val shouldShowRecenter by
+          mapContainerViewModel.shouldShowRecenterButton.collectAsStateWithLifecycle()
 
         HomeScreenMapContainerScreen(
           locationLockButtonType = locationLockButton,
           shouldShowMapActions = shouldShowMapActions,
+          shouldShowRecenter = shouldShowRecenter,
           jobComponentState = jobMapComponentState,
           onBaseMapAction = { handleMapAction(it) },
           onJobComponentAction = {

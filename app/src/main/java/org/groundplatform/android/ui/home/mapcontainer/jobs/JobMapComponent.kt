@@ -75,7 +75,6 @@ fun JobMapComponent(state: JobMapComponentState, onAction: (JobMapComponentActio
         )
       }
     }
-
   state.selectedLoi?.let { loi ->
     LoiJobSheet(
       loi = loi.loi,

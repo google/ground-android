@@ -110,6 +110,11 @@ constructor(
   private val _shouldShowMapActions: MutableStateFlow<Boolean> = MutableStateFlow(false)
   val shouldShowMapActions: StateFlow<Boolean> = _shouldShowMapActions
 
+  val shouldShowRecenterButton =
+    locationLock
+      .map { lockState -> !lockState.getOrDefault(false) && hasLocationPermission() }
+      .stateIn(viewModelScope, SharingStarted.Lazily, false)
+
   /** Flow of current position of camera. */
   var currentCameraPosition = MutableStateFlow<CameraPosition?>(null)
     private set

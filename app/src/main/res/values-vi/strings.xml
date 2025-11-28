@@ -211,4 +211,6 @@
 
   <string name="location_not_accurate_heading">Vị trí của bạn không chính xác</string>
   <string name="location_not_accurate_description">Hãy đứng yên hoặc chờ để có vị trí chính xác hơn</string>
+
+  <string name="recenter">Recenter</string>
 </resources>

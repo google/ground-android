@@ -239,4 +239,6 @@
 
   <string name="location_not_accurate_heading">Sua localização não é precisa</string>
   <string name="location_not_accurate_description">Tente ficar parado ou aguarde uma posição mais precisa</string>
+
+  <string name="recenter">Recentrar</string>
 </resources>
