@@ -51,7 +51,7 @@ fun MapFloatingActionButton(
 
 sealed class MapFloatingActionButtonType(
   val iconRes: Int,
-  open val iconTintRes: Int = R.color.md_theme_onSurfaceVariant,
+  open val iconTintRes: Int = R.color.md_theme_onSurface,
   val testTag: String,
 ) {
   data object OpenNavDrawer :
