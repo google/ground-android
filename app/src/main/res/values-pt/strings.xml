@@ -236,4 +236,7 @@
   <string name="delete_site_dialog_title">Excluir site?</string>
   <string name="delete_site_dialog_message">Este site e todos os dados associados serão excluídos permanentemente. Esta ação não pode ser desfeita.</string>
   <string name="delete">Excluir</string>
+
+  <string name="location_not_accurate_heading">Sua localização não é precisa</string>
+  <string name="location_not_accurate_description">Tente ficar parado ou aguarde uma posição mais precisa</string>
 </resources>

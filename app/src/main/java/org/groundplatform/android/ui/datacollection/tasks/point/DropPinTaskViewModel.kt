@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.point
 
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
@@ -31,6 +32,8 @@ import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 import org.groundplatform.android.ui.map.Feature
 
+private const val REQUIRED_ACCURACY_METERS = 15f
+
 class DropPinTaskViewModel
 @Inject
 constructor(
@@ -44,6 +47,12 @@ constructor(
   /** Whether the instructions dialog has been shown or not. */
   var instructionsDialogShown: Boolean by localValueStore::dropPinInstructionsShown
 
+  val accuracyMeters = MutableLiveData<Float?>(null)
+  val canCapture =
+    MediatorLiveData<Boolean>().apply {
+      addSource(accuracyMeters) { acc -> value = acc != null && acc <= REQUIRED_ACCURACY_METERS }
+    }
+
   override fun initialize(job: Job, task: Task, taskData: TaskData?) {
     super.initialize(job, task, taskData)
     pinColor = job.getDefaultColor()
@@ -54,6 +63,10 @@ constructor(
 
   fun updateCameraPosition(position: CameraPosition) {
     lastCameraPosition = position
+  }
+
+  fun updateAccuracy(meters: Float?) {
+    accuracyMeters.postValue(meters)
   }
 
   override fun clearResponse() {

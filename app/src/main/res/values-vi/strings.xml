@@ -208,4 +208,7 @@
   <string name="delete_site_dialog_title">Xóa địa điểm?</string>
   <string name="delete_site_dialog_message">Địa điểm này và tất cả dữ liệu liên quan sẽ bị xóa vĩnh viễn. Không thể hoàn tác hành động này.</string>
   <string name="delete">Xóa</string>
+
+  <string name="location_not_accurate_heading">Vị trí của bạn không chính xác</string>
+  <string name="location_not_accurate_description">Hãy đứng yên hoặc chờ để có vị trí chính xác hơn</string>
 </resources>
