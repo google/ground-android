@@ -33,7 +33,6 @@ constructor(
   val multipleChoice: MultipleChoice? = null,
   val isAddLoiTask: Boolean = false,
   val condition: Condition? = null,
-  val isUnified: Boolean = false,
 ) {
 
   // TODO: Define these in data layer!

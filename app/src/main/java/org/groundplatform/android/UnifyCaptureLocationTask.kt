@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android
 
-object Flags {
-  const val UNIFY_CAPTURE_LOCATION_TASK = false
-}
+import javax.inject.Qualifier
+import kotlin.annotation.AnnotationRetention.RUNTIME
+
+@Qualifier @Retention(RUNTIME) annotation class UnifyCaptureLocationTask
