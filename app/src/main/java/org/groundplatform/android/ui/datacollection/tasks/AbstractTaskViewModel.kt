@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks
 
+import android.location.Location
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,6 +27,7 @@ import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.submission.isNullOrEmpty
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.common.AbstractViewModel
+import org.groundplatform.android.ui.common.BaseMapViewModel
 
 /** Defines the state of an inflated [Task] and controls its UI. */
 open class AbstractTaskViewModel internal constructor() : AbstractViewModel() {
@@ -35,6 +37,13 @@ open class AbstractTaskViewModel internal constructor() : AbstractViewModel() {
   val taskTaskData: StateFlow<TaskData?> = _taskDataFlow.asStateFlow()
 
   lateinit var task: Task
+
+  private val _lastLocation = MutableStateFlow<Location?>(null)
+  val lastLocation = _lastLocation.asStateFlow()
+
+  /** Allows control for triggering the location lock programmatically. */
+  private val _enableLocationLockFlow = MutableStateFlow(LocationLockEnabledState.UNKNOWN)
+  val enableLocationLockFlow = _enableLocationLockFlow.asStateFlow()
 
   open fun initialize(job: Job, task: Task, taskData: TaskData?) {
     this.task = task
@@ -74,4 +83,55 @@ open class AbstractTaskViewModel internal constructor() : AbstractViewModel() {
   fun isTaskOptional(): Boolean = !task.isRequired
 
   fun hasNoData(): Boolean = taskTaskData.value.isNullOrEmpty()
+
+  fun updateLocation(location: Location) {
+    _lastLocation.update { location }
+  }
+
+  fun enableLocationLock() {
+    if (_enableLocationLockFlow.value == LocationLockEnabledState.NEEDS_ENABLE) {
+      updateLocationLock(LocationLockEnabledState.ENABLE)
+    }
+  }
+
+  private fun updateLocationLock(newState: LocationLockEnabledState) =
+    _enableLocationLockFlow.update { newState }
+
+  // TODO: Investigate if this method be pulled to BasemapViewModel since location lock is available
+  // Issue URL: https://github.com/google/ground-android/issues/2985
+  //  for all map tasks.
+  suspend fun initLocationUpdates(mapViewModel: BaseMapViewModel) {
+    val locationLockEnabledState =
+      if (mapViewModel.hasLocationPermission()) {
+        // User has permission to enable location updates, enable it now.
+        mapViewModel.enableLocationLockAndGetUpdates()
+        LocationLockEnabledState.ALREADY_ENABLED
+      } else {
+        // Otherwise, wait to enable location lock until later.
+        LocationLockEnabledState.NEEDS_ENABLE
+      }
+    updateLocationLock(locationLockEnabledState)
+    _enableLocationLockFlow.collect {
+      if (it == LocationLockEnabledState.ENABLE) {
+        // No-op if permission is already granted and location updates are enabled.
+        mapViewModel.enableLocationLockAndGetUpdates()
+        updateLocationLock(LocationLockEnabledState.ALREADY_ENABLED)
+      }
+    }
+  }
+}
+
+/** Location lock states relevant for attempting to enable it or not. */
+enum class LocationLockEnabledState {
+  /** The default, unknown state. */
+  UNKNOWN,
+
+  /** The location lock was already enabled, or an attempt was made. */
+  ALREADY_ENABLED,
+
+  /** The location lock was not already enabled. */
+  NEEDS_ENABLE,
+
+  /** Trigger to enable the location lock. */
+  ENABLE,
 }

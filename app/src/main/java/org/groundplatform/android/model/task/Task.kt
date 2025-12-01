@@ -33,6 +33,18 @@ constructor(
   val multipleChoice: MultipleChoice? = null,
   val isAddLoiTask: Boolean = false,
   val condition: Condition? = null,
+  /**
+   * Whether the user can pan/zoom the map to place a point anywhere (true), or can only capture
+   * their GPS location (false). Only applies to DROP_PIN tasks.
+   */
+  val allowMovingPoint: Boolean = true,
+  /**
+   * Whether the user can manually override the location lock by panning the map (true), or if the
+   * location lock cannot be disengaged (false). Only applies to DRAW_AREA tasks. When true, the
+   * location lock starts enabled but can be turned off by panning. When false, the location lock is
+   * always on and map pan/zoom is disabled.
+   */
+  val allowManualOverride: Boolean = true,
   val isUnified: Boolean = false,
 ) {
 

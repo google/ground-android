@@ -15,9 +15,15 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.point
 
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment
 import org.groundplatform.android.ui.map.Feature
@@ -27,8 +33,23 @@ import org.groundplatform.android.ui.map.MapFragment
 class DropPinTaskMapFragment @Inject constructor() :
   AbstractTaskMapFragment<DropPinTaskViewModel>() {
 
+  override fun onCreateView(
+    inflater: LayoutInflater,
+    container: ViewGroup?,
+    savedInstanceState: Bundle?,
+  ): View {
+    val root = super.onCreateView(inflater, container, savedInstanceState)
+    viewLifecycleOwner.lifecycleScope.launch {
+      getMapViewModel().getLocationUpdates().collect { taskViewModel.updateLocation(it) }
+    }
+    return root
+  }
+
   override fun onMapReady(map: MapFragment) {
     super.onMapReady(map)
+    viewLifecycleOwner.lifecycleScope.launch {
+      taskViewModel.initLocationUpdates(getMapViewModel())
+    }
 
     // Disable pan/zoom gestures if a marker has been placed on the map.
     taskViewModel.features.observe(this) {

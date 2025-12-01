@@ -31,6 +31,7 @@ import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 import org.groundplatform.android.ui.map.Feature
+import org.groundplatform.android.ui.map.gms.toCoordinates
 
 private const val REQUIRED_ACCURACY_METERS = 15f
 
@@ -98,5 +99,9 @@ constructor(
 
   fun dropPin() {
     lastCameraPosition?.let { updateResponse(Point(it.coordinates)) }
+  }
+
+  fun captureLocation() {
+    lastLocation.value?.let { updateResponse(Point(it.toCoordinates())) }
   }
 }

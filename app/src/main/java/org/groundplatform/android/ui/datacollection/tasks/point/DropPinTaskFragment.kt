@@ -15,21 +15,29 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.point
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
+import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import javax.inject.Provider
+import kotlinx.coroutines.launch
+import org.groundplatform.android.Flags
 import org.groundplatform.android.R
 import org.groundplatform.android.model.submission.isNullOrEmpty
+import org.groundplatform.android.ui.components.ConfirmationDialog
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.InstructionsDialog
 import org.groundplatform.android.ui.datacollection.components.TaskView
 import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment.Companion.TASK_ID_FRAGMENT_ARG_KEY
+import org.groundplatform.android.ui.datacollection.tasks.LocationLockEnabledState
 import org.groundplatform.android.util.renderComposableDialog
 
 @AndroidEntryPoint
@@ -57,10 +65,16 @@ class DropPinTaskFragment @Inject constructor() : AbstractTaskFragment<DropPinTa
   override fun onCreateActionButtons() {
     addSkipButton()
     addUndoButton()
-    addButton(ButtonAction.DROP_PIN)
-      .setOnClickListener { viewModel.dropPin() }
-      .setOnValueChanged { button, value -> button.showIfTrue(value.isNullOrEmpty()) }
-
+    if (viewModel.task.allowMovingPoint) {
+      addButton(ButtonAction.DROP_PIN)
+        .setOnClickListener { viewModel.dropPin() }
+        .setOnValueChanged { button, value -> button.showIfTrue(value.isNullOrEmpty()) }
+    } else if (Flags.UNIFY_CAPTURE_LOCATION_TASK) {
+      // Mode: GPS location only
+      addButton(ButtonAction.CAPTURE_LOCATION)
+        .setOnClickListener { viewModel.captureLocation() }
+        .setOnValueChanged { button, value -> button.showIfTrue(value.isNullOrEmpty()) }
+    }
     addNextButton(hideIfEmpty = true)
   }
 
@@ -68,12 +82,50 @@ class DropPinTaskFragment @Inject constructor() : AbstractTaskFragment<DropPinTa
     if (isVisible && !viewModel.instructionsDialogShown) {
       showInstructionsDialog()
     }
+
+    if (!viewModel.task.allowMovingPoint && Flags.UNIFY_CAPTURE_LOCATION_TASK) {
+      viewModel.enableLocationLock()
+
+      lifecycleScope.launch {
+        viewModel.enableLocationLockFlow.collect { state ->
+          if (state == LocationLockEnabledState.NEEDS_ENABLE) {
+            showLocationPermissionDialog()
+          }
+        }
+      }
+    }
   }
 
   private fun showInstructionsDialog() {
     viewModel.instructionsDialogShown = true
     renderComposableDialog {
-      InstructionsDialog(iconId = R.drawable.swipe_24, stringId = R.string.drop_a_pin_tooltip_text)
+      if (viewModel.task.allowMovingPoint) {
+        InstructionsDialog(
+          iconId = R.drawable.swipe_24,
+          stringId = R.string.drop_a_pin_tooltip_text,
+        )
+      } else if (Flags.UNIFY_CAPTURE_LOCATION_TASK) {
+        InstructionsDialog(
+          iconId = R.drawable.swipe_24,
+          stringId = R.string.capture_location_tooltip_text,
+        )
+      }
+    }
+  }
+
+  private fun showLocationPermissionDialog() {
+    renderComposableDialog {
+      ConfirmationDialog(
+        title = R.string.allow_location_title,
+        description = R.string.allow_location_description,
+        confirmButtonText = R.string.allow_location_confirmation,
+        onConfirmClicked = {
+          // Open the app settings
+          val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+          intent.data = Uri.fromParts("package", context?.packageName, null)
+          context?.startActivity(intent)
+        },
+      )
     }
   }
 }
