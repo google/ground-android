@@ -48,7 +48,7 @@ class DropPinTaskViewModel
 constructor(
   private val uuidGenerator: OfflineUuidGenerator,
   private val localValueStore: LocalValueStore,
-  @UnifyCaptureLocationTask private val unifyCaptureLocationTask: Boolean,
+  @UnifyCaptureLocationTask val unifyCaptureLocationTask: Boolean,
 ) : AbstractTaskViewModel() {
 
   private var pinColor: Int = 0
@@ -138,4 +138,6 @@ constructor(
   fun dropPin() {
     lastCameraPosition?.let { updateResponse(Point(it.coordinates)) }
   }
+
+  fun shouldShowInstructionsDialog() = !instructionsDialogShown && captureLocation.value != true
 }
