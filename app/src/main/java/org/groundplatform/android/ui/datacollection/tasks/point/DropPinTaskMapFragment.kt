@@ -16,8 +16,10 @@
 package org.groundplatform.android.ui.datacollection.tasks.point
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment
 import org.groundplatform.android.ui.map.Feature
@@ -30,12 +32,30 @@ class DropPinTaskMapFragment @Inject constructor() :
   override fun onMapReady(map: MapFragment) {
     super.onMapReady(map)
 
+    viewLifecycleOwner.lifecycleScope.launch {
+      taskViewModel.initLocationUpdates(getMapViewModel())
+    }
+
     // Disable pan/zoom gestures if a marker has been placed on the map.
     taskViewModel.features.observe(this) {
       if (it.isEmpty()) {
-        map.enableGestures()
+        if (taskViewModel.captureLocation.value == true) {
+          map.disableGestures()
+        } else {
+          map.enableGestures()
+        }
       } else {
         map.disableGestures()
+      }
+    }
+
+    taskViewModel.captureLocation.observe(this) { captureLocation ->
+      if (taskViewModel.features.value.isNullOrEmpty()) {
+        if (captureLocation) {
+          map.disableGestures()
+        } else {
+          map.enableGestures()
+        }
       }
     }
   }
