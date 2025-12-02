@@ -188,7 +188,8 @@ internal constructor(
 
     val prev = vertices.dropLast(1).lastOrNull()
     _isTooClose.value =
-      prev?.let { calculateDistanceInPixels(it, target) <= DISTANCE_THRESHOLD_DP } == true
+      vertices.size > 1 &&
+        prev?.let { calculateDistanceInPixels(it, target) <= DISTANCE_THRESHOLD_DP } == true
 
     addVertex(updatedTarget, true)
   }
@@ -241,7 +242,7 @@ internal constructor(
     check(!isMarkedComplete.value) { "Attempted to add last vertex after completing the drawing" }
     _redoVertexStack.clear()
     vertices.lastOrNull()?.let {
-      _isTooClose.value = true
+      _isTooClose.value = vertices.size > 1
       addVertex(it, false)
     }
   }
