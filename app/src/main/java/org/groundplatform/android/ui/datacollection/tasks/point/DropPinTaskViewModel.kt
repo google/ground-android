@@ -15,11 +15,14 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.point
 
+import android.location.Location
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.groundplatform.android.UnifyCaptureLocationTask
 import org.groundplatform.android.data.local.LocalValueStore
@@ -28,11 +31,15 @@ import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.getDefaultColor
 import org.groundplatform.android.model.map.CameraPosition
+import org.groundplatform.android.model.submission.CaptureLocationTaskData
 import org.groundplatform.android.model.submission.DropPinTaskData
 import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 import org.groundplatform.android.ui.map.Feature
+import org.groundplatform.android.ui.map.gms.getAccuracyOrNull
+import org.groundplatform.android.ui.map.gms.getAltitudeOrNull
+import org.groundplatform.android.ui.map.gms.toCoordinates
 
 private const val REQUIRED_ACCURACY_METERS = 15f
 
@@ -59,6 +66,8 @@ constructor(
   private val _captureLocation = MutableLiveData<Boolean>(false)
   val captureLocation: LiveData<Boolean> = _captureLocation
 
+  private val _lastLocation = MutableStateFlow<Location?>(null)
+
   override fun initialize(job: Job, task: Task, taskData: TaskData?) {
     super.initialize(job, task, taskData)
     pinColor = job.getDefaultColor()
@@ -69,6 +78,10 @@ constructor(
 
     // Drop a marker for current value
     (taskData as? DropPinTaskData)?.let { dropMarker(it.location) }
+  }
+
+  fun updateLocation(location: Location) {
+    _lastLocation.update { location }
   }
 
   fun updateCameraPosition(position: CameraPosition) {
@@ -85,7 +98,23 @@ constructor(
   }
 
   private fun updateResponse(point: Point) {
-    setValue(DropPinTaskData(point))
+    if (task.type == Task.Type.CAPTURE_LOCATION) {
+      val location = _lastLocation.value
+      if (location != null) {
+        setValue(
+          CaptureLocationTaskData(
+            location = Point(location.toCoordinates()),
+            altitude = location.getAltitudeOrNull(),
+            accuracy = location.getAccuracyOrNull(),
+          )
+        )
+      } else {
+        // Fallback to point without metadata if location is missing (shouldn't happen if locked)
+        setValue(CaptureLocationTaskData(point, null, null))
+      }
+    } else {
+      setValue(DropPinTaskData(point))
+    }
     dropMarker(point)
   }
 

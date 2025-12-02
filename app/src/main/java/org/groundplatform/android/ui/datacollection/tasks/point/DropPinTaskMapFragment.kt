@@ -36,6 +36,10 @@ class DropPinTaskMapFragment @Inject constructor() :
       taskViewModel.initLocationUpdates(getMapViewModel())
     }
 
+    viewLifecycleOwner.lifecycleScope.launch {
+      getMapViewModel().getLocationUpdates().collect { taskViewModel.updateLocation(it) }
+    }
+
     // Disable pan/zoom gestures if a marker has been placed on the map.
     taskViewModel.features.observe(this) {
       if (it.isEmpty()) {
