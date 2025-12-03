@@ -67,7 +67,7 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
 
     capturePhotoLauncher =
       registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
-        externalScope.launch(ioDispatcher) { handleCaptureResult(result) }
+        externalScope.launch(ioDispatcher) { viewModel.onCaptureResult(result) }
       }
   }
 
@@ -81,10 +81,6 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
     taskBinding.viewModel = viewModel
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
     return taskBinding.root
-  }
-
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
   }
 
   override fun onTaskViewAttached() {
@@ -104,14 +100,6 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
       obtainCapturePhotoPermissions()
       hasRequestedPermissionsOnResume = true
     }
-  }
-
-  override fun onSaveInstanceState(outState: Bundle) {
-    super.onSaveInstanceState(outState)
-  }
-
-  private suspend fun handleCaptureResult(result: Boolean) {
-    viewModel.onCaptureResult(result)
   }
 
   // Requests camera/photo access permissions from the device, executing an optional callback
@@ -159,11 +147,11 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
 
   private suspend fun launchPhotoCapture() {
     try {
-      val photoFile = viewModel.createCaptureUri()
-      val uri = userMediaRepository.getUriForFile(photoFile)
+      viewModel.waitForPhotoCapture(viewModel.task.id)
+      val uri = viewModel.createImageFileUri()
       viewModel.capturedUri = uri
       viewModel.hasLaunchedCamera = true
-      capturePhotoLauncher.launch(uri)
+      capturePhotoLauncher.launch(viewModel.capturedUri)
       Timber.d("Capture photo intent sent")
     } catch (e: IllegalArgumentException) {
       homeScreenViewModel.awaitingPhotoCapture = false

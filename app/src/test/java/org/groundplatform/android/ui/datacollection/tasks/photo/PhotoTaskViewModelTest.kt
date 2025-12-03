@@ -53,14 +53,23 @@ class PhotoTaskViewModelTest : BaseHiltTest() {
   }
 
   @Test
-  fun `createCaptureUri creates file and sets taskWaitingForPhoto`() = runWithTestDispatcher {
+  fun `createImageFileUri creates file and returns uri`() = runWithTestDispatcher {
+    val mockUri = mock<Uri>()
     whenever(userMediaRepository.createImageFile(any())).thenReturn(mockFile)
+    whenever(userMediaRepository.getUriForFile(mockFile)).thenReturn(mockUri)
 
-    val file = viewModel.createCaptureUri()
+    val uri = viewModel.createImageFileUri()
 
-    assertThat(file).isEqualTo(mockFile)
-    assertThat(viewModel.taskWaitingForPhoto).isEqualTo(TASK.id)
+    assertThat(uri).isEqualTo(mockUri)
     verify(userMediaRepository).createImageFile(TASK.id)
+    verify(userMediaRepository).getUriForFile(mockFile)
+  }
+
+  @Test
+  fun `waitForPhotoCapture sets taskWaitingForPhoto`() {
+    viewModel.waitForPhotoCapture(TASK.id)
+
+    assertThat(viewModel.taskWaitingForPhoto).isEqualTo(TASK.id)
   }
 
   @OptIn(ExperimentalCoroutinesApi::class)

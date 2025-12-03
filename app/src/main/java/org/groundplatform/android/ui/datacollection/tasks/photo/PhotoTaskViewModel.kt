@@ -19,7 +19,6 @@ import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import java.io.File
 import java.io.IOException
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
@@ -57,10 +56,13 @@ class PhotoTaskViewModel @Inject constructor(private val userMediaRepository: Us
 
   val isPhotoPresent: LiveData<Boolean> = taskTaskData.map { it.isNotNullOrEmpty() }.asLiveData()
 
-  suspend fun createCaptureUri(): File {
+  suspend fun createImageFileUri(): Uri {
     val file = userMediaRepository.createImageFile(task.id)
-    taskWaitingForPhoto = task.id
-    return file
+    return userMediaRepository.getUriForFile(file)
+  }
+
+  fun waitForPhotoCapture(taskId: String) {
+    taskWaitingForPhoto = taskId
   }
 
   fun onCaptureResult(result: Boolean) {

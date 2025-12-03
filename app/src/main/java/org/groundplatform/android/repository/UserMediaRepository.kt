@@ -39,7 +39,7 @@ import timber.log.Timber
  * photos.
  */
 @Singleton
-open class UserMediaRepository
+class UserMediaRepository
 @Inject
 constructor(
   @ApplicationContext private val context: Context,
@@ -55,8 +55,7 @@ constructor(
   private suspend fun createImageFilename(fieldId: String): String =
     fieldId + "-" + uuidGenerator.generateUuid() + Constants.PHOTO_EXT
 
-  open suspend fun createImageFile(fieldId: String): File =
-    File(rootDir, createImageFilename(fieldId))
+  suspend fun createImageFile(fieldId: String): File = File(rootDir, createImageFilename(fieldId))
 
   /**
    * Creates a new file from bitmap and saves under external app directory.
@@ -77,7 +76,7 @@ constructor(
    * memory, preserving the original quality, metadata, and resolution. It avoids potential
    * OutOfMemoryError caused by loading large images into a Bitmap.
    */
-  open suspend fun savePhotoFromUri(uri: Uri, fieldId: String): File =
+  suspend fun savePhotoFromUri(uri: Uri, fieldId: String): File =
     withContext(Dispatchers.IO) {
       val file = createImageFile(fieldId)
 
@@ -90,7 +89,7 @@ constructor(
     }
 
   @Throws(FileNotFoundException::class)
-  open fun addImageToGallery(filePath: String, title: String): String =
+  fun addImageToGallery(filePath: String, title: String): String =
     MediaStore.Images.Media.insertImage(context.contentResolver, filePath, title, "")
 
   /**
@@ -126,7 +125,7 @@ constructor(
     return file
   }
 
-  open fun getUriForFile(file: File): Uri =
+  fun getUriForFile(file: File): Uri =
     androidx.core.content.FileProvider.getUriForFile(
       context,
       org.groundplatform.android.BuildConfig.APPLICATION_ID,
