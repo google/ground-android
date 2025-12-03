@@ -46,9 +46,6 @@ import org.groundplatform.android.ui.home.HomeScreenViewModel
 import org.groundplatform.android.util.renderComposableDialog
 import timber.log.Timber
 
-private var pendingCapturedPhotoUri: Uri? = null
-private var pendingCaptureTimestamp: Long = 0L
-
 /** Fragment allowing the user to capture a photo to complete a task. */
 @AndroidEntryPoint
 class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
@@ -157,12 +154,10 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
 
     // Keep track of the fact that we are restoring the application after a photo capture.
     homeScreenViewModel.awaitingPhotoCapture = true
-    obtainCapturePhotoPermissions {
-      lifecycleScope.launch { launchPhotoCapture(viewModel.task.id) }
-    }
+    obtainCapturePhotoPermissions { lifecycleScope.launch { launchPhotoCapture() } }
   }
 
-  private suspend fun launchPhotoCapture(taskId: String) {
+  private suspend fun launchPhotoCapture() {
     try {
       val photoFile = viewModel.createCaptureUri()
       val uri = userMediaRepository.getUriForFile(photoFile)
