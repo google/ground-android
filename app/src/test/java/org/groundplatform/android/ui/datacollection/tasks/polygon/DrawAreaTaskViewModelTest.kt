@@ -329,23 +329,9 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     // Distance between COORDINATE_2 (10, 10) and COORDINATE_3 (20, 20) is ~14.14
     // Threshold is 24. So this should be too close.
     updateLastVertex(COORDINATE_3, isNearFirstVertex = false)
-    // We need to simulate the distance calculation that happens in the ViewModel.
-    // In the test helper `updateLastVertex`, we force the distance to be threshold + 1 if not near
-    // first vertex.
-    // To test `isTooClose`, we need to control the distance returned by the callback.
-
-    // Let's use a specific test for this where we can control the distance more precisely or rely
-    // on the helper.
-    // The helper `updateLastVertex` uses:
-    // val distanceInPixels = if (isNearFirstVertex) threshold else threshold + 1
-    // viewModel.updateLastVertexAndMaybeCompletePolygon(coordinate) { _, _ -> distanceInPixels }
-
-    // If we want `isTooClose` to be true, we need distance <= threshold.
-    // So we should pass `isNearFirstVertex = true` to `updateLastVertex` which sets distance =
-    // threshold.
-    // But `isNearFirstVertex` in helper is intended for "close to first vertex" logic (closing
-    // polygon).
-    // However, the callback is used for both checks.
+    // This test checks that isTooClose becomes true when the last two vertices are within the
+    // distance threshold. It manually triggers the update with a controlled distance equal
+    // to the threshold to verify the behavior.
 
     // Let's manually call updateLastVertexAndMaybeCompletePolygon to be explicit.
     viewModel.updateLastVertexAndMaybeCompletePolygon(COORDINATE_3) { _, _ ->
