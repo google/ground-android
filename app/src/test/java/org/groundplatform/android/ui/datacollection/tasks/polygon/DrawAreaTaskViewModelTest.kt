@@ -321,6 +321,72 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     viewModel.removeLastVertex()
   }
 
+  @Test
+  fun `isTooClose is true when last vertex is close to previous vertex`() {
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+
+    // Distance between COORDINATE_2 (10, 10) and COORDINATE_3 (20, 20) is ~14.14
+    // Threshold is 24. So this should be too close.
+    updateLastVertex(COORDINATE_3, isNearFirstVertex = false)
+    // We need to simulate the distance calculation that happens in the ViewModel.
+    // In the test helper `updateLastVertex`, we force the distance to be threshold + 1 if not near
+    // first vertex.
+    // To test `isTooClose`, we need to control the distance returned by the callback.
+
+    // Let's use a specific test for this where we can control the distance more precisely or rely
+    // on the helper.
+    // The helper `updateLastVertex` uses:
+    // val distanceInPixels = if (isNearFirstVertex) threshold else threshold + 1
+    // viewModel.updateLastVertexAndMaybeCompletePolygon(coordinate) { _, _ -> distanceInPixels }
+
+    // If we want `isTooClose` to be true, we need distance <= threshold.
+    // So we should pass `isNearFirstVertex = true` to `updateLastVertex` which sets distance =
+    // threshold.
+    // But `isNearFirstVertex` in helper is intended for "close to first vertex" logic (closing
+    // polygon).
+    // However, the callback is used for both checks.
+
+    // Let's manually call updateLastVertexAndMaybeCompletePolygon to be explicit.
+    viewModel.updateLastVertexAndMaybeCompletePolygon(COORDINATE_3) { _, _ ->
+      DISTANCE_THRESHOLD_DP.toDouble()
+    }
+
+    assertThat(viewModel.isTooClose.value).isTrue()
+  }
+
+  @Test
+  fun `isTooClose is false when last vertex is far from previous vertex`() {
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+
+    viewModel.updateLastVertexAndMaybeCompletePolygon(COORDINATE_3) { _, _ ->
+      DISTANCE_THRESHOLD_DP.toDouble() + 1
+    }
+
+    assertThat(viewModel.isTooClose.value).isFalse()
+  }
+
+  @Test
+  fun `isTooClose is true after adding a vertex if size is greater than 1`() {
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+
+    // Add a 3rd vertex.
+    // The logic `_isTooClose.value = vertices.size > 1` in `addLastVertex` should set it to true.
+    viewModel.addLastVertex()
+
+    assertThat(viewModel.isTooClose.value).isTrue()
+  }
+
+  @Test
+  fun `isTooClose is false if only one vertex`() {
+    updateLastVertexAndAdd(COORDINATE_1)
+
+    // Only 1 vertex.
+    assertThat(viewModel.isTooClose.value).isFalse()
+  }
+
   private fun assertGeometry(
     expectedVerticesCount: Int,
     isLineString: Boolean = false,
