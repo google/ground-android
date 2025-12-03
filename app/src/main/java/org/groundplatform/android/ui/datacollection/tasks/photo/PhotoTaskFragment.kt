@@ -23,14 +23,12 @@ import android.view.LayoutInflater
 import android.view.View
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import org.groundplatform.android.BuildConfig
 import org.groundplatform.android.R
 import org.groundplatform.android.coroutines.ApplicationScope
 import org.groundplatform.android.coroutines.IoDispatcher
@@ -66,9 +64,6 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   private lateinit var capturePhotoLauncher: ActivityResultLauncher<Uri>
 
   private var hasRequestedPermissionsOnResume = false
-  private var taskWaitingForPhoto: String? = null
-  private var capturedPhotoPath: String? = null
-  private lateinit var capturedPhotoUri: Uri
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -93,22 +88,10 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    taskWaitingForPhoto = savedInstanceState?.getString(TASK_WAITING_FOR_PHOTO)
-    capturedPhotoPath = savedInstanceState?.getString(CAPTURED_PHOTO_PATH)
   }
 
   override fun onTaskViewAttached() {
     viewModel.surveyId = dataCollectionViewModel.requireSurveyId()
-    viewModel.taskWaitingForPhoto = taskWaitingForPhoto
-
-    viewModel.capturedUri?.let { uri ->
-      if (!viewModel.hasLaunchedCamera) {
-        externalScope.launch(ioDispatcher) {
-          viewModel.savePhotoTaskData(uri)
-          viewModel.capturedUri = null
-        }
-      }
-    }
   }
 
   override fun onCreateActionButtons() {
@@ -128,29 +111,16 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
 
   override fun onSaveInstanceState(outState: Bundle) {
     super.onSaveInstanceState(outState)
-    outState.putString(TASK_WAITING_FOR_PHOTO, viewModel.taskWaitingForPhoto)
-    outState.putString(CAPTURED_PHOTO_PATH, capturedPhotoPath)
   }
 
   private suspend fun handleCaptureResult(result: Boolean) {
-    if (!result || viewModel.capturedUri == null) {
-      Timber.e("Photo capture failed or URI not set")
-      return
-    }
-
-    if (isViewModelInitialized) {
-      viewModel.savePhotoTaskData(viewModel.capturedUri!!)
-      viewModel.hasLaunchedCamera = false
-    } else {
-      pendingCapturedPhotoUri = viewModel.capturedUri!!
-      pendingCaptureTimestamp = System.currentTimeMillis()
-    }
+    viewModel.onCaptureResult(result)
   }
 
   // Requests camera/photo access permissions from the device, executing an optional callback
   // when permission is granted.
   private fun obtainCapturePhotoPermissions(onPermissionsGranted: () -> Unit = {}) {
-    externalScope.launch {
+    lifecycleScope.launch {
       try {
 
         // From Android 11 onwards (api level 30), requesting WRITE_EXTERNAL_STORAGE permission
@@ -194,28 +164,16 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
 
   private suspend fun launchPhotoCapture(taskId: String) {
     try {
-      val photoFile = userMediaRepository.createImageFile(taskId)
-      capturedPhotoUri =
-        FileProvider.getUriForFile(requireContext(), BuildConfig.APPLICATION_ID, photoFile)
-
-      viewModel.taskWaitingForPhoto = taskId
-      viewModel.capturedUri = capturedPhotoUri
+      val photoFile = viewModel.createCaptureUri()
+      val uri = userMediaRepository.getUriForFile(photoFile)
+      viewModel.capturedUri = uri
       viewModel.hasLaunchedCamera = true
-      capturedPhotoPath = capturedPhotoUri.path
-      capturePhotoLauncher.launch(capturedPhotoUri)
+      capturePhotoLauncher.launch(uri)
       Timber.d("Capture photo intent sent")
     } catch (e: IllegalArgumentException) {
       homeScreenViewModel.awaitingPhotoCapture = false
       popups.ErrorPopup().unknownError()
       Timber.e(e)
     }
-  }
-
-  companion object {
-    /** Key used to store field ID waiting for photo result across activity re-creation. */
-    private const val TASK_WAITING_FOR_PHOTO = "dataCollectionPhotoFieldId"
-
-    /** Key used to store captured photo Uri across activity re-creation. */
-    private const val CAPTURED_PHOTO_PATH = "dataCollectionCapturedPhotoPath"
   }
 }
