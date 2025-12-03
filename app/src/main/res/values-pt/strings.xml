@@ -241,4 +241,6 @@
   <string name="location_not_accurate_description">Tente ficar parado ou aguarde uma posição mais precisa</string>
 
   <string name="recenter">Recentrar</string>
+
+  <string name="survey_load_timeout_error">O carregamento da pesquisa expirou. Verifique sua conexão e tente novamente.</string>
 </resources>
