@@ -38,6 +38,7 @@
 
   <string name="map_view">Map view</string>
   <string name="unexpected_error">An unexpected error has occurred</string>
+  <string name="survey_load_timeout_error">Survey loading timed out. Please check your connection and try again.</string>
   <string name="google_api_install_failed">Google Play Services installation failed</string>
   <string name="sign_out">Sign out</string>
   <string name="ok">OK</string>
