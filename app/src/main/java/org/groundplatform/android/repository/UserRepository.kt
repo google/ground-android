@@ -125,12 +125,13 @@ constructor(
   fun getUserSettings(): UserSettings {
     val language = localValueStore.selectedLanguage
     val measurementUnits = localValueStore.selectedLengthUnit
-    val shouldUploadPhotosOnWifiOnly = localValueStore.shouldUploadMediaOverUnmeteredConnectionOnly()
+    val shouldUploadPhotosOnWifiOnly =
+      localValueStore.shouldUploadMediaOverUnmeteredConnectionOnly()
 
     return UserSettings(
       language = language,
       measurementUnits = measurementUnits,
-      shouldUploadPhotosOnWifiOnly = shouldUploadPhotosOnWifiOnly
+      shouldUploadPhotosOnWifiOnly = shouldUploadPhotosOnWifiOnly,
     )
   }
 }
