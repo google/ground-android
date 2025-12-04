@@ -101,6 +101,8 @@ internal constructor(
   private val _polygonArea = MutableLiveData<Double>()
   val polygonArea: LiveData<Double> = _polygonArea
 
+  private var currentCameraTarget: Coordinates? = null
+
   /**
    * User-specified vertices of the area being drawn. If [isMarkedComplete] is false, then the last
    * vertex represents the map center and the second last vertex is the last added vertex.
@@ -236,8 +238,6 @@ internal constructor(
     updateVertices(updatedVertices)
     setValue(DrawAreaTaskIncompleteData(LineString(updatedVertices)))
   }
-
-  private var currentCameraTarget: Coordinates? = null
 
   fun onCameraMoved(newTarget: Coordinates) {
     currentCameraTarget = newTarget
