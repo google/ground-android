@@ -27,6 +27,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.gms.GmsExt.toBounds
@@ -74,4 +75,9 @@ class DrawAreaTaskMapFragment @Inject constructor() :
     taskViewModel.draftArea
       .map { feature: Feature? -> if (feature == null) setOf() else setOf(feature) }
       .asLiveData()
+
+  override fun onMapCameraMoved(position: CameraPosition) {
+    super.onMapCameraMoved(position)
+    taskViewModel.onCameraMoved(position.coordinates)
+  }
 }
