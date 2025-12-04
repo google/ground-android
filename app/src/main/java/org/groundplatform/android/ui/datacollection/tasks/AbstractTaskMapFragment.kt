@@ -20,8 +20,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LiveData
@@ -39,6 +42,7 @@ import org.groundplatform.android.ui.common.AbstractMapContainerFragment
 import org.groundplatform.android.ui.common.BaseMapViewModel
 import org.groundplatform.android.ui.components.MapFloatingActionButton
 import org.groundplatform.android.ui.components.MapFloatingActionButtonType
+import org.groundplatform.android.ui.components.RecenterButton
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.MapFragment
@@ -121,6 +125,19 @@ abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
           type = locationLockButton,
           onClick = { viewModel.onLocationLockClick() },
         )
+      }
+    }
+
+    binding.recenterBtn.apply {
+      setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+      setComposableContent {
+        val shouldShowRecenter by viewModel.shouldShowRecenterButton.collectAsStateWithLifecycle()
+
+        if (shouldShowRecenter)
+          RecenterButton(
+            modifier = Modifier.padding(start = 20.dp),
+            onClick = { viewModel.onLocationLockClick() },
+          )
       }
     }
   }

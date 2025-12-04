@@ -60,11 +60,12 @@ class DropPinTaskFragment @Inject constructor() : AbstractTaskFragment<DropPinTa
     addButton(ButtonAction.DROP_PIN)
       .setOnClickListener { viewModel.dropPin() }
       .setOnValueChanged { button, value -> button.showIfTrue(value.isNullOrEmpty()) }
+
     addNextButton(hideIfEmpty = true)
   }
 
   override fun onTaskResume() {
-    if (isVisible && !viewModel.instructionsDialogShown) {
+    if (isVisible && viewModel.shouldShowInstructionsDialog()) {
       showInstructionsDialog()
     }
   }

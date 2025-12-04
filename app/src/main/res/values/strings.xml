@@ -38,6 +38,7 @@
 
   <string name="map_view">Map view</string>
   <string name="unexpected_error">An unexpected error has occurred</string>
+  <string name="survey_load_timeout_error">Survey loading timed out. Please check your connection and try again.</string>
   <string name="google_api_install_failed">Google Play Services installation failed</string>
   <string name="sign_out">Sign out</string>
   <string name="ok">OK</string>
@@ -233,4 +234,9 @@
   <string name="delete_site_dialog_title">Delete site?</string>
   <string name="delete_site_dialog_message">This site and all associated data will be permanently deleted. This action cannot be undone.</string>
   <string name="delete">Delete</string>
+
+  <string name="location_not_accurate_heading">Your location is not accurate</string>
+  <string name="location_not_accurate_description">Try standing still or waiting for a more accurate position</string>
+
+  <string name="recenter">Re-center</string>
 </resources>

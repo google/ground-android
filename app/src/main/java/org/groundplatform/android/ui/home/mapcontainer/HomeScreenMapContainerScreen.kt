@@ -17,21 +17,26 @@ package org.groundplatform.android.ui.home.mapcontainer
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.Style
 import org.groundplatform.android.ui.components.MapFloatingActionButton
 import org.groundplatform.android.ui.components.MapFloatingActionButtonType
+import org.groundplatform.android.ui.components.RecenterButton
 import org.groundplatform.android.ui.home.mapcontainer.jobs.AdHocDataCollectionButtonData
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponent
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentAction
@@ -43,6 +48,7 @@ fun HomeScreenMapContainerScreen(
   modifier: Modifier = Modifier,
   locationLockButtonType: MapFloatingActionButtonType,
   shouldShowMapActions: Boolean,
+  shouldShowRecenter: Boolean,
   jobComponentState: JobMapComponentState,
   onBaseMapAction: (BaseMapAction) -> Unit,
   onJobComponentAction: (JobMapComponentAction) -> Unit,
@@ -71,17 +77,44 @@ fun HomeScreenMapContainerScreen(
       horizontalAlignment = Alignment.CenterHorizontally,
     ) {
       if (shouldShowMapActions) {
-        MapFloatingActionButton(
-          modifier =
-            Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom))
-              .align(Alignment.End),
-          type = locationLockButtonType,
-          onClick = { onBaseMapAction(BaseMapAction.OnLocationLockClicked) },
+        LocationLockComponent(
+          shouldShowRecenter = shouldShowRecenter,
+          locationLockButtonType = locationLockButtonType,
+          onAction = onBaseMapAction,
         )
       }
 
       JobMapComponent(state = jobComponentState, onAction = onJobComponentAction)
     }
+  }
+}
+
+@Composable
+private fun LocationLockComponent(
+  modifier: Modifier = Modifier,
+  shouldShowRecenter: Boolean,
+  locationLockButtonType: MapFloatingActionButtonType,
+  onAction: (BaseMapAction) -> Unit,
+) {
+  Row(
+    modifier =
+      modifier
+        .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom))
+        .fillMaxWidth(),
+    verticalAlignment = Alignment.CenterVertically,
+  ) {
+    if (shouldShowRecenter)
+      RecenterButton(
+        modifier = Modifier.padding(start = 16.dp),
+        onClick = { onAction(BaseMapAction.OnLocationLockClicked) },
+      )
+
+    Spacer(modifier = Modifier.weight(1f))
+
+    MapFloatingActionButton(
+      type = locationLockButtonType,
+      onClick = { onAction(BaseMapAction.OnLocationLockClicked) },
+    )
   }
 }
 
@@ -118,6 +151,7 @@ private fun HomeScreenMapContainerScreenPreview() {
             ),
         ),
       shouldShowMapActions = true,
+      shouldShowRecenter = true,
       onBaseMapAction = {},
       onJobComponentAction = {},
     )

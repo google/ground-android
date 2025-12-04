@@ -235,4 +235,10 @@
   <string name="delete_site_dialog_title">¿Eliminar sitio?</string>
   <string name="delete_site_dialog_message">Este sitio y todos los datos asociados se eliminarán permanentemente. Esta acción no se puede deshacer.</string>
   <string name="delete">Eliminar</string>
+
+  <string name="location_not_accurate_heading">Tu ubicación no es precisa</string>
+  <string name="location_not_accurate_description">Intenta quedarte quieto o espera a obtener una posición más precisa</string>
+
+  <string name="recenter">Recentrar</string>
+  <string name="survey_load_timeout_error">La carga de la encuesta ha excedido el tiempo de espera. Verifica tu conexión e inténtalo de nuevo.</string>
 </resources>

@@ -16,6 +16,10 @@
 package org.groundplatform.android.ui.common
 
 import android.Manifest
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.CommonStatusCodes
+import com.google.android.gms.common.api.Status
+import com.google.android.gms.location.LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -62,20 +66,36 @@ class BaseMapViewModelTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Should display the correct locationLockIconType when the location is locked`() = runTest {
-    setupMocks(true)
-
-    val iconType = viewModel.locationLockIconType.first()
-    assert(iconType is MapFloatingActionButtonType.LocationLocked)
-  }
-
-  @Test
-  fun `Should display the correct locationLockIconType when the location is not locked`() =
+  fun `Should display the correct location icon and hide the recenter button when the location is locked`() =
     runTest {
-      setupMocks(false)
+      setupMocks(isLocationLocked = true)
 
       val iconType = viewModel.locationLockIconType.first()
+      val showRecenter = viewModel.shouldShowRecenterButton.first()
+      assert(iconType is MapFloatingActionButtonType.LocationLocked)
+      assertEquals(false, showRecenter)
+    }
+
+  @Test
+  fun `Should display the correct location icon and show the recenter button when the location is not locked`() =
+    runTest {
+      setupMocks(isLocationLocked = false)
+
+      val iconType = viewModel.locationLockIconType.first()
+      val showRecenter = viewModel.shouldShowRecenterButton.first()
       assert(iconType is MapFloatingActionButtonType.LocationNotLocked)
+      assertEquals(true, showRecenter)
+    }
+
+  @Test
+  fun `Should display the correct icon and hide the recenter button if location permissions were not granted`() =
+    runTest {
+      setupMocks(isLocationLocked = false, hasLocationPermissions = false)
+
+      val iconType = viewModel.locationLockIconType.first()
+      val showRecenter = viewModel.shouldShowRecenterButton.first()
+      assert(iconType is MapFloatingActionButtonType.LocationNotLocked)
+      assertEquals(false, showRecenter)
     }
 
   @Test
@@ -91,34 +111,83 @@ class BaseMapViewModelTest : BaseHiltTest() {
     }
 
   @Test
-  fun `Should enable location lock correctly and receive location updates`() =
-    runWithTestDispatcher {
-      setupMocks()
+  fun `Should enable location lock correctly and receive location updates`() = runTest {
+    setupMocks()
+
+    viewModel.enableLocationLockAndGetUpdates()
+
+    assertEquals(true, viewModel.locationLock.value.getOrNull())
+    verify(permissionsManager).obtainPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+    verify(settingsManager).enableLocationSettings(FINE_LOCATION_UPDATES_REQUEST)
+    verify(locationManager).requestLocationUpdates()
+  }
+
+  @Test
+  fun `Should fallback and receive location updates when location settings fails with SETTINGS_CHANGE_UNAVAILABLE`() =
+    runTest {
+      val apiException = ApiException(Status(SETTINGS_CHANGE_UNAVAILABLE))
+      setupMocks(
+        enableLocationSettingsException = apiException,
+        hasLocationPermissions = true,
+        isLocationLocked = false,
+      )
 
       viewModel.enableLocationLockAndGetUpdates()
 
       assertEquals(true, viewModel.locationLock.value.getOrNull())
+      verify(permissionsManager).obtainPermission(Manifest.permission.ACCESS_FINE_LOCATION)
       verify(locationManager).requestLocationUpdates()
     }
 
   @Test
-  fun `Should disable location lock on map drag and stop receiving location updates`() =
-    runWithTestDispatcher {
-      setupMocks()
+  fun `Should not enable location lock and disable location updates if location settings fails with other exception`() =
+    runTest {
+      val apiException = ApiException(Status(CommonStatusCodes.INTERNAL_ERROR))
+      setupMocks(
+        enableLocationSettingsException = apiException,
+        hasLocationPermissions = true,
+        isLocationLocked = false,
+      )
 
-      viewModel.onLocationLockClick()
-      viewModel.onMapDragged()
+      viewModel.enableLocationLockAndGetUpdates()
 
-      assertEquals(false, viewModel.locationLock.value.getOrNull())
+      assertEquals(Result.failure<Boolean>(apiException), viewModel.locationLock.value)
+      verify(permissionsManager).obtainPermission(Manifest.permission.ACCESS_FINE_LOCATION)
       verify(locationManager).disableLocationUpdates()
     }
 
-  private fun setupMocks(isLocationLocked: Boolean = false) = runBlocking {
+  @Test
+  fun `Should disable location lock on map drag and stop receiving location updates`() = runTest {
+    setupMocks()
+
+    viewModel.onLocationLockClick()
+    viewModel.onMapDragged()
+
+    assertEquals(false, viewModel.locationLock.value.getOrNull())
+    verify(locationManager).disableLocationUpdates()
+  }
+
+  private fun setupMocks(
+    isLocationLocked: Boolean = false,
+    hasLocationPermissions: Boolean = true,
+    enableLocationSettingsException: ApiException? = null,
+  ) = runBlocking {
     whenever(mapStateRepository.isLocationLockEnabled).thenReturn(isLocationLocked)
 
-    whenever(settingsManager.enableLocationSettings(FINE_LOCATION_UPDATES_REQUEST)).thenReturn(Unit)
+    enableLocationSettingsException?.let {
+      whenever(settingsManager.enableLocationSettings(FINE_LOCATION_UPDATES_REQUEST)).thenAnswer {
+        throw enableLocationSettingsException
+      }
+    }
+      ?: run {
+        whenever(settingsManager.enableLocationSettings(FINE_LOCATION_UPDATES_REQUEST))
+          .thenReturn(Unit)
+      }
+
     whenever(permissionsManager.obtainPermission(Manifest.permission.ACCESS_FINE_LOCATION))
       .thenReturn(Unit)
+    whenever(permissionsManager.isGranted(Manifest.permission.ACCESS_FINE_LOCATION))
+      .thenReturn(hasLocationPermissions)
 
     viewModel =
       BaseMapViewModel(
