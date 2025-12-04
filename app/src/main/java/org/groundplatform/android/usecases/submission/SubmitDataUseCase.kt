@@ -18,6 +18,7 @@ package org.groundplatform.android.usecases.submission
 import androidx.room.Transaction
 import javax.inject.Inject
 import org.groundplatform.android.model.job.Job
+import org.groundplatform.android.model.submission.CaptureLocationTaskData
 import org.groundplatform.android.model.submission.DrawAreaTaskData
 import org.groundplatform.android.model.submission.DropPinTaskData
 import org.groundplatform.android.model.submission.ValueDelta
@@ -74,6 +75,9 @@ constructor(
       when (addLoiTask.type) {
         Task.Type.DROP_PIN -> (addLoiTaskValue as (DropPinTaskData)).geometry
         Task.Type.DRAW_AREA -> (addLoiTaskValue as (DrawAreaTaskData)).geometry
+        Task.Type.CAPTURE_LOCATION ->
+          if (addLoiTaskValue is CaptureLocationTaskData) addLoiTaskValue.location
+          else (addLoiTaskValue as DropPinTaskData).location
         else -> error("Invalid AddLoi task")
       }
     return locationOfInterestRepository.saveLoi(geometry, job, surveyId, loiName, collectionId)
