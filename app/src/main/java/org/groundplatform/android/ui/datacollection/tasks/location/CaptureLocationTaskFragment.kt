@@ -36,6 +36,7 @@ import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import javax.inject.Provider
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.model.submission.isNullOrEmpty
@@ -92,6 +93,11 @@ class CaptureLocationTaskFragment @Inject constructor() :
     addButton(ButtonAction.CAPTURE_LOCATION)
       .setOnClickListener { viewModel.updateResponse() }
       .setOnValueChanged { button, value -> button.showIfTrue(value.isNullOrEmpty()) }
+      .apply {
+        viewLifecycleOwner.lifecycleScope.launch {
+          viewModel.isCaptureEnabled.collect { isEnabled -> enableIfTrue(isEnabled) }
+        }
+      }
     addNextButton(hideIfEmpty = true)
   }
 
@@ -119,7 +125,7 @@ class CaptureLocationTaskFragment @Inject constructor() :
     var showAccuracyCard by remember { mutableStateOf(false) }
 
     LaunchedEffect(location) {
-      showAccuracyCard = location != null && location!!.accuracy > MIN_DESIRED_ACCURACY
+      showAccuracyCard = location != null && !viewModel.isCaptureEnabled.first()
     }
 
     if (showAccuracyCard) {
@@ -128,9 +134,5 @@ class CaptureLocationTaskFragment @Inject constructor() :
         modifier = Modifier.padding(bottom = 12.dp),
       )
     }
-  }
-
-  companion object {
-    private const val MIN_DESIRED_ACCURACY = 15.0f
   }
 }
