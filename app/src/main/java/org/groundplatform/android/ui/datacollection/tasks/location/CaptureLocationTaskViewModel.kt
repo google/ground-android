@@ -22,13 +22,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.model.submission.CaptureLocationTaskData
-import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
+import org.groundplatform.android.ui.datacollection.tasks.AbstractMapTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.LocationLockEnabledState
 import org.groundplatform.android.ui.map.gms.getAccuracyOrNull
 import org.groundplatform.android.ui.map.gms.getAltitudeOrNull
 import org.groundplatform.android.ui.map.gms.toCoordinates
 
-class CaptureLocationTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
+class CaptureLocationTaskViewModel @Inject constructor() : AbstractMapTaskViewModel() {
 
   private val _lastLocation = MutableStateFlow<Location?>(null)
   val lastLocation = _lastLocation.asStateFlow()
