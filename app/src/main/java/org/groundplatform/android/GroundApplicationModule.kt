@@ -49,5 +49,5 @@ object GroundApplicationModule {
   @Provides
   @UnifyCaptureLocationTask
   @Suppress("FunctionOnlyReturningConstant")
-  fun provideUnifyCaptureLocationTask(): Boolean = false
+  fun provideUnifyCaptureLocationTask(): Boolean = true
 }
