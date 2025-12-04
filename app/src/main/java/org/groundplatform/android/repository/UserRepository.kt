@@ -23,6 +23,7 @@ import org.groundplatform.android.data.remote.RemoteDataStore
 import org.groundplatform.android.model.Role
 import org.groundplatform.android.model.User
 import org.groundplatform.android.model.locationofinterest.LocationOfInterest
+import org.groundplatform.android.model.settings.UserSettings
 import org.groundplatform.android.proto.Survey
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.auth.AuthenticationManager
@@ -119,5 +120,17 @@ constructor(
         .getOrElse { false }
 
     return isOrganizer
+  }
+
+  fun getUserSettings(): UserSettings {
+    val language = localValueStore.selectedLanguage
+    val measurementUnits = localValueStore.selectedLengthUnit
+    val shouldUploadPhotosOnWifiOnly = localValueStore.shouldUploadMediaOverUnmeteredConnectionOnly()
+
+    return UserSettings(
+      language = language,
+      measurementUnits = measurementUnits,
+      shouldUploadPhotosOnWifiOnly = shouldUploadPhotosOnWifiOnly
+    )
   }
 }
