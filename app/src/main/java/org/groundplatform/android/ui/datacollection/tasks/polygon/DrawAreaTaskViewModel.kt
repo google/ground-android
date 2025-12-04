@@ -237,11 +237,18 @@ internal constructor(
     setValue(DrawAreaTaskIncompleteData(LineString(updatedVertices)))
   }
 
+  private var currentCameraTarget: Coordinates? = null
+
+  fun onCameraMoved(newTarget: Coordinates) {
+    currentCameraTarget = newTarget
+  }
+
   /** Adds the last vertex to the polygon. */
   fun addLastVertex() {
     check(!isMarkedComplete.value) { "Attempted to add last vertex after completing the drawing" }
     _redoVertexStack.clear()
-    vertices.lastOrNull()?.let {
+    val vertex = vertices.lastOrNull() ?: currentCameraTarget
+    vertex?.let {
       _isTooClose.value = vertices.size > 1
       addVertex(it, false)
     }
