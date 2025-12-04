@@ -20,6 +20,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import javax.inject.Provider
+import org.groundplatform.android.UnifyCaptureLocationTask
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.datacollection.tasks.date.DateTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.instruction.InstructionTaskFragment
@@ -41,6 +42,7 @@ constructor(
   private val drawAreaTaskFragmentProvider: Provider<DrawAreaTaskFragment>,
   private val captureLocationTaskFragmentProvider: Provider<CaptureLocationTaskFragment>,
   private val dropPinTaskFragmentProvider: Provider<DropPinTaskFragment>,
+  @UnifyCaptureLocationTask private val unifyCaptureLocationTask: Boolean,
   @Assisted fragment: Fragment,
   @Assisted val tasks: List<Task>,
 ) : FragmentStateAdapter(fragment) {
@@ -59,7 +61,12 @@ constructor(
         Task.Type.NUMBER -> NumberTaskFragment()
         Task.Type.DATE -> DateTaskFragment()
         Task.Type.TIME -> TimeTaskFragment()
-        Task.Type.CAPTURE_LOCATION -> captureLocationTaskFragmentProvider.get()
+        Task.Type.CAPTURE_LOCATION ->
+          if (unifyCaptureLocationTask) {
+            dropPinTaskFragmentProvider.get()
+          } else {
+            captureLocationTaskFragmentProvider.get()
+          }
         Task.Type.INSTRUCTIONS -> InstructionTaskFragment()
         Task.Type.UNKNOWN ->
           throw UnsupportedOperationException("Unsupported task type: ${task.type}")

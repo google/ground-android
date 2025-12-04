@@ -15,58 +15,46 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.point
 
-import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
 import kotlinx.coroutines.launch
+import org.groundplatform.android.UnifyCaptureLocationTask
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.getDefaultColor
-import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.model.submission.DropPinTaskData
 import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.task.Task
-import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
+import org.groundplatform.android.ui.datacollection.tasks.AbstractMapTaskViewModel
 import org.groundplatform.android.ui.map.Feature
-
-private const val REQUIRED_ACCURACY_METERS = 15f
 
 class DropPinTaskViewModel
 @Inject
 constructor(
   private val uuidGenerator: OfflineUuidGenerator,
   private val localValueStore: LocalValueStore,
-) : AbstractTaskViewModel() {
+  @UnifyCaptureLocationTask val unifyCaptureLocationTask: Boolean,
+) : AbstractMapTaskViewModel() {
 
   private var pinColor: Int = 0
-  private var lastCameraPosition: CameraPosition? = null
   val features: MutableLiveData<Set<Feature>> = MutableLiveData()
   /** Whether the instructions dialog has been shown or not. */
   var instructionsDialogShown: Boolean by localValueStore::dropPinInstructionsShown
-
-  val accuracyMeters = MutableLiveData<Float?>(null)
-  val canCapture =
-    MediatorLiveData<Boolean>().apply {
-      addSource(accuracyMeters) { acc -> value = acc != null && acc <= REQUIRED_ACCURACY_METERS }
-    }
+  var captureLocation: Boolean = false
 
   override fun initialize(job: Job, task: Task, taskData: TaskData?) {
     super.initialize(job, task, taskData)
     pinColor = job.getDefaultColor()
 
+    if (unifyCaptureLocationTask) {
+      captureLocation = task.type == Task.Type.CAPTURE_LOCATION
+    }
+
     // Drop a marker for current value
     (taskData as? DropPinTaskData)?.let { dropMarker(it.location) }
-  }
-
-  fun updateCameraPosition(position: CameraPosition) {
-    lastCameraPosition = position
-  }
-
-  fun updateAccuracy(meters: Float?) {
-    accuracyMeters.postValue(meters)
   }
 
   override fun clearResponse() {
@@ -97,6 +85,8 @@ constructor(
     )
 
   fun dropPin() {
-    lastCameraPosition?.let { updateResponse(Point(it.coordinates)) }
+    getLastCameraPosition()?.let { updateResponse(Point(it.coordinates)) }
   }
+
+  fun shouldShowInstructionsDialog() = !instructionsDialogShown && !captureLocation
 }

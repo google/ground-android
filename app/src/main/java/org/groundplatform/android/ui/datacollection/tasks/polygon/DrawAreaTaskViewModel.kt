@@ -42,7 +42,7 @@ import org.groundplatform.android.model.submission.DrawAreaTaskIncompleteData
 import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.common.SharedViewModel
-import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
+import org.groundplatform.android.ui.datacollection.tasks.AbstractMapTaskViewModel
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.util.LocaleAwareMeasureFormatter
 import org.groundplatform.android.ui.util.VibrationHelper
@@ -63,7 +63,7 @@ internal constructor(
   private val uuidGenerator: OfflineUuidGenerator,
   private val vibrationHelper: VibrationHelper,
   private val localeAwareMeasureFormatter: LocaleAwareMeasureFormatter,
-) : AbstractTaskViewModel() {
+) : AbstractMapTaskViewModel() {
 
   /** Polygon [Feature] being drawn by the user. */
   private val _draftArea: MutableStateFlow<Feature?> = MutableStateFlow(null)

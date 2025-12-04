@@ -22,41 +22,20 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.model.submission.CaptureLocationTaskData
-import org.groundplatform.android.ui.common.BaseMapViewModel
-import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
+import org.groundplatform.android.ui.datacollection.tasks.AbstractMapTaskViewModel
+import org.groundplatform.android.ui.datacollection.tasks.LocationLockEnabledState
 import org.groundplatform.android.ui.map.gms.getAccuracyOrNull
 import org.groundplatform.android.ui.map.gms.getAltitudeOrNull
 import org.groundplatform.android.ui.map.gms.toCoordinates
 
-/** Location lock states relevant for attempting to enable it or not. */
-enum class LocationLockEnabledState {
-  /** The default, unknown state. */
-  UNKNOWN,
-
-  /** The location lock was already enabled, or an attempt was made. */
-  ALREADY_ENABLED,
-
-  /** The location lock was not already enabled. */
-  NEEDS_ENABLE,
-
-  /** Trigger to enable the location lock. */
-  ENABLE,
-}
-
-class CaptureLocationTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
+class CaptureLocationTaskViewModel @Inject constructor() : AbstractMapTaskViewModel() {
 
   private val _lastLocation = MutableStateFlow<Location?>(null)
   val lastLocation = _lastLocation.asStateFlow()
-  /** Allows control for triggering the location lock programmatically. */
-  private val _enableLocationLockFlow = MutableStateFlow(LocationLockEnabledState.UNKNOWN)
-  val enableLocationLockFlow = _enableLocationLockFlow.asStateFlow()
 
   fun updateLocation(location: Location) {
     _lastLocation.update { location }
   }
-
-  private fun updateLocationLock(newState: LocationLockEnabledState) =
-    _enableLocationLockFlow.update { newState }
 
   fun updateResponse() {
     val location = _lastLocation.value
@@ -70,35 +49,6 @@ class CaptureLocationTaskViewModel @Inject constructor() : AbstractTaskViewModel
           accuracy = location.getAccuracyOrNull(),
         )
       )
-    }
-  }
-
-  fun enableLocationLock() {
-    if (_enableLocationLockFlow.value == LocationLockEnabledState.NEEDS_ENABLE) {
-      updateLocationLock(LocationLockEnabledState.ENABLE)
-    }
-  }
-
-  // TODO: Investigate if this method be pulled to BasemapViewModel since location lock is available
-  // Issue URL: https://github.com/google/ground-android/issues/2985
-  //  for all map tasks.
-  suspend fun initLocationUpdates(mapViewModel: BaseMapViewModel) {
-    val locationLockEnabledState =
-      if (mapViewModel.hasLocationPermission()) {
-        // User has permission to enable location updates, enable it now.
-        mapViewModel.enableLocationLockAndGetUpdates()
-        LocationLockEnabledState.ALREADY_ENABLED
-      } else {
-        // Otherwise, wait to enable location lock until later.
-        LocationLockEnabledState.NEEDS_ENABLE
-      }
-    updateLocationLock(locationLockEnabledState)
-    _enableLocationLockFlow.collect {
-      if (it == LocationLockEnabledState.ENABLE) {
-        // No-op if permission is already granted and location updates are enabled.
-        mapViewModel.enableLocationLockAndGetUpdates()
-        updateLocationLock(LocationLockEnabledState.ALREADY_ENABLED)
-      }
     }
   }
 }

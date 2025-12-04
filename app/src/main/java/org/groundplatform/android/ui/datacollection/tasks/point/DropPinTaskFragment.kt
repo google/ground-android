@@ -65,7 +65,7 @@ class DropPinTaskFragment @Inject constructor() : AbstractTaskFragment<DropPinTa
   }
 
   override fun onTaskResume() {
-    if (isVisible && !viewModel.instructionsDialogShown) {
+    if (isVisible && viewModel.shouldShowInstructionsDialog()) {
       showInstructionsDialog()
     }
   }
