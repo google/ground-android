@@ -40,7 +40,13 @@ typealias MogPathOrUrl = String
 typealias MogUrl = String
 
 /** Client responsible for fetching and caching MOG metadata and image tiles. */
-class MogClient(val collection: MogCollection, val remoteStorageManager: RemoteStorageManager) {
+class MogClient(
+  val collection: MogCollection,
+  val remoteStorageManager: RemoteStorageManager,
+  private val inputStreamFactory: (String, LongRange?) -> InputStream = { url, range ->
+    UrlInputStream(url, range)
+  },
+) {
 
   private val cache: LruCache<String, Deferred<MogMetadata?>> = LruCache(16)
 
@@ -119,7 +125,7 @@ class MogClient(val collection: MogCollection, val remoteStorageManager: RemoteS
    * tile's respective coordinates.
    */
   private fun getTiles(tilesRequest: MogTilesRequest): Flow<MogTile> = flow {
-    UrlInputStream(tilesRequest.sourceUrl, tilesRequest.byteRange).use { inputStream ->
+    inputStreamFactory(tilesRequest.sourceUrl, tilesRequest.byteRange).use { inputStream ->
       emitAll(
         MogTileReader(inputStream, tilesRequest.byteRange.first).readTiles(tilesRequest.tiles)
       )
@@ -214,7 +220,8 @@ class MogClient(val collection: MogCollection, val remoteStorageManager: RemoteS
     } else this
 
   private fun MogUrl.readMetadata(mogBounds: TileCoordinates): MogMetadata? =
-    nullIfError { UrlInputStream(this) }?.use { this.readMogMetadataAndClose(mogBounds, it) }
+    nullIfError { inputStreamFactory(this, null) }
+      ?.use { this.readMogMetadataAndClose(mogBounds, it) }
 
   /** Reads the metadata from the specified input stream. */
   private fun MogUrl.readMogMetadataAndClose(

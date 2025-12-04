@@ -18,11 +18,13 @@ package org.groundplatform.android.ui.datacollection.tasks.photo
 import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import java.io.IOException
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.groundplatform.android.data.remote.firebase.FirebaseStorageManager
 import org.groundplatform.android.model.submission.PhotoTaskData
@@ -54,11 +56,29 @@ class PhotoTaskViewModel @Inject constructor(private val userMediaRepository: Us
 
   val isPhotoPresent: LiveData<Boolean> = taskTaskData.map { it.isNotNullOrEmpty() }.asLiveData()
 
+  suspend fun createImageFileUri(): Uri {
+    val file = userMediaRepository.createImageFile(task.id)
+    return userMediaRepository.getUriForFile(file)
+  }
+
+  fun waitForPhotoCapture(taskId: String) {
+    taskWaitingForPhoto = taskId
+  }
+
+  fun onCaptureResult(result: Boolean) {
+    if (result && capturedUri != null) {
+      viewModelScope.launch {
+        savePhotoTaskData(capturedUri!!)
+        hasLaunchedCamera = false
+      }
+    }
+  }
+
   /**
    * Saves photo data stored on an on-device URI in Ground-associated storage and prepares it for
    * inclusion in a data collection submission.
    */
-  suspend fun savePhotoTaskData(uri: Uri) {
+  private suspend fun savePhotoTaskData(uri: Uri) {
     val currentTask = taskWaitingForPhoto
     requireNotNull(currentTask) { "Photo captured but no task waiting for the result" }
 
