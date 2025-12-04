@@ -120,7 +120,7 @@ internal constructor(
   private suspend fun onSurveyActivationFailed(error: Throwable? = null) {
     Timber.e(error, "Failed to activate survey")
     surveyActivationInProgress = false
-    _uiState.emit(UiState.Error)
+    _uiState.emit(UiState.Error(error))
   }
 
   fun signOut() {

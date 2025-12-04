@@ -64,4 +64,17 @@ class SurveyRepositoryTest : BaseHiltTest() {
     surveyRepository.activeSurveyFlow.test { assertThat(expectMostRecentItem()).isNull() }
     assertThat(surveyRepository.activeSurvey).isNull()
   }
+
+  @Test
+  fun `getRemoteSurvey throws error when loading remote survey times out`() =
+    runWithTestDispatcher {
+      fakeRemoteDataStore.onLoadSurvey = {
+        kotlinx.coroutines.delay(35000)
+        SURVEY
+      }
+
+      kotlin.test.assertFailsWith<kotlinx.coroutines.TimeoutCancellationException> {
+        surveyRepository.getRemoteSurvey(SURVEY.id)
+      }
+    }
 }

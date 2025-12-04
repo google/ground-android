@@ -213,4 +213,5 @@
   <string name="location_not_accurate_description">Hãy đứng yên hoặc chờ để có vị trí chính xác hơn</string>
 
   <string name="recenter">Recenter</string>
+  <string name="survey_load_timeout_error">Đã hết thời gian tải khảo sát. Vui lòng kiểm tra kết nối và thử lại.</string>
 </resources>
