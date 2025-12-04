@@ -33,17 +33,13 @@ class DropPinTaskMapFragment @Inject constructor() :
   override fun onMapReady(map: MapFragment) {
     super.onMapReady(map)
 
-    viewLifecycleOwner.lifecycleScope.launch {
-      if (taskViewModel.unifyCaptureLocationTask) {
+    if (taskViewModel.unifyCaptureLocationTask) {
+      viewLifecycleOwner.lifecycleScope.launch {
         taskViewModel.initLocationUpdates(getMapViewModel())
       }
     }
 
-    observeGestures()
-  }
-
-  // Disable pan/zoom gestures if a marker has been placed on the map.
-  private fun observeGestures() {
+    // Disable pan/zoom gestures if a marker has been placed on the map.
     lifecycleScope.launch {
       taskViewModel.features.asFlow().collect { features ->
         updateGestures(features, taskViewModel.captureLocation)
