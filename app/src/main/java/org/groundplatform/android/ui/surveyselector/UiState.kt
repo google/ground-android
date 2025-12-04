@@ -38,7 +38,7 @@ sealed class UiState {
   data object SurveyActivated : UiState()
 
   /** Represents that there was an error while activating surveys. */
-  data object Error : UiState()
+  data class Error(val error: Throwable? = null) : UiState()
 
   data object NavigateToHome : UiState()
 }

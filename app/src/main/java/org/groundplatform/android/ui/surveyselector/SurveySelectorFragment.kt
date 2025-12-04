@@ -23,6 +23,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import org.groundplatform.android.R
 import org.groundplatform.android.databinding.SurveySelectorFragBinding
 import org.groundplatform.android.model.SurveyListItem
 import org.groundplatform.android.ui.common.AbstractFragment
@@ -70,7 +71,12 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
       }
       is UiState.Error -> {
         dismissProgressDialog()
-        ephemeralPopups.ErrorPopup().unknownError()
+        val error = uiState.error
+        if (error is kotlinx.coroutines.TimeoutCancellationException) {
+          ephemeralPopups.ErrorPopup().show(R.string.survey_load_timeout_error)
+        } else {
+          ephemeralPopups.ErrorPopup().unknownError()
+        }
       }
       is UiState.NavigateToHome -> {
         findNavController().navigate(HomeScreenFragmentDirections.showHomeScreen())
