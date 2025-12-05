@@ -48,10 +48,12 @@ class TaskSequenceHandler(
   fun generateValidTasksList(): List<Task> {
     val selections = taskDataHandler.getTaskSelections()
     val validTasks = ArrayList<Task>()
+    val validTaskIds = HashSet<String>()
     for (task in allTasks) {
-      val validSelections = selections.filterKeys { taskId -> validTasks.any { it.id == taskId } }
+      val validSelections = selections.filterKeys { taskId -> validTaskIds.contains(taskId) }
       if (task.isConditionFulfilled(validSelections)) {
         validTasks.add(task)
+        validTaskIds.add(task.id)
       }
     }
     return validTasks
