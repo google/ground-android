@@ -28,11 +28,11 @@ import timber.log.Timber
 // Issue URL: https://github.com/google/ground-android/issues/1596
 /** Fetches and returns MOG tiles to Maps SDK for display as a tile overlay. */
 class MogTileProvider(
-  collection: MogCollection,
+  baseUrl: String,
   remoteStorageManager: RemoteStorageManager,
   private val ioDispatcher: CoroutineDispatcher,
 ) : TileProvider {
-  private val client = MogClient(collection, remoteStorageManager)
+  private val client = MogClient(baseUrl, remoteStorageManager)
 
   override fun getTile(x: Int, y: Int, zoom: Int): Tile? =
     runBlocking(ioDispatcher) {

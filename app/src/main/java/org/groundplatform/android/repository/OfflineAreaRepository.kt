@@ -127,7 +127,7 @@ constructor(
     RemoteMogTileSource(remotePath = Constants.DEFAULT_MOG_TILE_LOCATION)
 
   suspend fun hasHiResImagery(bounds: Bounds): Boolean {
-    val maxZoom = mogClient.collection.sources.maxZoom()
+    val maxZoom = mogClient.getCollection().sources.maxZoom()
     return mogClient.buildTilesRequests(bounds, maxZoom..maxZoom).isNotEmpty()
   }
 

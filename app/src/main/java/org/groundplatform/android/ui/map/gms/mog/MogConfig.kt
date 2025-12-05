@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.groundplatform.android.ui.map.gms.mog
 
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import org.groundplatform.android.common.Constants
-import org.groundplatform.android.data.remote.RemoteStorageManager
+import kotlinx.serialization.Serializable
 
-@InstallIn(SingletonComponent::class)
-@Module
-class MogProviderModule {
+@Serializable data class MogConfig(val sources: List<MogSourceConfig>)
 
-  @Provides
-  fun provideMogClient(remoteStorageManager: RemoteStorageManager) =
-    MogClient(Constants.DEFAULT_MOG_TILE_LOCATION, remoteStorageManager)
-}
+@Serializable data class MogSourceConfig(val minZoom: Int, val maxZoom: Int, val url: String)
