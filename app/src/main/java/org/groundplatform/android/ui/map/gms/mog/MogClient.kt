@@ -17,6 +17,7 @@
 package org.groundplatform.android.ui.map.gms.mog
 
 import android.util.LruCache
+import java.io.FileNotFoundException
 import java.io.InputStream
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -28,7 +29,11 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
+import org.groundplatform.android.common.Constants
 import org.groundplatform.android.data.remote.RemoteStorageManager
 import org.groundplatform.android.model.map.Bounds
 import timber.log.Timber
@@ -41,14 +46,55 @@ typealias MogUrl = String
 
 /** Client responsible for fetching and caching MOG metadata and image tiles. */
 class MogClient(
-  val collection: MogCollection,
+  val baseUrl: String,
   val remoteStorageManager: RemoteStorageManager,
   private val inputStreamFactory: (String, LongRange?) -> InputStream = { url, range ->
     UrlInputStream(url, range)
   },
 ) {
 
+  @androidx.annotation.VisibleForTesting
+  constructor(
+    collection: MogCollection,
+    remoteStorageManager: RemoteStorageManager,
+    inputStreamFactory: (String, LongRange?) -> InputStream = { url, range ->
+      UrlInputStream(url, range)
+    },
+  ) : this("http://test", remoteStorageManager, inputStreamFactory) {
+    this.collection = collection
+  }
+
+  private val mutex = Mutex()
+  private var collection: MogCollection? = null
+
   private val cache: LruCache<String, Deferred<MogMetadata?>> = LruCache(16)
+
+  suspend fun getCollection(): MogCollection {
+    collection?.let {
+      return it
+    }
+    mutex.withLock {
+      collection?.let {
+        return it
+      }
+      collection =
+        try {
+          fetchConfig()
+        } catch (e: Exception) {
+          Timber.e(e, "Failed to load imagery config, falling back to default")
+          MogCollection(Constants.getMogSources(baseUrl))
+        }
+      return collection!!
+    }
+  }
+
+  private suspend fun fetchConfig(): MogCollection {
+    val configUrl = if (baseUrl.endsWith(".json")) baseUrl else "$baseUrl/imagery.json"
+    val url = configUrl.toUrl() ?: throw FileNotFoundException("Invalid URL: $configUrl")
+    val jsonString = inputStreamFactory(url, null).bufferedReader().use { it.readText() }
+    val config = Json.decodeFromString<MogConfig>(jsonString)
+    return MogCollection(config.sources.map { MogSource(it.minZoom..it.maxZoom, it.url) })
+  }
 
   /** Returns the tile with the specified coordinates, or `null` if not available. */
   suspend fun getTile(tileCoordinates: TileCoordinates): MogTile? {
@@ -68,17 +114,14 @@ class MogClient(
    *   Defaults to all available zoom levels in the collection ([MogSource.minZoom] to
    *   [MogSource.maxZoom]).
    */
-  suspend fun buildTilesRequests(
-    tileBounds: Bounds,
-    zoomRange: IntRange = collection.sources.zoomRange(),
-  ) =
-    zoomRange
+  suspend fun buildTilesRequests(tileBounds: Bounds, zoomRange: IntRange? = null) =
+    (zoomRange ?: getCollection().sources.zoomRange())
       .flatMap { zoom -> buildTileRequests(tileBounds, zoom) }
       .consolidate(MAX_OVER_FETCH_PER_TILE)
 
   /** Returns requests for tiles in the specified bounds and zoom, one request per tile. */
   private suspend fun buildTileRequests(tileBounds: Bounds, zoom: Int): List<MogTilesRequest> {
-    val mogSource = collection.getMogSource(zoom) ?: return listOf()
+    val mogSource = getCollection().getMogSource(zoom) ?: return listOf()
     return TileCoordinates.withinBounds(tileBounds, zoom).mapNotNull {
       buildTileRequest(mogSource, it)
     }
@@ -137,7 +180,7 @@ class MogClient(
    * `null` if unavailable.
    */
   private suspend fun getMogMetadataForTile(tileCoordinates: TileCoordinates): MogMetadata? {
-    val mogSource = collection.getMogSource(tileCoordinates.zoom) ?: return null
+    val mogSource = getCollection().getMogSource(tileCoordinates.zoom) ?: return null
     val mogBounds = mogSource.getMogBoundsForTile(tileCoordinates)
     val mogPath = mogSource.getMogPath(mogBounds)
     return getMogMetadata(mogPath, mogBounds)

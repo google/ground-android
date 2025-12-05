@@ -45,7 +45,6 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
-import org.groundplatform.android.common.Constants
 import org.groundplatform.android.common.Constants.DEFAULT_MOG_MAX_ZOOM
 import org.groundplatform.android.coroutines.IoDispatcher
 import org.groundplatform.android.data.remote.RemoteStorageManager
@@ -60,7 +59,6 @@ import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.MapFragment
 import org.groundplatform.android.ui.map.gms.features.FeatureManager
-import org.groundplatform.android.ui.map.gms.mog.MogCollection
 import org.groundplatform.android.ui.map.gms.mog.MogTileProvider
 import org.groundplatform.android.util.invert
 import org.groundplatform.android.util.systemInsets
@@ -302,8 +300,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   private fun addRemoteMogTileOverlay(url: String) {
     // TODO: Make sub-paths configurable and stop hardcoding here.
     // Issue URL: https://github.com/google/ground-android/issues/1730
-    val mogCollection = MogCollection(Constants.getMogSources(url))
-    val source = MogTileProvider(mogCollection, remoteStorageManager, ioDispatcher)
+    val source = MogTileProvider(url, remoteStorageManager, ioDispatcher)
     val upscaled = CachingUpscalingTileProvider(source, DEFAULT_MOG_MAX_ZOOM)
 
     addTileOverlay(upscaled)
