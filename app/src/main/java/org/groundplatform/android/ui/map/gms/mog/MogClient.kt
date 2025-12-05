@@ -52,6 +52,10 @@ class MogClient(
     UrlInputStream(url, range)
   },
 ) {
+  private val mutex = Mutex()
+  private var collection: MogCollection? = null
+
+  private val cache: LruCache<String, Deferred<MogMetadata?>> = LruCache(16)
 
   @androidx.annotation.VisibleForTesting
   constructor(
@@ -64,28 +68,25 @@ class MogClient(
     this.collection = collection
   }
 
-  private val mutex = Mutex()
-  private var collection: MogCollection? = null
-
-  private val cache: LruCache<String, Deferred<MogMetadata?>> = LruCache(16)
-
   suspend fun getCollection(): MogCollection {
-    collection?.let {
-      return it
-    }
-    mutex.withLock {
-      collection?.let {
-        return it
+    val cached = collection
+    if (cached != null) return cached
+
+    val result =
+      mutex.withLock {
+        collection
+          ?: run {
+              try {
+                fetchConfig()
+              } catch (e: Exception) {
+                Timber.e(e, "Failed to load imagery config, falling back to default")
+                MogCollection(Constants.getMogSources(baseUrl))
+              }
+            }
+            .also { collection = it }
       }
-      collection =
-        try {
-          fetchConfig()
-        } catch (e: Exception) {
-          Timber.e(e, "Failed to load imagery config, falling back to default")
-          MogCollection(Constants.getMogSources(baseUrl))
-        }
-      return collection!!
-    }
+
+    return result
   }
 
   private suspend fun fetchConfig(): MogCollection {
