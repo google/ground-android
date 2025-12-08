@@ -83,6 +83,7 @@ enum class ButtonMode {
 @Suppress("UnusedPrivateMember")
 @Composable
 @Preview
+@ExcludeFromJacocoGeneratedReport
 private fun PreviewPrimaryActionButton() {
   AppTheme {
     ActionButton(
