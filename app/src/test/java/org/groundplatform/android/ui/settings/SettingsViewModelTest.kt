@@ -24,6 +24,7 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import org.groundplatform.android.model.settings.MeasurementUnits
 import org.groundplatform.android.model.settings.UserSettings
 import org.groundplatform.android.usecases.user.GetUserSettingsUseCase
 import org.junit.After
@@ -32,6 +33,7 @@ import org.junit.Rule
 import org.mockito.Mock
 import org.mockito.Mockito.verify
 import org.mockito.MockitoAnnotations
+import org.mockito.kotlin.times
 import org.mockito.kotlin.whenever
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -59,7 +61,7 @@ class SettingsViewModelTest {
   @Test
   fun `uiState is populated with correct user settings`() = runTest {
     val userSettings =
-      UserSettings(language = "en", measurementUnits = "m", shouldUploadPhotosOnWifiOnly = false)
+      UserSettings(language = "en", measurementUnits = MeasurementUnits.METRIC, shouldUploadPhotosOnWifiOnly = false)
     whenever(getUserSettingsUseCase.invoke()).thenReturn(userSettings)
 
     viewModel = SettingsViewModel(getUserSettingsUseCase)
@@ -68,5 +70,25 @@ class SettingsViewModelTest {
 
     assertEquals(userSettings, viewModel.uiState.value)
     verify(getUserSettingsUseCase).invoke()
+  }
+
+  @Test
+  fun `Refreshing preferences updates the uiState again`() = runTest {
+    val settings1 = UserSettings("en", MeasurementUnits.METRIC, false)
+    val settings2 = UserSettings("fr", MeasurementUnits.IMPERIAL, true)
+
+    whenever(getUserSettingsUseCase.invoke()).thenReturn(settings1)
+
+    viewModel = SettingsViewModel(getUserSettingsUseCase)
+    testDispatcher.scheduler.advanceUntilIdle()
+    assertEquals(settings1, viewModel.uiState.value)
+
+    whenever(getUserSettingsUseCase.invoke()).thenReturn(settings2)
+
+    viewModel.refreshUserPreferences()
+    testDispatcher.scheduler.advanceUntilIdle()
+
+    assertEquals(settings2, viewModel.uiState.value)
+    verify(getUserSettingsUseCase, times(2)).invoke()
   }
 }

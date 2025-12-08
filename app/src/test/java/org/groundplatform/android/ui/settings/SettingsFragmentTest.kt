@@ -20,6 +20,7 @@ import androidx.core.os.LocaleListCompat
 import androidx.preference.DropDownPreference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceManager
+import androidx.preference.SwitchPreferenceCompat
 import androidx.preference.get
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
@@ -82,8 +83,8 @@ class SettingsFragmentTest : BaseHiltTest() {
     }
 
     category.getPreference(2).apply {
-      assertThat(title).isEqualTo("Unit of length")
-      assertThat(summary).isEqualTo("Meters (m)")
+      assertThat(title).isEqualTo("Select units")
+      assertThat(summary).isEqualTo("Metric")
     }
   }
 
@@ -130,7 +131,7 @@ class SettingsFragmentTest : BaseHiltTest() {
     }
 
   @Test
-  fun `change app language to french`() {
+  fun `change app language to french and restart activity`() {
     val generalCategory = assertHasCategory("general_category")
 
     val languagePreference = generalCategory.getPreference(1) as? DropDownPreference
@@ -138,7 +139,41 @@ class SettingsFragmentTest : BaseHiltTest() {
     assertThat(languagePreference!!.summary).isEqualTo("English")
 
     val changeListener = languagePreference.onPreferenceChangeListener
-    assertThat(changeListener).isNotNull()
+    changeListener?.onPreferenceChange(languagePreference, "fr")
+    assertThat(languagePreference.summary.toString()).isEqualTo("French")
+
+    val locales = AppCompatDelegate.getApplicationLocales()
+    assertThat(locales.toLanguageTags()).isEqualTo("fr")
+
+    val nextIntent = Shadows.shadowOf(fragment.requireActivity()).nextStartedActivity
+    assertThat(nextIntent.component?.className).contains("MainActivity")
+  }
+
+  @Test
+  fun `Should change preferred units between imperial and metric correctly`() {
+    val generalCategory = assertHasCategory("general_category")
+    val preference = generalCategory.getPreference(2) as DropDownPreference
+
+    val listener = preference.onPreferenceChangeListener
+    listener?.onPreferenceChange(preference, "IMPERIAL")
+    assertThat(preference.summary).isEqualTo("Imperial")
+
+    listener?.onPreferenceChange(preference, "METRIC")
+    assertThat(preference.summary).isEqualTo("Metric")
+  }
+
+  @Test
+  fun `Should update photo upload preference correctly`() {
+    val generalCategory = assertHasCategory("general_category")
+    val preference = generalCategory.getPreference(0) as SwitchPreferenceCompat
+
+    val initial = preference.summary.toString()
+    assertThat(initial).isAnyOf("Over Wi-Fi only", "Off")
+
+    preference.performClick()
+
+    val updatedSummary = preference.summary.toString()
+    assertThat(updatedSummary).isAnyOf("Over Wi-Fi only", "On")
   }
 
   private fun assertHasCategory(key: String): PreferenceCategory {
