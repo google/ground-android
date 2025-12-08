@@ -61,7 +61,11 @@ class SettingsViewModelTest {
   @Test
   fun `uiState is populated with correct user settings`() = runTest {
     val userSettings =
-      UserSettings(language = "en", measurementUnits = MeasurementUnits.METRIC, shouldUploadPhotosOnWifiOnly = false)
+      UserSettings(
+        language = "en",
+        measurementUnits = MeasurementUnits.METRIC,
+        shouldUploadPhotosOnWifiOnly = false,
+      )
     whenever(getUserSettingsUseCase.invoke()).thenReturn(userSettings)
 
     viewModel = SettingsViewModel(getUserSettingsUseCase)

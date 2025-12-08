@@ -15,12 +15,12 @@
  */
 package org.groundplatform.android.ui.util
 
+import java.util.Locale
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.cos
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.settings.MeasurementUnits
-import java.util.Locale
 
 private const val METERS_TO_ACRE = 4046.86
 private const val METERS_TO_HECTARE = 10_000
@@ -50,10 +50,11 @@ fun calculateShoelacePolygonArea(coordinates: List<Coordinates>): Double {
 }
 
 fun getFormattedArea(areaInSquareMeters: Double, measurementUnits: MeasurementUnits): String {
-  val (convertedArea, stringUnit) = when (measurementUnits) {
-    MeasurementUnits.METRIC -> areaInSquareMeters / METERS_TO_HECTARE to "ha"
-    MeasurementUnits.IMPERIAL -> areaInSquareMeters / METERS_TO_ACRE to "ac"
-  }
+  val (convertedArea, stringUnit) =
+    when (measurementUnits) {
+      MeasurementUnits.METRIC -> areaInSquareMeters / METERS_TO_HECTARE to "ha"
+      MeasurementUnits.IMPERIAL -> areaInSquareMeters / METERS_TO_ACRE to "ac"
+    }
   val rounded = String.format(Locale.getDefault(), "%.2f", convertedArea)
   return "$rounded $stringUnit"
 }

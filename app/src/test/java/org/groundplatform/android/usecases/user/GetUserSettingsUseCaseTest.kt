@@ -41,7 +41,11 @@ class GetUserSettingsUseCaseTest {
   @Test
   fun `invoke returns user settings from repository`() {
     val expectedSettings =
-      UserSettings(language = "en", measurementUnits = MeasurementUnits.METRIC, shouldUploadPhotosOnWifiOnly = false)
+      UserSettings(
+        language = "en",
+        measurementUnits = MeasurementUnits.METRIC,
+        shouldUploadPhotosOnWifiOnly = false,
+      )
     whenever(userRepository.getUserSettings()).thenReturn(expectedSettings)
 
     val result = useCase()
