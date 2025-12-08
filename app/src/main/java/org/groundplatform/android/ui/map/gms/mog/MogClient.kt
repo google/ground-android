@@ -17,7 +17,6 @@
 package org.groundplatform.android.ui.map.gms.mog
 
 import android.util.LruCache
-import java.io.FileNotFoundException
 import java.io.InputStream
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -29,11 +28,7 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
-import org.groundplatform.android.common.Constants
 import org.groundplatform.android.data.remote.RemoteStorageManager
 import org.groundplatform.android.model.map.Bounds
 import timber.log.Timber
@@ -52,10 +47,11 @@ class MogClient(
     UrlInputStream(url, range)
   },
 ) {
-  private val mutex = Mutex()
   private var collection: MogCollection? = null
 
   private val cache: LruCache<String, Deferred<MogMetadata?>> = LruCache(16)
+
+  private val configLoader = MogConfigLoader(remoteStorageManager, inputStreamFactory)
 
   @androidx.annotation.VisibleForTesting
   constructor(
@@ -68,34 +64,17 @@ class MogClient(
     this.collection = collection
   }
 
-  suspend fun getCollection(): MogCollection {
-    val cached = collection
-    if (cached != null) return cached
+  /**
+   * Returns the [MogCollection] containing the MOGs for this client.
+   *
+   * If a collection was explicitly provided via constructor (e.g. for testing), it is returned.
+   * Otherwise, the collection is loaded from the [baseUrl] using [MogConfigLoader].
+   */
+  suspend fun getCollection(): MogCollection =
+    collection ?: configLoader.getConfig(baseUrl).toMogCollection()
 
-    val result =
-      mutex.withLock {
-        collection
-          ?: run {
-              try {
-                fetchConfig()
-              } catch (e: Exception) {
-                Timber.e(e, "Failed to load imagery config, falling back to default")
-                MogCollection(Constants.getMogSources(baseUrl))
-              }
-            }
-            .also { collection = it }
-      }
-
-    return result
-  }
-
-  private suspend fun fetchConfig(): MogCollection {
-    val configUrl = if (baseUrl.endsWith(".json")) baseUrl else "$baseUrl/imagery.json"
-    val url = configUrl.toUrl() ?: throw FileNotFoundException("Invalid URL: $configUrl")
-    val jsonString = inputStreamFactory(url, null).bufferedReader().use { it.readText() }
-    val config = Json.decodeFromString<MogConfig>(jsonString)
-    return MogCollection(config.sources.map { MogSource(it.minZoom..it.maxZoom, it.url) })
-  }
+  private fun MogConfig.toMogCollection(): MogCollection =
+    MogCollection(sources.map { MogSource(it.minZoom..it.maxZoom, it.url) })
 
   /** Returns the tile with the specified coordinates, or `null` if not available. */
   suspend fun getTile(tileCoordinates: TileCoordinates): MogTile? {

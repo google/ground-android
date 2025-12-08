@@ -298,8 +298,6 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   }
 
   private fun addRemoteMogTileOverlay(url: String) {
-    // TODO: Make sub-paths configurable and stop hardcoding here.
-    // Issue URL: https://github.com/google/ground-android/issues/1730
     val source = MogTileProvider(url, remoteStorageManager, ioDispatcher)
     val upscaled = CachingUpscalingTileProvider(source, DEFAULT_MOG_MAX_ZOOM)
 
