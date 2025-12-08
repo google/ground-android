@@ -65,7 +65,7 @@ object Constants {
 
   // TODO: Make sub-paths configurable and stop hardcoding here.
   // Issue URL: https://github.com/google/ground-android/issues/1730
-  const val DEFAULT_MOG_TILE_LOCATION = "/offline-imagery/default"
+  const val DEFAULT_MOG_TILE_LOCATION = "/offline-imagery/default/imagery.json"
   private const val DEFAULT_MOG_MIN_ZOOM = 8
   const val DEFAULT_MOG_MAX_ZOOM = 14
 

@@ -41,17 +41,29 @@ typealias MogUrl = String
 
 /** Client responsible for fetching and caching MOG metadata and image tiles. */
 class MogClient(
-  val baseUrl: String,
   val remoteStorageManager: RemoteStorageManager,
   private val inputStreamFactory: (String, LongRange?) -> InputStream = { url, range ->
     UrlInputStream(url, range)
   },
+  private val collectionProvider: suspend () -> MogCollection,
 ) {
-  private var collection: MogCollection? = null
-
   private val cache: LruCache<String, Deferred<MogMetadata?>> = LruCache(16)
 
-  private val configLoader = MogConfigLoader(remoteStorageManager, inputStreamFactory)
+  constructor(
+    configUrl: String,
+    remoteStorageManager: RemoteStorageManager,
+    inputStreamFactory: (String, LongRange?) -> InputStream = { url, range ->
+      UrlInputStream(url, range)
+    },
+  ) : this(
+    remoteStorageManager,
+    inputStreamFactory,
+    {
+      MogConfigLoader(remoteStorageManager, inputStreamFactory).fetch(configUrl).let { config ->
+        MogCollection(config.sources.map { MogSource(it.minZoom..it.maxZoom, it.url) })
+      }
+    },
+  )
 
   @androidx.annotation.VisibleForTesting
   constructor(
@@ -60,21 +72,10 @@ class MogClient(
     inputStreamFactory: (String, LongRange?) -> InputStream = { url, range ->
       UrlInputStream(url, range)
     },
-  ) : this("http://test", remoteStorageManager, inputStreamFactory) {
-    this.collection = collection
-  }
+  ) : this(remoteStorageManager, inputStreamFactory, { collection })
 
-  /**
-   * Returns the [MogCollection] containing the MOGs for this client.
-   *
-   * If a collection was explicitly provided via constructor (e.g. for testing), it is returned.
-   * Otherwise, the collection is loaded from the [baseUrl] using [MogConfigLoader].
-   */
-  suspend fun getCollection(): MogCollection =
-    collection ?: configLoader.getConfig(baseUrl).toMogCollection()
-
-  private fun MogConfig.toMogCollection(): MogCollection =
-    MogCollection(sources.map { MogSource(it.minZoom..it.maxZoom, it.url) })
+  /** Returns the [MogCollection] containing the MOGs for this client. */
+  suspend fun getCollection(): MogCollection = collectionProvider()
 
   /** Returns the tile with the specified coordinates, or `null` if not available. */
   suspend fun getTile(tileCoordinates: TileCoordinates): MogTile? {

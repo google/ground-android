@@ -51,13 +51,13 @@ class MogConfigLoader(
   private var cachedConfig: MogConfig? = null
 
   /**
-   * Returns the [MogConfig] for the specified [baseUrl].
+   * Returns the [MogConfig] for the specified [configUrl].
    *
    * This method fetches the config from the remote source. If fetching fails, it falls back to
    * default settings defined in [Constants.getMogSources]. Results are cached to prevent redundant
    * network requests.
    */
-  suspend fun getConfig(baseUrl: String): MogConfig {
+  suspend fun fetch(configUrl: String): MogConfig {
     val cached = cachedConfig
     if (cached != null) return cached
 
@@ -65,33 +65,29 @@ class MogConfigLoader(
       cachedConfig
         ?: run {
             try {
-              fetchConfig(baseUrl)
+              fetchConfig(configUrl)
             } catch (e: Exception) {
               Timber.e(e, "Failed to load imagery config, falling back to default")
-              buildDefaultConfig(baseUrl)
+              buildDefaultConfig(configUrl)
             }
           }
           .also { cachedConfig = it }
     }
   }
 
-  /**
-   * Fetches and parses the [MogConfig] from the specified [baseUrl].
-   *
-   * If [baseUrl] ends with ".json", it is treated as the full URL to the config file. Otherwise,
-   * "/imagery.json" is appended to the [baseUrl].
-   */
-  private suspend fun fetchConfig(baseUrl: String): MogConfig {
-    val configUrl = if (baseUrl.endsWith(".json")) baseUrl else "$baseUrl/imagery.json"
+  /** Fetches and parses the [MogConfig] from the specified [configUrl]. */
+  private suspend fun fetchConfig(configUrl: String): MogConfig {
     val url = configUrl.toUrl() ?: throw FileNotFoundException("Invalid URL: $configUrl")
     val jsonString = inputStreamFactory(url, null).bufferedReader().use { it.readText() }
     return Json.decodeFromString<MogConfig>(jsonString)
   }
 
-  private fun buildDefaultConfig(baseUrl: String): MogConfig =
-    Constants.getMogSources(baseUrl)
+  private fun buildDefaultConfig(configUrl: String): MogConfig {
+    val baseUrl = configUrl.substringBeforeLast("/")
+    return Constants.getMogSources(baseUrl)
       .map { MogSourceConfig(it.zoomRange.first, it.zoomRange.last, it.pathTemplate) }
       .let { MogConfig(it) }
+  }
 
   private suspend fun String.toUrl(): String? =
     if (startsWith("/")) {
