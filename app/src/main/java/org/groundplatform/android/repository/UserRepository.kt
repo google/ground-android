@@ -122,13 +122,12 @@ constructor(
     return isOrganizer
   }
 
-  fun getUserSettings(): UserSettings {
-    return with(localValueStore) {
+  fun getUserSettings(): UserSettings =
+    with(localValueStore) {
       UserSettings(
         language = selectedLanguage,
         measurementUnits = selectedLengthUnit,
         shouldUploadPhotosOnWifiOnly = shouldUploadMediaOverUnmeteredConnectionOnly(),
       )
     }
-  }
 }

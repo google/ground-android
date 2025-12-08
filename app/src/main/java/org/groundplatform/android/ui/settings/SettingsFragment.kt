@@ -78,7 +78,7 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
             }
           switchPreference?.isChecked = state.shouldUploadPhotosOnWifiOnly
 
-          setupDropDownPreference(PrefKeys.LANGUAGE, state.language) { updateLocaleAndRestart(it) }
+          setupDropDownPreference(PrefKeys.LANGUAGE, state.language) { applyLocaleAndRestart(it) }
           setupDropDownPreference(PrefKeys.LENGTH_UNIT, state.measurementUnits)
         }
       }
@@ -123,7 +123,7 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
     startActivity(intent)
   }
 
-  private fun updateLocaleAndRestart(languageCode: String) {
+  private fun applyLocaleAndRestart(languageCode: String) {
     val appLocale = LocaleListCompat.forLanguageTags(languageCode)
     AppCompatDelegate.setApplicationLocales(appLocale)
 
