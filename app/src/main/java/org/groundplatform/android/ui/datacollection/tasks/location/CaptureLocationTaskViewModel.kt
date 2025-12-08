@@ -50,11 +50,15 @@ class CaptureLocationTaskViewModel @Inject constructor() : AbstractMapTaskViewMo
     if (location == null) {
       updateLocationLock(LocationLockEnabledState.ENABLE)
     } else {
+      val accuracy = location.getAccuracyOrNull()
+      if (accuracy != null && accuracy > MIN_DESIRED_ACCURACY) {
+        return
+      }
       setValue(
         CaptureLocationTaskData(
           location = Point(location.toCoordinates()),
           altitude = location.getAltitudeOrNull(),
-          accuracy = location.getAccuracyOrNull(),
+          accuracy = accuracy,
         )
       )
     }

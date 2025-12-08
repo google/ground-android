@@ -79,4 +79,17 @@ class CaptureLocationTaskViewModelTest : BaseHiltTest() {
 
     assertThat(viewModel.isCaptureEnabled.first()).isFalse()
   }
+
+  @Test
+  fun testUpdateResponse_whenAccuracyIsPoor_doesNotUpdateResponse() = runTest {
+    val viewModel = CaptureLocationTaskViewModel()
+    val location = mock(Location::class.java)
+    `when`(location.hasAccuracy()).thenReturn(true)
+    `when`(location.accuracy).thenReturn(20.0f)
+    viewModel.updateLocation(location)
+
+    viewModel.updateResponse()
+
+    assertThat(viewModel.taskTaskData.value).isNull()
+  }
 }
