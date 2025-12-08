@@ -19,6 +19,7 @@ package org.groundplatform.android.usecases.survey
 import javax.inject.Inject
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.repository.SurveyRepository
+import timber.log.Timber
 
 /** Attempts to reactivate the last survey. If survey is already active, does nothing. */
 class ReactivateLastSurveyUseCase
@@ -39,6 +40,11 @@ constructor(
       // Nothing to be re-activated.
       return false
     }
-    return activateSurvey(lastActiveSurveyId)
+    return try {
+      activateSurvey(lastActiveSurveyId)
+    } catch (e: Exception) {
+      Timber.e(e, "Error reactivating last active survey")
+      false
+    }
   }
 }
