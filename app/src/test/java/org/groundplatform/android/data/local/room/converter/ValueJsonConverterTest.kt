@@ -165,6 +165,11 @@ class ValueJsonConverterTest(
           incompleteDrawAreaTaskResponse,
           lineStringGeometryTaskResponseString,
         ),
+        arrayOf(
+          FakeData.newTask(type = Task.Type.CAPTURE_LOCATION),
+          dropPinTaskResponse,
+          dropPinGeometryTaskResponseString,
+        ),
       )
   }
 }

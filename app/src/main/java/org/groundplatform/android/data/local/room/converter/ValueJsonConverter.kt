@@ -116,8 +116,15 @@ internal object ValueJsonConverter {
         DropPinTaskData(geometry as Point)
       }
       Task.Type.CAPTURE_LOCATION -> {
-        DataStoreException.checkType(JSONObject::class.java, obj)
-        (obj as JSONObject).toCaptureLocationTaskData()
+        if (obj is String) {
+          val geometry = GeometryWrapperTypeConverter.fromString(obj)?.getGeometry()
+          DataStoreException.checkNotNull(geometry, "Missing geometry in drop pin task result")
+          DataStoreException.checkType(Point::class.java, geometry!!)
+          DropPinTaskData(geometry as Point)
+        } else {
+          DataStoreException.checkType(JSONObject::class.java, obj)
+          (obj as JSONObject).toCaptureLocationTaskData()
+        }
       }
       Task.Type.INSTRUCTIONS -> {
         null
