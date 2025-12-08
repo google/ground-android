@@ -15,7 +15,6 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.polygon
 
-import android.icu.util.MeasureUnit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -28,7 +27,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
-import org.groundplatform.android.common.Constants
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.android.model.geometry.Coordinates
@@ -37,6 +35,7 @@ import org.groundplatform.android.model.geometry.LinearRing
 import org.groundplatform.android.model.geometry.Polygon
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.getDefaultColor
+import org.groundplatform.android.model.settings.MeasurementUnits
 import org.groundplatform.android.model.submission.DrawAreaTaskData
 import org.groundplatform.android.model.submission.DrawAreaTaskIncompleteData
 import org.groundplatform.android.model.submission.TaskData
@@ -47,7 +46,9 @@ import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.util.LocaleAwareMeasureFormatter
 import org.groundplatform.android.ui.util.VibrationHelper
 import org.groundplatform.android.ui.util.calculateShoelacePolygonArea
+import org.groundplatform.android.ui.util.getFormattedArea
 import org.groundplatform.android.ui.util.isSelfIntersecting
+import org.groundplatform.android.usecases.user.GetUserSettingsUseCase
 import org.groundplatform.android.util.distanceTo
 import org.groundplatform.android.util.penult
 import timber.log.Timber
@@ -63,6 +64,7 @@ internal constructor(
   private val uuidGenerator: OfflineUuidGenerator,
   private val vibrationHelper: VibrationHelper,
   private val localeAwareMeasureFormatter: LocaleAwareMeasureFormatter,
+  private val getUserSettingsUseCase: GetUserSettingsUseCase,
 ) : AbstractMapTaskViewModel() {
 
   /** Polygon [Feature] being drawn by the user. */
@@ -98,8 +100,8 @@ internal constructor(
   /** Whether the instructions dialog has been shown or not. */
   var instructionsDialogShown: Boolean by localValueStore::drawAreaInstructionsShown
 
-  private val _polygonArea = MutableLiveData<Double>()
-  val polygonArea: LiveData<Double> = _polygonArea
+  private val _polygonArea = MutableLiveData<String>()
+  val polygonArea: LiveData<String> = _polygonArea
 
   /**
    * User-specified vertices of the area being drawn. If [isMarkedComplete] is false, then the last
@@ -126,6 +128,7 @@ internal constructor(
     private set
 
   private lateinit var featureStyle: Feature.Style
+  lateinit var measurementUnits: MeasurementUnits
 
   override fun initialize(job: Job, task: Task, taskData: TaskData?) {
     super.initialize(job, task, taskData)
@@ -153,6 +156,8 @@ internal constructor(
         }
       }
     }
+
+    viewModelScope.launch { measurementUnits = getUserSettingsUseCase.invoke().measurementUnits }
   }
 
   fun isMarkedComplete(): Boolean = isMarkedComplete.value
@@ -309,7 +314,8 @@ internal constructor(
 
     refreshMap()
     setValue(DrawAreaTaskData(Polygon(LinearRing(vertices))))
-    _polygonArea.value = calculateShoelacePolygonArea(vertices)
+    val areaInSquareMeters = calculateShoelacePolygonArea(vertices)
+    _polygonArea.value = getFormattedArea(areaInSquareMeters, measurementUnits)
   }
 
   /**
@@ -360,16 +366,7 @@ internal constructor(
     if (isMarkedComplete.value || vertices.size <= 1) return null
     val distance = vertices.penult().distanceTo(vertices.last())
     if (distance < TOOLTIP_MIN_DISTANCE_METERS) return null
-    return localeAwareMeasureFormatter.formatDistance(distance, getLengthUnit())
-  }
-
-  private fun getLengthUnit(): MeasureUnit {
-    val unit = localValueStore.selectedLengthUnit
-    return when (unit) {
-      Constants.LENGTH_UNIT_METER -> MeasureUnit.METER
-      Constants.LENGTH_UNIT_FEET -> MeasureUnit.FOOT
-      else -> error("Unknown distance unit: $unit")
-    }
+    return localeAwareMeasureFormatter.formatDistance(distance, measurementUnits)
   }
 
   override fun validate(task: Task, taskData: TaskData?): Int? {

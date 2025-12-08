@@ -40,12 +40,11 @@
 
     <DropDownPreference
       app:iconSpaceReserved="false"
-      app:key="length_unit"
+      app:key="measurement_units"
       app:title="@string/select_length_title"
       app:summary="@string/select_length_summary"
       app:entries="@array/length_entries"
-      app:entryValues="@array/length_entry_values"
-      app:defaultValue="m"/>
+      app:entryValues="@array/length_entry_values" />
   </PreferenceCategory>
 
   <PreferenceCategory
