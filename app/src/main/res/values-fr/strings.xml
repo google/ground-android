@@ -219,4 +219,5 @@
   <string name="location_not_accurate_description">Essayez de rester immobile ou d&#8217;attendre une position plus précise</string>
 
   <string name="recenter">Recentrer</string>
+  <string name="survey_load_timeout_error">Le chargement du sondage a expiré. Veuillez vérifier votre connexion et réessayer.</string>
 </resources>

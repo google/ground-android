@@ -240,4 +240,5 @@
   <string name="location_not_accurate_description">Intenta quedarte quieto o espera a obtener una posición más precisa</string>
 
   <string name="recenter">Recentrar</string>
+  <string name="survey_load_timeout_error">La carga de la encuesta ha excedido el tiempo de espera. Verifica tu conexión e inténtalo de nuevo.</string>
 </resources>
