@@ -36,9 +36,11 @@ import org.mockito.Mockito.mock
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows
+import org.robolectric.annotation.LooperMode
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
+@LooperMode(LooperMode.Mode.PAUSED)
 class SettingsFragmentTest : BaseHiltTest() {
 
   private lateinit var fragment: SettingsFragment
