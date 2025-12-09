@@ -16,6 +16,7 @@
 package org.groundplatform.android.util
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import java.util.Locale
 import junit.framework.TestCase.assertFalse
 import kotlin.test.Test
 import kotlin.test.assertTrue
@@ -30,8 +31,6 @@ import org.groundplatform.android.ui.util.isSelfIntersecting
 import org.groundplatform.android.ui.util.segmentsIntersect
 import org.junit.Assert.assertEquals
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import java.util.Locale
 
 @RunWith(AndroidJUnit4::class)
 class PolygonUtilTest {
