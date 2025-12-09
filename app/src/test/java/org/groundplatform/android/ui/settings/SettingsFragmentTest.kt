@@ -131,7 +131,7 @@ class SettingsFragmentTest : BaseHiltTest() {
     }
 
   @Test
-  fun `change app language to french and restart activity`() {
+  fun `change app language to french and restart activity`() = runWithTestDispatcher {
     val generalCategory = assertHasCategory("general_category")
 
     val languagePreference = generalCategory.getPreference(1) as? DropDownPreference
@@ -150,20 +150,21 @@ class SettingsFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Should change preferred units between imperial and metric correctly`() {
-    val generalCategory = assertHasCategory("general_category")
-    val preference = generalCategory.getPreference(2) as DropDownPreference
+  fun `Should change preferred units between imperial and metric correctly`() =
+    runWithTestDispatcher {
+      val generalCategory = assertHasCategory("general_category")
+      val preference = generalCategory.getPreference(2) as DropDownPreference
 
-    val listener = preference.onPreferenceChangeListener
-    listener?.onPreferenceChange(preference, "IMPERIAL")
-    assertThat(preference.summary).isEqualTo("Imperial")
+      val listener = preference.onPreferenceChangeListener
+      listener?.onPreferenceChange(preference, "IMPERIAL")
+      assertThat(preference.summary).isEqualTo("Imperial")
 
-    listener?.onPreferenceChange(preference, "METRIC")
-    assertThat(preference.summary).isEqualTo("Metric")
-  }
+      listener?.onPreferenceChange(preference, "METRIC")
+      assertThat(preference.summary).isEqualTo("Metric")
+    }
 
   @Test
-  fun `Should update photo upload preference correctly`() {
+  fun `Should update photo upload preference correctly`() = runWithTestDispatcher {
     val generalCategory = assertHasCategory("general_category")
     val preference = generalCategory.getPreference(0) as SwitchPreferenceCompat
 
