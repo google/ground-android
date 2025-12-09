@@ -21,7 +21,7 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -41,7 +41,8 @@ fun HyperlinkText(
   linkTextDecoration: TextDecoration = TextDecoration.None,
   fontSize: TextUnit = TextUnit.Unspecified,
 ) {
-  val fullText = stringResource(fullTextResId).toSpannable()
+  val resources = LocalContext.current.resources
+  val fullText = resources.getText(fullTextResId).toSpannable()
   val annotations = fullText.getSpans(0, fullText.length, Annotation::class.java)
 
   val annotatedString = buildAnnotatedString {
