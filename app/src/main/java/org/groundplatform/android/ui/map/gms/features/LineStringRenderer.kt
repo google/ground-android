@@ -21,6 +21,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CustomCap
 import com.google.android.gms.maps.model.JointType
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Polyline
 import com.google.android.gms.maps.model.PolylineOptions
 import javax.inject.Inject
@@ -59,15 +60,7 @@ constructor(
     tooltipText: String?,
   ): Polyline {
     val options = PolylineOptions().clickable(false)
-    val coordinates = geometry.coordinates.toLatLngList()
-    if (coordinates.size > 1 && coordinates.all { it == coordinates[0] }) {
-      // If all points are identical, we add a tiny offset to the last point to ensure the
-      // polyline has non-zero length.
-      options.addAll(coordinates.dropLast(1))
-      options.add(coordinates.last().addOffset())
-    } else {
-      options.addAll(coordinates)
-    }
+    options.addAll(processCoordinates(geometry))
     options.visible(visible)
 
     val polyline =
@@ -86,12 +79,7 @@ constructor(
     geometry: LineString,
     tooltipText: String?,
   ) {
-    val coordinates = geometry.coordinates.toLatLngList()
-    if (coordinates.size > 1 && coordinates.all { it == coordinates[0] }) {
-      mapFeature.points = coordinates.dropLast(1) + coordinates.last().addOffset()
-    } else {
-      mapFeature.points = coordinates
-    }
+    mapFeature.points = processCoordinates(geometry)
 
     // TODO: Move tooltip rendering out of the LineStringRenderer.
     updateTooltipMarker(geometry, map, tooltipText)
@@ -120,11 +108,19 @@ constructor(
     return defaultStrokeWidth * strokeScale
   }
 
+  private fun processCoordinates(geometry: LineString): List<LatLng> {
+    val coordinates = geometry.coordinates.toLatLngList()
+    // If all points are identical, we add a tiny offset to the last point to ensure the
+    // polyline has non-zero length.
+    if (coordinates.size > 1 && coordinates.all { it == coordinates[0] }) {
+      return coordinates.dropLast(1) + coordinates.last().addOffset()
+    }
+    return coordinates
+  }
+
   /**
    * Adds a tiny offset to the [LatLng] to ensure that the polyline has a non-zero length. This is
    * required for the start/end caps to be rendered.
    */
-  private fun com.google.android.gms.maps.model.LatLng.addOffset():
-    com.google.android.gms.maps.model.LatLng =
-    com.google.android.gms.maps.model.LatLng(latitude + 1e-6, longitude + 1e-6)
+  private fun LatLng.addOffset(): LatLng = LatLng(latitude + 1e-6, longitude + 1e-6)
 }
