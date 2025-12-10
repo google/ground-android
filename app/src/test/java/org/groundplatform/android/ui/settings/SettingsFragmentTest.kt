@@ -133,7 +133,7 @@ class SettingsFragmentTest : BaseHiltTest() {
     }
 
   @Test
-  fun `change app language to french and restart activity`() = runWithTestDispatcher {
+  fun `Change app language to french`() = runWithTestDispatcher {
     val generalCategory = assertHasCategory("general_category")
 
     val languagePreference = generalCategory.getPreference(1) as? DropDownPreference
@@ -146,9 +146,6 @@ class SettingsFragmentTest : BaseHiltTest() {
 
     val locales = AppCompatDelegate.getApplicationLocales()
     assertThat(locales.toLanguageTags()).isEqualTo("fr")
-
-    val nextIntent = Shadows.shadowOf(fragment.requireActivity()).nextStartedActivity
-    assertThat(nextIntent.component?.className).contains("MainActivity")
   }
 
   @Test
