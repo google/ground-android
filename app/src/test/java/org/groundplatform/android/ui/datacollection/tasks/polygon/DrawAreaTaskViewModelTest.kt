@@ -329,11 +329,6 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     // Distance between COORDINATE_2 (10, 10) and COORDINATE_3 (20, 20) is ~14.14
     // Threshold is 24. So this should be too close.
     updateLastVertex(COORDINATE_3, isNearFirstVertex = false)
-    // This test checks that isTooClose becomes true when the last two vertices are within the
-    // distance threshold. It manually triggers the update with a controlled distance equal
-    // to the threshold to verify the behavior.
-
-    // Let's manually call updateLastVertexAndMaybeCompletePolygon to be explicit.
     viewModel.updateLastVertexAndMaybeCompletePolygon(COORDINATE_3) { _, _ ->
       DISTANCE_THRESHOLD_DP.toDouble()
     }

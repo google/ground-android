@@ -60,7 +60,7 @@ constructor(
     tooltipText: String?,
   ): Polyline {
     val options = PolylineOptions().clickable(false)
-    options.addAll(processCoordinates(geometry))
+    options.addAll(convertMaybeAddOffsetPoint(geometry))
     options.visible(visible)
 
     val polyline =
@@ -79,7 +79,7 @@ constructor(
     geometry: LineString,
     tooltipText: String?,
   ) {
-    mapFeature.points = processCoordinates(geometry)
+    mapFeature.points = convertMaybeAddOffsetPoint(geometry)
 
     // TODO: Move tooltip rendering out of the LineStringRenderer.
     updateTooltipMarker(geometry, map, tooltipText)
@@ -108,13 +108,13 @@ constructor(
     return defaultStrokeWidth * strokeScale
   }
 
-  private fun processCoordinates(geometry: LineString): List<LatLng> {
+  private fun convertMaybeAddOffsetPoint(geometry: LineString): List<LatLng> {
     val coordinates = geometry.coordinates.toLatLngList()
-    // If all points are identical, we add a tiny offset to the last point to ensure the
-    // polyline has non-zero length.
-    if (coordinates.size > 1 && coordinates.all { it == coordinates[0] }) {
-      return coordinates.dropLast(1) + coordinates.last().addOffset()
+    // A polyline becomes invalid only when there are exactly two identical points.
+    if (coordinates.size == 2 && coordinates[0] == coordinates[1]) {
+      return listOf(coordinates[0], coordinates[1].addOffset())
     }
+
     return coordinates
   }
 
