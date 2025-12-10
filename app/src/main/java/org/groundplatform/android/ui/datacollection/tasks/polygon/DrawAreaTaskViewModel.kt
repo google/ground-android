@@ -134,6 +134,7 @@ internal constructor(
 
   override fun initialize(job: Job, task: Task, taskData: TaskData?) {
     super.initialize(job, task, taskData)
+    viewModelScope.launch { measurementUnits = getUserSettingsUseCase.invoke().measurementUnits }
     featureStyle = Feature.Style(job.getDefaultColor(), Feature.VertexStyle.CIRCLE)
 
     // Apply saved state if it exists.
@@ -158,8 +159,6 @@ internal constructor(
         }
       }
     }
-
-    viewModelScope.launch { measurementUnits = getUserSettingsUseCase.invoke().measurementUnits }
   }
 
   fun isMarkedComplete(): Boolean = isMarkedComplete.value
