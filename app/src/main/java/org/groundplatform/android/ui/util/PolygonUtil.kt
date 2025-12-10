@@ -25,6 +25,7 @@ import org.groundplatform.android.model.settings.MeasurementUnits
 
 @VisibleForTesting const val SQUARE_METERS_PER_ACRE = 4046.86
 @VisibleForTesting const val SQUARE_METERS_PER_HECTARE = 10_000
+@VisibleForTesting const val SQUARE_FEET_PER_SQUARE_METER = 10.7639
 
 /**
  * Calculates the area of a polygon using the Shoelace formula.
@@ -61,7 +62,7 @@ fun getFormattedArea(areaInSquareMeters: Double, measurementUnits: MeasurementUn
         }
       MeasurementUnits.IMPERIAL ->
         if (areaInSquareMeters < SQUARE_METERS_PER_ACRE) {
-          areaInSquareMeters to "ft²"
+          areaInSquareMeters * SQUARE_FEET_PER_SQUARE_METER to "ft²"
         } else {
           areaInSquareMeters / SQUARE_METERS_PER_ACRE to "ac"
         }
