@@ -103,6 +103,8 @@ internal constructor(
   private val _polygonArea = MutableLiveData<String>()
   val polygonArea: LiveData<String> = _polygonArea
 
+  private var currentCameraTarget: Coordinates? = null
+
   /**
    * User-specified vertices of the area being drawn. If [isMarkedComplete] is false, then the last
    * vertex represents the map center and the second last vertex is the last added vertex.
@@ -193,7 +195,8 @@ internal constructor(
 
     val prev = vertices.dropLast(1).lastOrNull()
     _isTooClose.value =
-      prev?.let { calculateDistanceInPixels(it, target) <= DISTANCE_THRESHOLD_DP } == true
+      vertices.size > 1 &&
+        prev?.let { calculateDistanceInPixels(it, target) <= DISTANCE_THRESHOLD_DP } == true
 
     addVertex(updatedTarget, true)
   }
@@ -241,12 +244,17 @@ internal constructor(
     setValue(DrawAreaTaskIncompleteData(LineString(updatedVertices)))
   }
 
+  fun onCameraMoved(newTarget: Coordinates) {
+    currentCameraTarget = newTarget
+  }
+
   /** Adds the last vertex to the polygon. */
   fun addLastVertex() {
     check(!isMarkedComplete.value) { "Attempted to add last vertex after completing the drawing" }
     _redoVertexStack.clear()
-    vertices.lastOrNull()?.let {
-      _isTooClose.value = true
+    val vertex = vertices.lastOrNull() ?: currentCameraTarget
+    vertex?.let {
+      _isTooClose.value = vertices.size > 1
       addVertex(it, false)
     }
   }
