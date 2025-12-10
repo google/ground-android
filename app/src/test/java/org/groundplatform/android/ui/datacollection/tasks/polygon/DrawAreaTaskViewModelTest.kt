@@ -321,6 +321,53 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     viewModel.removeLastVertex()
   }
 
+  @Test
+  fun `isTooClose is true when last vertex is close to previous vertex`() {
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+
+    // Distance between COORDINATE_2 (10, 10) and COORDINATE_3 (20, 20) is ~14.14
+    // Threshold is 24. So this should be too close.
+    updateLastVertex(COORDINATE_3, isNearFirstVertex = false)
+    viewModel.updateLastVertexAndMaybeCompletePolygon(COORDINATE_3) { _, _ ->
+      DISTANCE_THRESHOLD_DP.toDouble()
+    }
+
+    assertThat(viewModel.isTooClose.value).isTrue()
+  }
+
+  @Test
+  fun `isTooClose is false when last vertex is far from previous vertex`() {
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+
+    viewModel.updateLastVertexAndMaybeCompletePolygon(COORDINATE_3) { _, _ ->
+      DISTANCE_THRESHOLD_DP.toDouble() + 1
+    }
+
+    assertThat(viewModel.isTooClose.value).isFalse()
+  }
+
+  @Test
+  fun `isTooClose is true after adding a vertex if size is greater than 1`() {
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+
+    // Add a 3rd vertex.
+    // The logic `_isTooClose.value = vertices.size > 1` in `addLastVertex` should set it to true.
+    viewModel.addLastVertex()
+
+    assertThat(viewModel.isTooClose.value).isTrue()
+  }
+
+  @Test
+  fun `isTooClose is false if only one vertex`() {
+    updateLastVertexAndAdd(COORDINATE_1)
+
+    // Only 1 vertex.
+    assertThat(viewModel.isTooClose.value).isFalse()
+  }
+
   private fun assertGeometry(
     expectedVerticesCount: Int,
     isLineString: Boolean = false,
