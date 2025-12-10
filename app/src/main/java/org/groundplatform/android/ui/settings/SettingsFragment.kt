@@ -79,7 +79,7 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
           switchPreference?.isChecked = state.shouldUploadPhotosOnWifiOnly
 
           setupDropDownPreference(PrefKeys.LANGUAGE, state.language) { applyLocaleAndRestart(it) }
-          setupDropDownPreference(PrefKeys.LENGTH_UNIT, state.measurementUnits)
+          setupDropDownPreference(PrefKeys.MEASUREMENT_UNITS, state.measurementUnits.name)
         }
       }
     }
@@ -138,7 +138,7 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
     private val ALL_KEYS =
       arrayOf(
         PrefKeys.LANGUAGE,
-        PrefKeys.LENGTH_UNIT,
+        PrefKeys.MEASUREMENT_UNITS,
         PrefKeys.UPLOAD_MEDIA,
         PrefKeys.VISIT_WEBSITE,
       )

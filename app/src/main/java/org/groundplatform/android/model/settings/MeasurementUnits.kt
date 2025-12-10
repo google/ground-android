@@ -15,8 +15,7 @@
  */
 package org.groundplatform.android.model.settings
 
-data class UserSettings(
-  val language: String,
-  val measurementUnits: MeasurementUnits,
-  val shouldUploadPhotosOnWifiOnly: Boolean,
-)
+enum class MeasurementUnits {
+  METRIC,
+  IMPERIAL,
+}

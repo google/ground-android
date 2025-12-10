@@ -23,6 +23,7 @@ import com.google.common.truth.Truth.assertWithMessage
 import com.jraska.livedata.TestObserver
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
+import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -31,12 +32,14 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
+import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.LineString
 import org.groundplatform.android.model.geometry.LinearRing
 import org.groundplatform.android.model.geometry.Polygon
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.Style
+import org.groundplatform.android.model.settings.MeasurementUnits
 import org.groundplatform.android.model.submission.DrawAreaTaskData
 import org.groundplatform.android.model.submission.DrawAreaTaskIncompleteData
 import org.groundplatform.android.model.task.Task
@@ -53,6 +56,7 @@ import org.robolectric.RobolectricTestRunner
 class DrawAreaTaskViewModelTest : BaseHiltTest() {
 
   @Inject lateinit var viewModel: DrawAreaTaskViewModel
+  @Inject lateinit var localValueStore: LocalValueStore
 
   private lateinit var featureTestObserver: TestObserver<Feature>
   private lateinit var draftAreaObserver: TestObserver<Feature?>
@@ -236,6 +240,42 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
 
     viewModel.completePolygon()
     assertGeometry(4, isLineString = true)
+  }
+
+  @Test
+  fun `Completing a polygon populates polygonArea with the correct value in hectares`() {
+    localValueStore.selectedLengthUnit = MeasurementUnits.METRIC.name
+    viewModel.initialize(JOB, TASK, taskData = null)
+
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+    updateLastVertexAndAdd(COORDINATE_3)
+    updateLastVertex(COORDINATE_4, true)
+
+    viewModel.completePolygon()
+
+    with(viewModel.polygonArea.value) {
+      assert((this?.split(" ")?.first()?.toDouble() ?: 0.0) > 0.0)
+      assertEquals(this?.endsWith("ha"), true)
+    }
+  }
+
+  @Test
+  fun `Completing a polygon populates polygonArea with the correct value in acres`() {
+    localValueStore.selectedLengthUnit = MeasurementUnits.IMPERIAL.name
+    viewModel.initialize(JOB, TASK, taskData = null)
+
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+    updateLastVertexAndAdd(COORDINATE_3)
+    updateLastVertex(COORDINATE_4, true)
+
+    viewModel.completePolygon()
+
+    with(viewModel.polygonArea.value) {
+      assert((this?.split(" ")?.first()?.toDouble() ?: 0.0) > 0.0)
+      assertEquals(this?.endsWith("ac"), true)
+    }
   }
 
   @Test
