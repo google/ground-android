@@ -200,6 +200,9 @@ constructor(
    */
   suspend fun hasValidLois(surveyId: String): Boolean = localLoiStore.getLoiCount(surveyId) > 0
 
+  /** Returns the count of valid (not deleted) [LocationOfInterest] for the given [surveyId]. */
+  suspend fun getLoiCount(surveyId: String): Int = localLoiStore.getLoiCount(surveyId)
+
   /** Returns a flow of all valid (not deleted) [LocationOfInterest] in the given [Survey]. */
   fun getValidLois(survey: Survey): Flow<Set<LocationOfInterest>> =
     localLoiStore.getValidLois(survey).map { lois ->
