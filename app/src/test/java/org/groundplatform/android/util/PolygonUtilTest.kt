@@ -22,6 +22,7 @@ import kotlin.test.Test
 import kotlin.test.assertTrue
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.settings.MeasurementUnits
+import org.groundplatform.android.ui.util.SQUARE_FEET_PER_SQUARE_METER
 import org.groundplatform.android.ui.util.SQUARE_METERS_PER_ACRE
 import org.groundplatform.android.ui.util.SQUARE_METERS_PER_HECTARE
 import org.groundplatform.android.ui.util.calculateShoelacePolygonArea
@@ -200,7 +201,12 @@ class PolygonUtilTest {
   fun `Should display area in square feet if it's below an acre`() {
     val areaInSquareMeters = 2000.0
     val result = getFormattedArea(areaInSquareMeters, MeasurementUnits.IMPERIAL)
-    val expected = String.format(Locale.getDefault(), "%.2f ft²", areaInSquareMeters)
+    val expected =
+      String.format(
+        Locale.getDefault(),
+        "%.2f ft²",
+        areaInSquareMeters * SQUARE_FEET_PER_SQUARE_METER,
+      )
     assertEquals(expected, result)
   }
 
