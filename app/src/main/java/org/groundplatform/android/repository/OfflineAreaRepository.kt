@@ -21,15 +21,11 @@ import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
-import org.groundplatform.android.common.Constants
 import org.groundplatform.android.data.local.stores.LocalOfflineAreaStore
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.android.model.imagery.LocalTileSource
 import org.groundplatform.android.model.imagery.OfflineArea
-import org.groundplatform.android.model.imagery.RemoteMogTileSource
-import org.groundplatform.android.model.imagery.TileSource
 import org.groundplatform.android.model.map.Bounds
 import org.groundplatform.android.system.GeocodingManager
 import org.groundplatform.android.ui.map.gms.mog.MogClient
@@ -107,10 +103,10 @@ constructor(
 
   private fun getLocalTileSourcePath(): String = getLocalTileDirectory().path
 
-  fun getOfflineTileSourcesFlow(): Flow<TileSource> =
+  fun getOfflineTileSourcesFlow(): Flow<LocalTileSource> =
     localOfflineAreaStore.offlineAreas().mapNotNull(::mapOfflineAreasToTileSource)
 
-  private fun mapOfflineAreasToTileSource(list: List<OfflineArea>): TileSource? {
+  private fun mapOfflineAreasToTileSource(list: List<OfflineArea>): LocalTileSource? {
     if (list.isEmpty()) return null
     val maxZoom = list.maxOfOrNull { it.zoomRange.last } ?: return null
     val bounds = list.map { it.bounds }
@@ -121,10 +117,6 @@ constructor(
       maxZoom = maxZoom,
     )
   }
-
-  /** Returns the default configured tile source. */
-  fun getRemoteTileSource(): TileSource =
-    RemoteMogTileSource(remotePath = Constants.DEFAULT_MOG_TILE_LOCATION)
 
   suspend fun hasHiResImagery(bounds: Bounds): Boolean {
     val maxZoom = mogClient.collection.sources.maxZoom()

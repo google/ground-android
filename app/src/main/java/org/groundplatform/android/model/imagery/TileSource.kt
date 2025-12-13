@@ -40,4 +40,5 @@ data class LocalTileSource(
   val maxZoom: Int,
 ) : TileSource()
 
-data class RemoteMogTileSource(val remotePath: String) : TileSource()
+/** Represents a default remote MOG tile source. */
+data object RemoteMogTileSource : TileSource()

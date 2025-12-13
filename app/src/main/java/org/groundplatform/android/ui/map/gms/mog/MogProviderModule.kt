@@ -19,17 +19,21 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import org.groundplatform.android.common.Constants
+import kotlinx.coroutines.CoroutineDispatcher
+import org.groundplatform.android.coroutines.IoDispatcher
 import org.groundplatform.android.data.remote.RemoteStorageManager
 
 @InstallIn(SingletonComponent::class)
 @Module
 class MogProviderModule {
 
-  private val defaultMogSources = Constants.getMogSources(Constants.DEFAULT_MOG_TILE_LOCATION)
-  private val defaultMogCollection = MogCollection(defaultMogSources)
-
   @Provides
   fun provideMogClient(remoteStorageManager: RemoteStorageManager) =
-    MogClient(defaultMogCollection, remoteStorageManager)
+    MogClient(MogCollection(MogSourceProvider.defaultMogSources), remoteStorageManager)
+
+  @Provides
+  fun provideMogTileProvider(
+    mogClient: MogClient,
+    @IoDispatcher ioDispatcher: CoroutineDispatcher,
+  ) = MogTileProvider(mogClient, ioDispatcher)
 }

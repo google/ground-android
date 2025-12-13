@@ -216,12 +216,11 @@ class MogClient(
 
   private suspend fun MogPathOrUrl.toUrl(): MogUrl? =
     if (startsWith("/")) {
-      nullIfError { remoteStorageManager.getDownloadUrl(this).toString() }
+      remoteStorageManager.getDownloadUrl(this).toString()
     } else this
 
   private fun MogUrl.readMetadata(mogBounds: TileCoordinates): MogMetadata? =
-    nullIfError { inputStreamFactory(this, null) }
-      ?.use { this.readMogMetadataAndClose(mogBounds, it) }
+    inputStreamFactory(this, null).use { this.readMogMetadataAndClose(mogBounds, it) }
 
   /** Reads the metadata from the specified input stream. */
   private fun MogUrl.readMogMetadataAndClose(
@@ -237,11 +236,3 @@ class MogClient(
       }
   }
 }
-
-private inline fun <T> nullIfError(fn: () -> T) =
-  try {
-    fn()
-  } catch (e: Exception) {
-    Timber.e(e)
-    null
-  }
