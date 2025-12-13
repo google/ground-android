@@ -183,7 +183,7 @@
   <string name="polygon_vertex_add_dialog_positive_button">OK</string>
   <string name="clear">Xóa</string>
   <string name="text_task_data_character_limit">Tối đa 255 ký tự</string>
-  <string name="area_message">Diện tích: %1$.2f m²</string>
+  <string name="area_message">Diện tích: %s</string>
   <string name="lang_english">Tiếng Anh</string>
   <string name="lang_french">Tiếng Pháp</string>
   <string name="lang_spanish">Tiếng Tây Ban Nha</string>
@@ -199,10 +199,10 @@
   <string name="dialog_title_update_required">Cần Cập nhật</string>
   <string name="dialog_message_update_required">A new version of the app is available. Please update to continue using the app.</string>
   <string name="dialog_button_update">Cập nhật</string>
-  <string name="select_length_title">Đơn vị chiều dài</string>
+  <string name="select_length_title">Chọn đơn vị</string>
   <string name="select_length_summary">Chọn đơn vị ưa thích của bạn</string>
-  <string name="length_meters">Mét (m)</string>
-  <string name="length_feet">Bàn chân (ft)</string>
+  <string name="length_metric">Hệ mét</string>
+  <string name="length_imperial">Hệ Anh</string>
 
   <string name="delete_site">Xóa địa điểm</string>
   <string name="delete_site_dialog_title">Xóa địa điểm?</string>

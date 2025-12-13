@@ -206,7 +206,7 @@
   <string name="clear">Clara</string>
 
   <string name="text_task_data_character_limit">Máx. 255 caracteres</string>
-  <string name="area_message">Área: %1$.2f m²</string>
+  <string name="area_message">Área: %s</string>
 
   <string name="lang_english">Inglés</string>
   <string name="lang_french">Francés</string>
@@ -226,10 +226,10 @@
   <string name="dialog_message_update_required">Hay una nueva versión de la aplicación disponible. Por favor, actualiza para seguir usando la aplicación.</string>
   <string name="dialog_button_update">Actualizar</string>
 
-  <string name="select_length_title">Unidad de longitud</string>
+  <string name="select_length_title">Seleccionar unidades</string>
   <string name="select_length_summary">Seleccione su unidad preferida</string>
-  <string name="length_meters">Metros (m)</string>
-  <string name="length_feet">Pies (pies)</string>
+  <string name="length_metric">Métrica</string>
+  <string name="length_imperial">Imperial</string>
 
   <string name="delete_site">Eliminar sitio</string>
   <string name="delete_site_dialog_title">¿Eliminar sitio?</string>

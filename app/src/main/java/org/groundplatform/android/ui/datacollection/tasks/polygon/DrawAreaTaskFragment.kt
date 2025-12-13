@@ -137,13 +137,10 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
     if (isVisible && !viewModel.instructionsDialogShown) {
       showInstructionsDialog()
     }
-    viewModel.polygonArea.observe(
-      viewLifecycleOwner,
-      { area ->
-        Toast.makeText(requireContext(), getString(R.string.area_message, area), Toast.LENGTH_SHORT)
-          .show()
-      },
-    )
+    viewModel.polygonArea.observe(viewLifecycleOwner) { area ->
+      Toast.makeText(requireContext(), getString(R.string.area_message, area), Toast.LENGTH_LONG)
+        .show()
+    }
     viewLifecycleOwner.lifecycleScope.launch {
       viewModel.showSelfIntersectionDialog.collect {
         renderComposableDialog {

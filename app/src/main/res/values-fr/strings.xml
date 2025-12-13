@@ -188,7 +188,7 @@
   <string name="polygon_vertex_add_dialog_positive_button">D&#8217;accord</string>
   <string name="clear">Claire</string>
   <string name="text_task_data_character_limit">255 caractères maximum</string>
-  <string name="area_message">Surface: %1$.2f m²</string>
+  <string name="area_message">Surface: %s</string>
   <string name="lang_english">Anglais</string>
   <string name="lang_french">Français</string>
   <string name="lang_spanish">Espagnol</string>
@@ -205,10 +205,10 @@
   <string name="dialog_message_update_required">Une nouvelle version de l&#8217;application est disponible. Veuillez mettre à jour pour continuer à utiliser l&#8217;application.</string>
   <string name="dialog_button_update">Mettre à jour</string>
 
-  <string name="select_length_title">Unité de longueur</string>
+  <string name="select_length_title">Sélectionner les unités</string>
   <string name="select_length_summary">Sélectionnez votre unité préférée</string>
-  <string name="length_meters">Mètres (m)</string>
-  <string name="length_feet">Pieds (pi)</string>
+  <string name="length_metric">Métrique</string>
+  <string name="length_imperial">Impérial</string>
 
   <string name="delete_site">Supprimer le site</string>
   <string name="delete_site_dialog_title">Supprimer le site ?</string>
