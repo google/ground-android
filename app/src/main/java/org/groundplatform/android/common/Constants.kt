@@ -27,7 +27,7 @@ object Constants {
   const val SHARED_PREFS_MODE = Context.MODE_PRIVATE
 
   // Local db settings.
-  const val DB_VERSION = 125
+  const val DB_VERSION = 126
   const val DB_NAME = "ground.db"
 
   // Firebase Cloud Firestore settings.
