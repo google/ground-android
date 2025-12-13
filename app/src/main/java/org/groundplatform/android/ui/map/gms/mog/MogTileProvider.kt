@@ -21,18 +21,15 @@ import com.google.android.gms.maps.model.TileProvider
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
-import org.groundplatform.android.data.remote.RemoteStorageManager
 import timber.log.Timber
 
 // TODO: Add unit tests.
 // Issue URL: https://github.com/google/ground-android/issues/1596
 /** Fetches and returns MOG tiles to Maps SDK for display as a tile overlay. */
 class MogTileProvider(
-  collection: MogCollection,
-  remoteStorageManager: RemoteStorageManager,
+  private val client: MogClient,
   private val ioDispatcher: CoroutineDispatcher,
 ) : TileProvider {
-  private val client = MogClient(collection, remoteStorageManager)
 
   override fun getTile(x: Int, y: Int, zoom: Int): Tile? =
     runBlocking(ioDispatcher) {
