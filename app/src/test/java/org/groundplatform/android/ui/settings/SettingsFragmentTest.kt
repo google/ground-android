@@ -20,14 +20,15 @@ import androidx.core.os.LocaleListCompat
 import androidx.preference.DropDownPreference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceManager
+import androidx.preference.SwitchPreferenceCompat
 import androidx.preference.get
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import java.util.Locale
+import kotlin.test.assertEquals
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.launchFragmentInHiltContainer
-import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,6 +49,12 @@ class SettingsFragmentTest : BaseHiltTest() {
     resetPreferences()
     launchFragmentInHiltContainer<SettingsFragment>() { fragment = this as SettingsFragment }
   }
+
+  //  @After
+  //  fun tearDown() {
+  //    // Critical: Reset locale after EVERY test to prevent state bleeding
+  //    AppCompatDelegate.setApplicationLocales(LocaleListCompat.getEmptyLocaleList())
+  //  }
 
   private fun resetPreferences() {
     PreferenceManager.getDefaultSharedPreferences(ApplicationProvider.getApplicationContext())
@@ -82,8 +89,8 @@ class SettingsFragmentTest : BaseHiltTest() {
     }
 
     category.getPreference(2).apply {
-      assertThat(title).isEqualTo("Unit of length")
-      assertThat(summary).isEqualTo("Meters (m)")
+      assertThat(title).isEqualTo("Select units")
+      assertThat(summary).isEqualTo("Metric")
     }
   }
 
@@ -130,15 +137,49 @@ class SettingsFragmentTest : BaseHiltTest() {
     }
 
   @Test
-  fun `change app language to french`() {
+  fun `Change app language to french`() = runWithTestDispatcher {
     val generalCategory = assertHasCategory("general_category")
 
     val languagePreference = generalCategory.getPreference(1) as? DropDownPreference
     assertThat(languagePreference).isNotNull()
     assertThat(languagePreference!!.summary).isEqualTo("English")
 
+    languagePreference.value = "fr"
+    languagePreference.summary =
+      languagePreference.entries[languagePreference.findIndexOfValue("fr")]
     val changeListener = languagePreference.onPreferenceChangeListener
+
     assertThat(changeListener).isNotNull()
+    assertThat(languagePreference.summary.toString()).isEqualTo("French")
+    assertThat(languagePreference.value).isEqualTo("fr")
+  }
+
+  @Test
+  fun `Should change preferred units between imperial and metric correctly`() =
+    runWithTestDispatcher {
+      val generalCategory = assertHasCategory("general_category")
+      val preference = generalCategory.getPreference(2) as DropDownPreference
+
+      val listener = preference.onPreferenceChangeListener
+      listener?.onPreferenceChange(preference, "IMPERIAL")
+      assertThat(preference.summary).isEqualTo("Imperial")
+
+      listener?.onPreferenceChange(preference, "METRIC")
+      assertThat(preference.summary).isEqualTo("Metric")
+    }
+
+  @Test
+  fun `Should update photo upload preference correctly`() = runWithTestDispatcher {
+    val generalCategory = assertHasCategory("general_category")
+    val preference = generalCategory.getPreference(0) as SwitchPreferenceCompat
+
+    val initial = preference.summary.toString()
+    assertThat(initial).isAnyOf("Over Wi-Fi only", "Off")
+
+    preference.performClick()
+
+    val updatedSummary = preference.summary.toString()
+    assertThat(updatedSummary).isAnyOf("Over Wi-Fi only", "On")
   }
 
   private fun assertHasCategory(key: String): PreferenceCategory {

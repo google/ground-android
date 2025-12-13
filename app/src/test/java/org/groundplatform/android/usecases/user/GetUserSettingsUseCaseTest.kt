@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android.usecases.user
 
+import org.groundplatform.android.model.settings.MeasurementUnits
 import org.groundplatform.android.model.settings.UserSettings
 import org.groundplatform.android.repository.UserRepository
 import org.junit.Assert.assertEquals
@@ -40,7 +41,11 @@ class GetUserSettingsUseCaseTest {
   @Test
   fun `invoke returns user settings from repository`() {
     val expectedSettings =
-      UserSettings(language = "en", measurementUnits = "m", shouldUploadPhotosOnWifiOnly = false)
+      UserSettings(
+        language = "en",
+        measurementUnits = MeasurementUnits.METRIC,
+        shouldUploadPhotosOnWifiOnly = false,
+      )
     whenever(userRepository.getUserSettings()).thenReturn(expectedSettings)
 
     val result = useCase()

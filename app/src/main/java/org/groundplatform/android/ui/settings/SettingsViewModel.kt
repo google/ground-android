@@ -37,6 +37,9 @@ internal constructor(private val getUserSettingsUseCase: GetUserSettingsUseCase)
   }
 
   fun refreshUserPreferences() {
-    viewModelScope.launch { _uiState.value = getUserSettingsUseCase.invoke() }
+    viewModelScope.launch {
+      val prefs = getUserSettingsUseCase.invoke()
+      _uiState.value = prefs
+    }
   }
 }
