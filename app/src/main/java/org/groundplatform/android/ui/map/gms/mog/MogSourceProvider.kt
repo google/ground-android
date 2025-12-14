@@ -30,7 +30,7 @@ object MogSourceProvider {
 
   // TODO: Make sub-paths configurable and stop hardcoding here.
   // Issue URL: https://github.com/google/ground-android/issues/1730
-  private const val DEFAULT_MOG_TILE_LOCATION = "/offline-imagery/default/$DEFAULT_MOG_MIN_ZOOM"
+  private const val DEFAULT_MOG_TILE_DIR = "/offline-imagery/default/$DEFAULT_MOG_MIN_ZOOM"
 
   private val zoomLevelToFilePathTemplate =
     mapOf(
@@ -40,6 +40,6 @@ object MogSourceProvider {
 
   val defaultMogSources: List<MogSource> =
     zoomLevelToFilePathTemplate.map { (zoomRange, filePath) ->
-      MogSource(zoomRange, "$DEFAULT_MOG_TILE_LOCATION/$filePath")
+      MogSource(zoomRange, "$DEFAULT_MOG_TILE_DIR/$filePath")
     }
 }

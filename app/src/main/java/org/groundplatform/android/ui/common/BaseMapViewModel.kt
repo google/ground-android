@@ -47,7 +47,7 @@ import kotlinx.coroutines.launch
 import org.groundplatform.android.common.Constants.DEFAULT_LOI_ZOOM_LEVEL
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.geometry.Coordinates
-import org.groundplatform.android.model.imagery.LocalTileSource
+import org.groundplatform.android.model.imagery.TileSource
 import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.model.map.MapType
 import org.groundplatform.android.repository.LocationOfInterestRepository
@@ -119,7 +119,7 @@ constructor(
   var currentCameraPosition = MutableStateFlow<CameraPosition?>(null)
     private set
 
-  val offlineTileSources: LiveData<LocalTileSource?> =
+  val offlineTileSources: LiveData<TileSource?> =
     offlineAreaRepository
       .getOfflineTileSourcesFlow()
       .combine(mapStateRepository.offlineImageryEnabledFlow) { offlineSources, enabled ->

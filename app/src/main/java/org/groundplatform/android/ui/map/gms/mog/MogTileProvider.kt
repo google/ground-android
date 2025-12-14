@@ -28,11 +28,11 @@ import timber.log.Timber
 /** Fetches and returns MOG tiles to Maps SDK for display as a tile overlay. */
 class MogTileProvider(
   private val client: MogClient,
-  private val ioDispatcher: CoroutineDispatcher,
+  private val coroutineDispatcher: CoroutineDispatcher,
 ) : TileProvider {
 
   override fun getTile(x: Int, y: Int, zoom: Int): Tile? =
-    runBlocking(ioDispatcher) {
+    runBlocking(coroutineDispatcher) {
       val tileCoordinates = TileCoordinates(x, y, zoom)
       try {
         withTimeout(TILE_FETCH_TIMEOUT_MS) {
