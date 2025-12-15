@@ -34,7 +34,6 @@ import javax.inject.Inject
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.databinding.OfflineAreaSelectorFragBinding
-import org.groundplatform.android.model.imagery.RemoteMogTileSource
 import org.groundplatform.android.model.map.MapType
 import org.groundplatform.android.ui.common.AbstractMapContainerFragment
 import org.groundplatform.android.ui.common.BaseMapViewModel
@@ -134,7 +133,7 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
     viewLifecycleOwner.lifecycleScope.launch {
       mapContainerViewModel.mapLoiFeatures.collect { map.setFeatures(it) }
     }
-    map.addTileOverlay(RemoteMogTileSource)
+    map.addTileOverlay(viewModel.remoteTileSource)
   }
 
   override fun getMapViewModel(): BaseMapViewModel = viewModel

@@ -27,6 +27,8 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.coroutines.IoDispatcher
+import org.groundplatform.android.model.imagery.RemoteMogTileSource
+import org.groundplatform.android.model.imagery.TileSource
 import org.groundplatform.android.model.map.Bounds
 import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.repository.LocationOfInterestRepository
@@ -71,6 +73,8 @@ internal constructor(
     surveyRepository,
     locationOfInterestRepository,
   ) {
+
+  val remoteTileSource: TileSource = RemoteMogTileSource
 
   private var viewport: Bounds? = null
   private val offlineAreaSizeLoadingSymbol =
