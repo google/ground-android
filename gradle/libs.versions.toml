@@ -16,9 +16,7 @@
 androidMapsUtilsVersion = "3.8.2"
 appcompatVersion = "1.7.1"
 autoValueVersion = "1.11.1"
-cardviewVersion = "1.0.0"
-composeMaterial = "1.7.8"
-composeUi = "1.10.0"
+composeBom = "2025.12.00"
 constraintlayoutVersion = "2.2.1"
 coreKtxVersion = "1.17.0"
 coreTesting = "2.2.0"
@@ -27,7 +25,6 @@ coreVersion = "1.7.0"
 coroutinesVersion = "1.10.2"
 detektVersion = "1.23.8"
 espressoContribVersion = "3.7.0"
-exifinterfaceVersion = "1.4.2"
 firebaseBomVersion = "33.1.2"
 firebaseCrashlyticsGradleVersion = "3.0.6"
 fragmentVersion = "1.8.9"
@@ -42,19 +39,16 @@ jsonVersion = "20250517"
 junitKtx = "1.3.0"
 junitVersion = "4.13.2"
 kotlinVersion = "2.2.21"
+kotlinxBom = "1.9.0"
 kspVersion = "2.3.3"
 kotlinxCollectionsImmutable = "0.4.0"
-kotlinxSerializationVersion = "1.9.0"
 ktfmtVersion = "0.25.0"
-legacySupportV4Version = "1.0.0"
-lifecycleExtensionsVersion = "2.2.0"
 lifecycleVersion = "2.10.0"
 markdownVersion = "0.7.3"
-material3AndroidVersion = "1.4.0"
 materialVersion = "1.13.0"
+mockitoBom = "5.21.0"
 mockitoInlineVersion = "5.2.0"
 mockitoKotlinVersion = "6.1.0"
-mockitoVersion = "5.21.0"
 multidex = "2.0.1"
 navigationKtxVersion = "2.9.6"
 orchestratorVersion = "1.6.1"
@@ -66,7 +60,6 @@ playServicesOssLicensesVersion = "17.3.0"
 preferenceKtx = "1.2.1"
 protobufKotlinLiteVersion = "4.26.1"
 protobufVersion = "0.9.5"
-recyclerviewSelection = "1.2.0"
 robolectricVersion = "4.16"
 roomVersion = "2.8.4"
 secretsGradlePluginVersion = "2.0.1"
@@ -81,25 +74,19 @@ workVersion = "2.11.0"
 android-maps-utils = { module = "com.google.maps.android:android-maps-utils", version.ref = "androidMapsUtilsVersion" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompatVersion" }
 androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayoutVersion" }
-androidx-cardview = { module = "androidx.cardview:cardview", version.ref = "cardviewVersion" }
+androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
 androidx-core = { module = "androidx.test:core", version.ref = "coreVersion" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtxVersion" }
 androidx-core-testing = { module = "androidx.arch.core:core-testing", version.ref = "coreTesting" }
 androidx-espresso-contrib = { module = "androidx.test.espresso:espresso-contrib", version.ref = "espressoContribVersion" }
 androidx-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espressoContribVersion" }
-androidx-exifinterface = { module = "androidx.exifinterface:exifinterface", version.ref = "exifinterfaceVersion" }
-androidx-fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref = "fragmentVersion" }
-androidx-fragment-testing = { module = "androidx.fragment:fragment-testing", version.ref = "fragmentVersion" }
+androidx-fragment-testing-manifest = { module = "androidx.fragment:fragment-testing-manifest", version.ref = "fragmentVersion" }
 androidx-hilt-navigation-fragment = { module = "androidx.hilt:hilt-navigation-fragment", version.ref = "hiltJetpackVersion" }
 androidx-hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hiltJetpackVersion" }
 androidx-junit = { module = "androidx.test.ext:junit", version.ref = "junitKtx" }
-androidx-legacy-support-v4 = { module = "androidx.legacy:legacy-support-v4", version.ref = "legacySupportV4Version" }
-androidx-lifecycle-reactivestreams-ktx = { module = "androidx.lifecycle:lifecycle-reactivestreams-ktx", version.ref = "lifecycleVersion" }
-androidx-lifecycle-livedata-ktx = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "lifecycleVersion" }
-androidx-lifecycle-extensions = { module = "androidx.lifecycle:lifecycle-extensions", version.ref = "lifecycleExtensionsVersion" }
 androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleVersion" }
-androidx-material-icons = { module = "androidx.compose.material:material-icons-core", version.ref = "composeMaterial" }
-androidx-material3-android = { module = "androidx.compose.material3:material3-android", version.ref = "material3AndroidVersion" }
+androidx-material-icons = { module = "androidx.compose.material:material-icons-core" }
+androidx-material3-android = { module = "androidx.compose.material3:material3-android" }
 androidx-multidex = { module = "androidx.multidex:multidex", version.ref = "multidex" }
 androidx-navigation-safe-args-gradle-plugin = { module = "androidx.navigation:navigation-safe-args-gradle-plugin", version.ref = "navigationKtxVersion" }
 androidx-navigation-testing = { module = "androidx.navigation:navigation-testing", version.ref = "navigationKtxVersion" }
@@ -107,22 +94,21 @@ androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx",
 androidx-navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigationKtxVersion" }
 androidx-orchestrator = { module = "androidx.test:orchestrator", version.ref = "orchestratorVersion" }
 androidx-preference-ktx = { module = "androidx.preference:preference-ktx", version.ref = "preferenceKtx" }
-androidx-recyclerview-selection = { module = "androidx.recyclerview:recyclerview-selection", version.ref = "recyclerviewSelection" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomVersion" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomVersion" }
 androidx-room-testing = { module = "androidx.room:room-testing", version.ref = "roomVersion" }
 androidx-rules = { module = "androidx.test:rules", version.ref = "coreVersion" }
 androidx-runner = { module = "androidx.test:runner", version.ref = "coreVersion" }
-androidx-runtime-livedata = { module = "androidx.compose.runtime:runtime-livedata", version.ref = "composeUi" }
-androidx-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "composeUi" }
-androidx-ui = { module = "androidx.compose.ui:ui", version.ref = "composeUi" }
-androidx-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "composeUi" }
-androidx-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "composeUi" }
-androidx-ui-tooling-preview-android = { module = "androidx.compose.ui:ui-tooling-preview-android", version.ref = "composeUi" }
+androidx-runtime-livedata = { module = "androidx.compose.runtime:runtime-livedata" }
+androidx-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
+androidx-ui = { module = "androidx.compose.ui:ui" }
+androidx-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
+androidx-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
+androidx-ui-tooling-preview-android = { module = "androidx.compose.ui:ui-tooling-preview-android" }
 androidx-uiautomator = { module = "androidx.test.uiautomator:uiautomator", version.ref = "uiautomatorVersion" }
 androidx-work-testing = { module = "androidx.work:work-testing", version.ref = "workVersion" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workVersion" }
-auto-value = {module = "com.google.auto.value:auto-value", version.ref = "autoValueVersion"}
+auto-value = { module = "com.google.auto.value:auto-value", version.ref = "autoValueVersion" }
 auto-value-annotations = { module = "com.google.auto.value:auto-value-annotations", version.ref = "autoValueVersion" }
 core-testing = { module = "android.arch.core:core-testing", version.ref = "coreTestingVersion" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBomVersion" }
@@ -144,9 +130,9 @@ gradle = { module = "com.android.tools.build:gradle", version.ref = "gradleVersi
 ground-platform = { module = "com.github.google:ground-platform", version.ref = "groundPlatformVersion" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gsonVersion" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltVersion" }
-hilt-android-compiler = {module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltVersion"}
+hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltVersion" }
 hilt-android-testing = { module = "com.google.dagger:hilt-android-testing", version.ref = "hiltVersion" }
-hilt-compiler = {module = "androidx.hilt:hilt-compiler", version.ref = "hiltJetpackVersion"}
+hilt-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "hiltJetpackVersion" }
 json = { module = "org.json:json", version.ref = "jsonVersion" }
 junit = { module = "junit:junit", version.ref = "junitVersion" }
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlinVersion" }
@@ -155,15 +141,18 @@ kotlin-serialization = { module = "org.jetbrains.kotlin:kotlin-serialization", v
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlinVersion" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlinVersion" }
 kotlinx-collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlinxCollectionsImmutable" }
-kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutinesVersion" }
-kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutinesVersion" }
-kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutinesVersion" }
-kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationVersion" }
-kotlinx-serialization-protobuf = { module = "org.jetbrains.kotlinx:kotlinx-serialization-protobuf", version.ref = "kotlinxSerializationVersion" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android" }
+kotlinx-coroutines-bom = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-bom", version.ref = "coroutinesVersion" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test" }
+kotlinx-serialization-bom = { module = "org.jetbrains.kotlinx:kotlinx-serialization-bom", version.ref = "kotlinxBom" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json" }
+kotlinx-serialization-protobuf = { module = "org.jetbrains.kotlinx:kotlinx-serialization-protobuf" }
 markdown = { module = "org.jetbrains:markdown", version.ref = "markdownVersion" }
 material = { module = "com.google.android.material:material", version.ref = "materialVersion" }
-mockito-android = { module = "org.mockito:mockito-android", version.ref = "mockitoVersion" }
-mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockitoVersion" }
+mockito-bom = { module = "org.mockito:mockito-bom", version.ref = "mockitoBom" }
+mockito-android = { module = "org.mockito:mockito-android" }
+mockito-core = { module = "org.mockito:mockito-core" }
 mockito-inline = { module = "org.mockito:mockito-inline", version.ref = "mockitoInlineVersion" }
 mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitoKotlinVersion" }
 oss-licenses-plugin = { module = "com.google.android.gms:oss-licenses-plugin", version.ref = "ossLicensesPluginVersion" }
