@@ -18,7 +18,6 @@ package org.groundplatform.android.common
 import android.content.Context
 import org.groundplatform.android.BuildConfig
 import org.groundplatform.android.model.map.MapType
-import org.groundplatform.android.ui.map.gms.mog.MogSource
 
 /** Application constants. */
 object Constants {
@@ -59,22 +58,6 @@ object Constants {
 
   /** Default map type used when map is displayed. */
   val DEFAULT_MAP_TYPE = MapType.TERRAIN
-
-  // TODO: Make sub-paths configurable and stop hardcoding here.
-  // Issue URL: https://github.com/google/ground-android/issues/1730
-  const val DEFAULT_MOG_TILE_LOCATION = "/offline-imagery/default"
-  private const val DEFAULT_MOG_MIN_ZOOM = 8
-  const val DEFAULT_MOG_MAX_ZOOM = 14
-
-  // TODO: Move to a util class
-  fun getMogSources(path: String) =
-    listOf(
-      MogSource(0..<DEFAULT_MOG_MIN_ZOOM, "$path/$DEFAULT_MOG_MIN_ZOOM/overview.tif"),
-      MogSource(
-        DEFAULT_MOG_MIN_ZOOM..DEFAULT_MOG_MAX_ZOOM,
-        "$path/$DEFAULT_MOG_MIN_ZOOM/{x}/{y}.tif",
-      ),
-    )
 
   // TODO: Move to a util class
   fun isReleaseBuild(): Boolean = BuildConfig.BUILD_TYPE.contentEquals("release")

@@ -42,13 +42,8 @@ import javax.inject.Inject
 import kotlin.math.min
 import kotlin.math.sqrt
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
-import org.groundplatform.android.common.Constants
-import org.groundplatform.android.common.Constants.DEFAULT_MOG_MAX_ZOOM
-import org.groundplatform.android.coroutines.IoDispatcher
-import org.groundplatform.android.data.remote.RemoteStorageManager
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.imagery.LocalTileSource
 import org.groundplatform.android.model.imagery.RemoteMogTileSource
@@ -60,7 +55,7 @@ import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.MapFragment
 import org.groundplatform.android.ui.map.gms.features.FeatureManager
-import org.groundplatform.android.ui.map.gms.mog.MogCollection
+import org.groundplatform.android.ui.map.gms.mog.MogSourceProvider.DEFAULT_MOG_MAX_ZOOM
 import org.groundplatform.android.ui.map.gms.mog.MogTileProvider
 import org.groundplatform.android.util.invert
 import org.groundplatform.android.util.systemInsets
@@ -85,10 +80,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   override val cameraMovedEvents = MutableSharedFlow<CameraPosition>()
 
   @Inject lateinit var featureManager: FeatureManager
-
-  @Inject lateinit var remoteStorageManager: RemoteStorageManager
-
-  @IoDispatcher @Inject lateinit var ioDispatcher: CoroutineDispatcher
+  @Inject lateinit var mogTileProvider: MogTileProvider
 
   private lateinit var map: GoogleMap
 
@@ -286,27 +278,22 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   override fun addTileOverlay(source: TileSource) =
     when (source) {
-      is LocalTileSource ->
-        addLocalTileOverlay(source.localFilePath, source.clipBounds, source.maxZoom)
-      is RemoteMogTileSource -> addRemoteMogTileOverlay(url = source.remotePath)
+      is LocalTileSource -> addLocalTileOverlay(source)
+      is RemoteMogTileSource -> addRemoteMogTileOverlay()
     }
 
-  private fun addLocalTileOverlay(url: String, bounds: List<Bounds>, maxZoom: Int) {
-    val baseProvider = TemplateUrlTileProvider(url)
-    val upscaledProvider = CachingUpscalingTileProvider(baseProvider, zoomThreshold = maxZoom)
+  private fun addLocalTileOverlay(source: LocalTileSource) {
+    val baseProvider = TemplateUrlTileProvider(source.localFilePath)
+    val upscaledProvider =
+      CachingUpscalingTileProvider(baseProvider, zoomThreshold = source.maxZoom)
     val clippedProvider =
-      ClippingTileProvider(upscaledProvider, bounds.map { it.toGoogleMapsObject() })
+      ClippingTileProvider(upscaledProvider, source.clipBounds.map { it.toGoogleMapsObject() })
     addTileOverlay(clippedProvider)
   }
 
-  private fun addRemoteMogTileOverlay(url: String) {
-    // TODO: Make sub-paths configurable and stop hardcoding here.
-    // Issue URL: https://github.com/google/ground-android/issues/1730
-    val mogCollection = MogCollection(Constants.getMogSources(url))
-    val source = MogTileProvider(mogCollection, remoteStorageManager, ioDispatcher)
-    val upscaled = CachingUpscalingTileProvider(source, DEFAULT_MOG_MAX_ZOOM)
-
-    addTileOverlay(upscaled)
+  private fun addRemoteMogTileOverlay() {
+    val tileProvider = CachingUpscalingTileProvider(mogTileProvider, DEFAULT_MOG_MAX_ZOOM)
+    addTileOverlay(tileProvider)
   }
 
   private fun addTileOverlay(tileProvider: TileProvider) {
