@@ -52,6 +52,7 @@ import org.groundplatform.android.ui.theme.AppTheme
 const val MULTIPLE_CHOICE_ITEM_TEST_TAG = "multiple choice item test tag"
 const val OTHER_INPUT_TEXT_TEST_TAG = "other input test tag"
 const val SELECT_MULTIPLE_RADIO_TEST_TAG = "select multiple radio test tag"
+const val SELECT_MULTIPLE_CHECKBOX_TEST_TAG = "select multiple checkbox test tag"
 
 /**
  * A composable function that displays a single item in a multiple-choice list.
@@ -95,7 +96,11 @@ fun MultipleChoiceItemView(
         }
 
         MultipleChoice.Cardinality.SELECT_MULTIPLE -> {
-          Checkbox(checked = item.isSelected, onCheckedChange = { toggleItem(item) })
+          Checkbox(
+            modifier = Modifier.testTag(SELECT_MULTIPLE_CHECKBOX_TEST_TAG),
+            checked = item.isSelected,
+            onCheckedChange = { toggleItem(item) },
+          )
         }
       }
 
