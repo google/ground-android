@@ -139,8 +139,9 @@ class CaptureLocationTaskFragmentTest :
   }
 
   @Test
-  fun `action buttons when task is optional`() {
+  fun `action buttons when task is optional`() = runWithTestDispatcher {
     setupTaskFragment<CaptureLocationTaskFragment>(job, task.copy(isRequired = false))
+    setupLocation()
 
     runner()
       .assertButtonIsHidden("Next")
@@ -150,8 +151,9 @@ class CaptureLocationTaskFragmentTest :
   }
 
   @Test
-  fun `action buttons when task is required`() {
+  fun `action buttons when task is required`() = runWithTestDispatcher {
     setupTaskFragment<CaptureLocationTaskFragment>(job, task.copy(isRequired = true))
+    setupLocation()
 
     runner()
       .assertButtonIsHidden("Next")
@@ -182,7 +184,7 @@ class CaptureLocationTaskFragmentTest :
     setupLocation(accuracy = 25.0)
 
     runner().validateTextIsDisplayed(fragment.getString(R.string.location_not_accurate_heading))
-    runner().validateTextIsDisplayed("25.0m")
+    runner().validateTextIsDisplayed(fragment.getString(R.string.accuracy, 25.0f))
   }
 
   @Test

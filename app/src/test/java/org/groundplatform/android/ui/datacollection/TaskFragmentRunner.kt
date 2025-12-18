@@ -37,7 +37,6 @@ import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
@@ -154,17 +153,17 @@ class TaskFragmentRunner(
     )
 
   internal fun validateTextIsDisplayed(text: String): TaskFragmentRunner {
-    onView(withText(text)).check(matches(isDisplayed()))
+    baseHiltTest.composeTestRule.onNodeWithText(text).assertIsDisplayed()
     return this
   }
 
   internal fun validateTextIsNotDisplayed(text: String): TaskFragmentRunner {
-    onView(withText(text)).check(matches(not(isDisplayed())))
+    baseHiltTest.composeTestRule.onNodeWithText(text).assertIsNotDisplayed()
     return this
   }
 
   internal fun validateTextDoesNotExist(text: String): TaskFragmentRunner {
-    onView(withText(text)).check(doesNotExist())
+    baseHiltTest.composeTestRule.onNodeWithText(text).assertDoesNotExist()
     return this
   }
 
@@ -240,9 +239,9 @@ class TaskFragmentRunner(
     isContentDescription: Boolean = false,
   ): TaskFragmentRunner {
     if (isContentDescription) {
-      baseHiltTest.composeTestRule.onNodeWithContentDescription(text).assertIsNotDisplayed()
+      baseHiltTest.composeTestRule.onNodeWithContentDescription(text).assertDoesNotExist()
     } else {
-      baseHiltTest.composeTestRule.onNodeWithText(text).assertIsNotDisplayed()
+      baseHiltTest.composeTestRule.onNodeWithText(text).assertDoesNotExist()
     }
     return this
   }
