@@ -32,9 +32,9 @@ import org.robolectric.RobolectricTestRunner
 class CaptureLocationTaskViewModelTest : BaseHiltTest() {
 
   @Test
-  fun testIsCaptureEnabled_whenLocationIsNull_returnsTrue() = runTest {
+  fun testIsCaptureEnabled_whenLocationIsNull_returnsFalse() = runTest {
     val viewModel = CaptureLocationTaskViewModel()
-    assertThat(viewModel.isCaptureEnabled.first()).isTrue()
+    assertThat(viewModel.isCaptureEnabled.first()).isFalse()
   }
 
   @Test

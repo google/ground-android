@@ -122,6 +122,7 @@ class CaptureLocationTaskFragment @Inject constructor() :
   @Composable
   override fun HeaderCard() {
     val location by viewModel.lastLocation.collectAsState()
+    val accuracy by viewModel.locationAccuracy.collectAsState(null)
     var showAccuracyCard by remember { mutableStateOf(false) }
 
     LaunchedEffect(location) {
@@ -130,6 +131,7 @@ class CaptureLocationTaskFragment @Inject constructor() :
 
     if (showAccuracyCard) {
       LocationAccuracyCard(
+        accuracy = accuracy,
         onDismiss = { showAccuracyCard = false },
         modifier = Modifier.padding(bottom = 12.dp),
       )

@@ -161,6 +161,39 @@ class CaptureLocationTaskFragmentTest :
   }
 
   @Test
+  fun `capture button disabled when accuracy is poor`() = runWithTestDispatcher {
+    setupTaskFragment<CaptureLocationTaskFragment>(job, task)
+    setupLocation(accuracy = 20.0)
+
+    runner().assertButtonIsDisabled("Capture")
+  }
+
+  @Test
+  fun `capture button enabled when accuracy is good`() = runWithTestDispatcher {
+    setupTaskFragment<CaptureLocationTaskFragment>(job, task)
+    setupLocation(accuracy = 10.0)
+
+    runner().assertButtonIsEnabled("Capture")
+  }
+
+  @Test
+  fun `accuracy card shown when accuracy is poor`() = runWithTestDispatcher {
+    setupTaskFragment<CaptureLocationTaskFragment>(job, task)
+    setupLocation(accuracy = 25.0)
+
+    runner().validateTextIsDisplayed(fragment.getString(R.string.location_not_accurate_heading))
+    runner().validateTextIsDisplayed("25.0m")
+  }
+
+  @Test
+  fun `accuracy card hidden when accuracy is good`() = runWithTestDispatcher {
+    setupTaskFragment<CaptureLocationTaskFragment>(job, task)
+    setupLocation(accuracy = 10.0)
+
+    runner().validateTextDoesNotExist(fragment.getString(R.string.location_not_accurate_heading))
+  }
+
+  @Test
   fun `get map config`() {
     setupTaskFragment<CaptureLocationTaskFragment>(job, task)
 
@@ -168,15 +201,20 @@ class CaptureLocationTaskFragmentTest :
       .isEqualTo(MapConfig(showOfflineImagery = true, allowGestures = false))
   }
 
-  private suspend fun setupLocation() {
+  private suspend fun setupLocation(
+    latitude: Double = LATITUDE,
+    longitude: Double = LONGITUDE,
+    accuracy: Double = ACCURACY,
+    altitude: Double = ALTITUDE,
+  ) {
     val location =
       mock<Location>().apply {
         whenever(hasAltitude()).thenReturn(true)
         whenever(hasAccuracy()).thenReturn(true)
-        whenever(longitude).thenReturn(LONGITUDE)
-        whenever(latitude).thenReturn(LATITUDE)
-        whenever(altitude).thenReturn(ALTITUDE)
-        whenever(accuracy).thenReturn(ACCURACY.toFloat())
+        whenever(this.longitude).thenReturn(longitude)
+        whenever(this.latitude).thenReturn(latitude)
+        whenever(this.altitude).thenReturn(altitude)
+        whenever(this.accuracy).thenReturn(accuracy.toFloat())
       }
 
     lastLocationFlow.emit(location)
