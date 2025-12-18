@@ -23,6 +23,7 @@ import com.google.common.truth.Truth.assertWithMessage
 import com.jraska.livedata.TestObserver
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
+import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -31,14 +32,17 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
+import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.LineString
 import org.groundplatform.android.model.geometry.LinearRing
 import org.groundplatform.android.model.geometry.Polygon
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.Style
+import org.groundplatform.android.model.settings.MeasurementUnits
 import org.groundplatform.android.model.submission.DrawAreaTaskData
 import org.groundplatform.android.model.submission.DrawAreaTaskIncompleteData
+import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.datacollection.tasks.polygon.DrawAreaTaskViewModel.Companion.DISTANCE_THRESHOLD_DP
 import org.groundplatform.android.ui.map.Feature
@@ -53,6 +57,7 @@ import org.robolectric.RobolectricTestRunner
 class DrawAreaTaskViewModelTest : BaseHiltTest() {
 
   @Inject lateinit var viewModel: DrawAreaTaskViewModel
+  @Inject lateinit var localValueStore: LocalValueStore
 
   private lateinit var featureTestObserver: TestObserver<Feature>
   private lateinit var draftAreaObserver: TestObserver<Feature?>
@@ -66,11 +71,12 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     mergedFeatureLiveData = mergedFeatureFlow.asLiveData()
     featureTestObserver = TestObserver.test(mergedFeatureLiveData)
     draftAreaObserver = TestObserver.test(viewModel.draftArea.asLiveData())
-    viewModel.initialize(JOB, TASK, taskData = null)
   }
 
   @Test
   fun `Initializes with null task data`() {
+    setupViewModel()
+
     assertGeometry(0)
     assertThat(viewModel.isMarkedComplete()).isFalse()
   }
@@ -79,8 +85,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
   fun `Initializes with complete polygon`() {
     val polygon =
       Polygon(LinearRing(listOf(COORDINATE_1, COORDINATE_2, COORDINATE_3, COORDINATE_1)))
-
-    viewModel.initialize(JOB, TASK, taskData = DrawAreaTaskData(area = polygon))
+    setupViewModel(taskData = DrawAreaTaskData(area = polygon))
 
     assertGeometry(4, isLineString = true)
     assertThat(viewModel.isMarkedComplete()).isTrue()
@@ -89,8 +94,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
   @Test
   fun `Initializes with incomplete polygon`() {
     val lineString = LineString(coordinates = listOf(COORDINATE_1, COORDINATE_2, COORDINATE_3))
-
-    viewModel.initialize(JOB, TASK, taskData = DrawAreaTaskIncompleteData(lineString))
+    setupViewModel(taskData = DrawAreaTaskIncompleteData(lineString))
 
     assertGeometry(3, isLineString = true)
     assertThat(viewModel.isMarkedComplete()).isFalse()
@@ -98,6 +102,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
 
   @Test
   fun `Can add vertex`() {
+    setupViewModel()
     updateLastVertexAndAdd(COORDINATE_1)
 
     // One vertex is selected and another is temporary vertex for rendering.
@@ -106,6 +111,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
 
   @Test
   fun `Can add multiple vertices`() {
+    setupViewModel()
     updateLastVertexAndAdd(COORDINATE_1)
     updateLastVertexAndAdd(COORDINATE_2)
     updateLastVertexAndAdd(COORDINATE_3)
@@ -115,6 +121,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
 
   @Test
   fun `Detects when last coordinate is close to starting one for three vertices`() {
+    setupViewModel()
     updateLastVertexAndAdd(COORDINATE_1)
     updateLastVertexAndAdd(COORDINATE_2)
 
@@ -125,6 +132,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
 
   @Test
   fun `Detects when last coordinate is close to starting one for four vertices`() {
+    setupViewModel()
     updateLastVertexAndAdd(COORDINATE_1)
     updateLastVertexAndAdd(COORDINATE_2)
     updateLastVertexAndAdd(COORDINATE_3)
@@ -136,6 +144,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
 
   @Test
   fun `Can remove last vertex on two vertices`() {
+    setupViewModel()
     updateLastVertexAndAdd(COORDINATE_1)
 
     viewModel.removeLastVertex()
@@ -145,6 +154,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
 
   @Test
   fun `Can remove last vertex on one vertex`() {
+    setupViewModel()
     updateLastVertex(COORDINATE_1)
 
     viewModel.removeLastVertex()
@@ -154,6 +164,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
 
   @Test
   fun `Removing last vertex on no vertices does nothing`() {
+    setupViewModel()
     updateLastVertex(COORDINATE_1)
     viewModel.removeLastVertex()
 
@@ -164,6 +175,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
 
   @Test
   fun `Removing last vertex on complete polygon`() {
+    setupViewModel()
     updateLastVertexAndAdd(COORDINATE_1)
     updateLastVertexAndAdd(COORDINATE_2)
     updateLastVertexAndAdd(COORDINATE_3)
@@ -176,6 +188,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
 
   @Test
   fun `Cannot complete polygon when polygon is not complete`() {
+    setupViewModel()
     updateLastVertexAndAdd(COORDINATE_1)
     updateLastVertexAndAdd(COORDINATE_2)
     updateLastVertex(COORDINATE_3, false)
@@ -187,6 +200,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
 
   @Test
   fun `Check distance between Vertices`() {
+    setupViewModel()
     updateLastVertexAndAdd(COORDINATE_1)
     updateLastVertexAndAdd(COORDINATE_2)
     updateLastVertexAndAdd(COORDINATE_3)
@@ -197,6 +211,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
 
   @Test
   fun `Check distance between Vertices keeping last vertex far from starting point`() {
+    setupViewModel()
     updateLastVertexAndAdd(COORDINATE_1)
     updateLastVertexAndAdd(COORDINATE_2)
     updateLastVertexAndAdd(COORDINATE_3)
@@ -207,6 +222,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
 
   @Test
   fun `Tooltip is not rendered`() {
+    setupViewModel()
     updateLastVertexAndAdd(COORDINATE_1)
 
     viewModel.removeLastVertex()
@@ -215,6 +231,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
 
   @Test
   fun `Tooltip is rendered and removed`() {
+    setupViewModel()
     updateLastVertexAndAdd(COORDINATE_1)
     updateLastVertexAndAdd(COORDINATE_2)
 
@@ -229,6 +246,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
 
   @Test
   fun `Completes a polygon`() {
+    setupViewModel()
     updateLastVertexAndAdd(COORDINATE_1)
     updateLastVertexAndAdd(COORDINATE_2)
     updateLastVertexAndAdd(COORDINATE_3)
@@ -239,7 +257,45 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
   }
 
   @Test
+  fun `Completing a polygon populates polygonArea with the correct value in hectares`() {
+    setupViewModel()
+    localValueStore.selectedLengthUnit = MeasurementUnits.METRIC.name
+    viewModel.initialize(JOB, TASK, taskData = null)
+
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+    updateLastVertexAndAdd(COORDINATE_3)
+    updateLastVertex(COORDINATE_4, true)
+
+    viewModel.completePolygon()
+
+    with(viewModel.polygonArea.value) {
+      assert((this?.split(" ")?.first()?.toDouble() ?: 0.0) > 0.0)
+      assertEquals(this?.endsWith("ha"), true)
+    }
+  }
+
+  @Test
+  fun `Completing a polygon populates polygonArea with the correct value in acres`() {
+    localValueStore.selectedLengthUnit = MeasurementUnits.IMPERIAL.name
+    setupViewModel()
+
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+    updateLastVertexAndAdd(COORDINATE_3)
+    updateLastVertex(COORDINATE_4, true)
+
+    viewModel.completePolygon()
+
+    with(viewModel.polygonArea.value) {
+      assert((this?.split(" ")?.first()?.toDouble() ?: 0.0) > 0.0)
+      assertEquals(this?.endsWith("ac"), true)
+    }
+  }
+
+  @Test
   fun `redoLastVertex re-adds last vertex`() {
+    setupViewModel()
     updateLastVertexAndAdd(COORDINATE_1)
     updateLastVertexAndAdd(COORDINATE_2)
 
@@ -252,6 +308,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
 
   @Test
   fun `redoLastVertex when redo stack is empty`() {
+    setupViewModel()
     updateLastVertexAndAdd(COORDINATE_1)
 
     viewModel.redoLastVertex()
@@ -261,6 +318,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
   @OptIn(ExperimentalCoroutinesApi::class)
   @Test
   fun `First feature is emitted on draftArea and not on draftUpdates`() = runWithTestDispatcher {
+    setupViewModel()
     updateLastVertexAndAdd(COORDINATE_1)
     updateLastVertexAndAdd(COORDINATE_2)
 
@@ -281,6 +339,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
   @Test
   fun `Subsequent vertex move emits in-place update on draftUpdates with stable tag`() =
     runWithTestDispatcher {
+      setupViewModel()
       updateLastVertexAndAdd(COORDINATE_1)
       updateLastVertexAndAdd(COORDINATE_2)
       advanceUntilIdle()
@@ -303,6 +362,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
   @OptIn(ExperimentalCoroutinesApi::class)
   @Test
   fun `Tooltip updates along with in-place geometry updates`() = runWithTestDispatcher {
+    setupViewModel()
     updateLastVertexAndAdd(COORDINATE_1)
     advanceUntilIdle()
 
@@ -319,6 +379,57 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     assertThat(secondFeature.tooltipText).isNull()
 
     viewModel.removeLastVertex()
+  }
+
+  @Test
+  fun `isTooClose is true when last vertex is close to previous vertex`() {
+    setupViewModel()
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+
+    // Distance between COORDINATE_2 (10, 10) and COORDINATE_3 (20, 20) is ~14.14
+    // Threshold is 24. So this should be too close.
+    updateLastVertex(COORDINATE_3, isNearFirstVertex = false)
+    viewModel.updateLastVertexAndMaybeCompletePolygon(COORDINATE_3) { _, _ ->
+      DISTANCE_THRESHOLD_DP.toDouble()
+    }
+
+    assertThat(viewModel.isTooClose.value).isTrue()
+  }
+
+  @Test
+  fun `isTooClose is false when last vertex is far from previous vertex`() {
+    setupViewModel()
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+
+    viewModel.updateLastVertexAndMaybeCompletePolygon(COORDINATE_3) { _, _ ->
+      DISTANCE_THRESHOLD_DP.toDouble() + 1
+    }
+
+    assertThat(viewModel.isTooClose.value).isFalse()
+  }
+
+  @Test
+  fun `isTooClose is true after adding a vertex if size is greater than 1`() {
+    setupViewModel()
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+
+    // Add a 3rd vertex.
+    // The logic `_isTooClose.value = vertices.size > 1` in `addLastVertex` should set it to true.
+    viewModel.addLastVertex()
+
+    assertThat(viewModel.isTooClose.value).isTrue()
+  }
+
+  @Test
+  fun `isTooClose is false if only one vertex`() {
+    setupViewModel()
+    updateLastVertexAndAdd(COORDINATE_1)
+
+    // Only 1 vertex.
+    assertThat(viewModel.isTooClose.value).isFalse()
   }
 
   private fun assertGeometry(
@@ -359,6 +470,10 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     val threshold = DISTANCE_THRESHOLD_DP.toDouble()
     val distanceInPixels = if (isNearFirstVertex) threshold else threshold + 1
     viewModel.updateLastVertexAndMaybeCompletePolygon(coordinate) { _, _ -> distanceInPixels }
+  }
+
+  private fun setupViewModel(job: Job = JOB, task: Task = TASK, taskData: TaskData? = null) {
+    viewModel.initialize(job = job, task = task, taskData = taskData)
   }
 
   companion object {
