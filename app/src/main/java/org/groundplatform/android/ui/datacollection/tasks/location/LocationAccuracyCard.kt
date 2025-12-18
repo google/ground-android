@@ -41,11 +41,7 @@ import androidx.compose.ui.unit.dp
 import org.groundplatform.android.R
 
 @Composable
-fun LocationAccuracyCard(
-  accuracy: Float?,
-  onDismiss: () -> Unit,
-  modifier: Modifier = Modifier,
-) {
+fun LocationAccuracyCard(accuracy: Float?, onDismiss: () -> Unit, modifier: Modifier = Modifier) {
   Card(
     modifier = modifier.fillMaxWidth(),
     shape = RoundedCornerShape(24.dp),
