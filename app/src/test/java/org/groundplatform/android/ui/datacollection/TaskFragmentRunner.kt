@@ -153,17 +153,29 @@ class TaskFragmentRunner(
     )
 
   internal fun validateTextIsDisplayed(text: String): TaskFragmentRunner {
-    baseHiltTest.composeTestRule.onNodeWithText(text).assertIsDisplayed()
+    if (baseHiltTest.composeTestRule.onAllNodes(hasText(text)).fetchSemanticsNodes().isNotEmpty()) {
+      baseHiltTest.composeTestRule.onNodeWithText(text).assertIsDisplayed()
+    } else {
+      onView(withText(text)).check(matches(isDisplayed()))
+    }
     return this
   }
 
   internal fun validateTextIsNotDisplayed(text: String): TaskFragmentRunner {
-    baseHiltTest.composeTestRule.onNodeWithText(text).assertIsNotDisplayed()
+    if (baseHiltTest.composeTestRule.onAllNodes(hasText(text)).fetchSemanticsNodes().isNotEmpty()) {
+      baseHiltTest.composeTestRule.onNodeWithText(text).assertIsNotDisplayed()
+    } else {
+      onView(withText(text)).check(matches(not(isDisplayed())))
+    }
     return this
   }
 
   internal fun validateTextDoesNotExist(text: String): TaskFragmentRunner {
-    baseHiltTest.composeTestRule.onNodeWithText(text).assertDoesNotExist()
+    if (baseHiltTest.composeTestRule.onAllNodes(hasText(text)).fetchSemanticsNodes().isNotEmpty()) {
+      baseHiltTest.composeTestRule.onNodeWithText(text).assertDoesNotExist()
+    } else {
+      onView(withText(text)).check(androidx.test.espresso.assertion.ViewAssertions.doesNotExist())
+    }
     return this
   }
 
