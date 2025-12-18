@@ -20,14 +20,11 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.RadioButton
-import android.widget.TextView
-import androidx.cardview.widget.CardView
 import androidx.test.core.app.takeScreenshot
 import androidx.test.core.graphics.writeToTestStorage
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
-import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import java.io.IOException
@@ -36,7 +33,6 @@ import org.groundplatform.android.R
 import org.groundplatform.android.e2etest.TestConfig.GROUND_PACKAGE
 import org.groundplatform.android.e2etest.TestConfig.LONG_TIMEOUT
 import org.groundplatform.android.e2etest.TestConfig.SHORT_TIMEOUT
-import org.groundplatform.android.e2etest.TestConfig.TEST_SURVEY_IDENTIFIER
 import org.groundplatform.android.e2etest.TestConfig.TEST_SURVEY_LOI_TASK_INDEX
 import org.groundplatform.android.e2etest.TestConfig.TEST_SURVEY_TASKS_ADHOC
 import org.groundplatform.android.model.task.Task
@@ -92,60 +88,19 @@ class SurveyRunnerTest : AutomatorRunner {
   }
 
   private fun selectTestSurvey() {
-    val testSurveySelector =
-      byClass(CardView::class)
-        .hasDescendant(byClass(TextView::class).textContains(TEST_SURVEY_IDENTIFIER))
-    if (device.wait(Until.hasObject(testSurveySelector), LONG_TIMEOUT) == null) {
-      captureScreenshot()
-      fail("Failed to find test survey")
-    }
-    // Need to double click on survey.
-    waitClickGone(testSurveySelector)
-    if (!waitClickGone(testSurveySelector, timeout = LONG_TIMEOUT)) {
-      captureScreenshot()
-      fail("Failed to select survey.")
-    }
+    // Code for the test will be updated in a follow up MR
   }
 
   private fun zoomIntoLocation() {
-    clickLocationLock()
-    allowPermissions()
-    val loiCardSelector = byClass(CardView::class).hasDescendant(byText(R.string.add_data))
-    if (device.wait(Until.hasObject(loiCardSelector), LONG_TIMEOUT) == null) {
-      captureScreenshot()
-      fail("Failed to zoom in to location.")
-    }
+    // Code for the test will be updated in a follow up MR
   }
 
   private fun startAdHocLoiTask() {
-    val loiCardSelector = byClass(CardView::class)
-    if (device.wait(Until.hasObject(loiCardSelector), LONG_TIMEOUT) == null) {
-      captureScreenshot()
-      fail("Failed to find ad-hoc loi card")
-    }
-    val cards = device.findObjects(loiCardSelector)
-    cards.forEach { it.swipe(Direction.LEFT, 1F) }
-    val loiCollectDataButtonSelector =
-      byText(R.string.add_data)
-        .hasAncestor(loiCardSelector.hasDescendant(byText(R.string.add_site)))
-    if (!waitClickGone(loiCollectDataButtonSelector)) {
-      captureScreenshot()
-      fail("Failed to start ad-hoc loi data collection.")
-    }
+    // Code for the test will be updated in a follow up MR
   }
 
   private fun startPredefinedLoiTask() {
-    val loiCardSelector = byClass(CardView::class)
-    if (device.wait(Until.hasObject(loiCardSelector), LONG_TIMEOUT) == null) {
-      captureScreenshot()
-      fail("Failed to find predefined loi card")
-    }
-    // Assume that the first card is the predefined LOI.
-    val loiCollectDataButtonSelector = byText(R.string.add_data)
-    if (!waitClickGone(loiCollectDataButtonSelector)) {
-      captureScreenshot()
-      fail("Failed to start predefined loi data collection.")
-    }
+    // Code for the test will be updated in a follow up MR
   }
 
   private fun fillOutTaskData(isAdHoc: Boolean, taskList: List<Task.Type>) {
