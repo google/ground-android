@@ -30,6 +30,11 @@ import androidx.compose.ui.unit.dp
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.theme.AppTheme
 
+const val OPEN_NAV_DRAWER_TEST_TAG = "open_nav_drawer"
+const val CHOOSE_MAP_TYPE_TEST_TAG = "choose_map_type"
+const val LOCATION_LOCKED_TEST_TAG = "location_locked"
+const val LOCATION_NOT_LOCKED_TEST_TAG = "location_not_locked"
+
 @Composable
 fun MapFloatingActionButton(
   modifier: Modifier = Modifier,
@@ -55,10 +60,10 @@ sealed class MapFloatingActionButtonType(
   val testTag: String,
 ) {
   data object OpenNavDrawer :
-    MapFloatingActionButtonType(iconRes = R.drawable.baseline_menu_24, testTag = "open_nav_drawer")
+    MapFloatingActionButtonType(iconRes = R.drawable.baseline_menu_24, testTag = OPEN_NAV_DRAWER_TEST_TAG)
 
   data object MapType :
-    MapFloatingActionButtonType(iconRes = R.drawable.map_layers, testTag = "choose_map_type")
+    MapFloatingActionButtonType(iconRes = R.drawable.map_layers, testTag = CHOOSE_MAP_TYPE_TEST_TAG)
 
   // TODO: Consider adding another icon for representing "GPS disabled" state.
   // Issue URL: https://github.com/google/ground-android/issues/1789
@@ -66,13 +71,13 @@ sealed class MapFloatingActionButtonType(
     MapFloatingActionButtonType(
       iconRes = R.drawable.ic_gps_lock,
       iconTintRes = iconTintRes,
-      testTag = "location_locked",
+      testTag = LOCATION_LOCKED_TEST_TAG,
     )
 
   data object LocationNotLocked :
     MapFloatingActionButtonType(
       iconRes = R.drawable.ic_gps_lock_not_fixed,
-      testTag = "location_not_locked",
+      testTag = LOCATION_NOT_LOCKED_TEST_TAG,
     )
 }
 
