@@ -67,7 +67,7 @@ class TimeTaskFragmentTest : BaseTaskFragmentTest<TimeTaskFragment, TimeTaskView
   fun `response when default is empty`() {
     setupTaskFragment<TimeTaskFragment>(job, task)
 
-    onView(withId(R.id.user_response_text))
+    onView(withId(R.id.user_time_response_text))
       .check(matches(withText("")))
       .check(matches(isDisplayed()))
       .check(matches(isEnabled()))
@@ -86,7 +86,7 @@ class TimeTaskFragmentTest : BaseTaskFragmentTest<TimeTaskFragment, TimeTaskView
     view?.layoutParams = ViewGroup.LayoutParams(0, 1)
 
     assertThat(fragment.getTimePickerDialog()).isNull()
-    onView(withId(R.id.user_response_text)).perform(click())
+    onView(withId(R.id.user_time_response_text)).perform(click())
     assertThat(fragment.getTimePickerDialog()!!.isShowing).isTrue()
   }
 
