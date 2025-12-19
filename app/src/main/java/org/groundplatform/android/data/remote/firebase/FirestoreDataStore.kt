@@ -29,7 +29,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeout
+import org.groundplatform.android.BuildConfig.USE_EMULATORS
 import org.groundplatform.android.coroutines.IoDispatcher
 import org.groundplatform.android.data.remote.RemoteDataStore
 import org.groundplatform.android.data.remote.firebase.schema.GroundFirestore
@@ -44,7 +44,6 @@ import org.groundplatform.android.model.toListItem
 import timber.log.Timber
 
 private const val PROFILE_REFRESH_CLOUD_FUNCTION_NAME = "profile-refresh"
-private const val SUBSCRIBE_FCM_TIMEOUT = 3000L
 
 @Singleton
 class FirestoreDataStore
@@ -93,9 +92,10 @@ internal constructor(
     withContext(ioDispatcher) { db().surveys().survey(survey.id).lois().fetchSharedLois(survey) }
 
   override suspend fun subscribeToSurveyUpdates(surveyId: String) {
+    if (USE_EMULATORS) return
     Timber.d("Subscribing to FCM topic $surveyId")
     try {
-      withTimeout(SUBSCRIBE_FCM_TIMEOUT) { Firebase.messaging.subscribeToTopic(surveyId).await() }
+      Firebase.messaging.subscribeToTopic(surveyId).await()
     } catch (e: CancellationException) {
       Timber.i(e, "Subscribing to FCM topic was cancelled")
     }
