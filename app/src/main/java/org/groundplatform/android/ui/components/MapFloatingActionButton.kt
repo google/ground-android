@@ -60,7 +60,10 @@ sealed class MapFloatingActionButtonType(
   val testTag: String,
 ) {
   data object OpenNavDrawer :
-    MapFloatingActionButtonType(iconRes = R.drawable.baseline_menu_24, testTag = OPEN_NAV_DRAWER_TEST_TAG)
+    MapFloatingActionButtonType(
+      iconRes = R.drawable.baseline_menu_24,
+      testTag = OPEN_NAV_DRAWER_TEST_TAG,
+    )
 
   data object MapType :
     MapFloatingActionButtonType(iconRes = R.drawable.map_layers, testTag = CHOOSE_MAP_TYPE_TEST_TAG)
