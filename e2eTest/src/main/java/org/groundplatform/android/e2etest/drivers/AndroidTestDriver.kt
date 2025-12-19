@@ -115,7 +115,7 @@ class AndroidTestDriver(
   }
 
   override fun setDate() {
-    val resName = composeRule.activity.resources.getResourceEntryName(R.id.user_response_date_text)
+    val resName = composeRule.activity.resources.getResourceEntryName(R.id.user_date_response_text)
     val packageName = composeRule.activity.packageName
     val textInputField = device.findObject(By.res(packageName, resName))
     textInputField?.click()
@@ -125,7 +125,7 @@ class AndroidTestDriver(
   }
 
   override fun setTime() {
-    val resName = composeRule.activity.resources.getResourceEntryName(R.id.user_response_time_text)
+    val resName = composeRule.activity.resources.getResourceEntryName(R.id.user_time_response_text)
     val packageName = composeRule.activity.packageName
     val textInputField = device.findObject(By.res(packageName, resName))
     textInputField?.click()
