@@ -35,8 +35,6 @@ class CaptureLocationTaskViewModel @Inject constructor() : AbstractMapTaskViewMo
   private val _lastLocation = MutableStateFlow<Location?>(null)
   val lastLocation = _lastLocation.asStateFlow()
 
-  val locationAccuracy: Flow<Float?> = _lastLocation.map { it?.getAccuracyOrNull()?.toFloat() }
-
   val isCaptureEnabled: Flow<Boolean> =
     _lastLocation.map { location ->
       val accuracy: Float = location?.getAccuracyOrNull()?.toFloat() ?: Float.MAX_VALUE

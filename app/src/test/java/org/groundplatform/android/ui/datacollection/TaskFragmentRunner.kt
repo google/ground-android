@@ -37,6 +37,7 @@ import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
@@ -174,7 +175,7 @@ class TaskFragmentRunner(
     if (baseHiltTest.composeTestRule.onAllNodes(hasText(text)).fetchSemanticsNodes().isNotEmpty()) {
       baseHiltTest.composeTestRule.onNodeWithText(text).assertDoesNotExist()
     } else {
-      onView(withText(text)).check(androidx.test.espresso.assertion.ViewAssertions.doesNotExist())
+      onView(withText(text)).check(doesNotExist())
     }
     return this
   }

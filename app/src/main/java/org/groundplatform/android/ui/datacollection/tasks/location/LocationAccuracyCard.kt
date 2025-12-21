@@ -41,7 +41,7 @@ import androidx.compose.ui.unit.dp
 import org.groundplatform.android.R
 
 @Composable
-fun LocationAccuracyCard(accuracy: Float?, onDismiss: () -> Unit, modifier: Modifier = Modifier) {
+fun LocationAccuracyCard(onDismiss: () -> Unit, modifier: Modifier = Modifier) {
   Card(
     modifier = modifier.fillMaxWidth(),
     shape = RoundedCornerShape(24.dp),
@@ -67,19 +67,9 @@ fun LocationAccuracyCard(accuracy: Float?, onDismiss: () -> Unit, modifier: Modi
         )
         Spacer(Modifier.height(4.dp))
         Text(
-          text =
-            if (accuracy != null) {
-              stringResource(R.string.accuracy, accuracy)
-            } else {
-              stringResource(R.string.location_not_accurate_description)
-            },
+          text = stringResource(R.string.location_not_accurate_description),
           style = MaterialTheme.typography.bodyMedium,
-          color =
-            if (accuracy != null && accuracy > 15f) {
-              MaterialTheme.colorScheme.error
-            } else {
-              MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
-            },
+          color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
         )
       }
 

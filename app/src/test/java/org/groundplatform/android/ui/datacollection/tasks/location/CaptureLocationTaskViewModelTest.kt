@@ -31,65 +31,50 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class CaptureLocationTaskViewModelTest : BaseHiltTest() {
 
+  private val viewModel = CaptureLocationTaskViewModel()
+
   @Test
   fun testIsCaptureEnabled_whenLocationIsNull_returnsFalse() = runTest {
-    val viewModel = CaptureLocationTaskViewModel()
     assertThat(viewModel.isCaptureEnabled.first()).isFalse()
   }
 
   @Test
   fun testIsCaptureEnabled_whenAccuracyIsGood_returnsTrue() = runTest {
-    val viewModel = CaptureLocationTaskViewModel()
-    val location = mock(Location::class.java)
-    `when`(location.hasAccuracy()).thenReturn(true)
-    `when`(location.accuracy).thenReturn(10.0f)
-    viewModel.updateLocation(location)
+    setMockLocation(true, 10.0f)
 
     assertThat(viewModel.isCaptureEnabled.first()).isTrue()
   }
 
   @Test
   fun testIsCaptureEnabled_whenAccuracyIsPoor_returnsFalse() = runTest {
-    val viewModel = CaptureLocationTaskViewModel()
-    val location = mock(Location::class.java)
-    `when`(location.hasAccuracy()).thenReturn(true)
-    `when`(location.accuracy).thenReturn(20.0f)
-    viewModel.updateLocation(location)
-
+    setMockLocation(true, 20.0f)
     assertThat(viewModel.isCaptureEnabled.first()).isFalse()
   }
 
   @Test
   fun testIsCaptureEnabled_whenAccuracyIsBoundary_returnsTrue() = runTest {
-    val viewModel = CaptureLocationTaskViewModel()
-    val location = mock(Location::class.java)
-    `when`(location.hasAccuracy()).thenReturn(true)
-    `when`(location.accuracy).thenReturn(15.0f)
-    viewModel.updateLocation(location)
-
+    setMockLocation(true, 15.0f)
     assertThat(viewModel.isCaptureEnabled.first()).isTrue()
   }
 
   @Test
   fun testIsCaptureEnabled_whenAccuracyIsMissing_returnsFalse() = runTest {
-    val viewModel = CaptureLocationTaskViewModel()
-    val location = mock(Location::class.java)
-    `when`(location.hasAccuracy()).thenReturn(false)
-    viewModel.updateLocation(location)
-
+    setMockLocation(false)
     assertThat(viewModel.isCaptureEnabled.first()).isFalse()
   }
 
   @Test
   fun testUpdateResponse_whenAccuracyIsPoor_doesNotUpdateResponse() = runTest {
-    val viewModel = CaptureLocationTaskViewModel()
-    val location = mock(Location::class.java)
-    `when`(location.hasAccuracy()).thenReturn(true)
-    `when`(location.accuracy).thenReturn(20.0f)
-    viewModel.updateLocation(location)
-
+    setMockLocation(true, 20.0f)
     viewModel.updateResponse()
 
     assertThat(viewModel.taskTaskData.value).isNull()
+  }
+
+  private fun setMockLocation(hasAccuracy: Boolean, accuracy: Float? = null) {
+    val location = mock(Location::class.java)
+    `when`(location.hasAccuracy()).thenReturn(hasAccuracy)
+    accuracy?.let { `when`(location.accuracy).thenReturn(it) }
+    viewModel.updateLocation(location)
   }
 }
