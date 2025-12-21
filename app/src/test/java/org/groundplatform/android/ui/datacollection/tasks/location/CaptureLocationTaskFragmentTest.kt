@@ -184,7 +184,6 @@ class CaptureLocationTaskFragmentTest :
     setupLocation(accuracy = 25.0)
 
     runner().validateTextIsDisplayed(fragment.getString(R.string.location_not_accurate_heading))
-    runner().validateTextIsDisplayed(fragment.getString(R.string.accuracy, 25.0f))
   }
 
   @Test

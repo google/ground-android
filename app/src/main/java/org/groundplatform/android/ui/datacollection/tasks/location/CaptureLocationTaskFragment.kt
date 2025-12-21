@@ -128,7 +128,7 @@ class CaptureLocationTaskFragment @Inject constructor() :
       showAccuracyCard = location != null && !viewModel.isCaptureEnabled.first()
     }
 
-    if (true) {
+    if (showAccuracyCard) {
       LocationAccuracyCard(
         onDismiss = { showAccuracyCard = false },
         modifier = Modifier.padding(bottom = 12.dp),
