@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.google.android.gms.common.SignInButton
 import org.groundplatform.android.R
+import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 
 const val BUTTON_TEST_TAG = "google_sign_in_button"
 
@@ -72,11 +73,8 @@ fun SignInScreen(onSignInClick: () -> Unit) {
 }
 
 @Composable
-private fun BackgroundOverlay() {
-  Box(modifier = Modifier.fillMaxSize().background(color = Color(0x66146C2E)))
-
-  // Bottom-half screen gradient
-  Column(Modifier.fillMaxSize()) {
+private fun BackgroundOverlay(modifier: Modifier = Modifier) {
+  Column(modifier.fillMaxSize().background(color = Color(0x66146C2E))) {
     Spacer(Modifier.weight(1f))
     Box(
       modifier =
@@ -90,8 +88,9 @@ private fun BackgroundOverlay() {
 }
 
 @Composable
-private fun LogoAndTitle() {
+private fun LogoAndTitle(modifier: Modifier = Modifier) {
   Column(
+    modifier = modifier,
     horizontalAlignment = Alignment.CenterHorizontally,
     verticalArrangement = Arrangement.Center,
   ) {
@@ -111,9 +110,9 @@ private fun LogoAndTitle() {
 }
 
 @Composable
-private fun GoogleSignInButton(onClick: () -> Unit) {
+private fun GoogleSignInButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
   AndroidView(
-    modifier = Modifier.wrapContentSize().testTag(BUTTON_TEST_TAG),
+    modifier = modifier.wrapContentSize().testTag(BUTTON_TEST_TAG),
     factory = { context -> SignInButton(context).apply { setSize(SignInButton.SIZE_WIDE) } },
     update = { button -> button.setOnClickListener { onClick() } },
   )
@@ -121,6 +120,7 @@ private fun GoogleSignInButton(onClick: () -> Unit) {
 
 @Preview(showBackground = true)
 @Composable
-fun SignInScreenPreview() {
+@ExcludeFromJacocoGeneratedReport
+private fun SignInScreenPreview() {
   SignInScreen(onSignInClick = {})
 }
