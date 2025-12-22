@@ -46,12 +46,11 @@ class SignInFragment : AbstractFragment(), BackPressListener {
     inflater: LayoutInflater,
     container: ViewGroup?,
     savedInstanceState: Bundle?,
-  ): View {
-    return ComposeView(requireContext()).apply {
+  ): View =
+    ComposeView(requireContext()).apply {
       setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
       setContent { AppTheme { SignInScreen(onSignInClick = { viewModel.onSignInButtonClick() }) } }
     }
-  }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
