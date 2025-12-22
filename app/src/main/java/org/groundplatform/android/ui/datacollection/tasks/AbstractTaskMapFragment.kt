@@ -191,10 +191,7 @@ abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
         accuracyTitle.setText(R.string.accuracy)
         accuracyValue.text = accuracyText
         val color =
-          if (
-            accuracyInMeters == null ||
-              accuracyInMeters > ACCURACY_THRESHOLD_IN_M
-          ) {
+          if (accuracyInMeters == null || accuracyInMeters > ACCURACY_THRESHOLD_IN_M) {
             R.color.accuracy_bad
           } else {
             R.color.accuracy_good
