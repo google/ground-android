@@ -15,9 +15,9 @@
  */
 package org.groundplatform.android.e2etest.robots
 
-import org.groundplatform.android.R
 import org.groundplatform.android.e2etest.drivers.TestDriver
+import org.groundplatform.android.ui.signin.BUTTON_TEST_TAG
 
 class SignInRobot(override val testDriver: TestDriver) : Robot<SignInRobot>() {
-  fun signIn() = with(TestDriver.Target.ViewId(R.id.sign_in_button)) { testDriver.click(this) }
+  fun signIn() = testDriver.click(TestDriver.Target.TestTag(BUTTON_TEST_TAG))
 }
