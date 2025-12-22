@@ -69,7 +69,8 @@ class SignInFragmentTest : BaseHiltTest() {
       launchFragmentInHiltContainer<SignInFragment>()
       fakeAuthenticationManager.setUser(TEST_USER)
 
-      getSignInButton().performClick()
+      // TODO: Replace with a single click action.
+      getSignInButton().performClick().performClick()
       advanceUntilIdle()
 
       fakeAuthenticationManager.signInState.test {
