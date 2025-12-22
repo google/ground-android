@@ -29,6 +29,8 @@ import kotlin.test.assertTrue
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.ADHOC_JOB
 import org.groundplatform.android.R
+import org.groundplatform.android.ui.components.LOCATION_LOCKED_TEST_TAG
+import org.groundplatform.android.ui.components.LOCATION_NOT_LOCKED_TEST_TAG
 import org.groundplatform.android.ui.components.MapFloatingActionButtonType
 import org.groundplatform.android.ui.home.mapcontainer.jobs.AdHocDataCollectionButtonData
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentAction
@@ -75,14 +77,14 @@ class HomeScreenMapContainerScreenTest : BaseHiltTest() {
   fun `Should display the correct icon when the location is not locked`() {
     setContent(locationLockButtonType = MapFloatingActionButtonType.LocationNotLocked)
 
-    composeTestRule.onNodeWithTag("location_not_locked").assertIsDisplayed()
+    composeTestRule.onNodeWithTag(LOCATION_NOT_LOCKED_TEST_TAG).assertIsDisplayed()
   }
 
   @Test
   fun `Should display the correct icon the location is locked`() {
     setContent(locationLockButtonType = MapFloatingActionButtonType.LocationLocked())
 
-    composeTestRule.onNodeWithTag("location_locked").assertIsDisplayed()
+    composeTestRule.onNodeWithTag(LOCATION_LOCKED_TEST_TAG).assertIsDisplayed()
   }
 
   @Test
