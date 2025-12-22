@@ -49,13 +49,7 @@ class SignInFragment : AbstractFragment(), BackPressListener {
   ): View {
     return ComposeView(requireContext()).apply {
       setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-      setContent {
-        AppTheme {
-          SignInScreen(
-            onSignInClick = { viewModel.onSignInButtonClick() }
-          )
-        }
-      }
+      setContent { AppTheme { SignInScreen(onSignInClick = { viewModel.onSignInButtonClick() }) } }
     }
   }
 

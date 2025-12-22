@@ -23,8 +23,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,76 +46,74 @@ import org.groundplatform.android.R
 @Composable
 fun SignInScreen(onSignInClick: () -> Unit) {
   Box(modifier = Modifier.fillMaxSize()) {
-    // Background Image
+
+    // Background image
     Image(
       painter = painterResource(id = R.drawable.splash_background),
-      contentDescription = "Background",
       modifier = Modifier.fillMaxSize(),
-      contentScale = ContentScale.Crop
-    )
-    // Overlay
-    Box(
-      modifier = Modifier
-        .fillMaxSize()
-        .background(color = Color(0x66146C2E)) // 40% alpha on #146C2E
+      contentScale = ContentScale.Crop,
+      contentDescription = null,
     )
 
-    // Gradient
-    Column(Modifier.fillMaxSize()) {
-      Spacer(Modifier.weight(1f))
-      Box(
-        modifier = Modifier
-          .fillMaxWidth()
-          .weight(1f)
-          .background(
-            brush = Brush.verticalGradient(
-              colors = listOf(Color(0x00006E2C), Color(0xFF003917))
-            )
-          )
-      )
-    }
+    BackgroundOverlay()
 
-    // Content
     Column(
       modifier = Modifier.fillMaxSize(),
-      horizontalAlignment = Alignment.CenterHorizontally
+      horizontalAlignment = Alignment.CenterHorizontally,
+      verticalArrangement = Arrangement.SpaceAround,
     ) {
-      Spacer(modifier = Modifier.weight(1f))
-      Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-      ) {
-        Image(
-          painter = painterResource(id = R.drawable.ground_logo),
-          contentDescription = "Logo",
-          modifier = Modifier
-            .width(120.dp)
-            .height(120.dp)
-        )
-        Text(
-          text = stringResource(id = R.string.app_name),
-          color = Color.White,
-          fontSize = 60.sp,
-          fontFamily = FontFamily(Font(R.font.display_500)),
-          letterSpacing = 0.6.sp // 0.01 * 60sp
-        )
-      }
-
-      Spacer(modifier = Modifier.weight(1f))
-
-      AndroidView(
-        factory = { context ->
-          SignInButton(context).apply {
-            setSize(SignInButton.SIZE_WIDE)
-            setOnClickListener { onSignInClick() }
-          }
-        },
-        modifier = Modifier.wrapContentSize(),
-      )
-
-      Spacer(modifier = Modifier.weight(1f))
+      LogoAndTitle()
+      GoogleSignInButton { onSignInClick() }
     }
   }
+}
+
+@Composable
+private fun BackgroundOverlay() {
+  Box(modifier = Modifier.fillMaxSize().background(color = Color(0x66146C2E)))
+
+  // Bottom-half screen gradient
+  Column(Modifier.fillMaxSize()) {
+    Spacer(Modifier.weight(1f))
+    Box(
+      modifier =
+        Modifier.fillMaxWidth()
+          .weight(1f)
+          .background(
+            brush = Brush.verticalGradient(colors = listOf(Color(0x00006E2C), Color(0xFF003917)))
+          )
+    )
+  }
+}
+
+@Composable
+private fun LogoAndTitle() {
+  Column(
+    horizontalAlignment = Alignment.CenterHorizontally,
+    verticalArrangement = Arrangement.Center,
+  ) {
+    Image(
+      painter = painterResource(id = R.drawable.ground_logo),
+      modifier = Modifier.size(120.dp),
+      contentDescription = null,
+    )
+    Text(
+      text = stringResource(id = R.string.app_name),
+      color = Color.White,
+      fontSize = 60.sp,
+      fontFamily = FontFamily(Font(R.font.display_500)),
+      letterSpacing = 0.6.sp,
+    )
+  }
+}
+
+@Composable
+private fun GoogleSignInButton(onClick: () -> Unit) {
+  AndroidView(
+    modifier = Modifier.wrapContentSize(),
+    factory = { context -> SignInButton(context).apply { setSize(SignInButton.SIZE_WIDE) } },
+    update = { button -> button.setOnClickListener { onClick() } },
+  )
 }
 
 @Preview(showBackground = true)
