@@ -21,6 +21,7 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.groundplatform.android.BaseHiltTest
+import org.groundplatform.android.model.submission.CaptureLocationTaskData
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
@@ -69,6 +70,15 @@ class CaptureLocationTaskViewModelTest : BaseHiltTest() {
     viewModel.updateResponse()
 
     assertThat(viewModel.taskTaskData.value).isNull()
+  }
+
+  @Test
+  fun testUpdateResponse_whenAccuracyIsGood_updatesResponse() = runTest {
+    setMockLocation(true, 10.0f)
+    viewModel.updateResponse()
+
+    val data = viewModel.taskTaskData.value as CaptureLocationTaskData
+    assertThat(data.accuracy).isEqualTo(10.0)
   }
 
   private fun setMockLocation(hasAccuracy: Boolean, accuracy: Float? = null) {

@@ -95,9 +95,10 @@ abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
 
           val df = DecimalFormat("#.##")
           df.roundingMode = RoundingMode.DOWN
-          val accuracyText = it?.getAccuracyOrNull()?.let { value -> df.format(value) + "m" } ?: "?"
+          val accuracy = it?.getAccuracyOrNull()
+          val accuracyText = accuracy?.let { value -> df.format(value) + "m" } ?: "?"
 
-          updateLocationInfoCard(R.string.current_location, locationText, accuracyText)
+          updateLocationInfoCard(R.string.current_location, locationText, accuracyText, accuracy)
         }
       }
     }
@@ -171,6 +172,7 @@ abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
     @StringRes title: Int,
     locationText: String?,
     accuracyText: String? = null,
+    accuracyInMeters: Double? = null,
   ) =
     with(binding) {
       if (locationText.isNullOrEmpty()) {
@@ -187,6 +189,16 @@ abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
         accuracy.visibility = View.VISIBLE
         accuracyTitle.setText(R.string.accuracy)
         accuracyValue.text = accuracyText
+        val color =
+          if (
+            accuracyInMeters == null ||
+              accuracyInMeters > org.groundplatform.android.common.Constants.ACCURACY_THRESHOLD_IN_M
+          ) {
+            R.color.accuracy_bad
+          } else {
+            R.color.accuracy_good
+          }
+        accuracyValue.setTextColor(resources.getColor(color, null))
       }
     }
 
