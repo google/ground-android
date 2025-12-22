@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
@@ -42,6 +43,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.google.android.gms.common.SignInButton
 import org.groundplatform.android.R
+
+const val BUTTON_TEST_TAG = "google_sign_in_button"
 
 @Composable
 fun SignInScreen(onSignInClick: () -> Unit) {
@@ -110,7 +113,7 @@ private fun LogoAndTitle() {
 @Composable
 private fun GoogleSignInButton(onClick: () -> Unit) {
   AndroidView(
-    modifier = Modifier.wrapContentSize(),
+    modifier = Modifier.wrapContentSize().testTag(BUTTON_TEST_TAG),
     factory = { context -> SignInButton(context).apply { setSize(SignInButton.SIZE_WIDE) } },
     update = { button -> button.setOnClickListener { onClick() } },
   )
