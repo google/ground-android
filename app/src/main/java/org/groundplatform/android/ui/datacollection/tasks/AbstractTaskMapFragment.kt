@@ -36,6 +36,7 @@ import java.math.RoundingMode
 import java.text.DecimalFormat
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
+import org.groundplatform.android.common.Constants.ACCURACY_THRESHOLD_IN_M
 import org.groundplatform.android.databinding.MapTaskFragBinding
 import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.ui.common.AbstractMapContainerFragment
@@ -192,7 +193,7 @@ abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
         val color =
           if (
             accuracyInMeters == null ||
-              accuracyInMeters > org.groundplatform.android.common.Constants.ACCURACY_THRESHOLD_IN_M
+              accuracyInMeters > ACCURACY_THRESHOLD_IN_M
           ) {
             R.color.accuracy_bad
           } else {

@@ -53,7 +53,7 @@ class CaptureLocationTaskViewModel @Inject constructor() : AbstractMapTaskViewMo
     } else {
       val accuracy = location.getAccuracyOrNull()
       if (accuracy != null && accuracy > ACCURACY_THRESHOLD_IN_M) {
-        return
+        error("Location accuracy $accuracy exceeds threshold $ACCURACY_THRESHOLD_IN_M")
       }
       setValue(
         CaptureLocationTaskData(

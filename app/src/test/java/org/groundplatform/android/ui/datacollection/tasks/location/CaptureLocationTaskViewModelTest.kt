@@ -64,12 +64,10 @@ class CaptureLocationTaskViewModelTest : BaseHiltTest() {
     assertThat(viewModel.isCaptureEnabled.first()).isFalse()
   }
 
-  @Test
-  fun testUpdateResponse_whenAccuracyIsPoor_doesNotUpdateResponse() = runTest {
+  @Test(expected = IllegalStateException::class)
+  fun testUpdateResponse_whenAccuracyIsPoor_throwsError() = runTest {
     setMockLocation(true, 20.0f)
     viewModel.updateResponse()
-
-    assertThat(viewModel.taskTaskData.value).isNull()
   }
 
   @Test
