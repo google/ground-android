@@ -57,4 +57,6 @@
   <color name="md_theme_inverseSurface">#2E312D</color>
   <color name="md_theme_inverseOnSurface">#F0F1EB</color>
   <color name="md_theme_inversePrimary">#6DDD81</color>
+  <color name="accuracy_bad">#F44336</color>
+  <color name="accuracy_good">#424940</color>
 </resources>

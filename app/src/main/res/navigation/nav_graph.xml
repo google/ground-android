@@ -210,8 +210,7 @@
   <fragment
     android:id="@+id/sign_in_fragment"
     android:name="org.groundplatform.android.ui.signin.SignInFragment"
-    android:label="sign_in_frag"
-    tools:layout="@layout/sign_in_frag">
+    android:label="sign_in_frag">
     <action
       android:id="@+id/showTermsOfService"
       app:destination="@id/terms_of_service_fragment"

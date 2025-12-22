@@ -59,6 +59,9 @@ object Constants {
   /** Default map type used when map is displayed. */
   val DEFAULT_MAP_TYPE = MapType.TERRAIN
 
+  /** Accuracy threshold in meters. */
+  const val ACCURACY_THRESHOLD_IN_M = 15.0f
+
   // TODO: Move to a util class
   fun isReleaseBuild(): Boolean = BuildConfig.BUILD_TYPE.contentEquals("release")
 }
