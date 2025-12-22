@@ -14,6 +14,7 @@ import org.groundplatform.android.e2etest.robots.SignInRobot
 import org.groundplatform.android.e2etest.robots.SurveySelectorRobot
 import org.groundplatform.android.e2etest.robots.TermsOfServiceRobot
 import org.groundplatform.android.ui.main.MainActivity
+import org.groundplatform.android.ui.map.gms.features.TEST_MARKER_TAG
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -47,21 +48,29 @@ class SurveyRunnerTest {
       expandPrivateSurveys()
       selectSurvey(TestConfig.SURVEY_NAME)
     }
+    // Add new LOI and test all task types except DRAW_AREA
     with(HomeScreenRobot(testDriver)) {
       moveMap()
       recenter()
       addLoi()
-      selectJob(TestConfig.JOB_TEST_EACH_TASK_TYPE)
+      selectJob(TestConfig.TEST_JOB_ALL_TASK_TYPES_EXCEPT_DRAW_AREA)
       acceptDataSharingTerms()
     }
     with(DataCollectionRobot(testDriver)) {
       dismissInstructions()
-      completeSurvey(TestConfig.JOB_TEST_EACH_TASK_TYPE_LIST)
+      runTasks(TestConfig.TEST_LIST_ALL_TASK_TYPES_EXCEPT_DRAW_AREA)
     }
-    // TODO replace this with deleting the submission
+    // Remove previous LOI and add new one to test DRAW_AREA
     with(HomeScreenRobot(testDriver)) {
       moveMap()
       recenter()
+      deleteLoi(TEST_MARKER_TAG)
+      addLoi()
+      selectJob(TestConfig.TEST_JOB_DRAW_AREA)
+    }
+    with(DataCollectionRobot(testDriver)) {
+      dismissInstructions()
+      runTasks(TestConfig.TEST_LIST_DRAW_AREA)
     }
   }
 }

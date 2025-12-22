@@ -16,6 +16,7 @@
 package org.groundplatform.android.e2etest.robots
 
 import org.groundplatform.android.R
+import org.groundplatform.android.e2etest.TestConfig.LOI_NAME
 import org.groundplatform.android.e2etest.TestTask
 import org.groundplatform.android.e2etest.drivers.TestDriver
 import org.groundplatform.android.model.task.Task
@@ -32,7 +33,7 @@ class DataCollectionRobot(override val testDriver: TestDriver) : Robot<DataColle
     testDriver.click(TestDriver.Target.Text(buttonText))
   }
 
-  fun completeSurvey(taskList: List<TestTask>) {
+  fun runTasks(taskList: List<TestTask>) {
     taskList.forEach { task ->
       when (task.taskType) {
         Task.Type.UNKNOWN ->
@@ -102,7 +103,7 @@ class DataCollectionRobot(override val testDriver: TestDriver) : Robot<DataColle
 
   private fun nameLocation() {
     testDriver.insertText(
-      text = "Test Location",
+      text = LOI_NAME,
       target = TestDriver.Target.TestTag(LOI_NAME_TEXT_FIELD_TEST_TAG),
     )
     testDriver.click(TestDriver.Target.Text(testDriver.getStringResource(R.string.save)))

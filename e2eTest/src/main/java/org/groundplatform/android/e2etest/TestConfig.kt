@@ -21,10 +21,10 @@ object TestConfig {
   const val LONG_TIMEOUT = 30000L
   const val SHORT_TIMEOUT = 10000L
   const val SURVEY_NAME = "Ground app E2E test"
-  const val JOB_TEST_EACH_TASK_TYPE = "Test each task type"
-  val JOB_TEST_EACH_TASK_TYPE_LIST =
+  const val TEST_JOB_ALL_TASK_TYPES_EXCEPT_DRAW_AREA = "Test all task types except draw area"
+  val TEST_LIST_ALL_TASK_TYPES_EXCEPT_DRAW_AREA =
     listOf(
-      TestTask(taskType = Task.Type.DRAW_AREA, isRequired = true),
+      TestTask(taskType = Task.Type.DROP_PIN, isRequired = true),
       TestTask(Task.Type.INSTRUCTIONS),
       TestTask(Task.Type.TEXT),
       TestTask(taskType = Task.Type.MULTIPLE_CHOICE, selectIndexes = listOf(1)),
@@ -35,4 +35,7 @@ object TestConfig {
       TestTask(Task.Type.TIME),
       TestTask(taskType = Task.Type.CAPTURE_LOCATION, isRequired = true),
     )
+  const val TEST_JOB_DRAW_AREA = "Test draw area"
+  val TEST_LIST_DRAW_AREA = listOf(TestTask(taskType = Task.Type.DRAW_AREA, isRequired = true))
+  const val LOI_NAME = "Test location"
 }

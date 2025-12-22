@@ -22,6 +22,8 @@ interface TestDriver {
 
   fun dragMapBy(offsetX: Int, offsetY: Int)
 
+  fun clickMapMarker(description: String)
+
   fun scrollTo(target: Target)
 
   fun insertText(text: String, target: Target)

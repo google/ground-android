@@ -31,8 +31,9 @@ import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiObject
+import androidx.test.uiautomator.UiSelector
 import androidx.test.uiautomator.Until
-import kotlin.jvm.java
 import org.groundplatform.android.R
 import org.groundplatform.android.e2etest.TestConfig.SHORT_TIMEOUT
 import org.groundplatform.android.e2etest.extensions.onTarget
@@ -87,6 +88,12 @@ class AndroidTestDriver(
     val center = map.visibleCenter
 
     map.drag(Point(center.x + offsetX, center.y + offsetY))
+  }
+
+  override fun clickMapMarker(description: String) {
+    wait(TestDriver.Target.ViewId(R.id.map))
+    val marker: UiObject = device.findObject(UiSelector().descriptionContains(description))
+    marker.click()
   }
 
   override fun scrollTo(target: TestDriver.Target) {

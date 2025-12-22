@@ -37,4 +37,10 @@ class HomeScreenRobot(override val testDriver: TestDriver) : Robot<HomeScreenRob
     val buttonText = testDriver.getStringResource(R.string.agree_checkbox)
     testDriver.click(TestDriver.Target.Text(buttonText))
   }
+
+  fun deleteLoi(name: String) {
+    testDriver.clickMapMarker(name)
+    testDriver.click(TestDriver.Target.Text(testDriver.getStringResource(R.string.delete_site)))
+    testDriver.click(TestDriver.Target.Text(testDriver.getStringResource(R.string.delete)))
+  }
 }
