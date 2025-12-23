@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException
 import dagger.hilt.android.AndroidEntryPoint
@@ -39,12 +40,7 @@ class StartupFragment : AbstractFragment() {
 
   @Inject lateinit var popups: EphemeralPopups
 
-  private lateinit var viewModel: StartupViewModel
-
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    viewModel = getViewModel(StartupViewModel::class.java)
-  }
+  private val viewModel: StartupViewModel by viewModels()
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -56,21 +52,19 @@ class StartupFragment : AbstractFragment() {
       setContent { Box(modifier = Modifier.fillMaxSize()) }
     }
 
-  override fun onResume() {
-    super.onResume()
-    showProgressDialog(R.string.initializing)
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+
     viewLifecycleOwner.lifecycleScope.launch {
+      showProgressDialog(R.string.initializing)
       try {
         viewModel.initializeLogin()
       } catch (t: Throwable) {
         onInitFailed(t)
+      } finally {
+        dismissProgressDialog()
       }
     }
-  }
-
-  override fun onPause() {
-    dismissProgressDialog()
-    super.onPause()
   }
 
   private fun onInitFailed(t: Throwable) {

@@ -15,11 +15,13 @@
  */
 package org.groundplatform.android.ui.startup
 
+import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.GoogleApiManager
 import org.groundplatform.android.ui.common.AbstractViewModel
 
+@HiltViewModel
 class StartupViewModel
 @Inject
 internal constructor(
