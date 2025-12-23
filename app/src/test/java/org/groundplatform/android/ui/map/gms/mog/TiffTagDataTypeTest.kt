@@ -37,7 +37,7 @@ class TiffTagDataTypeTest(
     @JvmStatic
     @Parameterized.Parameters(name = "{0} should be at position {2} with size {1}")
     fun data() =
-      listOf(
+      listOf<Array<Any>>(
         arrayOf(TiffTagDataType.BYTE, 1, 1),
         arrayOf(TiffTagDataType.ASCII, 1, 2),
         arrayOf(TiffTagDataType.SHORT, 2, 3),
