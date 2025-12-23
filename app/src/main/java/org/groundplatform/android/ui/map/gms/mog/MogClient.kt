@@ -219,8 +219,8 @@ class MogClient(
     if (startsWith("/")) {
       try {
         remoteStorageManager.getDownloadUrl(this).toString()
-      } catch (_: StorageException) {
-        Timber.w("File not found for path: $this")
+      } catch (e: StorageException) {
+        Timber.w(e, "File not found for path: $this")
         null
       }
     } else this
