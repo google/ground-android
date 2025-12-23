@@ -47,7 +47,16 @@ class TaskSequenceHandler(
   /** Generates the task sequence based on task's conditions. */
   fun generateValidTasksList(): List<Task> {
     val selections = taskDataHandler.getTaskSelections()
-    return allTasks.filter { it.isConditionFulfilled(selections) }
+    val validTasks = ArrayList<Task>()
+    val validTaskIds = HashSet<String>()
+    for (task in allTasks) {
+      val validSelections = selections.filterKeys { taskId -> validTaskIds.contains(taskId) }
+      if (task.isConditionFulfilled(validSelections)) {
+        validTasks.add(task)
+        validTaskIds.add(task.id)
+      }
+    }
+    return validTasks
   }
 
   /** Returns true if the specified task would be last in the sequence with the given value. */

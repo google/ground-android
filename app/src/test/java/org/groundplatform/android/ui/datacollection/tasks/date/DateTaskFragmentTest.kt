@@ -70,7 +70,7 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
   fun `default response is empty`() {
     setupTaskFragment<DateTaskFragment>(job, task)
 
-    onView(withId(R.id.user_response_text))
+    onView(withId(R.id.user_date_response_text))
       .check(matches(withText("")))
       .check(matches(isDisplayed()))
       .check(matches(isEnabled()))
@@ -89,7 +89,7 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
     view?.layoutParams = ViewGroup.LayoutParams(0, 1)
 
     assertThat(fragment.getDatePickerDialog()).isNull()
-    onView(withId(R.id.user_response_text)).perform(click())
+    onView(withId(R.id.user_date_response_text)).perform(click())
     assertThat(fragment.getDatePickerDialog()).isNotNull()
     assertThat(fragment.getDatePickerDialog()?.isShowing).isTrue()
   }
@@ -100,7 +100,7 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
 
     val view: View? = fragment.view?.findViewById(R.id.task_container)
     view?.layoutParams = ViewGroup.LayoutParams(0, 1)
-    onView(withId(R.id.user_response_text)).perform(click())
+    onView(withId(R.id.user_date_response_text)).perform(click())
     assertThat(fragment.getDatePickerDialog()?.isShowing).isTrue()
 
     val hardcodedYear = 2024
@@ -121,7 +121,7 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
 
     val view: View? = fragment.view?.findViewById(R.id.task_container)
     view?.layoutParams = ViewGroup.LayoutParams(0, 1)
-    onView(withId(R.id.user_response_text)).perform(click())
+    onView(withId(R.id.user_date_response_text)).perform(click())
     assertThat(fragment.getDatePickerDialog()?.isShowing).isTrue()
 
     val hardcodedYear = 2024

@@ -15,11 +15,12 @@
  */
 package org.groundplatform.android.ui.signin
 
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.isEnabled
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import app.cash.turbine.test
@@ -39,7 +40,6 @@ import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.NetworkStatus
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
 import org.groundplatform.android.system.auth.SignInState
-import org.hamcrest.Matchers.allOf
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -69,7 +69,8 @@ class SignInFragmentTest : BaseHiltTest() {
       launchFragmentInHiltContainer<SignInFragment>()
       fakeAuthenticationManager.setUser(TEST_USER)
 
-      onView(withId(R.id.sign_in_button)).perform(click())
+      // TODO: Replace with a single click action.
+      getSignInButton().performClick().performClick()
       advanceUntilIdle()
 
       fakeAuthenticationManager.signInState.test {
@@ -83,7 +84,7 @@ class SignInFragmentTest : BaseHiltTest() {
     launchFragmentInHiltContainer<SignInFragment>()
     fakeAuthenticationManager.setUser(TEST_USER)
 
-    onView(allOf(withId(R.id.sign_in_button), isDisplayed(), isEnabled())).perform(click())
+    getSignInButton().assertIsEnabled().assertIsDisplayed().performClick()
 
     // Assert that the sign-in state is still signed out
     fakeAuthenticationManager.signInState.test {
@@ -100,8 +101,7 @@ class SignInFragmentTest : BaseHiltTest() {
     launchFragmentInHiltContainer<SignInFragment>()
     fakeAuthenticationManager.setUser(TEST_USER)
 
-    onView(withId(R.id.sign_in_button)).perform(click())
-    onView(withId(R.id.sign_in_button)).perform(click())
+    getSignInButton().performClick().performClick()
     advanceUntilIdle()
 
     fakeAuthenticationManager.signInState.test {
@@ -119,6 +119,8 @@ class SignInFragmentTest : BaseHiltTest() {
       assertThat(activity?.isFinishing).isTrue()
     }
   }
+
+  private fun getSignInButton() = composeTestRule.onNodeWithTag(BUTTON_TEST_TAG)
 
   companion object {
     private val TEST_USER = FakeData.USER
