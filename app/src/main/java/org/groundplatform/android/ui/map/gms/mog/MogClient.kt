@@ -17,6 +17,7 @@
 package org.groundplatform.android.ui.map.gms.mog
 
 import android.util.LruCache
+import com.google.firebase.storage.StorageException
 import java.io.InputStream
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -216,10 +217,15 @@ class MogClient(
 
   private suspend fun MogPathOrUrl.toUrl(): MogUrl? =
     if (startsWith("/")) {
-      remoteStorageManager.getDownloadUrl(this).toString()
+      try {
+        remoteStorageManager.getDownloadUrl(this).toString()
+      } catch (e: StorageException) {
+        Timber.w(e, "File not found for path: $this")
+        null
+      }
     } else this
 
-  private fun MogUrl.readMetadata(mogBounds: TileCoordinates): MogMetadata? =
+  private fun MogUrl.readMetadata(mogBounds: TileCoordinates): MogMetadata =
     inputStreamFactory(this, null).use { this.readMogMetadataAndClose(mogBounds, it) }
 
   /** Reads the metadata from the specified input stream. */
