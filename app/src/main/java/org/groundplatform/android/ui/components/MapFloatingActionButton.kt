@@ -84,7 +84,6 @@ sealed class MapFloatingActionButtonType(
     )
 }
 
-@Suppress("UnusedPrivateMember")
 @Preview
 @Composable
 private fun MapFloatingActionButtonPreview() {

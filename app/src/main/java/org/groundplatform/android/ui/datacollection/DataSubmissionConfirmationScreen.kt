@@ -113,8 +113,7 @@ private fun BodyContent(onDismiss: () -> Unit) {
 
 @Composable
 @Preview(heightDp = 320, widthDp = 800)
-@Preview
 @ExcludeFromJacocoGeneratedReport
-fun DataSubmissionConfirmationScreenPreview() {
+private fun DataSubmissionConfirmationScreenPreview() {
   AppTheme { DataSubmissionConfirmationScreen {} }
 }

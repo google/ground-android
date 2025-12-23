@@ -121,6 +121,6 @@ private fun GoogleSignInButton(modifier: Modifier = Modifier, onClick: () -> Uni
 @Preview(showBackground = true)
 @Composable
 @ExcludeFromJacocoGeneratedReport
-fun SignInScreenPreview() {
+private fun SignInScreenPreview() {
   SignInScreen(onSignInClick = {})
 }

@@ -156,7 +156,7 @@ private fun MultipleChoiceItem.toTextLabel() =
 @Preview(backgroundColor = 0xFFFFFFFF, showBackground = true)
 @Composable
 @ExcludeFromJacocoGeneratedReport
-fun SelectOneListItemPreview() {
+private fun SelectOneListItemPreview() {
   AppTheme {
     MultipleChoiceItemView(
       item =
@@ -172,7 +172,7 @@ fun SelectOneListItemPreview() {
 @Preview(backgroundColor = 0xFFFFFFFF, showBackground = true)
 @Composable
 @ExcludeFromJacocoGeneratedReport
-fun SelectMultipleListItemPreview() {
+private fun SelectMultipleListItemPreview() {
   AppTheme {
     MultipleChoiceItemView(
       item =
@@ -188,7 +188,7 @@ fun SelectMultipleListItemPreview() {
 @Preview(backgroundColor = 0xFFFFFFFF, showBackground = true)
 @Composable
 @ExcludeFromJacocoGeneratedReport
-fun SelectOneOtherListItemPreview() {
+private fun SelectOneOtherListItemPreview() {
   AppTheme {
     MultipleChoiceItemView(
       item =
@@ -206,7 +206,7 @@ fun SelectOneOtherListItemPreview() {
 @Preview(backgroundColor = 0xFFFFFFFF, showBackground = true)
 @Composable
 @ExcludeFromJacocoGeneratedReport
-fun SelectMultipleOtherListItemPreview() {
+private fun SelectMultipleOtherListItemPreview() {
   AppTheme {
     MultipleChoiceItemView(
       item =

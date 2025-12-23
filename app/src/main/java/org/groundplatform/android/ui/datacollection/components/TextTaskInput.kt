@@ -68,13 +68,13 @@ fun TextTaskInput(
 @Preview
 @Composable
 @ExcludeFromJacocoGeneratedReport
-fun TextTaskInputPreview() {
+private fun TextTaskInputPreview() {
   AppTheme { TextTaskInput(value = "Some value") }
 }
 
 @Preview
 @Composable
 @ExcludeFromJacocoGeneratedReport
-fun TextTaskInputEmptyPreview() {
+private fun TextTaskInputEmptyPreview() {
   AppTheme { TextTaskInput(value = "") }
 }
