@@ -19,6 +19,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException
 import dagger.hilt.android.AndroidEntryPoint
@@ -45,7 +50,11 @@ class StartupFragment : AbstractFragment() {
     inflater: LayoutInflater,
     container: ViewGroup?,
     savedInstanceState: Bundle?,
-  ): View? = inflater.inflate(R.layout.startup_frag, container, false)
+  ): View =
+    ComposeView(requireContext()).apply {
+      setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+      setContent { Box(modifier = Modifier.fillMaxSize()) }
+    }
 
   override fun onResume() {
     super.onResume()
