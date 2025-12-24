@@ -126,7 +126,6 @@ sealed interface BaseMapAction {
   data object OnOpenNavDrawerClicked : BaseMapAction
 }
 
-@Suppress("UnusedPrivateMember")
 @Preview(showSystemUi = true)
 @Composable
 private fun HomeScreenMapContainerScreenPreview() {

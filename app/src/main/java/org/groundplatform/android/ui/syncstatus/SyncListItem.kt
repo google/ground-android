@@ -158,7 +158,7 @@ private fun Mutation.SyncStatus.toIcon(): Int =
 @Composable
 @Preview(showBackground = true, showSystemUi = true)
 @ExcludeFromJacocoGeneratedReport
-fun PreviewSyncListItem(
+private fun PreviewSyncListItem(
   detail: SyncStatusDetail =
     SyncStatusDetail(
       user = "Jane Doe",

@@ -70,5 +70,5 @@ class InstructionTaskFragment : AbstractTaskFragment<InstructionTaskViewModel>()
   @Composable
   @Preview(showBackground = true)
   @ExcludeFromJacocoGeneratedReport
-  fun PreviewTextField() = ShowTextField()
+  private fun PreviewTextField() = ShowTextField()
 }

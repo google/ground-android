@@ -80,7 +80,6 @@ enum class ButtonMode {
   SECONDARY,
 }
 
-@Suppress("UnusedPrivateMember")
 @Composable
 @Preview
 @ExcludeFromJacocoGeneratedReport
@@ -95,7 +94,6 @@ private fun PreviewPrimaryActionButton() {
   }
 }
 
-@Suppress("UnusedPrivateMember")
 @Composable
 @Preview
 @ExcludeFromJacocoGeneratedReport

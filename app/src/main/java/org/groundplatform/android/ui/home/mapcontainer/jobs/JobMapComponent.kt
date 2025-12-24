@@ -120,7 +120,6 @@ sealed interface JobMapComponentAction {
   data object OnJobCardDismissed : JobMapComponentAction
 }
 
-@Suppress("UnusedPrivateMember")
 @Preview
 @Composable
 private fun JobMapComponentPreview() {
