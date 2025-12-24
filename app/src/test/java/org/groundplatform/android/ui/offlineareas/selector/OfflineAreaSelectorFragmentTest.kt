@@ -29,15 +29,23 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.isEnabled
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
+import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import junit.framework.Assert.assertFalse
+import kotlin.jvm.JvmField
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.R
+import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.launchFragmentInHiltContainer
+import org.groundplatform.android.model.geometry.Coordinates
+import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.repository.OfflineAreaRepository
+import org.groundplatform.android.repository.SurveyRepository
+import org.groundplatform.android.repository.UserRepository
+import org.groundplatform.android.system.NetworkManager
 import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Rule
@@ -55,7 +63,11 @@ class OfflineAreaSelectorFragmentTest : BaseHiltTest() {
   lateinit var fragment: OfflineAreaSelectorFragment
   @Inject lateinit var viewModel: OfflineAreaSelectorViewModel
 
-  private val offlineAreaRepository: OfflineAreaRepository = mock()
+  @BindValue @JvmField val offlineAreaRepository: OfflineAreaRepository = mock()
+  @BindValue @JvmField val surveyRepository: SurveyRepository = mock()
+  @BindValue @JvmField val networkManager: NetworkManager = mock()
+  @BindValue @JvmField val userRepository: UserRepository = mock()
+  @BindValue @JvmField val localValueStore: LocalValueStore = mock()
 
   @get:Rule override val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
@@ -91,7 +103,16 @@ class OfflineAreaSelectorFragmentTest : BaseHiltTest() {
   // Issue URL: https://github.com/google/ground-android/issues/3032
   @Test
   fun `stopDownloading cancels active download and updates UI state`() = runWithTestDispatcher {
-    composeTestRule.setContent { DownloadProgressDialog(viewModel.downloadProgress.value!!, {}) }
+    whenever(networkManager.isNetworkConnected()).thenReturn(true)
+    // Set camera position to ensure viewport is valid and zoom level is sufficient for download
+    viewModel.onMapCameraMoved(CameraPosition(Coordinates(0.0, 0.0), zoomLevel = 10.0f))
+
+    composeTestRule.setContent {
+      DownloadProgressDialog(
+        progress = viewModel.downloadProgress.value!!,
+        onDismiss = { viewModel.stopDownloading() },
+      )
+    }
 
     val progressFlow = MutableSharedFlow<Pair<Int, Int>>()
     whenever(offlineAreaRepository.downloadTiles(any())).thenReturn(progressFlow)
@@ -103,6 +124,15 @@ class OfflineAreaSelectorFragmentTest : BaseHiltTest() {
 
     viewModel.onDownloadClick()
     advanceUntilIdle()
+
+    // Verify progress visibility is true after download starts
+    composeTestRule
+      .onNodeWithText(
+        composeTestRule.activity.getString(
+          R.string.offline_map_imagery_download_progress_dialog_message
+        )
+      )
+      .isDisplayed()
 
     progressFlow.emit(Pair(50, 100))
     advanceUntilIdle()
