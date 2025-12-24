@@ -111,6 +111,7 @@ class SurveyRunnerTest : AutomatorRunner {
       }
       when (it) {
         Task.Type.DROP_PIN -> completeDropPinTask()
+        Task.Type.DRAW_GEOMETRY -> completeDropPinTask()
         Task.Type.DRAW_AREA -> completeDrawArea()
         Task.Type.CAPTURE_LOCATION -> completeCaptureLocation()
         Task.Type.MULTIPLE_CHOICE -> completeMultipleChoice()
