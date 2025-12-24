@@ -18,6 +18,7 @@ package org.groundplatform.android.data.remote.firebase.schema
 
 import com.google.common.truth.Truth.assertThat
 import kotlinx.collections.immutable.persistentListOf
+import org.groundplatform.android.model.task.DrawGeometry
 import org.groundplatform.android.model.task.MultipleChoice
 import org.groundplatform.android.model.task.Task as TaskModel
 import org.groundplatform.android.model.task.Task.Type
@@ -41,6 +42,7 @@ class TaskConverterTest(
   private val taskType: Type,
   private val multipleChoice: MultipleChoice?,
   private val isLoiTask: Boolean,
+  private val expectedDrawGeometry: DrawGeometry?,
 ) {
 
   @Test
@@ -59,6 +61,7 @@ class TaskConverterTest(
           isRequired = true,
           multipleChoice = multipleChoice,
           isAddLoiTask = isLoiTask,
+          drawGeometry = expectedDrawGeometry,
         )
       )
   }
@@ -143,8 +146,9 @@ class TaskConverterTest(
               .setDrawGeometry(drawGeometry { allowedMethods.addAll(listOf(Method.DROP_PIN)) })
               .setLevel(Task.DataCollectionLevel.LOI_METADATA)
           },
-          taskType = Type.DROP_PIN,
+          taskType = Type.DRAW_GEOMETRY,
           isLoiTask = true,
+          expectedDrawGeometry = DrawGeometry(false, 0.0f),
         ),
         testCase(
           testLabel = "capture_location",
@@ -184,6 +188,15 @@ class TaskConverterTest(
       taskType: Type,
       multipleChoice: MultipleChoice? = null,
       isLoiTask: Boolean = false,
-    ) = arrayOf(testLabel, protoBuilderLambda, taskType, multipleChoice, isLoiTask)
+      expectedDrawGeometry: DrawGeometry? = null,
+    ) =
+      arrayOf(
+        testLabel,
+        protoBuilderLambda,
+        taskType,
+        multipleChoice,
+        isLoiTask,
+        expectedDrawGeometry,
+      )
   }
 }
