@@ -84,7 +84,7 @@ private fun ShowJobCards(jobs: List<Job>, onJobClicked: (job: Job) -> Unit) {
 @Composable
 @Preview(showBackground = true)
 @ExcludeFromJacocoGeneratedReport
-fun PreviewJobSelectionModal() {
+private fun PreviewJobSelectionModal() {
   AppTheme {
     JobSelectionModal(
       jobs =

@@ -142,7 +142,7 @@ fun formatSectionTitle(title: String, count: Int): String = "$title ($count)"
 @Composable
 @Preview(showBackground = true)
 @ExcludeFromJacocoGeneratedReport
-fun PreviewSurveyList() {
+private fun PreviewSurveyList() {
   val dummySurveys =
     listOf(
       SurveyListItem("1", "Tree Survey", "Track tree growth", true, Survey.GeneralAccess.PUBLIC),

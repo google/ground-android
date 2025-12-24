@@ -224,7 +224,7 @@ private const val TASK_ID = "task 1"
 @Composable
 @Preview(showBackground = true)
 @ExcludeFromJacocoGeneratedReport
-fun PreviewModalContentsWhenJobHasNoTasks() {
+private fun PreviewModalContentsWhenJobHasNoTasks() {
   val loi =
     LocationOfInterest(
       id = "1",
@@ -249,7 +249,7 @@ fun PreviewModalContentsWhenJobHasNoTasks() {
 @Composable
 @Preview(showBackground = true)
 @ExcludeFromJacocoGeneratedReport
-fun PreviewModalContentsWhenUserCannotSubmitData() {
+private fun PreviewModalContentsWhenUserCannotSubmitData() {
   val loi =
     LocationOfInterest(
       id = "1",
@@ -291,7 +291,7 @@ fun PreviewModalContentsWhenUserCannotSubmitData() {
 @Composable
 @Preview(showBackground = true)
 @ExcludeFromJacocoGeneratedReport
-fun PreviewModalContentsWhenJobHasTasks() {
+private fun PreviewModalContentsWhenJobHasTasks() {
   val loi =
     LocationOfInterest(
       id = "1",
@@ -335,7 +335,7 @@ fun PreviewModalContentsWhenJobHasTasks() {
 @Composable
 @Preview(showBackground = true)
 @ExcludeFromJacocoGeneratedReport
-fun PreviewModalContentsWhenJobHasTasksAndIsPredefined() {
+private fun PreviewModalContentsWhenJobHasTasksAndIsPredefined() {
   val loi =
     LocationOfInterest(
       id = "1",

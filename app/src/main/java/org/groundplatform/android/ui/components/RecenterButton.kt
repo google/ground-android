@@ -54,7 +54,6 @@ fun RecenterButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
   }
 }
 
-@Suppress("UnusedPrivateMember")
 @Preview
 @Composable
 private fun RecenterButtonPreview() {

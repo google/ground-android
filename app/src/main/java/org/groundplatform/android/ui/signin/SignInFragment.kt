@@ -19,6 +19,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -26,14 +28,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
-import org.groundplatform.android.databinding.SignInFragBinding
 import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.common.BackPressListener
+import org.groundplatform.android.ui.theme.AppTheme
 
 @AndroidEntryPoint
 class SignInFragment : AbstractFragment(), BackPressListener {
 
-  private lateinit var binding: SignInFragBinding
   private lateinit var viewModel: SignInViewModel
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,12 +46,11 @@ class SignInFragment : AbstractFragment(), BackPressListener {
     inflater: LayoutInflater,
     container: ViewGroup?,
     savedInstanceState: Bundle?,
-  ): View {
-    binding = SignInFragBinding.inflate(inflater, container, false)
-    binding.viewModel = viewModel
-    binding.lifecycleOwner = this
-    return binding.root
-  }
+  ): View =
+    ComposeView(requireContext()).apply {
+      setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+      setContent { AppTheme { SignInScreen(onSignInClick = { viewModel.onSignInButtonClick() }) } }
+    }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
