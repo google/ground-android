@@ -43,6 +43,7 @@ import org.groundplatform.android.ui.common.EphemeralPopups
 import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.date.DateTaskViewModel
+import org.groundplatform.android.ui.datacollection.tasks.geometry.DrawGeometryTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.instruction.InstructionTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.location.CaptureLocationTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskViewModel
@@ -373,6 +374,7 @@ internal constructor(
         Task.Type.DATE -> DateTaskViewModel::class.java
         Task.Type.TIME -> TimeTaskViewModel::class.java
         Task.Type.DROP_PIN -> DropPinTaskViewModel::class.java
+        Task.Type.DRAW_GEOMETRY -> DrawGeometryTaskViewModel::class.java
         Task.Type.DRAW_AREA -> DrawAreaTaskViewModel::class.java
         Task.Type.CAPTURE_LOCATION ->
           if (unifyCaptureLocationTask) DropPinTaskViewModel::class.java

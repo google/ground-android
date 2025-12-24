@@ -19,6 +19,7 @@ package org.groundplatform.android.data.remote.firebase.schema
 import org.groundplatform.android.data.remote.firebase.schema.ConditionConverter.toCondition
 import org.groundplatform.android.data.remote.firebase.schema.MultipleChoiceConverter.toMultipleChoice
 import org.groundplatform.android.model.task.Condition
+import org.groundplatform.android.model.task.DrawGeometry
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.proto.Task as TaskProto
 import org.groundplatform.android.proto.Task.DataCollectionLevel
@@ -54,7 +55,7 @@ internal object TaskConverter {
     if (drawGeometry?.allowedMethodsList?.contains(Method.DRAW_AREA) == true) {
       Task.Type.DRAW_AREA
     } else {
-      Task.Type.DROP_PIN
+      Task.Type.DRAW_GEOMETRY
     }
 
   fun toTask(task: TaskProto): Task =
@@ -83,6 +84,15 @@ internal object TaskConverter {
         multipleChoice,
         task.level == DataCollectionLevel.LOI_METADATA,
         condition = condition,
+        drawGeometry =
+          if (taskType == Task.Type.DRAW_GEOMETRY) {
+            DrawGeometry(
+              task.drawGeometry.requireDeviceLocation,
+              task.drawGeometry.minAccuracyMeters,
+            )
+          } else {
+            null
+          },
       )
     }
 }

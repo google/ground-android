@@ -23,6 +23,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.IntoMap
 import org.groundplatform.android.ui.datacollection.tasks.date.DateTaskViewModel
+import org.groundplatform.android.ui.datacollection.tasks.geometry.DrawGeometryTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.instruction.InstructionTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.location.CaptureLocationTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskViewModel
@@ -49,6 +50,11 @@ import org.groundplatform.android.ui.tos.TermsOfServiceViewModel
 @InstallIn(SingletonComponent::class)
 @Module
 abstract class ViewModelModule {
+  @Binds
+  @IntoMap
+  @ViewModelKey(DrawGeometryTaskViewModel::class)
+  abstract fun bindDrawGeometryTaskViewModel(viewModel: DrawGeometryTaskViewModel): ViewModel
+
   @Binds
   @IntoMap
   @ViewModelKey(DrawAreaTaskViewModel::class)

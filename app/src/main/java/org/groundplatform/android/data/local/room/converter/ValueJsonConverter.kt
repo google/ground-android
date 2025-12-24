@@ -115,6 +115,17 @@ internal object ValueJsonConverter {
         DataStoreException.checkType(Point::class.java, geometry!!)
         DropPinTaskData(geometry as Point)
       }
+      Task.Type.DRAW_GEOMETRY -> {
+        if (obj is JSONObject) {
+          (obj as JSONObject).toCaptureLocationTaskData()
+        } else {
+          DataStoreException.checkType(String::class.java, obj)
+          val geometry = GeometryWrapperTypeConverter.fromString(obj as String)?.getGeometry()
+          DataStoreException.checkNotNull(geometry, "Missing geometry in draw geometry task result")
+          DataStoreException.checkType(Point::class.java, geometry!!)
+          DropPinTaskData(geometry as Point)
+        }
+      }
       Task.Type.CAPTURE_LOCATION -> {
         DataStoreException.checkType(JSONObject::class.java, obj)
         (obj as JSONObject).toCaptureLocationTaskData()
