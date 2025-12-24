@@ -99,8 +99,6 @@ class OfflineAreaSelectorFragmentTest : BaseHiltTest() {
       )
   }
 
-  // TODO: Complete below test
-  // Issue URL: https://github.com/google/ground-android/issues/3032
   @Test
   fun `stopDownloading cancels active download and updates UI state`() = runWithTestDispatcher {
     whenever(networkManager.isNetworkConnected()).thenReturn(true)
