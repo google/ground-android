@@ -27,6 +27,7 @@ import org.groundplatform.android.model.submission.CaptureLocationTaskData
 import org.groundplatform.android.model.submission.DateTimeTaskData
 import org.groundplatform.android.model.submission.DrawAreaTaskData
 import org.groundplatform.android.model.submission.DrawAreaTaskIncompleteData
+import org.groundplatform.android.model.submission.DrawGeometryTaskData
 import org.groundplatform.android.model.submission.DropPinTaskData
 import org.groundplatform.android.model.submission.MultipleChoiceTaskData
 import org.groundplatform.android.model.submission.NumberTaskData
@@ -55,6 +56,7 @@ internal object ValueJsonConverter {
       is DrawAreaTaskData -> GeometryWrapperTypeConverter.toString(taskData.geometry)
       is DropPinTaskData -> GeometryWrapperTypeConverter.toString(taskData.geometry)
       is DrawAreaTaskIncompleteData -> GeometryWrapperTypeConverter.toString(taskData.geometry)
+      is DrawGeometryTaskData -> GeometryWrapperTypeConverter.toString(taskData.geometry)
       is CaptureLocationTaskData -> taskData.toJSONObject()
       is SkippedTaskData -> JSONObject().put(SKIPPED_KEY, true)
       else -> throw UnsupportedOperationException("Unimplemented value class ${taskData.javaClass}")
@@ -114,6 +116,20 @@ internal object ValueJsonConverter {
         DataStoreException.checkNotNull(geometry, "Missing geometry in drop pin task result")
         DataStoreException.checkType(Point::class.java, geometry!!)
         DropPinTaskData(geometry as Point)
+      }
+      Task.Type.DRAW_GEOMETRY -> {
+        if (obj is JSONObject) {
+          (obj as JSONObject).toCaptureLocationTaskData()
+        } else {
+          DataStoreException.checkType(String::class.java, obj)
+          val geometry = GeometryWrapperTypeConverter.fromString(obj as String)?.getGeometry()
+          DataStoreException.checkNotNull(geometry, "Missing geometry in draw geometry task result")
+          if (geometry is Point) {
+            DropPinTaskData(geometry)
+          } else {
+            DrawGeometryTaskData(geometry!!)
+          }
+        }
       }
       Task.Type.CAPTURE_LOCATION -> {
         DataStoreException.checkType(JSONObject::class.java, obj)
