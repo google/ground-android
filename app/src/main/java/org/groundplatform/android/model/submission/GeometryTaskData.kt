@@ -22,7 +22,7 @@ import org.groundplatform.android.model.geometry.Polygon
 import org.groundplatform.android.model.task.Task
 
 /** A user-provided response to a geometry-based task ("drop a pin" or "draw an area"). */
-sealed class GeometryTaskData(val geometry: Geometry) : TaskData
+sealed class GeometryTaskData(open val geometry: Geometry) : TaskData
 
 /** User-provided response to a "drop a pin" data collection [Task]. */
 data class DropPinTaskData(val location: Point) : GeometryTaskData(location) {
@@ -37,4 +37,9 @@ data class DrawAreaTaskData(val area: Polygon) : GeometryTaskData(area) {
 /** User-provided "ongoing" response to a "draw an area" data collection [Task]. */
 data class DrawAreaTaskIncompleteData(val lineString: LineString) : GeometryTaskData(lineString) {
   override fun isEmpty(): Boolean = lineString.isEmpty()
+}
+
+/** User-provided response to a "draw a geometry" data collection [Task]. */
+data class DrawGeometryTaskData(override val geometry: Geometry) : GeometryTaskData(geometry) {
+  override fun isEmpty(): Boolean = geometry.isEmpty()
 }

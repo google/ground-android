@@ -136,8 +136,9 @@ class TaskConverterTest(
               .setDrawGeometry(drawGeometry { allowedMethods.addAll(listOf(Method.DRAW_AREA)) })
               .setLevel(Task.DataCollectionLevel.LOI_METADATA)
           },
-          taskType = Type.DRAW_AREA,
+          taskType = Type.DRAW_GEOMETRY,
           isLoiTask = true,
+          expectedDrawGeometry = DrawGeometry(false, 0.0f, listOf("DRAW_AREA")),
         ),
         testCase(
           testLabel = "drop_pin",
@@ -148,7 +149,7 @@ class TaskConverterTest(
           },
           taskType = Type.DRAW_GEOMETRY,
           isLoiTask = true,
-          expectedDrawGeometry = DrawGeometry(false, 0.0f),
+          expectedDrawGeometry = DrawGeometry(false, 0.0f, listOf("DROP_PIN")),
         ),
         testCase(
           testLabel = "capture_location",

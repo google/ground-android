@@ -51,13 +51,22 @@ import org.groundplatform.android.ui.datacollection.tasks.LocationLockEnabledSta
 import org.groundplatform.android.ui.datacollection.tasks.location.LocationAccuracyCard
 import org.groundplatform.android.util.renderComposableDialog
 
+/**
+ * A fragment for displaying and handling the "draw geometry" task.
+ *
+ * This task allows the user to define a geometry (e.g. a point, polygon, etc.) on the map.
+ * Depending on the configuration, it may require the user's location to be locked and accurate.
+ */
 @AndroidEntryPoint
 class DrawGeometryTaskFragment @Inject constructor() :
   AbstractTaskFragment<DrawGeometryTaskViewModel>() {
   @Inject lateinit var drawGeometryTaskMapFragmentProvider: Provider<DrawGeometryTaskMapFragment>
 
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
-    TaskViewFactory.createWithCombinedHeader(inflater, R.drawable.outline_pin_drop)
+    TaskViewFactory.createWithCombinedHeader(
+      inflater,
+      if (viewModel.isDrawAreaMode()) R.drawable.outline_draw else R.drawable.outline_pin_drop,
+    )
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {
     // NOTE(#2493): Multiplying by a random prime to allow for some mathematical uniqueness.
@@ -89,28 +98,73 @@ class DrawGeometryTaskFragment @Inject constructor() :
         showInstructionsDialog()
       }
     }
+
+    viewModel.polygonArea.observe(viewLifecycleOwner) { area ->
+      android.widget.Toast.makeText(
+          requireContext(),
+          getString(R.string.area_message, area),
+          android.widget.Toast.LENGTH_LONG,
+        )
+        .show()
+    }
   }
 
   override fun onCreateActionButtons() {
-    addSkipButton()
-    addUndoButton()
-
-    if (viewModel.isLocationLockRequired()) {
-      addButton(ButtonAction.CAPTURE_LOCATION)
-        .setOnClickListener { viewModel.onCaptureLocation() }
-        .setOnValueChanged { button, value -> button.showIfTrue(value.isNullOrEmpty()) }
-        .apply {
-          viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.isCaptureEnabled.collect { isEnabled -> enableIfTrue(isEnabled) }
-          }
+    if (viewModel.isDrawAreaMode()) {
+      val addPointButton =
+        addButton(ButtonAction.ADD_POINT).setOnClickListener {
+          viewModel.addLastVertex()
+          val intersected = viewModel.checkVertexIntersection()
+          if (!intersected) viewModel.triggerVibration()
         }
-    } else {
-      addButton(ButtonAction.DROP_PIN)
-        .setOnClickListener { viewModel.onDropPin() }
-        .setOnValueChanged { button, value -> button.showIfTrue(value.isNullOrEmpty()) }
-    }
+      val completeButton =
+        addButton(ButtonAction.COMPLETE)
+          .setOnClickListener { viewModel.completePolygon() }
+          .setOnValueChanged { button, _ ->
+            button.enableIfTrue(viewModel.validatePolygonCompletion())
+          }
+      val undoButton =
+        addButton(ButtonAction.UNDO)
+          .setOnClickListener { viewModel.removeLastVertex() }
+          .setOnValueChanged { button, value -> button.enableIfTrue(!value.isNullOrEmpty()) }
+      val redoButton =
+        addButton(ButtonAction.REDO)
+          .setOnClickListener { viewModel.redoLastVertex() }
+          .setOnValueChanged { button, value ->
+            button.enableIfTrue(viewModel.redoVertexStack.isNotEmpty() && !value.isNullOrEmpty())
+          }
+      val nextButton = addNextButton(hideIfEmpty = true)
 
-    addNextButton(hideIfEmpty = true)
+      viewLifecycleOwner.lifecycleScope.launch {
+        viewModel.isMarkedComplete.collect { markedComplete ->
+          addPointButton.showIfTrue(!markedComplete)
+          completeButton.showIfTrue(!markedComplete)
+          undoButton.showIfTrue(!markedComplete)
+          redoButton.showIfTrue(!markedComplete)
+          nextButton.showIfTrue(markedComplete)
+        }
+      }
+    } else {
+      addSkipButton()
+      addUndoButton()
+
+      if (viewModel.isLocationLockRequired()) {
+        addButton(ButtonAction.CAPTURE_LOCATION)
+          .setOnClickListener { viewModel.onCaptureLocation() }
+          .setOnValueChanged { button, value -> button.showIfTrue(value.isNullOrEmpty()) }
+          .apply {
+            viewLifecycleOwner.lifecycleScope.launch {
+              viewModel.isCaptureEnabled.collect { isEnabled -> enableIfTrue(isEnabled) }
+            }
+          }
+      } else {
+        addButton(ButtonAction.DROP_PIN)
+          .setOnClickListener { viewModel.onDropPin() }
+          .setOnValueChanged { button, value -> button.showIfTrue(value.isNullOrEmpty()) }
+      }
+
+      addNextButton(hideIfEmpty = true)
+    }
   }
 
   @Composable
@@ -151,7 +205,12 @@ class DrawGeometryTaskFragment @Inject constructor() :
   private fun showInstructionsDialog() {
     viewModel.instructionsDialogShown = true
     renderComposableDialog {
-      InstructionsDialog(iconId = R.drawable.swipe_24, stringId = R.string.drop_a_pin_tooltip_text)
+      InstructionsDialog(
+        iconId = if (viewModel.isDrawAreaMode()) R.drawable.touch_app_24 else R.drawable.swipe_24,
+        stringId =
+          if (viewModel.isDrawAreaMode()) R.string.draw_area_task_instruction
+          else R.string.drop_a_pin_tooltip_text,
+      )
     }
   }
 }

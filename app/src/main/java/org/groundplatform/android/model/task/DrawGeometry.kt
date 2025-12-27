@@ -15,4 +15,18 @@
  */
 package org.groundplatform.android.model.task
 
-data class DrawGeometry(val isLocationLockRequired: Boolean, val minAccuracyMeters: Float)
+/**
+ * Suggested configuration for a task that involves drawing geometry on a map.
+ *
+ * @property isLocationLockRequired whether the user's location must be locked to the map viewport
+ *   before they can start drawing.
+ * @property minAccuracyMeters the minimum accuracy (in meters) required for the user's location to
+ *   be considered valid for drawing.
+ * @property allowedMethods the list of allowed methods for drawing geometry (e.g. "DROP_PIN",
+ *   "DRAW_AREA").
+ */
+data class DrawGeometry(
+  val isLocationLockRequired: Boolean,
+  val minAccuracyMeters: Float,
+  val allowedMethods: List<String>,
+)

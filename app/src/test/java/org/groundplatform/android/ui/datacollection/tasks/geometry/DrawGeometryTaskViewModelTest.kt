@@ -23,13 +23,19 @@ import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.android.model.geometry.Coordinates
+import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.map.CameraPosition
+import org.groundplatform.android.model.settings.MeasurementUnits
+import org.groundplatform.android.model.settings.UserSettings
 import org.groundplatform.android.model.submission.CaptureLocationTaskData
-import org.groundplatform.android.model.submission.DropPinTaskData
+import org.groundplatform.android.model.submission.DrawGeometryTaskData
 import org.groundplatform.android.model.task.DrawGeometry
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.datacollection.tasks.LocationLockEnabledState
+import org.groundplatform.android.ui.util.LocaleAwareMeasureFormatter
+import org.groundplatform.android.ui.util.VibrationHelper
+import org.groundplatform.android.usecases.user.GetUserSettingsUseCase
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -45,13 +51,27 @@ class DrawGeometryTaskViewModelTest : BaseHiltTest() {
   @Mock lateinit var localValueStore: LocalValueStore
   @Mock lateinit var job: Job
   @Mock lateinit var uuidGenerator: OfflineUuidGenerator
+  @Mock lateinit var vibrationHelper: VibrationHelper
+  @Mock lateinit var localeAwareMeasureFormatter: LocaleAwareMeasureFormatter
+  @Mock lateinit var getUserSettingsUseCase: GetUserSettingsUseCase
 
   private lateinit var viewModel: DrawGeometryTaskViewModel
 
   @Before
   override fun setUp() {
     super.setUp()
-    viewModel = DrawGeometryTaskViewModel(uuidGenerator, localValueStore)
+    runWithTestDispatcher {
+      `when`(getUserSettingsUseCase.invoke())
+        .thenReturn(UserSettings("en", MeasurementUnits.METRIC, false))
+    }
+    viewModel =
+      DrawGeometryTaskViewModel(
+        uuidGenerator,
+        localValueStore,
+        vibrationHelper,
+        localeAwareMeasureFormatter,
+        getUserSettingsUseCase,
+      )
   }
 
   @Test
@@ -59,7 +79,14 @@ class DrawGeometryTaskViewModelTest : BaseHiltTest() {
     `when`(uuidGenerator.generateUuid()).thenReturn("uuid")
 
     val task =
-      Task("id", 0, Task.Type.DRAW_GEOMETRY, "label", false, drawGeometry = DrawGeometry(true, 10f))
+      Task(
+        "id",
+        0,
+        Task.Type.DRAW_GEOMETRY,
+        "label",
+        false,
+        drawGeometry = DrawGeometry(true, 10f, emptyList()),
+      )
     viewModel.initialize(job, task, null)
 
     assertThat(viewModel.isLocationLockRequired()).isTrue()
@@ -77,7 +104,7 @@ class DrawGeometryTaskViewModelTest : BaseHiltTest() {
         Task.Type.DRAW_GEOMETRY,
         "label",
         false,
-        drawGeometry = DrawGeometry(false, 10f),
+        drawGeometry = DrawGeometry(false, 10f, emptyList()),
       )
     viewModel.initialize(job, task, null)
 
@@ -96,7 +123,7 @@ class DrawGeometryTaskViewModelTest : BaseHiltTest() {
         Task.Type.DRAW_GEOMETRY,
         "label",
         false,
-        drawGeometry = DrawGeometry(true, 100f),
+        drawGeometry = DrawGeometry(true, 100f, emptyList()),
       )
     viewModel.initialize(job, task, null)
 
@@ -115,6 +142,27 @@ class DrawGeometryTaskViewModelTest : BaseHiltTest() {
   }
 
   @Test
+  fun testInitialize_WithCaptureLocationTaskData_DropsMarker() = runWithTestDispatcher {
+    `when`(uuidGenerator.generateUuid()).thenReturn("uuid")
+    val task =
+      Task(
+        "id",
+        0,
+        Task.Type.DRAW_GEOMETRY,
+        "label",
+        false,
+        drawGeometry = DrawGeometry(true, 10f, emptyList()),
+      )
+    val taskData = CaptureLocationTaskData(Point(Coordinates(10.0, 20.0)), null, null)
+
+    viewModel.initialize(job, task, taskData)
+
+    assertThat(viewModel.features.value).hasSize(1)
+    val feature = viewModel.features.value!!.first()
+    assertThat(feature.geometry).isEqualTo(Point(Coordinates(10.0, 20.0)))
+  }
+
+  @Test
   fun testOnDropPin_UpdatesValue() = runWithTestDispatcher {
     `when`(uuidGenerator.generateUuid()).thenReturn("uuid")
     val task =
@@ -124,7 +172,7 @@ class DrawGeometryTaskViewModelTest : BaseHiltTest() {
         Task.Type.DRAW_GEOMETRY,
         "label",
         false,
-        drawGeometry = DrawGeometry(false, 10f),
+        drawGeometry = DrawGeometry(false, 10f, emptyList()),
       )
     viewModel.initialize(job, task, null)
 
@@ -132,7 +180,53 @@ class DrawGeometryTaskViewModelTest : BaseHiltTest() {
     viewModel.updateCameraPosition(cameraPosition)
     viewModel.onDropPin()
 
-    val taskData = viewModel.taskTaskData.value as DropPinTaskData
-    assertThat(taskData.location.coordinates).isEqualTo(Coordinates(10.0, 20.0))
+    val taskData = viewModel.taskTaskData.value as DrawGeometryTaskData
+    // Check points are equal
+    assertThat((taskData.geometry as org.groundplatform.android.model.geometry.Point).coordinates)
+      .isEqualTo(Coordinates(10.0, 20.0))
+  }
+
+  @Test
+  fun testIsDrawAreaMode_ReturnsTrue() = runWithTestDispatcher {
+    val task =
+      Task(
+        "id",
+        0,
+        Task.Type.DRAW_GEOMETRY,
+        "label",
+        false,
+        drawGeometry = DrawGeometry(false, 10f, listOf("DRAW_AREA")),
+      )
+    viewModel.initialize(job, task, null)
+
+    assertThat(viewModel.isDrawAreaMode()).isTrue()
+  }
+
+  @Test
+  fun testAddLastVertex_AddsVertexToDrawArea() = runWithTestDispatcher {
+    `when`(uuidGenerator.generateUuid()).thenReturn("uuid")
+    val task =
+      Task(
+        "id",
+        0,
+        Task.Type.DRAW_GEOMETRY,
+        "label",
+        false,
+        drawGeometry = DrawGeometry(false, 10f, listOf("DRAW_AREA")),
+      )
+    viewModel.initialize(job, task, null)
+
+    // Simulate map drag to P1
+    viewModel.updateLastVertexAndMaybeCompletePolygon(Coordinates(10.0, 20.0)) { _, _ -> 100.0 }
+    // User clicks "Add Point" to commit P1
+    viewModel.addLastVertex()
+
+    // Simulate map drag to P2
+    viewModel.updateLastVertexAndMaybeCompletePolygon(Coordinates(20.0, 30.0)) { _, _ -> 100.0 }
+    // User clicks "Add Point" to commit P2
+    viewModel.addLastVertex()
+
+    val lastVertex: Coordinates? = viewModel.getLastVertex()
+    assertThat(lastVertex).isEqualTo(Coordinates(20.0, 30.0))
   }
 }

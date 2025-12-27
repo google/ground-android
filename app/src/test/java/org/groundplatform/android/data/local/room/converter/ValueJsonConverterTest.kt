@@ -28,6 +28,7 @@ import org.groundplatform.android.model.geometry.Polygon
 import org.groundplatform.android.model.submission.DateTimeTaskData
 import org.groundplatform.android.model.submission.DrawAreaTaskData
 import org.groundplatform.android.model.submission.DrawAreaTaskIncompleteData
+import org.groundplatform.android.model.submission.DrawGeometryTaskData
 import org.groundplatform.android.model.submission.DropPinTaskData
 import org.groundplatform.android.model.submission.MultipleChoiceTaskData
 import org.groundplatform.android.model.submission.NumberTaskData
@@ -113,6 +114,20 @@ class ValueJsonConverterTest(
       "XQoHcG9seWdvbhJSClAKEgkAAAAAAAAkQBEAAAAAAAA0QAoSCQAAAAAAADRAEQAAAAAAAD5AChIJ\n" +
         "AAAAAAAAPkARAAAAAAAAREAKEgkAAAAAAAAkQBEAAAAAAAA0QA==\n"
 
+    private val drawGeometryTaskResponse =
+      DrawGeometryTaskData(
+        Polygon(
+          LinearRing(
+            listOf(
+              Coordinates(10.0, 20.0),
+              Coordinates(20.0, 30.0),
+              Coordinates(30.0, 40.0),
+              Coordinates(10.0, 20.0),
+            )
+          )
+        )
+      )
+
     private val incompleteDrawAreaTaskResponse =
       DrawAreaTaskIncompleteData(
         LineString(
@@ -164,6 +179,11 @@ class ValueJsonConverterTest(
           FakeData.newTask(type = Task.Type.DRAW_AREA),
           incompleteDrawAreaTaskResponse,
           lineStringGeometryTaskResponseString,
+        ),
+        arrayOf(
+          FakeData.newTask(type = Task.Type.DRAW_GEOMETRY),
+          drawGeometryTaskResponse,
+          polygonGeometryTaskResponseString,
         ),
       )
   }

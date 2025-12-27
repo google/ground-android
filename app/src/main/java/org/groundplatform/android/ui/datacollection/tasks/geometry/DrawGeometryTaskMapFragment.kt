@@ -19,16 +19,22 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.ui.common.MapConfig
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.MapFragment
+import org.groundplatform.android.ui.map.gms.GmsExt.toBounds
 
 @AndroidEntryPoint
 class DrawGeometryTaskMapFragment @Inject constructor() :
@@ -42,6 +48,32 @@ class DrawGeometryTaskMapFragment @Inject constructor() :
     val root = super.onCreateView(inflater, container, savedInstanceState)
     viewLifecycleOwner.lifecycleScope.launch {
       getMapViewModel().getLocationUpdates().collect { taskViewModel.updateLocation(it) }
+    }
+
+    if (taskViewModel.isDrawAreaMode()) {
+      viewLifecycleOwner.lifecycleScope.launch {
+        viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+          launch {
+            combine(taskViewModel.isMarkedComplete, taskViewModel.isTooClose) { isComplete, tooClose
+                ->
+                !tooClose && !isComplete
+              }
+              .collect { shouldShow -> setCenterMarkerVisibility(shouldShow) }
+          }
+
+          launch {
+            map.cameraDragEvents.collect { coord ->
+              if (!taskViewModel.isMarkedComplete()) {
+                taskViewModel.updateLastVertexAndMaybeCompletePolygon(coord) { c1, c2 ->
+                  map.getDistanceInPixels(c1, c2)
+                }
+              }
+            }
+          }
+
+          launch { taskViewModel.draftUpdates.collect { map.updateFeature(it) } }
+        }
+      }
     }
     return root
   }
@@ -64,14 +96,32 @@ class DrawGeometryTaskMapFragment @Inject constructor() :
 
   override fun onMapCameraMoved(position: CameraPosition) {
     super.onMapCameraMoved(position)
-    taskViewModel.updateCameraPosition(position)
+    if (taskViewModel.isDrawAreaMode()) {
+      taskViewModel.onCameraMoved(position.coordinates)
+    } else {
+      taskViewModel.updateCameraPosition(position)
+    }
   }
 
-  override fun renderFeatures(): LiveData<Set<Feature>> = taskViewModel.features
+  override fun renderFeatures(): LiveData<Set<Feature>> {
+    if (taskViewModel.isDrawAreaMode()) {
+      return taskViewModel.draftArea
+        .map { feature: Feature? -> if (feature == null) setOf() else setOf(feature) }
+        .asLiveData()
+    }
+    return taskViewModel.features
+  }
 
   override fun setDefaultViewPort() {
-    val feature = taskViewModel.features.value?.firstOrNull() ?: return
-    val coordinates = feature.geometry.center()
-    moveToPosition(coordinates)
+    if (taskViewModel.isDrawAreaMode()) {
+      val feature = taskViewModel.draftArea.value
+      val geometry = feature?.geometry ?: return
+      val bounds = listOf(geometry).toBounds() ?: return
+      moveToBounds(bounds, padding = 200, shouldAnimate = false)
+    } else {
+      val feature = taskViewModel.features.value?.firstOrNull() ?: return
+      val coordinates = feature.geometry.center()
+      moveToPosition(coordinates)
+    }
   }
 }
