@@ -19,7 +19,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
 import kotlinx.coroutines.launch
-import org.groundplatform.android.UnifyCaptureLocationTask
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.android.model.geometry.Point
@@ -36,7 +35,6 @@ class DropPinTaskViewModel
 constructor(
   private val uuidGenerator: OfflineUuidGenerator,
   private val localValueStore: LocalValueStore,
-  @UnifyCaptureLocationTask val unifyCaptureLocationTask: Boolean,
 ) : AbstractMapTaskViewModel() {
 
   private var pinColor: Int = 0
@@ -48,10 +46,6 @@ constructor(
   override fun initialize(job: Job, task: Task, taskData: TaskData?) {
     super.initialize(job, task, taskData)
     pinColor = job.getDefaultColor()
-
-    if (unifyCaptureLocationTask) {
-      captureLocation = task.type == Task.Type.CAPTURE_LOCATION
-    }
 
     // Drop a marker for current value
     (taskData as? DropPinTaskData)?.let { dropMarker(it.location) }

@@ -45,9 +45,4 @@ object GroundApplicationModule {
   @Singleton
   fun provideWorkManager(@ApplicationContext context: Context): WorkManager =
     WorkManager.getInstance(context)
-
-  @Provides
-  @UnifyCaptureLocationTask
-  @Suppress("FunctionOnlyReturningConstant")
-  fun provideUnifyCaptureLocationTask(): Boolean = false
 }

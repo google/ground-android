@@ -27,7 +27,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.groundplatform.android.UnifyCaptureLocationTask
 import org.groundplatform.android.coroutines.ApplicationScope
 import org.groundplatform.android.coroutines.IoDispatcher
 import org.groundplatform.android.data.local.room.converter.SubmissionDeltasConverter
@@ -70,7 +69,6 @@ internal constructor(
   private val popups: Provider<EphemeralPopups>,
   private val viewModelFactory: ViewModelFactory,
   private val dataCollectionInitializer: DataCollectionInitializer,
-  @UnifyCaptureLocationTask private val unifyCaptureLocationTask: Boolean,
 ) : AbstractViewModel() {
 
   private val _uiState = MutableStateFlow<DataCollectionUiState>(DataCollectionUiState.Loading)
@@ -200,7 +198,7 @@ internal constructor(
 
     val viewModel =
       try {
-        viewModelFactory.create(getViewModelClass(task.type, unifyCaptureLocationTask))
+        viewModelFactory.create(getViewModelClass(task.type))
       } catch (e: Exception) {
         Timber.e(e, "Ignoring task with invalid type: ${task.type}")
         null
@@ -362,10 +360,7 @@ internal constructor(
     private const val TASK_DRAFT_VALUES = "draftValues"
     private const val TASK_SHOULD_LOAD_FROM_DRAFT = "shouldLoadFromDraft"
 
-    fun getViewModelClass(
-      taskType: Task.Type,
-      unifyCaptureLocationTask: Boolean = false,
-    ): Class<out AbstractTaskViewModel> =
+    fun getViewModelClass(taskType: Task.Type): Class<out AbstractTaskViewModel> =
       when (taskType) {
         Task.Type.TEXT -> TextTaskViewModel::class.java
         Task.Type.MULTIPLE_CHOICE -> MultipleChoiceTaskViewModel::class.java
@@ -376,9 +371,7 @@ internal constructor(
         Task.Type.DROP_PIN -> DropPinTaskViewModel::class.java
         Task.Type.DRAW_GEOMETRY -> DrawGeometryTaskViewModel::class.java
         Task.Type.DRAW_AREA -> DrawAreaTaskViewModel::class.java
-        Task.Type.CAPTURE_LOCATION ->
-          if (unifyCaptureLocationTask) DropPinTaskViewModel::class.java
-          else CaptureLocationTaskViewModel::class.java
+        Task.Type.CAPTURE_LOCATION -> CaptureLocationTaskViewModel::class.java
         Task.Type.INSTRUCTIONS -> InstructionTaskViewModel::class.java
         Task.Type.UNKNOWN -> throw IllegalArgumentException("Unsupported task type: $taskType")
       }
