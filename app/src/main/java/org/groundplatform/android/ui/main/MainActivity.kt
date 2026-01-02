@@ -28,7 +28,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.NavHostFragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -77,9 +79,12 @@ class MainActivity : AbstractActivity() {
     super.onCreate(savedInstanceState)
     enableEdgeToEdge()
     // Set up event streams first. Navigator must be listening when auth is first initialized.
+    // Set up event streams first. Navigator must be listening when auth is first initialized.
     lifecycleScope.launch {
-      activityStreams.activityRequests.collect { callback: ActivityCallback ->
-        callback(this@MainActivity)
+      repeatOnLifecycle(Lifecycle.State.STARTED) {
+        activityStreams.activityRequests.collect { callback: ActivityCallback ->
+          callback(this@MainActivity)
+        }
       }
     }
 
@@ -100,7 +105,9 @@ class MainActivity : AbstractActivity() {
         }
       }
 
-      viewModel.navigationRequests.filterNotNull().collect { updateUi(it) }
+      repeatOnLifecycle(Lifecycle.State.STARTED) {
+        viewModel.navigationRequests.filterNotNull().collect { updateUi(it) }
+      }
     }
 
     onBackPressedDispatcher.addCallback(

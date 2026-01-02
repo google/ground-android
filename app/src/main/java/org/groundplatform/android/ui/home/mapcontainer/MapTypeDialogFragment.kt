@@ -32,8 +32,8 @@ import org.groundplatform.android.ui.common.ViewModelFactory
 class MapTypeDialogFragment : BottomSheetDialogFragment() {
 
   @Inject lateinit var viewModelFactory: ViewModelFactory
-
-  private lateinit var binding: MapTypeDialogFragmentBinding
+  private var _binding: MapTypeDialogFragmentBinding? = null
+  private val binding get() = _binding!!
   private lateinit var mapTypes: List<MapType>
   private lateinit var viewModel: MapTypeViewModel
 
@@ -48,7 +48,7 @@ class MapTypeDialogFragment : BottomSheetDialogFragment() {
     savedInstanceState: Bundle?,
   ): View {
     mapTypes = MapTypeDialogFragmentArgs.fromBundle(requireArguments()).mapTypes.toList()
-    binding = MapTypeDialogFragmentBinding.inflate(inflater, container, false)
+    _binding = MapTypeDialogFragmentBinding.inflate(inflater, container, false)
     binding.viewModel = viewModel
     return binding.root
   }
@@ -63,5 +63,9 @@ class MapTypeDialogFragment : BottomSheetDialogFragment() {
         dismiss()
       }
     binding.recyclerView.addItemDecoration(AdaptiveSpacingItemDecorator(resources, 80))
+  }
+  override fun onDestroyView() {
+    super.onDestroyView()
+    _binding = null
   }
 }

@@ -54,7 +54,8 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
 
   @Inject lateinit var popups: EphemeralPopups
 
-  private lateinit var binding: OfflineAreaSelectorFragBinding
+  private var _binding: OfflineAreaSelectorFragBinding? = null
+  private val binding get() = _binding!!
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -68,7 +69,7 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
     savedInstanceState: Bundle?,
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
-    binding = OfflineAreaSelectorFragBinding.inflate(inflater, container, false)
+    _binding = OfflineAreaSelectorFragBinding.inflate(inflater, container, false)
     binding.viewModel = viewModel
     binding.lifecycleOwner = this
     return binding.root
@@ -154,5 +155,9 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
         }
       }
     }
+  }
+  override fun onDestroyView() {
+    super.onDestroyView()
+    _binding = null
   }
 }

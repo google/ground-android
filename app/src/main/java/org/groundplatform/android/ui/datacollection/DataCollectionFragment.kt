@@ -51,7 +51,8 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
 
   val viewModel: DataCollectionViewModel by hiltNavGraphViewModels(R.id.data_collection)
 
-  private lateinit var binding: DataCollectionFragBinding
+  private var _binding: DataCollectionFragBinding? = null
+  private val binding get() = _binding!!
   private lateinit var progressBar: ProgressBar
   private lateinit var guideline: Guideline
   private lateinit var viewPager: ViewPager2
@@ -63,7 +64,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     savedInstanceState: Bundle?,
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
-    binding = DataCollectionFragBinding.inflate(inflater, container, false)
+    _binding = DataCollectionFragBinding.inflate(inflater, container, false)
     viewPager = binding.pager
     progressBar = binding.progressBar
     guideline = binding.progressBarGuideline
@@ -236,5 +237,9 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
 
   private companion object {
     private const val PROGRESS_SCALE = 100
+  }
+  override fun onDestroyView() {
+    super.onDestroyView()
+    _binding = null
   }
 }

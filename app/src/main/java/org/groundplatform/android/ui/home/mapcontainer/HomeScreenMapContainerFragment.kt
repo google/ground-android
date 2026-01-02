@@ -21,7 +21,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -54,7 +59,8 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
   private lateinit var homeScreenViewModel: HomeScreenViewModel
-  private lateinit var binding: BasemapLayoutBinding
+  private var _binding: BasemapLayoutBinding? = null
+  private val binding get() = _binding!!
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -124,7 +130,11 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
   /** Invoked when user clicks delete on a site. */
   private fun onDeleteSite(loiData: SelectedLoiSheetData) {
-    launchWhenStarted { mapContainerViewModel.deleteLoi(loiData.loi) }
+    viewLifecycleOwner.lifecycleScope.launch {
+      repeatOnLifecycle(Lifecycle.State.STARTED) {
+        mapContainerViewModel.deleteLoi(loiData.loi)
+      }
+    }
   }
 
   override fun onCreateView(
@@ -133,7 +143,8 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     savedInstanceState: Bundle?,
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
-    binding = BasemapLayoutBinding.inflate(inflater, container, false)
+    super.onCreateView(inflater, container, savedInstanceState)
+    _binding = BasemapLayoutBinding.inflate(inflater, container, false)
     return binding.root
   }
 
@@ -169,7 +180,11 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
     // LOIs associated with the survey have been synced to the local db by this point. We can
     // enable location lock if no LOIs exist or a previous camera position doesn't exist.
-    launchWhenStarted { mapContainerViewModel.maybeEnableLocationLock() }
+    viewLifecycleOwner.lifecycleScope.launch {
+      repeatOnLifecycle(Lifecycle.State.STARTED) {
+        mapContainerViewModel.maybeEnableLocationLock()
+      }
+    }
   }
 
   private fun handleMapAction(action: BaseMapAction) {
@@ -208,13 +223,16 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     if (!this::mapContainerViewModel.isInitialized) {
       return Timber.w("showDataCollectionHint() called before mapContainerViewModel initialized")
     }
-    if (!this::binding.isInitialized) {
+    if (_binding == null) {
       return Timber.w("showDataCollectionHint() called before binding initialized")
     }
 
     // Decides which survey-related popup to show based on the current survey.
-    mapContainerViewModel.surveyUpdateFlow.launchWhenStartedAndCollectFirst { surveyProperties ->
-      surveyProperties.getInfoPopupMessageId()?.let { showInfoPopup(it) }
+    viewLifecycleOwner.lifecycleScope.launch {
+      repeatOnLifecycle(Lifecycle.State.STARTED) {
+        val surveyProperties = mapContainerViewModel.surveyUpdateFlow.first()
+        surveyProperties.getInfoPopupMessageId()?.let { showInfoPopup(it) }
+      }
     }
   }
 
@@ -261,8 +279,16 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   }
 
   override fun onMapReady(map: MapFragment) {
-    mapContainerViewModel.mapLoiFeatures.launchWhenStartedAndCollect { map.setFeatures(it) }
+    viewLifecycleOwner.lifecycleScope.launch {
+      repeatOnLifecycle(Lifecycle.State.STARTED) {
+        mapContainerViewModel.mapLoiFeatures.collect { map.setFeatures(it) }
+      }
+    }
   }
 
   override fun getMapViewModel(): BaseMapViewModel = mapContainerViewModel
+  override fun onDestroyView() {
+    super.onDestroyView()
+    _binding = null
+  }
 }

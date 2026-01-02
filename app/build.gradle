@@ -158,7 +158,8 @@ android {
         unitTests {
             includeAndroidResources = true
             all {
-                jvmArgs '-Xmx4g' // '-XX:+HeapDumpOnOutOfMemoryError'
+                jvmArgs '-Xmx4g', '-XX:+EnableDynamicAgentLoading' // '-XX:+HeapDumpOnOutOfMemoryError'
+                systemProperty 'org.mockito.mock-maker-class', 'org.mockito.internal.creation.bytebuddy.ByteBuddyMockMaker'
             }
         }
         animationsDisabled = true
@@ -303,9 +304,9 @@ dependencies {
     testImplementation platform(libs.mockito.bom)
     androidTestImplementation platform(libs.mockito.bom)
     testImplementation libs.mockito.core
-    testImplementation libs.mockito.inline
+
     testImplementation libs.mockito.kotlin
-    testImplementation libs.mockito.android
+
     androidTestImplementation libs.mockito.core
 
     // Espresso

@@ -39,7 +39,8 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
 
   @Inject lateinit var ephemeralPopups: EphemeralPopups
   private lateinit var viewModel: SurveySelectorViewModel
-  private lateinit var binding: SurveySelectorFragBinding
+  private var _binding: SurveySelectorFragBinding? = null
+  private val binding get() = _binding!!
 
   private val args: SurveySelectorFragmentArgs by navArgs()
 
@@ -98,7 +99,7 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
     container: ViewGroup?,
     savedInstanceState: Bundle?,
   ): View {
-    binding = SurveySelectorFragBinding.inflate(inflater, container, false)
+    _binding = SurveySelectorFragBinding.inflate(inflater, container, false)
     binding.viewModel = viewModel
     binding.lifecycleOwner = this
     return binding.root
@@ -124,5 +125,9 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
       return true
     }
     return false
+  }
+  override fun onDestroyView() {
+    super.onDestroyView()
+    _binding = null
   }
 }

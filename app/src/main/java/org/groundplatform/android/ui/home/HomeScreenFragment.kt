@@ -25,7 +25,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.core.view.GravityCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.navigation.NavigationView
@@ -58,7 +60,8 @@ class HomeScreenFragment :
 
   @Inject lateinit var ephemeralPopups: EphemeralPopups
   @Inject lateinit var userRepository: UserRepository
-  private lateinit var binding: HomeScreenFragBinding
+  private var _binding: HomeScreenFragBinding? = null
+  private val binding get() = _binding!!
   private lateinit var homeScreenViewModel: HomeScreenViewModel
   private lateinit var user: User
 
@@ -74,9 +77,13 @@ class HomeScreenFragment :
     savedInstanceState: Bundle?,
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
-    binding = HomeScreenFragBinding.inflate(inflater, container, false)
-    binding.lifecycleOwner = this
-    lifecycleScope.launch { homeScreenViewModel.openDrawerRequestsFlow.collect { openDrawer() } }
+    _binding = HomeScreenFragBinding.inflate(inflater, container, false)
+    binding.lifecycleOwner = viewLifecycleOwner
+    viewLifecycleOwner.lifecycleScope.launch {
+      repeatOnLifecycle(Lifecycle.State.STARTED) {
+        homeScreenViewModel.openDrawerRequestsFlow.collect { openDrawer() }
+      }
+    }
     return binding.root
   }
 
@@ -133,22 +140,25 @@ class HomeScreenFragment :
     menuItem.title = String.format(getString(R.string.build), BuildConfig.VERSION_NAME)
   }
 
-  private fun updateNavHeader() =
-    lifecycleScope.launch {
-      val navHeader = binding.navView.getHeaderView(0)
-      val headerBinding = NavDrawerHeaderBinding.bind(navHeader)
-      headerBinding.user = userRepository.getAuthenticatedUser()
-      homeScreenViewModel.surveyRepository.activeSurveyFlow.collect {
-        if (it == null) {
-          headerBinding.surveyInfo.visibility = View.GONE
-          headerBinding.noSurveysInfo.visibility = View.VISIBLE
-        } else {
-          headerBinding.noSurveysInfo.visibility = View.GONE
-          headerBinding.surveyInfo.visibility = View.VISIBLE
-          headerBinding.survey = it
+  private fun updateNavHeader() {
+    viewLifecycleOwner.lifecycleScope.launch {
+      repeatOnLifecycle(Lifecycle.State.STARTED) {
+        homeScreenViewModel.surveyRepository.activeSurveyFlow.collect {
+          val navHeader = binding.navView.getHeaderView(0)
+          val headerBinding = NavDrawerHeaderBinding.bind(navHeader)
+          headerBinding.user = userRepository.getAuthenticatedUser()
+          if (it == null) {
+            headerBinding.surveyInfo.visibility = View.GONE
+            headerBinding.noSurveysInfo.visibility = View.VISIBLE
+          } else {
+            headerBinding.noSurveysInfo.visibility = View.GONE
+            headerBinding.surveyInfo.visibility = View.VISIBLE
+            headerBinding.survey = it
+          }
         }
       }
     }
+  }
 
   private fun openDrawer() {
     binding.drawerLayout.openDrawer(GravityCompat.START)
@@ -230,5 +240,9 @@ class HomeScreenFragment :
         )
       }
     }
+  }
+  override fun onDestroyView() {
+    super.onDestroyView()
+    _binding = null
   }
 }
