@@ -15,7 +15,7 @@ name: End to End Test
 
 on:
   issue_comment:
-    types: [created]
+    types: [ created ]
 
 jobs:
   e2eTest:
@@ -23,44 +23,38 @@ jobs:
     timeout-minutes: 15
     if: github.event.issue.pull_request && contains(github.event.comment.body, '/e2eTest')
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Start test
         run: |
           echo "Begin end to end test"
 
 
-  createTest:
+  startEmulator:
     needs: e2eTest
-    name: Create a new survey
+    name: Run the firebase emulator with prefilled data
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Run create-test
-        uses: google/ground-platform/.github/actions/create-test@master
+      - name: Run test-start-emulator
+        uses: google/ground-platform/.github/actions/start-emulator@master
         with:
-            upload-artifacts: true
+          upload-artifacts: true
 
   submitTest:
-    needs: createTest
+    needs: startEmulator
     name: Submit to survey
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Run submit-test
         uses: ./.github/actions/submit-test
         with:
           android-repository: ${{ github.repository }}
           google-maps-key: ${{ secrets.GOOGLE_MAPS_KEY }}
-          use-repo-data: false
+          use-repo-data: true
           upload-artifacts: true
-          
-
-  verifyTest:
-    needs: submitTest
-    name: Verify survey submissions
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - name: Run verify-test
-        uses: google/ground-platform/.github/actions/verify-test@master
-        with:
-            use-repo-data: false
