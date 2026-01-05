@@ -64,6 +64,7 @@ android {
 }
 
 dependencies {
+    implementation libs.androidx.compose.ui.test.junit4
     androidTestUtil libs.androidx.orchestrator
     implementation libs.androidx.appcompat
     implementation libs.androidx.core.ktx
