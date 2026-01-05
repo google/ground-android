@@ -19,10 +19,10 @@ package org.groundplatform.android.data.remote.firebase.schema
 import org.groundplatform.android.data.remote.firebase.schema.ConditionConverter.toCondition
 import org.groundplatform.android.data.remote.firebase.schema.MultipleChoiceConverter.toMultipleChoice
 import org.groundplatform.android.model.task.Condition
+import org.groundplatform.android.model.task.DrawGeometry
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.proto.Task as TaskProto
 import org.groundplatform.android.proto.Task.DataCollectionLevel
-import org.groundplatform.android.proto.Task.DrawGeometry.Method
 import org.groundplatform.android.proto.Task.TaskTypeCase
 
 /** Converts between Firestore nested objects and [Task] instances. */
@@ -50,12 +50,7 @@ internal object TaskConverter {
       else -> Task.Type.DATE
     }
 
-  private fun TaskProto.drawGeometryToTaskType(): Task.Type =
-    if (drawGeometry?.allowedMethodsList?.contains(Method.DRAW_AREA) == true) {
-      Task.Type.DRAW_AREA
-    } else {
-      Task.Type.DROP_PIN
-    }
+  private fun TaskProto.drawGeometryToTaskType(): Task.Type = Task.Type.DRAW_GEOMETRY
 
   fun toTask(task: TaskProto): Task =
     with(task) {
@@ -83,6 +78,16 @@ internal object TaskConverter {
         multipleChoice,
         task.level == DataCollectionLevel.LOI_METADATA,
         condition = condition,
+        drawGeometry =
+          if (taskType == Task.Type.DRAW_GEOMETRY) {
+            DrawGeometry(
+              task.drawGeometry.requireDeviceLocation,
+              task.drawGeometry.minAccuracyMeters,
+              task.drawGeometry.allowedMethodsList.map { it.name },
+            )
+          } else {
+            null
+          },
       )
     }
 }

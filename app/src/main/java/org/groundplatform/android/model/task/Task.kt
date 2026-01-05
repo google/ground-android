@@ -33,6 +33,7 @@ constructor(
   val multipleChoice: MultipleChoice? = null,
   val isAddLoiTask: Boolean = false,
   val condition: Condition? = null,
+  val drawGeometry: DrawGeometry? = null,
 ) {
 
   // TODO: Define these in data layer!
@@ -48,6 +49,7 @@ constructor(
     TIME,
     DROP_PIN,
     DRAW_AREA,
+    DRAW_GEOMETRY,
     CAPTURE_LOCATION,
     INSTRUCTIONS,
   }

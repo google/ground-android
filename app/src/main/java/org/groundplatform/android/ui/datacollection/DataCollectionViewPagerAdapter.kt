@@ -22,6 +22,7 @@ import dagger.assisted.AssistedInject
 import javax.inject.Provider
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.datacollection.tasks.date.DateTaskFragment
+import org.groundplatform.android.ui.datacollection.tasks.geometry.DrawGeometryTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.instruction.InstructionTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.location.CaptureLocationTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskFragment
@@ -41,11 +42,13 @@ constructor(
   private val drawAreaTaskFragmentProvider: Provider<DrawAreaTaskFragment>,
   private val captureLocationTaskFragmentProvider: Provider<CaptureLocationTaskFragment>,
   private val dropPinTaskFragmentProvider: Provider<DropPinTaskFragment>,
+  private val drawGeometryTaskFragmentProvider: Provider<DrawGeometryTaskFragment>,
   @Assisted fragment: Fragment,
   @Assisted val tasks: List<Task>,
 ) : FragmentStateAdapter(fragment) {
   override fun getItemCount(): Int = tasks.size
 
+  @Suppress("CyclomaticComplexMethod")
   override fun createFragment(position: Int): Fragment {
     val task = tasks[position]
 
@@ -55,6 +58,7 @@ constructor(
         Task.Type.MULTIPLE_CHOICE -> MultipleChoiceTaskFragment()
         Task.Type.PHOTO -> PhotoTaskFragment()
         Task.Type.DROP_PIN -> dropPinTaskFragmentProvider.get()
+        Task.Type.DRAW_GEOMETRY -> drawGeometryTaskFragmentProvider.get()
         Task.Type.DRAW_AREA -> drawAreaTaskFragmentProvider.get()
         Task.Type.NUMBER -> NumberTaskFragment()
         Task.Type.DATE -> DateTaskFragment()
