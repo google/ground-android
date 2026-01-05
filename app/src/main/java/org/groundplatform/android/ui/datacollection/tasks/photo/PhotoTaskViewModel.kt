@@ -67,11 +67,9 @@ class PhotoTaskViewModel @Inject constructor(private val userMediaRepository: Us
 
   fun onCaptureResult(result: Boolean) {
     if (result && capturedUri != null) {
-      viewModelScope.launch {
-        savePhotoTaskData(capturedUri!!)
-        hasLaunchedCamera = false
-      }
+      viewModelScope.launch { savePhotoTaskData(capturedUri!!) }
     }
+    hasLaunchedCamera = false
   }
 
   /**
