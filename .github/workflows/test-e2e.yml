@@ -14,14 +14,14 @@
 name: End to End Test
 
 on:
-  issue_comment:
-    types: [ created ]
+  push:
+    branches:
+      - master
 
 jobs:
   e2eTest:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    if: github.event.issue.pull_request && contains(github.event.comment.body, '/e2eTest')
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
