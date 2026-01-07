@@ -37,7 +37,7 @@ import org.groundplatform.android.ui.map.gms.CLUSTER_Z
  * should hide and show items in callbacks set in [onClusterRendered] and [onClusterItemRendered],
  * respectively.
  */
-open class FeatureClusterRenderer(
+class FeatureClusterRenderer(
   context: Context,
   map: GoogleMap,
   clusterManager: ClusterManager<FeatureClusterItem>,
