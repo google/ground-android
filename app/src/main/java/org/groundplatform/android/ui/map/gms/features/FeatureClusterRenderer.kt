@@ -126,13 +126,12 @@ open class FeatureClusterRenderer(
   override fun shouldRender(
     oldClusters: Set<Cluster<FeatureClusterItem?>?>,
     newClusters: Set<Cluster<FeatureClusterItem?>?>,
-  ): Boolean {
-    return if (hasRenderingModeChanged()) {
+  ): Boolean =
+    if (hasRenderingModeChanged()) {
       true
     } else {
       super.shouldRender(oldClusters, newClusters)
     }
-  }
 
   private fun hasRenderingModeChanged(): Boolean = isClusterMode(oldZoom) != isClusterMode(zoom)
 
