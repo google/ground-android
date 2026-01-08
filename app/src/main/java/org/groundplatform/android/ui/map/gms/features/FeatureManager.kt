@@ -59,11 +59,9 @@ constructor(
    * The camera's current zoom level. This must be set here since this impl can't access
    * `map.cameraPosition` from off the main UI thread.
    */
-  var zoom: Float
-    get() = clusterRenderer.zoom
-    set(value) {
-      clusterRenderer.zoom = value
-    }
+  fun setZoom(newValue: Float) {
+    clusterRenderer.setZoom(newValue)
+  }
 
   /** Clears all managed state an binds to the provided [GoogleMap]. */
   fun onMapReady(map: GoogleMap) {
