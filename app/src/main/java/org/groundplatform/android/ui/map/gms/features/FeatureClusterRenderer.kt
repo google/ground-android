@@ -118,7 +118,8 @@ class FeatureClusterRenderer(
    *
    * The default implementation skips rendering when the clusters haven't changed, as an
    * optimization. This override also considers the current zoom level so that a re-render is forced
-   * when the rendering mode changes (cluster vs individual items) even.
+   * when the rendering mode changes (cluster vs individual items) even if the clusters are the
+   * same.
    *
    * @return true if the rendering mode changed due to crossing [CLUSTERING_ZOOM_THRESHOLD], or if
    *   the clusters differ; false otherwise.
