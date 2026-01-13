@@ -4,6 +4,7 @@ secrets.properties
 !app/src/debug/local/google-services.json
 !.gitignore
 !gradle/
+!.github/
 
 # Taken from Android.gitignore https://github.com/github/gitignore/blob/master/Android.gitignore
 #
