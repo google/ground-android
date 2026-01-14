@@ -22,18 +22,15 @@ val Migration_125_126 =
   object : Migration(125, 126) {
     override fun migrate(db: SupportSQLiteDatabase) {
       db.execSQL(
-        """
-        DELETE FROM survey
-        WHERE id IN (
-            SELECT DISTINCT j.survey_id
-            FROM job j
-            JOIN task t ON j.id = t.job_id
-            JOIN condition c ON t.id = c.parent_task_id
-            LEFT JOIN expression e ON c.parent_task_id = e.parent_task_id
-            WHERE e.parent_task_id IS NULL
-        )
-        """
-          .trimIndent()
+        "DELETE FROM survey " +
+          "WHERE id IN (" +
+          "SELECT DISTINCT j.survey_id " +
+          "FROM job j " +
+          "JOIN task t ON j.id = t.job_id " +
+          "JOIN condition c ON t.id = c.parent_task_id " +
+          "LEFT JOIN expression e ON c.parent_task_id = e.parent_task_id " +
+          "WHERE e.parent_task_id IS NULL" +
+          ")"
       )
     }
   }
