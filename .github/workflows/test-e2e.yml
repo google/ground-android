@@ -18,6 +18,7 @@ on:
     branches:
       - master
 
+# See docs/e2e-testing-doc.md for details
 jobs:
   e2eTest:
     runs-on: ubuntu-latest
