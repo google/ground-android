@@ -22,6 +22,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isEnabled
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -35,7 +36,7 @@ import androidx.test.uiautomator.UiObject
 import androidx.test.uiautomator.UiSelector
 import androidx.test.uiautomator.Until
 import org.groundplatform.android.R
-import org.groundplatform.android.e2etest.TestConfig.SHORT_TIMEOUT
+import org.groundplatform.android.e2etest.TestConfig.DEFAULT_TIMEOUT
 import org.groundplatform.android.e2etest.extensions.onTarget
 
 @OptIn(ExperimentalTestApi::class)
@@ -43,18 +44,28 @@ class AndroidTestDriver(
   private val composeRule: AndroidComposeTestRule<*, *>,
   private val device: UiDevice,
 ) : TestDriver {
-  private fun wait(target: TestDriver.Target, timeout: Long = SHORT_TIMEOUT) {
+  private fun wait(target: TestDriver.Target, timeout: Long = DEFAULT_TIMEOUT) {
     when (target) {
       is TestDriver.Target.ContentDescription ->
-        composeRule.waitUntilAtLeastOneExists(hasContentDescription(target.text), timeout)
+        composeRule.waitUntilAtLeastOneExists(
+          hasContentDescription(target.text) and isEnabled(),
+          timeout,
+        )
+
       is TestDriver.Target.TestTag ->
-        composeRule.waitUntilAtLeastOneExists(hasTestTag(target.tag), timeout)
+        composeRule.waitUntilAtLeastOneExists(hasTestTag(target.tag) and isEnabled(), timeout)
+
       is TestDriver.Target.Text ->
-        composeRule.waitUntilAtLeastOneExists(hasText(target.text, target.substring), timeout)
+        composeRule.waitUntilAtLeastOneExists(
+          hasText(target.text, target.substring) and isEnabled(),
+          timeout,
+        )
+
       is TestDriver.Target.ViewId -> {
         val resName = composeRule.activity.resources.getResourceEntryName(target.resId)
         val packageName = composeRule.activity.packageName
-        device.wait(Until.findObject(By.res(packageName, resName)), timeout)
+        val component = device.wait(Until.findObject(By.res(packageName, resName)), timeout)
+        checkNotNull(component) { "Component not found after $timeout ms" }
       }
     }
   }
@@ -117,8 +128,13 @@ class AndroidTestDriver(
   override fun takePhoto() {
     val shutterSelector = By.res("com.android.camera2:id/shutter_button")
     val doneSelector = By.res("com.android.camera2:id/done_button")
-    device.wait(Until.findObject(shutterSelector), SHORT_TIMEOUT).click()
-    device.wait(Until.findObject(doneSelector), SHORT_TIMEOUT).click()
+
+    val shutterButton = device.wait(Until.findObject(shutterSelector), DEFAULT_TIMEOUT)
+    checkNotNull(shutterButton) { "Camera 'shutter button' not found after ${DEFAULT_TIMEOUT}ms" }
+    shutterButton.click()
+    val doneButton = device.wait(Until.findObject(doneSelector), DEFAULT_TIMEOUT)
+    checkNotNull(doneButton) { "Camera 'done' button not found after ${DEFAULT_TIMEOUT}ms" }
+    doneButton.click()
   }
 
   override fun setDate() {
@@ -127,7 +143,7 @@ class AndroidTestDriver(
     val textInputField = device.findObject(By.res(packageName, resName))
     textInputField?.click()
 
-    device.wait(Until.findObject(By.clazz(DatePicker::class.java)), SHORT_TIMEOUT)
+    device.wait(Until.findObject(By.clazz(DatePicker::class.java)), DEFAULT_TIMEOUT)
     device.findObject(By.text("OK")).click()
   }
 
@@ -137,7 +153,7 @@ class AndroidTestDriver(
     val textInputField = device.findObject(By.res(packageName, resName))
     textInputField?.click()
 
-    device.wait(Until.findObject(By.clazz(TimePicker::class.java)), SHORT_TIMEOUT)
+    device.wait(Until.findObject(By.clazz(TimePicker::class.java)), DEFAULT_TIMEOUT)
     device.findObject(By.text("OK")).click()
   }
 

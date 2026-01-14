@@ -18,8 +18,7 @@ package org.groundplatform.android.e2etest
 import org.groundplatform.android.model.task.Task
 
 object TestConfig {
-  const val LONG_TIMEOUT = 30000L
-  const val SHORT_TIMEOUT = 10000L
+  const val DEFAULT_TIMEOUT = 10000L
   const val SURVEY_NAME = "Ground app E2E test"
   const val TEST_JOB_ALL_TASK_TYPES_EXCEPT_DRAW_AREA = "Test all task types except draw area"
   val TEST_LIST_ALL_TASK_TYPES_EXCEPT_DRAW_AREA =
