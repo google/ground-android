@@ -96,6 +96,7 @@ class PhotoTaskViewModelTest : BaseHiltTest() {
     viewModel.onCaptureResult(false)
 
     verify(userMediaRepository, org.mockito.kotlin.never()).savePhotoFromUri(any(), any())
+    assertThat(viewModel.hasLaunchedCamera).isFalse()
   }
 
   @Test
@@ -105,6 +106,7 @@ class PhotoTaskViewModelTest : BaseHiltTest() {
     viewModel.onCaptureResult(true)
 
     verify(userMediaRepository, org.mockito.kotlin.never()).savePhotoFromUri(any(), any())
+    assertThat(viewModel.hasLaunchedCamera).isFalse()
   }
 
   companion object {
