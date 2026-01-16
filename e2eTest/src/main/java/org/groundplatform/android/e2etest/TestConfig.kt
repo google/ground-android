@@ -18,22 +18,23 @@ package org.groundplatform.android.e2etest
 import org.groundplatform.android.model.task.Task
 
 object TestConfig {
-  const val LONG_TIMEOUT = 30000L
-  const val SHORT_TIMEOUT = 10000L
-  const val GROUND_PACKAGE = "org.groundplatform.android"
-  val TEST_SURVEY_TASKS_ADHOC =
+  const val DEFAULT_TIMEOUT = 10000L
+  const val SURVEY_NAME = "Ground app E2E test"
+  const val TEST_JOB_ALL_TASK_TYPES_EXCEPT_DRAW_AREA = "Test all task types except draw area"
+  val TEST_LIST_ALL_TASK_TYPES_EXCEPT_DRAW_AREA =
     listOf(
-      Task.Type.CAPTURE_LOCATION,
-      Task.Type.DROP_PIN,
-      Task.Type.TEXT,
-      Task.Type.MULTIPLE_CHOICE,
-      Task.Type.MULTIPLE_CHOICE,
-      Task.Type.NUMBER,
-      Task.Type.DATE,
-      Task.Type.TIME,
-      Task.Type.PHOTO,
-      Task.Type.CAPTURE_LOCATION,
+      TestTask(taskType = Task.Type.DROP_PIN, isRequired = true),
+      TestTask(Task.Type.INSTRUCTIONS),
+      TestTask(Task.Type.TEXT),
+      TestTask(taskType = Task.Type.MULTIPLE_CHOICE, selectIndexes = listOf(1)),
+      TestTask(taskType = Task.Type.MULTIPLE_CHOICE, selectIndexes = (0..3).toList()),
+      TestTask(Task.Type.NUMBER),
+      TestTask(Task.Type.PHOTO),
+      TestTask(Task.Type.DATE),
+      TestTask(Task.Type.TIME),
+      TestTask(taskType = Task.Type.CAPTURE_LOCATION, isRequired = true),
     )
-  val TEST_SURVEY_LOI_TASK_INDEX = 1
-  const val TEST_SURVEY_IDENTIFIER = "test"
+  const val TEST_JOB_DRAW_AREA = "Test draw area"
+  val TEST_LIST_DRAW_AREA = listOf(TestTask(taskType = Task.Type.DRAW_AREA, isRequired = true))
+  const val LOI_NAME = "Test location"
 }
