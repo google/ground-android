@@ -105,13 +105,6 @@ class OfflineAreaSelectorFragmentTest : BaseHiltTest() {
     // Set camera position to ensure viewport is valid and zoom level is sufficient for download
     viewModel.onMapCameraMoved(CameraPosition(Coordinates(0.0, 0.0), zoomLevel = 10.0f))
 
-    composeTestRule.setContent {
-      DownloadProgressDialog(
-        progress = viewModel.downloadProgress.value!!,
-        onDismiss = { viewModel.stopDownloading() },
-      )
-    }
-
     val progressFlow = MutableSharedFlow<Pair<Int, Int>>()
     whenever(offlineAreaRepository.downloadTiles(any())).thenReturn(progressFlow)
 
