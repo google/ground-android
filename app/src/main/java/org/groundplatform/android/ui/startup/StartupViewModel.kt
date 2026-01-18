@@ -15,11 +15,15 @@
  */
 package org.groundplatform.android.ui.startup
 
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
+import org.groundplatform.android.R
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.GoogleApiManager
 import org.groundplatform.android.ui.common.AbstractViewModel
+import org.groundplatform.android.ui.common.EphemeralPopups
+import timber.log.Timber
+import javax.inject.Inject
 
 @HiltViewModel
 class StartupViewModel
@@ -27,11 +31,19 @@ class StartupViewModel
 internal constructor(
   private val googleApiManager: GoogleApiManager,
   private val userRepository: UserRepository,
+  val popups: EphemeralPopups,
 ) : AbstractViewModel() {
 
   /** Initializes the login flow, installing Google Play Services if necessary. */
   suspend fun initializeLogin() {
     googleApiManager.installGooglePlayServices()
     userRepository.init()
+  }
+
+  fun maybeDisplayError(throwable: Throwable) {
+    Timber.e(throwable, "Failed to launch app")
+    if (throwable is GooglePlayServicesNotAvailableException) {
+      popups.ErrorPopup().show(R.string.google_api_install_failed)
+    }
   }
 }

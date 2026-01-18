@@ -16,6 +16,7 @@
 package org.groundplatform.android.ui.signin
 
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -30,6 +31,7 @@ import org.groundplatform.android.system.NetworkStatus
 import org.groundplatform.android.system.auth.SignInState
 import org.groundplatform.android.ui.common.AbstractViewModel
 
+@HiltViewModel
 class SignInViewModel
 @Inject
 internal constructor(
