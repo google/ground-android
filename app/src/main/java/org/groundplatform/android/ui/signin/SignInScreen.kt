@@ -59,10 +59,20 @@ const val BUTTON_TEST_TAG = "google_sign_in_button"
 
 @Composable
 fun SignInScreen(viewModel: SignInViewModel = hiltViewModel()) {
-  val snackbarHostState = remember { SnackbarHostState() }
-  val connected by viewModel.getNetworkFlow().collectAsStateWithLifecycle(initialValue = false)
+  val connected by viewModel.getNetworkFlow().collectAsStateWithLifecycle(initialValue = true)
   val signInState by
     viewModel.signInState.collectAsStateWithLifecycle(initialValue = SignInState.SigningIn)
+
+  SignInScreen(
+    connected = connected,
+    signInState = signInState,
+    onSignInClick = { viewModel.onSignInButtonClick() },
+  )
+}
+
+@Composable
+private fun SignInScreen(connected: Boolean, signInState: SignInState, onSignInClick: () -> Unit) {
+  val snackbarHostState = remember { SnackbarHostState() }
 
   if (!connected) {
     val networkErrorMessage = stringResource(R.string.network_error_when_signing_in)
@@ -73,7 +83,7 @@ fun SignInScreen(viewModel: SignInViewModel = hiltViewModel()) {
     LoadingDialog(R.string.signing_in)
   }
 
-  SignInContent(onSignInClick = { viewModel.onSignInButtonClick() }, snackbarHostState)
+  SignInContent(onSignInClick = onSignInClick, snackbarHostState = snackbarHostState)
 }
 
 @Composable
@@ -152,8 +162,26 @@ private fun GoogleSignInButton(modifier: Modifier = Modifier, onClick: () -> Uni
 @Preview(showBackground = true)
 @Composable
 @ExcludeFromJacocoGeneratedReport
-private fun SignInScreenPreview() {
+private fun SignInScreenSignedOutPreview() {
   AppTheme {
-    SignInContent(onSignInClick = {}, snackbarHostState = remember { SnackbarHostState() })
+    SignInScreen(connected = true, signInState = SignInState.SignedOut, onSignInClick = {})
+  }
+}
+
+@Preview(showBackground = true)
+@Composable
+@ExcludeFromJacocoGeneratedReport
+private fun SignInScreenSigningInPreview() {
+  AppTheme {
+    SignInScreen(connected = true, signInState = SignInState.SigningIn, onSignInClick = {})
+  }
+}
+
+@Preview(showBackground = true)
+@Composable
+@ExcludeFromJacocoGeneratedReport
+private fun SignInScreenNotConnectedPreview() {
+  AppTheme {
+    SignInScreen(connected = false, signInState = SignInState.SignedOut, onSignInClick = {})
   }
 }
