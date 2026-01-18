@@ -19,8 +19,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.components.LoadingDialog
 
@@ -32,15 +34,12 @@ import org.groundplatform.android.ui.components.LoadingDialog
  */
 @Composable
 fun StartupScreen(onLoadFailed: () -> Unit, viewModel: StartupViewModel = hiltViewModel()) {
+  val state by viewModel.state.collectAsStateWithLifecycle()
 
-  Box(modifier = Modifier.fillMaxSize()) { LoadingDialog(messageId = R.string.initializing) }
-
-  LaunchedEffect(Unit) {
-    try {
-      viewModel.initializeLogin()
-    } catch (t: Throwable) {
-      viewModel.maybeDisplayError(t)
-      onLoadFailed()
+  Box(modifier = Modifier.fillMaxSize()) {
+    when (state) {
+      is StartupState.Loading -> LoadingDialog(messageId = R.string.initializing)
+      is StartupState.Error -> LaunchedEffect(Unit) { onLoadFailed() }
     }
   }
 }
