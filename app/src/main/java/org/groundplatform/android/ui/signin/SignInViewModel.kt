@@ -28,20 +28,19 @@ import kotlinx.coroutines.launch
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.NetworkStatus
-import org.groundplatform.android.system.auth.AuthenticationManager
 import org.groundplatform.android.system.auth.SignInState
 import org.groundplatform.android.ui.common.AbstractViewModel
 
+/** View model responsible for handling the sign-in screen. */
 @HiltViewModel
 class SignInViewModel
 @Inject
 internal constructor(
-  authenticationManager: AuthenticationManager,
   private val networkManager: NetworkManager,
   private val userRepository: UserRepository,
 ) : AbstractViewModel() {
 
-  val signInState: Flow<SignInState> = authenticationManager.signInState
+  val signInState: Flow<SignInState> = userRepository.getSignInState()
 
   @OptIn(ExperimentalCoroutinesApi::class)
   fun getNetworkFlow(): Flow<Boolean> =
@@ -51,10 +50,12 @@ internal constructor(
 
   fun onSignInButtonClick() {
     viewModelScope.launch {
-      val state = userRepository.getSignInState().first()
-      if (state is SignInState.SignedOut || state is SignInState.Error) {
+      if (signInState.first().shouldAllowSignIn() && networkManager.isNetworkConnected()) {
         userRepository.signIn()
       }
     }
   }
+
+  private fun SignInState.shouldAllowSignIn(): Boolean =
+    this is SignInState.SignedOut || this is SignInState.Error
 }

@@ -57,13 +57,18 @@ import org.groundplatform.android.ui.theme.AppTheme
 
 const val BUTTON_TEST_TAG = "google_sign_in_button"
 
+/**
+ * Displays the sign-in screen, handling network connectivity status and authentication state.
+ *
+ * @param viewModel the view model used to manage sign-in state and network connectivity.
+ */
 @Composable
 fun SignInScreen(viewModel: SignInViewModel = hiltViewModel()) {
   val connected by viewModel.getNetworkFlow().collectAsStateWithLifecycle(initialValue = true)
   val signInState by
-    viewModel.signInState.collectAsStateWithLifecycle(initialValue = SignInState.SigningIn)
+    viewModel.signInState.collectAsStateWithLifecycle(initialValue = SignInState.SignedOut)
 
-  SignInScreen(
+  SignInContent(
     connected = connected,
     signInState = signInState,
     onSignInClick = { viewModel.onSignInButtonClick() },
@@ -71,23 +76,20 @@ fun SignInScreen(viewModel: SignInViewModel = hiltViewModel()) {
 }
 
 @Composable
-private fun SignInScreen(connected: Boolean, signInState: SignInState, onSignInClick: () -> Unit) {
+private fun SignInContent(connected: Boolean, signInState: SignInState, onSignInClick: () -> Unit) {
   val snackbarHostState = remember { SnackbarHostState() }
+  val networkErrorMessage = stringResource(R.string.network_error_when_signing_in)
 
-  if (!connected) {
-    val networkErrorMessage = stringResource(R.string.network_error_when_signing_in)
-    LaunchedEffect(Unit) { snackbarHostState.showSnackbar(networkErrorMessage) }
+  LaunchedEffect(connected) {
+    if (!connected) {
+      snackbarHostState.showSnackbar(networkErrorMessage)
+    }
   }
 
   if (signInState is SignInState.SigningIn) {
     LoadingDialog(R.string.signing_in)
   }
 
-  SignInContent(onSignInClick = onSignInClick, snackbarHostState = snackbarHostState)
-}
-
-@Composable
-private fun SignInContent(onSignInClick: () -> Unit, snackbarHostState: SnackbarHostState) {
   Box(modifier = Modifier.fillMaxSize()) {
 
     // Background image
@@ -164,7 +166,7 @@ private fun GoogleSignInButton(modifier: Modifier = Modifier, onClick: () -> Uni
 @ExcludeFromJacocoGeneratedReport
 private fun SignInScreenSignedOutPreview() {
   AppTheme {
-    SignInScreen(connected = true, signInState = SignInState.SignedOut, onSignInClick = {})
+    SignInContent(connected = true, signInState = SignInState.SignedOut, onSignInClick = {})
   }
 }
 
@@ -173,7 +175,7 @@ private fun SignInScreenSignedOutPreview() {
 @ExcludeFromJacocoGeneratedReport
 private fun SignInScreenSigningInPreview() {
   AppTheme {
-    SignInScreen(connected = true, signInState = SignInState.SigningIn, onSignInClick = {})
+    SignInContent(connected = true, signInState = SignInState.SigningIn, onSignInClick = {})
   }
 }
 
@@ -182,6 +184,6 @@ private fun SignInScreenSigningInPreview() {
 @ExcludeFromJacocoGeneratedReport
 private fun SignInScreenNotConnectedPreview() {
   AppTheme {
-    SignInScreen(connected = false, signInState = SignInState.SignedOut, onSignInClick = {})
+    SignInContent(connected = false, signInState = SignInState.SignedOut, onSignInClick = {})
   }
 }
