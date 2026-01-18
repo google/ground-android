@@ -64,9 +64,8 @@ const val BUTTON_TEST_TAG = "google_sign_in_button"
  */
 @Composable
 fun SignInScreen(viewModel: SignInViewModel = hiltViewModel()) {
-  val connected by viewModel.getNetworkFlow().collectAsStateWithLifecycle(initialValue = true)
-  val signInState by
-    viewModel.signInState.collectAsStateWithLifecycle(initialValue = SignInState.SignedOut)
+  val connected by viewModel.networkAvailable.collectAsStateWithLifecycle()
+  val signInState by viewModel.signInState.collectAsStateWithLifecycle()
 
   SignInContent(
     connected = connected,
