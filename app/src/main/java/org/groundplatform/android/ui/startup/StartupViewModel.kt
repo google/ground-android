@@ -25,6 +25,7 @@ import org.groundplatform.android.ui.common.EphemeralPopups
 import timber.log.Timber
 import javax.inject.Inject
 
+/** ViewModel responsible for the initial app startup flow. */
 @HiltViewModel
 class StartupViewModel
 @Inject
@@ -40,6 +41,7 @@ internal constructor(
     userRepository.init()
   }
 
+  /** Displays an error popup. */
   fun maybeDisplayError(throwable: Throwable) {
     Timber.e(throwable, "Failed to launch app")
     if (throwable is GooglePlayServicesNotAvailableException) {
