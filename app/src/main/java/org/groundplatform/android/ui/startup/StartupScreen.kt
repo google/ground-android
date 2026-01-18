@@ -18,7 +18,6 @@ package org.groundplatform.android.ui.startup
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -39,7 +38,7 @@ fun StartupScreen(onLoadFailed: () -> Unit, viewModel: StartupViewModel = hiltVi
   Box(modifier = Modifier.fillMaxSize()) {
     when (state) {
       is StartupState.Loading -> LoadingDialog(messageId = R.string.initializing)
-      is StartupState.Error -> LaunchedEffect(Unit) { onLoadFailed() }
+      is StartupState.Error ->  onLoadFailed()
     }
   }
 }
