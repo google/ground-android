@@ -38,7 +38,7 @@ fun StartupScreen(onLoadFailed: () -> Unit, viewModel: StartupViewModel = hiltVi
   Box(modifier = Modifier.fillMaxSize()) {
     when (state) {
       is StartupState.Loading -> LoadingDialog(messageId = R.string.initializing)
-      is StartupState.Error ->  onLoadFailed()
+      is StartupState.Error -> onLoadFailed()
     }
   }
 }

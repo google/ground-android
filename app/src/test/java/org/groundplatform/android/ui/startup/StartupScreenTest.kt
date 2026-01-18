@@ -32,8 +32,7 @@ import org.robolectric.RuntimeEnvironment
 @RunWith(RobolectricTestRunner::class)
 class StartupScreenTest : BaseHiltTest() {
 
-  @Mock
-  private lateinit var mockViewModel: StartupViewModel
+  @Mock private lateinit var mockViewModel: StartupViewModel
 
   @Test
   fun `Loading state shows loading dialog`() {
