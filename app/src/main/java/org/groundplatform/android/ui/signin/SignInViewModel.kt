@@ -16,6 +16,7 @@
 package org.groundplatform.android.ui.signin
 
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -27,15 +28,20 @@ import kotlinx.coroutines.launch
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.NetworkStatus
+import org.groundplatform.android.system.auth.AuthenticationManager
 import org.groundplatform.android.system.auth.SignInState
 import org.groundplatform.android.ui.common.AbstractViewModel
 
+@HiltViewModel
 class SignInViewModel
 @Inject
 internal constructor(
+  authenticationManager: AuthenticationManager,
   private val networkManager: NetworkManager,
   private val userRepository: UserRepository,
 ) : AbstractViewModel() {
+
+  val signInState: Flow<SignInState> = authenticationManager.signInState
 
   @OptIn(ExperimentalCoroutinesApi::class)
   fun getNetworkFlow(): Flow<Boolean> =

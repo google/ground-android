@@ -25,8 +25,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -41,14 +46,38 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.gms.common.SignInButton
 import org.groundplatform.android.R
+import org.groundplatform.android.system.auth.SignInState
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
+import org.groundplatform.android.ui.components.LoadingDialog
+import org.groundplatform.android.ui.theme.AppTheme
 
 const val BUTTON_TEST_TAG = "google_sign_in_button"
 
 @Composable
-fun SignInScreen(onSignInClick: () -> Unit) {
+fun SignInScreen(viewModel: SignInViewModel = hiltViewModel()) {
+  val snackbarHostState = remember { SnackbarHostState() }
+  val connected by viewModel.getNetworkFlow().collectAsStateWithLifecycle(initialValue = false)
+  val signInState by
+    viewModel.signInState.collectAsStateWithLifecycle(initialValue = SignInState.SigningIn)
+
+  if (!connected) {
+    val networkErrorMessage = stringResource(R.string.network_error_when_signing_in)
+    LaunchedEffect(Unit) { snackbarHostState.showSnackbar(networkErrorMessage) }
+  }
+
+  if (signInState is SignInState.SigningIn) {
+    LoadingDialog(R.string.signing_in)
+  }
+
+  SignInContent(onSignInClick = { viewModel.onSignInButtonClick() }, snackbarHostState)
+}
+
+@Composable
+private fun SignInContent(onSignInClick: () -> Unit, snackbarHostState: SnackbarHostState) {
   Box(modifier = Modifier.fillMaxSize()) {
 
     // Background image
@@ -69,6 +98,8 @@ fun SignInScreen(onSignInClick: () -> Unit) {
       LogoAndTitle()
       GoogleSignInButton { onSignInClick() }
     }
+
+    SnackbarHost(hostState = snackbarHostState, modifier = Modifier.align(Alignment.BottomCenter))
   }
 }
 
@@ -122,5 +153,7 @@ private fun GoogleSignInButton(modifier: Modifier = Modifier, onClick: () -> Uni
 @Composable
 @ExcludeFromJacocoGeneratedReport
 private fun SignInScreenPreview() {
-  SignInScreen(onSignInClick = {})
+  AppTheme {
+    SignInContent(onSignInClick = {}, snackbarHostState = remember { SnackbarHostState() })
+  }
 }
