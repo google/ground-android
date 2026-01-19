@@ -37,4 +37,5 @@ object TestConfig {
   const val TEST_JOB_DRAW_AREA = "Test draw area"
   val TEST_LIST_DRAW_AREA = listOf(TestTask(taskType = Task.Type.DRAW_AREA, isRequired = true))
   const val LOI_NAME = "Test location"
+  const val TEST_PHOTO_FILE = "e2e_test_photo.webp"
 }

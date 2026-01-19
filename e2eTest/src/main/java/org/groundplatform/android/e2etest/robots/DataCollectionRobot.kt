@@ -124,7 +124,6 @@ class DataCollectionRobot(override val testDriver: TestDriver) : Robot<DataColle
   }
 
   private fun cameraTask() {
-    testDriver.click(TestDriver.Target.ViewId(R.id.btn_camera))
     testDriver.takePhoto()
   }
 
