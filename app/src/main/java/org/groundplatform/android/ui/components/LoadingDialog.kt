@@ -34,6 +34,7 @@ import androidx.compose.ui.window.Dialog
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.theme.AppTheme
+import org.groundplatform.android.ui.theme.sizes
 
 @Composable
 fun LoadingDialog(messageId: Int) {
@@ -45,9 +46,9 @@ fun LoadingDialog(messageId: Int) {
     ) {
       Row(modifier = Modifier.padding(24.dp), verticalAlignment = Alignment.CenterVertically) {
         CircularProgressIndicator(
-          modifier = Modifier.size(36.dp),
+          modifier = Modifier.size(MaterialTheme.sizes.progressIndicatorSize),
           color = MaterialTheme.colorScheme.primary,
-          strokeWidth = 4.dp,
+          strokeWidth = MaterialTheme.sizes.progressIndicatorStrokeWidth,
         )
         Spacer(modifier = Modifier.width(20.dp))
         Text(text = stringResource(messageId), style = MaterialTheme.typography.bodyLarge)
