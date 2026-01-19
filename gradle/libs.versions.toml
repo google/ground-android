@@ -82,6 +82,7 @@ androidx-core-testing = { module = "androidx.arch.core:core-testing", version.re
 androidx-espresso-contrib = { module = "androidx.test.espresso:espresso-contrib", version.ref = "espressoContribVersion" }
 androidx-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espressoContribVersion" }
 androidx-fragment-testing-manifest = { module = "androidx.fragment:fragment-testing-manifest", version.ref = "fragmentVersion" }
+androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltJetpackVersion" }
 androidx-hilt-navigation-fragment = { module = "androidx.hilt:hilt-navigation-fragment", version.ref = "hiltJetpackVersion" }
 androidx-hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hiltJetpackVersion" }
 androidx-junit = { module = "androidx.test.ext:junit", version.ref = "junitKtx" }
@@ -89,6 +90,7 @@ androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtim
 androidx-material-icons = { module = "androidx.compose.material:material-icons-core" }
 androidx-material3-android = { module = "androidx.compose.material3:material3-android" }
 androidx-multidex = { module = "androidx.multidex:multidex", version.ref = "multidex" }
+androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationKtxVersion" }
 androidx-navigation-safe-args-gradle-plugin = { module = "androidx.navigation:navigation-safe-args-gradle-plugin", version.ref = "navigationKtxVersion" }
 androidx-navigation-testing = { module = "androidx.navigation:navigation-testing", version.ref = "navigationKtxVersion" }
 androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationKtxVersion" }

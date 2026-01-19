@@ -213,6 +213,8 @@ dependencies {
     implementation libs.androidx.ui.tooling.preview.android
     stagingImplementation libs.androidx.ui.test.manifest
     testImplementation libs.androidx.ui.test.junit4
+    implementation libs.androidx.navigation.compose
+    implementation libs.androidx.hilt.navigation.compose
 
     // Images
     implementation libs.glide
