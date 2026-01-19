@@ -47,7 +47,7 @@ class StartupScreenTest : BaseHiltTest() {
   @Test
   fun `Error state invokes onLoadFailed`() {
     var onLoadFailedCalled = false
-    setState(StartupState.Error(Error("Loading error")))
+    setState(StartupState.Error(null))
 
     composeTestRule.setContent {
       StartupScreen(onLoadFailed = { onLoadFailedCalled = true }, viewModel = mockViewModel)

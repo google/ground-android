@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android.ui.startup
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -34,7 +35,7 @@ import timber.log.Timber
 sealed interface StartupState {
   data object Loading : StartupState
 
-  data class Error(val throwable: Throwable) : StartupState
+  data class Error(@StringRes val errorMessageId: Int?) : StartupState
 }
 
 /** ViewModel responsible for the initial app startup flow. */
@@ -57,16 +58,15 @@ internal constructor(
         userRepository.init()
       } catch (t: Throwable) {
         Timber.e(t, "Failed to launch app")
-        maybeDisplayError(t)
-        _state.value = StartupState.Error(t)
+        _state.value = StartupState.Error(getErrorMessageId(t))
       }
     }
   }
 
-  /** Displays an error popup if the error is related to Google Play Services. */
-  private fun maybeDisplayError(throwable: Throwable) {
+  private fun getErrorMessageId(throwable: Throwable): Int? {
     if (throwable is GooglePlayServicesNotAvailableException) {
-      popups.ErrorPopup().show(R.string.google_api_install_failed)
+      return R.string.google_api_install_failed
     }
+    return null
   }
 }

@@ -32,13 +32,16 @@ import org.groundplatform.android.ui.components.LoadingDialog
  * @param viewModel the [StartupViewModel] responsible for managing the startup state.
  */
 @Composable
-fun StartupScreen(onLoadFailed: () -> Unit, viewModel: StartupViewModel = hiltViewModel()) {
+fun StartupScreen(
+  onLoadFailed: (errorMessageId: Int?) -> Unit,
+  viewModel: StartupViewModel = hiltViewModel(),
+) {
   val state by viewModel.state.collectAsStateWithLifecycle()
 
   Box(modifier = Modifier.fillMaxSize()) {
     when (state) {
       is StartupState.Loading -> LoadingDialog(messageId = R.string.initializing)
-      is StartupState.Error -> onLoadFailed()
+      is StartupState.Error -> onLoadFailed((state as StartupState.Error).errorMessageId)
     }
   }
 }

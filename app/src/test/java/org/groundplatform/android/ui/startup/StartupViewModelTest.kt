@@ -60,7 +60,7 @@ class StartupViewModelTest : BaseHiltTest() {
     viewModel.state.test {
       val errorState = awaitItem()
       assertThat(errorState).isInstanceOf(StartupState.Error::class.java)
-      assertThat((errorState as StartupState.Error).throwable).isEqualTo(exception)
+      assertThat((errorState as StartupState.Error).errorMessageId).isNull()
     }
   }
 
@@ -74,7 +74,7 @@ class StartupViewModelTest : BaseHiltTest() {
     viewModel.state.test {
       val errorState = awaitItem()
       assertThat(errorState).isInstanceOf(StartupState.Error::class.java)
-      assertThat((errorState as StartupState.Error).throwable).isEqualTo(exception)
+      assertThat((errorState as StartupState.Error).errorMessageId).isNull()
     }
   }
 }

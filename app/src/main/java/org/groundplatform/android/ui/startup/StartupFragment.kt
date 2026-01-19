@@ -22,11 +22,15 @@ import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 import org.groundplatform.android.ui.common.AbstractFragment
+import org.groundplatform.android.ui.common.EphemeralPopups
 import org.groundplatform.android.ui.theme.AppTheme
 
 @AndroidEntryPoint
 class StartupFragment : AbstractFragment() {
+
+  @Inject lateinit var popups: EphemeralPopups
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -35,6 +39,15 @@ class StartupFragment : AbstractFragment() {
   ): View =
     ComposeView(requireContext()).apply {
       setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-      setContent { AppTheme { StartupScreen(onLoadFailed = { requireActivity().finish() }) } }
+      setContent {
+        AppTheme {
+          StartupScreen(
+            onLoadFailed = { errorMessageId ->
+              errorMessageId?.let { popups.ErrorPopup().show(it) }
+              requireActivity().finish()
+            }
+          )
+        }
+      }
     }
 }
