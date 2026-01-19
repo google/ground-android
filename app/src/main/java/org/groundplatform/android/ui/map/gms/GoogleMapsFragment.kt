@@ -179,8 +179,8 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
       isIndoorLevelPickerEnabled = false
     }
 
-    if (isAdded && view != null) {
-      viewLifecycleOwner.lifecycleScope.launch {
+    viewLifecycleOwner.lifecycleScope.launch {
+      viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
         featureManager.markerClicks.collect { featureClicks.emit(setOf(it)) }
       }
     }
@@ -249,7 +249,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     val cameraPosition = map.cameraPosition
     val projection = map.projection
 
-    featureManager.zoom = map.cameraPosition.zoom
+    featureManager.setZoom(map.cameraPosition.zoom)
     featureManager.onCameraIdle()
 
     lifecycleScope.launch {
