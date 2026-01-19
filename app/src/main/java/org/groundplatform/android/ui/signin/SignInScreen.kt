@@ -107,7 +107,7 @@ private fun SignInContent(connected: Boolean, signInState: SignInState, onSignIn
       verticalArrangement = Arrangement.SpaceAround,
     ) {
       LogoAndTitle()
-      GoogleSignInButton { onSignInClick() }
+      GoogleSignInButton(enabled = connected && signInState.shouldAllowSignIn()) { onSignInClick() }
     }
 
     SnackbarHost(hostState = snackbarHostState, modifier = Modifier.align(Alignment.BottomCenter))
@@ -152,11 +152,20 @@ private fun LogoAndTitle(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun GoogleSignInButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
+private fun GoogleSignInButton(
+  enabled: Boolean,
+  modifier: Modifier = Modifier,
+  onClick: () -> Unit,
+) {
   AndroidView(
     modifier = modifier.wrapContentSize().testTag(BUTTON_TEST_TAG),
-    factory = { context -> SignInButton(context).apply { setSize(SignInButton.SIZE_WIDE) } },
-    update = { button -> button.setOnClickListener { onClick() } },
+    factory = { context ->
+      SignInButton(context).apply {
+        setSize(SignInButton.SIZE_WIDE)
+        setOnClickListener { onClick() }
+      }
+    },
+    update = { button -> button.isEnabled = enabled },
   )
 }
 
