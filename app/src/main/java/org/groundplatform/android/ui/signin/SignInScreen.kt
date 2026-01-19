@@ -40,6 +40,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.disabled
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
@@ -158,7 +160,15 @@ private fun GoogleSignInButton(
   onClick: () -> Unit,
 ) {
   AndroidView(
-    modifier = modifier.wrapContentSize().testTag(BUTTON_TEST_TAG),
+    modifier =
+      modifier.wrapContentSize().testTag(BUTTON_TEST_TAG).semantics {
+        // Allows UI tests written with the Compose testing framework to accurately check the
+        // button's state using semantic matchers like assertIsDisabled(). Otherwise, testing
+        // framework cannot check the state of a View embedded within AndroidView.
+        if (!enabled) {
+          disabled()
+        }
+      },
     factory = { context ->
       SignInButton(context).apply {
         setSize(SignInButton.SIZE_WIDE)
