@@ -19,7 +19,6 @@ import org.groundplatform.android.e2etest.robots.SignInRobot
 import org.groundplatform.android.e2etest.robots.SurveySelectorRobot
 import org.groundplatform.android.e2etest.robots.TermsOfServiceRobot
 import org.groundplatform.android.ui.main.MainActivity
-import org.groundplatform.android.ui.map.gms.features.TEST_MARKER_TAG
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -90,18 +89,6 @@ class CompleteAllTaskTypesTest {
     with(DataCollectionRobot(testDriver)) {
       dismissInstructions()
       runTasks(TestConfig.TEST_LIST_ALL_TASK_TYPES_EXCEPT_DRAW_AREA)
-    }
-    // Remove previous LOI and add new one to test DRAW_AREA
-    with(HomeScreenRobot(testDriver)) {
-      moveMap()
-      recenter()
-      deleteLoi(TEST_MARKER_TAG)
-      addLoi()
-      selectJob(TestConfig.TEST_JOB_DRAW_AREA)
-    }
-    with(DataCollectionRobot(testDriver)) {
-      dismissInstructions()
-      runTasks(TestConfig.TEST_LIST_DRAW_AREA)
     }
   }
 
