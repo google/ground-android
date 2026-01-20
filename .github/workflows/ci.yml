@@ -60,3 +60,5 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     uses: ./.github/workflows/test-e2e.yml
     secrets: inherit
+    permissions:
+      contents: read
