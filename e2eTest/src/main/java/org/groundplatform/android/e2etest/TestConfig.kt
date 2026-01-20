@@ -17,6 +17,13 @@ package org.groundplatform.android.e2etest
 
 import org.groundplatform.android.model.task.Task
 
+/**
+ * This file contains configuration constants and test data for the E2E tests. All surveys, jobs,
+ * tasks, and other test data here must match the corresponding entries in the local Firebase
+ * emulator. Mismatched values may cause E2E tests to fail.
+ *
+ * For more details on how E2E tests work see: docs/e2e-testing-doc.md
+ */
 object TestConfig {
   const val DEFAULT_TIMEOUT = 10000L
   const val SURVEY_NAME = "Ground app E2E test"

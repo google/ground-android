@@ -58,5 +58,5 @@ jobs:
   instrumentation-tests:
     needs: build
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-    uses: ./.github/workflows/test-integration.yml
+    uses: ./.github/workflows/test-e2e.yml
     secrets: inherit
