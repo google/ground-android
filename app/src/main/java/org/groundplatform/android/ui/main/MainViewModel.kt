@@ -83,12 +83,12 @@ constructor(
     _deepLinkUri.value = uri
   }
 
-  private suspend fun onSignInStateChange(signInState: SignInState): MainUiState =
+  private suspend fun onSignInStateChange(signInState: SignInState): MainUiState? =
     when (signInState) {
       is SignInState.Error -> onUserSignInError(signInState.error)
       is SignInState.SignedIn -> onUserSignedIn(signInState.user)
       is SignInState.SignedOut -> onUserSignedOut()
-      is SignInState.SigningIn -> MainUiState.OnUserSigningIn
+      else -> null
     }
 
   private fun onUserSignInError(error: Throwable): MainUiState {

@@ -130,9 +130,6 @@ class MainActivity : AbstractActivity() {
       MainUiState.ShowHomeScreen -> {
         navigateTo(HomeScreenFragmentDirections.showHomeScreen())
       }
-      MainUiState.OnUserSigningIn -> {
-        // Do nothing, the progress bar is now controlled by SignInScreen.
-      }
       is MainUiState.ActiveSurveyById -> {
         val action = SurveySelectorFragmentDirections.showSurveySelectorScreen(false)
         action.surveyId = uiState.surveyId
