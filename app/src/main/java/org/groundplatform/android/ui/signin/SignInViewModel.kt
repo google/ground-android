@@ -22,7 +22,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.NetworkStatus
@@ -55,8 +54,6 @@ internal constructor(networkManager: NetworkManager, private val userRepository:
       )
 
   fun onSignInButtonClick() {
-    if (signInState.value.shouldAllowSignIn() && networkAvailable.value) {
-      viewModelScope.launch { userRepository.signIn() }
-    }
+    userRepository.signIn()
   }
 }
