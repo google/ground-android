@@ -95,7 +95,7 @@ class MainViewModelTest : BaseHiltTest() {
         fakeAuthenticationManager.setState(SignInState.SigningIn)
         advanceUntilIdle()
 
-        assertThat(awaitItem()).isEqualTo(MainUiState.OnUserSigningIn)
+        assertThat(awaitItem()).isEqualTo(null)
         verifyUserNotSaved()
         assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
       }

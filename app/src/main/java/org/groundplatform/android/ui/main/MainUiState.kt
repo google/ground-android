@@ -22,8 +22,6 @@ sealed class MainUiState {
 
   data object OnUserSignedOut : MainUiState()
 
-  data object OnUserSigningIn : MainUiState()
-
   data object TosNotAccepted : MainUiState()
 
   data object NoActiveSurvey : MainUiState()

@@ -59,6 +59,7 @@
   <string name="no_basemaps_downloaded">No map imagery downloaded for offline use</string>
   <string name="connect_to_download_message">You are offline. Connect to download offline map imager</string>
   <string name="signing_in">Signing in</string>
+  <string name="sign_in_with_google">Sign in with Google</string>
   <!-- Precedes the build number shown in the side menu of debug builds. -->
   <string name="build">Build %s</string>
 
