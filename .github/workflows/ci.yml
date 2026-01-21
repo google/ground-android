@@ -59,6 +59,5 @@ jobs:
     needs: build
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     uses: ./.github/workflows/test-e2e.yml
-    secrets: inherit
-    permissions:
-      contents: read
+    secrets:
+      MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
