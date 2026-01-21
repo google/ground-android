@@ -23,7 +23,13 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-@Immutable data class Size(val jobActionButtonSize: Dp = 80.dp, val jobActionIconSize: Dp = 36.dp)
+@Immutable
+data class Size(
+  val jobActionButtonSize: Dp = 80.dp,
+  val jobActionIconSize: Dp = 36.dp,
+  val progressIndicatorSize: Dp = 24.dp,
+  val progressIndicatorStrokeWidth: Dp = 2.dp,
+)
 
 internal val LocalSizes = compositionLocalOf { Size() }
 
