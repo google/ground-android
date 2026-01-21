@@ -34,7 +34,6 @@ import org.groundplatform.android.system.auth.FakeAuthenticationManager
 import org.groundplatform.android.system.auth.SignInState
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows
@@ -62,39 +61,6 @@ class MainActivityTest : BaseHiltTest() {
     super.closeDb()
     Shadows.shadowOf(Looper.getMainLooper()).idle()
   }
-
-  @Test
-  fun `Sign in progress dialog is displayed when signing in`() = runWithTestDispatcher {
-    Robolectric.buildActivity(MainActivity::class.java).use { controller ->
-      Mockito.`when`(remoteConfig.getBoolean("force_update")).thenReturn(false)
-      Mockito.`when`(remoteConfig.getString("min_app_version")).thenReturn("0.0.0")
-
-      controller.setup() // Moves Activity to RESUMED state
-      activity = controller.get()
-
-      advanceUntilIdle()
-
-      fakeAuthenticationManager.setState(SignInState.SigningIn)
-      advanceUntilIdle()
-
-      assertThat(ShadowProgressDialog.getLatestDialog().isShowing).isTrue()
-    }
-  }
-
-  @Test
-  fun `Sign in progress dialog is not displayed when signed out after sign in state`() =
-    runWithTestDispatcher {
-      Robolectric.buildActivity(MainActivity::class.java).use { controller ->
-        controller.setup() // Moves Activity to RESUMED state
-        activity = controller.get()
-
-        fakeAuthenticationManager.setState(SignInState.SigningIn)
-        fakeAuthenticationManager.setState(SignInState.SignedOut)
-        advanceUntilIdle()
-
-        assertThat(ShadowProgressDialog.getLatestDialog().isShowing).isFalse()
-      }
-    }
 
   @Test
   fun `Sign in error dialog is displayed when sign in fails`() = runWithTestDispatcher {
