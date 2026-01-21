@@ -36,7 +36,7 @@ class SignInFragment : AbstractFragment(), BackPressListener {
   ): View =
     ComposeView(requireContext()).apply {
       setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-      setContent { AppTheme { SignInScreen() } }
+      setContent { AppTheme { SignInScreen(onExitClick = { requireActivity().finish() }) } }
     }
 
   override fun onBack(): Boolean {

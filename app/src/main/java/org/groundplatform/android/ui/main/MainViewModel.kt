@@ -91,10 +91,10 @@ constructor(
       else -> null
     }
 
-  private fun onUserSignInError(error: Throwable): MainUiState {
+  private fun onUserSignInError(error: Throwable): MainUiState? {
     Timber.e(error, "Sign in failed")
     return if (error.isPermissionDeniedException()) {
-      MainUiState.OnPermissionDenied
+      null
     } else if (error.isSignInCancelledException()) {
       Timber.d("User cancelled sign in")
       MainUiState.OnUserSignedOut
@@ -115,7 +115,7 @@ constructor(
     return MainUiState.OnUserSignedOut
   }
 
-  private suspend fun onUserSignedIn(user: User): MainUiState =
+  private suspend fun onUserSignedIn(user: User): MainUiState? =
     try {
       userRepository.saveUserDetails(user)
       if (!isTosAccepted()) {
@@ -166,7 +166,7 @@ constructor(
 
   fun isAppUpdateAvailable(currentVersion: String = BuildConfig.VERSION_NAME): Boolean {
     val forceUpdate = remoteConfig.getBoolean("force_update")
-    val latestVersion = remoteConfig.getString("min_app_version") ?: ""
+    val latestVersion = remoteConfig.getString("min_app_version")
 
     return forceUpdate &&
       latestVersion.isNotBlank() &&

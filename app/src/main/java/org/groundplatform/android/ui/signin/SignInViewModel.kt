@@ -56,4 +56,8 @@ internal constructor(networkManager: NetworkManager, private val userRepository:
   fun onSignInButtonClick() {
     userRepository.signIn()
   }
+
+  fun onSignOutButtonClick() {
+    userRepository.signOut()
+  }
 }
