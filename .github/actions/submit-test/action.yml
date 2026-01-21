@@ -107,7 +107,6 @@ runs:
 
     - name: Export Firebase emulator data
       if: always()
-      working-directory: ground-platform
       shell: bash
       run: |
         echo "Exporting emulator data..."
