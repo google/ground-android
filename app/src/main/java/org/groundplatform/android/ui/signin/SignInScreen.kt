@@ -20,11 +20,16 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -40,17 +45,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.disabled
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.google.android.gms.common.SignInButton
 import org.groundplatform.android.R
 import org.groundplatform.android.system.auth.SignInState
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
@@ -159,24 +160,29 @@ private fun GoogleSignInButton(
   modifier: Modifier = Modifier,
   onClick: () -> Unit,
 ) {
-  AndroidView(
-    modifier =
-      modifier.wrapContentSize().testTag(BUTTON_TEST_TAG).semantics {
-        // Allows UI tests written with the Compose testing framework to accurately check the
-        // button's state using semantic matchers like assertIsDisabled(). Otherwise, testing
-        // framework cannot check the state of a View embedded within AndroidView.
-        if (!enabled) {
-          disabled()
-        }
-      },
-    factory = { context ->
-      SignInButton(context).apply {
-        setSize(SignInButton.SIZE_WIDE)
-        setOnClickListener { onClick() }
-      }
-    },
-    update = { button -> button.isEnabled = enabled },
-  )
+  Button(
+    onClick = onClick,
+    enabled = enabled,
+    modifier = modifier.wrapContentSize().testTag(BUTTON_TEST_TAG),
+    colors =
+      ButtonDefaults.buttonColors(
+        containerColor = Color.White,
+        contentColor = Color.DarkGray,
+        disabledContainerColor = Color.LightGray,
+        disabledContentColor = Color.Gray,
+      ),
+  ) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+      Icon(
+        painter = painterResource(id = R.drawable.ic_google_logo),
+        contentDescription = null,
+        modifier = Modifier.size(24.dp),
+        tint = Color.Unspecified,
+      )
+      Spacer(modifier = Modifier.padding(horizontal = 8.dp))
+      Text(text = stringResource(id = R.string.sign_in_with_google), fontSize = 16.sp)
+    }
+  }
 }
 
 @Preview(showBackground = true)
