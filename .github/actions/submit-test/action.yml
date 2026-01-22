@@ -110,7 +110,7 @@ runs:
       shell: bash
       run: |
         echo "Exporting emulator data..."
-        npx firebase emulators:export ${{ github.workspace }}/test-android-result --project demo-local --force
+        npx -y -p firebase-tools firebase emulators:export ${{ github.workspace }}/test-android-result --project demo-local --force
 
     - name: Upload Firebase emulator data
       if: always() && inputs.upload-artifacts == 'true'

@@ -61,3 +61,5 @@ jobs:
     uses: ./.github/workflows/test-e2e.yml
     secrets:
       MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
+    permissions:
+      contents: read
