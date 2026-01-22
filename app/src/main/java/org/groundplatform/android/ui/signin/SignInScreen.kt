@@ -52,6 +52,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes.SIGN_IN_CANCELLED
+import com.google.android.gms.common.api.ApiException
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.FirebaseFirestoreException.Code
 import org.groundplatform.android.BuildConfig
@@ -104,15 +106,7 @@ private fun SignInContent(
   if (signInState is SignInState.SigningIn) {
     LoadingDialog(R.string.signing_in)
   } else if (signInState is SignInState.Error) {
-    if (signInState.error.isPermissionDeniedException()) {
-      PermissionDeniedDialog(
-        // TODO: Read url from Firestore config/properties/signUpUrl
-        // Issue URL: https://github.com/google/ground-android/issues/2402
-        BuildConfig.SIGNUP_FORM_LINK,
-        onSignOut = { onSignOutClick() },
-        onCloseApp = { onExitClick() },
-      )
-    } else {}
+    SignInErrorUi(signInState, onSignOutClick, onExitClick, snackbarHostState)
   }
 
   Box(modifier = Modifier.fillMaxSize()) {
@@ -139,6 +133,39 @@ private fun SignInContent(
     SnackbarHost(hostState = snackbarHostState, modifier = Modifier.align(Alignment.BottomCenter))
   }
 }
+
+@Composable
+private fun SignInErrorUi(
+  signInState: SignInState.Error,
+  onSignOutClick: () -> Unit,
+  onExitClick: () -> Unit,
+  snackbarHostState: SnackbarHostState,
+) {
+  when {
+    signInState.error.isPermissionDeniedException() -> {
+      PermissionDeniedDialog(
+        // TODO: Read url from Firestore config/properties/signUpUrl
+        // Issue URL: https://github.com/google/ground-android/issues/2402
+        signupLink = BuildConfig.SIGNUP_FORM_LINK,
+        onSignOut = onSignOutClick,
+        onCloseApp = onExitClick,
+      )
+    }
+
+    signInState.error.isSignInCancelledException() -> {
+      /* Do nothing, as this was a user choice, not a system error. */
+    }
+
+    // For any other type of error, show a generic message.
+    else -> {
+      val unknownErrorMessage = stringResource(R.string.something_went_wrong)
+      LaunchedEffect(signInState.error) { snackbarHostState.showSnackbar(unknownErrorMessage) }
+    }
+  }
+}
+
+private fun Throwable.isSignInCancelledException() =
+  this is ApiException && statusCode == SIGN_IN_CANCELLED
 
 @Composable
 private fun BackgroundOverlay(modifier: Modifier = Modifier) {

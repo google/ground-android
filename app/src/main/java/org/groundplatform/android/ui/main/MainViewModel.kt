@@ -85,12 +85,12 @@ constructor(
 
   private suspend fun onSignInStateChange(signInState: SignInState): MainUiState? =
     when (signInState) {
-      is SignInState.Error -> onUserSignInError(signInState.error)
       is SignInState.SignedIn -> onUserSignedIn(signInState.user)
       is SignInState.SignedOut -> onUserSignedOut()
       else -> null
     }
 
+  // TODO: Remove the remaining usage as error handling for signin is now moved to SignInScreen.
   private fun onUserSignInError(error: Throwable): MainUiState? {
     Timber.e(error, "Sign in failed")
     return if (error.isPermissionDeniedException()) {
