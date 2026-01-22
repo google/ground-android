@@ -58,6 +58,7 @@
   <string name="no_basemaps_downloaded">No se ha descargado ningún mapa para su uso sin conexión</string>
   <string name="connect_to_download_message">Estás desconectado. Conéctate para descargar imágenes de mapa sin conexión</string>
   <string name="signing_in">Iniciando sesión</string>
+  <string name="sign_in_with_google">Iniciar sesión con Google</string>
   <!-- Precedes the build number shown in the side menu of debug builds. -->
   <string name="build">Creado %s</string>
 

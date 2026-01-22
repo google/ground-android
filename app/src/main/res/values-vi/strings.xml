@@ -51,6 +51,7 @@
   <string name="no_basemaps_downloaded">Chưa có hình ảnh bản đồ nào được tải xuống để sử dụng ngoại tuyến</string>
   <string name="connect_to_download_message">Bạn đang ngoại tuyến. Hãy kết nối Internet để tải hình ảnh bản đồ ngoại tuyến</string>
   <string name="signing_in">Đang đăng nhập</string>
+  <string name="sign_in_with_google">Đăng nhập bằng Google</string>
   <!-- Precedes the build number shown in the side menu of debug builds. -->
   <string name="build">Phiên bản %s</string>
   <string name="tos_title">Điều khoản dịch vụ</string>

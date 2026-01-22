@@ -44,7 +44,6 @@ import org.groundplatform.android.system.ActivityStreams
 import org.groundplatform.android.ui.common.AbstractActivity
 import org.groundplatform.android.ui.common.BackPressListener
 import org.groundplatform.android.ui.common.ViewModelFactory
-import org.groundplatform.android.ui.common.modalSpinner
 import org.groundplatform.android.ui.components.PermissionDeniedDialog
 import org.groundplatform.android.ui.home.HomeScreenFragmentDirections
 import org.groundplatform.android.ui.signin.SignInFragmentDirections
@@ -63,8 +62,6 @@ class MainActivity : AbstractActivity() {
 
   private lateinit var viewModel: MainViewModel
   private lateinit var navHostFragment: NavHostFragment
-
-  private var signInProgressDialog: AlertDialog? = null
 
   private var pendingDeepLink: Uri? = null
 
@@ -133,18 +130,11 @@ class MainActivity : AbstractActivity() {
       MainUiState.ShowHomeScreen -> {
         navigateTo(HomeScreenFragmentDirections.showHomeScreen())
       }
-      MainUiState.OnUserSigningIn -> {
-        onSignInProgress(true)
-      }
       is MainUiState.ActiveSurveyById -> {
         val action = SurveySelectorFragmentDirections.showSurveySelectorScreen(false)
         action.surveyId = uiState.surveyId
         navigateTo(action)
       }
-    }
-
-    if (uiState != MainUiState.OnUserSigningIn) {
-      onSignInProgress(false)
     }
   }
 
@@ -222,24 +212,6 @@ class MainActivity : AbstractActivity() {
     val fragmentManager = navHostFragment.childFragmentManager
     val currentFragment = fragmentManager.findFragmentById(R.id.nav_host_fragment)
     return currentFragment is BackPressListener && currentFragment.onBack()
-  }
-
-  private fun onSignInProgress(visible: Boolean) {
-    if (visible) showSignInDialog() else dismissSignInDialog()
-  }
-
-  private fun showSignInDialog() {
-    if (signInProgressDialog == null) {
-      signInProgressDialog = modalSpinner(this, layoutInflater, R.string.signing_in)
-    }
-    signInProgressDialog?.show()
-  }
-
-  private fun dismissSignInDialog() {
-    if (signInProgressDialog != null) {
-      signInProgressDialog?.dismiss()
-      signInProgressDialog = null
-    }
   }
 
   private fun navigateTo(directions: NavDirections) {

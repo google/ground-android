@@ -20,13 +20,23 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -40,15 +50,48 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
-import com.google.android.gms.common.SignInButton
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.groundplatform.android.R
+import org.groundplatform.android.system.auth.SignInState
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
+import org.groundplatform.android.ui.components.LoadingDialog
+import org.groundplatform.android.ui.theme.AppTheme
 
 const val BUTTON_TEST_TAG = "google_sign_in_button"
 
+/**
+ * Displays the sign-in screen, handling network connectivity status and authentication state.
+ *
+ * @param viewModel the view model used to manage sign-in state and network connectivity.
+ */
 @Composable
-fun SignInScreen(onSignInClick: () -> Unit) {
+fun SignInScreen(viewModel: SignInViewModel = hiltViewModel()) {
+  val connected by viewModel.networkAvailable.collectAsStateWithLifecycle()
+  val signInState by viewModel.signInState.collectAsStateWithLifecycle()
+
+  SignInContent(
+    connected = connected,
+    signInState = signInState,
+    onSignInClick = { viewModel.onSignInButtonClick() },
+  )
+}
+
+@Composable
+private fun SignInContent(connected: Boolean, signInState: SignInState, onSignInClick: () -> Unit) {
+  val snackbarHostState = remember { SnackbarHostState() }
+  val networkErrorMessage = stringResource(R.string.network_error_when_signing_in)
+
+  LaunchedEffect(connected) {
+    if (!connected) {
+      snackbarHostState.showSnackbar(networkErrorMessage)
+    }
+  }
+
+  if (signInState is SignInState.SigningIn) {
+    LoadingDialog(R.string.signing_in)
+  }
+
   Box(modifier = Modifier.fillMaxSize()) {
 
     // Background image
@@ -67,8 +110,10 @@ fun SignInScreen(onSignInClick: () -> Unit) {
       verticalArrangement = Arrangement.SpaceAround,
     ) {
       LogoAndTitle()
-      GoogleSignInButton { onSignInClick() }
+      GoogleSignInButton(enabled = connected && signInState.shouldAllowSignIn()) { onSignInClick() }
     }
+
+    SnackbarHost(hostState = snackbarHostState, modifier = Modifier.align(Alignment.BottomCenter))
   }
 }
 
@@ -110,17 +155,59 @@ private fun LogoAndTitle(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun GoogleSignInButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
-  AndroidView(
+private fun GoogleSignInButton(
+  enabled: Boolean,
+  modifier: Modifier = Modifier,
+  onClick: () -> Unit,
+) {
+  Button(
+    onClick = onClick,
+    enabled = enabled,
     modifier = modifier.wrapContentSize().testTag(BUTTON_TEST_TAG),
-    factory = { context -> SignInButton(context).apply { setSize(SignInButton.SIZE_WIDE) } },
-    update = { button -> button.setOnClickListener { onClick() } },
-  )
+    colors =
+      ButtonDefaults.buttonColors(
+        containerColor = Color.White,
+        contentColor = Color.DarkGray,
+        disabledContainerColor = Color.LightGray,
+        disabledContentColor = Color.Gray,
+      ),
+  ) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+      Icon(
+        painter = painterResource(id = R.drawable.ic_google_logo),
+        contentDescription = null,
+        modifier = Modifier.size(24.dp),
+        tint = Color.Unspecified,
+      )
+      Spacer(modifier = Modifier.padding(horizontal = 8.dp))
+      Text(text = stringResource(id = R.string.sign_in_with_google), fontSize = 16.sp)
+    }
+  }
 }
 
 @Preview(showBackground = true)
 @Composable
 @ExcludeFromJacocoGeneratedReport
-private fun SignInScreenPreview() {
-  SignInScreen(onSignInClick = {})
+private fun SignInScreenSignedOutPreview() {
+  AppTheme {
+    SignInContent(connected = true, signInState = SignInState.SignedOut, onSignInClick = {})
+  }
+}
+
+@Preview(showBackground = true)
+@Composable
+@ExcludeFromJacocoGeneratedReport
+private fun SignInScreenSigningInPreview() {
+  AppTheme {
+    SignInContent(connected = true, signInState = SignInState.SigningIn, onSignInClick = {})
+  }
+}
+
+@Preview(showBackground = true)
+@Composable
+@ExcludeFromJacocoGeneratedReport
+private fun SignInScreenNotConnectedPreview() {
+  AppTheme {
+    SignInContent(connected = false, signInState = SignInState.SignedOut, onSignInClick = {})
+  }
 }
