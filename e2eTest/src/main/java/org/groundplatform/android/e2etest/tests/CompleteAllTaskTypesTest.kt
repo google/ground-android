@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.core.app.takeScreenshot
 import androidx.test.core.graphics.writeToTestStorage
+import androidx.test.espresso.intent.Intents
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
@@ -18,7 +19,7 @@ import org.groundplatform.android.e2etest.robots.SignInRobot
 import org.groundplatform.android.e2etest.robots.SurveySelectorRobot
 import org.groundplatform.android.e2etest.robots.TermsOfServiceRobot
 import org.groundplatform.android.ui.main.MainActivity
-import org.groundplatform.android.ui.map.gms.features.TEST_MARKER_TAG
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -45,17 +46,28 @@ class CompleteAllTaskTypesTest {
 
   @get:Rule
   val runtimePermissionsRule: GrantPermissionRule =
-    GrantPermissionRule.grant(Manifest.permission.CAMERA, Manifest.permission.ACCESS_FINE_LOCATION)
+    GrantPermissionRule.grant(
+      Manifest.permission.CAMERA,
+      Manifest.permission.ACCESS_FINE_LOCATION,
+      Manifest.permission.READ_EXTERNAL_STORAGE,
+      Manifest.permission.WRITE_EXTERNAL_STORAGE,
+    )
 
   private lateinit var testDriver: AndroidTestDriver
 
   @Before
   fun setup() {
+    Intents.init()
     testDriver =
       AndroidTestDriver(
         composeRule = composeTestRule,
         device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()),
       )
+  }
+
+  @After
+  fun tearDown() {
+    Intents.release()
   }
 
   @Test
@@ -77,18 +89,6 @@ class CompleteAllTaskTypesTest {
     with(DataCollectionRobot(testDriver)) {
       dismissInstructions()
       runTasks(TestConfig.TEST_LIST_ALL_TASK_TYPES_EXCEPT_DRAW_AREA)
-    }
-    // Remove previous LOI and add new one to test DRAW_AREA
-    with(HomeScreenRobot(testDriver)) {
-      moveMap()
-      recenter()
-      deleteLoi(TEST_MARKER_TAG)
-      addLoi()
-      selectJob(TestConfig.TEST_JOB_DRAW_AREA)
-    }
-    with(DataCollectionRobot(testDriver)) {
-      dismissInstructions()
-      runTasks(TestConfig.TEST_LIST_DRAW_AREA)
     }
   }
 

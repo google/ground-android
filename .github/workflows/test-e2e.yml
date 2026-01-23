@@ -14,53 +14,33 @@
 name: End to End Test
 
 on:
-  issue_comment:
-    types: [created]
+  workflow_dispatch:
+  workflow_call:
+    secrets:
+      MAPS_API_KEY:
+        required: true
+
+permissions:
+  contents: read
 
 jobs:
-  e2eTest:
+  run-instrumentation-tests:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    if: github.event.issue.pull_request && contains(github.event.comment.body, '/e2eTest')
-    steps:
-      - name: Start test
-        run: |
-          echo "Begin end to end test"
+    timeout-minutes: 30
+    env:
+      FIREBASE_CLI_EXPERIMENTS: webframeworks
 
-
-  createTest:
-    needs: e2eTest
-    name: Create a new survey
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
+    # See docs/e2e-testing-doc.md for details on how this is setup
     steps:
-      - name: Run create-test
-        uses: google/ground-platform/.github/actions/create-test@master
-        with:
-            upload-artifacts: true
+      - name: Checkout repository
+        uses: actions/checkout@v6
 
-  submitTest:
-    needs: createTest
-    name: Submit to survey
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - name: Run submit-test
-        uses: ./.github/actions/submit-test
+      - name: Start Firebase emulator
+        uses: google/ground-platform/.github/actions/start-emulator@master
+
+      - name: Run Android tests on e2eTest module
+        uses: google/ground-android/.github/actions/submit-test@master
         with:
           android-repository: ${{ github.repository }}
-          google-maps-key: ${{ secrets.GOOGLE_MAPS_KEY }}
-          use-repo-data: false
           upload-artifacts: true
-          
-
-  verifyTest:
-    needs: submitTest
-    name: Verify survey submissions
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - name: Run verify-test
-        uses: google/ground-platform/.github/actions/verify-test@master
-        with:
-            use-repo-data: false
+          google-maps-key: ${{ secrets.MAPS_API_KEY }}
