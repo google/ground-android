@@ -32,13 +32,13 @@ The CI workflow (and local execution) follows these steps:
 ### Updating test data
 Since the Android app relies on specific survey structures, changes to the survey schema may require
 updating the test data. Follow the steps in "Running tests locally" above, then:
-1. Manually set up or update the survey (via the web UI) to match the scenarios expected by the Android `e2eTest` module.
+1. Manually set up or update the survey to match the scenarios expected by the Android `e2eTest` module
 2. Verify that all tests pass locally using the `localDebug` build variant
 3. Export the updated emulator data to persist changes:
    ```bash
    firebase emulators:export data/test-android --project demo-local
    ```
-   *Note: This overwrites the data in `data/test-android`.*
+   *Note: This overwrites the data in `data/test-android`*
 
 ## Limitations
 
