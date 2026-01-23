@@ -27,6 +27,7 @@ jobs:
   run-instrumentation-tests:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    environment: e2e-approval
     env:
       FIREBASE_CLI_EXPERIMENTS: webframeworks
 
