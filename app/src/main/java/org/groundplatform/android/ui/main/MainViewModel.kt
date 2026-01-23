@@ -19,8 +19,6 @@ import android.net.Uri
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes.SIGN_IN_CANCELLED
-import com.google.android.gms.common.api.ApiException
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
@@ -42,7 +40,6 @@ import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.common.SharedViewModel
 import org.groundplatform.android.usecases.session.ClearUserSessionUseCase
 import org.groundplatform.android.usecases.survey.ReactivateLastSurveyUseCase
-import org.groundplatform.android.util.isPermissionDeniedException
 import timber.log.Timber
 
 /** Top-level view model representing state of the [MainActivity] shared by all fragments. */
@@ -90,24 +87,6 @@ constructor(
       else -> null
     }
 
-  // TODO: Remove the remaining usage as error handling for signin is now moved to SignInScreen.
-  private fun onUserSignInError(error: Throwable): MainUiState? {
-    Timber.e(error, "Sign in failed")
-    return if (error.isPermissionDeniedException()) {
-      null
-    } else if (error.isSignInCancelledException()) {
-      Timber.d("User cancelled sign in")
-      MainUiState.OnUserSignedOut
-    } else {
-      // TODO: Display some error dialog to the user with a helpful user-readable message.
-      // Issue URL: https://github.com/google/ground-android/issues/1808
-      onUserSignedOut()
-    }
-  }
-
-  private fun Throwable.isSignInCancelledException() =
-    this is ApiException && statusCode == SIGN_IN_CANCELLED
-
   private fun onUserSignedOut(): MainUiState {
     // Scope of subscription is until view model is cleared. Dispose it manually otherwise, firebase
     // attempts to maintain a connection even after user has logged out and throws an error.
@@ -142,7 +121,9 @@ constructor(
         MainUiState.ShowHomeScreen
       }
     } catch (e: Throwable) {
-      onUserSignInError(e)
+      Timber.e(e)
+      // TODO: Display some error dialog to the user with a helpful user-readable message.
+      onUserSignedOut()
     }
 
   /** Returns true if the user has already accepted the Terms of Service. */
