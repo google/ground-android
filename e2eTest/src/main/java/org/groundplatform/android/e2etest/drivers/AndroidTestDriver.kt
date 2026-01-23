@@ -15,7 +15,12 @@
  */
 package org.groundplatform.android.e2etest.drivers
 
+import android.app.Activity
+import android.app.Instrumentation
+import android.content.Intent
 import android.graphics.Point
+import android.net.Uri
+import android.provider.MediaStore
 import android.widget.DatePicker
 import android.widget.TimePicker
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -29,14 +34,16 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions
+import androidx.test.espresso.intent.Intents.intending
+import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
 import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
-import androidx.test.uiautomator.UiObject
-import androidx.test.uiautomator.UiSelector
 import androidx.test.uiautomator.Until
 import org.groundplatform.android.R
 import org.groundplatform.android.e2etest.TestConfig.DEFAULT_TIMEOUT
+import org.groundplatform.android.e2etest.TestConfig.TEST_PHOTO_FILE
 import org.groundplatform.android.e2etest.extensions.onTarget
 
 @OptIn(ExperimentalTestApi::class)
@@ -103,7 +110,8 @@ class AndroidTestDriver(
 
   override fun clickMapMarker(description: String) {
     wait(TestDriver.Target.ViewId(R.id.map))
-    val marker: UiObject = device.findObject(UiSelector().descriptionContains(description))
+    val marker = device.wait(Until.findObject(By.descContains(description)), DEFAULT_TIMEOUT)
+    checkNotNull(marker) { "Marker '$description' not found after $DEFAULT_TIMEOUT ms" }
     marker.click()
   }
 
@@ -126,15 +134,21 @@ class AndroidTestDriver(
   }
 
   override fun takePhoto() {
-    val shutterSelector = By.res("com.android.camera2:id/shutter_button")
-    val doneSelector = By.res("com.android.camera2:id/done_button")
+    intending(hasAction(MediaStore.ACTION_IMAGE_CAPTURE)).respondWithFunction { intent ->
+      intent.getParcelableExtra<Uri>(MediaStore.EXTRA_OUTPUT)?.let { photoUri ->
+        val testContext = InstrumentationRegistry.getInstrumentation().context
+        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
 
-    val shutterButton = device.wait(Until.findObject(shutterSelector), DEFAULT_TIMEOUT)
-    checkNotNull(shutterButton) { "Camera 'shutter button' not found after ${DEFAULT_TIMEOUT}ms" }
-    shutterButton.click()
-    val doneButton = device.wait(Until.findObject(doneSelector), DEFAULT_TIMEOUT)
-    checkNotNull(doneButton) { "Camera 'done' button not found after ${DEFAULT_TIMEOUT}ms" }
-    doneButton.click()
+        testContext.assets.open(TEST_PHOTO_FILE).use { input ->
+          appContext.contentResolver.openOutputStream(photoUri)?.use { output ->
+            input.copyTo(output)
+          } ?: error("Failed to open output stream for $photoUri")
+        }
+      } ?: error("photoUri is null")
+      Instrumentation.ActivityResult(Activity.RESULT_OK, Intent())
+    }
+
+    click(TestDriver.Target.ViewId(R.id.btn_camera))
   }
 
   override fun setDate() {
