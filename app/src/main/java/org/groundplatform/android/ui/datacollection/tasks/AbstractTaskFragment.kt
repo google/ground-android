@@ -252,7 +252,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   private fun ActionButtonsRow() {
     Row(
       modifier = Modifier.fillMaxWidth().height(48.dp),
-      horizontalArrangement = Arrangement.SpaceBetween
+      horizontalArrangement = Arrangement.SpaceBetween,
     ) {
       buttonDataList.sortedBy { it.index }.forEach { (_, button) -> button.CreateButton() }
     }

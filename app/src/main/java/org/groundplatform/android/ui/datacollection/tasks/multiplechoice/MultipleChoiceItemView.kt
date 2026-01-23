@@ -113,7 +113,7 @@ fun MultipleChoiceItemView(
 
     if (item.isOtherOption) {
       Row(modifier = Modifier.padding(horizontal = 48.dp)) {
-        OtherTextField(modifier, item, focusRequester, otherValueChanged)
+        OtherTextField(Modifier, item, focusRequester, otherValueChanged)
       }
     }
 
