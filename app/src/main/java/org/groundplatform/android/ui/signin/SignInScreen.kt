@@ -54,6 +54,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes.SIGN_IN_CANCELLED
 import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.Status
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.FirebaseFirestoreException.Code
 import org.groundplatform.android.BuildConfig
@@ -289,6 +290,37 @@ private fun SignInScreenPermissionDeniedErrorPreview() {
     SignInContent(
       connected = true,
       signInState = SignInState.Error(error),
+      onSignInClick = {},
+      onSignOutClick = {},
+      onExitClick = {},
+    )
+  }
+}
+
+@Preview(showBackground = true)
+@Composable
+@ExcludeFromJacocoGeneratedReport
+private fun SignInScreenUserCancelledErrorPreview() {
+  AppTheme {
+    val error = ApiException(Status(SIGN_IN_CANCELLED))
+    SignInContent(
+      connected = true,
+      signInState = SignInState.Error(error),
+      onSignInClick = {},
+      onSignOutClick = {},
+      onExitClick = {},
+    )
+  }
+}
+
+@Preview(showBackground = true)
+@Composable
+@ExcludeFromJacocoGeneratedReport
+private fun SignInScreenUnknownErrorPreview() {
+  AppTheme {
+    SignInContent(
+      connected = true,
+      signInState = SignInState.Error(Error("Unknown error")),
       onSignInClick = {},
       onSignOutClick = {},
       onExitClick = {},
