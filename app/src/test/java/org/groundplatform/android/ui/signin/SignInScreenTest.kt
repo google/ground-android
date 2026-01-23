@@ -130,7 +130,9 @@ class SignInScreenTest : BaseHiltTest() {
 
   @Test
   fun `Nothing is displayed on sign in cancelled by user`() = runWithTestDispatcher {
-    signInState.emit(SignInState.Error(ApiException(Status(GoogleSignInStatusCodes.SIGN_IN_CANCELLED))))
+    signInState.emit(
+      SignInState.Error(ApiException(Status(GoogleSignInStatusCodes.SIGN_IN_CANCELLED)))
+    )
     composeTestRule.waitForIdle()
     composeTestRule.onNodeWithText("Permission denied").assertDoesNotExist()
     composeTestRule.onNodeWithText("Something went wrong").assertDoesNotExist()
