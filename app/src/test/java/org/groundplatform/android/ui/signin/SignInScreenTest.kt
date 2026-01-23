@@ -21,6 +21,11 @@ import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.Status
+import com.google.firebase.firestore.FirebaseFirestoreException
+import com.google.firebase.firestore.FirebaseFirestoreException.Code
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -40,6 +45,7 @@ import org.robolectric.RobolectricTestRunner
 class SignInScreenTest : BaseHiltTest() {
 
   @Mock private lateinit var viewModel: SignInViewModel
+  @Mock private lateinit var onExitClick: () -> Unit
 
   private val networkAvailableState: MutableStateFlow<Boolean> = MutableStateFlow(true)
   private val signInState: MutableStateFlow<SignInState> = MutableStateFlow(SignInState.SignedOut)
@@ -48,7 +54,7 @@ class SignInScreenTest : BaseHiltTest() {
     super.setUp()
     whenever(viewModel.networkAvailable).thenReturn(networkAvailableState)
     whenever(viewModel.signInState).thenReturn(signInState)
-    composeTestRule.setContent { AppTheme { SignInScreen(viewModel = viewModel) } }
+    composeTestRule.setContent { AppTheme { SignInScreen(onExitClick, viewModel = viewModel) } }
   }
 
   @Test
@@ -90,5 +96,50 @@ class SignInScreenTest : BaseHiltTest() {
     networkAvailableState.emit(false)
     composeTestRule.waitForIdle()
     composeTestRule.onNodeWithText("Connect to the internet to sign in").assertIsDisplayed()
+  }
+
+  @Test
+  fun `Permission denied dialog is displayed on Firestore permission denied error`() =
+    runWithTestDispatcher {
+      signInState.emit(
+        SignInState.Error(FirebaseFirestoreException("Permission denied", Code.PERMISSION_DENIED))
+      )
+      composeTestRule.waitForIdle()
+      composeTestRule.onNodeWithText("Permission denied").assertIsDisplayed()
+    }
+
+  @Test
+  fun `Clicking close app on permission denied dialog should exit app`() = runWithTestDispatcher {
+    signInState.emit(
+      SignInState.Error(FirebaseFirestoreException("Permission denied", Code.PERMISSION_DENIED))
+    )
+    composeTestRule.waitForIdle()
+    composeTestRule.onNodeWithText("Close app").performClick()
+    verify(onExitClick).invoke()
+  }
+
+  @Test
+  fun `Clicking sign out on permission denied dialog should sign out`() = runWithTestDispatcher {
+    signInState.emit(
+      SignInState.Error(FirebaseFirestoreException("Permission denied", Code.PERMISSION_DENIED))
+    )
+    composeTestRule.waitForIdle()
+    composeTestRule.onNodeWithText("Sign out").performClick()
+    verify(viewModel).onSignOutButtonClick()
+  }
+
+  @Test
+  fun `Nothing is displayed on sign in cancelled by user`() = runWithTestDispatcher {
+    signInState.emit(SignInState.Error(ApiException(Status(GoogleSignInStatusCodes.SIGN_IN_CANCELLED))))
+    composeTestRule.waitForIdle()
+    composeTestRule.onNodeWithText("Permission denied").assertDoesNotExist()
+    composeTestRule.onNodeWithText("Something went wrong").assertDoesNotExist()
+  }
+
+  @Test
+  fun `Snackbar is displayed on unknown error`() = runWithTestDispatcher {
+    signInState.emit(SignInState.Error(Error("Some other error")))
+    composeTestRule.waitForIdle()
+    composeTestRule.onNodeWithText("Something went wrong").assertIsDisplayed()
   }
 }
