@@ -11,169 +11,112 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-name: Submit to survey
+name: Run all tests in the e2eTest module
 
 inputs:
-    android-repository:
-        description: 'ground-android repository under test'
-        default: google/ground-android
+  android-repository:
+    description: 'ground-android repository under test'
+    default: google/ground-android
 
-    platform-repository:
-        description: 'ground-platform repository under test (if applicable)'
-        default: google/ground-platform
+  upload-artifacts:
+    description: 'Whether to upload the final emulator data artifacts'
+    default: 'false'
 
-    use-repo-data:
-        description: 'Whether to use the local repository emulator data or not'
-        default: 'true'
-
-    upload-artifacts:
-        description: 'Whether to upload the final emulator data artifacts'
-        default: 'false'
-
-    google-maps-key:
-        description: 'A Google Maps API key'
+  google-maps-key:
+    description: 'A Google Maps API key'
 
 runs:
-    using: composite
-    steps:
-        -   name: Enable KVM group perms
-            shell: bash
-            run: |
-                echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-                sudo udevadm control --reload-rules
-                sudo udevadm trigger --name-match=kvm
-                ls /dev/kvm
+  using: composite
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v6
+      with:
+        repository: ${{ inputs.android-repository }}
+        clean: false
 
-        -   name: Gradle cache
-            uses: gradle/actions/setup-gradle@v3
+    - name: Check Firebase emulator connection
+      shell: bash
+      run: |
+        echo "Checking connection to Firebase emulator..."
+        if curl -v http://localhost:4000; then
+            echo "Successfully connected to Firebase emulator!"
+        else
+            echo "Failed to connect to Firebase emulator (http://localhost:4000)"
+            exit 1
+        fi
 
-        -   name: AVD cache
-            uses: actions/cache@v4
-            id: avd-cache
-            with:
-                path: |
-                    ~/.android/avd/*
-                    ~/.android/adb*
-                key: avd-24
+    - name: Validate and setup MAPS_API_KEY
+      env:
+        MAPS_API_KEY: ${{ inputs.google-maps-key }}
+      shell: bash
+      run: |
+        if [ -z "${MAPS_API_KEY}" ]; then
+          echo "MAPS_API_KEY is missing from GitHub secrets"
+          exit 1
+        fi
+        echo "MAPS_API_KEY is set"
+        echo "MAPS_API_KEY=${{ secrets.MAPS_API_KEY }}" > secrets.properties
 
-        -   name: Checkout
-            uses: actions/checkout@v4
-            with:
-                repository: ${{ inputs.android-repository }}
+    - name: Enable KVM group perms
+      shell: bash
+      run: |
+        echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+        sudo udevadm control --reload-rules
+        sudo udevadm trigger --name-match=kvm
 
-        -   name: Set up JDK 17
-            uses: actions/setup-java@v4
-            with:
-                distribution: 'zulu'
-                java-version: 17
+    - name: Setup JDK 17
+      uses: actions/setup-java@v5
+      with:
+        distribution: 'temurin'
+        java-version: 17
 
-        -   name: Setup Gradle
-            uses: gradle/gradle-build-action@v3
+    - name: Gradle cache
+      uses: gradle/actions/setup-gradle@v5
 
-        -   name: Set up Node.js 18
-            uses: actions/setup-node@v4
-            with:
-                node-version: 18
+    - name: Run tests
+      uses: reactivecircus/android-emulator-runner@v2
+      with:
+        api-level: 30
+        target: google_apis
+        arch: x86_64
+        emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
+        disable-animations: true
+        script: |
+          adb wait-for-device
+          adb emu geo fix -122.084 37.422
+          sleep 2
+          ./gradlew connectedLocalDebugAndroidTest --stacktrace
 
-        -   name: Checkout ground-platform
-            uses: actions/checkout@v4
-            with:
-                repository: ${{ inputs.platform-repository }}
-                path: ground-platform
+    - name: Upload test reports
+      if: always()
+      uses: actions/upload-artifact@v6
+      with:
+        name: test-reports
+        path: '**/build/reports/androidTests'
+        retention-days: 7
+        if-no-files-found: warn
 
-        -   name: Cache node modules
-            id: cache-npm
-            uses: actions/cache@v3
-            env:
-                cache-name: cache-node-modules
-            with:
-                # npm cache files are stored in `~/.npm` on Linux/macOS
-                path: ~/.npm
-                key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-                restore-keys: |
-                    ${{ runner.os }}-build-${{ env.cache-name }}-
-                    ${{ runner.os }}-build-
-                    ${{ runner.os }}-
+    - name: Upload test screenshots
+      if: always()
+      uses: actions/upload-artifact@v6
+      with:
+        name: test-screenshots
+        path: '**/build/outputs/connected_android_test_additional_output'
+        retention-days: 7
+        if-no-files-found: ignore
 
-        -   name: Build ground functions
-            shell: bash
-            run: |
-                cd ground-platform
-                npm run build:local
-                cd ../
+    - name: Export Firebase emulator data
+      if: always()
+      shell: bash
+      run: |
+        echo "Exporting emulator data..."
+        npx -y -p firebase-tools firebase emulators:export ${{ github.workspace }}/test-android-result --project demo-local --force
 
-        -   name: Install firebase-tools
-            shell: bash
-            run: |
-                npm install -g firebase-tools
-
-        -   name: Cache Firebase emulator
-            uses: actions/cache@v4
-            with:
-                path: ~/.cache/firebase/emulators
-                key: ${{ runner.os }}-firebase-emulators-${{ github.sha }}
-                restore-keys: |
-                    ${{ runner.os }}-firebase-emulators-
-
-        -   name: Copy Firebase emulator data
-            uses: actions/download-artifact@v4
-            if: inputs.use-repo-data != 'true'
-            with:
-                name: data-create
-                path: data/
-
-        -   name: Copy the local repo data
-            if: inputs.use-repo-data == 'true'
-            shell: bash
-            run: cp -r ground-platform/data/test-create ground-platform/data/test
-
-        -   name: Replace Google Maps API key
-            shell: bash
-            env:
-                GOOGLE_MAPS_KEY: ${{ inputs.google-maps-key }}
-            run: |
-                sed -E -i 's/("current_key": ")[[:alnum:]_-]+(")/\1'"$GOOGLE_MAPS_KEY"'\2/' app/src/debug/local/google-services.json
-
-        -   name: Move the local google-services.json
-            shell: bash
-            run: |
-                cp -r app/src/debug/local/google-services.json app/src/debug/
-
-        -   name: Build projects and run instrumentation tests
-            uses: reactivecircus/android-emulator-runner@v2
-            with:
-                api-level: 24
-                target: google_apis_playstore
-                force-avd-creation: false
-                emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back emulated -logcat '*:e'
-                disable-animations: true
-                script: |
-                    firebase emulators:exec './gradlew :e2eTest:connectedLocalDebugAndroidTest --stacktrace' --config ground-platform/firebase.local.json --project local --import data/test --export-on-exit data/test
-
-        -   name: Upload test reports
-            if: always()
-            uses: actions/upload-artifact@v4
-            with:
-                name: test-reports
-                path: '**/build/reports/androidTests'
-
-        -   name: Upload screenshots
-            if: always()
-            uses: actions/upload-artifact@v4
-            with:
-                name: test-screenshots
-                path: '**/build/outputs/connected_android_test_additional_output'
-
-        -   name: Move Firebase emulator data (avoids .gitignore)
-            shell: bash
-            run: mv data/test/ ./test
-
-        -   name: Copy Firebase emulator data
-            if: inputs.upload-artifacts == 'true'
-            uses: actions/upload-artifact@v4
-            with:
-                name: data-submit
-                path: '**/test'
-                retention-days: 7
-                overwrite: true
-                if-no-files-found: error
+    - name: Upload Firebase emulator data
+      if: always() && inputs.upload-artifacts == 'true'
+      uses: actions/upload-artifact@v6
+      with:
+        name: firebase-emulator-data
+        path: ${{ github.workspace }}/test-android-result
+        retention-days: 7
+        if-no-files-found: warn
