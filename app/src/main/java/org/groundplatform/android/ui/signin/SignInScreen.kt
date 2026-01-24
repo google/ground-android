@@ -74,16 +74,16 @@ const val BUTTON_TEST_TAG = "google_sign_in_button"
  * @param viewModel the view model used to manage sign-in state and network connectivity.
  */
 @Composable
-fun SignInScreen(onExitClick: () -> Unit, viewModel: SignInViewModel = hiltViewModel()) {
+fun SignInScreen(onCloseApp: () -> Unit, viewModel: SignInViewModel = hiltViewModel()) {
   val connected by viewModel.networkAvailable.collectAsStateWithLifecycle()
   val signInState by viewModel.signInState.collectAsStateWithLifecycle()
 
   SignInContent(
     connected = connected,
     signInState = signInState,
-    onSignInClick = { viewModel.onSignInButtonClick() },
-    onSignOutClick = { viewModel.onSignOutButtonClick() },
-    onExitClick = onExitClick,
+    onSignInClick = viewModel::onSignInButtonClick,
+    onSignOutClick = viewModel::onSignOutButtonClick,
+    onCloseApp = onCloseApp,
   )
 }
 
@@ -93,7 +93,7 @@ private fun SignInContent(
   signInState: SignInState,
   onSignInClick: () -> Unit,
   onSignOutClick: () -> Unit,
-  onExitClick: () -> Unit,
+  onCloseApp: () -> Unit,
 ) {
   val snackbarHostState = remember { SnackbarHostState() }
   val networkErrorMessage = stringResource(R.string.network_error_when_signing_in)
@@ -107,7 +107,7 @@ private fun SignInContent(
   if (signInState is SignInState.SigningIn) {
     LoadingDialog(R.string.signing_in)
   } else if (signInState is SignInState.Error) {
-    SignInErrorUi(signInState, onSignOutClick, onExitClick, snackbarHostState)
+    SignInErrorUi(signInState, onSignOutClick, onCloseApp, snackbarHostState)
   }
 
   Box(modifier = Modifier.fillMaxSize()) {
@@ -139,7 +139,7 @@ private fun SignInContent(
 private fun SignInErrorUi(
   signInState: SignInState.Error,
   onSignOutClick: () -> Unit,
-  onExitClick: () -> Unit,
+  onCloseApp: () -> Unit,
   snackbarHostState: SnackbarHostState,
 ) {
   when {
@@ -149,7 +149,7 @@ private fun SignInErrorUi(
         // Issue URL: https://github.com/google/ground-android/issues/2402
         signupLink = BuildConfig.SIGNUP_FORM_LINK,
         onSignOut = onSignOutClick,
-        onCloseApp = onExitClick,
+        onCloseApp = onCloseApp,
       )
     }
 
@@ -246,7 +246,7 @@ private fun SignInScreenSignedOutPreview() {
       signInState = SignInState.SignedOut,
       onSignInClick = {},
       onSignOutClick = {},
-      onExitClick = {},
+      onCloseApp = {},
     )
   }
 }
@@ -261,7 +261,7 @@ private fun SignInScreenSigningInPreview() {
       signInState = SignInState.SigningIn,
       onSignInClick = {},
       onSignOutClick = {},
-      onExitClick = {},
+      onCloseApp = {},
     )
   }
 }
@@ -276,7 +276,7 @@ private fun SignInScreenNotConnectedPreview() {
       signInState = SignInState.SignedOut,
       onSignInClick = {},
       onSignOutClick = {},
-      onExitClick = {},
+      onCloseApp = {},
     )
   }
 }
@@ -292,7 +292,7 @@ private fun SignInScreenPermissionDeniedErrorPreview() {
       signInState = SignInState.Error(error),
       onSignInClick = {},
       onSignOutClick = {},
-      onExitClick = {},
+      onCloseApp = {},
     )
   }
 }
@@ -308,7 +308,7 @@ private fun SignInScreenUserCancelledErrorPreview() {
       signInState = SignInState.Error(error),
       onSignInClick = {},
       onSignOutClick = {},
-      onExitClick = {},
+      onCloseApp = {},
     )
   }
 }
@@ -323,7 +323,7 @@ private fun SignInScreenUnknownErrorPreview() {
       signInState = SignInState.Error(Error("Unknown error")),
       onSignInClick = {},
       onSignOutClick = {},
-      onExitClick = {},
+      onCloseApp = {},
     )
   }
 }
