@@ -135,13 +135,12 @@ class MultipleChoiceItemViewTest : BaseHiltTest() {
     isSelected: Boolean = false,
     isOtherOption: Boolean = false,
     otherText: String = "",
-  ): MultipleChoiceItem {
-    return MultipleChoiceItem(
+  ): MultipleChoiceItem =
+    MultipleChoiceItem(
       Option(id = "1", code = "code1", label = "Option 1"),
       cardinality = cardinality,
       isSelected = isSelected,
       isOtherOption = isOtherOption,
       otherText = otherText,
     )
-  }
 }
