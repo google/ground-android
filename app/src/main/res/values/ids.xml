@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="map_container_fragment" type="id"/>
+    <item name="map" type="id"/>
+    <item name="compose_content" type="id"/>
+    <item name="bottom_container" type="id"/>
+</resources>

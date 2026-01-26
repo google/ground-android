@@ -22,6 +22,7 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -61,7 +62,7 @@ class SyncStatusFragmentTest : BaseHiltTest() {
   fun `Toolbar should be displayed`() {
     setupFragment()
 
-    onView(withId(R.id.sync_status_toolbar)).check(matches(isDisplayed()))
+    composeTestRule.onNodeWithText(androidx.test.core.app.ApplicationProvider.getApplicationContext<android.content.Context>().getString(R.string.data_sync_status)).assertIsDisplayed()
   }
 
   @Test

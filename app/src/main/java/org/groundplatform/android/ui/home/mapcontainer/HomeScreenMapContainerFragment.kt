@@ -26,7 +26,6 @@ import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import org.groundplatform.android.R
-import org.groundplatform.android.databinding.BasemapLayoutBinding
 import org.groundplatform.android.model.locationofinterest.LOI_NAME_PROPERTY
 import org.groundplatform.android.proto.Survey.DataSharingTerms
 import org.groundplatform.android.ui.common.AbstractMapContainerFragment
@@ -54,7 +53,9 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
   private lateinit var homeScreenViewModel: HomeScreenViewModel
-  private lateinit var binding: BasemapLayoutBinding
+  // private lateinit var binding: BasemapLayoutBinding -- Remove
+  private lateinit var composeView: androidx.compose.ui.platform.ComposeView
+  private lateinit var bottomContainer: ViewGroup
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -133,13 +134,54 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     savedInstanceState: Bundle?,
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
-    binding = BasemapLayoutBinding.inflate(inflater, container, false)
-    return binding.root
+    // Programmatic layout equivalent to basemap_layout.xml
+    val root = androidx.constraintlayout.widget.ConstraintLayout(requireContext()).apply {
+        layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+    }
+
+    // Map Container
+    val mapContainer = android.widget.FrameLayout(requireContext()).apply {
+        id = R.id.map
+        layoutParams = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, 
+            ViewGroup.LayoutParams.MATCH_PARENT
+        )
+    }
+    root.addView(mapContainer)
+
+    // Compose Content
+    composeView = androidx.compose.ui.platform.ComposeView(requireContext()).apply {
+        id = R.id.compose_content
+        layoutParams = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, 
+            ViewGroup.LayoutParams.MATCH_PARENT
+        )
+    }
+    root.addView(composeView)
+
+    // Bottom Container (CoordinatorLayout)
+    val coordinatorPos = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams(
+        ViewGroup.LayoutParams.MATCH_PARENT,
+        ViewGroup.LayoutParams.WRAP_CONTENT
+    ).apply {
+        bottomToBottom = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID
+        startToStart = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID
+        endToEnd = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID
+        // gravity = Gravity.BOTTOM (ConstraintLayout handles via constraints)
+    }
+
+    bottomContainer = androidx.coordinatorlayout.widget.CoordinatorLayout(requireContext()).apply {
+        id = R.id.bottom_container
+        layoutParams = coordinatorPos
+    }
+    root.addView(bottomContainer)
+    
+    return root
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    binding.composeContent.apply {
+    composeView.apply {
       setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
       setComposableContent {
         val locationLockButton by
@@ -164,13 +206,15 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       }
     }
 
-    binding.bottomContainer.bringToFront()
+    bottomContainer.bringToFront()
     showDataCollectionHint()
 
     // LOIs associated with the survey have been synced to the local db by this point. We can
     // enable location lock if no LOIs exist or a previous camera position doesn't exist.
     launchWhenStarted { mapContainerViewModel.maybeEnableLocationLock() }
   }
+  
+
 
   private fun handleMapAction(action: BaseMapAction) {
     when (action) {
@@ -208,9 +252,12 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     if (!this::mapContainerViewModel.isInitialized) {
       return Timber.w("showDataCollectionHint() called before mapContainerViewModel initialized")
     }
-    if (!this::binding.isInitialized) {
-      return Timber.w("showDataCollectionHint() called before binding initialized")
+    if (!this::mapContainerViewModel.isInitialized) {
+      return Timber.w("showDataCollectionHint() called before mapContainerViewModel initialized")
     }
+    // binding check no longer valid.
+    // composeView and bottomContainer are initialized in onCreateView.
+
 
     // Decides which survey-related popup to show based on the current survey.
     mapContainerViewModel.surveyUpdateFlow.launchWhenStartedAndCollectFirst { surveyProperties ->
@@ -225,9 +272,10 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       null
     }
 
+  // ... showInfoPopup ...
   private fun showInfoPopup(messageId: Int) {
     ephemeralPopups
-      .InfoPopup(binding.bottomContainer, messageId, EphemeralPopups.PopupDuration.LONG)
+      .InfoPopup(bottomContainer, messageId, EphemeralPopups.PopupDuration.LONG)
       .show()
   }
 

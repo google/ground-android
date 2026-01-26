@@ -33,17 +33,13 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
-import org.groundplatform.android.databinding.OfflineAreaSelectorFragBinding
 import org.groundplatform.android.model.map.MapType
 import org.groundplatform.android.ui.common.AbstractMapContainerFragment
 import org.groundplatform.android.ui.common.BaseMapViewModel
 import org.groundplatform.android.ui.common.EphemeralPopups
 import org.groundplatform.android.ui.common.MapConfig
-import org.groundplatform.android.ui.components.MapFloatingActionButton
 import org.groundplatform.android.ui.home.mapcontainer.HomeScreenMapContainerViewModel
 import org.groundplatform.android.ui.map.MapFragment
-import org.groundplatform.android.util.renderComposableDialog
-import org.groundplatform.android.util.setComposableContent
 
 /** Map UI used to select areas for download and viewing offline. */
 @AndroidEntryPoint
@@ -54,7 +50,7 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
 
   @Inject lateinit var popups: EphemeralPopups
 
-  private lateinit var binding: OfflineAreaSelectorFragBinding
+
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -68,30 +64,44 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
     savedInstanceState: Bundle?,
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
-    binding = OfflineAreaSelectorFragBinding.inflate(inflater, container, false)
-    binding.viewModel = viewModel
-    binding.lifecycleOwner = this
-    return binding.root
+    val root = android.widget.FrameLayout(requireContext())
+    root.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+
+    val mapContainer = androidx.fragment.app.FragmentContainerView(requireContext())
+    mapContainer.id = R.id.map
+    root.addView(mapContainer, android.widget.FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+
+    val composeView = androidx.compose.ui.platform.ComposeView(requireContext())
+    composeView.setViewCompositionStrategy(androidx.compose.ui.platform.ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+    composeView.setContent {
+      org.groundplatform.android.ui.theme.AppTheme {
+        val locationLockIcon by viewModel.locationLockIconType.collectAsStateWithLifecycle()
+        val bottomText by viewModel.bottomText.observeAsState("")
+        val downloadEnabled by viewModel.downloadButtonEnabled.observeAsState(false)
+        val showProgress by viewModel.isDownloadProgressVisible.observeAsState(false)
+        val progress by viewModel.downloadProgress.observeAsState(0f)
+
+        OfflineAreaSelectorScreen(
+          downloadEnabled = downloadEnabled,
+          onDownloadClick = { viewModel.onDownloadClick() },
+          onCancelClick = { viewModel.onCancelClick() },
+          onLocationLockClick = { viewModel.onLocationLockClick() },
+          locationLockIcon = locationLockIcon,
+          bottomText = bottomText.toString(),
+          showProgressDialog = showProgress,
+          downloadProgress = progress,
+          mapView = {}
+        )
+      }
+    }
+    root.addView(composeView, android.widget.FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+    return root
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    binding.locationLockBtn.apply {
-      setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-      setComposableContent {
-        val locationLockButton by viewModel.locationLockIconType.collectAsStateWithLifecycle()
-
-        MapFloatingActionButton(
-          type = locationLockButton,
-          onClick = { viewModel.onLocationLockClick() },
-        )
-      }
-    }
 
     viewLifecycleOwner.lifecycleScope.launch {
-      viewModel.isDownloadProgressVisible.observe(viewLifecycleOwner) {
-        showDownloadProgressDialog(it)
-      }
       viewModel.isFailure.observe(viewLifecycleOwner) {
         if (it) {
           Toast.makeText(context, R.string.offline_area_download_error, Toast.LENGTH_LONG).show()
@@ -137,22 +147,4 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
   }
 
   override fun getMapViewModel(): BaseMapViewModel = viewModel
-
-  private fun showDownloadProgressDialog(isVisible: Boolean) {
-    renderComposableDialog {
-      val openAlertDialog = remember { mutableStateOf(isVisible) }
-      val progress = viewModel.downloadProgress.observeAsState(0f)
-      when {
-        openAlertDialog.value -> {
-          DownloadProgressDialog(
-            progress = progress.value,
-            onDismiss = {
-              openAlertDialog.value = false
-              viewModel.stopDownloading()
-            },
-          )
-        }
-      }
-    }
-  }
 }
