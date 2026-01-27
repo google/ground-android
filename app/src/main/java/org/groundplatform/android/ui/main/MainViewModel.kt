@@ -94,7 +94,7 @@ constructor(
     return MainUiState.OnUserSignedOut
   }
 
-  private suspend fun onUserSignedIn(user: User): MainUiState? =
+  private suspend fun onUserSignedIn(user: User): MainUiState =
     try {
       userRepository.saveUserDetails(user)
       if (!isTosAccepted()) {
