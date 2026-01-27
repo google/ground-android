@@ -18,8 +18,6 @@ package org.groundplatform.android.ui.main
 
 sealed class MainUiState {
 
-  data object OnPermissionDenied : MainUiState()
-
   data object OnUserSignedOut : MainUiState()
 
   data object TosNotAccepted : MainUiState()
