@@ -69,20 +69,7 @@
   </style>
 
   <!-- NavDrawer Header -->
-  <style name="ShapeAppearanceOverlay.App.CornerSize50Percent" parent="">
-    <item name="cornerSize">50%</item>
-  </style>
 
-  <style name="NavDrawerHeader">
-    <item name="android:layout_marginStart">24dp</item>
-    <item name="android:layout_marginLeft">24dp</item>
-  </style>
-
-  <style name="NavDrawerHeader.Image">
-    <item name="android:layout_width">@dimen/nav_drawer_profile_image_size</item>
-    <item name="android:layout_height">@dimen/nav_drawer_profile_image_size</item>
-    <item name="shapeAppearanceOverlay">@style/ShapeAppearanceOverlay.App.CornerSize50Percent</item>
-  </style>
 
   <style name="TaskChipButton" parent="Widget.MaterialComponents.Chip.Action">
     <item name="android:layout_width">wrap_content</item>
@@ -100,13 +87,6 @@
     <item name="android:textColor">?attr/colorOnSurface</item>
   </style>
 
-  <style name="TextAppearance.App.TitleSmall" parent="TextAppearance.Material3.TitleSmall">
-    <item name="fontFamily">@font/text_700</item>
-  </style>
-
-  <style name="TextAppearance.App.TitleSmall.OnSurfaceContainer">
-    <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
-  </style>
 
   <style name="TextAppearance.App.TitleMedium" parent="TextAppearance.Material3.TitleMedium">
     <item name="fontFamily">@font/text_700</item>

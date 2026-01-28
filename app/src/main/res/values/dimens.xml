@@ -30,7 +30,6 @@
   <dimen name="toolbar_elevation">4dp</dimen>
 
   <!-- Navigation drawer -->
-  <dimen name="nav_drawer_profile_image_size">36dp</dimen>
 
   <!-- LOI bottom card -->
   <dimen name="zoom_on_cluster_click_padding">50dp</dimen>
