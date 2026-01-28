@@ -21,7 +21,6 @@
   <color name="clusterBalloonFillColor">#6DDD81</color>
   <!-- 29% opacity for cluster's outer ring. -->
   <color name="clusterBalloonStrokeColor">#4B6DDD81</color>
-  <color name="textOverMap">#FCFDF7</color>
   <color name="blackOverlay">#000000</color>
   <!-- DrawArea color palette -->
   <color name="drawAreaLineStringStrokeColor">#EDAE3D</color>
