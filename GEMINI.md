@@ -14,8 +14,9 @@ When making changes to the code:
 
 Before pushing changes:
 
-1. Run `./gradlew ktfmtFormat` to fix lint errors.
-2. Run checkstyle with `./gradlew :app:checkstyle` and fix all errors and warnings.
+1. Remove any commented out code or temporary comments added in the process of debugging and authoring new or changed code.
+2. Run `./gradlew ktfmtFormat` to fix lint errors.
+3. Run checkstyle with `./gradlew :app:checkstyle` and fix all errors and warnings.
 
 When asked to resolve pending comments:
 
