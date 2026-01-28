@@ -37,37 +37,26 @@ import org.groundplatform.android.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SyncStatusScreen(
-    uploadStatuses: List<SyncStatusDetail>,
-    onBack: () -> Unit
-) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(text = stringResource(R.string.data_sync_status)) },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.previous)
-                        )
-                    }
-                }
+fun SyncStatusScreen(uploadStatuses: List<SyncStatusDetail>, onBack: () -> Unit) {
+  Scaffold(
+    topBar = {
+      TopAppBar(
+        title = { Text(text = stringResource(R.string.data_sync_status)) },
+        navigationIcon = {
+          IconButton(onClick = onBack) {
+            Icon(
+              imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+              contentDescription = stringResource(R.string.previous),
             )
-        }
-    ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .testTag("sync list")
-        ) {
-            items(uploadStatuses) {
-                SyncListItem(
-                    modifier = Modifier.semantics { testTag = "item ${it.user}" },
-                    detail = it
-                )
-            }
-        }
+          }
+        },
+      )
     }
+  ) { paddingValues ->
+    LazyColumn(modifier = Modifier.fillMaxSize().padding(paddingValues).testTag("sync list")) {
+      items(uploadStatuses) {
+        SyncListItem(modifier = Modifier.semantics { testTag = "item ${it.user}" }, detail = it)
+      }
+    }
+  }
 }

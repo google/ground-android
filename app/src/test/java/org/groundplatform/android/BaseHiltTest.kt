@@ -57,11 +57,13 @@ open class BaseHiltTest {
   @Before
   @OverridingMethodsMustInvokeSuper
   open fun setUp() {
-    val context = androidx.test.core.app.ApplicationProvider.getApplicationContext<android.content.Context>()
-    val config = androidx.work.Configuration.Builder()
-      .setMinimumLoggingLevel(android.util.Log.DEBUG)
-      .setExecutor(androidx.work.testing.SynchronousExecutor())
-      .build()
+    val context =
+      androidx.test.core.app.ApplicationProvider.getApplicationContext<android.content.Context>()
+    val config =
+      androidx.work.Configuration.Builder()
+        .setMinimumLoggingLevel(android.util.Log.DEBUG)
+        .setExecutor(androidx.work.testing.SynchronousExecutor())
+        .build()
     androidx.work.testing.WorkManagerTestInitHelper.initializeTestWorkManager(context, config)
     hiltRule.inject()
   }

@@ -8,9 +8,17 @@ These rules apply to all interactions in this project.
 
 When making changes to the code:
 
-1. Add unit tests of all new or changed behaviors, and remove obsolete unit tests for removed behaviors.
-2. Run and fix all unit tests with ``./gradlew :app:testLocalDebugUnitTest`.
+1. Ensure all new files have the standard copyright header with the current year.
+2. Add unit tests of all new or changed behaviors and remove obsolete unit tests for removed behaviors.
+3. Run and fix all unit tests with `./gradlew :app:testLocalDebugUnitTest`.
 
 Before pushing changes:
 
-1. Run checkstyle with `./gradlew :app:checkstyle` and fix all errors and warnings.
+1. Run `./gradlew ktfmtFormat` to fix lint errors.
+2. Run checkstyle with `./gradlew :app:checkstyle` and fix all errors and warnings.
+
+When asked to resolve pending comments:
+
+1. Get the current PR number using `gh pr view $(git branch --show-current) --json number`.
+2. Fetch comments with `gh api -H "Accept: application/vnd.github.v3.full+json" /repos/google/ground-android/pulls/<PR number>/comments` to get the pending comments.
+3. Resolve the pending comments.

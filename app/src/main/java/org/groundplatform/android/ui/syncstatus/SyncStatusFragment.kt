@@ -21,8 +21,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import dagger.hilt.android.AndroidEntryPoint
 import androidx.navigation.fragment.findNavController
+import dagger.hilt.android.AndroidEntryPoint
 import org.groundplatform.android.ui.common.AbstractFragment
 
 /**
@@ -46,14 +46,13 @@ class SyncStatusFragment : AbstractFragment() {
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
     return androidx.compose.ui.platform.ComposeView(requireContext()).apply {
-      setViewCompositionStrategy(androidx.compose.ui.platform.ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+      setViewCompositionStrategy(
+        androidx.compose.ui.platform.ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
+      )
       setContent {
         org.groundplatform.android.ui.theme.AppTheme {
           val list by viewModel.uploadStatus.observeAsState(emptyList())
-          SyncStatusScreen(
-            uploadStatuses = list,
-            onBack = { findNavController().navigateUp() }
-          )
+          SyncStatusScreen(uploadStatuses = list, onBack = { findNavController().navigateUp() })
         }
       }
     }

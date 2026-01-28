@@ -29,7 +29,6 @@ import org.groundplatform.android.data.local.stores.LocalOfflineAreaStore
 import org.groundplatform.android.launchFragmentWithNavController
 import org.groundplatform.android.model.map.MapType
 import org.groundplatform.android.ui.common.MapConfig
-import org.groundplatform.android.util.view.isGone
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -45,7 +44,10 @@ class OfflineAreaViewerFragmentTest : BaseHiltTest() {
   @Test
   fun `RemoveButton is displayed and enabled`() = runWithTestDispatcher {
     setupFragment()
-    composeTestRule.onNodeWithText(fragment.getString(R.string.offline_area_viewer_remove_button)).assertIsDisplayed().assertIsEnabled()
+    composeTestRule
+      .onNodeWithText(fragment.getString(R.string.offline_area_viewer_remove_button))
+      .assertIsDisplayed()
+      .assertIsEnabled()
   }
 
   @Test
@@ -53,15 +55,21 @@ class OfflineAreaViewerFragmentTest : BaseHiltTest() {
     setupFragment()
     composeTestRule.onNodeWithText(OFFLINE_AREA.name).assertIsDisplayed()
     composeTestRule.onNodeWithText("<1\u00A0MB on disk").assertIsDisplayed()
-    composeTestRule.onNodeWithText(fragment.getString(R.string.offline_area_viewer_remove_button)).assertIsDisplayed()
-    composeTestRule.onNodeWithText(fragment.getString(R.string.offline_area_viewer_title)).assertIsDisplayed()
+    composeTestRule
+      .onNodeWithText(fragment.getString(R.string.offline_area_viewer_remove_button))
+      .assertIsDisplayed()
+    composeTestRule
+      .onNodeWithText(fragment.getString(R.string.offline_area_viewer_title))
+      .assertIsDisplayed()
   }
 
   @Test
   fun `When no offline areas available`() = runWithTestDispatcher {
     setupFragmentWithoutDb()
     advanceUntilIdle()
-    composeTestRule.onNodeWithText(fragment.getString(R.string.offline_area_viewer_title)).assertIsDisplayed()
+    composeTestRule
+      .onNodeWithText(fragment.getString(R.string.offline_area_viewer_title))
+      .assertIsDisplayed()
     // Name is empty string, finding empty string text node might match many or root?
     // If areaName is empty, Screen shows nothing? No, Screen shows Text(areaName).
     // If Text("") is rendered, it exists but is invisible?
@@ -70,7 +78,10 @@ class OfflineAreaViewerFragmentTest : BaseHiltTest() {
     composeTestRule.onNodeWithText("<1\u00A0MB on disk").assertDoesNotExist()
 
     // Remove button disabled
-    composeTestRule.onNodeWithText(fragment.getString(R.string.offline_area_viewer_remove_button)).assertIsDisplayed().assertIsNotEnabled()
+    composeTestRule
+      .onNodeWithText(fragment.getString(R.string.offline_area_viewer_remove_button))
+      .assertIsDisplayed()
+      .assertIsNotEnabled()
   }
 
   @Test

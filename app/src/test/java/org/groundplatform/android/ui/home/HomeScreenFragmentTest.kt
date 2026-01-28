@@ -24,7 +24,6 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
-import kotlin.test.assertFalse
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
@@ -58,15 +57,16 @@ abstract class AbstractHomeScreenFragmentTest : BaseHiltTest() {
       fragment = this as HomeScreenFragment
     }
   }
-  
 
-
-// ... (inside class)
-  protected fun openDrawer(composeTestRule: AndroidComposeTestRule<ActivityScenarioRule<ComponentActivity>, ComponentActivity>) {
-      composeTestRule.onNodeWithTag(MapFloatingActionButtonType.OpenNavDrawer.testTag).performClick()
-      composeTestRule.waitForIdle()
-      // verifyDrawerOpen() - can check if drawer content is displayed?
-      // e.g. composeTestRule.onNodeWithText("Sync status").assertIsDisplayed()
+  // ... (inside class)
+  protected fun openDrawer(
+    composeTestRule:
+      AndroidComposeTestRule<ActivityScenarioRule<ComponentActivity>, ComponentActivity>
+  ) {
+    composeTestRule.onNodeWithTag(MapFloatingActionButtonType.OpenNavDrawer.testTag).performClick()
+    composeTestRule.waitForIdle()
+    // verifyDrawerOpen() - can check if drawer content is displayed?
+    // e.g. composeTestRule.onNodeWithText("Sync status").assertIsDisplayed()
   }
 }
 
@@ -84,15 +84,19 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
     openDrawer(composeTestRule)
     composeTestRule.onNodeWithText("Offline map imagery").assertIsDisplayed().assertIsEnabled()
     composeTestRule.onNodeWithText("Data sync status").assertIsDisplayed().assertIsEnabled()
-    composeTestRule.onNodeWithText(fragment.getString(R.string.settings)).assertIsDisplayed().assertIsEnabled()
+    composeTestRule
+      .onNodeWithText(fragment.getString(R.string.settings))
+      .assertIsDisplayed()
+      .assertIsEnabled()
     // "About" and "Terms" - check if they exist in my HomeDrawer?
-    // My HomeDrawer implementation in Step 696 included: Offline Areas, Sync Status, Settings, Sign Out.
+    // My HomeDrawer implementation in Step 696 included: Offline Areas, Sync Status, Settings, Sign
+    // Out.
     // It did NOT include About, Terms, Version.
     // Original nav_menu.xml had them.
     // I should Update HomeDrawer to include About, Terms, Version if they are required.
     // I missed them in Step 696.
     // I should add them to HomeDrawer now or fail the test?
-    // I should ADD THEM to HomeDrawer. 
+    // I should ADD THEM to HomeDrawer.
   }
 }
 
@@ -116,11 +120,11 @@ class NavigationDrawerItemClickTest(
     surveyRepository.activateSurvey(survey.id)
     advanceUntilIdle()
 
-    // openDrawer via helper in Abstract? 
+    // openDrawer via helper in Abstract?
     // We should implement openDrawer in Abstract using composeTestRule.
-    // AbstractHomeScreenFragmentTest needs composeTestRule reference? 
+    // AbstractHomeScreenFragmentTest needs composeTestRule reference?
     // It takes it as arg.
-    
+
     // Using MapFloatingActionButtonType.OpenNavDrawer.testTag
     composeTestRule.onNodeWithTag(MapFloatingActionButtonType.OpenNavDrawer.testTag).performClick()
     composeTestRule.waitForIdle()
@@ -130,7 +134,7 @@ class NavigationDrawerItemClickTest(
     if (expectedNavDirection != null) {
       assertThat(navController.currentDestination?.id).isEqualTo(expectedNavDirection)
     }
-    
+
     // Verify drawer closed?
     // composeTestRule.onNodeWithText(menuItemLabel).assertIsNotDisplayed()
   }

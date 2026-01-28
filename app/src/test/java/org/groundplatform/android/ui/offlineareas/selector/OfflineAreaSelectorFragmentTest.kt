@@ -16,10 +16,9 @@
 package org.groundplatform.android.ui.offlineareas.selector
 
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.lifecycle.Observer
-import androidx.compose.ui.test.*
-import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
@@ -28,17 +27,16 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.R
-import org.groundplatform.android.launchFragmentInHiltContainer
 import org.groundplatform.android.launchFragmentWithNavController
+import org.groundplatform.android.model.geometry.Coordinates
+import org.groundplatform.android.model.map.Bounds
+import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.android.system.NetworkManager
 import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.groundplatform.android.model.geometry.Coordinates
-import org.groundplatform.android.model.map.Bounds
-import org.groundplatform.android.model.map.CameraPosition
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
 import org.mockito.kotlin.any
@@ -69,21 +67,29 @@ class OfflineAreaSelectorFragmentTest : BaseHiltTest() {
 
   @Test
   fun `all the buttons are visible`() {
-    composeTestRule.onNodeWithText(fragment.getString(R.string.offline_area_selector_download)).assertIsDisplayed()
-    composeTestRule.onNodeWithText(fragment.getString(R.string.offline_area_select_cancel_button)).assertIsDisplayed()
-    composeTestRule.onNodeWithText(fragment.getString(R.string.offline_area_select_cancel_button)).assertIsEnabled()
+    composeTestRule
+      .onNodeWithText(fragment.getString(R.string.offline_area_selector_download))
+      .assertIsDisplayed()
+    composeTestRule
+      .onNodeWithText(fragment.getString(R.string.offline_area_select_cancel_button))
+      .assertIsDisplayed()
+    composeTestRule
+      .onNodeWithText(fragment.getString(R.string.offline_area_select_cancel_button))
+      .assertIsEnabled()
   }
 
   @Test
   fun `default value of bottomText`() {
-      // If text is empty, it might be hard to find by text.
-      // But verify logic handles it.
-      // composeTestRule.onNodeWithText("").assertExists()
+    // If text is empty, it might be hard to find by text.
+    // But verify logic handles it.
+    // composeTestRule.onNodeWithText("").assertExists()
   }
 
   @Test
   fun `toolbar text should be correct`() {
-    composeTestRule.onNodeWithText(fragment.getString(R.string.offline_area_selector_title)).assertIsDisplayed()
+    composeTestRule
+      .onNodeWithText(fragment.getString(R.string.offline_area_selector_title))
+      .assertIsDisplayed()
   }
 
   // TODO: Complete below test
@@ -91,8 +97,6 @@ class OfflineAreaSelectorFragmentTest : BaseHiltTest() {
   @org.junit.Ignore("Failing on assertion")
   @Test
   fun `stopDownloading cancels active download and updates UI state`() = runWithTestDispatcher {
-
-
     val progressFlow = MutableSharedFlow<Pair<Int, Int>>()
     whenever(offlineAreaRepository.downloadTiles(any())).thenReturn(progressFlow)
     whenever(networkManager.isNetworkConnected()).thenReturn(true)
@@ -106,7 +110,7 @@ class OfflineAreaSelectorFragmentTest : BaseHiltTest() {
       CameraPosition(
         Coordinates(0.0, 0.0),
         10.0f,
-        Bounds(Coordinates(0.0, 0.0), Coordinates(10.0, 10.0))
+        Bounds(Coordinates(0.0, 0.0), Coordinates(10.0, 10.0)),
       )
     )
     viewModel.onDownloadClick()
@@ -115,19 +119,23 @@ class OfflineAreaSelectorFragmentTest : BaseHiltTest() {
     progressFlow.emit(Pair(50, 100))
     advanceUntilIdle()
 
-
-
     composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.offline_area_select_cancel_button))
+      .onNodeWithText(
+        composeTestRule.activity.getString(R.string.offline_area_select_cancel_button)
+      )
       .assertIsDisplayed()
 
     composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.offline_area_select_cancel_button))
+      .onNodeWithText(
+        composeTestRule.activity.getString(R.string.offline_area_select_cancel_button)
+      )
       .performClick()
     progressFlow.emit(Pair(75, 100))
 
     composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.offline_area_select_cancel_button))
+      .onNodeWithText(
+        composeTestRule.activity.getString(R.string.offline_area_select_cancel_button)
+      )
       .assertIsNotDisplayed()
 
     assertFalse(viewModel.isDownloadProgressVisible.value!!)
@@ -135,6 +143,4 @@ class OfflineAreaSelectorFragmentTest : BaseHiltTest() {
 
     viewModel.downloadProgress.removeObserver(observer)
   }
-
-
 }

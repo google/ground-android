@@ -23,8 +23,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -50,8 +48,6 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
 
   @Inject lateinit var popups: EphemeralPopups
 
-
-
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     mapContainerViewModel = getViewModel(HomeScreenMapContainerViewModel::class.java)
@@ -65,14 +61,26 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
     val root = android.widget.FrameLayout(requireContext())
-    root.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+    root.layoutParams =
+      ViewGroup.LayoutParams(
+        ViewGroup.LayoutParams.MATCH_PARENT,
+        ViewGroup.LayoutParams.MATCH_PARENT,
+      )
 
     val mapContainer = androidx.fragment.app.FragmentContainerView(requireContext())
     mapContainer.id = R.id.map
-    root.addView(mapContainer, android.widget.FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+    root.addView(
+      mapContainer,
+      android.widget.FrameLayout.LayoutParams(
+        ViewGroup.LayoutParams.MATCH_PARENT,
+        ViewGroup.LayoutParams.MATCH_PARENT,
+      ),
+    )
 
     val composeView = androidx.compose.ui.platform.ComposeView(requireContext())
-    composeView.setViewCompositionStrategy(androidx.compose.ui.platform.ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+    composeView.setViewCompositionStrategy(
+      androidx.compose.ui.platform.ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
+    )
     composeView.setContent {
       org.groundplatform.android.ui.theme.AppTheme {
         val locationLockIcon by viewModel.locationLockIconType.collectAsStateWithLifecycle()
@@ -90,11 +98,17 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
           bottomText = bottomText.toString(),
           showProgressDialog = showProgress,
           downloadProgress = progress,
-          mapView = {}
+          mapView = {},
         )
       }
     }
-    root.addView(composeView, android.widget.FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+    root.addView(
+      composeView,
+      android.widget.FrameLayout.LayoutParams(
+        ViewGroup.LayoutParams.MATCH_PARENT,
+        ViewGroup.LayoutParams.MATCH_PARENT,
+      ),
+    )
     return root
   }
 

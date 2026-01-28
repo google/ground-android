@@ -49,143 +49,119 @@ import org.groundplatform.android.ui.components.MapFloatingActionButtonType
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OfflineAreaSelectorScreen(
-    downloadEnabled: Boolean,
-    onDownloadClick: () -> Unit,
-    onCancelClick: () -> Unit,
-    onLocationLockClick: () -> Unit,
-    locationLockIcon: MapFloatingActionButtonType,
-    bottomText: String,
-    showProgressDialog: Boolean,
-    downloadProgress: Float,
-    mapView: @Composable () -> Unit
+  downloadEnabled: Boolean,
+  onDownloadClick: () -> Unit,
+  onCancelClick: () -> Unit,
+  onLocationLockClick: () -> Unit,
+  locationLockIcon: MapFloatingActionButtonType,
+  bottomText: String,
+  showProgressDialog: Boolean,
+  downloadProgress: Float,
+  mapView: @Composable () -> Unit,
 ) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.offline_area_selector_title)) }
-            )
-        }
-    ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            // Map (Background)
-            Box(modifier = Modifier.fillMaxSize()) {
-                mapView()
-            }
+  Scaffold(
+    topBar = { TopAppBar(title = { Text(stringResource(R.string.offline_area_selector_title)) }) }
+  ) { paddingValues ->
+    Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+      // Map (Background)
+      Box(modifier = Modifier.fillMaxSize()) { mapView() }
 
-            // Overlays to create Viewport "Hole"
-            // Top Mask
-            Column(modifier = Modifier.fillMaxSize()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(24.dp)
-                        .background(Color.Black.copy(alpha = 0.4f))
-                )
-                
-                Row(modifier = Modifier.weight(1f)) {
-                    // Left Mask
-                    Box(
-                        modifier = Modifier
-                            .width(24.dp)
-                            .fillMaxSize()
-                            .background(Color.Black.copy(alpha = 0.4f))
-                    )
-                    
-                    // Viewport Hole (Transparent)
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxSize()
-                            .border(1.dp, Color.White) // Outline
-                    ) {
-                        // Location Lock Button
-                         Box(
-                            modifier = Modifier
-                                .align(Alignment.BottomEnd)
-                                .padding(16.dp)
-                        ) {
-                             MapFloatingActionButton(
-                                type = locationLockIcon,
-                                onClick = onLocationLockClick
-                             )
-                        }
-                    }
-                    
-                    // Right Mask
-                    Box(
-                        modifier = Modifier
-                            .width(24.dp)
-                            .fillMaxSize()
-                            .background(Color.Black.copy(alpha = 0.4f))
-                    )
-                }
-                
-                // Bottom Mask with Text
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(80.dp)
-                        .background(Color.Black.copy(alpha = 0.4f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = bottomText,
-                        color = Color.White,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(horizontal = 64.dp)
-                    )
-                }
-                
-                // Buttons container
-                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.surface) // SurfaceContainer in XML
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.Top
-                ) {
-                    OutlinedButton(
-                        onClick = onCancelClick,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(stringResource(R.string.offline_area_select_cancel_button))
-                    }
-                    Spacer(Modifier.width(16.dp))
-                    Button(
-                        onClick = onDownloadClick,
-                        enabled = downloadEnabled,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(stringResource(R.string.offline_area_selector_download))
-                    }
-                }
+      // Overlays to create Viewport "Hole"
+      // Top Mask
+      Column(modifier = Modifier.fillMaxSize()) {
+        Box(
+          modifier =
+            Modifier.fillMaxWidth().height(24.dp).background(Color.Black.copy(alpha = 0.4f))
+        )
+
+        Row(modifier = Modifier.weight(1f)) {
+          // Left Mask
+          Box(
+            modifier =
+              Modifier.width(24.dp).fillMaxSize().background(Color.Black.copy(alpha = 0.4f))
+          )
+
+          // Viewport Hole (Transparent)
+          Box(
+            modifier = Modifier.weight(1f).fillMaxSize().border(1.dp, Color.White) // Outline
+          ) {
+            // Location Lock Button
+            Box(modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp)) {
+              MapFloatingActionButton(type = locationLockIcon, onClick = onLocationLockClick)
             }
+          }
+
+          // Right Mask
+          Box(
+            modifier =
+              Modifier.width(24.dp).fillMaxSize().background(Color.Black.copy(alpha = 0.4f))
+          )
         }
-        
-            if (showProgressDialog) {
-            AlertDialog(
-                onDismissRequest = { /* Prevent dismiss */ },
-                title = { Text(stringResource(R.string.offline_map_imagery_download_progress_dialog_title, (downloadProgress * 100).toInt())) },
-                text = {
-                     Column {
-                         Text(stringResource(R.string.offline_map_imagery_download_progress_dialog_message))
-                         Spacer(Modifier.height(16.dp))
-                         LinearProgressIndicator(
-                             progress = { downloadProgress },
-                             modifier = Modifier.fillMaxWidth(),
-                         )
-                     }
-                },
-                confirmButton = {
-                     Button(onClick = { onCancelClick() }) {
-                         Text(stringResource(R.string.offline_area_select_cancel_button))
-                     }
-                }
-            )
+
+        // Bottom Mask with Text
+        Box(
+          modifier =
+            Modifier.fillMaxWidth().height(80.dp).background(Color.Black.copy(alpha = 0.4f)),
+          contentAlignment = Alignment.Center,
+        ) {
+          Text(
+            text = bottomText,
+            color = Color.White,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = 64.dp),
+          )
         }
+
+        // Buttons container
+        Row(
+          modifier =
+            Modifier.fillMaxWidth()
+              .background(MaterialTheme.colorScheme.surface) // SurfaceContainer in XML
+              .padding(16.dp),
+          verticalAlignment = Alignment.Top,
+        ) {
+          OutlinedButton(onClick = onCancelClick, modifier = Modifier.weight(1f)) {
+            Text(stringResource(R.string.offline_area_select_cancel_button))
+          }
+          Spacer(Modifier.width(16.dp))
+          Button(
+            onClick = onDownloadClick,
+            enabled = downloadEnabled,
+            modifier = Modifier.weight(1f),
+          ) {
+            Text(stringResource(R.string.offline_area_selector_download))
+          }
+        }
+      }
     }
+
+    if (showProgressDialog) {
+      AlertDialog(
+        onDismissRequest = { /* Prevent dismiss */ },
+        title = {
+          Text(
+            stringResource(
+              R.string.offline_map_imagery_download_progress_dialog_title,
+              (downloadProgress * 100).toInt(),
+            )
+          )
+        },
+        text = {
+          Column {
+            Text(stringResource(R.string.offline_map_imagery_download_progress_dialog_message))
+            Spacer(Modifier.height(16.dp))
+            LinearProgressIndicator(
+              progress = { downloadProgress },
+              modifier = Modifier.fillMaxWidth(),
+            )
+          }
+        },
+        confirmButton = {
+          Button(onClick = { onCancelClick() }) {
+            Text(stringResource(R.string.offline_area_select_cancel_button))
+          }
+        },
+      )
+    }
+  }
 }

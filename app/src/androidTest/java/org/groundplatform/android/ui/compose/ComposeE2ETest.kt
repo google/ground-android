@@ -15,11 +15,8 @@
  */
 package org.groundplatform.android.ui.compose
 
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.*
-import androidx.test.espresso.Espresso
-import androidx.test.espresso.action.ViewActions
-import androidx.test.espresso.matcher.ViewMatchers
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.groundplatform.android.R
@@ -31,43 +28,41 @@ import org.junit.Test
 @HiltAndroidTest
 class ComposeE2ETest {
 
-    @get:Rule(order = 0)
-    var hiltRule = HiltAndroidRule(this)
+  @get:Rule(order = 0) var hiltRule = HiltAndroidRule(this)
 
-    @get:Rule(order = 1)
-    val composeTestRule = createAndroidComposeRule<MainActivity>()
+  @get:Rule(order = 1) val composeTestRule = createAndroidComposeRule<MainActivity>()
 
-    @Before
-    fun setup() {
-        hiltRule.inject()
-    }
+  @Before
+  fun setup() {
+    hiltRule.inject()
+  }
 
-    @Test
-    fun testNavigationToSyncStatus() {
-        // 1. Open Drawer
-        composeTestRule.onNodeWithTag("open_nav_drawer").performClick()
+  @Test
+  fun testNavigationToSyncStatus() {
+    // 1. Open Drawer
+    composeTestRule.onNodeWithTag("open_nav_drawer").performClick()
 
-        // 2. Click "Sync Status"
-        val syncStatusText = composeTestRule.activity.getString(R.string.sync_status)
-        composeTestRule.onNodeWithText(syncStatusText).performClick()
+    // 2. Click "Sync Status"
+    val syncStatusText = composeTestRule.activity.getString(R.string.sync_status)
+    composeTestRule.onNodeWithText(syncStatusText).performClick()
 
-        // 3. Verify Sync Status Screen is shown (Title in TopAppBar)
-        val syncStatusTitle = composeTestRule.activity.getString(R.string.data_sync_status)
-        composeTestRule.onNodeWithText(syncStatusTitle).assertIsDisplayed()
-    }
+    // 3. Verify Sync Status Screen is shown (Title in TopAppBar)
+    val syncStatusTitle = composeTestRule.activity.getString(R.string.data_sync_status)
+    composeTestRule.onNodeWithText(syncStatusTitle).assertIsDisplayed()
+  }
 
-    @Test
-    fun testNavigationToOfflineAreas() {
-        // 1. Open Drawer
-        composeTestRule.onNodeWithTag("open_nav_drawer").performClick()
+  @Test
+  fun testNavigationToOfflineAreas() {
+    // 1. Open Drawer
+    composeTestRule.onNodeWithTag("open_nav_drawer").performClick()
 
-        // 2. Click "Offline Map Imagery"
-        val offlineMapText = composeTestRule.activity.getString(R.string.offline_map_imagery)
-        composeTestRule.onNodeWithText(offlineMapText).performClick()
+    // 2. Click "Offline Map Imagery"
+    val offlineMapText = composeTestRule.activity.getString(R.string.offline_map_imagery)
+    composeTestRule.onNodeWithText(offlineMapText).performClick()
 
-        // 3. Verify Offline Areas Screen is shown (Title in TopAppBar)
-        // Note: OfflineAreasFragment label is @string/offline_map_imagery
-        val offlineMapTitle = composeTestRule.activity.getString(R.string.offline_map_imagery)
-        composeTestRule.onNodeWithText(offlineMapTitle).assertIsDisplayed()
-    }
+    // 3. Verify Offline Areas Screen is shown (Title in TopAppBar)
+    // Note: OfflineAreasFragment label is @string/offline_map_imagery
+    val offlineMapTitle = composeTestRule.activity.getString(R.string.offline_map_imagery)
+    composeTestRule.onNodeWithText(offlineMapTitle).assertIsDisplayed()
+  }
 }
