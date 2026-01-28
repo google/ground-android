@@ -9,7 +9,7 @@ These rules apply to all interactions in this project.
 When making changes to the code:
 
 1. Add unit tests of all new or changed behaviors, and remove obsolete unit tests for removed behaviors.
-2. Run and fix all unit tests with ``./gradlew :app:testLocalDebugUnitTest`.
+2. Run and fix all unit tests with `./gradlew :app:testLocalDebugUnitTest`.
 
 Before pushing changes:
 
