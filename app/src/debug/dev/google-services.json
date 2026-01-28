@@ -1,0 +1,127 @@
+{
+  "project_info": {
+    "project_number": "429183886479",
+    "project_id": "ground-dev-sig",
+    "storage_bucket": "ground-dev-sig.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:429183886479:android:17703fcaf0c28800293cfa",
+        "android_client_info": {
+          "package_name": "org.groundplatform.android"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "429183886479-3q7cs6dj8fv9shc9krad227d4is0j0uj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "org.groundplatform.android",
+            "certificate_hash": "af19263d66b6227d8a72338e0e40995355172b94"
+          }
+        },
+        {
+          "client_id": "429183886479-68js6ddvgob6eihpqihd4ms4hncl4j3m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "org.groundplatform.android",
+            "certificate_hash": "38c1bbbdb050f57f20f854c8f0abef0ea2080082"
+          }
+        },
+        {
+          "client_id": "429183886479-870g8j7hqpvpbomdb4j0teg0mvj8085b.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "org.groundplatform.android",
+            "certificate_hash": "bb9465edd04c4ebed6f2c858f72aae8fbe47bfcc"
+          }
+        },
+        {
+          "client_id": "429183886479-95ejdj9g7rjgvumogunj3vmr6il8cgd6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "org.groundplatform.android",
+            "certificate_hash": "7b05f6125049045ed0749cf4017d305853036da7"
+          }
+        },
+        {
+          "client_id": "429183886479-bkuqfp6hj9bg2bab6p0r01tenq73qpcm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "org.groundplatform.android",
+            "certificate_hash": "bb7a77491411b6c7d0d2d038fb1c9f26c4582df4"
+          }
+        },
+        {
+          "client_id": "429183886479-iqkmr52aoqocvl914ucek5qhfuu8ta5s.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "org.groundplatform.android",
+            "certificate_hash": "ccb3ecbe81de18d0ea0cf2e2c834de6db843de42"
+          }
+        },
+        {
+          "client_id": "429183886479-jgod6fucj8m7k0gu67l40jmb657k5bpd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "org.groundplatform.android",
+            "certificate_hash": "a7eb0321d1f113f5255d1120c7a50e1b0f3f2307"
+          }
+        },
+        {
+          "client_id": "429183886479-mbpdraden68rpsmpmd87g97dhqfsuuc5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "org.groundplatform.android",
+            "certificate_hash": "ba13887d996f016c87f8ea26ae3359a7c563e38e"
+          }
+        },
+        {
+          "client_id": "429183886479-ndtkh32e02qas4u51bpnkv5a3r78cs30.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "org.groundplatform.android",
+            "certificate_hash": "89fea3294e66602cc8a53382b51365254210cbe7"
+          }
+        },
+        {
+          "client_id": "429183886479-qedc743ultikt9moj3vdpvb4nusl57gv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "org.groundplatform.android",
+            "certificate_hash": "38fda4e13db91059723c708ed4b312e5cb26248b"
+          }
+        },
+        {
+          "client_id": "429183886479-s8q6mkkm157gs9l7vig8dho8manm6ada.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "org.groundplatform.android",
+            "certificate_hash": "ed198f26f788892050046658ae2816b24ad2489f"
+          }
+        },
+        {
+          "client_id": "429183886479-v6n31oh1n5hmqmevgqdhj3kulmbma8o2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA_jl3CJ9k9NRT3jxjs9K66RPeVtKlCs5I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "429183886479-v6n31oh1n5hmqmevgqdhj3kulmbma8o2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
