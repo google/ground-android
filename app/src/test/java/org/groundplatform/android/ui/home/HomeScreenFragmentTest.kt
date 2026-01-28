@@ -88,15 +88,11 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
       .onNodeWithText(fragment.getString(R.string.settings))
       .assertIsDisplayed()
       .assertIsEnabled()
-    // "About" and "Terms" - check if they exist in my HomeDrawer?
-    // My HomeDrawer implementation in Step 696 included: Offline Areas, Sync Status, Settings, Sign
-    // Out.
-    // It did NOT include About, Terms, Version.
-    // Original nav_menu.xml had them.
-    // I should Update HomeDrawer to include About, Terms, Version if they are required.
-    // I missed them in Step 696.
-    // I should add them to HomeDrawer now or fail the test?
-    // I should ADD THEM to HomeDrawer.
+    composeTestRule.onNodeWithText("About").assertIsDisplayed().assertIsEnabled()
+    composeTestRule.onNodeWithText("Terms of service").assertIsDisplayed().assertIsEnabled()
+    composeTestRule
+      .onNodeWithText("Build ${org.groundplatform.android.BuildConfig.VERSION_NAME}")
+      .assertIsDisplayed()
   }
 }
 
@@ -149,8 +145,8 @@ class NavigationDrawerItemClickTest(
         // TODO: Restore tests deleted in #2382.
         // Issue URL: https://github.com/google/ground-android/issues/2385
         arrayOf("Data sync status", R.id.sync_status_fragment, TEST_SURVEY, true),
-        // arrayOf("Terms of service", R.id.terms_of_service_fragment, TEST_SURVEY, true),
-        // arrayOf("About", R.id.aboutFragment, TEST_SURVEY, true),
+        arrayOf("Terms of service", R.id.terms_of_service_fragment, TEST_SURVEY, true),
+        arrayOf("About", R.id.aboutFragment, TEST_SURVEY, true),
         arrayOf("Offline map imagery", R.id.offline_area_selector_fragment, TEST_SURVEY, true),
         arrayOf("Settings", R.id.settings_activity, TEST_SURVEY, true),
       )

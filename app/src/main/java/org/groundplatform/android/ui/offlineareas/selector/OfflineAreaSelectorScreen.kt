@@ -46,6 +46,8 @@ import org.groundplatform.android.R
 import org.groundplatform.android.ui.components.MapFloatingActionButton
 import org.groundplatform.android.ui.components.MapFloatingActionButtonType
 
+private val TOP_MASK_HEIGHT = 24.dp
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OfflineAreaSelectorScreen(
@@ -71,7 +73,9 @@ fun OfflineAreaSelectorScreen(
       Column(modifier = Modifier.fillMaxSize()) {
         Box(
           modifier =
-            Modifier.fillMaxWidth().height(24.dp).background(Color.Black.copy(alpha = 0.4f))
+            Modifier.fillMaxWidth()
+              .height(TOP_MASK_HEIGHT)
+              .background(Color.Black.copy(alpha = 0.4f))
         )
 
         Row(modifier = Modifier.weight(1f)) {

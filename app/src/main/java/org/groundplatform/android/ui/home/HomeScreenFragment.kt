@@ -142,6 +142,11 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener {
               },
               onSignOut = { showSignOutDialog.value = true },
               offlineAreasEnabled = offlineAreasEnabled,
+              versionText =
+                String.format(
+                  getString(R.string.build),
+                  org.groundplatform.android.BuildConfig.VERSION_NAME,
+                ),
             )
           },
           content = {
@@ -182,7 +187,7 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener {
               )
             }
 
-            // Pass showSignOutDialog setter to HomeDrawer
+            // Handle sign out dialog state
 
             androidx.compose.runtime.LaunchedEffect(Unit) {
               // ... draft restored logic ...

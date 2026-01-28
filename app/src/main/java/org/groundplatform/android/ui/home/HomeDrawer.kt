@@ -31,6 +31,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -64,6 +65,7 @@ fun HomeDrawer(
   onNavigateToTerms: () -> Unit,
   onSignOut: () -> Unit,
   offlineAreasEnabled: Boolean = true,
+  versionText: String,
 ) {
   Column(modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
     // App Info Header
@@ -114,7 +116,7 @@ fun HomeDrawer(
             painterResource(
               R.drawable.ic_content_paste
             ), // Ensure this drawable exists or use Vector
-          contentDescription = null, // stringResource(R.string.current_survey)
+          contentDescription = stringResource(R.string.current_survey),
           modifier = Modifier.size(14.dp),
           tint = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -166,42 +168,76 @@ fun HomeDrawer(
       label = { Text(stringResource(R.string.offline_map_imagery)) },
       selected = false,
       onClick = onNavigateToOfflineAreas,
-      icon = { Icon(painterResource(R.drawable.ic_offline_pin), contentDescription = null) },
+      icon = {
+        Icon(
+          painterResource(R.drawable.ic_offline_pin),
+          contentDescription = stringResource(R.string.offline_map_imagery),
+        )
+      },
       modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
     )
     NavigationDrawerItem(
       label = { Text(stringResource(R.string.sync_status)) },
       selected = false,
       onClick = onNavigateToSyncStatus,
-      icon = { Icon(painterResource(R.drawable.ic_sync), contentDescription = null) },
+      icon = {
+        Icon(
+          painterResource(R.drawable.ic_sync),
+          contentDescription = stringResource(R.string.sync_status),
+        )
+      },
       modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
     )
     NavigationDrawerItem(
       label = { Text(stringResource(R.string.settings)) },
       selected = false,
       onClick = onNavigateToSettings,
-      icon = { Icon(Icons.Default.Settings, contentDescription = null) },
+      icon = {
+        Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.settings))
+      },
       modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
     )
     NavigationDrawerItem(
       label = { Text(stringResource(R.string.about)) },
       selected = false,
       onClick = onNavigateToAbout,
-      icon = { Icon(painterResource(R.drawable.info_outline), contentDescription = null) },
+      icon = {
+        Icon(
+          painterResource(R.drawable.info_outline),
+          contentDescription = stringResource(R.string.about),
+        )
+      },
       modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
     )
     NavigationDrawerItem(
       label = { Text(stringResource(R.string.terms_of_service)) },
       selected = false,
       onClick = onNavigateToTerms,
-      icon = { Icon(painterResource(R.drawable.feed), contentDescription = null) },
+      icon = {
+        Icon(
+          painterResource(R.drawable.feed),
+          contentDescription = stringResource(R.string.terms_of_service),
+        )
+      },
       modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
     )
     NavigationDrawerItem(
       label = { Text(stringResource(R.string.sign_out)) },
       selected = false,
       onClick = onSignOut,
-      icon = { Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = null) },
+      icon = {
+        Icon(
+          Icons.AutoMirrored.Filled.ExitToApp,
+          contentDescription = stringResource(R.string.sign_out),
+        )
+      },
+      modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+    )
+    NavigationDrawerItem(
+      label = { Text(versionText) },
+      selected = false,
+      onClick = {},
+      icon = { Icon(Icons.Default.Build, contentDescription = stringResource(R.string.build)) },
       modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
     )
   }
