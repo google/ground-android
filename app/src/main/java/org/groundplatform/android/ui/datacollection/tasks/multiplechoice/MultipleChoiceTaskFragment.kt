@@ -17,15 +17,15 @@ package org.groundplatform.android.ui.datacollection.tasks.multiplechoice
 
 import android.view.LayoutInflater
 import android.view.View
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.lifecycle.asLiveData
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import org.groundplatform.android.ui.datacollection.components.TaskView
 import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
@@ -45,18 +45,20 @@ class MultipleChoiceTaskFragment : AbstractTaskFragment<MultipleChoiceTaskViewMo
     TaskViewFactory.createWithHeader(inflater)
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View = createComposeView {
-    ShowMultipleChoiceItems()
+    MultipleChoiceContent()
   }
 
   @Composable
-  private fun ShowMultipleChoiceItems() {
-    val list by viewModel.itemsFlow.asLiveData().observeAsState()
-    list?.let { items ->
-      LazyColumn(Modifier.fillMaxSize().testTag(MULTIPLE_CHOICE_LIST_TEST_TAG)) {
-        items(items) { item ->
+  private fun MultipleChoiceContent() {
+    val list by viewModel.items.collectAsStateWithLifecycle()
+    val scrollState = rememberLazyListState()
+
+    Box {
+      LazyColumn(Modifier.testTag(MULTIPLE_CHOICE_LIST_TEST_TAG), state = scrollState) {
+        items(list, key = { it.option.id }) { item ->
           MultipleChoiceItemView(
             item = item,
-            isLastIndex = items.indexOf(item) == items.lastIndex,
+            isLastIndex = list.indexOf(item) == list.lastIndex,
             toggleItem = { viewModel.onItemToggled(it) },
             otherValueChanged = { viewModel.onOtherTextChanged(it) },
           )

@@ -23,10 +23,6 @@ import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavDirections
@@ -35,7 +31,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
-import org.groundplatform.android.BuildConfig
 import org.groundplatform.android.R
 import org.groundplatform.android.databinding.MainActBinding
 import org.groundplatform.android.repository.UserRepository
@@ -44,11 +39,9 @@ import org.groundplatform.android.system.ActivityStreams
 import org.groundplatform.android.ui.common.AbstractActivity
 import org.groundplatform.android.ui.common.BackPressListener
 import org.groundplatform.android.ui.common.ViewModelFactory
-import org.groundplatform.android.ui.components.PermissionDeniedDialog
 import org.groundplatform.android.ui.home.HomeScreenFragmentDirections
 import org.groundplatform.android.ui.signin.SignInFragmentDirections
 import org.groundplatform.android.ui.surveyselector.SurveySelectorFragmentDirections
-import org.groundplatform.android.util.renderComposableDialog
 import timber.log.Timber
 
 /**
@@ -115,9 +108,6 @@ class MainActivity : AbstractActivity() {
 
   private fun updateUi(uiState: MainUiState) {
     when (uiState) {
-      MainUiState.OnPermissionDenied -> {
-        showPermissionDeniedDialog()
-      }
       MainUiState.OnUserSignedOut -> {
         navigateTo(SignInFragmentDirections.showSignInScreen())
       }
@@ -134,27 +124,6 @@ class MainActivity : AbstractActivity() {
         val action = SurveySelectorFragmentDirections.showSurveySelectorScreen(false)
         action.surveyId = uiState.surveyId
         navigateTo(action)
-      }
-    }
-  }
-
-  private fun showPermissionDeniedDialog() {
-    renderComposableDialog {
-      var showDialog by remember { mutableStateOf(true) }
-      if (showDialog) {
-        PermissionDeniedDialog(
-          // TODO: Read url from Firestore config/properties/signUpUrl
-          // Issue URL: https://github.com/google/ground-android/issues/2402
-          BuildConfig.SIGNUP_FORM_LINK,
-          onSignOut = {
-            showDialog = false
-            userRepository.signOut()
-          },
-          onCloseApp = {
-            showDialog = false
-            finish()
-          },
-        )
       }
     }
   }
