@@ -18,8 +18,10 @@ package org.groundplatform.android.ui.home
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -43,11 +45,18 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import android.content.Context
+import android.util.Log
+import androidx.work.Configuration
+import androidx.work.testing.SynchronousExecutor
+import androidx.work.testing.WorkManagerTestInitHelper
+import dagger.hilt.android.qualifiers.ApplicationContext
 import org.robolectric.ParameterizedRobolectricTestRunner
 import org.robolectric.RobolectricTestRunner
 
 abstract class AbstractHomeScreenFragmentTest : BaseHiltTest() {
 
+  @Inject @ApplicationContext lateinit var context: Context
   @Inject lateinit var localSurveyStore: LocalSurveyStore
   lateinit var fragment: HomeScreenFragment
   protected lateinit var navController: NavController
@@ -55,6 +64,12 @@ abstract class AbstractHomeScreenFragmentTest : BaseHiltTest() {
   @Before
   override fun setUp() {
     super.setUp()
+    val config = Configuration.Builder()
+      .setMinimumLoggingLevel(Log.INFO)
+      .setExecutor(SynchronousExecutor())
+      .build()
+    WorkManagerTestInitHelper.initializeTestWorkManager(context, config)
+
     launchFragmentWithNavController<HomeScreenFragment>(
       destId = R.id.home_screen_fragment,
       navControllerCallback = { navController = it },
@@ -70,8 +85,30 @@ abstract class AbstractHomeScreenFragmentTest : BaseHiltTest() {
   ) {
     composeTestRule.onNodeWithTag(MapFloatingActionButtonType.OpenNavDrawer.testTag).performClick()
     composeTestRule.waitForIdle()
-    // verifyDrawerOpen() - can check if drawer content is displayed?
-    // e.g. composeTestRule.onNodeWithText("Sync status").assertIsDisplayed()
+    verifyDrawerOpen(composeTestRule)
+  }
+
+  protected fun verifyDrawerOpen(
+    composeTestRule:
+      AndroidComposeTestRule<ActivityScenarioRule<ComponentActivity>, ComponentActivity>
+  ) {
+    composeTestRule.waitUntil(timeoutMillis = 5000) {
+      try {
+        composeTestRule.onNodeWithText("Offline map imagery").assertIsDisplayed()
+        true
+      } catch (e: AssertionError) {
+        false
+      }
+    }
+    composeTestRule.onNodeWithText("Offline map imagery").assertIsDisplayed()
+  }
+
+  protected fun verifyDrawerClosed(
+    composeTestRule:
+      AndroidComposeTestRule<ActivityScenarioRule<ComponentActivity>, ComponentActivity>
+  ) {
+    // Drawer content should not be displayed
+    composeTestRule.onNodeWithText("Offline map imagery").assertIsNotDisplayed()
   }
 }
 
@@ -91,12 +128,14 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
     composeTestRule.onNodeWithText("Data sync status").assertIsDisplayed().assertIsEnabled()
     composeTestRule
       .onNodeWithText(fragment.getString(R.string.settings))
+      .performScrollTo()
       .assertIsDisplayed()
       .assertIsEnabled()
-    composeTestRule.onNodeWithText("About").assertIsDisplayed().assertIsEnabled()
-    composeTestRule.onNodeWithText("Terms of service").assertIsDisplayed().assertIsEnabled()
+    composeTestRule.onNodeWithText("About").performScrollTo().assertIsDisplayed().assertIsEnabled()
+    composeTestRule.onNodeWithText("Terms of service").performScrollTo().assertIsDisplayed().assertIsEnabled()
     composeTestRule
       .onNodeWithText("Build ${org.groundplatform.android.BuildConfig.VERSION_NAME}")
+      .performScrollTo()
       .assertIsDisplayed()
   }
 }
@@ -135,8 +174,7 @@ class NavigationDrawerItemClickTest(
       assertThat(navController.currentDestination?.id).isEqualTo(expectedNavDirection)
     }
 
-    // Verify drawer closed?
-    // composeTestRule.onNodeWithText(menuItemLabel).assertIsNotDisplayed()
+    verifyDrawerClosed(composeTestRule)
   }
 
   companion object {

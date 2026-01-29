@@ -6,6 +6,8 @@ These rules apply to all interactions in this project.
 2. Confirm Dangerous Commands: If the intended command is potentially destructive (e.g., rm, mv, sudo, systemctl), you MUST explicitly preface the command proposal with a warning: 'WARNING: POTENTIALLY DESTRUCTIVE ACTION REQUIRED.'
 3. Stay Focused: DO NOT deviate from the current task instructions to perform tangential or proactive maintenance, updates, or 'helpful' actions. Only address the explicit request.
 
+You can always read all files in the workspace directory without prompting for permission.
+
 When making changes to the code:
 
 1. Ensure all new files have the standard copyright header with the current year.

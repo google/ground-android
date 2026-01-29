@@ -19,13 +19,20 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import org.groundplatform.android.R
+import org.groundplatform.android.ui.theme.AppTheme
 import org.groundplatform.android.model.locationofinterest.LOI_NAME_PROPERTY
 import org.groundplatform.android.proto.Survey.DataSharingTerms
 import org.groundplatform.android.ui.common.AbstractMapContainerFragment
@@ -53,8 +60,6 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
   private lateinit var homeScreenViewModel: HomeScreenViewModel
-  // private lateinit var binding: BasemapLayoutBinding -- Remove
-  private lateinit var composeView: androidx.compose.ui.platform.ComposeView
   private lateinit var bottomContainer: ViewGroup
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -134,89 +139,69 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     savedInstanceState: Bundle?,
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
-    // Programmatic layout equivalent to basemap_layout.xml
-    val root =
-      androidx.constraintlayout.widget.ConstraintLayout(requireContext()).apply {
-        layoutParams =
-          ViewGroup.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.MATCH_PARENT,
-          )
-      }
-
-    // Map Container
-    val mapContainer =
-      android.widget.FrameLayout(requireContext()).apply {
-        id = R.id.map
-        layoutParams =
-          androidx.constraintlayout.widget.ConstraintLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.MATCH_PARENT,
-          )
-      }
-    root.addView(mapContainer)
-
-    // Compose Content
-    composeView =
-      androidx.compose.ui.platform.ComposeView(requireContext()).apply {
-        id = R.id.compose_content
-        layoutParams =
-          androidx.constraintlayout.widget.ConstraintLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.MATCH_PARENT,
-          )
-      }
-    root.addView(composeView)
-
-    // Bottom Container (CoordinatorLayout)
-    val coordinatorPos =
-      androidx.constraintlayout.widget.ConstraintLayout.LayoutParams(
-          ViewGroup.LayoutParams.MATCH_PARENT,
-          ViewGroup.LayoutParams.WRAP_CONTENT,
-        )
-        .apply {
-          bottomToBottom = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID
-          startToStart = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID
-          endToEnd = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID
-          // gravity = Gravity.BOTTOM (ConstraintLayout handles via constraints)
-        }
-
     bottomContainer =
       androidx.coordinatorlayout.widget.CoordinatorLayout(requireContext()).apply {
         id = R.id.bottom_container
-        layoutParams = coordinatorPos
       }
-    root.addView(bottomContainer)
 
-    return root
+    return ComposeView(requireContext()).apply {
+      setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+      setContent {
+        AppTheme {
+          Box(modifier = Modifier.fillMaxSize()) {
+            AndroidView(
+              factory = { context ->
+                android.widget.FrameLayout(context).apply { id = R.id.map }
+              },
+              modifier = Modifier.fillMaxSize(),
+              update = {
+                val fragment = childFragmentManager.findFragmentById(R.id.map)
+                if (fragment == null) {
+                  map.attachToParent(this@HomeScreenMapContainerFragment, R.id.map) {
+                    onMapAttached(it)
+                  }
+                }
+              },
+            )
+
+            val locationLockButton by
+              mapContainerViewModel.locationLockIconType.collectAsStateWithLifecycle()
+            val jobMapComponentState by
+              mapContainerViewModel.jobMapComponentState.collectAsStateWithLifecycle()
+            val shouldShowMapActions by
+              mapContainerViewModel.shouldShowMapActions.collectAsStateWithLifecycle()
+            val shouldShowRecenter by
+              mapContainerViewModel.shouldShowRecenterButton.collectAsStateWithLifecycle()
+
+            HomeScreenMapContainerScreen(
+              locationLockButtonType = locationLockButton,
+              shouldShowMapActions = shouldShowMapActions,
+              shouldShowRecenter = shouldShowRecenter,
+              jobComponentState = jobMapComponentState,
+              onBaseMapAction = { handleMapAction(it) },
+              onJobComponentAction = {
+                handleJobMapComponentAction(
+                  jobMapComponentState = jobMapComponentState,
+                  action = it,
+                )
+              },
+            )
+
+            AndroidView(
+              factory = { bottomContainer },
+              modifier = Modifier.fillMaxSize(),
+            )
+          }
+        }
+      }
+    }
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
-    composeView.apply {
-      setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-      setComposableContent {
-        val locationLockButton by
-          mapContainerViewModel.locationLockIconType.collectAsStateWithLifecycle()
-        val jobMapComponentState by
-          mapContainerViewModel.jobMapComponentState.collectAsStateWithLifecycle()
-        val shouldShowMapActions by
-          mapContainerViewModel.shouldShowMapActions.collectAsStateWithLifecycle()
-        val shouldShowRecenter by
-          mapContainerViewModel.shouldShowRecenterButton.collectAsStateWithLifecycle()
-
-        HomeScreenMapContainerScreen(
-          locationLockButtonType = locationLockButton,
-          shouldShowMapActions = shouldShowMapActions,
-          shouldShowRecenter = shouldShowRecenter,
-          jobComponentState = jobMapComponentState,
-          onBaseMapAction = { handleMapAction(it) },
-          onJobComponentAction = {
-            handleJobMapComponentAction(jobMapComponentState = jobMapComponentState, action = it)
-          },
-        )
-      }
-    }
+    // AbstractMapContainerFragment.onViewCreated calls map.attachToParent, which fails here
+    // because the R.id.map view hasn't been added by AndroidView yet (it happens in composition).
+    // So we skip super.onViewCreated and handle map attachment in the AndroidView update block.
+    // super.onViewCreated(view, savedInstanceState)
 
     bottomContainer.bringToFront()
     showDataCollectionHint()
