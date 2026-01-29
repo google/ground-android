@@ -15,9 +15,15 @@
  */
 package org.groundplatform.android.ui.syncstatus
 
+import android.content.Context
+import android.util.Log
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.work.Configuration
+import androidx.work.testing.SynchronousExecutor
+import androidx.work.testing.WorkManagerTestInitHelper
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -39,12 +45,6 @@ import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.repository.SurveyRepository
 import org.junit.Test
 import org.junit.runner.RunWith
-import android.content.Context
-import android.util.Log
-import androidx.work.Configuration
-import androidx.work.testing.SynchronousExecutor
-import androidx.work.testing.WorkManagerTestInitHelper
-import dagger.hilt.android.qualifiers.ApplicationContext
 import org.robolectric.RobolectricTestRunner
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -122,10 +122,11 @@ class SyncStatusFragmentTest : BaseHiltTest() {
   }
 
   private fun setupFragment() = runWithTestDispatcher {
-    val config = Configuration.Builder()
-      .setMinimumLoggingLevel(Log.INFO)
-      .setExecutor(SynchronousExecutor())
-      .build()
+    val config =
+      Configuration.Builder()
+        .setMinimumLoggingLevel(Log.INFO)
+        .setExecutor(SynchronousExecutor())
+        .build()
     WorkManagerTestInitHelper.initializeTestWorkManager(context, config)
 
     launchFragmentInHiltContainer<SyncStatusFragment>()
