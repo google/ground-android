@@ -18,38 +18,35 @@ package org.groundplatform.android.ui.offlineareas.viewer
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
-import androidx.work.Configuration
-import androidx.work.testing.SynchronousExecutor
-import androidx.work.testing.WorkManagerTestInitHelper
-import dagger.hilt.android.qualifiers.ApplicationContext
-import androidx.work.WorkManager
-import dagger.hilt.android.testing.BindValue
-import org.mockito.Mockito.mock
-import org.mockito.kotlin.any
-import org.mockito.kotlin.whenever
-
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithText
+import androidx.work.Configuration
+import androidx.work.testing.SynchronousExecutor
+import androidx.work.testing.WorkManagerTestInitHelper
 import com.google.common.truth.Truth.assertThat
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.OFFLINE_AREA
-import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.android.R
-import org.groundplatform.android.data.local.stores.LocalOfflineAreaStore
 import org.groundplatform.android.launchFragmentWithNavController
 import org.groundplatform.android.model.map.MapType
+import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.android.ui.common.MapConfig
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito.mock
+import org.mockito.kotlin.any
+import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -64,10 +61,11 @@ class OfflineAreaViewerFragmentTest : BaseHiltTest() {
   @Before
   override fun setUp() {
     super.setUp()
-    val config = Configuration.Builder()
-      .setMinimumLoggingLevel(Log.INFO)
-      .setExecutor(SynchronousExecutor())
-      .build()
+    val config =
+      Configuration.Builder()
+        .setMinimumLoggingLevel(Log.INFO)
+        .setExecutor(SynchronousExecutor())
+        .build()
     WorkManagerTestInitHelper.initializeTestWorkManager(context, config)
     WorkManagerTestInitHelper.initializeTestWorkManager(context, config)
   }
@@ -80,7 +78,6 @@ class OfflineAreaViewerFragmentTest : BaseHiltTest() {
       .assertIsDisplayed()
       .assertIsEnabled()
   }
-
 
   @Test
   fun `All values are correctly displayed`() = runWithTestDispatcher {
