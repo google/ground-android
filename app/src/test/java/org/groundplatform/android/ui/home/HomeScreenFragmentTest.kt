@@ -88,6 +88,7 @@ abstract class AbstractHomeScreenFragmentTest : BaseHiltTest() {
     verifyDrawerOpen(composeTestRule)
   }
 
+  @Suppress("SwallowedException")
   protected fun verifyDrawerOpen(
     composeTestRule:
       AndroidComposeTestRule<ActivityScenarioRule<ComponentActivity>, ComponentActivity>
