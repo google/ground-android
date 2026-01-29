@@ -127,13 +127,7 @@ fun OfflineAreaViewerScreen(
       if (showProgress) {
         Box(
           modifier =
-            Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.5f)).run {
-              // Make it clickable to block interactions?
-              // .clickable(enabled = false) {} logic in Compose?
-              // Box consumes touches if clickable without indication?
-              // Actually, just cover everything.
-              this
-            },
+            Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.5f)),
           contentAlignment = Alignment.Center,
         ) {
           CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)

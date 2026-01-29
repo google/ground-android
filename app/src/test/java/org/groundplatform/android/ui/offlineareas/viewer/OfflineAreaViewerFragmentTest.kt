@@ -15,11 +15,24 @@
  */
 package org.groundplatform.android.ui.offlineareas.viewer
 
+import android.content.Context
 import android.os.Bundle
-import androidx.compose.ui.test.assertDoesNotExist
+import android.util.Log
+import androidx.work.Configuration
+import androidx.work.testing.SynchronousExecutor
+import androidx.work.testing.WorkManagerTestInitHelper
+import dagger.hilt.android.qualifiers.ApplicationContext
+import androidx.work.WorkManager
+import dagger.hilt.android.testing.BindValue
+import org.mockito.Mockito.mock
+import org.mockito.kotlin.any
+import org.mockito.kotlin.whenever
+
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithText
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -28,11 +41,13 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.OFFLINE_AREA
+import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.android.R
 import org.groundplatform.android.data.local.stores.LocalOfflineAreaStore
 import org.groundplatform.android.launchFragmentWithNavController
 import org.groundplatform.android.model.map.MapType
 import org.groundplatform.android.ui.common.MapConfig
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -42,8 +57,20 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class OfflineAreaViewerFragmentTest : BaseHiltTest() {
 
-  @Inject lateinit var localOfflineAreaStore: LocalOfflineAreaStore
+  @BindValue @JvmField val offlineAreaRepository: OfflineAreaRepository = mock()
+  @Inject @ApplicationContext lateinit var context: Context
   private lateinit var fragment: OfflineAreaViewerFragment
+
+  @Before
+  override fun setUp() {
+    super.setUp()
+    val config = Configuration.Builder()
+      .setMinimumLoggingLevel(Log.INFO)
+      .setExecutor(SynchronousExecutor())
+      .build()
+    WorkManagerTestInitHelper.initializeTestWorkManager(context, config)
+    WorkManagerTestInitHelper.initializeTestWorkManager(context, config)
+  }
 
   @Test
   fun `RemoveButton is displayed and enabled`() = runWithTestDispatcher {
@@ -54,16 +81,18 @@ class OfflineAreaViewerFragmentTest : BaseHiltTest() {
       .assertIsEnabled()
   }
 
+
   @Test
   fun `All values are correctly displayed`() = runWithTestDispatcher {
     setupFragment()
-    composeTestRule.onNodeWithText(OFFLINE_AREA.name).assertIsDisplayed()
+    composeTestRule.onAllNodesWithText(OFFLINE_AREA.name).onFirst().assertIsDisplayed()
     composeTestRule.onNodeWithText("<1\u00A0MB on disk").assertIsDisplayed()
     composeTestRule
       .onNodeWithText(fragment.getString(R.string.offline_area_viewer_remove_button))
       .assertIsDisplayed()
     composeTestRule
-      .onNodeWithText(fragment.getString(R.string.offline_area_viewer_title))
+      .onAllNodesWithText(fragment.getString(R.string.offline_area_viewer_title))
+      .onFirst()
       .assertIsDisplayed()
   }
 
@@ -72,7 +101,8 @@ class OfflineAreaViewerFragmentTest : BaseHiltTest() {
     setupFragmentWithoutDb()
     advanceUntilIdle()
     composeTestRule
-      .onNodeWithText(fragment.getString(R.string.offline_area_viewer_title))
+      .onAllNodesWithText(fragment.getString(R.string.offline_area_viewer_title))
+      .onFirst()
       .assertIsDisplayed()
     // Name is empty string, finding empty string text node might match many or root?
     // If areaName is empty, Screen shows nothing? No, Screen shows Text(areaName).
@@ -103,7 +133,7 @@ class OfflineAreaViewerFragmentTest : BaseHiltTest() {
   }
 
   private fun setupFragment() = runWithTestDispatcher {
-    localOfflineAreaStore.insertOrUpdate(OFFLINE_AREA)
+    whenever(offlineAreaRepository.getOfflineArea(any())).thenReturn(OFFLINE_AREA)
     setupFragmentWithoutDb()
   }
 
