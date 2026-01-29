@@ -19,6 +19,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -26,7 +28,7 @@ import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.launch
-import org.groundplatform.android.databinding.OfflineAreaViewerFragBinding
+import org.groundplatform.android.R
 import org.groundplatform.android.model.map.MapType
 import org.groundplatform.android.ui.common.AbstractMapContainerFragment
 import org.groundplatform.android.ui.common.BaseMapViewModel
@@ -66,11 +68,53 @@ class OfflineAreaViewerFragment @Inject constructor() : AbstractMapContainerFrag
     savedInstanceState: Bundle?,
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
-    val binding = OfflineAreaViewerFragBinding.inflate(inflater, container, false)
-    binding.viewModel = viewModel
-    binding.lifecycleOwner = this
-    getAbstractActivity().setSupportActionBar(binding.offlineAreaViewerToolbar)
-    return binding.root
+    val root = android.widget.FrameLayout(requireContext())
+    root.layoutParams =
+      ViewGroup.LayoutParams(
+        ViewGroup.LayoutParams.MATCH_PARENT,
+        ViewGroup.LayoutParams.MATCH_PARENT,
+      )
+
+    val mapContainer = androidx.fragment.app.FragmentContainerView(requireContext())
+    mapContainer.id = R.id.map
+    root.addView(
+      mapContainer,
+      android.widget.FrameLayout.LayoutParams(
+        ViewGroup.LayoutParams.MATCH_PARENT,
+        ViewGroup.LayoutParams.MATCH_PARENT,
+      ),
+    )
+
+    val composeView = androidx.compose.ui.platform.ComposeView(requireContext())
+    composeView.setViewCompositionStrategy(
+      androidx.compose.ui.platform.ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
+    )
+    composeView.setContent {
+      org.groundplatform.android.ui.theme.AppTheme {
+        val areaName by viewModel.areaName.observeAsState("")
+        val areaSize by viewModel.areaSize.observeAsState("")
+        val visible by viewModel.progressOverlayVisible.observeAsState(false)
+        val area by viewModel.area.observeAsState()
+
+        OfflineAreaViewerScreen(
+          areaName = areaName,
+          areaSize = areaSize,
+          onRemove = { viewModel.onRemoveButtonClick() },
+          onBack = { findNavController().navigateUp() },
+          showProgress = visible,
+          isRemoveEnabled = area != null,
+          mapView = {}, // Map is rendered behind via FragmentContainerView
+        )
+      }
+    }
+    root.addView(
+      composeView,
+      android.widget.FrameLayout.LayoutParams(
+        ViewGroup.LayoutParams.MATCH_PARENT,
+        ViewGroup.LayoutParams.MATCH_PARENT,
+      ),
+    )
+    return root
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
