@@ -20,7 +20,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import org.groundplatform.android.ui.common.AbstractFragment
@@ -51,7 +51,7 @@ class SyncStatusFragment : AbstractFragment() {
       )
       setContent {
         org.groundplatform.android.ui.theme.AppTheme {
-          val list by viewModel.uploadStatus.observeAsState(emptyList())
+          val list by viewModel.uploadStatus.collectAsStateWithLifecycle()
           SyncStatusScreen(uploadStatuses = list, onBack = { findNavController().navigateUp() })
         }
       }

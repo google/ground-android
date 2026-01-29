@@ -39,6 +39,12 @@ import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.repository.SurveyRepository
 import org.junit.Test
 import org.junit.runner.RunWith
+import android.content.Context
+import android.util.Log
+import androidx.work.Configuration
+import androidx.work.testing.SynchronousExecutor
+import androidx.work.testing.WorkManagerTestInitHelper
+import dagger.hilt.android.qualifiers.ApplicationContext
 import org.robolectric.RobolectricTestRunner
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -47,6 +53,7 @@ import org.robolectric.RobolectricTestRunner
 class SyncStatusFragmentTest : BaseHiltTest() {
 
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
+  @Inject @ApplicationContext lateinit var context: Context
   @Inject lateinit var localLoiStore: LocalLocationOfInterestStore
   @Inject lateinit var localSubmissionStore: LocalSubmissionStore
   @Inject lateinit var localSurveyStore: LocalSurveyStore
@@ -115,6 +122,12 @@ class SyncStatusFragmentTest : BaseHiltTest() {
   }
 
   private fun setupFragment() = runWithTestDispatcher {
+    val config = Configuration.Builder()
+      .setMinimumLoggingLevel(Log.INFO)
+      .setExecutor(SynchronousExecutor())
+      .build()
+    WorkManagerTestInitHelper.initializeTestWorkManager(context, config)
+
     launchFragmentInHiltContainer<SyncStatusFragment>()
     advanceUntilIdle()
   }
