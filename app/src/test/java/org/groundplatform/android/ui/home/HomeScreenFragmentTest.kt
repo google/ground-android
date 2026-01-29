@@ -15,20 +15,25 @@
  */
 package org.groundplatform.android.ui.home
 
+import android.content.Context
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.navigation.NavController
 import androidx.test.ext.junit.rules.ActivityScenarioRule
+import androidx.work.Configuration
+import androidx.work.testing.SynchronousExecutor
+import androidx.work.testing.WorkManagerTestInitHelper
 import com.google.common.truth.Truth.assertThat
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -45,12 +50,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import android.content.Context
-import android.util.Log
-import androidx.work.Configuration
-import androidx.work.testing.SynchronousExecutor
-import androidx.work.testing.WorkManagerTestInitHelper
-import dagger.hilt.android.qualifiers.ApplicationContext
 import org.robolectric.ParameterizedRobolectricTestRunner
 import org.robolectric.RobolectricTestRunner
 
@@ -64,10 +63,11 @@ abstract class AbstractHomeScreenFragmentTest : BaseHiltTest() {
   @Before
   override fun setUp() {
     super.setUp()
-    val config = Configuration.Builder()
-      .setMinimumLoggingLevel(Log.INFO)
-      .setExecutor(SynchronousExecutor())
-      .build()
+    val config =
+      Configuration.Builder()
+        .setMinimumLoggingLevel(Log.INFO)
+        .setExecutor(SynchronousExecutor())
+        .build()
     WorkManagerTestInitHelper.initializeTestWorkManager(context, config)
 
     launchFragmentWithNavController<HomeScreenFragment>(
@@ -132,7 +132,11 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
       .assertIsDisplayed()
       .assertIsEnabled()
     composeTestRule.onNodeWithText("About").performScrollTo().assertIsDisplayed().assertIsEnabled()
-    composeTestRule.onNodeWithText("Terms of service").performScrollTo().assertIsDisplayed().assertIsEnabled()
+    composeTestRule
+      .onNodeWithText("Terms of service")
+      .performScrollTo()
+      .assertIsDisplayed()
+      .assertIsEnabled()
     composeTestRule
       .onNodeWithText("Build ${org.groundplatform.android.BuildConfig.VERSION_NAME}")
       .performScrollTo()

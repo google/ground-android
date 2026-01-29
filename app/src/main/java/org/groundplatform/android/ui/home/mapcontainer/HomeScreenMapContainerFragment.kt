@@ -21,7 +21,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
@@ -32,7 +31,6 @@ import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import org.groundplatform.android.R
-import org.groundplatform.android.ui.theme.AppTheme
 import org.groundplatform.android.model.locationofinterest.LOI_NAME_PROPERTY
 import org.groundplatform.android.proto.Survey.DataSharingTerms
 import org.groundplatform.android.ui.common.AbstractMapContainerFragment
@@ -47,9 +45,9 @@ import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentActio
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentState
 import org.groundplatform.android.ui.home.mapcontainer.jobs.SelectedLoiSheetData
 import org.groundplatform.android.ui.map.MapFragment
+import org.groundplatform.android.ui.theme.AppTheme
 import org.groundplatform.android.usecases.datasharingterms.GetDataSharingTermsUseCase
 import org.groundplatform.android.util.renderComposableDialog
-import org.groundplatform.android.util.setComposableContent
 import timber.log.Timber
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
@@ -150,9 +148,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
         AppTheme {
           Box(modifier = Modifier.fillMaxSize()) {
             AndroidView(
-              factory = { context ->
-                android.widget.FrameLayout(context).apply { id = R.id.map }
-              },
+              factory = { context -> android.widget.FrameLayout(context).apply { id = R.id.map } },
               modifier = Modifier.fillMaxSize(),
               update = {
                 val fragment = childFragmentManager.findFragmentById(R.id.map)
@@ -187,10 +183,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
               },
             )
 
-            AndroidView(
-              factory = { bottomContainer },
-              modifier = Modifier.fillMaxSize(),
-            )
+            AndroidView(factory = { bottomContainer }, modifier = Modifier.fillMaxSize())
           }
         }
       }
