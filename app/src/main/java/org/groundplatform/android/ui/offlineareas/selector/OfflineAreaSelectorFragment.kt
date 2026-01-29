@@ -93,6 +93,7 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
           downloadEnabled = downloadEnabled,
           onDownloadClick = { viewModel.onDownloadClick() },
           onCancelClick = { viewModel.onCancelClick() },
+          onStopDownloadClick = { viewModel.stopDownloading() },
           onLocationLockClick = { viewModel.onLocationLockClick() },
           locationLockIcon = locationLockIcon,
           bottomText = bottomText.toString(),

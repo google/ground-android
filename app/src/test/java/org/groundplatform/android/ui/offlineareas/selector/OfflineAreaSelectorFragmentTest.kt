@@ -19,24 +19,37 @@ import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.lifecycle.Observer
+import androidx.test.platform.app.InstrumentationRegistry
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
-import javax.inject.Inject
 import junit.framework.Assert.assertFalse
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.R
+import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.launchFragmentWithNavController
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.map.Bounds
 import org.groundplatform.android.model.map.CameraPosition
+import org.groundplatform.android.repository.LocationOfInterestRepository
+import org.groundplatform.android.repository.MapStateRepository
 import org.groundplatform.android.repository.OfflineAreaRepository
+import org.groundplatform.android.repository.SubmissionRepository
+import org.groundplatform.android.repository.SurveyRepository
+import org.groundplatform.android.repository.UserRepository
+import org.groundplatform.android.system.LocationManager
 import org.groundplatform.android.system.NetworkManager
+import org.groundplatform.android.system.PermissionsManager
+import org.groundplatform.android.system.SettingsManager
+import org.groundplatform.android.usecases.datasharingterms.GetDataSharingTermsUseCase
 import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Rule
@@ -50,12 +63,36 @@ import org.robolectric.RobolectricTestRunner
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class OfflineAreaSelectorFragmentTest : BaseHiltTest() {
-
   lateinit var fragment: OfflineAreaSelectorFragment
-  @Inject lateinit var viewModel: OfflineAreaSelectorViewModel
 
   @BindValue @JvmField val offlineAreaRepository: OfflineAreaRepository = mock()
   @BindValue @JvmField val networkManager: NetworkManager = mock()
+  @BindValue @JvmField val surveyRepository: SurveyRepository = mock()
+  @BindValue @JvmField val mapStateRepository: MapStateRepository = mock()
+  @BindValue @JvmField val settingsManager: SettingsManager = mock()
+  @BindValue @JvmField val permissionsManager: PermissionsManager = mock()
+  @BindValue @JvmField val locationOfInterestRepository: LocationOfInterestRepository = mock()
+  @BindValue @JvmField val locationManager: LocationManager = mock()
+  @BindValue @JvmField val submissionRepository: SubmissionRepository = mock()
+  @BindValue @JvmField val userRepository: UserRepository = mock()
+  @BindValue @JvmField val localValueStore: LocalValueStore = mock()
+  @BindValue @JvmField val getDataSharingTermsUseCase: GetDataSharingTermsUseCase = mock()
+
+  @BindValue
+  @JvmField
+  val viewModel: OfflineAreaSelectorViewModel =
+    OfflineAreaSelectorViewModel(
+      offlineAreaRepository,
+      UnconfinedTestDispatcher(),
+      InstrumentationRegistry.getInstrumentation().targetContext.resources,
+      locationManager,
+      surveyRepository,
+      mapStateRepository,
+      settingsManager,
+      permissionsManager,
+      locationOfInterestRepository,
+      networkManager,
+    )
 
   @get:Rule override val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
@@ -98,12 +135,14 @@ class OfflineAreaSelectorFragmentTest : BaseHiltTest() {
 
   // TODO: Complete below test
   // Issue URL: https://github.com/google/ground-android/issues/3032
-  @org.junit.Ignore("Failing on assertion")
+
   @Test
   fun `stopDownloading cancels active download and updates UI state`() = runWithTestDispatcher {
     val progressFlow = MutableSharedFlow<Pair<Int, Int>>()
     whenever(offlineAreaRepository.downloadTiles(any())).thenReturn(progressFlow)
     whenever(networkManager.isNetworkConnected()).thenReturn(true)
+    whenever(offlineAreaRepository.hasHiResImagery(any())).thenReturn(true)
+    whenever(offlineAreaRepository.estimateSizeOnDisk(any())).thenReturn(100)
 
     val downloadProgressValues = mutableListOf<Float>()
     val observer = Observer<Float> { downloadProgressValues.add(it) }
@@ -117,30 +156,38 @@ class OfflineAreaSelectorFragmentTest : BaseHiltTest() {
         Bounds(Coordinates(0.0, 0.0), Coordinates(10.0, 10.0)),
       )
     )
+
     viewModel.onDownloadClick()
     advanceUntilIdle()
 
     progressFlow.emit(Pair(50, 100))
     advanceUntilIdle()
 
-    composeTestRule
-      .onNodeWithText(
-        composeTestRule.activity.getString(R.string.offline_area_select_cancel_button)
-      )
-      .assertIsDisplayed()
+    // Check if dialog title is visible
+    val downloading =
+      composeTestRule.activity
+        .getString(R.string.offline_map_imagery_download_progress_dialog_title)
+        .substringBefore(" -")
 
+    // Wait for the dialog to appear
+    composeTestRule.waitUntil(timeoutMillis = 5000) {
+      composeTestRule
+        .onAllNodesWithText(downloading, substring = true)
+        .fetchSemanticsNodes()
+        .isNotEmpty()
+    }
+
+    composeTestRule.onNodeWithText(downloading, substring = true).assertIsDisplayed()
+
+    // Click the Cancel button in the dialog (useUnmergedTree to find it in Dialog)
     composeTestRule
-      .onNodeWithText(
-        composeTestRule.activity.getString(R.string.offline_area_select_cancel_button)
-      )
+      .onNode(hasTestTag("CancelProgressButton"), useUnmergedTree = true)
       .performClick()
-    progressFlow.emit(Pair(75, 100))
 
-    composeTestRule
-      .onNodeWithText(
-        composeTestRule.activity.getString(R.string.offline_area_select_cancel_button)
-      )
-      .assertIsNotDisplayed()
+    progressFlow.emit(Pair(75, 100))
+    composeTestRule.waitForIdle()
+
+    composeTestRule.onNodeWithText(downloading, substring = true).assertIsNotDisplayed()
 
     assertFalse(viewModel.isDownloadProgressVisible.value!!)
     assertNull(viewModel.downloadJob)

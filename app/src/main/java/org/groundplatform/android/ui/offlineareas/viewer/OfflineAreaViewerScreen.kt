@@ -81,64 +81,66 @@ fun OfflineAreaViewerScreen(
           mapView()
         }
 
-        // Details
-        Column(
-          modifier =
-            Modifier.fillMaxWidth()
-              .padding(top = 40.dp, bottom = 24.dp)
-              .padding(horizontal = 24.dp),
-          horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-          Text(
-            text = areaName,
-            style = MaterialTheme.typography.titleLarge,
-            textAlign = TextAlign.Center,
-          )
-          if (areaSize.isNotEmpty()) {
-            Text(
-              text = stringResource(R.string.offline_area_size_on_disk_mb, areaSize),
-              style = MaterialTheme.typography.bodyMedium,
-              textAlign = TextAlign.Center,
-            )
-          }
-        }
+        OfflineAreaViewerDetails(areaName = areaName, areaSize = areaSize)
 
-        // Remove Button
-        Button(
-          onClick = onRemove,
-          enabled = isRemoveEnabled,
-          colors =
-            ButtonDefaults.buttonColors(
-              containerColor = MaterialTheme.colorScheme.error,
-              contentColor = MaterialTheme.colorScheme.onError,
-            ),
-          modifier = Modifier.align(Alignment.CenterHorizontally).padding(bottom = 48.dp),
-        ) {
-          Icon(
-            imageVector = Icons.Default.Delete,
-            contentDescription = null,
-            modifier = Modifier.padding(end = 8.dp),
-          )
-          Text(text = stringResource(R.string.offline_area_viewer_remove_button))
-        }
+        OfflineAreaViewerButtons(onRemove = onRemove, isRemoveEnabled = isRemoveEnabled)
       }
 
-      // Progress Overlay
       if (showProgress) {
-        Box(
-          modifier =
-            Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.5f)).run {
-              // Make it clickable to block interactions?
-              // .clickable(enabled = false) {} logic in Compose?
-              // Box consumes touches if clickable without indication?
-              // Actually, just cover everything.
-              this
-            },
-          contentAlignment = Alignment.Center,
-        ) {
-          CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-        }
+        OfflineAreaViewerProgressOverlay()
       }
     }
+  }
+}
+
+@Composable
+private fun OfflineAreaViewerDetails(areaName: String, areaSize: String) {
+  Column(
+    modifier =
+      Modifier.fillMaxWidth().padding(top = 40.dp, bottom = 24.dp).padding(horizontal = 24.dp),
+    horizontalAlignment = Alignment.CenterHorizontally,
+  ) {
+    Text(text = areaName, style = MaterialTheme.typography.titleLarge, textAlign = TextAlign.Center)
+    if (areaSize.isNotEmpty()) {
+      Text(
+        text = stringResource(R.string.offline_area_size_on_disk_mb, areaSize),
+        style = MaterialTheme.typography.bodyMedium,
+        textAlign = TextAlign.Center,
+      )
+    }
+  }
+}
+
+@Composable
+private fun androidx.compose.foundation.layout.ColumnScope.OfflineAreaViewerButtons(
+  onRemove: () -> Unit,
+  isRemoveEnabled: Boolean,
+) {
+  Button(
+    onClick = onRemove,
+    enabled = isRemoveEnabled,
+    colors =
+      ButtonDefaults.buttonColors(
+        containerColor = MaterialTheme.colorScheme.error,
+        contentColor = MaterialTheme.colorScheme.onError,
+      ),
+    modifier = Modifier.align(Alignment.CenterHorizontally).padding(bottom = 48.dp),
+  ) {
+    Icon(
+      imageVector = Icons.Default.Delete,
+      contentDescription = null,
+      modifier = Modifier.padding(end = 8.dp),
+    )
+    Text(text = stringResource(R.string.offline_area_viewer_remove_button))
+  }
+}
+
+@Composable
+private fun OfflineAreaViewerProgressOverlay() {
+  Box(
+    modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.5f)),
+    contentAlignment = Alignment.Center,
+  ) {
+    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
   }
 }
