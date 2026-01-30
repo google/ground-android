@@ -27,10 +27,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.groundplatform.android.coroutines.ApplicationScope
-import org.groundplatform.android.coroutines.IoDispatcher
 import org.groundplatform.android.data.local.room.converter.SubmissionDeltasConverter
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
+import org.groundplatform.android.di.coroutines.ApplicationScope
+import org.groundplatform.android.di.coroutines.IoDispatcher
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.submission.ValueDelta

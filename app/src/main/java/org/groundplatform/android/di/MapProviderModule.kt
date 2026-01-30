@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.ui.map
+package org.groundplatform.android.di
 
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import org.groundplatform.android.ui.map.MapFragment
 import org.groundplatform.android.ui.map.gms.GoogleMapsFragment
 
 @InstallIn(SingletonComponent::class)

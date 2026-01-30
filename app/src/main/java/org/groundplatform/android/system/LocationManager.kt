@@ -23,7 +23,7 @@ import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
-import org.groundplatform.android.coroutines.ApplicationScope
+import org.groundplatform.android.di.coroutines.ApplicationScope
 import org.groundplatform.android.system.channel.LocationSharedFlowCallback
 
 private const val UPDATE_INTERVAL: Long = 1000 /* 1 sec */

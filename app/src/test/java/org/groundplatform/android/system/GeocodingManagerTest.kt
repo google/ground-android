@@ -23,6 +23,7 @@ import dagger.hilt.android.testing.UninstallModules
 import javax.inject.Inject
 import kotlin.test.assertEquals
 import org.groundplatform.android.BaseHiltTest
+import org.groundplatform.android.di.SystemModule
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.map.Bounds
 import org.groundplatform.android.ui.map.gms.GmsExt.center

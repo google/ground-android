@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.system.auth
+package org.groundplatform.android.di
 
 import com.google.firebase.auth.FirebaseAuth
 import dagger.Module
@@ -21,9 +21,10 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
-import org.groundplatform.android.BuildConfig.AUTH_EMULATOR_PORT
-import org.groundplatform.android.BuildConfig.EMULATOR_HOST
-import org.groundplatform.android.BuildConfig.USE_EMULATORS
+import org.groundplatform.android.BuildConfig
+import org.groundplatform.android.system.auth.AnonymousAuthenticationManager
+import org.groundplatform.android.system.auth.AuthenticationManager
+import org.groundplatform.android.system.auth.GoogleAuthenticationManager
 
 @InstallIn(SingletonComponent::class)
 @Module
@@ -35,14 +36,14 @@ class AuthenticationModule {
     anonymousAuthenticationManager: AnonymousAuthenticationManager,
     googleAuthenticationManager: GoogleAuthenticationManager,
   ): AuthenticationManager =
-    if (USE_EMULATORS) anonymousAuthenticationManager else googleAuthenticationManager
+    if (BuildConfig.USE_EMULATORS) anonymousAuthenticationManager else googleAuthenticationManager
 
   @Provides
   fun firebaseAuth(): FirebaseAuth {
     val auth = FirebaseAuth.getInstance()
-    if (USE_EMULATORS) {
+    if (BuildConfig.USE_EMULATORS) {
       // Use the auth emulator so we can sign-in anonymously during dev.
-      auth.useEmulator(EMULATOR_HOST, AUTH_EMULATOR_PORT)
+      auth.useEmulator(BuildConfig.EMULATOR_HOST, BuildConfig.AUTH_EMULATOR_PORT)
     }
     return auth
   }
