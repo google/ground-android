@@ -53,6 +53,7 @@
   <issue id="Untranslatable" severity="error" />
   <issue id="UnusedResources" severity="error">
     <ignore path="res/font/display_700.xml" />
+    <ignore path="res/drawable/ic_content_paste.xml" />
   </issue>
   <issue id="UselessLeaf" severity="error" />
   <issue id="UselessParent" severity="error" />
