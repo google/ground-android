@@ -17,9 +17,3 @@ Before pushing changes:
 1. Remove any commented out code or temporary comments added in the process of debugging and authoring new or changed code.
 2. Run `./gradlew ktfmtFormat` to fix lint errors.
 3. Run checks with `./gradlew :app:checkCode` and fix all errors and warnings.
-
-When asked to resolve pending comments:
-
-1. Get the current PR number using `gh pr view $(git branch --show-current) --json number`.
-2. Fetch comments with `gh api -H "Accept: application/vnd.github.v3.full+json" /repos/google/ground-android/pulls/<PR number>/comments` to get the pending comments.
-3. Resolve the pending comments.
