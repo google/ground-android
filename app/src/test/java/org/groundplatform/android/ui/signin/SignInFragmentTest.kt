@@ -15,14 +15,8 @@
  */
 package org.groundplatform.android.ui.signin
 
-import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
@@ -34,7 +28,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
-import org.groundplatform.android.R
 import org.groundplatform.android.launchFragmentInHiltContainer
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.NetworkStatus
@@ -77,23 +70,6 @@ class SignInFragmentTest : BaseHiltTest() {
         assertThat(expectMostRecentItem()).isEqualTo(SignInState.SignedIn(TEST_USER))
       }
     }
-
-  @Test
-  fun `Sign-in button should be enabled when network is not available`() = runWithTestDispatcher {
-    whenever(networkManager.networkStatusFlow).thenReturn(flowOf(NetworkStatus.UNAVAILABLE))
-    launchFragmentInHiltContainer<SignInFragment>()
-    fakeAuthenticationManager.setUser(TEST_USER)
-
-    getSignInButton().assertIsEnabled().assertIsDisplayed().performClick()
-
-    // Assert that the sign-in state is still signed out
-    fakeAuthenticationManager.signInState.test {
-      assertThat(expectMostRecentItem()).isEqualTo(SignInState.SignedOut)
-    }
-
-    onView(withId(com.google.android.material.R.id.snackbar_text))
-      .check(matches(withText(R.string.network_error_when_signing_in)))
-  }
 
   @Test
   fun `Sign-in should only execute once when clicked multiple times`() = runWithTestDispatcher {

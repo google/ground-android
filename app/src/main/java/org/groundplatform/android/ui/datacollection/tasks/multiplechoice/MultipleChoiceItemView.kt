@@ -15,12 +15,12 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.multiplechoice
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -84,8 +84,8 @@ fun MultipleChoiceItemView(
     }
   }
 
-  Column(modifier = Modifier.testTag(MULTIPLE_CHOICE_ITEM_TEST_TAG)) {
-    Row(modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+  Column(modifier = modifier.testTag(MULTIPLE_CHOICE_ITEM_TEST_TAG)) {
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
       when (item.cardinality) {
         MultipleChoice.Cardinality.SELECT_ONE -> {
           RadioButton(
@@ -104,17 +104,16 @@ fun MultipleChoiceItemView(
         }
       }
 
-      ClickableText(
+      Text(
         text = item.toTextLabel(),
-        modifier = modifier,
+        modifier = Modifier.clickable(onClick = { toggleItem(item) }),
         style = MaterialTheme.typography.bodyLarge,
-        onClick = { toggleItem(item) },
       )
     }
 
     if (item.isOtherOption) {
-      Row(modifier = modifier.padding(horizontal = 48.dp)) {
-        OtherTextField(modifier, item, focusRequester, otherValueChanged)
+      Row(modifier = Modifier.padding(horizontal = 48.dp)) {
+        OtherTextField(Modifier, item, focusRequester, otherValueChanged)
       }
     }
 
@@ -133,8 +132,8 @@ private fun OtherTextField(
 ) {
   OutlinedTextField(
     supportingText = {
-      Row(modifier = modifier.fillMaxWidth()) {
-        Spacer(modifier = modifier.weight(1f))
+      Row(modifier = Modifier.fillMaxWidth()) {
+        Spacer(modifier = Modifier.weight(1f))
         Text(
           "${item.otherText.length} / ${Constants.TEXT_DATA_CHAR_LIMIT}",
           textAlign = TextAlign.End,
@@ -145,7 +144,7 @@ private fun OtherTextField(
     value = item.otherText,
     textStyle = MaterialTheme.typography.bodyLarge,
     onValueChange = { otherValueChanged(it) },
-    modifier = Modifier.testTag(OTHER_INPUT_TEXT_TEST_TAG).focusRequester(focusRequester),
+    modifier = modifier.testTag(OTHER_INPUT_TEXT_TEST_TAG).focusRequester(focusRequester),
   )
 }
 

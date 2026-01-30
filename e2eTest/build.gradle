@@ -69,6 +69,7 @@ dependencies {
     implementation libs.androidx.appcompat
     implementation libs.androidx.core.ktx
     implementation libs.androidx.espresso.core
+    implementation libs.androidx.espresso.intents
     implementation libs.androidx.junit
     implementation libs.androidx.rules
     implementation libs.androidx.uiautomator
