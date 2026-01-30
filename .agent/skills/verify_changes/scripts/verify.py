@@ -1,0 +1,18 @@
+import subprocess
+import sys
+
+def run_command(command):
+    print(f"Running: {command}")
+    try:
+        subprocess.run(command, check=True, shell=True)
+    except subprocess.CalledProcessError:
+        print(f"Error running {command}")
+        sys.exit(1)
+
+def main():
+    print("🧪 Running local unit tests...")
+    run_command("./gradlew :app:testLocalDebugUnitTest")
+    print("\n✅ Verified.")
+
+if __name__ == "__main__":
+    main()
