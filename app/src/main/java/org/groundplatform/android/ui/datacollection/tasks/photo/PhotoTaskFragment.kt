@@ -30,10 +30,10 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
-import org.groundplatform.android.coroutines.ApplicationScope
-import org.groundplatform.android.coroutines.IoDispatcher
-import org.groundplatform.android.coroutines.MainScope
 import org.groundplatform.android.databinding.PhotoTaskFragBinding
+import org.groundplatform.android.di.coroutines.ApplicationScope
+import org.groundplatform.android.di.coroutines.IoDispatcher
+import org.groundplatform.android.di.coroutines.MainScope
 import org.groundplatform.android.repository.UserMediaRepository
 import org.groundplatform.android.system.PermissionDeniedException
 import org.groundplatform.android.system.PermissionsManager

@@ -50,7 +50,7 @@ mockitoBom = "5.21.0"
 mockitoInlineVersion = "5.2.0"
 mockitoKotlinVersion = "6.2.3"
 multidex = "2.0.1"
-navigationKtxVersion = "2.9.6"
+navigationKtxVersion = "2.9.7"
 orchestratorVersion = "1.6.1"
 ossLicensesPluginVersion = "0.10.10"
 perfPluginVersion = "2.0.2"
@@ -68,7 +68,7 @@ timberVersion = "5.0.1"
 truthVersion = "1.4.5"
 turbineVersion = "1.2.1"
 uiautomatorVersion = "2.3.0"
-workVersion = "2.11.0"
+workVersion = "2.11.1"
 
 [libraries]
 android-maps-utils = { module = "com.google.maps.android:android-maps-utils", version.ref = "androidMapsUtilsVersion" }

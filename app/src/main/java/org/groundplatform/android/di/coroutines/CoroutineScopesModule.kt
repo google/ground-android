@@ -13,25 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.coroutines
+
+package org.groundplatform.android.di.coroutines
 
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Qualifier
-import kotlinx.coroutines.CoroutineDispatcher
+import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.SupervisorJob
 
-@Module
 @InstallIn(SingletonComponent::class)
-object CoroutineDispatchersModule {
+@Module
+object CoroutinesScopesModule {
+  @ApplicationScope
+  @Singleton
+  @Provides
+  fun provideCoroutineScope(): CoroutineScope {
+    return CoroutineScope(SupervisorJob() + Dispatchers.Default)
+  }
 
-  @IoDispatcher @Provides fun provideIoDispatcher(): CoroutineDispatcher = Dispatchers.IO
-
-  @MainDispatcher @Provides fun provideMainDispatcher(): CoroutineDispatcher = Dispatchers.Main
+  @MainScope @Provides fun provideMainCoroutineScope(): CoroutineScope = MainScope()
 }
 
-@Retention(AnnotationRetention.RUNTIME) @Qualifier annotation class IoDispatcher
+/**
+ * Scope for jobs which need to outlive the lifecycle of specific view components. Use this scope to
+ * bind jobs to the application's lifecycle instead.
+ */
+@Retention(AnnotationRetention.RUNTIME) @Qualifier annotation class ApplicationScope
 
-@Retention(AnnotationRetention.RUNTIME) @Qualifier annotation class MainDispatcher
+@Retention(AnnotationRetention.RUNTIME) @Qualifier annotation class MainScope
