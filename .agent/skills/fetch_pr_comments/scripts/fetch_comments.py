@@ -33,7 +33,7 @@ def run_command(command):
     except subprocess.CalledProcessError as e:
         if "no pull requests found" in e.stderr.lower():
             print("No pull request found for the current branch.", file=sys.stderr)
-            sys.exit(0)
+            sys.exit(1)
         
         print(f"Error running command: {command}", file=sys.stderr)
         print(f"Stderr: {e.stderr}", file=sys.stderr)
