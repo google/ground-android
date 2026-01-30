@@ -18,6 +18,10 @@ package org.groundplatform.android.ui.datacollection.tasks.point
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator

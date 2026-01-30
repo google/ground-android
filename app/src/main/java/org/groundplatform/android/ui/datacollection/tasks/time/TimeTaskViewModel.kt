@@ -15,12 +15,23 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.time
 
+import androidx.lifecycle.viewModelScope
 import java.util.Date
 import javax.inject.Inject
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import org.groundplatform.android.model.submission.DateTimeTaskData.Companion.fromMillis
+import org.groundplatform.android.ui.datacollection.components.refactor.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 
 class TimeTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
+  override val taskActionButtonStates: StateFlow<List<ButtonActionState>> by lazy {
+    taskTaskData
+      .map { listOf(getPreviousButtonState(), getSkipButtonState(it), getNextButtonState(it)) }
+      .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+  }
 
   fun updateResponse(date: Date) {
     setValue(fromMillis(date.time))
