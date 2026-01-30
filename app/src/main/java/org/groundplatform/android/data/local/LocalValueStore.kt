@@ -29,9 +29,10 @@ import org.groundplatform.android.util.allowThreadDiskWrites
 import timber.log.Timber
 
 /**
- * Simple value store persisted locally on device. Unlike [LocalDataStoreModule], this class
- * provides a concrete implementation using the Android SDK, and therefore does not require a
- * database-specific implementation.
+ * Simple value store persisted locally on device. Unlike
+ * [org.groundplatform.android.di.LocalDataStoreModule], this class provides a concrete
+ * implementation using the Android SDK, and therefore does not require a database-specific
+ * implementation.
  */
 @Singleton
 class LocalValueStore
