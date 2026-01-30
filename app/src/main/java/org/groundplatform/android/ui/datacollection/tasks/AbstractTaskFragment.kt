@@ -240,14 +240,15 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
         Column(modifier = Modifier.fillMaxWidth()) {
           HeaderCard()
           Spacer(Modifier.height(12.dp))
-          ActionButtonsRow()
+          Footer()
         }
       } else {
-        ActionButtonsRow()
+        Footer()
       }
     }
   }
 
+  @Suppress("UnusedPrivateMember") // andreia: revert this later
   @Composable
   private fun ActionButtonsRow() {
     Row(
@@ -255,6 +256,33 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
       horizontalArrangement = Arrangement.SpaceBetween,
     ) {
       buttonDataList.sortedBy { it.index }.forEach { (_, button) -> button.CreateButton() }
+    }
+  }
+
+  @Composable
+  private fun Footer() {
+    val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+      taskActionButtonsStates.forEach { state ->
+        if (state.isVisible) { // andreia:review
+          org.groundplatform.android.ui.datacollection.components.refactor.TaskButton(
+            state = state,
+            onClick = { handleButtonClick(state.action) },
+          )
+        }
+      }
+    }
+  }
+
+  private fun handleButtonClick(action: ButtonAction) {
+    when (action) {
+      // Navigation actions
+      ButtonAction.PREVIOUS -> moveToPrevious()
+      ButtonAction.NEXT,
+      ButtonAction.DONE -> handleNext()
+      ButtonAction.SKIP -> onSkip()
+      // Task-specific actions - delegate to ViewModel
+      else -> viewModel.onButtonClick(action)
     }
   }
 

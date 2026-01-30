@@ -15,9 +15,13 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.multiplechoice
 
+import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import org.groundplatform.android.R
 import org.groundplatform.android.common.Constants
@@ -28,9 +32,16 @@ import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.task.MultipleChoice.Cardinality.SELECT_MULTIPLE
 import org.groundplatform.android.model.task.Option
 import org.groundplatform.android.model.task.Task
+import org.groundplatform.android.ui.datacollection.components.refactor.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 
 class MultipleChoiceTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
+
+  override val taskActionButtonStates: StateFlow<List<ButtonActionState>> by lazy {
+    taskTaskData
+      .map { listOf(getPreviousButtonState(), getSkipButtonState(it), getNextButtonState(it)) }
+      .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+  }
 
   private val _items: MutableStateFlow<List<MultipleChoiceItem>> = MutableStateFlow(emptyList())
   val items: StateFlow<List<MultipleChoiceItem>> = _items
@@ -38,8 +49,14 @@ class MultipleChoiceTaskViewModel @Inject constructor() : AbstractTaskViewModel(
   private val selectedIds: MutableSet<String> = mutableSetOf()
   private var otherText: String = ""
 
-  override fun initialize(job: Job, task: Task, taskData: TaskData?) {
-    super.initialize(job, task, taskData)
+  override fun initialize(
+    job: Job,
+    task: Task,
+    taskData: TaskData?,
+    isFirstPosition: () -> Boolean,
+    isLastPosition: (TaskData?) -> Boolean,
+  ) {
+    super.initialize(job, task, taskData, isFirstPosition, isLastPosition)
     loadPendingSelections()
     updateMultipleChoiceItems()
   }

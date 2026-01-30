@@ -23,21 +23,36 @@ import org.groundplatform.android.R
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.submission.SkippedTaskData
 import org.groundplatform.android.model.submission.TaskData
+import org.groundplatform.android.model.submission.isNotNullOrEmpty
 import org.groundplatform.android.model.submission.isNullOrEmpty
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.common.AbstractViewModel
+import org.groundplatform.android.ui.datacollection.components.ButtonAction
+import org.groundplatform.android.ui.datacollection.components.refactor.ButtonActionState
 
 /** Defines the state of an inflated [Task] and controls its UI. */
-open class AbstractTaskViewModel internal constructor() : AbstractViewModel() {
+abstract class AbstractTaskViewModel internal constructor() : AbstractViewModel() {
 
   /** Current value. */
   private val _taskDataFlow: MutableStateFlow<TaskData?> = MutableStateFlow(null)
   val taskTaskData: StateFlow<TaskData?> = _taskDataFlow.asStateFlow()
 
-  lateinit var task: Task
+  abstract val taskActionButtonStates: StateFlow<List<ButtonActionState>>
 
-  open fun initialize(job: Job, task: Task, taskData: TaskData?) {
+  lateinit var task: Task
+  private lateinit var isFirstPosition: () -> Boolean
+  private lateinit var isLastPositionWithValue: (TaskData?) -> Boolean
+
+  open fun initialize(
+    job: Job,
+    task: Task,
+    taskData: TaskData?,
+    isFirstPosition: () -> Boolean,
+    isLastPosition: (TaskData?) -> Boolean,
+  ) {
     this.task = task
+    this.isFirstPosition = isFirstPosition
+    this.isLastPositionWithValue = isLastPosition
     setValue(taskData)
   }
 
@@ -74,4 +89,50 @@ open class AbstractTaskViewModel internal constructor() : AbstractViewModel() {
   fun isTaskOptional(): Boolean = !task.isRequired
 
   fun hasNoData(): Boolean = taskTaskData.value.isNullOrEmpty()
+
+  fun getPreviousButtonState(): ButtonActionState =
+    ButtonActionState(
+      action = ButtonAction.PREVIOUS,
+      isEnabled = !isFirstPosition(),
+      isVisible = true,
+    )
+
+  fun getNextButtonState(taskData: TaskData?, hideIfEmpty: Boolean = false): ButtonActionState {
+    val isVisible = if (hideIfEmpty) taskData.isNotNullOrEmpty() else true
+    return if (isLastPositionWithValue(taskData)) {
+      ButtonActionState(
+        action = ButtonAction.DONE,
+        isEnabled = taskData.isNotNullOrEmpty(),
+        isVisible = isVisible,
+      )
+    } else {
+      ButtonActionState(
+        action = ButtonAction.NEXT,
+        isEnabled = taskData.isNotNullOrEmpty(),
+        isVisible = isVisible,
+      )
+    }
+  }
+
+  fun getSkipButtonState(taskData: TaskData?): ButtonActionState =
+    ButtonActionState(
+      action = ButtonAction.SKIP,
+      isEnabled = isTaskOptional(),
+      isVisible = isTaskOptional() && taskData.isNullOrEmpty(),
+    )
+
+  fun getUndoButtonState(taskData: TaskData?): ButtonActionState =
+    ButtonActionState(
+      action = ButtonAction.UNDO,
+      isEnabled = taskData.isNotNullOrEmpty(),
+      isVisible = taskData.isNotNullOrEmpty(),
+    )
+
+  open fun onButtonClick(action: ButtonAction) {
+    if (action == ButtonAction.UNDO) {
+      clearResponse()
+    } else {
+      // Subclasses handle other actions
+    }
+  }
 }

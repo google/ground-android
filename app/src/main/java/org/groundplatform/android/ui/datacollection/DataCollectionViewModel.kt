@@ -205,7 +205,13 @@ internal constructor(
 
     viewModel?.let { created ->
       val taskData = if (shouldLoadFromDraft) getValueFromDraft(state.job, task) else null
-      created.initialize(state.job, task, taskData)
+      created.initialize(
+        job = state.job,
+        task = task,
+        taskData = taskData,
+        isFirstPosition = { isFirstPosition(task.id) },
+        isLastPosition = { isLastPositionWithValue(task, it) },
+      )
       updateDataAndInvalidateTasks(task, taskData)
       taskViewModels.value[task.id] = created
     }

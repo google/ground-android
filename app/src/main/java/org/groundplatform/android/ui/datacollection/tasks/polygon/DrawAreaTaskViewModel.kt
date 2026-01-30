@@ -20,11 +20,19 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.data.local.LocalValueStore
@@ -39,8 +47,11 @@ import org.groundplatform.android.model.settings.MeasurementUnits
 import org.groundplatform.android.model.submission.DrawAreaTaskData
 import org.groundplatform.android.model.submission.DrawAreaTaskIncompleteData
 import org.groundplatform.android.model.submission.TaskData
+import org.groundplatform.android.model.submission.isNotNullOrEmpty
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.common.SharedViewModel
+import org.groundplatform.android.ui.datacollection.components.ButtonAction
+import org.groundplatform.android.ui.datacollection.components.refactor.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.AbstractMapTaskViewModel
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.util.LocaleAwareMeasureFormatter
@@ -97,6 +108,10 @@ internal constructor(
    */
   val draftUpdates = _draftUpdates.asSharedFlow()
 
+  /** Channel for one-shot camera movement events. Fragment collects to move map. */
+  private val _cameraMoveEvents = Channel<Coordinates>(Channel.CONFLATED)
+  val cameraMoveEvents = _cameraMoveEvents.receiveAsFlow()
+
   /** Whether the instructions dialog has been shown or not. */
   var instructionsDialogShown: Boolean by localValueStore::drawAreaInstructionsShown
 
@@ -132,8 +147,37 @@ internal constructor(
   private lateinit var featureStyle: Feature.Style
   lateinit var measurementUnits: MeasurementUnits
 
-  override fun initialize(job: Job, task: Task, taskData: TaskData?) {
-    super.initialize(job, task, taskData)
+  // andreia:re-check this, probably only area flows are needed
+  override val taskActionButtonStates: StateFlow<List<ButtonActionState>> by lazy {
+    combine(
+        taskTaskData,
+        merge(draftArea, draftUpdates).filterNotNull().map {
+          (it?.geometry as? LineString)?.isClosed() ?: false
+        },
+        _isMarkedComplete,
+        _isTooClose,
+      ) { taskData, closed, isMarkedComplete, isTooClose ->
+        listOfNotNull(
+          getPreviousButtonState(),
+          getSkipButtonState(taskData),
+          getUndoButtonState(taskData),
+          getRedoButtonState(taskData),
+          getAddPointButtonState(closed, isTooClose),
+          getCompleteButton(closed, isMarkedComplete, hasSelfIntersection),
+          getNextButtonState(taskData).takeIf { isMarkedComplete() },
+        )
+      }
+      .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+  }
+
+  override fun initialize(
+    job: Job,
+    task: Task,
+    taskData: TaskData?,
+    isFirstPosition: () -> Boolean,
+    isLastPosition: (TaskData?) -> Boolean,
+  ) {
+    super.initialize(job, task, taskData, isFirstPosition, isLastPosition)
     viewModelScope.launch { measurementUnits = getUserSettingsUseCase.invoke().measurementUnits }
     featureStyle = Feature.Style(job.getDefaultColor(), Feature.VertexStyle.CIRCLE)
 
@@ -142,7 +186,6 @@ internal constructor(
       is DrawAreaTaskIncompleteData -> {
         updateVertices(taskData.lineString.coordinates)
       }
-
       is DrawAreaTaskData -> {
         updateVertices(taskData.area.getShellCoordinates())
         try {
@@ -386,6 +429,60 @@ internal constructor(
 
   fun triggerVibration() {
     vibrationHelper.vibrate()
+  }
+
+  private fun getRedoButtonState(taskData: TaskData?): ButtonActionState =
+    ButtonActionState(
+      action = ButtonAction.REDO,
+      isEnabled = redoVertexStack.isNotEmpty() && taskData.isNotNullOrEmpty(),
+      isVisible = true,
+    )
+
+  private fun getAddPointButtonState(
+    isPolygonClosed: Boolean,
+    isTooClose: Boolean,
+  ): ButtonActionState =
+    ButtonActionState(
+      action = ButtonAction.ADD_POINT,
+      isEnabled = !isPolygonClosed && !isTooClose,
+      isVisible = !isPolygonClosed,
+    )
+
+  fun getCompleteButton(
+    isClosed: Boolean,
+    isMarkedComplete: Boolean,
+    hasSelfIntersection: Boolean,
+  ): ButtonActionState =
+    ButtonActionState(
+      action = ButtonAction.COMPLETE,
+      isEnabled = isClosed && !isMarkedComplete && !hasSelfIntersection,
+      isVisible = isClosed && !isMarkedComplete,
+    )
+
+  override fun onButtonClick(action: ButtonAction) {
+    when (action) {
+      ButtonAction.UNDO -> {
+        removeLastVertex()
+        getLastVertex()?.let { _cameraMoveEvents.trySend(it) }
+      }
+      ButtonAction.REDO -> {
+        redoLastVertex()
+        getLastVertex()?.let { _cameraMoveEvents.trySend(it) }
+      }
+      ButtonAction.ADD_POINT -> {
+        addLastVertex()
+        val intersected = checkVertexIntersection()
+        if (!intersected) triggerVibration()
+      }
+      ButtonAction.COMPLETE -> {
+        if (validatePolygonCompletion()) {
+          completePolygon()
+        }
+      }
+      else -> {
+        super.onButtonClick(action)
+      }
+    }
   }
 
   companion object {

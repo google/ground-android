@@ -18,6 +18,10 @@ package org.groundplatform.android.ui.datacollection.tasks.point
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
@@ -26,7 +30,10 @@ import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.getDefaultColor
 import org.groundplatform.android.model.submission.DropPinTaskData
 import org.groundplatform.android.model.submission.TaskData
+import org.groundplatform.android.model.submission.isNullOrEmpty
 import org.groundplatform.android.model.task.Task
+import org.groundplatform.android.ui.datacollection.components.ButtonAction
+import org.groundplatform.android.ui.datacollection.components.refactor.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.AbstractMapTaskViewModel
 import org.groundplatform.android.ui.map.Feature
 
@@ -43,8 +50,28 @@ constructor(
   var instructionsDialogShown: Boolean by localValueStore::dropPinInstructionsShown
   var captureLocation: Boolean = false
 
-  override fun initialize(job: Job, task: Task, taskData: TaskData?) {
-    super.initialize(job, task, taskData)
+  override val taskActionButtonStates: StateFlow<List<ButtonActionState>> by lazy {
+    taskTaskData
+      .map {
+        listOf(
+          getPreviousButtonState(),
+          getSkipButtonState(it),
+          getUndoButtonState(it),
+          getDropPinButtonState(it),
+          getNextButtonState(it, hideIfEmpty = true),
+        )
+      }
+      .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+  }
+
+  override fun initialize(
+    job: Job,
+    task: Task,
+    taskData: TaskData?,
+    isFirstPosition: () -> Boolean,
+    isLastPosition: (TaskData?) -> Boolean,
+  ) {
+    super.initialize(job, task, taskData, isFirstPosition, isLastPosition)
     pinColor = job.getDefaultColor()
 
     // Drop a marker for current value
@@ -83,4 +110,19 @@ constructor(
   }
 
   fun shouldShowInstructionsDialog() = !instructionsDialogShown && !captureLocation
+
+  private fun getDropPinButtonState(taskData: TaskData?): ButtonActionState =
+    ButtonActionState(
+      action = ButtonAction.DROP_PIN,
+      isEnabled = true,
+      isVisible = taskData.isNullOrEmpty(),
+    )
+
+  override fun onButtonClick(action: ButtonAction) {
+    if (action == ButtonAction.DROP_PIN) {
+      dropPin()
+    } else {
+      super.onButtonClick(action)
+    }
+  }
 }

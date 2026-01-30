@@ -16,15 +16,26 @@
 package org.groundplatform.android.ui.datacollection.tasks.location
 
 import android.location.Location
+import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
+import kotlin.lazy
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import org.groundplatform.android.common.Constants.ACCURACY_THRESHOLD_IN_M
 import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.model.submission.CaptureLocationTaskData
+import org.groundplatform.android.model.submission.TaskData
+import org.groundplatform.android.model.submission.isNullOrEmpty
+import org.groundplatform.android.ui.datacollection.components.ButtonAction
+import org.groundplatform.android.ui.datacollection.components.refactor.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.AbstractMapTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.LocationLockEnabledState
 import org.groundplatform.android.ui.map.gms.getAccuracyOrNull
@@ -41,6 +52,20 @@ class CaptureLocationTaskViewModel @Inject constructor() : AbstractMapTaskViewMo
       val accuracy: Float = location?.getAccuracyOrNull()?.toFloat() ?: Float.MAX_VALUE
       location != null && accuracy <= ACCURACY_THRESHOLD_IN_M
     }
+
+  override val taskActionButtonStates: StateFlow<List<ButtonActionState>> by lazy {
+    combine(isCaptureEnabled, taskTaskData) { captureEnabled, taskData ->
+        listOf(
+          getPreviousButtonState(),
+          getSkipButtonState(taskData),
+          getUndoButtonState(taskData),
+          getCaptureLocationButtonState(captureEnabled, taskData),
+          getNextButtonState(taskData, hideIfEmpty = true),
+        )
+      }
+      .distinctUntilChanged()
+      .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+  }
 
   fun updateLocation(location: Location) {
     _lastLocation.update { location }
@@ -62,6 +87,24 @@ class CaptureLocationTaskViewModel @Inject constructor() : AbstractMapTaskViewMo
           accuracy = accuracy,
         )
       )
+    }
+  }
+
+  private fun getCaptureLocationButtonState(
+    captureEnabled: Boolean,
+    taskData: TaskData?,
+  ): ButtonActionState =
+    ButtonActionState(
+      action = ButtonAction.CAPTURE_LOCATION,
+      isEnabled = captureEnabled,
+      isVisible = taskData.isNullOrEmpty(),
+    )
+
+  override fun onButtonClick(action: ButtonAction) {
+    if (action == ButtonAction.CAPTURE_LOCATION) {
+      updateResponse()
+    } else {
+      super.onButtonClick(action)
     }
   }
 }
