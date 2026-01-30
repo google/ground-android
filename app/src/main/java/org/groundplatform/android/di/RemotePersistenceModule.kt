@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.data.remote
+package org.groundplatform.android.di
 
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.functions.FirebaseFunctions
@@ -30,6 +30,8 @@ import javax.inject.Singleton
 import org.groundplatform.android.BuildConfig.EMULATOR_HOST
 import org.groundplatform.android.BuildConfig.FIRESTORE_EMULATOR_PORT
 import org.groundplatform.android.BuildConfig.USE_EMULATORS
+import org.groundplatform.android.data.remote.RemoteDataStore
+import org.groundplatform.android.data.remote.RemoteStorageManager
 import org.groundplatform.android.data.remote.firebase.FirebaseStorageManager
 import org.groundplatform.android.data.remote.firebase.FirestoreDataStore
 import org.groundplatform.android.data.remote.firebase.FirestoreUuidGenerator

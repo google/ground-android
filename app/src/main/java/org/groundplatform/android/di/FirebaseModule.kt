@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,27 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android
+package org.groundplatform.android.di
 
 import android.content.Context
-import androidx.room.Room
+import com.google.firebase.Firebase
+import com.google.firebase.FirebaseApp
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import com.google.firebase.remoteconfig.remoteConfig
+import com.google.firebase.remoteconfig.remoteConfigSettings
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import dagger.hilt.testing.TestInstallIn
 import javax.inject.Singleton
-import org.groundplatform.android.data.local.room.LocalDatabase
-import org.groundplatform.android.di.LocalDatabaseModule
 
 @Module
-@TestInstallIn(components = [SingletonComponent::class], replaces = [LocalDatabaseModule::class])
-object TestLocalDatabaseModule {
+@InstallIn(SingletonComponent::class)
+object FirebaseModule {
   @Provides
   @Singleton
-  fun localDatabaseProvider(@ApplicationContext context: Context): LocalDatabase {
-    return Room.inMemoryDatabaseBuilder(context, LocalDatabase::class.java)
-      .allowMainThreadQueries()
-      .build()
+  fun provideFirebaseRemoteConfig(@ApplicationContext context: Context): FirebaseRemoteConfig {
+    if (FirebaseApp.getApps(context).isEmpty()) {
+      FirebaseApp.initializeApp(context)
+    }
+    return Firebase.remoteConfig.apply {
+      setConfigSettingsAsync(remoteConfigSettings { minimumFetchIntervalInSeconds = 3600 })
+    }
   }
 }

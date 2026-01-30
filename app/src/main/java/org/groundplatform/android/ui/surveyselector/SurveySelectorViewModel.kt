@@ -27,8 +27,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import org.groundplatform.android.coroutines.ApplicationScope
-import org.groundplatform.android.coroutines.IoDispatcher
+import org.groundplatform.android.di.coroutines.ApplicationScope
+import org.groundplatform.android.di.coroutines.IoDispatcher
 import org.groundplatform.android.model.SurveyListItem
 import org.groundplatform.android.proto.Survey
 import org.groundplatform.android.repository.UserRepository

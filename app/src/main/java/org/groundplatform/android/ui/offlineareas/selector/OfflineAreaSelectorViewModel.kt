@@ -26,7 +26,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
-import org.groundplatform.android.coroutines.IoDispatcher
+import org.groundplatform.android.di.coroutines.IoDispatcher
 import org.groundplatform.android.model.imagery.RemoteMogTileSource
 import org.groundplatform.android.model.imagery.TileSource
 import org.groundplatform.android.model.map.Bounds

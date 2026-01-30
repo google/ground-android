@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,36 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android
+package org.groundplatform.android.di
 
 import android.content.Context
-import android.content.res.Resources
-import androidx.work.WorkManager
-import com.google.android.gms.common.GoogleApiAvailability
+import android.location.Geocoder
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import java.util.Locale
 import javax.inject.Singleton
-import org.groundplatform.android.ui.common.ViewModelModule
 
 @InstallIn(SingletonComponent::class)
-@Module(includes = [ViewModelModule::class])
-object GroundApplicationModule {
+@Module
+object SystemModule {
 
   @Provides
   @Singleton
-  fun googleApiAvailability(): GoogleApiAvailability = GoogleApiAvailability.getInstance()
-
-  @Provides
-  fun provideResources(@ApplicationContext context: Context): Resources = context.resources
-
-  @Provides fun provideLocale(): Locale = Locale.getDefault()
-
-  @Provides
-  @Singleton
-  fun provideWorkManager(@ApplicationContext context: Context): WorkManager =
-    WorkManager.getInstance(context)
+  fun provideGeocoder(@ApplicationContext context: Context): Geocoder {
+    return Geocoder(context)
+  }
 }

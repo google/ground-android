@@ -13,25 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.groundplatform.android.di.coroutines
 
-package org.groundplatform.android.system
-
-import android.content.Context
-import android.location.Geocoder
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
+import javax.inject.Qualifier
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 
-@InstallIn(SingletonComponent::class)
 @Module
-object SystemModule {
+@InstallIn(SingletonComponent::class)
+object CoroutineDispatchersModule {
 
-  @Provides
-  @Singleton
-  fun provideGeocoder(@ApplicationContext context: Context): Geocoder {
-    return Geocoder(context)
-  }
+  @IoDispatcher @Provides fun provideIoDispatcher(): CoroutineDispatcher = Dispatchers.IO
+
+  @MainDispatcher @Provides fun provideMainDispatcher(): CoroutineDispatcher = Dispatchers.Main
 }
+
+@Retention(AnnotationRetention.RUNTIME) @Qualifier annotation class IoDispatcher
+
+@Retention(AnnotationRetention.RUNTIME) @Qualifier annotation class MainDispatcher

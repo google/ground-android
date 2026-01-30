@@ -22,9 +22,9 @@ import dagger.hilt.testing.TestInstallIn
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
-import org.groundplatform.android.coroutines.CoroutineDispatchersModule
-import org.groundplatform.android.coroutines.IoDispatcher
-import org.groundplatform.android.coroutines.MainDispatcher
+import org.groundplatform.android.di.coroutines.CoroutineDispatchersModule
+import org.groundplatform.android.di.coroutines.IoDispatcher
+import org.groundplatform.android.di.coroutines.MainDispatcher
 
 @Module
 @TestInstallIn(
