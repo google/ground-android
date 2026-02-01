@@ -20,7 +20,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import javax.inject.Inject
 import org.groundplatform.android.R
@@ -35,7 +34,7 @@ import org.groundplatform.android.ui.map.MapFragment
 import org.groundplatform.android.ui.map.NewCameraPositionViaBounds
 import org.groundplatform.android.ui.map.NewCameraPositionViaCoordinates
 import org.groundplatform.android.ui.map.NewCameraPositionViaCoordinatesAndZoomLevel
-import org.groundplatform.android.ui.theme.AppTheme
+import org.groundplatform.android.util.createComposeView
 import timber.log.Timber
 
 /** Injects a [MapFragment] in the container with id "map" and provides shared map functionality. */
@@ -55,18 +54,15 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
 
   private fun addMapTypeSelector(view: ViewGroup) {
     view.addView(
-      ComposeView(requireContext()).apply {
-        setContent {
-          val viewModel = getMapViewModel()
-          val showMapTypeSelector by viewModel.showMapTypeSelector.collectAsStateWithLifecycle()
-          AppTheme {
-            MapTypeScreen(
-              mapTypes = map.supportedMapTypes,
-              visible = showMapTypeSelector,
-              onDismissRequest = { viewModel.showMapTypeSelector.value = false },
-            )
-          }
-        }
+      createComposeView {
+        val viewModel = getMapViewModel()
+        val showMapTypeSelector by viewModel.showMapTypeSelector.collectAsStateWithLifecycle()
+
+        MapTypeScreen(
+          mapTypes = map.supportedMapTypes,
+          visible = showMapTypeSelector,
+          onDismissRequest = { viewModel.showMapTypeSelector.value = false },
+        )
       }
     )
   }
