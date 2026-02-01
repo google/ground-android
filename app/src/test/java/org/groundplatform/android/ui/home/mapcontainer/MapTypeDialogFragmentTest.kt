@@ -15,28 +15,22 @@
  */
 package org.groundplatform.android.ui.home.mapcontainer
 
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.core.os.bundleOf
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.hasChildCount
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
-import javax.inject.Inject
 import org.groundplatform.android.BaseHiltTest
-import org.groundplatform.android.R
 import org.groundplatform.android.launchFragmentInHiltContainer
 import org.groundplatform.android.model.map.MapType
 import org.groundplatform.android.repository.MapStateRepository
-import org.groundplatform.android.shouldHaveTextAtPosition
-import org.hamcrest.Matchers.allOf
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.shadows.ShadowLooper.idleMainLooper
+import javax.inject.Inject
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
@@ -56,36 +50,37 @@ class MapTypeDialogFragmentTest : BaseHiltTest() {
   fun `renders dialog correctly`() {
     assertThat(fragment.isVisible).isTrue()
 
-    onView(withText("Layers")).check(matches(isDisplayed()))
-    onView(withText("Base map")).check(matches(isDisplayed()))
-    onView(withId(R.id.recycler_view)).check(matches(allOf(isDisplayed(), hasChildCount(3))))
-    with(R.id.recycler_view) {
-      shouldHaveTextAtPosition("Road map", 0)
-      shouldHaveTextAtPosition("Terrain", 1)
-      shouldHaveTextAtPosition("Satellite", 2)
-    }
+    composeTestRule.onNodeWithText("Layers").assertIsDisplayed()
+    composeTestRule.onNodeWithText("Base map").assertIsDisplayed()
+    composeTestRule.onNodeWithText("Offline map imagery").assertIsDisplayed()
+
+    composeTestRule.onNodeWithText("Road map").assertIsDisplayed()
+    composeTestRule.onNodeWithText("Terrain").assertIsDisplayed()
+    composeTestRule.onNodeWithText("Satellite").assertIsDisplayed()
   }
 
   @Test
   fun `dismiss dialog after map type selection`() {
     assertThat(fragment.isVisible).isTrue()
 
-    onView(withId(R.id.recycler_view)).check(matches(allOf(isDisplayed(), hasChildCount(3))))
-    onView(withText("Terrain")).perform(click())
+    composeTestRule.onNodeWithText("Terrain").performClick()
+
+    // Allow Robolectric to process the dismiss transaction
+    idleMainLooper()
+
     assertThat(fragment.isVisible).isFalse()
   }
 
   @Test
   fun `displays default map type correctly`() {
-
     assertThat(mapStateRepository.mapType).isEqualTo(MapType.TERRAIN)
   }
 
   @Test
   fun `changes map type when selected`() {
-    onView(withText("Terrain")).perform(click())
+    composeTestRule.onNodeWithText("Road map").performClick()
 
-    assertThat(mapStateRepository.mapType).isEqualTo(MapType.TERRAIN)
+    assertThat(mapStateRepository.mapType).isEqualTo(MapType.ROAD)
   }
 
   private fun setupFragment() {

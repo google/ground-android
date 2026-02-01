@@ -16,6 +16,8 @@
 package org.groundplatform.android.ui.home.mapcontainer
 
 import javax.inject.Inject
+import kotlinx.coroutines.flow.StateFlow
+import org.groundplatform.android.model.map.MapType
 import org.groundplatform.android.repository.MapStateRepository
 import org.groundplatform.android.ui.common.AbstractViewModel
 
@@ -23,10 +25,11 @@ class MapTypeViewModel
 @Inject
 internal constructor(private val mapStateRepository: MapStateRepository) : AbstractViewModel() {
 
-  var isOfflineImageryEnabled by mapStateRepository::isOfflineImageryEnabled
+  val mapTypeFlow: StateFlow<MapType> = mapStateRepository.mapTypeFlow
+  val offlineImageryEnabledFlow: StateFlow<Boolean> = mapStateRepository.offlineImageryEnabledFlow
   var mapType by mapStateRepository::mapType
 
-  fun offlineImageryPreferenceUpdated(isChecked: Boolean) {
-    mapStateRepository.isOfflineImageryEnabled = isChecked
+  fun updateOfflineImageryPreference(checked: Boolean) {
+    mapStateRepository.isOfflineImageryEnabled = checked
   }
 }

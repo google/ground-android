@@ -20,12 +20,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
-import org.groundplatform.android.databinding.MapTypeDialogFragmentBinding
-import org.groundplatform.android.model.map.MapType
+import org.groundplatform.android.ui.basemapselector.MapTypeScreen
 import org.groundplatform.android.ui.common.ViewModelFactory
+import org.groundplatform.android.ui.theme.AppTheme
+import javax.inject.Inject
 
 /** Dialog fragment containing a list of [MapType] for updating basemap layer. */
 @AndroidEntryPoint
@@ -33,8 +35,6 @@ class MapTypeDialogFragment : BottomSheetDialogFragment() {
 
   @Inject lateinit var viewModelFactory: ViewModelFactory
 
-  private lateinit var binding: MapTypeDialogFragmentBinding
-  private lateinit var mapTypes: List<MapType>
   private lateinit var viewModel: MapTypeViewModel
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,21 +47,9 @@ class MapTypeDialogFragment : BottomSheetDialogFragment() {
     container: ViewGroup?,
     savedInstanceState: Bundle?,
   ): View {
-    mapTypes = MapTypeDialogFragmentArgs.fromBundle(requireArguments()).mapTypes.toList()
-    binding = MapTypeDialogFragmentBinding.inflate(inflater, container, false)
-    binding.viewModel = viewModel
-    return binding.root
-  }
-
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
-
-    val index = mapTypes.indexOfFirst { it == viewModel.mapType }
-    binding.recyclerView.adapter =
-      MapTypeAdapter(requireContext(), mapTypes, index) {
-        viewModel.mapType = mapTypes[it]
-        dismiss()
-      }
-    binding.recyclerView.addItemDecoration(AdaptiveSpacingItemDecorator(resources, 80))
+    return ComposeView(requireContext()).apply {
+      setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+      setContent { AppTheme { MapTypeScreen(onMapTypeSelected = { dismiss() }, viewModel) } }
+    }
   }
 }
