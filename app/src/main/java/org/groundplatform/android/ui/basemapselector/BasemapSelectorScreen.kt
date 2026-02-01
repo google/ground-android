@@ -113,52 +113,73 @@ private fun BasemapSelectorContent(
   ) {
     Text(text = stringResource(R.string.layers), style = MaterialTheme.typography.titleLarge)
 
-    Text(
-      text = stringResource(R.string.base_map),
-      style = MaterialTheme.typography.titleMedium,
-      color = MaterialTheme.colorScheme.onSurface,
-      modifier = Modifier.padding(top = 27.dp),
+    BasemapSwitcher(
+      mapTypes = mapTypes,
+      selectedMapType = selectedMapType,
+      onMapTypeSelected = onMapTypeSelected,
     )
-
-    LazyRow(
-      modifier = Modifier.fillMaxWidth().padding(top = 11.dp, bottom = 14.dp),
-      horizontalArrangement = Arrangement.spacedBy(16.dp),
-    ) {
-      items(mapTypes) { item ->
-        BasemapTypeItem(
-          mapType = item,
-          isSelected = item == selectedMapType,
-          onClick = { onMapTypeSelected(item) },
-        )
-      }
-    }
 
     HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
-    Row(
-      modifier = Modifier.fillMaxWidth().padding(top = 38.dp),
-      horizontalArrangement = Arrangement.SpaceBetween,
-      verticalAlignment = Alignment.CenterVertically,
-    ) {
-      Column(modifier = Modifier.weight(1f)) {
-        Text(
-          text = stringResource(R.string.offline_map_imagery),
-          style = MaterialTheme.typography.titleMedium,
-          color = MaterialTheme.colorScheme.onSurface,
-        )
-        Text(
-          text = stringResource(R.string.offline_map_imagery_pref_description),
-          style = MaterialTheme.typography.bodySmall,
-          color = MaterialTheme.colorScheme.secondary,
-          modifier = Modifier.padding(top = 4.dp),
-        )
-      }
-      Switch(
-        checked = isOfflineImageryEnabled,
-        onCheckedChange = onOfflineImageryStateChanged,
-        modifier = Modifier.padding(start = 16.dp),
+    OfflineImageryToggle(
+      enabled = isOfflineImageryEnabled,
+      onEnabledChange = onOfflineImageryStateChanged,
+    )
+  }
+}
+
+@Composable
+private fun BasemapSwitcher(
+  mapTypes: List<MapType>,
+  selectedMapType: MapType,
+  onMapTypeSelected: (MapType) -> Unit,
+) {
+  Text(
+    text = stringResource(R.string.base_map),
+    style = MaterialTheme.typography.titleMedium,
+    color = MaterialTheme.colorScheme.onSurface,
+    modifier = Modifier.padding(top = 27.dp),
+  )
+
+  LazyRow(
+    modifier = Modifier.fillMaxWidth().padding(top = 11.dp, bottom = 14.dp),
+    horizontalArrangement = Arrangement.spacedBy(16.dp),
+  ) {
+    items(mapTypes) { item ->
+      BasemapTypeItem(
+        mapType = item,
+        isSelected = item == selectedMapType,
+        onClick = { onMapTypeSelected(item) },
       )
     }
+  }
+}
+
+@Composable
+private fun OfflineImageryToggle(enabled: Boolean, onEnabledChange: (Boolean) -> Unit) {
+  Row(
+    modifier = Modifier.fillMaxWidth().padding(top = 38.dp),
+    horizontalArrangement = Arrangement.SpaceBetween,
+    verticalAlignment = Alignment.CenterVertically,
+  ) {
+    Column(modifier = Modifier.weight(1f)) {
+      Text(
+        text = stringResource(R.string.offline_map_imagery),
+        style = MaterialTheme.typography.titleMedium,
+        color = MaterialTheme.colorScheme.onSurface,
+      )
+      Text(
+        text = stringResource(R.string.offline_map_imagery_pref_description),
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.secondary,
+        modifier = Modifier.padding(top = 4.dp),
+      )
+    }
+    Switch(
+      checked = enabled,
+      onCheckedChange = onEnabledChange,
+      modifier = Modifier.padding(start = 16.dp),
+    )
   }
 }
 
