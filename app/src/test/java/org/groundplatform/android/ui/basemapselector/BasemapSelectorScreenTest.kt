@@ -88,21 +88,21 @@ class BasemapSelectorScreenTest : BaseHiltTest() {
 
   @Test
   fun `displays offline map imagery toggle when enabled`() {
-    viewModel.updateOfflineImageryPreference(true)
+    viewModel.setOfflineImageryEnabled(true)
 
     composeTestRule.onNode(isToggleable()).assertIsOn()
   }
 
   @Test
   fun `displays offline map imagery toggle when disabled`() {
-    viewModel.updateOfflineImageryPreference(false)
+    viewModel.setOfflineImageryEnabled(false)
 
     composeTestRule.onNode(isToggleable()).assertIsOff()
   }
 
   @Test
   fun `toggles offline map imagery when switched`() {
-    viewModel.updateOfflineImageryPreference(false)
+    viewModel.setOfflineImageryEnabled(false)
 
     composeTestRule.onNode(isToggleable()).performClick()
 
