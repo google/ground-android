@@ -202,8 +202,8 @@ private fun BasemapTypeItem(mapType: MapType, isSelected: Boolean, onClick: () -
       contentScale = ContentScale.Crop,
       modifier =
         Modifier.size(96.dp)
-          .clip(RoundedCornerShape(16.dp))
-          .border(borderWidth, borderColor, RoundedCornerShape(16.dp)),
+          .border(borderWidth, borderColor, RoundedCornerShape(16.dp))
+          .clip(RoundedCornerShape(16.dp)),
     )
     Text(
       text = stringResource(mapType.labelResId()),
