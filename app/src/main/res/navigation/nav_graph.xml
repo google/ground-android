@@ -265,7 +265,7 @@
   </fragment>
   <dialog
     android:id="@+id/mapTypeDialogFragment"
-    android:name="org.groundplatform.android.ui.home.mapcontainer.MapTypeDialogFragment"
+    android:name="org.groundplatform.android.ui.basemapselector.MapTypeDialogFragment"
     android:label="MapTypeDialogFragment">
     <argument
       android:name="mapTypes"
