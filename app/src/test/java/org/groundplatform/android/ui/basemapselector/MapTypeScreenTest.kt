@@ -16,6 +16,9 @@
 package org.groundplatform.android.ui.basemapselector
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsOff
+import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.google.common.truth.Truth.assertThat
@@ -27,10 +30,12 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import javax.inject.Inject
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
+@Config(qualifiers = "w600dp-h1024dp")
 class MapTypeScreenTest : BaseHiltTest() {
 
   @Inject lateinit var mapStateRepository: MapStateRepository
@@ -79,5 +84,29 @@ class MapTypeScreenTest : BaseHiltTest() {
     composeTestRule.onNodeWithText("Terrain").performClick()
 
     assertThat(isDismissed).isTrue()
+  }
+
+  @Test
+  fun `displays offline map imagery toggle when enabled`() {
+    viewModel.updateOfflineImageryPreference(true)
+
+    composeTestRule.onNode(isToggleable()).assertIsOn()
+  }
+
+  @Test
+  fun `displays offline map imagery toggle when disabled`() {
+    viewModel.updateOfflineImageryPreference(false)
+
+    composeTestRule.onNode(isToggleable()).assertIsOff()
+  }
+
+  @Test
+  fun `toggles offline map imagery when switched`() {
+    viewModel.updateOfflineImageryPreference(false)
+
+    composeTestRule.onNode(isToggleable()).performClick()
+
+    composeTestRule.onNode(isToggleable()).assertIsOn()
+    assertThat(mapStateRepository.isOfflineImageryEnabled).isTrue()
   }
 }
