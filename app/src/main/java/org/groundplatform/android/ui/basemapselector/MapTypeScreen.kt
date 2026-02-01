@@ -53,7 +53,11 @@ import org.groundplatform.android.model.map.MapType
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.theme.AppTheme
 
-/** Dialog fragment containing a list of [MapType] for updating basemap layer. */
+/**
+ * Screen containing a list of [MapType] for updating basemap layer.
+ *
+ * This is displayed within a ModalBottomSheet.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapTypeScreen(
@@ -82,6 +86,9 @@ fun MapTypeScreen(
   }
 }
 
+/**
+ * Content of the Map Type Selector, including the list of map types and the offline imagery switch.
+ */
 @Composable
 private fun MapTypeContent(
   mapTypes: List<MapType>,
@@ -142,6 +149,7 @@ private fun MapTypeContent(
   }
 }
 
+/** Single item in the map type list, displaying the map image and label. */
 @Composable
 private fun MapTypeItem(mapType: MapType, isSelected: Boolean, onClick: () -> Unit) {
   val borderColor =
@@ -171,6 +179,7 @@ private fun MapTypeItem(mapType: MapType, isSelected: Boolean, onClick: () -> Un
   }
 }
 
+/** Returns the drawable resource ID for the map type image. */
 @DrawableRes
 private fun MapType.imageId(): Int =
   when (this) {
@@ -179,6 +188,7 @@ private fun MapType.imageId(): Int =
     MapType.SATELLITE -> R.drawable.map_type_satellite
   }
 
+/** Returns the string resource ID for the map type label. */
 @StringRes
 private fun MapType.labelId(): Int =
   when (this) {
