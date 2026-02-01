@@ -15,12 +15,14 @@
  */
 package org.groundplatform.android.ui.basemapselector
 
+import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.StateFlow
 import org.groundplatform.android.model.map.MapType
 import org.groundplatform.android.repository.MapStateRepository
 import org.groundplatform.android.ui.common.AbstractViewModel
 
+@HiltViewModel
 class MapTypeViewModel
 @Inject
 internal constructor(private val mapStateRepository: MapStateRepository) : AbstractViewModel() {

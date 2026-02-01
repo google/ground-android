@@ -46,6 +46,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.groundplatform.android.R
 import org.groundplatform.android.model.map.MapType
@@ -53,7 +54,7 @@ import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.theme.AppTheme
 
 @Composable
-fun MapTypeScreen(onMapTypeSelected: () -> Unit, viewModel: MapTypeViewModel) {
+fun MapTypeScreen(onMapTypeSelected: () -> Unit, viewModel: MapTypeViewModel = hiltViewModel()) {
   val mapType by viewModel.mapTypeFlow.collectAsStateWithLifecycle()
   val offlineImageryEnabled by viewModel.offlineImageryEnabledFlow.collectAsStateWithLifecycle()
 

@@ -22,7 +22,6 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.IntoMap
-import org.groundplatform.android.ui.basemapselector.MapTypeViewModel
 import org.groundplatform.android.ui.common.BaseMapViewModel
 import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.common.ViewModelKey
@@ -149,11 +148,6 @@ abstract class ViewModelModule {
   @IntoMap
   @ViewModelKey(BaseMapViewModel::class)
   abstract fun bindBaseMapViewModel(viewModel: BaseMapViewModel): ViewModel
-
-  @Binds
-  @IntoMap
-  @ViewModelKey(MapTypeViewModel::class)
-  abstract fun bindMapTypeViewModel(viewModel: MapTypeViewModel): ViewModel
 
   @Binds
   @IntoMap
