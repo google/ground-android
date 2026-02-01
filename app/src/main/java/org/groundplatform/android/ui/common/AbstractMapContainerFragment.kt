@@ -58,11 +58,12 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
         val viewModel = getMapViewModel()
         val showMapTypeSelector by viewModel.showMapTypeSelector.collectAsStateWithLifecycle()
 
-        MapTypeScreen(
-          mapTypes = map.supportedMapTypes,
-          visible = showMapTypeSelector,
-          onDismissRequest = { viewModel.showMapTypeSelector.value = false },
-        )
+        if (showMapTypeSelector) {
+          MapTypeScreen(
+            mapTypes = map.supportedMapTypes,
+            onDismissRequest = { viewModel.showMapTypeSelector.value = false },
+          )
+        }
       }
     )
   }

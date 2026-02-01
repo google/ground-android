@@ -62,7 +62,6 @@ import org.groundplatform.android.ui.theme.AppTheme
 @Composable
 fun MapTypeScreen(
   mapTypes: List<MapType>,
-  visible: Boolean,
   onDismissRequest: () -> Unit,
   viewModel: MapTypeViewModel = hiltViewModel(),
 ) {
@@ -70,19 +69,17 @@ fun MapTypeScreen(
   val offlineImageryEnabled by viewModel.offlineImageryEnabledFlow.collectAsStateWithLifecycle()
   val sheetState = rememberModalBottomSheetState()
 
-  if (visible) {
-    ModalBottomSheet(onDismissRequest = onDismissRequest, sheetState = sheetState) {
-      MapTypeContent(
-        mapTypes = mapTypes,
-        mapType = mapType,
-        offlineImageryEnabled = offlineImageryEnabled,
-        onMapTypeSelected = {
-          viewModel.mapType = it
-          onDismissRequest()
-        },
-        onOfflineImageryEnabledChange = { viewModel.updateOfflineImageryPreference(it) },
-      )
-    }
+  ModalBottomSheet(onDismissRequest = onDismissRequest, sheetState = sheetState) {
+    MapTypeContent(
+      mapTypes = mapTypes,
+      mapType = mapType,
+      offlineImageryEnabled = offlineImageryEnabled,
+      onMapTypeSelected = {
+        viewModel.mapType = it
+        onDismissRequest()
+      },
+      onOfflineImageryEnabledChange = { viewModel.updateOfflineImageryPreference(it) },
+    )
   }
 }
 
