@@ -110,6 +110,8 @@ constructor(
   private val _shouldShowMapActions: MutableStateFlow<Boolean> = MutableStateFlow(false)
   val shouldShowMapActions: StateFlow<Boolean> = _shouldShowMapActions
 
+  val showMapTypeSelector: MutableStateFlow<Boolean> = MutableStateFlow(false)
+
   val shouldShowRecenterButton =
     locationLock
       .map { lockState -> !lockState.getOrDefault(false) && hasLocationPermission() }

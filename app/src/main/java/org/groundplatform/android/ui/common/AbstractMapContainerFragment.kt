@@ -17,8 +17,10 @@ package org.groundplatform.android.ui.common
 
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
-import androidx.navigation.fragment.findNavController
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import javax.inject.Inject
 import org.groundplatform.android.R
 import org.groundplatform.android.model.geometry.Coordinates
@@ -26,7 +28,6 @@ import org.groundplatform.android.model.map.Bounds
 import org.groundplatform.android.system.GeocodingManager
 import org.groundplatform.android.system.PermissionDeniedException
 import org.groundplatform.android.system.SettingsChangeRequestCanceled
-import org.groundplatform.android.ui.home.mapcontainer.MapTypeDialogFragmentDirections
 import org.groundplatform.android.ui.map.CameraUpdateRequest
 import org.groundplatform.android.ui.map.MapFragment
 import org.groundplatform.android.ui.map.NewCameraPositionViaBounds
@@ -43,6 +44,23 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     map.attachToParent(this, R.id.map) { onMapAttached(it) }
+
+    if (view is ViewGroup) {
+      view.addView(
+        androidx.compose.ui.platform.ComposeView(requireContext()).apply {
+          setContent {
+            val viewModel = getMapViewModel()
+            val showMapTypeSelector by viewModel.showMapTypeSelector.collectAsStateWithLifecycle()
+            org.groundplatform.android.ui.theme.AppTheme {
+              org.groundplatform.android.ui.basemapselector.MapTypeScreen(
+                visible = showMapTypeSelector,
+                onDismissRequest = { viewModel.showMapTypeSelector.value = false },
+              )
+            }
+          }
+        }
+      )
+    }
   }
 
   private fun onMapAttached(map: MapFragment) {
@@ -97,8 +115,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
 
   /** Opens a dialog for selecting a [MapType] for the basemap layer. */
   fun showMapTypeSelectorDialog() {
-    val types = map.supportedMapTypes.toTypedArray()
-    findNavController().navigate(MapTypeDialogFragmentDirections.showMapTypeDialogFragment(types))
+    getMapViewModel().showMapTypeSelector.value = true
   }
 
   private fun onLocationLockStateChange(result: Result<Boolean>, map: MapFragment) {
