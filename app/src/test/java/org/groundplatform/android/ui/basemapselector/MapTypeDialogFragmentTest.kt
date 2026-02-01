@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.ui.home.mapcontainer
+package org.groundplatform.android.ui.basemapselector
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithText
@@ -21,6 +21,7 @@ import androidx.compose.ui.test.performClick
 import androidx.core.os.bundleOf
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
+import javax.inject.Inject
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.launchFragmentInHiltContainer
 import org.groundplatform.android.model.map.MapType
@@ -30,7 +31,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.shadows.ShadowLooper.idleMainLooper
-import javax.inject.Inject
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.ui.home.mapcontainer
+package org.groundplatform.android.ui.basemapselector
 
 import javax.inject.Inject
 import kotlinx.coroutines.flow.StateFlow

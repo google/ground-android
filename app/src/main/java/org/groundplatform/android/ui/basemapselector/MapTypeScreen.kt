@@ -50,7 +50,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.groundplatform.android.R
 import org.groundplatform.android.model.map.MapType
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
-import org.groundplatform.android.ui.home.mapcontainer.MapTypeViewModel
 import org.groundplatform.android.ui.theme.AppTheme
 
 @Composable

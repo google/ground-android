@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.groundplatform.android.ui.home.mapcontainer
+package org.groundplatform.android.ui.basemapselector
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -24,10 +24,9 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
-import org.groundplatform.android.ui.basemapselector.MapTypeScreen
+import javax.inject.Inject
 import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.theme.AppTheme
-import javax.inject.Inject
 
 /** Dialog fragment containing a list of [MapType] for updating basemap layer. */
 @AndroidEntryPoint
