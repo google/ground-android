@@ -23,6 +23,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.advanceUntilIdle
 import javax.inject.Inject
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.model.map.MapType
@@ -33,6 +35,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 @Config(qualifiers = "w600dp-h1024dp")
@@ -76,12 +79,16 @@ class BasemapSelectorScreenTest : BaseHiltTest() {
   fun `changes map type when clicked`() {
     composeTestRule.onNodeWithText("Road map").performClick()
 
+    composeTestRule.waitForIdle()
+
     assertThat(mapStateRepository.mapType).isEqualTo(MapType.ROAD)
   }
 
   @Test
   fun `dismiss dialog after map type selection`() {
     composeTestRule.onNodeWithText("Terrain").performClick()
+
+    composeTestRule.waitForIdle()
 
     assertThat(isDismissed).isTrue()
   }
