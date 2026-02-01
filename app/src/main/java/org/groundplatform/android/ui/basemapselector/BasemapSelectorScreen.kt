@@ -74,21 +74,23 @@ fun BasemapSelectorScreen(
   val sheetState = rememberModalBottomSheetState()
   val scope = rememberCoroutineScope()
 
+  fun onMapTypeSelected(mapType: MapType) {
+    scope
+      .launch { sheetState.hide() }
+      .invokeOnCompletion {
+        if (!sheetState.isVisible) {
+          viewModel.updateMapType(mapType)
+          onDismissRequest()
+        }
+      }
+  }
+
   ModalBottomSheet(onDismissRequest = onDismissRequest, sheetState = sheetState) {
     BasemapSelectorContent(
       mapTypes = mapTypes,
       selectedMapType = currentMapType,
       isOfflineImageryEnabled = isOfflineImageryEnabled,
-      onMapTypeSelected = { mapType ->
-        scope
-          .launch { sheetState.hide() }
-          .invokeOnCompletion {
-            if (!sheetState.isVisible) {
-              viewModel.updateMapType(mapType)
-              onDismissRequest()
-            }
-          }
-      },
+      onMapTypeSelected = { onMapTypeSelected(it) },
       onOfflineImageryStateChanged = { viewModel.setOfflineImageryEnabled(it) },
     )
   }
