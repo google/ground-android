@@ -49,22 +49,26 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     map.attachToParent(this, R.id.map) { onMapAttached(it) }
 
     if (view is ViewGroup) {
-      view.addView(
-        ComposeView(requireContext()).apply {
-          setContent {
-            val viewModel = getMapViewModel()
-            val showMapTypeSelector by viewModel.showMapTypeSelector.collectAsStateWithLifecycle()
-            AppTheme {
-              MapTypeScreen(
-                mapTypes = map.supportedMapTypes,
-                visible = showMapTypeSelector,
-                onDismissRequest = { viewModel.showMapTypeSelector.value = false },
-              )
-            }
+      addMapTypeSelector(view)
+    }
+  }
+
+  private fun addMapTypeSelector(view: ViewGroup) {
+    view.addView(
+      ComposeView(requireContext()).apply {
+        setContent {
+          val viewModel = getMapViewModel()
+          val showMapTypeSelector by viewModel.showMapTypeSelector.collectAsStateWithLifecycle()
+          AppTheme {
+            MapTypeScreen(
+              mapTypes = map.supportedMapTypes,
+              visible = showMapTypeSelector,
+              onDismissRequest = { viewModel.showMapTypeSelector.value = false },
+            )
           }
         }
-      )
-    }
+      }
+    )
   }
 
   private fun onMapAttached(map: MapFragment) {
