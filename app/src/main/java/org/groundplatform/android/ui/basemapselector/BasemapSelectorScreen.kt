@@ -69,16 +69,16 @@ fun BasemapSelectorScreen(
   onDismissRequest: () -> Unit,
   viewModel: BasemapSelectorViewModel = hiltViewModel(),
 ) {
-  val mapType by viewModel.mapTypeFlow.collectAsStateWithLifecycle()
-  val offlineImageryEnabled by viewModel.offlineImageryEnabledFlow.collectAsStateWithLifecycle()
+  val currentMapType by viewModel.currentMapType.collectAsStateWithLifecycle()
+  val isOfflineImageryEnabled by viewModel.isOfflineImageryEnabled.collectAsStateWithLifecycle()
   val sheetState = rememberModalBottomSheetState()
   val scope = rememberCoroutineScope()
 
   ModalBottomSheet(onDismissRequest = onDismissRequest, sheetState = sheetState) {
     BasemapSelectorContent(
       mapTypes = mapTypes,
-      mapType = mapType,
-      offlineImageryEnabled = offlineImageryEnabled,
+      selectedMapType = currentMapType,
+      isOfflineImageryEnabled = isOfflineImageryEnabled,
       onMapTypeSelected = { mapType ->
         scope
           .launch { sheetState.hide() }
@@ -89,7 +89,7 @@ fun BasemapSelectorScreen(
             }
           }
       },
-      onOfflineImageryEnabledChange = { viewModel.updateOfflineImageryPreference(it) },
+      onOfflineImageryStateChanged = { viewModel.setOfflineImageryEnabled(it) },
     )
   }
 }
@@ -100,10 +100,10 @@ fun BasemapSelectorScreen(
 @Composable
 private fun BasemapSelectorContent(
   mapTypes: List<MapType>,
-  mapType: MapType,
-  offlineImageryEnabled: Boolean,
+  selectedMapType: MapType,
+  isOfflineImageryEnabled: Boolean,
   onMapTypeSelected: (MapType) -> Unit,
-  onOfflineImageryEnabledChange: (Boolean) -> Unit,
+  onOfflineImageryStateChanged: (Boolean) -> Unit,
 ) {
   Column(
     modifier =
@@ -127,7 +127,7 @@ private fun BasemapSelectorContent(
       items(mapTypes) { item ->
         BasemapTypeItem(
           mapType = item,
-          isSelected = item == mapType,
+          isSelected = item == selectedMapType,
           onClick = { onMapTypeSelected(item) },
         )
       }
@@ -154,8 +154,8 @@ private fun BasemapSelectorContent(
         )
       }
       Switch(
-        checked = offlineImageryEnabled,
-        onCheckedChange = onOfflineImageryEnabledChange,
+        checked = isOfflineImageryEnabled,
+        onCheckedChange = onOfflineImageryStateChanged,
         modifier = Modifier.padding(start = 16.dp),
       )
     }
@@ -217,10 +217,10 @@ fun BasemapSelectorScreenPreview() {
   AppTheme {
     BasemapSelectorContent(
       mapTypes = listOf(MapType.ROAD, MapType.TERRAIN, MapType.SATELLITE),
-      mapType = MapType.TERRAIN,
-      offlineImageryEnabled = false,
+      selectedMapType = MapType.TERRAIN,
+      isOfflineImageryEnabled = false,
       onMapTypeSelected = {},
-      onOfflineImageryEnabledChange = {},
+      onOfflineImageryStateChanged = {},
     )
   }
 }

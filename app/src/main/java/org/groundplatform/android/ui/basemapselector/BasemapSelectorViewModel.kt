@@ -22,17 +22,17 @@ import org.groundplatform.android.model.map.MapType
 import org.groundplatform.android.repository.MapStateRepository
 import org.groundplatform.android.ui.common.AbstractViewModel
 
+/** ViewModel for the [BasemapSelectorScreen]. */
 @HiltViewModel
 class BasemapSelectorViewModel
 @Inject
 internal constructor(private val mapStateRepository: MapStateRepository) : AbstractViewModel() {
 
-  val mapTypeFlow: StateFlow<MapType> = mapStateRepository.mapTypeFlow
-  val offlineImageryEnabledFlow: StateFlow<Boolean> = mapStateRepository.offlineImageryEnabledFlow
-  var mapType by mapStateRepository::mapType
+  val currentMapType: StateFlow<MapType> = mapStateRepository.mapTypeFlow
+  val isOfflineImageryEnabled: StateFlow<Boolean> = mapStateRepository.offlineImageryEnabledFlow
 
-  fun updateOfflineImageryPreference(checked: Boolean) {
-    mapStateRepository.isOfflineImageryEnabled = checked
+  fun setOfflineImageryEnabled(enabled: Boolean) {
+    mapStateRepository.isOfflineImageryEnabled = enabled
   }
 
   fun updateMapType(mapType: MapType) {
