@@ -57,6 +57,7 @@ import org.groundplatform.android.ui.theme.AppTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapTypeScreen(
+  mapTypes: List<MapType>,
   visible: Boolean,
   onDismissRequest: () -> Unit,
   viewModel: MapTypeViewModel = hiltViewModel(),
@@ -68,6 +69,7 @@ fun MapTypeScreen(
   if (visible) {
     ModalBottomSheet(onDismissRequest = onDismissRequest, sheetState = sheetState) {
       MapTypeContent(
+        mapTypes = mapTypes,
         mapType = mapType,
         offlineImageryEnabled = offlineImageryEnabled,
         onMapTypeSelected = {
@@ -82,6 +84,7 @@ fun MapTypeScreen(
 
 @Composable
 private fun MapTypeContent(
+  mapTypes: List<MapType>,
   mapType: MapType,
   offlineImageryEnabled: Boolean,
   onMapTypeSelected: (MapType) -> Unit,
@@ -101,7 +104,7 @@ private fun MapTypeContent(
       modifier = Modifier.fillMaxWidth().padding(top = 11.dp, bottom = 14.dp),
       horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-      items(MapType.entries) { item ->
+      items(mapTypes) { item ->
         MapTypeItem(
           mapType = item,
           isSelected = item == mapType,
@@ -190,6 +193,7 @@ private fun MapType.labelId(): Int =
 fun MapTypeScreenPreview() {
   AppTheme {
     MapTypeContent(
+      mapTypes = listOf(MapType.ROAD, MapType.TERRAIN, MapType.SATELLITE),
       mapType = MapType.TERRAIN,
       offlineImageryEnabled = false,
       onMapTypeSelected = {},
