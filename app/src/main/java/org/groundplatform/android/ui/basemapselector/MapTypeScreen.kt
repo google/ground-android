@@ -53,6 +53,7 @@ import org.groundplatform.android.model.map.MapType
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.theme.AppTheme
 
+/** Dialog fragment containing a list of [MapType] for updating basemap layer. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapTypeScreen(
