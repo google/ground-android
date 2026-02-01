@@ -40,6 +40,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -50,6 +51,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.model.map.MapType
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
@@ -62,23 +64,30 @@ import org.groundplatform.android.ui.theme.AppTheme
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MapTypeScreen(
+fun BasemapSelectorScreen(
   mapTypes: List<MapType>,
   onDismissRequest: () -> Unit,
-  viewModel: MapTypeViewModel = hiltViewModel(),
+  viewModel: BasemapSelectorViewModel = hiltViewModel(),
 ) {
   val mapType by viewModel.mapTypeFlow.collectAsStateWithLifecycle()
   val offlineImageryEnabled by viewModel.offlineImageryEnabledFlow.collectAsStateWithLifecycle()
   val sheetState = rememberModalBottomSheetState()
+  val scope = rememberCoroutineScope()
 
   ModalBottomSheet(onDismissRequest = onDismissRequest, sheetState = sheetState) {
-    MapTypeContent(
+    BasemapSelectorContent(
       mapTypes = mapTypes,
       mapType = mapType,
       offlineImageryEnabled = offlineImageryEnabled,
-      onMapTypeSelected = {
-        viewModel.mapType = it
-        onDismissRequest()
+      onMapTypeSelected = { mapType ->
+        scope
+          .launch { sheetState.hide() }
+          .invokeOnCompletion {
+            if (!sheetState.isVisible) {
+              viewModel.updateMapType(mapType)
+              onDismissRequest()
+            }
+          }
       },
       onOfflineImageryEnabledChange = { viewModel.updateOfflineImageryPreference(it) },
     )
@@ -89,7 +98,7 @@ fun MapTypeScreen(
  * Content of the Map Type Selector, including the list of map types and the offline imagery switch.
  */
 @Composable
-private fun MapTypeContent(
+private fun BasemapSelectorContent(
   mapTypes: List<MapType>,
   mapType: MapType,
   offlineImageryEnabled: Boolean,
@@ -116,7 +125,7 @@ private fun MapTypeContent(
       horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
       items(mapTypes) { item ->
-        MapTypeItem(
+        BasemapTypeItem(
           mapType = item,
           isSelected = item == mapType,
           onClick = { onMapTypeSelected(item) },
@@ -155,7 +164,7 @@ private fun MapTypeContent(
 
 /** Single item in the map type list, displaying the map image and label. */
 @Composable
-private fun MapTypeItem(mapType: MapType, isSelected: Boolean, onClick: () -> Unit) {
+private fun BasemapTypeItem(mapType: MapType, isSelected: Boolean, onClick: () -> Unit) {
   val borderColor =
     if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
   val borderWidth = if (isSelected) 2.dp else 0.dp
@@ -165,8 +174,8 @@ private fun MapTypeItem(mapType: MapType, isSelected: Boolean, onClick: () -> Un
     modifier = Modifier.clickable { onClick() },
   ) {
     Image(
-      painter = painterResource(mapType.imageId()),
-      contentDescription = stringResource(mapType.labelId()),
+      painter = painterResource(mapType.drawableResId()),
+      contentDescription = stringResource(mapType.labelResId()),
       contentScale = ContentScale.Crop,
       modifier =
         Modifier.size(96.dp)
@@ -174,7 +183,7 @@ private fun MapTypeItem(mapType: MapType, isSelected: Boolean, onClick: () -> Un
           .border(borderWidth, borderColor, RoundedCornerShape(16.dp)),
     )
     Text(
-      text = stringResource(mapType.labelId()),
+      text = stringResource(mapType.labelResId()),
       style = MaterialTheme.typography.labelMedium,
       color =
         if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
@@ -185,7 +194,7 @@ private fun MapTypeItem(mapType: MapType, isSelected: Boolean, onClick: () -> Un
 
 /** Returns the drawable resource ID for the map type image. */
 @DrawableRes
-private fun MapType.imageId(): Int =
+private fun MapType.drawableResId(): Int =
   when (this) {
     MapType.ROAD -> R.drawable.map_type_roadmap
     MapType.TERRAIN -> R.drawable.map_type_terrain
@@ -194,7 +203,7 @@ private fun MapType.imageId(): Int =
 
 /** Returns the string resource ID for the map type label. */
 @StringRes
-private fun MapType.labelId(): Int =
+private fun MapType.labelResId(): Int =
   when (this) {
     MapType.ROAD -> R.string.road_map
     MapType.TERRAIN -> R.string.terrain
@@ -204,9 +213,9 @@ private fun MapType.labelId(): Int =
 @Preview(showBackground = true)
 @Composable
 @ExcludeFromJacocoGeneratedReport
-fun MapTypeScreenPreview() {
+fun BasemapSelectorScreenPreview() {
   AppTheme {
-    MapTypeContent(
+    BasemapSelectorContent(
       mapTypes = listOf(MapType.ROAD, MapType.TERRAIN, MapType.SATELLITE),
       mapType = MapType.TERRAIN,
       offlineImageryEnabled = false,

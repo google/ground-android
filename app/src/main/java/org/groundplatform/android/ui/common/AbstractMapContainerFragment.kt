@@ -28,7 +28,7 @@ import org.groundplatform.android.model.map.Bounds
 import org.groundplatform.android.system.GeocodingManager
 import org.groundplatform.android.system.PermissionDeniedException
 import org.groundplatform.android.system.SettingsChangeRequestCanceled
-import org.groundplatform.android.ui.basemapselector.MapTypeScreen
+import org.groundplatform.android.ui.basemapselector.BasemapSelectorScreen
 import org.groundplatform.android.ui.map.CameraUpdateRequest
 import org.groundplatform.android.ui.map.MapFragment
 import org.groundplatform.android.ui.map.NewCameraPositionViaBounds
@@ -59,7 +59,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
         val showMapTypeSelector by viewModel.showMapTypeSelector.collectAsStateWithLifecycle()
 
         if (showMapTypeSelector) {
-          MapTypeScreen(
+          BasemapSelectorScreen(
             mapTypes = map.supportedMapTypes,
             onDismissRequest = { viewModel.showMapTypeSelector.value = false },
           )

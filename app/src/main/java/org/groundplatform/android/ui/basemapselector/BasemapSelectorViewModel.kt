@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import org.groundplatform.android.repository.MapStateRepository
 import org.groundplatform.android.ui.common.AbstractViewModel
 
 @HiltViewModel
-class MapTypeViewModel
+class BasemapSelectorViewModel
 @Inject
 internal constructor(private val mapStateRepository: MapStateRepository) : AbstractViewModel() {
 
@@ -33,5 +33,9 @@ internal constructor(private val mapStateRepository: MapStateRepository) : Abstr
 
   fun updateOfflineImageryPreference(checked: Boolean) {
     mapStateRepository.isOfflineImageryEnabled = checked
+  }
+
+  fun updateMapType(mapType: MapType) {
+    mapStateRepository.mapType = mapType
   }
 }

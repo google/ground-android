@@ -36,21 +36,21 @@ import org.robolectric.annotation.Config
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 @Config(qualifiers = "w600dp-h1024dp")
-class MapTypeScreenTest : BaseHiltTest() {
+class BasemapSelectorScreenTest : BaseHiltTest() {
 
   @Inject lateinit var mapStateRepository: MapStateRepository
 
-  private lateinit var viewModel: MapTypeViewModel
+  private lateinit var viewModel: BasemapSelectorViewModel
   private var isDismissed = false
 
   @Before
   override fun setUp() {
     super.setUp()
-    viewModel = MapTypeViewModel(mapStateRepository)
+    viewModel = BasemapSelectorViewModel(mapStateRepository)
     isDismissed = false
     composeTestRule.setContent {
-      MapTypeScreen(
-        visible = true,
+      BasemapSelectorScreen(
+        mapTypes = listOf(MapType.ROAD, MapType.TERRAIN, MapType.SATELLITE),
         onDismissRequest = { isDismissed = true },
         viewModel = viewModel,
       )
