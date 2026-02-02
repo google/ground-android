@@ -270,6 +270,26 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     }
 
   @Test
+  fun `Does not load draft if it references missing job`() =
+    runWithTestDispatcher {
+      setupFragment()
+
+      runner().inputText(TASK_1_RESPONSE).clickNextButton()
+
+      // Verify draft was saved
+      val draftId = submissionRepository.getDraftSubmissionsId()
+      assertThat(draftId).isNotEmpty()
+      assertThat(submissionRepository.countDraftSubmissions()).isEqualTo(1)
+
+      // Simulate deleting the job from the submission
+      val surveyWithMissingJob = SURVEY.copy(jobMap = emptyMap())
+
+      // Attempt to get draft with the survey that's missing the job
+      val result = submissionRepository.getDraftSubmission(draftId, surveyWithMissingJob)
+      assertThat(result).isNull()
+    }
+
+  @Test
   fun `Clicking done on final task saves the submission`() = runWithTestDispatcher {
     setupFragment()
 

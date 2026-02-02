@@ -515,11 +515,13 @@ fun ExpressionEntity.toModelObject(): Expression =
     optionIds = optionIds?.split(',')?.toSet() ?: setOf(),
   )
 
-@Throws(LocalDataConsistencyException::class)
-fun DraftSubmissionEntity.toModelObject(survey: Survey): DraftSubmission {
+fun DraftSubmissionEntity.toModelObject(survey: Survey): DraftSubmission? {
   val job =
     survey.getJob(jobId)
-      ?: throw LocalDataConsistencyException("Unknown jobId in submission mutation $id")
+      ?: run {
+        Timber.w("Draft submission $id references jobId $jobId that no longer exists, discarding")
+        return null
+      }
 
   return DraftSubmission(
     id = id,
