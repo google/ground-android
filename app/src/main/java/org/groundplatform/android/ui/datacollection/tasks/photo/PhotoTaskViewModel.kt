@@ -22,11 +22,8 @@ import androidx.lifecycle.viewModelScope
 import java.io.IOException
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.groundplatform.android.data.remote.firebase.FirebaseStorageManager
@@ -40,19 +37,6 @@ import timber.log.Timber
 
 class PhotoTaskViewModel @Inject constructor(private val userMediaRepository: UserMediaRepository) :
   AbstractTaskViewModel() {
-
-  override val taskActionButtonStates: StateFlow<List<ButtonActionState>> by lazy {
-    taskTaskData
-      .map {
-        listOf(
-          getPreviousButtonState(),
-          getUndoButtonState(it),
-          getSkipButtonState(it),
-          getNextButtonState(it),
-        )
-      }
-      .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
-  }
 
   /**
    * Task id waiting for a photo result. As only one photo result is returned at a time, we can
