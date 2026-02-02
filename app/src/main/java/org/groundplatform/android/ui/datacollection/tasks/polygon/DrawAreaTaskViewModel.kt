@@ -148,13 +148,13 @@ internal constructor(
   lateinit var measurementUnits: MeasurementUnits
 
   override val taskActionButtonStates: StateFlow<List<ButtonActionState>> by lazy {
-    combine(taskTaskData, merge(draftArea, draftUpdates).filterNotNull()) { taskData, currentFeature
+    combine(taskTaskData, merge(draftArea, draftUpdates)) { taskData, currentFeature
         ->
-        val isClosed = (currentFeature.geometry as? LineString)?.isClosed() ?: false
+        val isClosed = (currentFeature?.geometry as? LineString)?.isClosed() ?: false
         listOfNotNull(
           getPreviousButtonState(),
           getSkipButtonState(taskData),
-          getUndoButtonState(taskData),
+          getUndoButtonState(taskData, true),
           getRedoButtonState(taskData),
           getAddPointButtonState(isClosed, isTooClose.value),
           getCompleteButton(isClosed, isMarkedComplete.value, hasSelfIntersection),

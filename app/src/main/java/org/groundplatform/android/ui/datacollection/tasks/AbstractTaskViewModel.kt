@@ -118,11 +118,14 @@ abstract class AbstractTaskViewModel internal constructor() : AbstractViewModel(
       isVisible = isTaskOptional() && taskData.isNullOrEmpty(),
     )
 
-  fun getUndoButtonState(taskData: TaskData?): ButtonActionState =
+  fun getUndoButtonState(
+    taskData: TaskData?,
+    isVisible: Boolean = taskData.isNotNullOrEmpty(),
+  ): ButtonActionState =
     ButtonActionState(
       action = ButtonAction.UNDO,
       isEnabled = taskData.isNotNullOrEmpty(),
-      isVisible = taskData.isNotNullOrEmpty(),
+      isVisible = isVisible,
     )
 
   open fun onButtonClick(action: ButtonAction) {
