@@ -36,8 +36,6 @@ import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.TaskFragmentRunner
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.util.view.isGone
-import org.mockito.Mock
-import org.mockito.kotlin.any
 import org.mockito.kotlin.whenever
 
 abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractTaskViewModel> :
