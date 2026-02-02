@@ -44,6 +44,8 @@ import org.groundplatform.android.model.submission.DrawAreaTaskData
 import org.groundplatform.android.model.submission.DrawAreaTaskIncompleteData
 import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.task.Task
+import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
+import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 import org.groundplatform.android.ui.datacollection.tasks.polygon.DrawAreaTaskViewModel.Companion.DISTANCE_THRESHOLD_DP
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.gms.GmsExt.getShellCoordinates
@@ -476,8 +478,12 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
       job = job,
       task = task,
       taskData = taskData,
-      isFirstPosition = { false },
-      isLastPosition = { false },
+      taskPositionInterface =
+        object : TaskPositionInterface {
+          override fun isFirst() = false
+
+          override fun isLastWithValue(taskData: TaskData?) = false
+        },
     )
   }
 

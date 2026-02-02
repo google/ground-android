@@ -40,19 +40,16 @@ abstract class AbstractTaskViewModel internal constructor() : AbstractViewModel(
   abstract val taskActionButtonStates: StateFlow<List<ButtonActionState>>
 
   lateinit var task: Task
-  private lateinit var isFirstPosition: () -> Boolean
-  private lateinit var isLastPositionWithValue: (TaskData?) -> Boolean
+  private lateinit var taskPositionInterface: TaskPositionInterface
 
   open fun initialize(
     job: Job,
     task: Task,
     taskData: TaskData?,
-    isFirstPosition: () -> Boolean,
-    isLastPosition: (TaskData?) -> Boolean,
+    taskPositionInterface: TaskPositionInterface,
   ) {
     this.task = task
-    this.isFirstPosition = isFirstPosition
-    this.isLastPositionWithValue = isLastPosition
+    this.taskPositionInterface = taskPositionInterface
     setValue(taskData)
   }
 
@@ -93,13 +90,13 @@ abstract class AbstractTaskViewModel internal constructor() : AbstractViewModel(
   fun getPreviousButtonState(): ButtonActionState =
     ButtonActionState(
       action = ButtonAction.PREVIOUS,
-      isEnabled = !isFirstPosition(),
+      isEnabled = !taskPositionInterface.isFirst(),
       isVisible = true,
     )
 
   fun getNextButtonState(taskData: TaskData?, hideIfEmpty: Boolean = false): ButtonActionState {
     val isVisible = if (hideIfEmpty) taskData.isNotNullOrEmpty() else true
-    return if (isLastPositionWithValue(taskData)) {
+    return if (taskPositionInterface.isLastWithValue(taskData)) {
       ButtonActionState(
         action = ButtonAction.DONE,
         isEnabled = taskData.isNotNullOrEmpty(),

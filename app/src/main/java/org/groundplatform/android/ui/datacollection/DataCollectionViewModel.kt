@@ -41,6 +41,7 @@ import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.common.EphemeralPopups
 import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
+import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 import org.groundplatform.android.ui.datacollection.tasks.date.DateTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.instruction.InstructionTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.location.CaptureLocationTaskViewModel
@@ -209,8 +210,13 @@ internal constructor(
         job = state.job,
         task = task,
         taskData = taskData,
-        isFirstPosition = { isFirstPosition(task.id) },
-        isLastPosition = { isLastPositionWithValue(task, it) },
+        taskPositionInterface =
+          object : TaskPositionInterface {
+            override fun isFirst(): Boolean = isFirstPosition(task.id)
+
+            override fun isLastWithValue(taskData: TaskData?): Boolean =
+              isLastPositionWithValue(task, taskData)
+          },
       )
       updateDataAndInvalidateTasks(task, taskData)
       taskViewModels.value[task.id] = created

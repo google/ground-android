@@ -26,8 +26,11 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.Style
+import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.repository.UserMediaRepository
+import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
+import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -48,7 +51,16 @@ class PhotoTaskViewModelTest : BaseHiltTest() {
 
   override fun setUp() {
     super.setUp()
-    viewModel.initialize(JOB, TASK, null, { false }, { false })
+    viewModel.initialize(
+      JOB,
+      TASK,
+      null,
+      object : TaskPositionInterface {
+        override fun isFirst() = false
+
+        override fun isLastWithValue(taskData: TaskData?) = false
+      },
+    )
     viewModel.surveyId = "survey_1"
   }
 

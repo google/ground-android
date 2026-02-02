@@ -35,6 +35,7 @@ import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.refactor.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.AbstractMapTaskViewModel
+import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 import org.groundplatform.android.ui.map.Feature
 
 class DropPinTaskViewModel
@@ -68,10 +69,9 @@ constructor(
     job: Job,
     task: Task,
     taskData: TaskData?,
-    isFirstPosition: () -> Boolean,
-    isLastPosition: (TaskData?) -> Boolean,
+    taskPositionInterface: TaskPositionInterface,
   ) {
-    super.initialize(job, task, taskData, isFirstPosition, isLastPosition)
+    super.initialize(job, task, taskData, taskPositionInterface)
     pinColor = job.getDefaultColor()
 
     // Drop a marker for current value

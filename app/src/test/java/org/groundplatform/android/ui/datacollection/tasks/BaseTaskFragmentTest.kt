@@ -36,8 +36,6 @@ import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.TaskFragmentRunner
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.util.view.isGone
-import org.mockito.Mock
-import org.mockito.kotlin.any
 import org.mockito.kotlin.whenever
 
 abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractTaskViewModel> :
@@ -93,8 +91,12 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
       job = job,
       task = task,
       taskData = null,
-      isFirstPosition = { isFistPosition },
-      isLastPosition = { isLastPosition },
+      taskPositionInterface =
+        object : TaskPositionInterface {
+          override fun isFirst() = isFistPosition
+
+          override fun isLastWithValue(taskData: TaskData?) = isLastPosition
+        },
     )
     whenever(dataCollectionViewModel.getTaskViewModel(task.id)).thenReturn(viewModel)
 

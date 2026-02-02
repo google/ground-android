@@ -34,6 +34,7 @@ import org.groundplatform.android.model.task.Option
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.datacollection.components.refactor.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
+import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 
 class MultipleChoiceTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
 
@@ -53,10 +54,9 @@ class MultipleChoiceTaskViewModel @Inject constructor() : AbstractTaskViewModel(
     job: Job,
     task: Task,
     taskData: TaskData?,
-    isFirstPosition: () -> Boolean,
-    isLastPosition: (TaskData?) -> Boolean,
+    taskPositionInterface: TaskPositionInterface,
   ) {
-    super.initialize(job, task, taskData, isFirstPosition, isLastPosition)
+    super.initialize(job, task, taskData, taskPositionInterface)
     loadPendingSelections()
     updateMultipleChoiceItems()
   }

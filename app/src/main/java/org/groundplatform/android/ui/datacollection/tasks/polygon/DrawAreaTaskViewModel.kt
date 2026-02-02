@@ -52,6 +52,7 @@ import org.groundplatform.android.ui.common.SharedViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.refactor.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.AbstractMapTaskViewModel
+import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.util.LocaleAwareMeasureFormatter
 import org.groundplatform.android.ui.util.VibrationHelper
@@ -167,10 +168,9 @@ internal constructor(
     job: Job,
     task: Task,
     taskData: TaskData?,
-    isFirstPosition: () -> Boolean,
-    isLastPosition: (TaskData?) -> Boolean,
+    taskPositionInterface: TaskPositionInterface,
   ) {
-    super.initialize(job, task, taskData, isFirstPosition, isLastPosition)
+    super.initialize(job, task, taskData, taskPositionInterface)
     viewModelScope.launch { measurementUnits = getUserSettingsUseCase.invoke().measurementUnits }
     featureStyle = Feature.Style(job.getDefaultColor(), Feature.VertexStyle.CIRCLE)
 
