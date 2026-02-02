@@ -145,7 +145,7 @@ private fun BasemapSwitcher(
 
   LazyRow(
     modifier = Modifier.fillMaxWidth().padding(top = 11.dp, bottom = 14.dp),
-    horizontalArrangement = Arrangement.spacedBy(16.dp),
+    horizontalArrangement = Arrangement.SpaceBetween,
   ) {
     items(mapTypes) { item ->
       BasemapTypeItem(
