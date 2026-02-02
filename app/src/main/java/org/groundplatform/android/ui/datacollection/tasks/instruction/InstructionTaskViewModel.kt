@@ -15,20 +15,13 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.instruction
 
-import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.ui.datacollection.components.refactor.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 
-@Suppress("EmptyClassBlock")
 class InstructionTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
-  override val taskActionButtonStates: StateFlow<List<ButtonActionState>> by lazy {
-    taskTaskData
-      .map { listOf(getPreviousButtonState(), getNextButtonState(it)) }
-      .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
-  }
+
+  override fun getButtonStates(taskData: TaskData?): List<ButtonActionState> =
+    listOf(getPreviousButton(), getNextButton(taskData))
 }

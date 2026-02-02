@@ -25,7 +25,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -56,14 +55,13 @@ class CaptureLocationTaskViewModel @Inject constructor() : AbstractMapTaskViewMo
   override val taskActionButtonStates: StateFlow<List<ButtonActionState>> by lazy {
     combine(isCaptureEnabled, taskTaskData) { captureEnabled, taskData ->
         listOf(
-          getPreviousButtonState(),
-          getSkipButtonState(taskData),
-          getUndoButtonState(taskData),
-          getCaptureLocationButtonState(captureEnabled, taskData),
-          getNextButtonState(taskData, hideIfEmpty = true),
+          getPreviousButton(),
+          getSkipButton(taskData),
+          getUndoButton(taskData),
+          getCaptureLocationButton(captureEnabled, taskData),
+          getNextButton(taskData, hideIfEmpty = true),
         )
       }
-      .distinctUntilChanged()
       .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
   }
 
@@ -90,7 +88,7 @@ class CaptureLocationTaskViewModel @Inject constructor() : AbstractMapTaskViewMo
     }
   }
 
-  private fun getCaptureLocationButtonState(
+  private fun getCaptureLocationButton(
     captureEnabled: Boolean,
     taskData: TaskData?,
   ): ButtonActionState =

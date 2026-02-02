@@ -150,13 +150,13 @@ internal constructor(
     combine(taskTaskData, merge(draftArea, draftUpdates)) { taskData, currentFeature ->
         val isClosed = (currentFeature?.geometry as? LineString)?.isClosed() ?: false
         listOfNotNull(
-          getPreviousButtonState(),
-          getSkipButtonState(taskData),
-          getUndoButtonState(taskData, true),
-          getRedoButtonState(taskData),
-          getAddPointButtonState(isClosed, isTooClose.value),
+          getPreviousButton(),
+          getSkipButton(taskData),
+          getUndoButton(taskData, true),
+          getRedoButton(taskData),
+          getAddPointButton(isClosed, isTooClose.value),
           getCompleteButton(isClosed, isMarkedComplete.value, hasSelfIntersection),
-          getNextButtonState(taskData).takeIf { isMarkedComplete() },
+          getNextButton(taskData).takeIf { isMarkedComplete() },
         )
       }
       .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
@@ -422,24 +422,21 @@ internal constructor(
     vibrationHelper.vibrate()
   }
 
-  private fun getRedoButtonState(taskData: TaskData?): ButtonActionState =
+  private fun getRedoButton(taskData: TaskData?): ButtonActionState =
     ButtonActionState(
       action = ButtonAction.REDO,
       isEnabled = redoVertexStack.isNotEmpty() && taskData.isNotNullOrEmpty(),
       isVisible = true,
     )
 
-  private fun getAddPointButtonState(
-    isPolygonClosed: Boolean,
-    isTooClose: Boolean,
-  ): ButtonActionState =
+  private fun getAddPointButton(isPolygonClosed: Boolean, isTooClose: Boolean): ButtonActionState =
     ButtonActionState(
       action = ButtonAction.ADD_POINT,
       isEnabled = !isPolygonClosed && !isTooClose,
       isVisible = !isPolygonClosed,
     )
 
-  fun getCompleteButton(
+  private fun getCompleteButton(
     isClosed: Boolean,
     isMarkedComplete: Boolean,
     hasSelfIntersection: Boolean,

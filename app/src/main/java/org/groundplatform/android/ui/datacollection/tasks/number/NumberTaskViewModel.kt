@@ -17,25 +17,14 @@ package org.groundplatform.android.ui.datacollection.tasks.number
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
-import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import org.groundplatform.android.model.submission.NumberTaskData
 import org.groundplatform.android.model.submission.TaskData
-import org.groundplatform.android.ui.datacollection.components.refactor.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 
 class NumberTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
-
-  override val taskActionButtonStates: StateFlow<List<ButtonActionState>> by lazy {
-    taskTaskData
-      .map { listOf(getPreviousButtonState(), getSkipButtonState(it), getNextButtonState(it)) }
-      .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
-  }
 
   /** Transcoded text to be displayed for the current [TaskData]. */
   val responseText: LiveData<String> =

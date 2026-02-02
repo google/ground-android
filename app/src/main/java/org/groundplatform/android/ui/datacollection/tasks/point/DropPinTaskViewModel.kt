@@ -55,11 +55,11 @@ constructor(
     taskTaskData
       .map {
         listOf(
-          getPreviousButtonState(),
-          getSkipButtonState(it),
-          getUndoButtonState(it),
+          getPreviousButton(),
+          getSkipButton(it),
+          getUndoButton(it),
           getDropPinButtonState(it),
-          getNextButtonState(it, hideIfEmpty = true),
+          getNextButton(it, hideIfEmpty = true),
         )
       }
       .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())

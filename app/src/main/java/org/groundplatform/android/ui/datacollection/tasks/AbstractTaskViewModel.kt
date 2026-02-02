@@ -15,9 +15,13 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks
 
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import org.groundplatform.android.R
 import org.groundplatform.android.model.job.Job
@@ -37,7 +41,11 @@ abstract class AbstractTaskViewModel internal constructor() : AbstractViewModel(
   private val _taskDataFlow: MutableStateFlow<TaskData?> = MutableStateFlow(null)
   val taskTaskData: StateFlow<TaskData?> = _taskDataFlow.asStateFlow()
 
-  abstract val taskActionButtonStates: StateFlow<List<ButtonActionState>>
+  open val taskActionButtonStates: StateFlow<List<ButtonActionState>> by lazy {
+    taskTaskData
+      .map { getButtonStates(it) }
+      .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+  }
 
   lateinit var task: Task
   private lateinit var taskPositionInterface: TaskPositionInterface
@@ -52,6 +60,16 @@ abstract class AbstractTaskViewModel internal constructor() : AbstractViewModel(
     this.taskPositionInterface = taskPositionInterface
     setValue(taskData)
   }
+
+  /**
+   * Returns the list of button states for the given task data.
+   *
+   * By default it returns a list of [ButtonAction.PREVIOUS], [ButtonAction.SKIP] (if applicable),
+   * [ButtonAction.NEXT]/[ButtonAction.DONE]. Override this method to customize button
+   * configuration.
+   */
+  protected open fun getButtonStates(taskData: TaskData?): List<ButtonActionState> =
+    listOf(getPreviousButton(), getSkipButton(taskData), getNextButton(taskData))
 
   /** Checks if the current value is valid and updates error value. */
   fun validate(): Int? = validate(task, taskTaskData.value)
@@ -87,14 +105,14 @@ abstract class AbstractTaskViewModel internal constructor() : AbstractViewModel(
 
   fun hasNoData(): Boolean = taskTaskData.value.isNullOrEmpty()
 
-  fun getPreviousButtonState(): ButtonActionState =
+  fun getPreviousButton(): ButtonActionState =
     ButtonActionState(
       action = ButtonAction.PREVIOUS,
       isEnabled = !taskPositionInterface.isFirst(),
       isVisible = true,
     )
 
-  fun getNextButtonState(taskData: TaskData?, hideIfEmpty: Boolean = false): ButtonActionState {
+  fun getNextButton(taskData: TaskData?, hideIfEmpty: Boolean = false): ButtonActionState {
     val isVisible = if (hideIfEmpty) taskData.isNotNullOrEmpty() else true
     return if (taskPositionInterface.isLastWithValue(taskData)) {
       ButtonActionState(
@@ -111,14 +129,14 @@ abstract class AbstractTaskViewModel internal constructor() : AbstractViewModel(
     }
   }
 
-  fun getSkipButtonState(taskData: TaskData?): ButtonActionState =
+  fun getSkipButton(taskData: TaskData?): ButtonActionState =
     ButtonActionState(
       action = ButtonAction.SKIP,
       isEnabled = isTaskOptional(),
       isVisible = isTaskOptional() && taskData.isNullOrEmpty(),
     )
 
-  fun getUndoButtonState(
+  fun getUndoButton(
     taskData: TaskData?,
     isVisible: Boolean = taskData.isNotNullOrEmpty(),
   ): ButtonActionState =
