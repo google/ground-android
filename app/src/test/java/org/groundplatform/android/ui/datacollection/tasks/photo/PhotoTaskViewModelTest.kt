@@ -29,7 +29,6 @@ import org.groundplatform.android.model.job.Style
 import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.repository.UserMediaRepository
-import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 import org.junit.Test
 import org.junit.runner.RunWith

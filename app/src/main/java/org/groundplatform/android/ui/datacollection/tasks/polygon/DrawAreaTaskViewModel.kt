@@ -28,7 +28,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -148,8 +147,7 @@ internal constructor(
   lateinit var measurementUnits: MeasurementUnits
 
   override val taskActionButtonStates: StateFlow<List<ButtonActionState>> by lazy {
-    combine(taskTaskData, merge(draftArea, draftUpdates)) { taskData, currentFeature
-        ->
+    combine(taskTaskData, merge(draftArea, draftUpdates)) { taskData, currentFeature ->
         val isClosed = (currentFeature?.geometry as? LineString)?.isClosed() ?: false
         listOfNotNull(
           getPreviousButtonState(),
