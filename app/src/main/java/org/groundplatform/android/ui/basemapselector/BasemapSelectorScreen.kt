@@ -236,7 +236,7 @@ private fun MapType.labelResId(): Int =
 @Preview(showBackground = true)
 @Composable
 @ExcludeFromJacocoGeneratedReport
-fun BasemapSelectorScreenPreview() {
+private fun BasemapSelectorScreenPreview() {
   AppTheme {
     BasemapSelectorContent(
       mapTypes = listOf(MapType.ROAD, MapType.TERRAIN, MapType.SATELLITE),
