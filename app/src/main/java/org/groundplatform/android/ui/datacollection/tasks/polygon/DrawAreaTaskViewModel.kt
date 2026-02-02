@@ -29,7 +29,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -147,23 +146,17 @@ internal constructor(
   private lateinit var featureStyle: Feature.Style
   lateinit var measurementUnits: MeasurementUnits
 
-  // andreia:re-check this, probably only area flows are needed
   override val taskActionButtonStates: StateFlow<List<ButtonActionState>> by lazy {
-    combine(
-        taskTaskData,
-        merge(draftArea, draftUpdates).filterNotNull().map {
-          (it?.geometry as? LineString)?.isClosed() ?: false
-        },
-        _isMarkedComplete,
-        _isTooClose,
-      ) { taskData, closed, isMarkedComplete, isTooClose ->
+    combine(taskTaskData, merge(draftArea, draftUpdates).filterNotNull()) { taskData, currentFeature
+        ->
+        val isClosed = (currentFeature.geometry as? LineString)?.isClosed() ?: false
         listOfNotNull(
           getPreviousButtonState(),
           getSkipButtonState(taskData),
           getUndoButtonState(taskData),
           getRedoButtonState(taskData),
-          getAddPointButtonState(closed, isTooClose),
-          getCompleteButton(closed, isMarkedComplete, hasSelfIntersection),
+          getAddPointButtonState(isClosed, isTooClose.value),
+          getCompleteButton(isClosed, isMarkedComplete.value, hasSelfIntersection),
           getNextButtonState(taskData).takeIf { isMarkedComplete() },
         )
       }
