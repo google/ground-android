@@ -240,15 +240,14 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
         Column(modifier = Modifier.fillMaxWidth()) {
           HeaderCard()
           Spacer(Modifier.height(12.dp))
-          Footer()
+          ActionButtonsRow()
         }
       } else {
-        Footer()
+        ActionButtonsRow()
       }
     }
   }
 
-  @Suppress("UnusedPrivateMember") // andreia: revert this later
   @Composable
   private fun ActionButtonsRow() {
     Row(
