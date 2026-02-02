@@ -48,7 +48,7 @@ class PhotoTaskViewModelTest : BaseHiltTest() {
 
   override fun setUp() {
     super.setUp()
-    viewModel.initialize(JOB, TASK, null)
+    viewModel.initialize(JOB, TASK, null, { false }, { false })
     viewModel.surveyId = "survey_1"
   }
 

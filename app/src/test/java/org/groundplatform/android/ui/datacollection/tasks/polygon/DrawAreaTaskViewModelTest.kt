@@ -260,7 +260,6 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
   fun `Completing a polygon populates polygonArea with the correct value in hectares`() {
     setupViewModel()
     localValueStore.selectedLengthUnit = MeasurementUnits.METRIC.name
-    viewModel.initialize(JOB, TASK, taskData = null)
 
     updateLastVertexAndAdd(COORDINATE_1)
     updateLastVertexAndAdd(COORDINATE_2)
@@ -473,7 +472,13 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
   }
 
   private fun setupViewModel(job: Job = JOB, task: Task = TASK, taskData: TaskData? = null) {
-    viewModel.initialize(job = job, task = task, taskData = taskData)
+    viewModel.initialize(
+      job = job,
+      task = task,
+      taskData = taskData,
+      isFirstPosition = { false },
+      isLastPosition = { false },
+    )
   }
 
   companion object {

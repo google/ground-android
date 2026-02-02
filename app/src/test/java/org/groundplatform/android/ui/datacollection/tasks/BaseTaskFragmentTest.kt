@@ -36,6 +36,8 @@ import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.TaskFragmentRunner
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.util.view.isGone
+import org.mockito.Mock
+import org.mockito.kotlin.any
 import org.mockito.kotlin.whenever
 
 abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractTaskViewModel> :
@@ -80,9 +82,20 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
     }
   }
 
-  protected inline fun <reified T : Fragment> setupTaskFragment(job: Job, task: Task) {
+  protected inline fun <reified T : Fragment> setupTaskFragment(
+    job: Job,
+    task: Task,
+    isFistPosition: Boolean = false,
+    isLastPosition: Boolean = false,
+  ) {
     viewModel = viewModelFactory.create(DataCollectionViewModel.getViewModelClass(task.type)) as VM
-    viewModel.initialize(job, task, null)
+    viewModel.initialize(
+      job = job,
+      task = task,
+      taskData = null,
+      isFirstPosition = { isFistPosition },
+      isLastPosition = { isLastPosition },
+    )
     whenever(dataCollectionViewModel.getTaskViewModel(task.id)).thenReturn(viewModel)
 
     launchFragmentWithNavController<T>(
