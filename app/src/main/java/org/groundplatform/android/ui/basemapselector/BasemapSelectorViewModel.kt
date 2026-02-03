@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.ui.home.mapcontainer
+package org.groundplatform.android.ui.basemapselector
 
+import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.flow.StateFlow
+import org.groundplatform.android.model.map.MapType
 import org.groundplatform.android.repository.MapStateRepository
 import org.groundplatform.android.ui.common.AbstractViewModel
 
-class MapTypeViewModel
+/** ViewModel for the [BasemapSelectorScreen]. */
+@HiltViewModel
+class BasemapSelectorViewModel
 @Inject
 internal constructor(private val mapStateRepository: MapStateRepository) : AbstractViewModel() {
 
-  var isOfflineImageryEnabled by mapStateRepository::isOfflineImageryEnabled
-  var mapType by mapStateRepository::mapType
+  val currentMapType: StateFlow<MapType> = mapStateRepository.mapTypeFlow
+  val isOfflineImageryEnabled: StateFlow<Boolean> = mapStateRepository.offlineImageryEnabledFlow
 
-  fun offlineImageryPreferenceUpdated(isChecked: Boolean) {
-    mapStateRepository.isOfflineImageryEnabled = isChecked
+  fun setOfflineImageryEnabled(enabled: Boolean) {
+    mapStateRepository.isOfflineImageryEnabled = enabled
+  }
+
+  fun updateMapType(mapType: MapType) {
+    mapStateRepository.mapType = mapType
   }
 }

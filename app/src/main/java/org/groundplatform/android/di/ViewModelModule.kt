@@ -37,7 +37,6 @@ import org.groundplatform.android.ui.datacollection.tasks.text.TextTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.time.TimeTaskViewModel
 import org.groundplatform.android.ui.home.HomeScreenViewModel
 import org.groundplatform.android.ui.home.mapcontainer.HomeScreenMapContainerViewModel
-import org.groundplatform.android.ui.home.mapcontainer.MapTypeViewModel
 import org.groundplatform.android.ui.main.MainViewModel
 import org.groundplatform.android.ui.offlineareas.OfflineAreasViewModel
 import org.groundplatform.android.ui.offlineareas.selector.OfflineAreaSelectorViewModel
@@ -149,11 +148,6 @@ abstract class ViewModelModule {
   @IntoMap
   @ViewModelKey(BaseMapViewModel::class)
   abstract fun bindBaseMapViewModel(viewModel: BaseMapViewModel): ViewModel
-
-  @Binds
-  @IntoMap
-  @ViewModelKey(MapTypeViewModel::class)
-  abstract fun bindMapTypeViewModel(viewModel: MapTypeViewModel): ViewModel
 
   @Binds
   @IntoMap
