@@ -151,7 +151,7 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
       val uri = viewModel.createImageFileUri()
       viewModel.capturedUri = uri
       viewModel.hasLaunchedCamera = true
-      capturePhotoLauncher.launch(viewModel.capturedUri)
+      capturePhotoLauncher.launch(uri)
       Timber.d("Capture photo intent sent")
     } catch (e: IllegalArgumentException) {
       homeScreenViewModel.awaitingPhotoCapture = false
