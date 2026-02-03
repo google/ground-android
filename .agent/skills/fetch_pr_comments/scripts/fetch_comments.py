@@ -54,13 +54,94 @@ def get_repo_owner_name(pr_url):
         return match.group(1), match.group(2)
     return None, None
 
-def get_code_comments(owner, repo, pr_number):
-    cmd = f"gh api repos/{owner}/{repo}/pulls/{pr_number}/comments --paginate"
+GRAPHQL_QUERY = """
+query($owner: String!, $repo: String!, $pr: Int!, $cursor: String) {
+  repository(owner: $owner, name: $repo) {
+    pullRequest(number: $pr) {
+      reviewThreads(first: 50, after: $cursor) {
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+        nodes {
+          isResolved
+          path
+          comments(first: 50) {
+            nodes {
+              author { login }
+              body
+              path
+              line
+              originalLine
+              createdAt
+              url
+            }
+          }
+        }
+      }
+    }
+  }
+}
+"""
+
+def run_graphql_query(query, variables):
     try:
-        return json.loads(run_command(cmd))
-    except Exception as e:
-        print(f"Warning: Failed to fetch code comments: {e}", file=sys.stderr)
-        return []
+        result = subprocess.run(
+            ["gh", "api", "graphql", "--input", "-"],
+            input=json.dumps({"query": query, "variables": variables}),
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        return json.loads(result.stdout)
+    except subprocess.CalledProcessError as e:
+        print(f"Error running GraphQL query: {e}", file=sys.stderr)
+        print(f"Stderr: {e.stderr}", file=sys.stderr)
+        return None
+
+def get_code_comments(owner, repo, pr_number):
+    comments = []
+    cursor = None
+    has_next = True
+
+    while has_next:
+        variables = {
+            "owner": owner,
+            "repo": repo,
+            "pr": int(pr_number),
+            "cursor": cursor
+        }
+
+        data = run_graphql_query(GRAPHQL_QUERY, variables)
+        if not data:
+            break
+
+        pr_data = data.get("data", {}).get("repository", {}).get("pullRequest", {})
+        if not pr_data:
+            break
+
+        threads = pr_data.get("reviewThreads", {})
+        page_info = threads.get("pageInfo", {})
+        has_next = page_info.get("hasNextPage", False)
+        cursor = page_info.get("endCursor")
+
+        for thread in threads.get("nodes", []):
+            if thread.get("isResolved"):
+                continue
+
+            for comment in thread.get("comments", {}).get("nodes", []):
+                mapped = {
+                    "path": comment.get("path"),
+                    "line": comment.get("line"),
+                    "original_line": comment.get("originalLine"),
+                    "body": comment.get("body"),
+                    "user": {"login": comment.get("author", {}).get("login") if comment.get("author") else "Unknown"},
+                    "created_at": comment.get("createdAt"),
+                    "html_url": comment.get("url")
+                }
+                comments.append(mapped)
+
+    return comments
 
 def main():
     # Allow optional PR argument (number or URL)

@@ -27,7 +27,7 @@ The script outputs Markdown text to stdout, containing:
 - PR Title and URL
 - Reviews (Approved/Changes Requested)
 - General Comments (Pull Request level)
-- Code Comments (Grouped by file and line number)
+- Code Comments (Grouped by file and line number, unresolved threads only)
 
 ## Dependencies
 

@@ -27,6 +27,10 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.hasText
 import androidx.navigation.NavController
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.work.Configuration
@@ -149,7 +153,7 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
     openDrawer(composeTestRule)
 
     composeTestRule
-      .onNodeWithText(fragment.getString(R.string.sign_out))
+      .onNode(hasText(fragment.getString(R.string.sign_out)) and SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab))
       .performScrollTo()
       .performClick()
 
@@ -161,29 +165,21 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
       .assertIsDisplayed()
     composeTestRule.onNodeWithText(fragment.getString(R.string.cancel)).assertIsDisplayed()
 
-    // "Sign out" text is present in both drawer and dialog.
-    // Dialog should mask drawer, but to be safe we can target the dialog button if needed.
-    // For now assuming masking works or distinct nodes.
-
     composeTestRule.onNodeWithText(fragment.getString(R.string.cancel)).performClick()
     composeTestRule.onNodeWithText(fragment.getString(R.string.cancel)).assertIsNotDisplayed()
 
     // Drawer should still be open. Click "Sign out" again.
     composeTestRule
-      .onNodeWithText(fragment.getString(R.string.sign_out))
+      .onNode(hasText(fragment.getString(R.string.sign_out)) and SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab))
       .performScrollTo()
       .performClick()
 
     // Click "Sign out" in the dialog.
     composeTestRule
-      .onNodeWithText(fragment.getString(R.string.sign_out)) // Dialog button
+      .onNode(hasText(fragment.getString(R.string.sign_out)) and SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
       .performClick()
 
     // Verify dialog closed and potential sign out behavior.
-    // Drawer should also close.
-    // Just verify "Sign out" is not displayed (implies drawer closed or item gone).
-    // Note: If we are signed out, maybe we navigate away?
-    // For now just assert not displayed.
     composeTestRule.onNodeWithText(fragment.getString(R.string.sign_out)).assertIsNotDisplayed()
   }
 
