@@ -161,66 +161,41 @@ fun HomeDrawer(
     HorizontalDivider()
 
     // Navigation Items
-    // Navigation Items
     val navItems =
       listOf(
-        NavItem(
+        DrawerItem(
           label = stringResource(R.string.offline_map_imagery),
-          icon = {
-            Icon(
-              painterResource(R.drawable.ic_offline_pin),
-              contentDescription = stringResource(R.string.offline_map_imagery),
-            )
-          },
+          icon = IconSource.Drawable(R.drawable.ic_offline_pin),
           onClick = onNavigateToOfflineAreas,
         ),
-        NavItem(
+        DrawerItem(
           label = stringResource(R.string.sync_status),
-          icon = {
-            Icon(
-              painterResource(R.drawable.ic_sync),
-              contentDescription = stringResource(R.string.sync_status),
-            )
-          },
+          icon = IconSource.Drawable(R.drawable.ic_sync),
           onClick = onNavigateToSyncStatus,
         ),
-        NavItem(
+        DrawerItem(
           label = stringResource(R.string.settings),
-          icon = {
-            Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.settings))
-          },
+          icon = IconSource.Vector(Icons.Default.Settings),
           onClick = onNavigateToSettings,
         ),
-        NavItem(
+        DrawerItem(
           label = stringResource(R.string.about),
-          icon = {
-            Icon(
-              painterResource(R.drawable.info_outline),
-              contentDescription = stringResource(R.string.about),
-            )
-          },
+          icon = IconSource.Drawable(R.drawable.info_outline),
           onClick = onNavigateToAbout,
         ),
-        NavItem(
+        DrawerItem(
           label = stringResource(R.string.terms_of_service),
-          icon = {
-            Icon(painterResource(R.drawable.feed), contentDescription = stringResource(R.string.terms_of_service))
-          },
+          icon = IconSource.Drawable(R.drawable.feed),
           onClick = onNavigateToTerms,
         ),
-        NavItem(
+        DrawerItem(
           label = stringResource(R.string.sign_out),
-          icon = {
-            Icon(
-              Icons.AutoMirrored.Filled.ExitToApp,
-              contentDescription = stringResource(R.string.sign_out),
-            )
-          },
+          icon = IconSource.Vector(Icons.AutoMirrored.Filled.ExitToApp),
           onClick = onSignOut,
         ),
-        NavItem(
+        DrawerItem(
           label = versionText,
-          icon = { Icon(Icons.Default.Build, contentDescription = stringResource(R.string.build)) },
+          icon = IconSource.Vector(Icons.Default.Build),
           onClick = {},
         ),
       )
@@ -230,15 +205,27 @@ fun HomeDrawer(
         label = { Text(item.label) },
         selected = false,
         onClick = item.onClick,
-        icon = item.icon,
+        icon = {
+          val description = item.label
+          when (item.icon) {
+            is IconSource.Vector -> Icon(item.icon.imageVector, contentDescription = description)
+            is IconSource.Drawable ->
+              Icon(painterResource(item.icon.id), contentDescription = description)
+          }
+        },
         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
       )
     }
   }
 }
 
-private data class NavItem(
+private data class DrawerItem(
   val label: String,
-  val icon: @Composable () -> Unit,
+  val icon: IconSource,
   val onClick: () -> Unit,
 )
+
+private sealed interface IconSource {
+  data class Vector(val imageVector: androidx.compose.ui.graphics.vector.ImageVector) : IconSource
+  data class Drawable(@androidx.annotation.DrawableRes val id: Int) : IconSource
+}
