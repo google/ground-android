@@ -33,7 +33,7 @@ def run_command(command):
     except subprocess.CalledProcessError as e:
         if "no pull requests found" in e.stderr.lower():
             print("No pull request found for the current branch.", file=sys.stderr)
-            sys.exit(0)
+            sys.exit(1)
         
         print(f"Error running command: {command}", file=sys.stderr)
         print(f"Stderr: {e.stderr}", file=sys.stderr)
@@ -67,9 +67,9 @@ def main():
     pr_arg = ""
     if len(sys.argv) > 1:
         pr_arg = f" {sys.argv[1]}"
-        
+
     cmd = f"gh pr view{pr_arg} --json number,title,url,state,comments,reviews,latestReviews"
-    
+
     try:
         json_output = run_command(cmd)
         pr_data = json.loads(json_output)
@@ -80,7 +80,7 @@ def main():
     title = pr_data.get('title')
     url = pr_data.get('url')
     state = pr_data.get('state')
-    
+
     owner, repo = get_repo_owner_name(url)
     code_comments = []
     if owner and repo:
@@ -134,19 +134,19 @@ def main():
             if path not in comments_by_file:
                 comments_by_file[path] = []
             comments_by_file[path].append(cc)
-        
+
         for path, comments in comments_by_file.items():
             print(f"### File: `{path}`\n")
             # Sort by line number (or position if line is None)
             comments.sort(key=lambda x: (x.get('line') or x.get('original_line') or 0))
-            
+
             for cc in comments:
                 author = cc.get('user', {}).get('login', 'Unknown')
                 body = cc.get('body', '').strip()
                 date = format_date(cc.get('created_at', ''))
                 line = cc.get('line') or cc.get('original_line') or "Outdated"
                 html_url = cc.get('html_url', '')
-                
+
                 print(f"#### Line {line} - {author} ({date})")
                 print(f"[Link]({html_url})\n")
                 print(body)

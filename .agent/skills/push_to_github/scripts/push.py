@@ -34,7 +34,7 @@ def main():
     
     # 2. Check Code (Lint/Analysis)
     print("\n2️⃣  Running Code Checks...")
-    run_command("./gradlew :app:lintLocalDebug")
+    run_command("./gradlew checkCode")
     
     # 3. Push
     print("\n3️⃣  Pushing to GitHub...")
