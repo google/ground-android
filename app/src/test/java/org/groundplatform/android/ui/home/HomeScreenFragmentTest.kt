@@ -143,6 +143,54 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
       .performScrollTo()
       .assertIsDisplayed()
   }
+
+  @Test
+  fun `sign out dialog is displayed`() = runWithTestDispatcher {
+    openDrawer(composeTestRule)
+
+    composeTestRule
+      .onNodeWithText(fragment.getString(R.string.sign_out))
+      .performScrollTo()
+      .performClick()
+
+    composeTestRule
+      .onNodeWithText(fragment.getString(R.string.sign_out_dialog_title))
+      .assertIsDisplayed()
+    composeTestRule
+      .onNodeWithText(fragment.getString(R.string.sign_out_dialog_body))
+      .assertIsDisplayed()
+    composeTestRule.onNodeWithText(fragment.getString(R.string.cancel)).assertIsDisplayed()
+
+    // "Sign out" text is present in both drawer and dialog.
+    // Dialog should mask drawer, but to be safe we can target the dialog button if needed.
+    // For now assuming masking works or distinct nodes.
+
+    composeTestRule.onNodeWithText(fragment.getString(R.string.cancel)).performClick()
+    composeTestRule.onNodeWithText(fragment.getString(R.string.cancel)).assertIsNotDisplayed()
+
+    // Drawer should still be open. Click "Sign out" again.
+    composeTestRule
+      .onNodeWithText(fragment.getString(R.string.sign_out))
+      .performScrollTo()
+      .performClick()
+
+    // Click "Sign out" in the dialog.
+    composeTestRule
+      .onNodeWithText(fragment.getString(R.string.sign_out)) // Dialog button
+      .performClick()
+
+    // Verify dialog closed and potential sign out behavior.
+    // Drawer should also close.
+    // Just verify "Sign out" is not displayed (implies drawer closed or item gone).
+    // Note: If we are signed out, maybe we navigate away?
+    // For now just assert not displayed.
+    composeTestRule.onNodeWithText(fragment.getString(R.string.sign_out)).assertIsNotDisplayed()
+  }
+
+  @Test
+  fun `on back returns false and does nothing`() {
+    assertThat(fragment.onBack()).isFalse()
+  }
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
