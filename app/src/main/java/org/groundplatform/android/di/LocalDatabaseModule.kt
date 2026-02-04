@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android
+package org.groundplatform.android.di
 
 import android.content.Context
 import androidx.room.Room
@@ -27,10 +27,10 @@ import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.asExecutor
 import org.groundplatform.android.common.Constants
-import org.groundplatform.android.coroutines.IoDispatcher
 import org.groundplatform.android.data.local.room.LocalDatabase
 import org.groundplatform.android.data.local.room.migration.Migration_124_125
 import org.groundplatform.android.data.local.room.migration.Migration_125_126
+import org.groundplatform.android.di.coroutines.IoDispatcher
 
 @InstallIn(SingletonComponent::class)
 @Module

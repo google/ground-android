@@ -27,6 +27,10 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.hasText
 import androidx.navigation.NavController
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.work.Configuration
@@ -142,6 +146,46 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
       .onNodeWithText("Build ${org.groundplatform.android.BuildConfig.VERSION_NAME}")
       .performScrollTo()
       .assertIsDisplayed()
+  }
+
+  @Test
+  fun `sign out dialog is displayed`() = runWithTestDispatcher {
+    openDrawer(composeTestRule)
+
+    composeTestRule
+      .onNode(hasText(fragment.getString(R.string.sign_out)) and SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab))
+      .performScrollTo()
+      .performClick()
+
+    composeTestRule
+      .onNodeWithText(fragment.getString(R.string.sign_out_dialog_title))
+      .assertIsDisplayed()
+    composeTestRule
+      .onNodeWithText(fragment.getString(R.string.sign_out_dialog_body))
+      .assertIsDisplayed()
+    composeTestRule.onNodeWithText(fragment.getString(R.string.cancel)).assertIsDisplayed()
+
+    composeTestRule.onNodeWithText(fragment.getString(R.string.cancel)).performClick()
+    composeTestRule.onNodeWithText(fragment.getString(R.string.cancel)).assertIsNotDisplayed()
+
+    // Drawer should still be open. Click "Sign out" again.
+    composeTestRule
+      .onNode(hasText(fragment.getString(R.string.sign_out)) and SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab))
+      .performScrollTo()
+      .performClick()
+
+    // Click "Sign out" in the dialog.
+    composeTestRule
+      .onNode(hasText(fragment.getString(R.string.sign_out)) and SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+      .performClick()
+
+    // Verify dialog closed and potential sign out behavior.
+    composeTestRule.onNodeWithText(fragment.getString(R.string.sign_out)).assertIsNotDisplayed()
+  }
+
+  @Test
+  fun `on back returns false and does nothing`() {
+    assertThat(fragment.onBack()).isFalse()
   }
 }
 

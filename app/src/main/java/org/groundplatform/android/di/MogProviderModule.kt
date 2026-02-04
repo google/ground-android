@@ -13,15 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.ui.map.gms.mog
+package org.groundplatform.android.di
 
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineDispatcher
-import org.groundplatform.android.coroutines.IoDispatcher
 import org.groundplatform.android.data.remote.RemoteStorageManager
+import org.groundplatform.android.di.coroutines.IoDispatcher
+import org.groundplatform.android.ui.map.gms.mog.MogClient
+import org.groundplatform.android.ui.map.gms.mog.MogCollection
+import org.groundplatform.android.ui.map.gms.mog.MogSourceProvider
+import org.groundplatform.android.ui.map.gms.mog.MogTileProvider
 
 @InstallIn(SingletonComponent::class)
 @Module

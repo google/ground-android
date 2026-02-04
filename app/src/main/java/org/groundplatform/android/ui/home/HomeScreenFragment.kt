@@ -20,6 +20,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -38,6 +39,7 @@ import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.common.BackPressListener
 import org.groundplatform.android.ui.common.EphemeralPopups
 import org.groundplatform.android.ui.components.ConfirmationDialog
+import androidx.compose.material3.DrawerState
 
 /**
  * Fragment containing the map container and location of interest sheet fragments and NavigationView
@@ -149,69 +151,28 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener {
                 ),
             )
           },
+
           content = {
-            // Map Container
-            androidx.compose.ui.viewinterop.AndroidView(
-              factory = { context ->
-                android.widget.FrameLayout(context).apply { id = R.id.map_container_fragment }
-              },
-              update = { view ->
-                val fragment = childFragmentManager.findFragmentById(R.id.map_container_fragment)
-                if (fragment == null) {
-                  val mapFragment =
-                    org.groundplatform.android.ui.home.mapcontainer.HomeScreenMapContainerFragment()
-                  childFragmentManager
-                    .beginTransaction()
-                    .replace(R.id.map_container_fragment, mapFragment)
-                    .commit()
-                }
-              },
-              modifier = Modifier.fillMaxSize(),
-            )
-
-            // Overlays
-            val view = androidx.compose.ui.platform.LocalView.current
-
-            // Sign Out Confirmation
-            if (showSignOutDialog.value) {
-              ConfirmationDialog(
-                title = R.string.sign_out_dialog_title,
-                description = R.string.sign_out_dialog_body,
-                confirmButtonText = R.string.sign_out,
-                onConfirmClicked = {
-                  homeScreenViewModel.signOut()
-                  showSignOutDialog.value = false
-                  scope.launch { drawerState.close() }
-                },
-                onDismiss = { showSignOutDialog.value = false },
-              )
-            }
-
-            // Handle sign out dialog state
-
-            androidx.compose.runtime.LaunchedEffect(Unit) {
-              // ... draft restored logic ...
-              homeScreenViewModel.getDraftSubmission()?.let { draft ->
+            HomeScreenContent(
+              homeScreenViewModel = homeScreenViewModel,
+              ephemeralPopups = ephemeralPopups,
+              drawerState = drawerState,
+              childFragmentManager = childFragmentManager,
+              showSignOutDialog = showSignOutDialog,
+              onNavigateToDataCollection = { loiId, loiName, jobId, restore, deltas, taskId ->
                 findNavController()
                   .navigate(
                     HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
-                      draft.loiId,
-                      draft.loiName ?: "",
-                      draft.jobId,
-                      true,
-                      SubmissionDeltasConverter.toString(draft.deltas),
-                      draft.currentTaskId ?: "",
+                      loiId,
+                      loiName,
+                      jobId,
+                      restore,
+                      deltas,
+                      taskId,
                     )
                   )
-                if (!homeScreenViewModel.awaitingPhotoCapture) {
-                  ephemeralPopups
-                    .InfoPopup(view, R.string.draft_restored, EphemeralPopups.PopupDuration.SHORT)
-                    .show()
-                } else {
-                  homeScreenViewModel.awaitingPhotoCapture = false
-                }
-              }
-            }
+              },
+            )
           },
         )
       }
@@ -226,4 +187,72 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener {
   }
 
   override fun onBack(): Boolean = false
+}
+
+@Composable
+private fun HomeScreenContent(
+  homeScreenViewModel: HomeScreenViewModel,
+  ephemeralPopups: EphemeralPopups,
+  drawerState: androidx.compose.material3.DrawerState,
+  childFragmentManager: androidx.fragment.app.FragmentManager,
+  showSignOutDialog: androidx.compose.runtime.MutableState<Boolean>,
+  onNavigateToDataCollection:
+    (String, String?, String, Boolean, String?, String) -> Unit,
+) {
+  val scope = androidx.compose.runtime.rememberCoroutineScope()
+  val view = androidx.compose.ui.platform.LocalView.current
+
+  // Map Container
+  androidx.compose.ui.viewinterop.AndroidView(
+    factory = { context ->
+      android.widget.FrameLayout(context).apply { id = R.id.map_container_fragment }
+    },
+    update = { _ ->
+      val fragment = childFragmentManager.findFragmentById(R.id.map_container_fragment)
+      if (fragment == null) {
+        val mapFragment =
+          org.groundplatform.android.ui.home.mapcontainer.HomeScreenMapContainerFragment()
+        childFragmentManager
+          .beginTransaction()
+          .replace(R.id.map_container_fragment, mapFragment)
+          .commit()
+      }
+    },
+    modifier = Modifier.fillMaxSize(),
+  )
+
+  // Sign Out Confirmation
+  if (showSignOutDialog.value) {
+    ConfirmationDialog(
+      title = R.string.sign_out_dialog_title,
+      description = R.string.sign_out_dialog_body,
+      confirmButtonText = R.string.sign_out,
+      onConfirmClicked = {
+        homeScreenViewModel.signOut()
+        showSignOutDialog.value = false
+        scope.launch { drawerState.close() }
+      },
+      onDismiss = { showSignOutDialog.value = false },
+    )
+  }
+
+  androidx.compose.runtime.LaunchedEffect(Unit) {
+    homeScreenViewModel.getDraftSubmission()?.let { draft ->
+      onNavigateToDataCollection(
+        draft.loiId ?: "",
+        draft.loiName,
+        draft.jobId,
+        true,
+        SubmissionDeltasConverter.toString(draft.deltas),
+        draft.currentTaskId ?: "",
+      )
+      if (!homeScreenViewModel.awaitingPhotoCapture) {
+        ephemeralPopups
+          .InfoPopup(view, R.string.draft_restored, EphemeralPopups.PopupDuration.SHORT)
+          .show()
+      } else {
+        homeScreenViewModel.awaitingPhotoCapture = false
+      }
+    }
+  }
 }

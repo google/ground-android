@@ -240,9 +240,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     if (!this::mapContainerViewModel.isInitialized) {
       return Timber.w("showDataCollectionHint() called before mapContainerViewModel initialized")
     }
-    if (!this::mapContainerViewModel.isInitialized) {
-      return Timber.w("showDataCollectionHint() called before mapContainerViewModel initialized")
-    }
+
     // binding check no longer valid.
     // composeView and bottomContainer are initialized in onCreateView.
 
