@@ -28,6 +28,7 @@ fun HomeScreen(
 ) {
   ModalNavigationDrawer(
     drawerState = drawerState,
+    gesturesEnabled = drawerState.isOpen,
     drawerContent = { ModalDrawerSheet { drawerContent() } },
     content = content,
   )
