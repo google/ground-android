@@ -16,6 +16,7 @@
 package org.groundplatform.android.ui.datacollection.tasks.location
 
 import android.location.Location
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
 import kotlin.lazy
@@ -25,6 +26,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -34,7 +36,7 @@ import org.groundplatform.android.model.submission.CaptureLocationTaskData
 import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.submission.isNullOrEmpty
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
-import org.groundplatform.android.ui.datacollection.components.refactor.ButtonActionState
+import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.AbstractMapTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.LocationLockEnabledState
 import org.groundplatform.android.ui.map.gms.getAccuracyOrNull
@@ -62,6 +64,7 @@ class CaptureLocationTaskViewModel @Inject constructor() : AbstractMapTaskViewMo
           getNextButton(taskData, hideIfEmpty = true),
         )
       }
+      .distinctUntilChanged()
       .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
   }
 
@@ -69,6 +72,7 @@ class CaptureLocationTaskViewModel @Inject constructor() : AbstractMapTaskViewMo
     _lastLocation.update { location }
   }
 
+  @VisibleForTesting
   fun updateResponse() {
     val location = _lastLocation.value
     if (location == null) {

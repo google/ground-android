@@ -87,12 +87,6 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
     viewModel.surveyId = dataCollectionViewModel.requireSurveyId()
   }
 
-  override fun onCreateActionButtons() {
-    addUndoButton()
-    addSkipButton()
-    addNextButton()
-  }
-
   override fun onResume() {
     super.onResume()
 

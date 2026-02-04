@@ -20,6 +20,7 @@ import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -33,7 +34,7 @@ import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.submission.isNullOrEmpty
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
-import org.groundplatform.android.ui.datacollection.components.refactor.ButtonActionState
+import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.AbstractMapTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 import org.groundplatform.android.ui.map.Feature
@@ -50,6 +51,21 @@ constructor(
   /** Whether the instructions dialog has been shown or not. */
   var instructionsDialogShown: Boolean by localValueStore::dropPinInstructionsShown
   var captureLocation: Boolean = false
+
+  override val taskActionButtonStates: StateFlow<List<ButtonActionState>> by lazy {
+    taskTaskData
+      .map {
+        listOf(
+          getPreviousButton(),
+          getSkipButton(it),
+          getUndoButton(it),
+          getDropPinButtonState(it),
+          getNextButton(it, hideIfEmpty = true),
+        )
+      }
+      .distinctUntilChanged()
+      .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+  }
 
   override fun initialize(
     job: Job,
@@ -100,7 +116,7 @@ constructor(
       selected = true,
     )
 
-  fun dropPin() {
+  private fun dropPin() {
     getLastCameraPosition()?.let { updateResponse(Point(it.coordinates)) }
   }
 
