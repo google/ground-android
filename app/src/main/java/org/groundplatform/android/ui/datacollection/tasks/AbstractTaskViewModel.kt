@@ -114,20 +114,16 @@ abstract class AbstractTaskViewModel internal constructor() : AbstractViewModel(
       isVisible = true,
     )
 
-  fun getNextButton(taskData: TaskData?, hideIfEmpty: Boolean = false): ButtonActionState {
+  fun getNextButton(
+    taskData: TaskData?,
+    hideIfEmpty: Boolean = false,
+    isEnabled: Boolean = taskData.isNotNullOrEmpty(),
+  ): ButtonActionState {
     val isVisible = if (hideIfEmpty) taskData.isNotNullOrEmpty() else true
     return if (taskPositionInterface.isLastWithValue(taskData)) {
-      ButtonActionState(
-        action = ButtonAction.DONE,
-        isEnabled = taskData.isNotNullOrEmpty(),
-        isVisible = isVisible,
-      )
+      ButtonActionState(action = ButtonAction.DONE, isEnabled = isEnabled, isVisible = isVisible)
     } else {
-      ButtonActionState(
-        action = ButtonAction.NEXT,
-        isEnabled = taskData.isNotNullOrEmpty(),
-        isVisible = isVisible,
-      )
+      ButtonActionState(action = ButtonAction.NEXT, isEnabled = isEnabled, isVisible = isVisible)
     }
   }
 

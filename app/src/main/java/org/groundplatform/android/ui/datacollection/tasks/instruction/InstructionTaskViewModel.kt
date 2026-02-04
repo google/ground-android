@@ -23,5 +23,5 @@ import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 class InstructionTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
 
   override fun getButtonStates(taskData: TaskData?): List<ButtonActionState> =
-    listOf(getPreviousButton(), getNextButton(taskData))
+    listOf(getPreviousButton(), getNextButton(taskData = taskData, isEnabled = true))
 }
