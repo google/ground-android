@@ -31,6 +31,7 @@ import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
+import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.BaseTaskFragmentTest
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -75,13 +76,13 @@ class DrawAreaTaskFragmentTest :
     setupTaskFragment<DrawAreaTaskFragment>(job, task)
 
     assertFragmentHasButtons(
-      ButtonAction.PREVIOUS,
-      ButtonAction.SKIP,
-      ButtonAction.UNDO,
-      ButtonAction.REDO,
-      ButtonAction.NEXT,
-      ButtonAction.ADD_POINT,
-      ButtonAction.COMPLETE,
+      ButtonActionState(ButtonAction.PREVIOUS, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.SKIP, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.UNDO, isEnabled = false, isVisible = true),
+      ButtonActionState(ButtonAction.REDO, isEnabled = false, isVisible = false),
+      ButtonActionState(ButtonAction.NEXT, isEnabled = false, isVisible = false),
+      ButtonActionState(ButtonAction.ADD_POINT, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.COMPLETE, isEnabled = false, isVisible = false),
     )
   }
 

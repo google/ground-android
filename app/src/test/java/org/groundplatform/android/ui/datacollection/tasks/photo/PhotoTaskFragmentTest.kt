@@ -32,6 +32,7 @@ import org.groundplatform.android.ui.common.EphemeralPopups
 import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
+import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.BaseTaskFragmentTest
 import org.groundplatform.android.ui.home.HomeScreenViewModel
 import org.junit.Test
@@ -103,10 +104,10 @@ class PhotoTaskFragmentTest : BaseTaskFragmentTest<PhotoTaskFragment, PhotoTaskV
     setupTaskFragment<PhotoTaskFragment>(job, task)
 
     assertFragmentHasButtons(
-      ButtonAction.PREVIOUS,
-      ButtonAction.UNDO,
-      ButtonAction.SKIP,
-      ButtonAction.NEXT,
+      ButtonActionState(ButtonAction.PREVIOUS, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.UNDO, isEnabled = false, isVisible = false),
+      ButtonActionState(ButtonAction.SKIP, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.NEXT, isEnabled = false, isVisible = true),
     )
   }
 

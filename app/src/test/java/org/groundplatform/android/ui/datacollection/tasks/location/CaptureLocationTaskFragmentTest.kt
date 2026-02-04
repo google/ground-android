@@ -34,6 +34,7 @@ import org.groundplatform.android.ui.common.MapConfig
 import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
+import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.BaseTaskFragmentTest
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -130,11 +131,11 @@ class CaptureLocationTaskFragmentTest :
     setupTaskFragment<CaptureLocationTaskFragment>(job, task)
 
     assertFragmentHasButtons(
-      ButtonAction.PREVIOUS,
-      ButtonAction.SKIP,
-      ButtonAction.UNDO,
-      ButtonAction.CAPTURE_LOCATION,
-      ButtonAction.NEXT,
+      ButtonActionState(ButtonAction.PREVIOUS, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.SKIP, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.UNDO, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.CAPTURE_LOCATION, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.NEXT, isEnabled = false, isVisible = false),
     )
   }
 

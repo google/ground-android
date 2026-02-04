@@ -32,14 +32,12 @@ import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
+import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.BaseTaskFragmentTest
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mock
-import org.mockito.kotlin.any
-import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.shadows.ShadowAlertDialog
 
@@ -223,22 +221,31 @@ class MultipleChoiceTaskFragmentTest :
   fun `renders action buttons`() {
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task)
 
-    assertFragmentHasButtons(ButtonAction.PREVIOUS, ButtonAction.SKIP, ButtonAction.NEXT)
+    assertFragmentHasButtons(
+      ButtonActionState(ButtonAction.PREVIOUS, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.SKIP, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.NEXT, isEnabled = false, isVisible = true),
+    )
   }
 
   @Test
   fun `renders action buttons on last task`() {
-    whenever(dataCollectionViewModel.isLastPosition(any())).thenReturn(true)
-    whenever(dataCollectionViewModel.isLastPositionWithValue(any(), eq(null))).thenReturn(true)
-    setupTaskFragment<MultipleChoiceTaskFragment>(job, task)
+    setupTaskFragment<MultipleChoiceTaskFragment>(job, task, isLastPosition = true)
 
-    assertFragmentHasButtons(ButtonAction.PREVIOUS, ButtonAction.SKIP, ButtonAction.DONE)
+    assertFragmentHasButtons(
+      ButtonActionState(ButtonAction.PREVIOUS, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.SKIP, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.DONE, isEnabled = false, isVisible = true),
+    )
   }
 
   @Test
   fun `renders action buttons when first task and optional`() {
-    whenever(dataCollectionViewModel.isFirstPosition(task.id)).thenReturn(true)
-    setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(isRequired = false))
+    setupTaskFragment<MultipleChoiceTaskFragment>(
+      job,
+      task.copy(isRequired = false),
+      isFistPosition = true,
+    )
 
     runner()
       .assertButtonIsDisabled("Previous")
@@ -266,8 +273,11 @@ class MultipleChoiceTaskFragmentTest :
 
   @Test
   fun `renders action buttons when task is first and required`() {
-    whenever(dataCollectionViewModel.isFirstPosition(task.id)).thenReturn(true)
-    setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(isRequired = true))
+    setupTaskFragment<MultipleChoiceTaskFragment>(
+      job,
+      task.copy(isRequired = true),
+      isFistPosition = true,
+    )
 
     runner()
       .assertButtonIsDisabled("Previous")
@@ -277,7 +287,6 @@ class MultipleChoiceTaskFragmentTest :
 
   @Test
   fun `renders action buttons when task is not first`() {
-    whenever(dataCollectionViewModel.isFirstPosition(task.id)).thenReturn(false)
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task)
 
     runner()
