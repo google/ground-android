@@ -17,8 +17,23 @@ package org.groundplatform.android.ui.datacollection.tasks
 
 import org.groundplatform.android.model.submission.TaskData
 
+/**
+ * Interface for querying the position of a task within a sequence.
+ *
+ * This interface is used to delegate task sequencing knowledge to task-specific ViewModels. It
+ * allows the receiving ViewModel to make UI-related decisions (e.g. showing the correct action
+ * buttons) without requiring direct access to the full task list or sequencing logic.
+ */
 interface TaskPositionInterface {
+  /** Returns true if the task is the first in the sequence */
   fun isFirst(): Boolean
 
+  /**
+   * Returns true if the current task is the final task in the flow, taking into account any
+   * conditional sequencing based on [taskData].
+   *
+   * For example, some tasks may be skipped or added depending on user responses, which can affect
+   * whether this task is considered last.
+   */
   fun isLastWithValue(taskData: TaskData?): Boolean
 }
