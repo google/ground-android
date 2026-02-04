@@ -18,10 +18,6 @@ package org.groundplatform.android.ui.datacollection.tasks.point
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
@@ -51,20 +47,6 @@ constructor(
   var instructionsDialogShown: Boolean by localValueStore::dropPinInstructionsShown
   var captureLocation: Boolean = false
 
-  override val taskActionButtonStates: StateFlow<List<ButtonActionState>> by lazy {
-    taskTaskData
-      .map {
-        listOf(
-          getPreviousButton(),
-          getSkipButton(it),
-          getUndoButton(it),
-          getDropPinButtonState(it),
-          getNextButton(it, hideIfEmpty = true),
-        )
-      }
-      .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
-  }
-
   override fun initialize(
     job: Job,
     task: Task,
@@ -77,6 +59,15 @@ constructor(
     // Drop a marker for current value
     (taskData as? DropPinTaskData)?.let { dropMarker(it.location) }
   }
+
+  override fun getButtonStates(taskData: TaskData?): List<ButtonActionState> =
+    listOf(
+      getPreviousButton(),
+      getSkipButton(taskData),
+      getUndoButton(taskData),
+      getDropPinButtonState(taskData),
+      getNextButton(taskData, hideIfEmpty = true),
+    )
 
   override fun clearResponse() {
     super.clearResponse()
