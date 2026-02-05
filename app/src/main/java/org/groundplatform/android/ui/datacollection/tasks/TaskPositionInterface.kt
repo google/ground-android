@@ -25,7 +25,7 @@ import org.groundplatform.android.model.submission.TaskData
  * buttons) without requiring direct access to the full task list or sequencing logic.
  */
 interface TaskPositionInterface {
-  /** Returns true if the task is the first in the sequence */
+  /** Returns true if the task is the first in the sequence. */
   fun isFirst(): Boolean
 
   /**
