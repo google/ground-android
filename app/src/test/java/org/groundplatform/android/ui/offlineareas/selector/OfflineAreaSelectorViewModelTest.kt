@@ -155,7 +155,7 @@ class OfflineAreaSelectorViewModelTest : BaseHiltTest() {
     whenever(offlineAreaRepository.estimateSizeOnDisk(any())).thenReturn(estimatedSizeOnDisk)
   }
 
-  companion object {
+  private companion object {
     val CAMERA_POSITION =
       CameraPosition(
         Coordinates(0.5, 0.5),
