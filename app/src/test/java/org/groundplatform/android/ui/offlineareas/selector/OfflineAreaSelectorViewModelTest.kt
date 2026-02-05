@@ -13,8 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:OptIn(ExperimentalCoroutinesApi::class)
-
 package org.groundplatform.android.ui.offlineareas.selector
 
 import android.content.Context
@@ -26,6 +24,7 @@ import java.net.UnknownHostException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.groundplatform.android.BaseHiltTest
@@ -42,6 +41,7 @@ import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.system.SettingsManager
 import org.groundplatform.android.util.toMbString
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -51,6 +51,7 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class OfflineAreaSelectorViewModelTest : BaseHiltTest() {
@@ -87,6 +88,11 @@ class OfflineAreaSelectorViewModelTest : BaseHiltTest() {
         locationOfInterestRepository,
         networkManager,
       )
+  }
+
+  @After
+  fun tearDown() {
+    Dispatchers.resetMain()
   }
 
   @Test
