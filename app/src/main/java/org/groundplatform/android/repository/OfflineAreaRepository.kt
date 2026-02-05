@@ -16,6 +16,7 @@
 package org.groundplatform.android.repository
 
 import java.io.File
+import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
@@ -38,7 +39,6 @@ import org.groundplatform.android.util.ByteCount
 import org.groundplatform.android.util.deleteIfEmpty
 import org.groundplatform.android.util.rangeOf
 import timber.log.Timber
-import java.io.IOException
 
 /**
  * Corners of the viewport are scaled by this value when determining the name of downloaded areas.
@@ -120,25 +120,23 @@ constructor(
     )
   }
 
-  suspend fun hasHiResImagery(bounds: Bounds): Result<Boolean> {
-    return try {
+  suspend fun hasHiResImagery(bounds: Bounds): Result<Boolean> =
+    try {
       val maxZoom = mogClient.collection.sources.maxZoom()
       Result.success(mogClient.buildTilesRequests(bounds, maxZoom..maxZoom).isNotEmpty())
     } catch (e: IOException) {
       Timber.e(e, "Network error while checking hi-res imagery")
       Result.failure(e)
     }
-  }
 
-  suspend fun estimateSizeOnDisk(bounds: Bounds): Result<Int> {
-    return try {
+  suspend fun estimateSizeOnDisk(bounds: Bounds): Result<Int> =
+    try {
       val requests = mogClient.buildTilesRequests(bounds)
       Result.success(requests.sumOf { it.totalBytes })
     } catch (e: IOException) {
       Timber.e(e, "Network error while estimating download size.")
       Result.failure(e)
     }
-  }
 
   /** Returns the number of bytes occupied by tiles on the local device. */
   fun sizeOnDevice(offlineArea: OfflineArea): ByteCount =

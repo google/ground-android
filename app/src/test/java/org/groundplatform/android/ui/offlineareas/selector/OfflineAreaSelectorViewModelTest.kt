@@ -97,7 +97,7 @@ class OfflineAreaSelectorViewModelTest : BaseHiltTest() {
     advanceUntilIdle()
 
     assertEquals(
-      resources.getString(R.string.selected_offline_area_size, (5.0f).toMbString()),
+      resources.getString(R.string.selected_offline_area_size, 5.0f.toMbString()),
       viewModel.bottomText.value,
     )
     assertEquals(true, viewModel.downloadButtonEnabled.value)

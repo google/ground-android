@@ -180,21 +180,20 @@ internal constructor(
       resources.getString(R.string.selected_offline_area_size, offlineAreaSizeLoadingSymbol)
     )
 
-    val estimatedSize =
-      offlineAreaRepository.estimateSizeOnDisk(bounds).getOrElse {
-        onUpdateDownloadSizeError()
-        return
+    offlineAreaRepository
+      .estimateSizeOnDisk(bounds)
+      .onSuccess {
+        val sizeInMb = it.toMb()
+        Timber.d("Estimated download size: ${sizeInMb}MB")
+        if (sizeInMb > MAX_AREA_DOWNLOAD_SIZE_MB) {
+          Timber.d("Area too large: ${sizeInMb}MB > ${MAX_AREA_DOWNLOAD_SIZE_MB}MB")
+          onLargeAreaSelected()
+        } else {
+          Timber.d("Area downloadable: ${sizeInMb}MB, enabling download button")
+          onDownloadableAreaSelected(sizeInMb)
+        }
       }
-
-    val sizeInMb = estimatedSize.toMb()
-    Timber.d("Estimated download size: ${sizeInMb}MB")
-    if (sizeInMb > MAX_AREA_DOWNLOAD_SIZE_MB) {
-      Timber.d("Area too large: ${sizeInMb}MB > ${MAX_AREA_DOWNLOAD_SIZE_MB}MB")
-      onLargeAreaSelected()
-    } else {
-      Timber.d("Area downloadable: ${sizeInMb}MB, enabling download button")
-      onDownloadableAreaSelected(sizeInMb)
-    }
+      .onFailure { onUpdateDownloadSizeError() }
   }
 
   private fun onUpdateDownloadSizeError() {
