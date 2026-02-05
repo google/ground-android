@@ -15,10 +15,15 @@
  */
 package org.groundplatform.android.ui.offlineareas.selector.model
 
+/** Represents the state of the bottom text in the offline area selector. */
 sealed class BottomTextState {
-  object Loading: BottomTextState()
-  data class AreaSize(val size: String): BottomTextState()
-  object NoImageryAvailable: BottomTextState()
-  object AreaTooLarge: BottomTextState()
-  object NetworkError: BottomTextState()
+  object Loading : BottomTextState()
+
+  data class AreaSize(val size: String) : BottomTextState()
+
+  object NoImageryAvailable : BottomTextState()
+
+  object AreaTooLarge : BottomTextState()
+
+  object NetworkError : BottomTextState()
 }
