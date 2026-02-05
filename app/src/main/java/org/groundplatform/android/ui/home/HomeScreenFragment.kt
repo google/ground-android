@@ -39,7 +39,6 @@ import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.common.BackPressListener
 import org.groundplatform.android.ui.common.EphemeralPopups
 import org.groundplatform.android.ui.components.ConfirmationDialog
-import androidx.compose.material3.DrawerState
 
 /**
  * Fragment containing the map container and location of interest sheet fragments and NavigationView
@@ -151,7 +150,6 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener {
                 ),
             )
           },
-
           content = {
             HomeScreenContent(
               homeScreenViewModel = homeScreenViewModel,
@@ -196,8 +194,7 @@ private fun HomeScreenContent(
   drawerState: androidx.compose.material3.DrawerState,
   childFragmentManager: androidx.fragment.app.FragmentManager,
   showSignOutDialog: androidx.compose.runtime.MutableState<Boolean>,
-  onNavigateToDataCollection:
-    (String, String?, String, Boolean, String?, String) -> Unit,
+  onNavigateToDataCollection: (String, String?, String, Boolean, String?, String) -> Unit,
 ) {
   val scope = androidx.compose.runtime.rememberCoroutineScope()
   val view = androidx.compose.ui.platform.LocalView.current

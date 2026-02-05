@@ -18,19 +18,19 @@ package org.groundplatform.android.ui.home
 import android.content.Context
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.SemanticsProperties
-import androidx.compose.ui.test.SemanticsMatcher
-import androidx.compose.ui.test.hasText
 import androidx.navigation.NavController
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.work.Configuration
@@ -153,7 +153,10 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
     openDrawer(composeTestRule)
 
     composeTestRule
-      .onNode(hasText(fragment.getString(R.string.sign_out)) and SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab))
+      .onNode(
+        hasText(fragment.getString(R.string.sign_out)) and
+          SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)
+      )
       .performScrollTo()
       .performClick()
 
@@ -170,13 +173,19 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
 
     // Drawer should still be open. Click "Sign out" again.
     composeTestRule
-      .onNode(hasText(fragment.getString(R.string.sign_out)) and SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab))
+      .onNode(
+        hasText(fragment.getString(R.string.sign_out)) and
+          SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)
+      )
       .performScrollTo()
       .performClick()
 
     // Click "Sign out" in the dialog.
     composeTestRule
-      .onNode(hasText(fragment.getString(R.string.sign_out)) and SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+      .onNode(
+        hasText(fragment.getString(R.string.sign_out)) and
+          SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button)
+      )
       .performClick()
 
     // Verify dialog closed and potential sign out behavior.

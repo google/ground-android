@@ -193,11 +193,7 @@ fun HomeDrawer(
           icon = IconSource.Vector(Icons.AutoMirrored.Filled.ExitToApp),
           onClick = onSignOut,
         ),
-        DrawerItem(
-          label = versionText,
-          icon = IconSource.Vector(Icons.Default.Build),
-          onClick = {},
-        ),
+        DrawerItem(label = versionText, icon = IconSource.Vector(Icons.Default.Build), onClick = {}),
       )
 
     navItems.forEach { item ->
@@ -219,13 +215,10 @@ fun HomeDrawer(
   }
 }
 
-private data class DrawerItem(
-  val label: String,
-  val icon: IconSource,
-  val onClick: () -> Unit,
-)
+private data class DrawerItem(val label: String, val icon: IconSource, val onClick: () -> Unit)
 
 private sealed interface IconSource {
   data class Vector(val imageVector: androidx.compose.ui.graphics.vector.ImageVector) : IconSource
+
   data class Drawable(@androidx.annotation.DrawableRes val id: Int) : IconSource
 }
