@@ -80,9 +80,24 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
     }
   }
 
-  protected inline fun <reified T : Fragment> setupTaskFragment(job: Job, task: Task) {
+  protected inline fun <reified T : Fragment> setupTaskFragment(
+    job: Job,
+    task: Task,
+    isFistPosition: Boolean = false,
+    isLastPosition: Boolean = false,
+  ) {
     viewModel = viewModelFactory.create(DataCollectionViewModel.getViewModelClass(task.type)) as VM
-    viewModel.initialize(job, task, null)
+    viewModel.initialize(
+      job = job,
+      task = task,
+      taskData = null,
+      taskPositionInterface =
+        object : TaskPositionInterface {
+          override fun isFirst() = isFistPosition
+
+          override fun isLastWithValue(taskData: TaskData?) = isLastPosition
+        },
+    )
     whenever(dataCollectionViewModel.getTaskViewModel(task.id)).thenReturn(viewModel)
 
     launchFragmentWithNavController<T>(

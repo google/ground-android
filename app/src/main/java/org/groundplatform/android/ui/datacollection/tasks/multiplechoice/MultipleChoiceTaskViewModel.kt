@@ -29,6 +29,7 @@ import org.groundplatform.android.model.task.MultipleChoice.Cardinality.SELECT_M
 import org.groundplatform.android.model.task.Option
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
+import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 
 class MultipleChoiceTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
 
@@ -38,8 +39,13 @@ class MultipleChoiceTaskViewModel @Inject constructor() : AbstractTaskViewModel(
   private val selectedIds: MutableSet<String> = mutableSetOf()
   private var otherText: String = ""
 
-  override fun initialize(job: Job, task: Task, taskData: TaskData?) {
-    super.initialize(job, task, taskData)
+  override fun initialize(
+    job: Job,
+    task: Task,
+    taskData: TaskData?,
+    taskPositionInterface: TaskPositionInterface,
+  ) {
+    super.initialize(job, task, taskData, taskPositionInterface)
     loadPendingSelections()
     updateMultipleChoiceItems()
   }

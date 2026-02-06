@@ -258,6 +258,19 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     }
   }
 
+  @Suppress("UnusedPrivateMember") // To be implemented in the follow up PR
+  private fun handleButtonClick(action: ButtonAction) {
+    when (action) {
+      // Navigation actions
+      ButtonAction.PREVIOUS -> moveToPrevious()
+      ButtonAction.NEXT,
+      ButtonAction.DONE -> handleNext()
+      ButtonAction.SKIP -> onSkip()
+      // Task-specific actions - delegate to ViewModel
+      else -> viewModel.onButtonClick(action)
+    }
+  }
+
   // This function can allow any task to show a Header card on top of the Button row.
   open fun shouldShowHeader() = false
 

@@ -15,31 +15,63 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks
 
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import org.groundplatform.android.R
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.submission.SkippedTaskData
 import org.groundplatform.android.model.submission.TaskData
+import org.groundplatform.android.model.submission.isNotNullOrEmpty
 import org.groundplatform.android.model.submission.isNullOrEmpty
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.common.AbstractViewModel
+import org.groundplatform.android.ui.datacollection.components.ButtonAction
+import org.groundplatform.android.ui.datacollection.components.refactor.ButtonActionState
 
 /** Defines the state of an inflated [Task] and controls its UI. */
-open class AbstractTaskViewModel internal constructor() : AbstractViewModel() {
+abstract class AbstractTaskViewModel internal constructor() : AbstractViewModel() {
 
   /** Current value. */
   private val _taskDataFlow: MutableStateFlow<TaskData?> = MutableStateFlow(null)
   val taskTaskData: StateFlow<TaskData?> = _taskDataFlow.asStateFlow()
 
-  lateinit var task: Task
+  open val taskActionButtonStates: StateFlow<List<ButtonActionState>> by lazy {
+    taskTaskData
+      .map { getButtonStates(it) }
+      .distinctUntilChanged()
+      .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+  }
 
-  open fun initialize(job: Job, task: Task, taskData: TaskData?) {
+  lateinit var task: Task
+  private lateinit var taskPositionInterface: TaskPositionInterface
+
+  open fun initialize(
+    job: Job,
+    task: Task,
+    taskData: TaskData?,
+    taskPositionInterface: TaskPositionInterface,
+  ) {
     this.task = task
+    this.taskPositionInterface = taskPositionInterface
     setValue(taskData)
   }
+
+  /**
+   * Returns the list of button states for the given task data.
+   *
+   * By default it returns a list of [ButtonAction.PREVIOUS], [ButtonAction.SKIP] (if applicable),
+   * [ButtonAction.NEXT]/[ButtonAction.DONE]. Override this method to customize button
+   * configuration.
+   */
+  protected open fun getButtonStates(taskData: TaskData?): List<ButtonActionState> =
+    listOf(getPreviousButton(), getSkipButton(taskData), getNextButton(taskData))
 
   /** Checks if the current value is valid and updates error value. */
   fun validate(): Int? = validate(task, taskTaskData.value)
@@ -74,4 +106,49 @@ open class AbstractTaskViewModel internal constructor() : AbstractViewModel() {
   fun isTaskOptional(): Boolean = !task.isRequired
 
   fun hasNoData(): Boolean = taskTaskData.value.isNullOrEmpty()
+
+  fun getPreviousButton(): ButtonActionState =
+    ButtonActionState(
+      action = ButtonAction.PREVIOUS,
+      isEnabled = !taskPositionInterface.isFirst(),
+      isVisible = true,
+    )
+
+  fun getNextButton(
+    taskData: TaskData?,
+    hideIfEmpty: Boolean = false,
+    isEnabled: Boolean = taskData.isNotNullOrEmpty(),
+  ): ButtonActionState {
+    val isVisible = if (hideIfEmpty) taskData.isNotNullOrEmpty() else true
+    return if (taskPositionInterface.isLastWithValue(taskData)) {
+      ButtonActionState(action = ButtonAction.DONE, isEnabled = isEnabled, isVisible = isVisible)
+    } else {
+      ButtonActionState(action = ButtonAction.NEXT, isEnabled = isEnabled, isVisible = isVisible)
+    }
+  }
+
+  fun getSkipButton(taskData: TaskData?): ButtonActionState =
+    ButtonActionState(
+      action = ButtonAction.SKIP,
+      isEnabled = isTaskOptional(),
+      isVisible = isTaskOptional() && taskData.isNullOrEmpty(),
+    )
+
+  fun getUndoButton(
+    taskData: TaskData?,
+    isVisible: Boolean = taskData.isNotNullOrEmpty(),
+  ): ButtonActionState =
+    ButtonActionState(
+      action = ButtonAction.UNDO,
+      isEnabled = taskData.isNotNullOrEmpty(),
+      isVisible = isVisible,
+    )
+
+  open fun onButtonClick(action: ButtonAction) {
+    if (action == ButtonAction.UNDO) {
+      clearResponse()
+    } else {
+      // Subclasses handle other actions
+    }
+  }
 }
