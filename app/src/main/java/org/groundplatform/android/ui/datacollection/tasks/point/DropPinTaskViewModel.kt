@@ -26,8 +26,12 @@ import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.getDefaultColor
 import org.groundplatform.android.model.submission.DropPinTaskData
 import org.groundplatform.android.model.submission.TaskData
+import org.groundplatform.android.model.submission.isNullOrEmpty
 import org.groundplatform.android.model.task.Task
+import org.groundplatform.android.ui.datacollection.components.ButtonAction
+import org.groundplatform.android.ui.datacollection.components.refactor.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.AbstractMapTaskViewModel
+import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 import org.groundplatform.android.ui.map.Feature
 
 class DropPinTaskViewModel
@@ -43,13 +47,27 @@ constructor(
   var instructionsDialogShown: Boolean by localValueStore::dropPinInstructionsShown
   var captureLocation: Boolean = false
 
-  override fun initialize(job: Job, task: Task, taskData: TaskData?) {
-    super.initialize(job, task, taskData)
+  override fun initialize(
+    job: Job,
+    task: Task,
+    taskData: TaskData?,
+    taskPositionInterface: TaskPositionInterface,
+  ) {
+    super.initialize(job, task, taskData, taskPositionInterface)
     pinColor = job.getDefaultColor()
 
     // Drop a marker for current value
     (taskData as? DropPinTaskData)?.let { dropMarker(it.location) }
   }
+
+  override fun getButtonStates(taskData: TaskData?): List<ButtonActionState> =
+    listOf(
+      getPreviousButton(),
+      getSkipButton(taskData),
+      getUndoButton(taskData),
+      getDropPinButtonState(taskData),
+      getNextButton(taskData, hideIfEmpty = true),
+    )
 
   override fun clearResponse() {
     super.clearResponse()
@@ -83,4 +101,19 @@ constructor(
   }
 
   fun shouldShowInstructionsDialog() = !instructionsDialogShown && !captureLocation
+
+  private fun getDropPinButtonState(taskData: TaskData?): ButtonActionState =
+    ButtonActionState(
+      action = ButtonAction.DROP_PIN,
+      isEnabled = true,
+      isVisible = taskData.isNullOrEmpty(),
+    )
+
+  override fun onButtonClick(action: ButtonAction) {
+    if (action == ButtonAction.DROP_PIN) {
+      dropPin()
+    } else {
+      super.onButtonClick(action)
+    }
+  }
 }

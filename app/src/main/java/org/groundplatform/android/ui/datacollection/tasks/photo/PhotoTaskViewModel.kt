@@ -28,8 +28,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.groundplatform.android.data.remote.firebase.FirebaseStorageManager
 import org.groundplatform.android.model.submission.PhotoTaskData
+import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.submission.isNotNullOrEmpty
 import org.groundplatform.android.repository.UserMediaRepository
+import org.groundplatform.android.ui.datacollection.components.refactor.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 import timber.log.Timber
 
@@ -55,6 +57,14 @@ class PhotoTaskViewModel @Inject constructor(private val userMediaRepository: Us
       .asLiveData()
 
   val isPhotoPresent: LiveData<Boolean> = taskTaskData.map { it.isNotNullOrEmpty() }.asLiveData()
+
+  override fun getButtonStates(taskData: TaskData?): List<ButtonActionState> =
+    listOf(
+      getPreviousButton(),
+      getUndoButton(taskData),
+      getSkipButton(taskData),
+      getNextButton(taskData),
+    )
 
   suspend fun createImageFileUri(): Uri {
     val file = userMediaRepository.createImageFile(task.id)

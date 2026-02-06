@@ -25,7 +25,9 @@ import javax.inject.Inject
 import javax.inject.Provider
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.databinding.FragmentDrawAreaTaskBinding
@@ -131,6 +133,11 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
         .filterNotNull()
         .collectLatest(::onFeatureUpdated)
     }
+
+    // Collect camera movement events from ViewModel (e.g., after undo/redo)
+    viewModel.cameraMoveEvents
+      .onEach { coordinates -> drawAreaTaskMapFragment.moveToPosition(coordinates) }
+      .launchIn(viewLifecycleOwner.lifecycleScope)
   }
 
   override fun onTaskResume() {

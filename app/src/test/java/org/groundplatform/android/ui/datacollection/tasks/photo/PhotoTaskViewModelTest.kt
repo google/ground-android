@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
 package org.groundplatform.android.ui.datacollection.tasks.photo
 
 import android.net.Uri
@@ -21,13 +23,20 @@ import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import java.io.File
 import javax.inject.Inject
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.Style
+import org.groundplatform.android.model.submission.PhotoTaskData
+import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.repository.UserMediaRepository
+import org.groundplatform.android.ui.datacollection.components.ButtonAction
+import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -48,8 +57,7 @@ class PhotoTaskViewModelTest : BaseHiltTest() {
 
   override fun setUp() {
     super.setUp()
-    viewModel.initialize(JOB, TASK, null)
-    viewModel.surveyId = "survey_1"
+    setupViewModel()
   }
 
   @Test
@@ -107,6 +115,74 @@ class PhotoTaskViewModelTest : BaseHiltTest() {
 
     verify(userMediaRepository, org.mockito.kotlin.never()).savePhotoFromUri(any(), any())
     assertThat(viewModel.hasLaunchedCamera).isFalse()
+  }
+
+  @Test
+  fun `Should have the correct action buttons in the proper order`() = runWithTestDispatcher {
+    advanceUntilIdle()
+
+    val states = viewModel.taskActionButtonStates.first()
+
+    assertThat(states.map { it.action })
+      .containsExactly(
+        ButtonAction.PREVIOUS,
+        ButtonAction.UNDO,
+        ButtonAction.SKIP,
+        ButtonAction.NEXT,
+      )
+      .inOrder()
+  }
+
+  @Test
+  fun `UNDO is not visible and NEXT is disabled when the photo is not taken yet`() =
+    runWithTestDispatcher {
+      advanceUntilIdle()
+
+      val states = viewModel.taskActionButtonStates.first()
+
+      with(requireNotNull(states.find { it.action == ButtonAction.UNDO })) {
+        assertFalse(isVisible)
+        assertFalse(isEnabled)
+      }
+      with(requireNotNull(states.find { it.action == ButtonAction.NEXT })) {
+        assertTrue(isVisible)
+        assertFalse(isEnabled)
+      }
+    }
+
+  @Test
+  fun `UNDO and NEXT are visible and enabled when the photo is present`() = runWithTestDispatcher {
+    viewModel.setValue(PhotoTaskData("path/photo.jpg"))
+    advanceUntilIdle()
+
+    val states = viewModel.taskActionButtonStates.first()
+
+    with(requireNotNull(states.find { it.action == ButtonAction.UNDO })) {
+      assertTrue(isVisible)
+      assertTrue(isEnabled)
+    }
+    with(requireNotNull(states.find { it.action == ButtonAction.NEXT })) {
+      assertTrue(isVisible)
+      assertTrue(isEnabled)
+    }
+  }
+
+  private fun setupViewModel(
+    isTaskRequired: Boolean = false,
+    isFirstTask: Boolean = false,
+    isLastTaskWithValue: Boolean = false,
+  ) {
+    viewModel.initialize(
+      JOB,
+      TASK.copy(isRequired = isTaskRequired),
+      null,
+      object : TaskPositionInterface {
+        override fun isFirst() = isFirstTask
+
+        override fun isLastWithValue(taskData: TaskData?) = isLastTaskWithValue
+      },
+    )
+    viewModel.surveyId = "survey_1"
   }
 
   companion object {
