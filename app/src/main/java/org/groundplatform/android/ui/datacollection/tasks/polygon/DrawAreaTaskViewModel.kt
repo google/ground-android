@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -49,7 +50,7 @@ import org.groundplatform.android.model.submission.isNotNullOrEmpty
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.common.SharedViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
-import org.groundplatform.android.ui.datacollection.components.refactor.ButtonActionState
+import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.AbstractMapTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 import org.groundplatform.android.ui.map.Feature
@@ -61,6 +62,7 @@ import org.groundplatform.android.ui.util.isSelfIntersecting
 import org.groundplatform.android.usecases.user.GetUserSettingsUseCase
 import org.groundplatform.android.util.distanceTo
 import org.groundplatform.android.util.penult
+import org.jetbrains.annotations.VisibleForTesting
 import timber.log.Timber
 
 /** Min. distance between the last two vertices required for distance tooltip to be shown shown. */
@@ -159,6 +161,7 @@ internal constructor(
           getNextButton(taskData).takeIf { isMarkedComplete() },
         )
       }
+      .distinctUntilChanged()
       .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
   }
 
@@ -197,7 +200,7 @@ internal constructor(
 
   fun isMarkedComplete(): Boolean = isMarkedComplete.value
 
-  fun getLastVertex() = vertices.lastOrNull()
+  @VisibleForTesting fun getLastVertex() = vertices.lastOrNull()
 
   private fun onSelfIntersectionDetected() {
     viewModelScope.launch { _showSelfIntersectionDialog.emit(Unit) }
@@ -235,6 +238,7 @@ internal constructor(
   }
 
   /** Attempts to remove the last vertex of drawn polygon, if any. */
+  @VisibleForTesting
   fun removeLastVertex() {
     // Do nothing if there are no vertices to remove.
     if (vertices.isEmpty()) return
@@ -282,6 +286,7 @@ internal constructor(
   }
 
   /** Adds the last vertex to the polygon. */
+  @VisibleForTesting
   fun addLastVertex() {
     check(!isMarkedComplete.value) { "Attempted to add last vertex after completing the drawing" }
     _redoVertexStack.clear()
@@ -313,7 +318,7 @@ internal constructor(
     }
   }
 
-  fun checkVertexIntersection(): Boolean {
+  private fun checkVertexIntersection(): Boolean {
     hasSelfIntersection = isSelfIntersecting(vertices)
     if (hasSelfIntersection) {
       vertices = vertices.dropLast(1)
@@ -322,7 +327,7 @@ internal constructor(
     return hasSelfIntersection
   }
 
-  fun validatePolygonCompletion(): Boolean {
+  private fun validatePolygonCompletion(): Boolean {
     if (vertices.size < 3) {
       return false
     }
@@ -347,6 +352,7 @@ internal constructor(
     refreshMap()
   }
 
+  @VisibleForTesting
   fun completePolygon() {
     check(LineString(vertices).isClosed()) { "Polygon is not complete" }
     check(!isMarkedComplete.value) { "Already marked complete" }

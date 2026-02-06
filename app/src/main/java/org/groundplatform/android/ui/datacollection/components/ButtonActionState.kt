@@ -13,9 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.ui.datacollection.components.refactor
-
-import org.groundplatform.android.ui.datacollection.components.ButtonAction
+package org.groundplatform.android.ui.datacollection.components
 
 data class ButtonActionState(
   val action: ButtonAction,

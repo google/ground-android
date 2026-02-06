@@ -33,7 +33,7 @@ import org.groundplatform.android.model.submission.isNullOrEmpty
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
-import org.groundplatform.android.ui.datacollection.components.refactor.ButtonActionState
+import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 
 /** Defines the state of an inflated [Task] and controls its UI. */
 abstract class AbstractTaskViewModel internal constructor() : AbstractViewModel() {

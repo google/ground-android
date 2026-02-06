@@ -17,6 +17,7 @@ package org.groundplatform.android.ui.datacollection.tasks.time
 
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.onNodeWithText
 import androidx.test.espresso.Espresso.onView
@@ -36,6 +37,7 @@ import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
+import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.BaseTaskFragmentTest
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -83,7 +85,7 @@ class TimeTaskFragmentTest : BaseTaskFragmentTest<TimeTaskFragment, TimeTaskView
     // with height zero, and it doesn't seem to repro constraint calculations. Force the view to
     // have a height of 1 to ensure the action performed below actually takes place.
     val view: View? = fragment.view?.findViewById(R.id.task_container)
-    view?.layoutParams = ViewGroup.LayoutParams(0, 1)
+    view?.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1)
 
     assertThat(fragment.getTimePickerDialog()).isNull()
     onView(withId(R.id.user_time_response_text)).perform(click())
@@ -94,7 +96,11 @@ class TimeTaskFragmentTest : BaseTaskFragmentTest<TimeTaskFragment, TimeTaskView
   fun `action buttons`() {
     setupTaskFragment<TimeTaskFragment>(job, task)
 
-    assertFragmentHasButtons(ButtonAction.PREVIOUS, ButtonAction.SKIP, ButtonAction.NEXT)
+    assertFragmentHasButtons(
+      ButtonActionState(ButtonAction.PREVIOUS, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.SKIP, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.NEXT, isEnabled = false, isVisible = true),
+    )
   }
 
   @Test

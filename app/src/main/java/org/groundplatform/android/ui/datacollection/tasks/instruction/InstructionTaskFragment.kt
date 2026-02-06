@@ -34,7 +34,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dagger.hilt.android.AndroidEntryPoint
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
-import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.TaskView
 import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
@@ -48,10 +47,6 @@ class InstructionTaskFragment : AbstractTaskFragment<InstructionTaskViewModel>()
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View = createComposeView {
     ShowTextField()
-  }
-
-  override fun onCreateActionButtons() {
-    addButton(ButtonAction.NEXT).setOnClickListener { moveToNext() }
   }
 
   @Composable
