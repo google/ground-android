@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
 package org.groundplatform.android.ui.datacollection.tasks.polygon
 
 import androidx.lifecycle.LiveData
@@ -24,7 +26,9 @@ import com.jraska.livedata.TestObserver
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
@@ -44,6 +48,8 @@ import org.groundplatform.android.model.submission.DrawAreaTaskData
 import org.groundplatform.android.model.submission.DrawAreaTaskIncompleteData
 import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.task.Task
+import org.groundplatform.android.ui.datacollection.components.ButtonAction
+import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 import org.groundplatform.android.ui.datacollection.tasks.polygon.DrawAreaTaskViewModel.Companion.DISTANCE_THRESHOLD_DP
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.gms.GmsExt.getShellCoordinates
@@ -260,7 +266,6 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
   fun `Completing a polygon populates polygonArea with the correct value in hectares`() {
     setupViewModel()
     localValueStore.selectedLengthUnit = MeasurementUnits.METRIC.name
-    viewModel.initialize(JOB, TASK, taskData = null)
 
     updateLastVertexAndAdd(COORDINATE_1)
     updateLastVertexAndAdd(COORDINATE_2)
@@ -432,6 +437,189 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     assertThat(viewModel.isTooClose.value).isFalse()
   }
 
+  @Test
+  fun `Should have the correct action buttons in the proper order`() = runWithTestDispatcher {
+    setupViewModel()
+    advanceUntilIdle()
+
+    val states = viewModel.taskActionButtonStates.first()
+
+    assertThat(states.map { it.action })
+      .containsExactly(
+        ButtonAction.PREVIOUS,
+        ButtonAction.SKIP,
+        ButtonAction.UNDO,
+        ButtonAction.REDO,
+        ButtonAction.ADD_POINT,
+        ButtonAction.COMPLETE,
+      )
+      .inOrder()
+  }
+
+  @Test
+  fun `UNDO button is always visible but disabled if there is no data yet`() =
+    runWithTestDispatcher {
+      setupViewModel()
+      advanceUntilIdle()
+
+      val states = viewModel.taskActionButtonStates.first()
+
+      with(requireNotNull(states.find { it.action == ButtonAction.UNDO })) {
+        assertTrue(isVisible)
+        assertFalse(isEnabled)
+      }
+    }
+
+  @Test
+  fun `UNDO button is visible and enabled if there is data to undo`() = runWithTestDispatcher {
+    val polygon =
+      Polygon(LinearRing(listOf(COORDINATE_1, COORDINATE_2, COORDINATE_3, COORDINATE_1)))
+    setupViewModel(taskData = DrawAreaTaskData(area = polygon))
+    advanceUntilIdle()
+
+    val states = viewModel.taskActionButtonStates.first()
+
+    with(requireNotNull(states.find { it.action == ButtonAction.UNDO })) {
+      assertTrue(isVisible)
+      assertTrue(isEnabled)
+    }
+  }
+
+  @Test
+  fun `REDO button is visible and disabled when there is no data yet`() = runWithTestDispatcher {
+    setupViewModel()
+    advanceUntilIdle()
+
+    val states = viewModel.taskActionButtonStates.first()
+
+    with(requireNotNull(states.find { it.action == ButtonAction.UNDO })) {
+      assertTrue(isVisible)
+      assertFalse(isEnabled)
+    }
+  }
+
+  @Test
+  fun `REDO button is visible and enabled when there is something to redo`() =
+    runWithTestDispatcher {
+      val polygon =
+        Polygon(LinearRing(listOf(COORDINATE_1, COORDINATE_2, COORDINATE_3, COORDINATE_1)))
+      setupViewModel(taskData = DrawAreaTaskData(area = polygon))
+      viewModel.removeLastVertex()
+      advanceUntilIdle()
+
+      val states = viewModel.taskActionButtonStates.first()
+
+      with(requireNotNull(states.find { it.action == ButtonAction.UNDO })) {
+        assertTrue(isVisible)
+        assertTrue(isEnabled)
+      }
+    }
+
+  @Test
+  fun `ADD_POINT is visible and enabled when polygon is not finished yet`() =
+    runWithTestDispatcher {
+      setupViewModel()
+      advanceUntilIdle()
+
+      val states = viewModel.taskActionButtonStates.first()
+
+      with(requireNotNull(states.find { it.action == ButtonAction.ADD_POINT })) {
+        assertTrue(isVisible)
+        assertTrue(isEnabled)
+      }
+    }
+
+  @Test
+  fun `COMPLETE is shown instead of ADD_POINT when the polygon is ready to be closed`() =
+    runWithTestDispatcher {
+      val polygon =
+        Polygon(LinearRing(listOf(COORDINATE_1, COORDINATE_2, COORDINATE_3, COORDINATE_1)))
+      setupViewModel(taskData = DrawAreaTaskData(area = polygon))
+      viewModel.removeLastVertex()
+      viewModel.redoLastVertex()
+      advanceUntilIdle()
+
+      val states = viewModel.taskActionButtonStates.first()
+
+      with(requireNotNull(states.find { it.action == ButtonAction.COMPLETE })) {
+        assertTrue(isVisible)
+        assertTrue(isEnabled)
+      }
+      with(requireNotNull(states.find { it.action == ButtonAction.ADD_POINT })) {
+        assertFalse(isVisible)
+      }
+    }
+
+  @Test
+  fun `NEXT is only shown when the polygon is marked complete`() = runWithTestDispatcher {
+    val polygon =
+      Polygon(LinearRing(listOf(COORDINATE_1, COORDINATE_2, COORDINATE_3, COORDINATE_1)))
+    setupViewModel(taskData = DrawAreaTaskData(area = polygon))
+    advanceUntilIdle()
+
+    val states = viewModel.taskActionButtonStates.first()
+
+    with(requireNotNull(states.find { it.action == ButtonAction.NEXT })) {
+      assertTrue(isVisible)
+      assertTrue(isEnabled)
+    }
+  }
+
+  @Test
+  fun `onButtonClick ADD_POINT adds a vertex to the polygon`() = runWithTestDispatcher {
+    setupViewModel()
+    updateLastVertex(COORDINATE_1)
+    advanceUntilIdle()
+
+    viewModel.onButtonClick(ButtonAction.ADD_POINT)
+    advanceUntilIdle()
+
+    assertThat(viewModel.draftArea.value).isNotNull()
+  }
+
+  @Test
+  fun `onButtonClick UNDO removes the last vertex`() = runWithTestDispatcher {
+    val polygon =
+      Polygon(LinearRing(listOf(COORDINATE_1, COORDINATE_2, COORDINATE_3, COORDINATE_1)))
+    setupViewModel(taskData = DrawAreaTaskData(area = polygon))
+    advanceUntilIdle()
+
+    viewModel.onButtonClick(ButtonAction.UNDO)
+    advanceUntilIdle()
+
+    assertEquals(COORDINATE_3, viewModel.getLastVertex())
+  }
+
+  @Test
+  fun `onButtonClick REDO restores the last undone vertex`() = runWithTestDispatcher {
+    val polygon =
+      Polygon(LinearRing(listOf(COORDINATE_1, COORDINATE_2, COORDINATE_3, COORDINATE_1)))
+    setupViewModel(taskData = DrawAreaTaskData(area = polygon))
+    viewModel.removeLastVertex()
+    advanceUntilIdle()
+
+    assertEquals(COORDINATE_3, viewModel.getLastVertex())
+    viewModel.onButtonClick(ButtonAction.REDO)
+    advanceUntilIdle()
+
+    assertEquals(COORDINATE_1, viewModel.getLastVertex())
+  }
+
+  @Test
+  fun `onButtonClick COMPLETE marks the polygon as complete`() = runWithTestDispatcher {
+    val polygon =
+      Polygon(LinearRing(listOf(COORDINATE_1, COORDINATE_2, COORDINATE_3, COORDINATE_1)))
+    setupViewModel(taskData = DrawAreaTaskData(area = polygon))
+    viewModel.removeLastVertex()
+    viewModel.redoLastVertex()
+    advanceUntilIdle()
+
+    viewModel.onButtonClick(ButtonAction.COMPLETE)
+    advanceUntilIdle()
+
+    assertThat(viewModel.isMarkedComplete()).isTrue()
+  }
+
   private fun assertGeometry(
     expectedVerticesCount: Int,
     isLineString: Boolean = false,
@@ -473,7 +661,17 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
   }
 
   private fun setupViewModel(job: Job = JOB, task: Task = TASK, taskData: TaskData? = null) {
-    viewModel.initialize(job = job, task = task, taskData = taskData)
+    viewModel.initialize(
+      job = job,
+      task = task,
+      taskData = taskData,
+      taskPositionInterface =
+        object : TaskPositionInterface {
+          override fun isFirst() = false
+
+          override fun isLastWithValue(taskData: TaskData?) = false
+        },
+    )
   }
 
   companion object {

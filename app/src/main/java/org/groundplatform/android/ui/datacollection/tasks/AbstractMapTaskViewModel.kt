@@ -22,7 +22,7 @@ import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.ui.common.BaseMapViewModel
 
 /** Defines the state of an inflated Map [Task] and controls its UI. */
-open class AbstractMapTaskViewModel internal constructor() : AbstractTaskViewModel() {
+abstract class AbstractMapTaskViewModel internal constructor() : AbstractTaskViewModel() {
 
   /** Allows control for triggering the location lock programmatically. */
   private val _enableLocationLockFlow = MutableStateFlow(LocationLockEnabledState.UNKNOWN)
