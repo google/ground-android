@@ -17,6 +17,7 @@ package org.groundplatform.android.ui.datacollection.tasks.time
 
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.onNodeWithText
 import androidx.test.espresso.Espresso.onView
@@ -84,7 +85,7 @@ class TimeTaskFragmentTest : BaseTaskFragmentTest<TimeTaskFragment, TimeTaskView
     // with height zero, and it doesn't seem to repro constraint calculations. Force the view to
     // have a height of 1 to ensure the action performed below actually takes place.
     val view: View? = fragment.view?.findViewById(R.id.task_container)
-    view?.layoutParams = ViewGroup.LayoutParams(0, 1)
+    view?.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1)
 
     assertThat(fragment.getTimePickerDialog()).isNull()
     onView(withId(R.id.user_time_response_text)).perform(click())

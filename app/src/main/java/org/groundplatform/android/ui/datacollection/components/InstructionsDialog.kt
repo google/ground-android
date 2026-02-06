@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.ui.datacollection.components.ui
+package org.groundplatform.android.ui.datacollection.components
 
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width

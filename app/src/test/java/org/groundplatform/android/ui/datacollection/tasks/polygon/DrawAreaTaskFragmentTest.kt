@@ -79,7 +79,7 @@ class DrawAreaTaskFragmentTest :
       ButtonActionState(ButtonAction.PREVIOUS, isEnabled = true, isVisible = true),
       ButtonActionState(ButtonAction.SKIP, isEnabled = true, isVisible = true),
       ButtonActionState(ButtonAction.UNDO, isEnabled = false, isVisible = true),
-      ButtonActionState(ButtonAction.REDO, isEnabled = false, isVisible = false),
+      ButtonActionState(ButtonAction.REDO, isEnabled = false, isVisible = true),
       ButtonActionState(ButtonAction.NEXT, isEnabled = false, isVisible = false),
       ButtonActionState(ButtonAction.ADD_POINT, isEnabled = true, isVisible = true),
       ButtonActionState(ButtonAction.COMPLETE, isEnabled = false, isVisible = false),

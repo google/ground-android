@@ -29,6 +29,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.unit.dp
 import androidx.core.view.doOnAttach
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
@@ -40,9 +41,9 @@ import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.datacollection.DataCollectionUiState
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
+import org.groundplatform.android.ui.datacollection.components.LoiNameDialog
+import org.groundplatform.android.ui.datacollection.components.TaskFooter
 import org.groundplatform.android.ui.datacollection.components.TaskView
-import org.groundplatform.android.ui.datacollection.components.ui.LoiNameDialog
-import org.groundplatform.android.ui.datacollection.components.ui.TaskFooter
 import org.groundplatform.android.util.renderComposableDialog
 import org.groundplatform.android.util.setComposableContent
 import timber.log.Timber
@@ -101,7 +102,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
       taskView.addTaskView(onCreateTaskBody(layoutInflater))
 
       // Add actions buttons after the view model is bound to the view.
-      renderButtons()
+      setupActionButtons()
 
       onTaskViewAttached()
     }
@@ -154,18 +155,22 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   }
 
   /** Adds the action buttons to the UI. */
-  private fun renderButtons() {
-    taskView.actionButtonsContainer.setComposableContent {
-      val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
-      Column(modifier = Modifier.fillMaxWidth()) {
-        if (shouldShowHeader()) {
-          HeaderCard()
-          Spacer(Modifier.height(12.dp))
+  private fun setupActionButtons() {
+    with(taskView.actionButtonsContainer) {
+      setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+      setComposableContent {
+        val taskActionButtonsStates by
+          viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
+        Column(modifier = Modifier.fillMaxWidth()) {
+          if (shouldShowHeader()) {
+            HeaderCard()
+            Spacer(Modifier.height(12.dp))
+          }
+          TaskFooter(
+            buttonActionStates = taskActionButtonsStates,
+            onButtonClicked = { handleButtonClick(it) },
+          )
         }
-        TaskFooter(
-          buttonActionStates = taskActionButtonsStates,
-          onButtonClicked = { handleButtonClick(it) },
-        )
       }
     }
   }

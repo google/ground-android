@@ -47,7 +47,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.R
-import org.groundplatform.android.ui.datacollection.components.ui.LOI_NAME_TEXT_FIELD_TEST_TAG
+import org.groundplatform.android.ui.datacollection.components.LOI_NAME_TEXT_FIELD_TEST_TAG
 import org.groundplatform.android.ui.datacollection.tasks.multiplechoice.MULTIPLE_CHOICE_LIST_TEST_TAG
 import org.groundplatform.android.ui.datacollection.tasks.multiplechoice.OTHER_INPUT_TEXT_TEST_TAG
 import org.groundplatform.android.ui.datacollection.tasks.multiplechoice.SELECT_MULTIPLE_RADIO_TEST_TAG

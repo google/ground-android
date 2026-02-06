@@ -133,8 +133,8 @@ class CaptureLocationTaskFragmentTest :
     assertFragmentHasButtons(
       ButtonActionState(ButtonAction.PREVIOUS, isEnabled = true, isVisible = true),
       ButtonActionState(ButtonAction.SKIP, isEnabled = true, isVisible = true),
-      ButtonActionState(ButtonAction.UNDO, isEnabled = true, isVisible = true),
-      ButtonActionState(ButtonAction.CAPTURE_LOCATION, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.UNDO, isEnabled = false, isVisible = false),
+      ButtonActionState(ButtonAction.CAPTURE_LOCATION, isEnabled = false, isVisible = true),
       ButtonActionState(ButtonAction.NEXT, isEnabled = false, isVisible = false),
     )
   }

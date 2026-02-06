@@ -27,7 +27,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.groundplatform.android.model.submission.NumberTaskData.Companion.fromNumber
 import org.groundplatform.android.ui.datacollection.components.TaskView
 import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
-import org.groundplatform.android.ui.datacollection.components.ui.TextTaskInput
+import org.groundplatform.android.ui.datacollection.components.TextTaskInput
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.util.createComposeView
 
