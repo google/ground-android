@@ -15,10 +15,12 @@
  */
 package org.groundplatform.android.ui.syncstatus
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import org.groundplatform.android.model.mutation.LocationOfInterestMutation
 import org.groundplatform.android.model.mutation.SubmissionMutation
 import org.groundplatform.android.model.submission.UploadQueueEntry
@@ -51,11 +53,11 @@ internal constructor(
    * A complete list of [SyncStatusDetail] indicating the current status of local changes being
    * synced to remote servers.
    */
-  internal val uploadStatus: LiveData<List<SyncStatusDetail>> =
+  internal val uploadStatus: StateFlow<List<SyncStatusDetail>> =
     mutationRepository
       .getUploadQueueFlow()
       .map { it.mapNotNull { upload -> toSyncStatusDetail(upload) } }
-      .asLiveData()
+      .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
   private suspend fun toSyncStatusDetail(uploadQueueEntry: UploadQueueEntry): SyncStatusDetail? {
     val mutation =
