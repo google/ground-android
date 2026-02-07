@@ -25,11 +25,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.core.os.bundleOf
 import androidx.navigation.NavController
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -47,10 +42,10 @@ import org.groundplatform.android.proto.Survey
 import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
+import org.groundplatform.android.ui.surveyselector.components.formatSectionTitle
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
 import org.groundplatform.android.usecases.survey.ListAvailableSurveysUseCase
 import org.groundplatform.android.usecases.survey.RemoveOfflineSurveyUseCase
-import org.hamcrest.Matchers.not
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -219,7 +214,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
     setUpFragment()
 
-    onView(withText("Sign out")).check(matches(not(isDisplayed())))
+    composeTestRule.onNodeWithText("Sign out").assertDoesNotExist()
   }
 
   @Test
@@ -227,7 +222,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     setSurveyList(listOf())
     setUpFragment()
 
-    onView(withText("Sign out")).check(matches(isDisplayed())).perform(click())
+    composeTestRule.onNodeWithText("Sign out").assertIsDisplayed().performClick()
     verify(userRepository, times(1)).signOut()
   }
 

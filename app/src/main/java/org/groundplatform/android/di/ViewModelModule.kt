@@ -42,7 +42,6 @@ import org.groundplatform.android.ui.offlineareas.OfflineAreasViewModel
 import org.groundplatform.android.ui.offlineareas.selector.OfflineAreaSelectorViewModel
 import org.groundplatform.android.ui.offlineareas.viewer.OfflineAreaViewerViewModel
 import org.groundplatform.android.ui.settings.SettingsViewModel
-import org.groundplatform.android.ui.surveyselector.SurveySelectorViewModel
 import org.groundplatform.android.ui.syncstatus.SyncStatusViewModel
 import org.groundplatform.android.ui.tos.TermsOfServiceViewModel
 
@@ -93,11 +92,6 @@ abstract class ViewModelModule {
   @IntoMap
   @ViewModelKey(HomeScreenViewModel::class)
   abstract fun bindHomeScreenViewModel(viewModel: HomeScreenViewModel): ViewModel
-
-  @Binds
-  @IntoMap
-  @ViewModelKey(SurveySelectorViewModel::class)
-  abstract fun bindSurveySelectorViewModel(viewModel: SurveySelectorViewModel): ViewModel
 
   @Binds
   @IntoMap
