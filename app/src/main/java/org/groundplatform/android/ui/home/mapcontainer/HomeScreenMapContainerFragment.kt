@@ -19,14 +19,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import org.groundplatform.android.R
-import org.groundplatform.android.databinding.BasemapLayoutBinding
 import org.groundplatform.android.model.locationofinterest.LOI_NAME_PROPERTY
 import org.groundplatform.android.proto.Survey.DataSharingTerms
 import org.groundplatform.android.ui.common.AbstractMapContainerFragment
@@ -41,9 +45,9 @@ import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentActio
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentState
 import org.groundplatform.android.ui.home.mapcontainer.jobs.SelectedLoiSheetData
 import org.groundplatform.android.ui.map.MapFragment
+import org.groundplatform.android.ui.theme.AppTheme
 import org.groundplatform.android.usecases.datasharingterms.GetDataSharingTermsUseCase
 import org.groundplatform.android.util.renderComposableDialog
-import org.groundplatform.android.util.setComposableContent
 import timber.log.Timber
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
@@ -54,7 +58,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
   private lateinit var homeScreenViewModel: HomeScreenViewModel
-  private lateinit var binding: BasemapLayoutBinding
+  private lateinit var bottomContainer: ViewGroup
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -133,38 +137,66 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     savedInstanceState: Bundle?,
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
-    binding = BasemapLayoutBinding.inflate(inflater, container, false)
-    return binding.root
+    bottomContainer =
+      androidx.coordinatorlayout.widget.CoordinatorLayout(requireContext()).apply {
+        id = R.id.bottom_container
+      }
+
+    return ComposeView(requireContext()).apply {
+      setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+      setContent {
+        AppTheme {
+          Box(modifier = Modifier.fillMaxSize()) {
+            AndroidView(
+              factory = { context -> android.widget.FrameLayout(context).apply { id = R.id.map } },
+              modifier = Modifier.fillMaxSize(),
+              update = {
+                val fragment = childFragmentManager.findFragmentById(R.id.map)
+                if (fragment == null) {
+                  map.attachToParent(this@HomeScreenMapContainerFragment, R.id.map) {
+                    onMapAttached(it)
+                  }
+                }
+              },
+            )
+
+            val locationLockButton by
+              mapContainerViewModel.locationLockIconType.collectAsStateWithLifecycle()
+            val jobMapComponentState by
+              mapContainerViewModel.jobMapComponentState.collectAsStateWithLifecycle()
+            val shouldShowMapActions by
+              mapContainerViewModel.shouldShowMapActions.collectAsStateWithLifecycle()
+            val shouldShowRecenter by
+              mapContainerViewModel.shouldShowRecenterButton.collectAsStateWithLifecycle()
+
+            HomeScreenMapContainerScreen(
+              locationLockButtonType = locationLockButton,
+              shouldShowMapActions = shouldShowMapActions,
+              shouldShowRecenter = shouldShowRecenter,
+              jobComponentState = jobMapComponentState,
+              onBaseMapAction = { handleMapAction(it) },
+              onJobComponentAction = {
+                handleJobMapComponentAction(
+                  jobMapComponentState = jobMapComponentState,
+                  action = it,
+                )
+              },
+            )
+
+            AndroidView(factory = { bottomContainer }, modifier = Modifier.fillMaxSize())
+          }
+        }
+      }
+    }
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
-    binding.composeContent.apply {
-      setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-      setComposableContent {
-        val locationLockButton by
-          mapContainerViewModel.locationLockIconType.collectAsStateWithLifecycle()
-        val jobMapComponentState by
-          mapContainerViewModel.jobMapComponentState.collectAsStateWithLifecycle()
-        val shouldShowMapActions by
-          mapContainerViewModel.shouldShowMapActions.collectAsStateWithLifecycle()
-        val shouldShowRecenter by
-          mapContainerViewModel.shouldShowRecenterButton.collectAsStateWithLifecycle()
+    // AbstractMapContainerFragment.onViewCreated calls map.attachToParent, which fails here
+    // because the R.id.map view hasn't been added by AndroidView yet (it happens in composition).
+    // So we skip super.onViewCreated and handle map attachment in the AndroidView update block.
+    // super.onViewCreated(view, savedInstanceState)
 
-        HomeScreenMapContainerScreen(
-          locationLockButtonType = locationLockButton,
-          shouldShowMapActions = shouldShowMapActions,
-          shouldShowRecenter = shouldShowRecenter,
-          jobComponentState = jobMapComponentState,
-          onBaseMapAction = { handleMapAction(it) },
-          onJobComponentAction = {
-            handleJobMapComponentAction(jobMapComponentState = jobMapComponentState, action = it)
-          },
-        )
-      }
-    }
-
-    binding.bottomContainer.bringToFront()
+    bottomContainer.bringToFront()
     showDataCollectionHint()
 
     // LOIs associated with the survey have been synced to the local db by this point. We can
@@ -208,9 +240,9 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     if (!this::mapContainerViewModel.isInitialized) {
       return Timber.w("showDataCollectionHint() called before mapContainerViewModel initialized")
     }
-    if (!this::binding.isInitialized) {
-      return Timber.w("showDataCollectionHint() called before binding initialized")
-    }
+
+    // binding check no longer valid.
+    // composeView and bottomContainer are initialized in onCreateView.
 
     // Decides which survey-related popup to show based on the current survey.
     mapContainerViewModel.surveyUpdateFlow.launchWhenStartedAndCollectFirst { surveyProperties ->
@@ -225,10 +257,9 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       null
     }
 
+  // ... showInfoPopup ...
   private fun showInfoPopup(messageId: Int) {
-    ephemeralPopups
-      .InfoPopup(binding.bottomContainer, messageId, EphemeralPopups.PopupDuration.LONG)
-      .show()
+    ephemeralPopups.InfoPopup(bottomContainer, messageId, EphemeralPopups.PopupDuration.LONG).show()
   }
 
   private fun navigateToDataCollectionFragment(cardUiData: DataCollectionEntryPointData) {

@@ -68,7 +68,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     )
   }
 
-  private fun onMapAttached(map: MapFragment) {
+  protected fun onMapAttached(map: MapFragment) {
     val viewModel = getMapViewModel()
 
     // Removes all markers, overlays, polylines and polygons from the map.
