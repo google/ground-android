@@ -127,40 +127,31 @@ class CaptureLocationTaskFragmentTest :
   }
 
   @Test
-  fun `displays correct action buttons`() {
+  fun `Initial action buttons state when task is optional`() = runWithTestDispatcher {
     setupTaskFragment<CaptureLocationTaskFragment>(job, task)
+    setupLocation(accuracy = 10.0)
 
     assertFragmentHasButtons(
       ButtonActionState(ButtonAction.PREVIOUS, isEnabled = true, isVisible = true),
       ButtonActionState(ButtonAction.SKIP, isEnabled = true, isVisible = true),
       ButtonActionState(ButtonAction.UNDO, isEnabled = false, isVisible = false),
-      ButtonActionState(ButtonAction.CAPTURE_LOCATION, isEnabled = false, isVisible = true),
+      ButtonActionState(ButtonAction.CAPTURE_LOCATION, isEnabled = true, isVisible = true),
       ButtonActionState(ButtonAction.NEXT, isEnabled = false, isVisible = false),
     )
   }
 
   @Test
-  fun `action buttons when task is optional`() = runWithTestDispatcher {
-    setupTaskFragment<CaptureLocationTaskFragment>(job, task.copy(isRequired = false))
-    setupLocation()
-
-    runner()
-      .assertButtonIsHidden("Next")
-      .assertButtonIsEnabled("Skip")
-      .assertButtonIsHidden("Undo", true)
-      .assertButtonIsEnabled("Capture")
-  }
-
-  @Test
-  fun `action buttons when task is required`() = runWithTestDispatcher {
+  fun `Initial action buttons state when task is required`() = runWithTestDispatcher {
     setupTaskFragment<CaptureLocationTaskFragment>(job, task.copy(isRequired = true))
-    setupLocation()
+    setupLocation(accuracy = 10.0)
 
-    runner()
-      .assertButtonIsHidden("Next")
-      .assertButtonIsHidden("Skip")
-      .assertButtonIsHidden("Undo", true)
-      .assertButtonIsEnabled("Capture")
+    assertFragmentHasButtons(
+      ButtonActionState(ButtonAction.PREVIOUS, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.SKIP, isEnabled = false, isVisible = false),
+      ButtonActionState(ButtonAction.UNDO, isEnabled = false, isVisible = false),
+      ButtonActionState(ButtonAction.CAPTURE_LOCATION, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.NEXT, isEnabled = false, isVisible = false),
+    )
   }
 
   @Test

@@ -108,7 +108,11 @@ class MultipleChoiceTaskFragmentTest :
     val multipleChoice = MultipleChoice(options, MultipleChoice.Cardinality.SELECT_ONE)
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task.copy(multipleChoice = multipleChoice))
 
-    runner().selectOption("Option 1").selectOption("Option 2").assertButtonIsEnabled("Next")
+    runner()
+      .assertButtonIsDisabled("Next")
+      .selectOption("Option 1")
+      .selectOption("Option 2")
+      .assertButtonIsEnabled("Next")
 
     hasValue(MultipleChoiceTaskData(multipleChoice, listOf("option id 2")))
   }
@@ -218,7 +222,7 @@ class MultipleChoiceTaskFragmentTest :
   }
 
   @Test
-  fun `renders action buttons`() {
+  fun `Initial action buttons state when task is optional`() {
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task)
 
     assertFragmentHasButtons(
@@ -229,7 +233,18 @@ class MultipleChoiceTaskFragmentTest :
   }
 
   @Test
-  fun `renders action buttons on last task`() {
+  fun `Initial action buttons state when task is the first and optional`() {
+    setupTaskFragment<MultipleChoiceTaskFragment>(job, task, isFistPosition = true)
+
+    assertFragmentHasButtons(
+      ButtonActionState(ButtonAction.PREVIOUS, isEnabled = false, isVisible = true),
+      ButtonActionState(ButtonAction.SKIP, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.NEXT, isEnabled = false, isVisible = true),
+    )
+  }
+
+  @Test
+  fun `Initial action buttons state when it's the last task and optional`() {
     setupTaskFragment<MultipleChoiceTaskFragment>(job, task, isLastPosition = true)
 
     assertFragmentHasButtons(
@@ -240,17 +255,18 @@ class MultipleChoiceTaskFragmentTest :
   }
 
   @Test
-  fun `renders action buttons when first task and optional`() {
+  fun `Initial action buttons state when it's the first task and required`() {
     setupTaskFragment<MultipleChoiceTaskFragment>(
       job,
-      task.copy(isRequired = false),
+      task.copy(isRequired = true),
       isFistPosition = true,
     )
 
-    runner()
-      .assertButtonIsDisabled("Previous")
-      .assertButtonIsDisabled("Next")
-      .assertButtonIsEnabled("Skip")
+    assertFragmentHasButtons(
+      ButtonActionState(ButtonAction.PREVIOUS, isEnabled = false, isVisible = true),
+      ButtonActionState(ButtonAction.SKIP, isEnabled = false, isVisible = false),
+      ButtonActionState(ButtonAction.NEXT, isEnabled = false, isVisible = true),
+    )
   }
 
   @Test
@@ -269,30 +285,6 @@ class MultipleChoiceTaskFragmentTest :
     runner().clickButton("Skip")
 
     assertThat(ShadowAlertDialog.getShownDialogs().isEmpty()).isTrue()
-  }
-
-  @Test
-  fun `renders action buttons when task is first and required`() {
-    setupTaskFragment<MultipleChoiceTaskFragment>(
-      job,
-      task.copy(isRequired = true),
-      isFistPosition = true,
-    )
-
-    runner()
-      .assertButtonIsDisabled("Previous")
-      .assertButtonIsDisabled("Next")
-      .assertButtonIsHidden("Skip")
-  }
-
-  @Test
-  fun `renders action buttons when task is not first`() {
-    setupTaskFragment<MultipleChoiceTaskFragment>(job, task)
-
-    runner()
-      .assertButtonIsEnabled("Previous")
-      .assertButtonIsDisabled("Next")
-      .assertButtonIsEnabled("Skip")
   }
 
   @Test

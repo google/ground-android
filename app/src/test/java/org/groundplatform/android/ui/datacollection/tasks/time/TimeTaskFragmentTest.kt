@@ -88,12 +88,14 @@ class TimeTaskFragmentTest : BaseTaskFragmentTest<TimeTaskFragment, TimeTaskView
     view?.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1)
 
     assertThat(fragment.getTimePickerDialog()).isNull()
+    runner().assertButtonIsDisabled("Next")
+
     onView(withId(R.id.user_time_response_text)).perform(click())
     assertThat(fragment.getTimePickerDialog()!!.isShowing).isTrue()
   }
 
   @Test
-  fun `action buttons`() {
+  fun `Initial action buttons state when task is optional`() {
     setupTaskFragment<TimeTaskFragment>(job, task)
 
     assertFragmentHasButtons(
@@ -104,17 +106,14 @@ class TimeTaskFragmentTest : BaseTaskFragmentTest<TimeTaskFragment, TimeTaskView
   }
 
   @Test
-  fun `action buttons when task is optional`() {
-    setupTaskFragment<TimeTaskFragment>(job, task.copy(isRequired = false))
-
-    runner().assertButtonIsDisabled("Next").assertButtonIsEnabled("Skip")
-  }
-
-  @Test
-  fun `action buttons when task is required`() {
+  fun `Initial action buttons state when task is required`() {
     setupTaskFragment<TimeTaskFragment>(job, task.copy(isRequired = true))
 
-    runner().assertButtonIsDisabled("Next").assertButtonIsHidden("Skip")
+    assertFragmentHasButtons(
+      ButtonActionState(ButtonAction.PREVIOUS, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.SKIP, isEnabled = false, isVisible = false),
+      ButtonActionState(ButtonAction.NEXT, isEnabled = false, isVisible = true),
+    )
   }
 
   @Test

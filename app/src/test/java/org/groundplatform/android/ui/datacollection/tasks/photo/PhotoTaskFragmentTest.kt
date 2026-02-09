@@ -100,7 +100,7 @@ class PhotoTaskFragmentTest : BaseTaskFragmentTest<PhotoTaskFragment, PhotoTaskV
   }
 
   @Test
-  fun `action buttons`() {
+  fun `Initial action buttons state`() {
     setupTaskFragment<PhotoTaskFragment>(job, task)
 
     assertFragmentHasButtons(
@@ -112,13 +112,15 @@ class PhotoTaskFragmentTest : BaseTaskFragmentTest<PhotoTaskFragment, PhotoTaskV
   }
 
   @Test
-  fun `action buttons when task is optional`() {
-    setupTaskFragment<PhotoTaskFragment>(job, task.copy(isRequired = false))
+  fun `Initial action buttons state when task is required`() {
+    setupTaskFragment<PhotoTaskFragment>(job, task.copy(isRequired = true))
 
-    runner()
-      .assertButtonIsDisabled("Next")
-      .assertButtonIsEnabled("Skip")
-      .assertButtonIsHidden("Undo", true)
+    assertFragmentHasButtons(
+      ButtonActionState(ButtonAction.PREVIOUS, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.UNDO, isEnabled = false, isVisible = false),
+      ButtonActionState(ButtonAction.SKIP, isEnabled = false, isVisible = false),
+      ButtonActionState(ButtonAction.NEXT, isEnabled = false, isVisible = true),
+    )
   }
 
   @Test

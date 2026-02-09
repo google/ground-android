@@ -69,6 +69,28 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
   }
 
   @Test
+  fun `Initial action buttons state when task is optional`() {
+    setupTaskFragment<DateTaskFragment>(job, task)
+
+    assertFragmentHasButtons(
+      ButtonActionState(ButtonAction.PREVIOUS, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.SKIP, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.NEXT, isEnabled = false, isVisible = true),
+    )
+  }
+
+  @Test
+  fun `Initial action buttons state when task is required`() {
+    setupTaskFragment<DateTaskFragment>(job, task.copy(isRequired = true))
+
+    assertFragmentHasButtons(
+      ButtonActionState(ButtonAction.PREVIOUS, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.SKIP, isEnabled = false, isVisible = false),
+      ButtonActionState(ButtonAction.NEXT, isEnabled = false, isVisible = true),
+    )
+  }
+
+  @Test
   fun `default response is empty`() {
     setupTaskFragment<DateTaskFragment>(job, task)
 
@@ -115,6 +137,7 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
     datePickerDialog?.getButton(DatePickerDialog.BUTTON_POSITIVE)?.performClick()
 
     composeTestRule.onNodeWithText("10/10/24").isDisplayed()
+    runner().assertButtonIsEnabled("Next")
   }
 
   @Test
@@ -145,29 +168,5 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
     setupTaskFragment<DateTaskFragment>(job, task)
 
     composeTestRule.onNodeWithText("M/D/YY").isDisplayed()
-  }
-
-  @Test
-  fun `displays correct action buttons`() {
-    setupTaskFragment<DateTaskFragment>(job, task)
-    assertFragmentHasButtons(
-      ButtonActionState(ButtonAction.PREVIOUS, isEnabled = true, isVisible = true),
-      ButtonActionState(ButtonAction.SKIP, isEnabled = true, isVisible = true),
-      ButtonActionState(ButtonAction.NEXT, isEnabled = false, isVisible = true),
-    )
-  }
-
-  @Test
-  fun `action buttons when task is optional`() {
-    setupTaskFragment<DateTaskFragment>(job, task.copy(isRequired = false))
-
-    runner().assertButtonIsDisabled("Next").assertButtonIsEnabled("Skip")
-  }
-
-  @Test
-  fun `action buttons when task is required`() {
-    setupTaskFragment<DateTaskFragment>(job, task.copy(isRequired = true))
-
-    runner().assertButtonIsDisabled("Next").assertButtonIsHidden("Skip")
   }
 }

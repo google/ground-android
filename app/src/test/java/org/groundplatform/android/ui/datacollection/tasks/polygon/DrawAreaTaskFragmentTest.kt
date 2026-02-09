@@ -72,7 +72,7 @@ class DrawAreaTaskFragmentTest :
   }
 
   @Test
-  fun `action buttons`() {
+  fun `Initial action buttons state when task is optional`() {
     setupTaskFragment<DrawAreaTaskFragment>(job, task)
 
     assertFragmentHasButtons(
@@ -87,29 +87,18 @@ class DrawAreaTaskFragmentTest :
   }
 
   @Test
-  fun `action buttons when task is optional`() {
-    setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = false))
-
-    runner()
-      .assertButtonIsHidden(NEXT_POINT_BUTTON_TEXT)
-      .assertButtonIsEnabled(SKIP_POINT_BUTTON_TEXT)
-      .assertButtonIsDisabled(UNDO_POINT_BUTTON_TEXT, true)
-      .assertButtonIsDisabled(REDO_POINT_BUTTON_TEXT, true)
-      .assertButtonIsEnabled(ADD_POINT_BUTTON_TEXT)
-      .assertButtonIsHidden(COMPLETE_POINT_BUTTON_TEXT)
-  }
-
-  @Test
-  fun `action buttons when task is required`() {
+  fun `Initial action buttons state when task is required`() {
     setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = true))
 
-    runner()
-      .assertButtonIsHidden(NEXT_POINT_BUTTON_TEXT)
-      .assertButtonIsHidden(SKIP_POINT_BUTTON_TEXT)
-      .assertButtonIsDisabled(UNDO_POINT_BUTTON_TEXT, true)
-      .assertButtonIsDisabled(REDO_POINT_BUTTON_TEXT, true)
-      .assertButtonIsEnabled(ADD_POINT_BUTTON_TEXT)
-      .assertButtonIsHidden(COMPLETE_POINT_BUTTON_TEXT)
+    assertFragmentHasButtons(
+      ButtonActionState(ButtonAction.PREVIOUS, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.SKIP, isEnabled = false, isVisible = false),
+      ButtonActionState(ButtonAction.UNDO, isEnabled = false, isVisible = true),
+      ButtonActionState(ButtonAction.REDO, isEnabled = false, isVisible = true),
+      ButtonActionState(ButtonAction.NEXT, isEnabled = false, isVisible = false),
+      ButtonActionState(ButtonAction.ADD_POINT, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.COMPLETE, isEnabled = false, isVisible = false),
+    )
   }
 
   @Test
@@ -161,6 +150,7 @@ class DrawAreaTaskFragmentTest :
       .assertButtonIsEnabled(UNDO_POINT_BUTTON_TEXT, true)
       .assertButtonIsDisabled(REDO_POINT_BUTTON_TEXT, true)
       .assertButtonIsHidden(ADD_POINT_BUTTON_TEXT)
+      .assertButtonIsEnabled(NEXT_POINT_BUTTON_TEXT)
 
     hasValue(
       DrawAreaTaskData(
