@@ -18,6 +18,7 @@ package org.groundplatform.android.ui.datacollection.tasks
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -46,7 +47,7 @@ abstract class AbstractTaskViewModel internal constructor() : AbstractViewModel(
     taskTaskData
       .map { getButtonStates(it) }
       .distinctUntilChanged()
-      .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+      .stateIn(viewModelScope, WhileSubscribed(5_000), emptyList())
   }
 
   lateinit var task: Task

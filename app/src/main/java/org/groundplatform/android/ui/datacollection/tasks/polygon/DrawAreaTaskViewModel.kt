@@ -23,7 +23,7 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -162,7 +162,7 @@ internal constructor(
         )
       }
       .distinctUntilChanged()
-      .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+      .stateIn(viewModelScope, WhileSubscribed(5_000), emptyList())
   }
 
   override fun initialize(

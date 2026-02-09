@@ -37,7 +37,6 @@ import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.TaskFragmentRunner
-import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.util.view.isGone
 import org.mockito.kotlin.whenever
@@ -93,12 +92,6 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
         node.assertDoesNotExist()
       }
     }
-  }
-
-  /** Legacy helper for assertFragmentHasButtons that only checks for existence. */
-  @Deprecated("Use assertFragmentHasButtons with ButtonActionState instead")
-  protected fun assertFragmentHasButtons(vararg buttonActions: ButtonAction) {
-    assertFragmentHasButtons(*buttonActions.map { ButtonActionState(it) }.toTypedArray())
   }
 
   protected inline fun <reified T : Fragment> setupTaskFragment(

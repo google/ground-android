@@ -18,11 +18,6 @@ package org.groundplatform.android.ui.datacollection.tasks.point
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
@@ -51,21 +46,6 @@ constructor(
   /** Whether the instructions dialog has been shown or not. */
   var instructionsDialogShown: Boolean by localValueStore::dropPinInstructionsShown
   var captureLocation: Boolean = false
-
-  override val taskActionButtonStates: StateFlow<List<ButtonActionState>> by lazy {
-    taskTaskData
-      .map {
-        listOf(
-          getPreviousButton(),
-          getSkipButton(it),
-          getUndoButton(it),
-          getDropPinButtonState(it),
-          getNextButton(it, hideIfEmpty = true),
-        )
-      }
-      .distinctUntilChanged()
-      .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
-  }
 
   override fun initialize(
     job: Job,

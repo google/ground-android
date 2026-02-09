@@ -22,7 +22,7 @@ import javax.inject.Inject
 import kotlin.lazy
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
@@ -65,7 +65,7 @@ class CaptureLocationTaskViewModel @Inject constructor() : AbstractMapTaskViewMo
         )
       }
       .distinctUntilChanged()
-      .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+      .stateIn(viewModelScope, WhileSubscribed(5_000), emptyList())
   }
 
   fun updateLocation(location: Location) {
