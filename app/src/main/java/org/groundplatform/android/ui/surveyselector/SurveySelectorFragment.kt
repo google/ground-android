@@ -78,6 +78,10 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
           ephemeralPopups.ErrorPopup().unknownError()
         }
       }
+      is UiState.UnusableSurvey -> {
+        dismissProgressDialog()
+        ephemeralPopups.ErrorPopup().show(R.string.unusable_survey_error)
+      }
       is UiState.NavigateToHome -> {
         findNavController().navigate(HomeScreenFragmentDirections.showHomeScreen())
       }

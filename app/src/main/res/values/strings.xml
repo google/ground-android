@@ -26,6 +26,11 @@
   <string name="required_task">This field is required</string>
 
   <!--
+    SURVEY ERRORS
+  -->
+  <string name="unusable_survey_error">This survey cannot be used because it has no predefined locations and does not allow adding new locations.</string>
+
+  <!--
     LOCATION (GPS/CELL/WIFI) UPDATE ERROR MESSAGES
   -->
 
