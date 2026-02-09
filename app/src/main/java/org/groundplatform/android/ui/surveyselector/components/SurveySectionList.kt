@@ -123,8 +123,7 @@ private fun rememberExpandedStates(): MutableMap<Int, Boolean> = remember {
   )
 }
 
-@VisibleForTesting
-fun formatSectionTitle(title: String, count: Int): String = "$title ($count)"
+@VisibleForTesting fun formatSectionTitle(title: String, count: Int): String = "$title ($count)"
 
 @Composable
 @Preview(showBackground = true)
