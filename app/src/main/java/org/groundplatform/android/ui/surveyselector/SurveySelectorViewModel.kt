@@ -112,7 +112,7 @@ internal constructor(
             if (result) {
               _events.send(SurveySelectorEvent.NavigateToHome)
             } else {
-              _events.send(SurveySelectorEvent.ShowError(Error("Survey activation failed")))
+              _events.send(SurveySelectorEvent.ShowError(Exception("Survey activation failed")))
             }
           },
           onFailure = {
