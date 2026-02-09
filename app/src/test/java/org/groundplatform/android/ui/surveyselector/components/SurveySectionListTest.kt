@@ -26,6 +26,7 @@ import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.R
 import org.groundplatform.android.model.SurveyListItem
 import org.groundplatform.android.proto.Survey
+import org.groundplatform.android.ui.surveyselector.SurveySection
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Rule
@@ -47,9 +48,9 @@ class SurveySectionListTest : BaseHiltTest() {
       )
     val sectionData =
       listOf(
-        R.string.section_on_device to dummySurveys,
-        R.string.section_shared_with_me to emptyList(),
-        R.string.section_public to emptyList(),
+        SurveySection(R.string.section_on_device, dummySurveys),
+        SurveySection(R.string.section_shared_with_me, emptyList()),
+        SurveySection(R.string.section_public, emptyList()),
       )
 
     composeTestRule.setContent {
@@ -73,9 +74,9 @@ class SurveySectionListTest : BaseHiltTest() {
       listOf(SurveyListItem("2", "Public Survey", "Desc", false, Survey.GeneralAccess.PUBLIC))
     val sectionData =
       listOf(
-        R.string.section_on_device to dummySurveys,
-        R.string.section_shared_with_me to emptyList(),
-        R.string.section_public to publicSurveys,
+        SurveySection(R.string.section_on_device, dummySurveys),
+        SurveySection(R.string.section_shared_with_me, emptyList()),
+        SurveySection(R.string.section_public, publicSurveys),
       )
 
     composeTestRule.setContent {
@@ -95,9 +96,9 @@ class SurveySectionListTest : BaseHiltTest() {
       listOf(SurveyListItem("2", "Public Survey", "Desc", false, Survey.GeneralAccess.PUBLIC))
     val sectionData =
       listOf(
-        R.string.section_on_device to emptyList(),
-        R.string.section_shared_with_me to emptyList(),
-        R.string.section_public to publicSurveys,
+        SurveySection(R.string.section_on_device, emptyList()),
+        SurveySection(R.string.section_shared_with_me, emptyList()),
+        SurveySection(R.string.section_public, publicSurveys),
       )
 
     composeTestRule.setContent {
@@ -127,7 +128,7 @@ class SurveySectionListTest : BaseHiltTest() {
       listOf(
         SurveyListItem("1", "Tree Survey", "Track tree growth", true, Survey.GeneralAccess.PUBLIC)
       )
-    val sectionData = listOf(R.string.section_on_device to dummySurveys)
+    val sectionData = listOf(SurveySection(R.string.section_on_device, dummySurveys))
 
     var clickedId: String? = null
 
@@ -150,7 +151,7 @@ class SurveySectionListTest : BaseHiltTest() {
       listOf(
         SurveyListItem("1", "Tree Survey", "Track tree growth", true, Survey.GeneralAccess.PUBLIC)
       )
-    val sectionData = listOf(R.string.section_on_device to dummySurveys)
+    val sectionData = listOf(SurveySection(R.string.section_on_device, dummySurveys))
 
     var confirmedDeleteId: String? = null
 
@@ -192,7 +193,7 @@ class SurveySectionListTest : BaseHiltTest() {
       listOf(
         SurveyListItem("1", "Tree Survey", "Track tree growth", true, Survey.GeneralAccess.PUBLIC)
       )
-    val sectionData = listOf(R.string.section_on_device to dummySurveys)
+    val sectionData = listOf(SurveySection(R.string.section_on_device, dummySurveys))
 
     var confirmedDeleteId: String? = null
 

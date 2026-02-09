@@ -18,6 +18,9 @@ package org.groundplatform.android.ui.surveyselector
 import org.groundplatform.android.R
 import org.groundplatform.android.model.SurveyListItem
 
+/** Represents a section of surveys in the survey list. */
+data class SurveySection(val titleResId: Int, val surveys: List<SurveyListItem>)
+
 /**
  * Represents the UI state of the Survey Selector screen.
  *
@@ -42,10 +45,10 @@ data class SurveySelectorUiState(
     get() = onDeviceSurveys.isNotEmpty() || sharedSurveys.isNotEmpty() || publicSurveys.isNotEmpty()
 
   /** Returns a list of sections containing the title resource ID and the list of surveys. */
-  val surveySections: List<Pair<Int, List<SurveyListItem>>>
+  val surveySections: List<SurveySection>
     get() = buildList {
-      add(R.string.section_on_device to onDeviceSurveys)
-      add(R.string.section_shared_with_me to sharedSurveys)
-      add(R.string.section_public to publicSurveys)
+      add(SurveySection(R.string.section_on_device, onDeviceSurveys))
+      add(SurveySection(R.string.section_shared_with_me, sharedSurveys))
+      add(SurveySection(R.string.section_public, publicSurveys))
     }
 }

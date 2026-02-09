@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android.ui.surveyselector.components
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -38,16 +40,17 @@ import org.groundplatform.android.model.SurveyListItem
 import org.groundplatform.android.proto.Survey
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.components.ConfirmationDialog
+import org.groundplatform.android.ui.surveyselector.SurveySection
 
 /** Renders the content of the survey list, including sections and confirmation dialogs. */
 @Composable
 fun SurveySectionList(
-  sectionData: List<Pair<Int, List<SurveyListItem>>>,
+  sectionData: List<SurveySection>,
   onConfirmDelete: (String) -> Unit,
   onCardClick: (String) -> Unit,
 ) {
   val expandedStates = rememberExpandedStates()
-  var surveyIdToDelete by remember { mutableStateOf<String?>(null) }
+  var surveyIdToDelete by rememberSaveable { mutableStateOf<String?>(null) }
 
   if (surveyIdToDelete != null) {
     ConfirmationDialog(
@@ -80,7 +83,7 @@ fun SurveySectionList(
  * survey cards.
  */
 private fun LazyListScope.surveySections(
-  sectionData: List<Pair<Int, List<SurveyListItem>>>,
+  sectionData: List<SurveySection>,
   expandedStates: MutableMap<Int, Boolean>,
   onCardClick: (String) -> Unit,
   onMenuClick: (String) -> Unit,
@@ -101,11 +104,7 @@ private fun LazyListScope.surveySections(
 
     if (expandedStates[titleResId] == true) {
       items(list, key = { it.id }) { item ->
-        SurveyCardItem(
-          item = item,
-          onCardClick = { onCardClick(item.id) },
-          menuClick = { onMenuClick(item.id) },
-        )
+        SurveyCardItem(item = item, onCardClick = onCardClick, menuClick = onMenuClick)
       }
     }
 
@@ -124,6 +123,7 @@ private fun rememberExpandedStates(): MutableMap<Int, Boolean> = remember {
   )
 }
 
+@VisibleForTesting
 fun formatSectionTitle(title: String, count: Int): String = "$title ($count)"
 
 @Composable
@@ -144,9 +144,9 @@ private fun PreviewSurveySectionList() {
 
   val sectionData =
     listOf(
-      R.string.section_on_device to dummySurveys,
-      R.string.section_shared_with_me to emptyList<SurveyListItem>(),
-      R.string.section_public to dummySurveys,
+      SurveySection(R.string.section_on_device, dummySurveys),
+      SurveySection(R.string.section_shared_with_me, emptyList()),
+      SurveySection(R.string.section_public, dummySurveys),
     )
 
   SurveySectionList(sectionData = sectionData, onConfirmDelete = {}, onCardClick = {})

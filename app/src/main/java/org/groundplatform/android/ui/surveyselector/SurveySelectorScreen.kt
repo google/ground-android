@@ -81,7 +81,7 @@ fun SurveySelectorScreen(
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun SurveySelectorScreen(
+private fun SurveySelectorScreen(
   uiState: SurveySelectorUiState,
   onBack: () -> Unit,
   onSignOut: () -> Unit,
