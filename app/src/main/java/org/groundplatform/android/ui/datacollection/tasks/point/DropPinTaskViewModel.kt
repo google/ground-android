@@ -29,7 +29,7 @@ import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.submission.isNullOrEmpty
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
-import org.groundplatform.android.ui.datacollection.components.refactor.ButtonActionState
+import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.AbstractMapTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 import org.groundplatform.android.ui.map.Feature
@@ -96,7 +96,7 @@ constructor(
       selected = true,
     )
 
-  fun dropPin() {
+  private fun dropPin() {
     getLastCameraPosition()?.let { updateResponse(Point(it.coordinates)) }
   }
 

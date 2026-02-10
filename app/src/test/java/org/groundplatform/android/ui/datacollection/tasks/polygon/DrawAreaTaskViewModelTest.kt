@@ -492,7 +492,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
 
     val states = viewModel.taskActionButtonStates.first()
 
-    with(requireNotNull(states.find { it.action == ButtonAction.UNDO })) {
+    with(requireNotNull(states.find { it.action == ButtonAction.REDO })) {
       assertTrue(isVisible)
       assertFalse(isEnabled)
     }

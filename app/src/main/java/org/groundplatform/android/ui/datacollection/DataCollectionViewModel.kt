@@ -112,21 +112,17 @@ internal constructor(
     }
   }
 
-  fun isFirstPosition(taskId: String): Boolean = withReady {
-    taskSequenceHandler.isFirstPosition(taskId)
-  }
+  private fun isFirstPosition(taskId: String): Boolean =
+    withReadyOrNull { taskSequenceHandler.isFirstPosition(taskId) } ?: false
 
-  fun isLastPosition(taskId: String): Boolean = withReady {
-    taskSequenceHandler.isLastPosition(taskId)
-  }
-
-  fun isLastPositionWithValue(task: Task, newValue: TaskData?): Boolean = withReady {
-    if (taskDataHandler.getData(task) == newValue) {
-      taskSequenceHandler.isLastPosition(task.id)
-    } else {
-      taskSequenceHandler.checkIfTaskIsLastWithValue(task.id to newValue)
-    }
-  }
+  private fun isLastPositionWithValue(task: Task, newValue: TaskData?): Boolean =
+    withReadyOrNull {
+      if (taskDataHandler.getData(task) == newValue) {
+        taskSequenceHandler.isLastPosition(task.id)
+      } else {
+        taskSequenceHandler.checkIfTaskIsLastWithValue(task.id to newValue)
+      }
+    } ?: false
 
   fun isAtFirstTask(): Boolean = withReady { taskSequenceHandler.isFirstPosition(it.currentTaskId) }
 
