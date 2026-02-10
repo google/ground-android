@@ -19,18 +19,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.compose.ui.unit.dp
 import androidx.core.view.doOnAttach
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -102,7 +96,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
       taskView.addTaskView(onCreateTaskBody(layoutInflater))
 
       // Add actions buttons after the view model is bound to the view.
-      setupActionButtons()
+      setupTaskFooter()
 
       onTaskViewAttached()
     }
@@ -155,22 +149,22 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   }
 
   /** Adds the action buttons to the UI. */
-  private fun setupActionButtons() {
+  private fun setupTaskFooter() {
     with(taskView.actionButtonsContainer) {
       setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
       setComposableContent {
         val taskActionButtonsStates by
           viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
-        Column(modifier = Modifier.fillMaxWidth()) {
-          if (shouldShowHeader()) {
-            HeaderCard()
-            Spacer(Modifier.height(12.dp))
-          }
-          TaskFooter(
-            buttonActionStates = taskActionButtonsStates,
-            onButtonClicked = { handleButtonClick(it) },
-          )
-        }
+        TaskFooter(
+          headerCard =
+            if (shouldShowHeader()) {
+              { HeaderCard() }
+            } else {
+              null
+            },
+          buttonActionStates = taskActionButtonsStates,
+          onButtonClicked = { handleButtonClick(it) },
+        )
       }
     }
   }
