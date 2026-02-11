@@ -197,7 +197,7 @@ internal constructor(
   }
 
   private fun onUpdateDownloadSizeError() {
-    bottomText.postValue(resources.getString(R.string.connect_to_download_message))
+    _bottomTextState.value = BottomTextState.NetworkError
     downloadButtonEnabled.postValue(false)
   }
 
