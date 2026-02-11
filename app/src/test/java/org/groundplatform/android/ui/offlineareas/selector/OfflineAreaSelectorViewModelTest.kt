@@ -15,9 +15,6 @@
  */
 package org.groundplatform.android.ui.offlineareas.selector
 
-import android.content.Context
-import android.content.res.Resources
-import androidx.test.core.app.ApplicationProvider
 import dagger.hilt.android.testing.HiltAndroidTest
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
@@ -66,15 +63,11 @@ class OfflineAreaSelectorViewModelTest : BaseHiltTest() {
   @Mock private lateinit var locationOfInterestRepository: LocationOfInterestRepository
   @Mock private lateinit var networkManager: NetworkManager
 
-  private lateinit var resources: Resources
-
   private lateinit var viewModel: OfflineAreaSelectorViewModel
 
   @Before
   override fun setUp() {
     super.setUp()
-    val context = ApplicationProvider.getApplicationContext<Context>()
-    resources = context.resources
     Dispatchers.setMain(testDispatcher)
     viewModel =
       OfflineAreaSelectorViewModel(
