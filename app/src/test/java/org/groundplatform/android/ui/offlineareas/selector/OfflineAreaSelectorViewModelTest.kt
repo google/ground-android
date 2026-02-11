@@ -15,12 +15,10 @@
  */
 package org.groundplatform.android.ui.offlineareas.selector
 
-import android.content.Context
-import android.content.res.Resources
-import androidx.test.core.app.ApplicationProvider
 import dagger.hilt.android.testing.HiltAndroidTest
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
+import kotlin.test.assertNull
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -28,7 +26,6 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.groundplatform.android.BaseHiltTest
-import org.groundplatform.android.R
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.map.Bounds
 import org.groundplatform.android.model.map.CameraPosition
@@ -40,6 +37,7 @@ import org.groundplatform.android.system.LocationManager
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.system.SettingsManager
+import org.groundplatform.android.ui.offlineareas.selector.model.BottomTextState
 import org.groundplatform.android.util.toMbString
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -65,21 +63,16 @@ class OfflineAreaSelectorViewModelTest : BaseHiltTest() {
   @Mock private lateinit var locationOfInterestRepository: LocationOfInterestRepository
   @Mock private lateinit var networkManager: NetworkManager
 
-  private lateinit var resources: Resources
-
   private lateinit var viewModel: OfflineAreaSelectorViewModel
 
   @Before
   override fun setUp() {
     super.setUp()
-    val context = ApplicationProvider.getApplicationContext<Context>()
-    resources = context.resources
     Dispatchers.setMain(testDispatcher)
     viewModel =
       OfflineAreaSelectorViewModel(
         offlineAreaRepository,
         testDispatcher,
-        resources,
         locationManager,
         surveyRepository,
         mapStateRepository,
@@ -102,10 +95,7 @@ class OfflineAreaSelectorViewModelTest : BaseHiltTest() {
     viewModel.onMapCameraMoved(CAMERA_POSITION)
     advanceUntilIdle()
 
-    assertEquals(
-      resources.getString(R.string.selected_offline_area_size, 5.0f.toMbString()),
-      viewModel.bottomText.value,
-    )
+    assertEquals(BottomTextState.AreaSize(5.0f.toMbString()), viewModel.bottomTextState.value)
     assertEquals(true, viewModel.downloadButtonEnabled.value)
   }
 
@@ -116,10 +106,7 @@ class OfflineAreaSelectorViewModelTest : BaseHiltTest() {
     viewModel.onMapCameraMoved(CAMERA_POSITION)
     advanceUntilIdle()
 
-    assertEquals(
-      resources.getString(R.string.no_imagery_available_for_area),
-      viewModel.bottomText.value,
-    )
+    assertEquals(BottomTextState.NoImageryAvailable, viewModel.bottomTextState.value)
     assertEquals(false, viewModel.downloadButtonEnabled.value)
   }
 
@@ -131,10 +118,7 @@ class OfflineAreaSelectorViewModelTest : BaseHiltTest() {
       viewModel.onMapCameraMoved(CAMERA_POSITION)
       advanceUntilIdle()
 
-      assertEquals(
-        resources.getString(R.string.connect_to_download_message),
-        viewModel.bottomText.value,
-      )
+      assertEquals(BottomTextState.NetworkError, viewModel.bottomTextState.value)
       assertEquals(false, viewModel.downloadButtonEnabled.value)
     }
 
@@ -146,12 +130,34 @@ class OfflineAreaSelectorViewModelTest : BaseHiltTest() {
       viewModel.onMapCameraMoved(CAMERA_POSITION)
       advanceUntilIdle()
 
-      assertEquals(
-        resources.getString(R.string.connect_to_download_message),
-        viewModel.bottomText.value,
-      )
+      assertEquals(BottomTextState.NetworkError, viewModel.bottomTextState.value)
       assertEquals(false, viewModel.downloadButtonEnabled.value)
     }
+
+  @Test
+  fun `Should show area too large when zoom is too low`() = runTest {
+    setupMocks()
+    val lowZoomPosition = CAMERA_POSITION.copy(zoomLevel = 5.0f)
+
+    viewModel.onMapCameraMoved(lowZoomPosition)
+    advanceUntilIdle()
+
+    assertEquals(BottomTextState.AreaTooLarge, viewModel.bottomTextState.value)
+    assertEquals(false, viewModel.downloadButtonEnabled.value)
+  }
+
+  @Test
+  fun `Should reset state on map drag`() = runTest {
+    setupMocks()
+    viewModel.onMapCameraMoved(CAMERA_POSITION)
+    advanceUntilIdle()
+    assertEquals(true, viewModel.downloadButtonEnabled.value)
+
+    viewModel.onMapDragged()
+
+    assertNull(viewModel.bottomTextState.value)
+    assertEquals(false, viewModel.downloadButtonEnabled.value)
+  }
 
   private suspend fun setupMocks(
     hasHiResImagery: Result<Boolean> = Result.success(true),
