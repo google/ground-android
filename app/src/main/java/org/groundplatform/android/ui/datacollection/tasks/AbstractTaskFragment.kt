@@ -40,7 +40,6 @@ import org.groundplatform.android.ui.datacollection.components.TaskFooter
 import org.groundplatform.android.ui.datacollection.components.TaskView
 import org.groundplatform.android.util.renderComposableDialog
 import org.groundplatform.android.util.setComposableContent
-import timber.log.Timber
 
 abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragment() {
 
@@ -53,21 +52,16 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   /** ID of the associated task in the Job. Used for instantiating the [viewModel]. */
   var taskId by Delegates.notNull<String>()
 
-  protected val isViewModelInitialized: Boolean
-    get() =
-      try {
-        viewModel
-        true
-      } catch (e: UninitializedPropertyAccessException) {
-        Timber.e(e, "Viewmodel is not initialized")
-        false
-      }
-
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     if (savedInstanceState != null) {
       taskId = requireNotNull(savedInstanceState.getString(TASK_ID))
     }
+    @Suppress("UNCHECKED_CAST")
+    val vm =
+      dataCollectionViewModel.getTaskViewModel(taskId) as? T
+        ?: error("ViewModel for taskId:$taskId not found.")
+    viewModel = vm
   }
 
   override fun onSaveInstanceState(outState: Bundle) {
@@ -88,10 +82,6 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     view.doOnAttach {
-      @Suppress("UNCHECKED_CAST", "LabeledExpression")
-      val vm = dataCollectionViewModel.getTaskViewModel(taskId) as? T ?: return@doOnAttach
-
-      viewModel = vm
       taskView.bind(this, viewModel)
       taskView.addTaskView(onCreateTaskBody(layoutInflater))
 
@@ -104,7 +94,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   override fun onResume() {
     super.onResume()
-    if (isViewModelInitialized) onTaskResume()
+    onTaskResume()
   }
 
   /** Creates the view for common task template with/without header. */
