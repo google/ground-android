@@ -40,7 +40,6 @@ import org.groundplatform.android.ui.datacollection.components.TaskFooter
 import org.groundplatform.android.ui.datacollection.components.TaskView
 import org.groundplatform.android.util.renderComposableDialog
 import org.groundplatform.android.util.setComposableContent
-import timber.log.Timber
 
 abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragment() {
 
@@ -48,20 +47,15 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     hiltNavGraphViewModels(R.id.data_collection)
 
   private lateinit var taskView: TaskView
-  protected lateinit var viewModel: T
 
   /** ID of the associated task in the Job. Used for instantiating the [viewModel]. */
   var taskId by Delegates.notNull<String>()
 
-  protected val isViewModelInitialized: Boolean
-    get() =
-      try {
-        viewModel
-        true
-      } catch (e: UninitializedPropertyAccessException) {
-        Timber.e(e, "Viewmodel is not initialized")
-        false
-      }
+  protected val viewModel: T by lazy {
+    @Suppress("UNCHECKED_CAST")
+    dataCollectionViewModel.getTaskViewModel(taskId) as? T
+      ?: error("ViewModel for taskId:$taskId not found.")
+  }
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -88,10 +82,6 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     view.doOnAttach {
-      @Suppress("UNCHECKED_CAST", "LabeledExpression")
-      val vm = dataCollectionViewModel.getTaskViewModel(taskId) as? T ?: return@doOnAttach
-
-      viewModel = vm
       taskView.bind(this, viewModel)
       taskView.addTaskView(onCreateTaskBody(layoutInflater))
 
@@ -104,7 +94,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   override fun onResume() {
     super.onResume()
-    if (isViewModelInitialized) onTaskResume()
+    onTaskResume()
   }
 
   /** Creates the view for common task template with/without header. */
