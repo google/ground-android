@@ -27,6 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -47,7 +48,6 @@ import org.groundplatform.android.ui.home.HomeScreenViewModel
 import org.groundplatform.android.util.createComposeView
 import org.groundplatform.android.util.renderComposableDialog
 import timber.log.Timber
-import javax.inject.Inject
 
 /** Fragment allowing the user to capture a photo to complete a task. */
 @AndroidEntryPoint

@@ -18,9 +18,11 @@ package org.groundplatform.android.ui.datacollection.components
 import android.net.Uri
 import android.widget.ImageView
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -47,15 +49,17 @@ fun PhotoTaskScreen(
 ) {
   Box(modifier = modifier.fillMaxWidth().padding(horizontal = 8.dp)) {
     if (!isPhotoPresent) {
-      FilledTonalButton(onClick = onTakePhoto) {
-        Row {
-          Icon(
-            imageVector = ImageVector.vectorResource(id = R.drawable.outline_photo_camera),
-            contentDescription = stringResource(id = R.string.camera),
-            modifier = Modifier.padding(end = 8.dp),
-          )
-          Text(text = stringResource(id = R.string.camera))
-        }
+      FilledTonalButton(
+        onClick = onTakePhoto,
+        contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
+      ) {
+        Icon(
+          imageVector = ImageVector.vectorResource(id = R.drawable.outline_photo_camera),
+          contentDescription = stringResource(id = R.string.camera),
+          modifier = Modifier.size(ButtonDefaults.IconSize),
+        )
+        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+        Text(text = stringResource(id = R.string.camera))
       }
     } else {
       AndroidView(
