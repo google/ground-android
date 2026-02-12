@@ -26,8 +26,10 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -42,6 +44,8 @@ import org.groundplatform.android.ui.common.MapConfig
 import org.groundplatform.android.ui.components.MapFloatingActionButton
 import org.groundplatform.android.ui.home.mapcontainer.HomeScreenMapContainerViewModel
 import org.groundplatform.android.ui.map.MapFragment
+import org.groundplatform.android.ui.offlineareas.selector.model.BottomTextState
+import org.groundplatform.android.ui.offlineareas.selector.model.UiState
 import org.groundplatform.android.util.renderComposableDialog
 import org.groundplatform.android.util.setComposableContent
 
@@ -69,8 +73,6 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
     binding = OfflineAreaSelectorFragBinding.inflate(inflater, container, false)
-    binding.viewModel = viewModel
-    binding.lifecycleOwner = this
     return binding.root
   }
 
@@ -87,7 +89,12 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
         )
       }
     }
+    binding.downloadButton.setOnClickListener { viewModel.onDownloadClick() }
+    binding.cancelButton.setOnClickListener { viewModel.onCancelClick() }
+    setupObservers()
+  }
 
+  private fun setupObservers() {
     viewLifecycleOwner.lifecycleScope.launch {
       viewModel.isDownloadProgressVisible.observe(viewLifecycleOwner) {
         showDownloadProgressDialog(it)
@@ -116,6 +123,34 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
     lifecycleScope.launch {
       viewModel.networkUnavailableEvent.collect {
         popups.ErrorPopup().show(R.string.connect_to_download_message)
+      }
+    }
+
+    viewModel.downloadButtonEnabled.observe(viewLifecycleOwner) {
+      binding.downloadButton.isEnabled = it
+      binding.downloadButton.isClickable = it
+    }
+    lifecycleScope.launch {
+      repeatOnLifecycle(Lifecycle.State.STARTED) {
+        viewModel.bottomTextState.collect {
+          binding.bottomText.text =
+            when (it) {
+              is BottomTextState.AreaSize ->
+                resources.getString(R.string.selected_offline_area_size, it.size)
+              BottomTextState.AreaTooLarge ->
+                resources.getString(R.string.selected_offline_area_too_large)
+              BottomTextState.Loading ->
+                resources.getString(
+                  R.string.selected_offline_area_size,
+                  resources.getString(R.string.offline_area_size_loading_symbol),
+                )
+              BottomTextState.NetworkError ->
+                resources.getString(R.string.connect_to_download_message)
+              BottomTextState.NoImageryAvailable ->
+                resources.getString(R.string.no_imagery_available_for_area)
+              null -> ""
+            }
+        }
       }
     }
   }
