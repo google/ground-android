@@ -47,14 +47,15 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     hiltNavGraphViewModels(R.id.data_collection)
 
   private lateinit var taskView: TaskView
+
+  /** ID of the associated task in the Job. Used for instantiating the [viewModel]. */
+  var taskId by Delegates.notNull<String>()
+
   protected val viewModel: T by lazy {
     @Suppress("UNCHECKED_CAST")
     dataCollectionViewModel.getTaskViewModel(taskId) as? T
       ?: error("ViewModel for taskId:$taskId not found.")
   }
-
-  /** ID of the associated task in the Job. Used for instantiating the [viewModel]. */
-  var taskId by Delegates.notNull<String>()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
