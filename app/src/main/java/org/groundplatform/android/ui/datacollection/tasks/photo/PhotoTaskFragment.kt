@@ -23,14 +23,14 @@ import android.view.LayoutInflater
 import android.view.View
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
-import org.groundplatform.android.databinding.PhotoTaskFragBinding
 import org.groundplatform.android.di.coroutines.ApplicationScope
 import org.groundplatform.android.di.coroutines.IoDispatcher
 import org.groundplatform.android.di.coroutines.MainScope
@@ -39,12 +39,15 @@ import org.groundplatform.android.system.PermissionDeniedException
 import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.ui.common.EphemeralPopups
 import org.groundplatform.android.ui.components.ConfirmationDialog
+import org.groundplatform.android.ui.datacollection.components.PhotoTaskScreen
 import org.groundplatform.android.ui.datacollection.components.TaskView
 import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.ui.home.HomeScreenViewModel
+import org.groundplatform.android.util.createComposeView
 import org.groundplatform.android.util.renderComposableDialog
 import timber.log.Timber
+import javax.inject.Inject
 
 /** Fragment allowing the user to capture a photo to complete a task. */
 @AndroidEntryPoint
@@ -74,13 +77,12 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithHeader(inflater)
 
-  override fun onCreateTaskBody(inflater: LayoutInflater): View {
-    val taskBinding = PhotoTaskFragBinding.inflate(inflater)
-    taskBinding.lifecycleOwner = this
-    taskBinding.fragment = this
-    taskBinding.viewModel = viewModel
+  override fun onCreateTaskBody(inflater: LayoutInflater): View = createComposeView {
+    val isPhotoPresent by viewModel.isPhotoPresent.observeAsState(false)
+    val uri by viewModel.uri.observeAsState()
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
-    return taskBinding.root
+
+    PhotoTaskScreen(isPhotoPresent = isPhotoPresent, uri = uri, onTakePhoto = { onTakePhoto() })
   }
 
   override fun onTaskViewAttached() {

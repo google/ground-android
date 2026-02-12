@@ -15,14 +15,12 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.photo
 
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.fragment.app.Fragment
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.matcher.ViewMatchers.withId
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
-import org.groundplatform.android.R
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.Style
 import org.groundplatform.android.model.task.Task
@@ -137,7 +135,7 @@ class PhotoTaskFragmentTest : BaseTaskFragmentTest<PhotoTaskFragment, PhotoTaskV
   fun `taking photo sends intent`() {
     setupTaskFragment<PhotoTaskFragment>(job, task)
 
-    onView(withId(R.id.btn_camera)).perform(click())
+    composeTestRule.onNodeWithText("Camera").performClick()
 
     org.robolectric.shadows.ShadowLooper.idleMainLooper()
 
