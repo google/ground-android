@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.ui.datacollection.components
+package org.groundplatform.android.ui.datacollection.tasks.photo
 
 import android.net.Uri
 import android.widget.ImageView
