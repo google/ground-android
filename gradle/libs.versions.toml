@@ -16,6 +16,7 @@
 androidMapsUtilsVersion = "3.19.0"
 appcompatVersion = "1.7.1"
 autoValueVersion = "1.11.1"
+coilComposeVersion = "2.6.0"
 composeBom = "2026.02.00"
 constraintlayoutVersion = "2.2.1"
 coreKtxVersion = "1.17.0"
@@ -74,6 +75,7 @@ workVersion = "2.11.1"
 android-maps-utils = { module = "com.google.maps.android:android-maps-utils", version.ref = "androidMapsUtilsVersion" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompatVersion" }
 androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayoutVersion" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilComposeVersion" }
 androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
 androidx-compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
 androidx-core = { module = "androidx.test:core", version.ref = "coreVersion" }
