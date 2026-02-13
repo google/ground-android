@@ -32,6 +32,8 @@ import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.theme.AppTheme
 
+const val MAX_IMAGE_SIZE = 2048
+
 @Composable
 fun UriImage(uri: Uri?, modifier: Modifier = Modifier) {
   if (uri == null) return
@@ -48,8 +50,8 @@ fun UriImage(uri: Uri?, modifier: Modifier = Modifier) {
     val measureH =
       if (constraints.hasBoundedHeight) constraints.maxHeight else displayMetrics.heightPixels / 2
 
-    val targetW = measureW.coerceAtMost(2048)
-    val targetH = measureH.coerceAtMost(2048)
+    val targetW = measureW.coerceAtMost(MAX_IMAGE_SIZE)
+    val targetH = measureH.coerceAtMost(MAX_IMAGE_SIZE)
 
     AsyncImage(
       model =
