@@ -84,22 +84,6 @@
     <item name="shapeAppearanceOverlay">@style/ShapeAppearanceOverlay.App.CornerSize50Percent</item>
   </style>
 
-  <style name="TaskChipButton" parent="Widget.MaterialComponents.Chip.Action">
-    <item name="android:layout_width">wrap_content</item>
-    <item name="android:layout_height">wrap_content</item>
-    <item name="android:layout_margin">5dp</item>
-    <item name="android:paddingStart">24dp</item>
-    <item name="android:maxLines">1</item>
-    <item name="android:paddingEnd">24dp</item>
-    <item name="android:paddingTop">10dp</item>
-    <item name="android:paddingBottom">10dp</item>
-  </style>
-
-  <style name="TaskChipButton.LightGreen">
-    <item name="android:backgroundTint">@drawable/task_light_green_btn_selector</item>
-    <item name="android:textColor">?attr/colorOnSurface</item>
-  </style>
-
   <style name="TextAppearance.App.TitleSmall" parent="TextAppearance.Material3.TitleSmall">
     <item name="fontFamily">@font/text_700</item>
   </style>
