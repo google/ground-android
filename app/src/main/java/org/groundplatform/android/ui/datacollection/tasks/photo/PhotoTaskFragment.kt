@@ -76,12 +76,14 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithHeader(inflater)
 
-  override fun onCreateTaskBody(inflater: LayoutInflater): View = createComposeView {
-    val isPhotoPresent by viewModel.isPhotoPresent.observeAsState(false)
-    val uri by viewModel.uri.observeAsState()
+  override fun onCreateTaskBody(inflater: LayoutInflater): View {
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
+    return createComposeView {
+      val isPhotoPresent by viewModel.isPhotoPresent.observeAsState(false)
+      val uri by viewModel.uri.observeAsState()
 
-    PhotoTaskScreen(isPhotoPresent = isPhotoPresent, uri = uri, onTakePhoto = { onTakePhoto() })
+      PhotoTaskScreen(isPhotoPresent = isPhotoPresent, uri = uri, onTakePhoto = { onTakePhoto() })
+    }
   }
 
   override fun onTaskViewAttached() {
