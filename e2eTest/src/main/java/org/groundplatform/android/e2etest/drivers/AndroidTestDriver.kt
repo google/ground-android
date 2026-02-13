@@ -148,7 +148,7 @@ class AndroidTestDriver(
       Instrumentation.ActivityResult(Activity.RESULT_OK, Intent())
     }
 
-    click(TestDriver.Target.ViewId(R.id.btn_camera))
+    device.findObject(By.text("Camera")).click()
   }
 
   override fun setDate() {
