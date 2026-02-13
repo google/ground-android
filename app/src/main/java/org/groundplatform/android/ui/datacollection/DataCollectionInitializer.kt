@@ -60,6 +60,7 @@ constructor(
     savedStateHandle: SavedStateHandle,
     jobId: String,
     loiId: String?,
+    loiName: String?,
   ): DataCollectionUiState =
     try {
       val survey = loadSurveyOrThrow()
@@ -85,8 +86,7 @@ constructor(
             IllegalStateException("Could not compute TaskPosition for $currentTaskId"),
           )
 
-      val typedName: String? = savedStateHandle[TASK_LOI_NAME_KEY]
-      val loiName = computeLoiNameOrThrow(survey.id, loiId, typedName)
+      val loiName = computeLoiName(survey.id, loiId, loiName)
 
       DataCollectionUiState.Ready(
         surveyId = survey.id,
@@ -149,17 +149,14 @@ constructor(
    *
    * @throws DataCollectionException.LoiNameFailed when unavailable.
    */
-  private suspend fun computeLoiNameOrThrow(
-    surveyId: String,
-    loiId: String?,
-    typedName: String?,
-  ): String =
+  private suspend fun computeLoiName(surveyId: String, loiId: String?, typedName: String?): String =
     if (loiId == null) {
-      typedName ?: throw DataCollectionException.LoiNameFailed
+      typedName.orEmpty()
     } else {
-      locationOfInterestRepository.getOfflineLoi(surveyId, loiId)?.let {
-        locationOfInterestHelper.getDisplayLoiName(it)
-      } ?: throw DataCollectionException.LoiNameFailed
+      locationOfInterestRepository
+        .getOfflineLoi(surveyId, loiId)
+        ?.let { locationOfInterestHelper.getDisplayLoiName(it) }
+        .orEmpty()
     }
 
   private fun mapThrowableToCode(t: Throwable): DataCollectionErrorCode =
@@ -173,7 +170,6 @@ constructor(
     }
 
   companion object {
-    private const val TASK_LOI_NAME_KEY = "locationOfInterestName"
     private const val TASK_POSITION_ID = "currentTaskId"
     private const val SURVEY_LOAD_TIMEOUT_MILLIS = 3_000L
   }

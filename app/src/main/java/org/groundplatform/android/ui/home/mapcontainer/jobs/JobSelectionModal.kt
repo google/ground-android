@@ -21,9 +21,14 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.runtime.Composable
@@ -56,7 +61,10 @@ fun JobSelectionModal(jobs: List<Job>, onJobClicked: (job: Job) -> Unit, onDismi
       ShowJobCards(jobs, onJobClicked)
     }
     ActionButton(
-      modifier = Modifier.align(Alignment.CenterHorizontally).padding(bottom = 35.dp),
+      modifier =
+        Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom))
+          .align(Alignment.CenterHorizontally)
+          .padding(bottom = 36.dp),
       icon = Icons.Filled.Clear,
       contentDescription = stringResource(R.string.close),
       onClick = onDismiss,
@@ -76,7 +84,7 @@ private fun ShowJobCards(jobs: List<Job>, onJobClicked: (job: Job) -> Unit) {
 @Composable
 @Preview(showBackground = true)
 @ExcludeFromJacocoGeneratedReport
-fun PreviewJobSelectionModal() {
+private fun PreviewJobSelectionModal() {
   AppTheme {
     JobSelectionModal(
       jobs =

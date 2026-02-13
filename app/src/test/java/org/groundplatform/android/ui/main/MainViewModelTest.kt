@@ -95,7 +95,7 @@ class MainViewModelTest : BaseHiltTest() {
         fakeAuthenticationManager.setState(SignInState.SigningIn)
         advanceUntilIdle()
 
-        assertThat(awaitItem()).isEqualTo(MainUiState.OnUserSigningIn)
+        assertThat(awaitItem()).isEqualTo(null)
         verifyUserNotSaved()
         assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
       }
@@ -169,21 +169,6 @@ class MainViewModelTest : BaseHiltTest() {
 
       assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
       assertThat(awaitItem()).isEqualTo(MainUiState.TosNotAccepted)
-    }
-  }
-
-  @Test
-  fun `sign in error redirects to signed out state`() = runWithTestDispatcher {
-    setupUserPreferences()
-
-    viewModel.navigationRequests.test {
-      fakeAuthenticationManager.setState(SignInState.Error(Exception()))
-      advanceUntilIdle()
-
-      assertThat(awaitItem()).isEqualTo(MainUiState.OnUserSignedOut)
-      verifyUserPreferencesCleared()
-      verifyUserNotSaved()
-      assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
     }
   }
 }

@@ -29,9 +29,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,6 +59,7 @@ import org.groundplatform.android.model.locationofinterest.LocationOfInterest
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.common.LocationOfInterestHelper
+import org.groundplatform.android.ui.components.ConfirmationDialog
 import org.groundplatform.android.ui.theme.AppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -64,7 +68,9 @@ fun LoiJobSheet(
   loi: LocationOfInterest,
   canUserSubmitData: Boolean,
   submissionCount: Int,
+  showDeleteLoiButton: Boolean = false,
   onCollectClicked: () -> Unit,
+  onDeleteClicked: (() -> Unit)? = null,
   onDismiss: () -> Unit,
 ) {
   val scope = rememberCoroutineScope()
@@ -76,7 +82,7 @@ fun LoiJobSheet(
     containerColor = MaterialTheme.colorScheme.surface,
     dragHandle = { BottomSheetDefaults.DragHandle(width = 32.dp) },
   ) {
-    ModalContents(loi, canUserSubmitData, submissionCount) {
+    ModalContents(loi, canUserSubmitData, submissionCount, showDeleteLoiButton, onDeleteClicked) {
       scope.launch { sheetState.hide() }.invokeOnCompletion { onCollectClicked() }
     }
   }
@@ -87,60 +93,125 @@ private fun ModalContents(
   loi: LocationOfInterest,
   canUserSubmitData: Boolean,
   submissionCount: Int,
+  showDeleteLoiButton: Boolean,
+  onDeleteClicked: (() -> Unit)?,
   onCollectClicked: () -> Unit,
 ) {
-  val loiHelper = LocationOfInterestHelper(LocalContext.current.resources)
+  val resources = LocalContext.current.resources
+  val loiHelper = remember(resources) { LocationOfInterestHelper(resources) }
+  val showDeleteDialog = remember { mutableStateOf(false) }
 
   Column(modifier = Modifier.fillMaxWidth().padding(start = 24.dp, end = 24.dp, bottom = 50.dp)) {
+    JobName(loiHelper = loiHelper, loi = loi)
+    LoiHeader(loiHelper = loiHelper, loi = loi)
+    SubmissionRow(
+      loi = loi,
+      submissionCount = submissionCount,
+      canUserSubmitData = canUserSubmitData,
+      onCollectClicked = onCollectClicked,
+    )
+    DeleteSiteSection(
+      showDeleteLoiButton = showDeleteLoiButton,
+      isPredefined = loi.isPredefined == true,
+      onClick = { showDeleteDialog.value = true },
+    )
+  }
 
-    // Job Name
-    loiHelper.getJobName(loi)?.let {
-      Text(it, color = MaterialTheme.colorScheme.onSurface, fontSize = 18.sp)
-    }
+  DeleteConfirmationDialog(
+    visible = showDeleteDialog.value,
+    onConfirm = {
+      showDeleteDialog.value = false
+      onDeleteClicked?.invoke()
+    },
+    onDismiss = { showDeleteDialog.value = false },
+  )
+}
 
-    // Icon & LOI Name
-    Row(
-      modifier = Modifier.padding(vertical = 8.dp),
-      verticalAlignment = Alignment.CenterVertically,
-    ) {
-      Icon(
-        painter = painterResource(R.drawable.ic_ring_marker),
-        contentDescription = stringResource(R.string.job_site_icon),
-        modifier = Modifier.size(32.dp),
-        tint = Color(loi.job.getDefaultColor()),
-      )
-      Spacer(modifier = Modifier.size(18.dp))
-      Text(
-        loiHelper.getDisplayLoiName(loi),
-        color = MaterialTheme.colorScheme.onSurface,
-        fontSize = 28.sp,
-      )
-    }
+@Composable
+private fun JobName(loiHelper: LocationOfInterestHelper, loi: LocationOfInterest) {
+  loiHelper.getJobName(loi)?.let {
+    Text(it, color = MaterialTheme.colorScheme.onSurface, fontSize = 18.sp)
+  }
+}
 
-    // Submission count & "Add data" button
-    Row(
-      modifier = Modifier.fillMaxWidth(),
-      verticalAlignment = Alignment.Top,
-      horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-      Text(
-        if (submissionCount <= 0) stringResource(R.string.no_submissions)
-        else pluralStringResource(R.plurals.submission_count, submissionCount, submissionCount),
-        color = MaterialTheme.colorScheme.onSurface,
-        fontSize = 16.sp,
-      )
-      // NOTE(#2539): The DataCollectionFragment will crash if there are no non-LOI tasks.
-      if (canUserSubmitData && loi.job.hasNonLoiTasks() && loi.isPredefined == true) {
-        Button(onClick = onCollectClicked) {
-          Text(
-            stringResource(R.string.add_data),
-            modifier = Modifier.padding(4.dp),
-            fontSize = 18.sp,
-          )
-        }
+@Composable
+private fun LoiHeader(loiHelper: LocationOfInterestHelper, loi: LocationOfInterest) {
+  Row(
+    modifier = Modifier.padding(vertical = 8.dp),
+    verticalAlignment = Alignment.CenterVertically,
+  ) {
+    Icon(
+      painter = painterResource(R.drawable.ic_ring_marker),
+      contentDescription = stringResource(R.string.job_site_icon),
+      modifier = Modifier.size(32.dp),
+      tint = Color(loi.job.getDefaultColor()),
+    )
+    Spacer(modifier = Modifier.size(18.dp))
+    Text(
+      loiHelper.getDisplayLoiName(loi),
+      color = MaterialTheme.colorScheme.onSurface,
+      fontSize = 28.sp,
+    )
+  }
+}
+
+@Composable
+private fun SubmissionRow(
+  loi: LocationOfInterest,
+  submissionCount: Int,
+  canUserSubmitData: Boolean,
+  onCollectClicked: () -> Unit,
+) {
+  Row(
+    modifier = Modifier.fillMaxWidth(),
+    verticalAlignment = Alignment.Top,
+    horizontalArrangement = Arrangement.SpaceBetween,
+  ) {
+    Text(
+      if (submissionCount <= 0) stringResource(R.string.no_submissions)
+      else pluralStringResource(R.plurals.submission_count, submissionCount, submissionCount),
+      color = MaterialTheme.colorScheme.onSurface,
+      fontSize = 16.sp,
+    )
+
+    // NOTE(#2539): Avoid crash when there are no non-LOI tasks.
+    val showAddData = canUserSubmitData && loi.job.hasNonLoiTasks() && loi.isPredefined == true
+    if (showAddData) {
+      Button(onClick = onCollectClicked) {
+        Text(stringResource(R.string.add_data), modifier = Modifier.padding(4.dp), fontSize = 18.sp)
       }
     }
   }
+}
+
+@Composable
+private fun DeleteSiteSection(
+  showDeleteLoiButton: Boolean,
+  isPredefined: Boolean,
+  onClick: () -> Unit,
+) {
+  if (showDeleteLoiButton && !isPredefined) {
+    Spacer(modifier = Modifier.size(16.dp))
+    OutlinedButton(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
+      Text(stringResource(R.string.delete_site))
+    }
+  }
+}
+
+@Composable
+private fun DeleteConfirmationDialog(
+  visible: Boolean,
+  onConfirm: () -> Unit,
+  onDismiss: () -> Unit,
+) {
+  if (!visible) return
+  ConfirmationDialog(
+    title = R.string.delete_site_dialog_title,
+    description = R.string.delete_site_dialog_message,
+    confirmButtonText = R.string.delete,
+    onConfirmClicked = onConfirm,
+    onDismiss = onDismiss,
+  )
 }
 
 /** Fake data for preview. */
@@ -153,7 +224,7 @@ private const val TASK_ID = "task 1"
 @Composable
 @Preview(showBackground = true)
 @ExcludeFromJacocoGeneratedReport
-fun PreviewModalContentsWhenJobHasNoTasks() {
+private fun PreviewModalContentsWhenJobHasNoTasks() {
   val loi =
     LocationOfInterest(
       id = "1",
@@ -164,7 +235,13 @@ fun PreviewModalContentsWhenJobHasNoTasks() {
       geometry = Point(coordinates = Coordinates(lat = 20.0, lng = 20.0)),
     )
   AppTheme {
-    ModalContents(loi = loi, canUserSubmitData = true, submissionCount = 0, onCollectClicked = {})
+    ModalContents(
+      loi = loi,
+      canUserSubmitData = true,
+      submissionCount = 0,
+      showDeleteLoiButton = false,
+      onDeleteClicked = null,
+    ) {}
   }
 }
 
@@ -172,7 +249,7 @@ fun PreviewModalContentsWhenJobHasNoTasks() {
 @Composable
 @Preview(showBackground = true)
 @ExcludeFromJacocoGeneratedReport
-fun PreviewModalContentsWhenUserCannotSubmitData() {
+private fun PreviewModalContentsWhenUserCannotSubmitData() {
   val loi =
     LocationOfInterest(
       id = "1",
@@ -200,7 +277,13 @@ fun PreviewModalContentsWhenUserCannotSubmitData() {
       geometry = Point(coordinates = Coordinates(lat = 20.0, lng = 20.0)),
     )
   AppTheme {
-    ModalContents(loi = loi, canUserSubmitData = false, submissionCount = 1, onCollectClicked = {})
+    ModalContents(
+      loi = loi,
+      canUserSubmitData = false,
+      submissionCount = 1,
+      showDeleteLoiButton = false,
+      onDeleteClicked = null,
+    ) {}
   }
 }
 
@@ -208,7 +291,7 @@ fun PreviewModalContentsWhenUserCannotSubmitData() {
 @Composable
 @Preview(showBackground = true)
 @ExcludeFromJacocoGeneratedReport
-fun PreviewModalContentsWhenJobHasTasks() {
+private fun PreviewModalContentsWhenJobHasTasks() {
   val loi =
     LocationOfInterest(
       id = "1",
@@ -238,7 +321,13 @@ fun PreviewModalContentsWhenJobHasTasks() {
       isPredefined = false,
     )
   AppTheme {
-    ModalContents(loi = loi, canUserSubmitData = true, submissionCount = 20, onCollectClicked = {})
+    ModalContents(
+      loi = loi,
+      canUserSubmitData = true,
+      submissionCount = 20,
+      showDeleteLoiButton = false,
+      onDeleteClicked = null,
+    ) {}
   }
 }
 
@@ -246,7 +335,7 @@ fun PreviewModalContentsWhenJobHasTasks() {
 @Composable
 @Preview(showBackground = true)
 @ExcludeFromJacocoGeneratedReport
-fun PreviewModalContentsWhenJobHasTasksAndIsPredefined() {
+private fun PreviewModalContentsWhenJobHasTasksAndIsPredefined() {
   val loi =
     LocationOfInterest(
       id = "1",
@@ -276,6 +365,12 @@ fun PreviewModalContentsWhenJobHasTasksAndIsPredefined() {
       isPredefined = true,
     )
   AppTheme {
-    ModalContents(loi = loi, canUserSubmitData = true, submissionCount = 20, onCollectClicked = {})
+    ModalContents(
+      loi = loi,
+      canUserSubmitData = true,
+      submissionCount = 20,
+      showDeleteLoiButton = false,
+      onDeleteClicked = null,
+    ) {}
   }
 }

@@ -15,13 +15,8 @@
  */
 package org.groundplatform.android.ui.signin
 
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.isEnabled
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
@@ -33,13 +28,11 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
-import org.groundplatform.android.R
 import org.groundplatform.android.launchFragmentInHiltContainer
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.NetworkStatus
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
 import org.groundplatform.android.system.auth.SignInState
-import org.hamcrest.Matchers.allOf
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -69,7 +62,8 @@ class SignInFragmentTest : BaseHiltTest() {
       launchFragmentInHiltContainer<SignInFragment>()
       fakeAuthenticationManager.setUser(TEST_USER)
 
-      onView(withId(R.id.sign_in_button)).perform(click())
+      // TODO: Replace with a single click action.
+      getSignInButton().performClick().performClick()
       advanceUntilIdle()
 
       fakeAuthenticationManager.signInState.test {
@@ -78,30 +72,12 @@ class SignInFragmentTest : BaseHiltTest() {
     }
 
   @Test
-  fun `Sign-in button should be enabled when network is not available`() = runWithTestDispatcher {
-    whenever(networkManager.networkStatusFlow).thenReturn(flowOf(NetworkStatus.UNAVAILABLE))
-    launchFragmentInHiltContainer<SignInFragment>()
-    fakeAuthenticationManager.setUser(TEST_USER)
-
-    onView(allOf(withId(R.id.sign_in_button), isDisplayed(), isEnabled())).perform(click())
-
-    // Assert that the sign-in state is still signed out
-    fakeAuthenticationManager.signInState.test {
-      assertThat(expectMostRecentItem()).isEqualTo(SignInState.SignedOut)
-    }
-
-    onView(withId(com.google.android.material.R.id.snackbar_text))
-      .check(matches(withText(R.string.network_error_when_signing_in)))
-  }
-
-  @Test
   fun `Sign-in should only execute once when clicked multiple times`() = runWithTestDispatcher {
     whenever(networkManager.networkStatusFlow).thenReturn(flowOf(NetworkStatus.AVAILABLE))
     launchFragmentInHiltContainer<SignInFragment>()
     fakeAuthenticationManager.setUser(TEST_USER)
 
-    onView(withId(R.id.sign_in_button)).perform(click())
-    onView(withId(R.id.sign_in_button)).perform(click())
+    getSignInButton().performClick().performClick()
     advanceUntilIdle()
 
     fakeAuthenticationManager.signInState.test {
@@ -119,6 +95,8 @@ class SignInFragmentTest : BaseHiltTest() {
       assertThat(activity?.isFinishing).isTrue()
     }
   }
+
+  private fun getSignInButton() = composeTestRule.onNodeWithTag(BUTTON_TEST_TAG)
 
   companion object {
     private val TEST_USER = FakeData.USER

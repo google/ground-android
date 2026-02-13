@@ -38,6 +38,7 @@
 
   <string name="map_view">Map view</string>
   <string name="unexpected_error">An unexpected error has occurred</string>
+  <string name="survey_load_timeout_error">Survey loading timed out. Please check your connection and try again.</string>
   <string name="google_api_install_failed">Google Play Services installation failed</string>
   <string name="sign_out">Sign out</string>
   <string name="ok">OK</string>
@@ -56,8 +57,9 @@
   <!-- Label of button used enter the offline area selector. -->
   <string name="offline_area_selector_select">Select area</string>
   <string name="no_basemaps_downloaded">No map imagery downloaded for offline use</string>
-  <string name="connect_to_download_message">You are offline. Connect to download offline map imager</string>
+  <string name="connect_to_download_message">You are offline. Connect to download offline map images</string>
   <string name="signing_in">Signing in</string>
+  <string name="sign_in_with_google">Sign in with Google</string>
   <!-- Precedes the build number shown in the side menu of debug builds. -->
   <string name="build">Build %s</string>
 
@@ -198,13 +200,13 @@
   <string name="data_collection_cancellation_confirm_button">Confirm</string>
   <string name="something_went_wrong">Something went wrong</string>
 
-  <string name="polygon_vertex_add_dialog_title">Error</string>
-  <string name="polygon_vertex_add_dialog_message">Area permit can&#8217;t intersect with itself</string>
+  <string name="polygon_vertex_add_dialog_title">Invalid area</string>
+  <string name="polygon_vertex_add_dialog_message">Area perimeter can&#8217;t intersect with itself</string>
   <string name="polygon_vertex_add_dialog_positive_button">OK</string>
   <string name="clear">Clear</string>
   <string name="text_task_data_character_limit">255 characters max</string>
 
-  <string name="area_message">Area: %1$.2f m²</string>
+  <string name="area_message">Area: %s</string>
 
   <string name="lang_english">English</string>
   <string name="lang_french">French</string>
@@ -224,8 +226,18 @@
   <string name="dialog_message_update_required">A new version of the app is available. Please update to continue using the app.</string>
   <string name="dialog_button_update">Update</string>
 
-  <string name="select_length_title">Unit of length</string>
+  <string name="select_length_title">Select units</string>
   <string name="select_length_summary">Select your preferred unit</string>
-  <string name="length_meters">Meters (m)</string>
-  <string name="length_feet">Feet (ft)</string>
+  <string name="length_metric">Metric</string>
+  <string name="length_imperial">Imperial</string>
+
+  <string name="delete_site">Delete site</string>
+  <string name="delete_site_dialog_title">Delete site?</string>
+  <string name="delete_site_dialog_message">This site and all associated data will be permanently deleted. This action cannot be undone.</string>
+  <string name="delete">Delete</string>
+
+  <string name="location_not_accurate_heading">Your location is not accurate</string>
+  <string name="location_not_accurate_description">Try standing still or waiting for a more accurate position</string>
+
+  <string name="recenter">Re-center</string>
 </resources>

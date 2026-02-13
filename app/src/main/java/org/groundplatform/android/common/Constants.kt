@@ -18,7 +18,6 @@ package org.groundplatform.android.common
 import android.content.Context
 import org.groundplatform.android.BuildConfig
 import org.groundplatform.android.model.map.MapType
-import org.groundplatform.android.ui.map.gms.mog.MogSource
 
 /** Application constants. */
 object Constants {
@@ -27,7 +26,7 @@ object Constants {
   const val SHARED_PREFS_MODE = Context.MODE_PRIVATE
 
   // Local db settings.
-  const val DB_VERSION = 124
+  const val DB_VERSION = 126
   const val DB_NAME = "ground.db"
 
   // Firebase Cloud Firestore settings.
@@ -54,30 +53,14 @@ object Constants {
    */
   const val SURVEY_PATH_SEGMENT = "survey"
 
-  const val LENGTH_UNIT_METER = "m"
-  const val LENGTH_UNIT_FEET = "ft"
-
   /** Limit on the permitted character length for free text question responses. */
   const val TEXT_DATA_CHAR_LIMIT = 255
 
   /** Default map type used when map is displayed. */
   val DEFAULT_MAP_TYPE = MapType.TERRAIN
 
-  // TODO: Make sub-paths configurable and stop hardcoding here.
-  // Issue URL: https://github.com/google/ground-android/issues/1730
-  const val DEFAULT_MOG_TILE_LOCATION = "/offline-imagery/default"
-  private const val DEFAULT_MOG_MIN_ZOOM = 8
-  private const val DEFAULT_MOG_MAX_ZOOM = 14
-
-  // TODO: Move to a util class
-  fun getMogSources(path: String) =
-    listOf(
-      MogSource(0..<DEFAULT_MOG_MIN_ZOOM, "$path/$DEFAULT_MOG_MIN_ZOOM/overview.tif"),
-      MogSource(
-        DEFAULT_MOG_MIN_ZOOM..DEFAULT_MOG_MAX_ZOOM,
-        "$path/$DEFAULT_MOG_MIN_ZOOM/{x}/{y}.tif",
-      ),
-    )
+  /** Accuracy threshold in meters. */
+  const val ACCURACY_THRESHOLD_IN_M = 15.0f
 
   // TODO: Move to a util class
   fun isReleaseBuild(): Boolean = BuildConfig.BUILD_TYPE.contentEquals("release")

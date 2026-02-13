@@ -20,25 +20,36 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
+import org.groundplatform.android.common.Constants.ACCURACY_THRESHOLD_IN_M
 import org.groundplatform.android.databinding.MapTaskFragBinding
 import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.ui.common.AbstractMapContainerFragment
 import org.groundplatform.android.ui.common.BaseMapViewModel
+import org.groundplatform.android.ui.components.MapFloatingActionButton
+import org.groundplatform.android.ui.components.MapFloatingActionButtonType
+import org.groundplatform.android.ui.components.RecenterButton
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.MapFragment
 import org.groundplatform.android.ui.map.gms.getAccuracyOrNull
 import org.groundplatform.android.ui.map.gms.toCoordinates
+import org.groundplatform.android.util.setComposableContent
 import org.groundplatform.android.util.toDmsFormat
 import org.jetbrains.annotations.MustBeInvokedByOverriders
 
@@ -76,9 +87,7 @@ abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
     super.onCreateView(inflater, container, savedInstanceState)
 
     binding = MapTaskFragBinding.inflate(inflater, container, false)
-    binding.fragment = this
-    binding.viewModel = getMapViewModel()
-    binding.lifecycleOwner = this
+    setupMapActionButtons()
 
     viewLifecycleOwner.lifecycleScope.launch {
       repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -87,14 +96,52 @@ abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
 
           val df = DecimalFormat("#.##")
           df.roundingMode = RoundingMode.DOWN
-          val accuracyText = it?.getAccuracyOrNull()?.let { value -> df.format(value) + "m" } ?: "?"
+          val accuracy = it?.getAccuracyOrNull()
+          val accuracyText = accuracy?.let { value -> df.format(value) + "m" } ?: "?"
 
-          updateLocationInfoCard(R.string.current_location, locationText, accuracyText)
+          updateLocationInfoCard(R.string.current_location, locationText, accuracyText, accuracy)
         }
       }
     }
 
     return binding.root
+  }
+
+  private fun setupMapActionButtons() {
+    binding.mapTypeBtn.apply {
+      setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+      setComposableContent {
+        MapFloatingActionButton(
+          type = MapFloatingActionButtonType.MapType,
+          onClick = { showMapTypeSelectorDialog() },
+        )
+      }
+    }
+
+    binding.locationLockBtn.apply {
+      setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+      setComposableContent {
+        val locationLockButton by viewModel.locationLockIconType.collectAsStateWithLifecycle()
+
+        MapFloatingActionButton(
+          type = locationLockButton,
+          onClick = { viewModel.onLocationLockClick() },
+        )
+      }
+    }
+
+    binding.recenterBtn.apply {
+      setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+      setComposableContent {
+        val shouldShowRecenter by viewModel.shouldShowRecenterButton.collectAsStateWithLifecycle()
+
+        if (shouldShowRecenter)
+          RecenterButton(
+            modifier = Modifier.padding(start = 20.dp),
+            onClick = { viewModel.onLocationLockClick() },
+          )
+      }
+    }
   }
 
   override fun getMapViewModel(): BaseMapViewModel = viewModel
@@ -126,6 +173,7 @@ abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
     @StringRes title: Int,
     locationText: String?,
     accuracyText: String? = null,
+    accuracyInMeters: Double? = null,
   ) =
     with(binding) {
       if (locationText.isNullOrEmpty()) {
@@ -142,6 +190,13 @@ abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
         accuracy.visibility = View.VISIBLE
         accuracyTitle.setText(R.string.accuracy)
         accuracyValue.text = accuracyText
+        val color =
+          if (accuracyInMeters == null || accuracyInMeters > ACCURACY_THRESHOLD_IN_M) {
+            R.color.accuracy_bad
+          } else {
+            R.color.accuracy_good
+          }
+        accuracyValue.setTextColor(resources.getColor(color, null))
       }
     }
 

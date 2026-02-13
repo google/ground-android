@@ -18,6 +18,7 @@ package org.groundplatform.android.ui.datacollection.tasks.date
 import android.app.DatePickerDialog
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.isNotDisplayed
 import androidx.compose.ui.test.onNodeWithText
@@ -38,6 +39,7 @@ import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
+import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.BaseTaskFragmentTest
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -67,10 +69,32 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
   }
 
   @Test
+  fun `Initial action buttons state when task is optional`() {
+    setupTaskFragment<DateTaskFragment>(job, task)
+
+    assertFragmentHasButtons(
+      ButtonActionState(ButtonAction.PREVIOUS, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.SKIP, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.NEXT, isEnabled = false, isVisible = true),
+    )
+  }
+
+  @Test
+  fun `Initial action buttons state when task is required`() {
+    setupTaskFragment<DateTaskFragment>(job, task.copy(isRequired = true))
+
+    assertFragmentHasButtons(
+      ButtonActionState(ButtonAction.PREVIOUS, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.SKIP, isEnabled = false, isVisible = false),
+      ButtonActionState(ButtonAction.NEXT, isEnabled = false, isVisible = true),
+    )
+  }
+
+  @Test
   fun `default response is empty`() {
     setupTaskFragment<DateTaskFragment>(job, task)
 
-    onView(withId(R.id.user_response_text))
+    onView(withId(R.id.user_date_response_text))
       .check(matches(withText("")))
       .check(matches(isDisplayed()))
       .check(matches(isEnabled()))
@@ -86,10 +110,10 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
     // with height zero, and it doesn't seem to repro constraint calculations. Force the view to
     // have a height of 1 to ensure the action performed below actually takes place.
     val view: View? = fragment.view?.findViewById(R.id.task_container)
-    view?.layoutParams = ViewGroup.LayoutParams(0, 1)
+    view?.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1)
 
     assertThat(fragment.getDatePickerDialog()).isNull()
-    onView(withId(R.id.user_response_text)).perform(click())
+    onView(withId(R.id.user_date_response_text)).perform(click())
     assertThat(fragment.getDatePickerDialog()).isNotNull()
     assertThat(fragment.getDatePickerDialog()?.isShowing).isTrue()
   }
@@ -99,8 +123,8 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
     setupTaskFragment<DateTaskFragment>(job, task)
 
     val view: View? = fragment.view?.findViewById(R.id.task_container)
-    view?.layoutParams = ViewGroup.LayoutParams(0, 1)
-    onView(withId(R.id.user_response_text)).perform(click())
+    view?.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1)
+    onView(withId(R.id.user_date_response_text)).perform(click())
     assertThat(fragment.getDatePickerDialog()?.isShowing).isTrue()
 
     val hardcodedYear = 2024
@@ -113,6 +137,7 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
     datePickerDialog?.getButton(DatePickerDialog.BUTTON_POSITIVE)?.performClick()
 
     composeTestRule.onNodeWithText("10/10/24").isDisplayed()
+    runner().assertButtonIsEnabled("Next")
   }
 
   @Test
@@ -120,8 +145,8 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
     setupTaskFragment<DateTaskFragment>(job, task)
 
     val view: View? = fragment.view?.findViewById(R.id.task_container)
-    view?.layoutParams = ViewGroup.LayoutParams(0, 1)
-    onView(withId(R.id.user_response_text)).perform(click())
+    view?.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1)
+    onView(withId(R.id.user_date_response_text)).perform(click())
     assertThat(fragment.getDatePickerDialog()?.isShowing).isTrue()
 
     val hardcodedYear = 2024
@@ -143,25 +168,5 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
     setupTaskFragment<DateTaskFragment>(job, task)
 
     composeTestRule.onNodeWithText("M/D/YY").isDisplayed()
-  }
-
-  @Test
-  fun `displays correct action buttons`() {
-    setupTaskFragment<DateTaskFragment>(job, task)
-    assertFragmentHasButtons(ButtonAction.PREVIOUS, ButtonAction.SKIP, ButtonAction.NEXT)
-  }
-
-  @Test
-  fun `action buttons when task is optional`() {
-    setupTaskFragment<DateTaskFragment>(job, task.copy(isRequired = false))
-
-    runner().assertButtonIsDisabled("Next").assertButtonIsEnabled("Skip")
-  }
-
-  @Test
-  fun `action buttons when task is required`() {
-    setupTaskFragment<DateTaskFragment>(job, task.copy(isRequired = true))
-
-    runner().assertButtonIsDisabled("Next").assertButtonIsHidden("Skip")
   }
 }

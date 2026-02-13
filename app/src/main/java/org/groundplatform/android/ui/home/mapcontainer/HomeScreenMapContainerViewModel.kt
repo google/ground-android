@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android.ui.home.mapcontainer
 
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
@@ -55,6 +56,7 @@ import org.groundplatform.android.ui.common.BaseMapViewModel
 import org.groundplatform.android.ui.common.SharedViewModel
 import org.groundplatform.android.ui.home.mapcontainer.jobs.AdHocDataCollectionButtonData
 import org.groundplatform.android.ui.home.mapcontainer.jobs.DataCollectionEntryPointData
+import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentState
 import org.groundplatform.android.ui.home.mapcontainer.jobs.SelectedLoiSheetData
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.usecases.datasharingterms.GetDataSharingTermsUseCase
@@ -125,6 +127,12 @@ internal constructor(
   /** Emits whether the current zoom has crossed the zoomed-in threshold or not to cluster LOIs. */
   private val isZoomedInFlow: Flow<Boolean>
 
+  /**
+   * Represents the state of map overlays related to jobs, such as the selected LOI sheet and the
+   * buttons for creating new LOIs.
+   */
+  val jobMapComponentState: StateFlow<JobMapComponentState>
+
   init {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
 
@@ -159,6 +167,15 @@ internal constructor(
         if (survey == null || !isZoomedIn) listOf()
         else survey.jobs.filter { it.canDataCollectorsAddLois && it.getAddLoiTask() != null }
       }
+
+    jobMapComponentState =
+      processDataCollectionEntryPoints()
+        .map { (loiCard, jobCards) -> JobMapComponentState(loiCard, jobCards) }
+        .stateIn(
+          scope = viewModelScope,
+          started = SharingStarted.Lazily,
+          initialValue = JobMapComponentState(),
+        )
   }
 
   /** Enables the location lock if the active survey doesn't have a default camera position. */
@@ -182,6 +199,7 @@ internal constructor(
    * Returns a flow of [DataCollectionEntryPointData] associated with the active survey's LOIs and
    * adhoc jobs for displaying the cards.
    */
+  @VisibleForTesting
   fun processDataCollectionEntryPoints():
     Flow<Pair<SelectedLoiSheetData?, List<AdHocDataCollectionButtonData>>> =
     combine(loisInViewport, featureClicked, adHocLoiJobs) { loisInView, feature, jobs ->
@@ -189,11 +207,13 @@ internal constructor(
       val loiCard =
         loisInView
           .firstOrNull { it.geometry == feature?.geometry }
-          ?.let {
+          ?.let { loi ->
+            val canDelete = userRepository.canDeleteLoi(loi)
             SelectedLoiSheetData(
               canCollectData = canUserSubmitData,
-              loi = it,
-              submissionCount = submissionRepository.getTotalSubmissionCount(it),
+              loi = loi,
+              submissionCount = submissionRepository.getTotalSubmissionCount(loi),
+              showDeleteLoiButton = canDelete,
             )
           }
       if (loiCard == null && feature != null) {
@@ -230,6 +250,14 @@ internal constructor(
   fun grantDataSharingConsent() {
     val survey = requireNotNull(surveyRepository.activeSurvey)
     localValueStore.setDataSharingConsent(survey.id, true)
+  }
+
+  /**
+   * Deletes the given LOI and all associated data. This should only be called for free-form jobs.
+   */
+  suspend fun deleteLoi(loi: LocationOfInterest) {
+    loiRepository.deleteLoi(loi)
+    selectLocationOfInterest(null)
   }
 
   private fun getLocationOfInterestFeatures(survey: Survey): Flow<Set<Feature>> =

@@ -51,6 +51,7 @@
   <string name="no_basemaps_downloaded">Chưa có hình ảnh bản đồ nào được tải xuống để sử dụng ngoại tuyến</string>
   <string name="connect_to_download_message">Bạn đang ngoại tuyến. Hãy kết nối Internet để tải hình ảnh bản đồ ngoại tuyến</string>
   <string name="signing_in">Đang đăng nhập</string>
+  <string name="sign_in_with_google">Đăng nhập bằng Google</string>
   <!-- Precedes the build number shown in the side menu of debug builds. -->
   <string name="build">Phiên bản %s</string>
   <string name="tos_title">Điều khoản dịch vụ</string>
@@ -178,12 +179,12 @@
   <string name="data_collection_cancellation_description">Nếu bạn thoát, dữ liệu chưa được gửi sẽ bị xóa.</string>
   <string name="data_collection_cancellation_confirm_button">Xác nhận</string>
   <string name="something_went_wrong">Đã xảy ra lỗi</string>
-  <string name="polygon_vertex_add_dialog_title">Lỗi</string>
+  <string name="polygon_vertex_add_dialog_title">Khu vực không hợp lệ</string>
   <string name="polygon_vertex_add_dialog_message">Khu vực được phép không thể tự giao nhau</string>
   <string name="polygon_vertex_add_dialog_positive_button">OK</string>
   <string name="clear">Xóa</string>
   <string name="text_task_data_character_limit">Tối đa 255 ký tự</string>
-  <string name="area_message">Diện tích: %1$.2f m²</string>
+  <string name="area_message">Diện tích: %s</string>
   <string name="lang_english">Tiếng Anh</string>
   <string name="lang_french">Tiếng Pháp</string>
   <string name="lang_spanish">Tiếng Tây Ban Nha</string>
@@ -199,8 +200,19 @@
   <string name="dialog_title_update_required">Cần Cập nhật</string>
   <string name="dialog_message_update_required">A new version of the app is available. Please update to continue using the app.</string>
   <string name="dialog_button_update">Cập nhật</string>
-  <string name="select_length_title">Đơn vị chiều dài</string>
+  <string name="select_length_title">Chọn đơn vị</string>
   <string name="select_length_summary">Chọn đơn vị ưa thích của bạn</string>
-  <string name="length_meters">Mét (m)</string>
-  <string name="length_feet">Bàn chân (ft)</string>
+  <string name="length_metric">Hệ mét</string>
+  <string name="length_imperial">Hệ Anh</string>
+
+  <string name="delete_site">Xóa địa điểm</string>
+  <string name="delete_site_dialog_title">Xóa địa điểm?</string>
+  <string name="delete_site_dialog_message">Địa điểm này và tất cả dữ liệu liên quan sẽ bị xóa vĩnh viễn. Không thể hoàn tác hành động này.</string>
+  <string name="delete">Xóa</string>
+
+  <string name="location_not_accurate_heading">Vị trí của bạn không chính xác</string>
+  <string name="location_not_accurate_description">Hãy đứng yên hoặc chờ để có vị trí chính xác hơn</string>
+
+  <string name="recenter">Recenter</string>
+  <string name="survey_load_timeout_error">Đã hết thời gian tải khảo sát. Vui lòng kiểm tra kết nối và thử lại.</string>
 </resources>

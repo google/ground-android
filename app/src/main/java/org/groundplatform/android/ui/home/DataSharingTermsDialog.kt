@@ -108,7 +108,7 @@ fun DataSharingTermsDialog(
 @Composable
 @Preview
 @ExcludeFromJacocoGeneratedReport
-fun DataSharingTermsDialogPreviewWithPrivateType() {
+private fun DataSharingTermsDialogPreviewWithPrivateType() {
   AppTheme {
     DataSharingTermsDialog(
       dataSharingTerms =
@@ -120,7 +120,7 @@ fun DataSharingTermsDialogPreviewWithPrivateType() {
 @Composable
 @Preview
 @ExcludeFromJacocoGeneratedReport
-fun DataSharingTermsDialogPreviewWithPublicType() {
+private fun DataSharingTermsDialogPreviewWithPublicType() {
   AppTheme {
     DataSharingTermsDialog(
       dataSharingTerms =
@@ -134,7 +134,7 @@ fun DataSharingTermsDialogPreviewWithPublicType() {
 @Composable
 @Preview
 @ExcludeFromJacocoGeneratedReport
-fun DataSharingTermsDialogPreviewWithCustomType() {
+private fun DataSharingTermsDialogPreviewWithCustomType() {
   AppTheme {
     DataSharingTermsDialog(
       dataSharingTerms =
@@ -149,7 +149,7 @@ fun DataSharingTermsDialogPreviewWithCustomType() {
 @Composable
 @Preview
 @ExcludeFromJacocoGeneratedReport
-fun DataSharingTermsDialogPreviewWithNoType() {
+private fun DataSharingTermsDialogPreviewWithNoType() {
   AppTheme {
     DataSharingTermsDialog(dataSharingTerms = Survey.DataSharingTerms.getDefaultInstance())
   }

@@ -26,8 +26,7 @@
   <fragment
     android:id="@+id/startup_fragment"
     android:name="org.groundplatform.android.ui.startup.StartupFragment"
-    android:label="startup_frag"
-    tools:layout="@layout/startup_frag">
+    android:label="startup_frag">
     <action
       android:id="@+id/proceedToSignInScreen"
       app:destination="@id/sign_in_fragment"
@@ -210,8 +209,7 @@
   <fragment
     android:id="@+id/sign_in_fragment"
     android:name="org.groundplatform.android.ui.signin.SignInFragment"
-    android:label="sign_in_frag"
-    tools:layout="@layout/sign_in_frag">
+    android:label="sign_in_frag">
     <action
       android:id="@+id/showTermsOfService"
       app:destination="@id/terms_of_service_fragment"
@@ -235,9 +233,6 @@
     android:id="@+id/showSurveySelectorScreen"
     app:destination="@id/surveySelectorFragment"
     app:popUpTo="@id/navGraph" />
-  <action
-    android:id="@+id/showMapTypeDialogFragment"
-    app:destination="@id/mapTypeDialogFragment" />
   <fragment
     android:id="@+id/terms_of_service_fragment"
     android:name="org.groundplatform.android.ui.tos.TermsOfServiceFragment"
@@ -265,14 +260,6 @@
       app:nullable="true"
       android:defaultValue="@null" />
   </fragment>
-  <dialog
-    android:id="@+id/mapTypeDialogFragment"
-    android:name="org.groundplatform.android.ui.home.mapcontainer.MapTypeDialogFragment"
-    android:label="MapTypeDialogFragment">
-    <argument
-      android:name="mapTypes"
-      app:argType="org.groundplatform.android.model.map.MapType[]" />
-  </dialog>
   <fragment
     android:id="@+id/aboutFragment"
     android:name="org.groundplatform.android.ui.home.AboutFragment"

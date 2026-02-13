@@ -20,7 +20,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.components.SingletonComponent
 import dagger.hilt.testing.TestInstallIn
-import org.groundplatform.android.util.FirebaseModule
+import org.groundplatform.android.di.FirebaseModule
 import org.mockito.Mockito
 
 @Module

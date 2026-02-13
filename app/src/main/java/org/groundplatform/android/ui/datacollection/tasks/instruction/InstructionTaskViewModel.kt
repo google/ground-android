@@ -16,7 +16,12 @@
 package org.groundplatform.android.ui.datacollection.tasks.instruction
 
 import javax.inject.Inject
+import org.groundplatform.android.model.submission.TaskData
+import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 
-@Suppress("EmptyClassBlock")
-class InstructionTaskViewModel @Inject constructor() : AbstractTaskViewModel() {}
+class InstructionTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
+
+  override fun getButtonStates(taskData: TaskData?): List<ButtonActionState> =
+    listOf(getPreviousButton(), getNextButton(taskData = taskData, isEnabled = true))
+}

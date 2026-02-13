@@ -21,6 +21,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CustomCap
 import com.google.android.gms.maps.model.JointType
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Polyline
 import com.google.android.gms.maps.model.PolylineOptions
 import javax.inject.Inject
@@ -58,11 +59,9 @@ constructor(
     visible: Boolean,
     tooltipText: String?,
   ): Polyline {
-    val options =
-      PolylineOptions()
-        .clickable(false)
-        .addAll(geometry.coordinates.toLatLngList())
-        .visible(visible)
+    val options = PolylineOptions().clickable(false)
+    options.addAll(convertMaybeAddOffsetPoint(geometry))
+    options.visible(visible)
 
     val polyline =
       map.addPolyline(options).apply {
@@ -80,7 +79,7 @@ constructor(
     geometry: LineString,
     tooltipText: String?,
   ) {
-    mapFeature.points = geometry.coordinates.toLatLngList()
+    mapFeature.points = convertMaybeAddOffsetPoint(geometry)
 
     // TODO: Move tooltip rendering out of the LineStringRenderer.
     updateTooltipMarker(geometry, map, tooltipText)
@@ -108,4 +107,20 @@ constructor(
     val strokeScale = if (selected) 2f else 1f
     return defaultStrokeWidth * strokeScale
   }
+
+  private fun convertMaybeAddOffsetPoint(geometry: LineString): List<LatLng> {
+    val coordinates = geometry.coordinates.toLatLngList()
+    // A polyline becomes invalid only when there are exactly two identical points.
+    if (coordinates.size == 2 && coordinates[0] == coordinates[1]) {
+      return listOf(coordinates[0], coordinates[1].addOffset())
+    }
+
+    return coordinates
+  }
+
+  /**
+   * Adds a tiny offset to the [LatLng] to ensure that the polyline has a non-zero length. This is
+   * required for the start/end caps to be rendered.
+   */
+  private fun LatLng.addOffset(): LatLng = LatLng(latitude + 1e-6, longitude + 1e-6)
 }

@@ -15,18 +15,20 @@
  */
 package org.groundplatform.android.ui.offlineareas.selector
 
-import android.content.res.Resources
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
-import org.groundplatform.android.R
-import org.groundplatform.android.coroutines.IoDispatcher
+import org.groundplatform.android.di.coroutines.IoDispatcher
+import org.groundplatform.android.model.imagery.RemoteMogTileSource
+import org.groundplatform.android.model.imagery.TileSource
 import org.groundplatform.android.model.map.Bounds
 import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.repository.LocationOfInterestRepository
@@ -39,6 +41,8 @@ import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.system.SettingsManager
 import org.groundplatform.android.ui.common.BaseMapViewModel
 import org.groundplatform.android.ui.common.SharedViewModel
+import org.groundplatform.android.ui.offlineareas.selector.model.BottomTextState
+import org.groundplatform.android.ui.offlineareas.selector.model.UiState
 import org.groundplatform.android.util.toMb
 import org.groundplatform.android.util.toMbString
 import timber.log.Timber
@@ -53,7 +57,6 @@ class OfflineAreaSelectorViewModel
 internal constructor(
   private val offlineAreaRepository: OfflineAreaRepository,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-  private val resources: Resources,
   locationManager: LocationManager,
   surveyRepository: SurveyRepository,
   mapStateRepository: MapStateRepository,
@@ -72,13 +75,15 @@ internal constructor(
     locationOfInterestRepository,
   ) {
 
-  val remoteTileSource = offlineAreaRepository.getRemoteTileSource()
+  val remoteTileSource: TileSource = RemoteMogTileSource
+
   private var viewport: Bounds? = null
-  private val offlineAreaSizeLoadingSymbol =
-    resources.getString(R.string.offline_area_size_loading_symbol)
   val isDownloadProgressVisible = MutableLiveData(false)
   val downloadProgress = MutableLiveData(0f)
-  val bottomText = MutableLiveData<String?>(null)
+
+  private val _bottomTextState = MutableStateFlow<BottomTextState?>(null)
+  val bottomTextState: StateFlow<BottomTextState?> = _bottomTextState
+
   val downloadButtonEnabled = MutableLiveData(false)
   val isFailure = MutableLiveData(false)
 
@@ -142,7 +147,7 @@ internal constructor(
 
   override fun onMapDragged() {
     downloadButtonEnabled.postValue(false)
-    bottomText.postValue(null)
+    _bottomTextState.value = null
     super.onMapDragged()
   }
 
@@ -162,35 +167,52 @@ internal constructor(
   }
 
   private suspend fun updateDownloadSize(bounds: Bounds) {
-    if (!offlineAreaRepository.hasHiResImagery(bounds)) {
+    Timber.d("Checking imagery availability for bounds: $bounds")
+    val hasHiResImagery =
+      offlineAreaRepository.hasHiResImagery(bounds).getOrElse {
+        onUpdateDownloadSizeError()
+        return
+      }
+    if (!hasHiResImagery) {
+      Timber.d("No hi-res imagery available for selected area")
       onUnavailableAreaSelected()
       return
     }
-    bottomText.postValue(
-      resources.getString(R.string.selected_offline_area_size, offlineAreaSizeLoadingSymbol)
-    )
-    val sizeInMb = offlineAreaRepository.estimateSizeOnDisk(bounds).toMb()
-    if (sizeInMb > MAX_AREA_DOWNLOAD_SIZE_MB) {
-      onLargeAreaSelected()
-    } else {
-      onDownloadableAreaSelected(sizeInMb)
-    }
+    _bottomTextState.value = BottomTextState.Loading
+
+    offlineAreaRepository
+      .estimateSizeOnDisk(bounds)
+      .onSuccess {
+        val sizeInMb = it.toMb()
+        Timber.d("Estimated download size: ${sizeInMb}MB")
+        if (sizeInMb > MAX_AREA_DOWNLOAD_SIZE_MB) {
+          Timber.d("Area too large: ${sizeInMb}MB > ${MAX_AREA_DOWNLOAD_SIZE_MB}MB")
+          onLargeAreaSelected()
+        } else {
+          Timber.d("Area downloadable: ${sizeInMb}MB, enabling download button")
+          onDownloadableAreaSelected(sizeInMb)
+        }
+      }
+      .onFailure { onUpdateDownloadSizeError() }
+  }
+
+  private fun onUpdateDownloadSizeError() {
+    _bottomTextState.value = BottomTextState.NetworkError
+    downloadButtonEnabled.postValue(false)
   }
 
   private fun onUnavailableAreaSelected() {
-    bottomText.postValue(resources.getString(R.string.no_imagery_available_for_area))
+    _bottomTextState.value = BottomTextState.NoImageryAvailable
     downloadButtonEnabled.postValue(false)
   }
 
   private fun onDownloadableAreaSelected(sizeInMb: Float) {
-    bottomText.postValue(
-      resources.getString(R.string.selected_offline_area_size, sizeInMb.toMbString())
-    )
+    _bottomTextState.value = BottomTextState.AreaSize(sizeInMb.toMbString())
     downloadButtonEnabled.postValue(true)
   }
 
   private fun onLargeAreaSelected() {
-    bottomText.postValue(resources.getString(R.string.selected_offline_area_too_large))
+    _bottomTextState.value = BottomTextState.AreaTooLarge
     downloadButtonEnabled.postValue(false)
   }
 }

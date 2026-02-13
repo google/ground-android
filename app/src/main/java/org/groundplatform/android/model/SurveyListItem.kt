@@ -24,13 +24,14 @@ data class SurveyListItem(
   val description: String,
   val availableOffline: Boolean,
   val generalAccess: GeneralAccess,
-)
+) {
+
+  fun isOnDevice(): Boolean = availableOffline
+
+  fun isPublic(): Boolean = !availableOffline && generalAccess == GeneralAccess.PUBLIC
+
+  fun isShared(): Boolean = !availableOffline && generalAccess != GeneralAccess.PUBLIC
+}
 
 fun Survey.toListItem(availableOffline: Boolean): SurveyListItem =
-  SurveyListItem(
-    id,
-    title,
-    description,
-    availableOffline,
-    generalAccess ?: GeneralAccess.GENERAL_ACCESS_UNSPECIFIED,
-  )
+  SurveyListItem(id, title, description, availableOffline, generalAccess)

@@ -34,4 +34,6 @@ data class SyncStatusDetail(
   val label: String,
   /** A human-readable label providing further information on the change. */
   val subtitle: String,
+  /** A description of the survey. */
+  val description: String = "",
 )

@@ -16,10 +16,8 @@
 package org.groundplatform.android.ui.datacollection.tasks.multiplechoice
 
 import javax.inject.Inject
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import org.groundplatform.android.R
 import org.groundplatform.android.common.Constants
@@ -31,17 +29,23 @@ import org.groundplatform.android.model.task.MultipleChoice.Cardinality.SELECT_M
 import org.groundplatform.android.model.task.Option
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
+import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 
 class MultipleChoiceTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
 
   private val _items: MutableStateFlow<List<MultipleChoiceItem>> = MutableStateFlow(emptyList())
-  val itemsFlow: Flow<List<MultipleChoiceItem>> = _items.asStateFlow().filterNotNull()
+  val items: StateFlow<List<MultipleChoiceItem>> = _items
 
   private val selectedIds: MutableSet<String> = mutableSetOf()
   private var otherText: String = ""
 
-  override fun initialize(job: Job, task: Task, taskData: TaskData?) {
-    super.initialize(job, task, taskData)
+  override fun initialize(
+    job: Job,
+    task: Task,
+    taskData: TaskData?,
+    taskPositionInterface: TaskPositionInterface,
+  ) {
+    super.initialize(job, task, taskData, taskPositionInterface)
     loadPendingSelections()
     updateMultipleChoiceItems()
   }

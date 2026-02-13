@@ -15,19 +15,25 @@
  */
 package org.groundplatform.android.util
 
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import java.util.Locale
 import junit.framework.TestCase.assertFalse
 import kotlin.test.Test
 import kotlin.test.assertTrue
 import org.groundplatform.android.model.geometry.Coordinates
+import org.groundplatform.android.model.settings.MeasurementUnits
+import org.groundplatform.android.ui.util.SQUARE_FEET_PER_SQUARE_METER
+import org.groundplatform.android.ui.util.SQUARE_METERS_PER_ACRE
+import org.groundplatform.android.ui.util.SQUARE_METERS_PER_HECTARE
 import org.groundplatform.android.ui.util.calculateShoelacePolygonArea
+import org.groundplatform.android.ui.util.getFormattedArea
 import org.groundplatform.android.ui.util.isClosed
 import org.groundplatform.android.ui.util.isSelfIntersecting
 import org.groundplatform.android.ui.util.segmentsIntersect
 import org.junit.Assert.assertEquals
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
 
-@RunWith(RobolectricTestRunner::class)
+@RunWith(AndroidJUnit4::class)
 class PolygonUtilTest {
 
   @Test
@@ -175,6 +181,40 @@ class PolygonUtilTest {
     assertFalse(isClosed(THREE_POINTS))
     assertFalse(isClosed(SINGLE_POINT))
     assertFalse(isClosed(emptyList()))
+  }
+
+  @Test
+  fun `Should display area in square meters if it's below an hectare`() {
+    val areaInSquareMeters = 500.0
+    val result = getFormattedArea(areaInSquareMeters, MeasurementUnits.METRIC)
+    assertEquals("500.00 m²", result)
+  }
+
+  @Test
+  fun `Should display area in hectare if it's equal or above an hectare`() {
+    val areaInSquareMeters = SQUARE_METERS_PER_HECTARE.toDouble()
+    val result = getFormattedArea(areaInSquareMeters, MeasurementUnits.METRIC)
+    assertEquals("1.00 ha", result)
+  }
+
+  @Test
+  fun `Should display area in square feet if it's below an acre`() {
+    val areaInSquareMeters = 2000.0
+    val result = getFormattedArea(areaInSquareMeters, MeasurementUnits.IMPERIAL)
+    val expected =
+      String.format(
+        Locale.getDefault(),
+        "%.2f ft²",
+        areaInSquareMeters * SQUARE_FEET_PER_SQUARE_METER,
+      )
+    assertEquals(expected, result)
+  }
+
+  @Test
+  fun `Should display area in acres if it's equal or above an acre`() {
+    val areaInSquareMeters = SQUARE_METERS_PER_ACRE
+    val result = getFormattedArea(areaInSquareMeters, MeasurementUnits.IMPERIAL)
+    assertEquals("1.00 ac", result)
   }
 
   companion object {

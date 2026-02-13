@@ -62,7 +62,7 @@ fun InstructionsDialog(iconId: Int, stringId: Int) {
 @Composable
 @Preview
 @ExcludeFromJacocoGeneratedReport
-fun PreviewInstructionsDialog() {
+private fun PreviewInstructionsDialog() {
   AppTheme {
     InstructionsDialog(
       iconId = R.drawable.touch_app_24,
