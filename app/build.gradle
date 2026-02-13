@@ -217,7 +217,6 @@ dependencies {
     implementation libs.androidx.hilt.navigation.compose
 
     // Images
-    implementation libs.glide
     implementation libs.coil.compose
 
     // Google Play Services
