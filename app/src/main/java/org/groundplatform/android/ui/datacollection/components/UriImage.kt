@@ -36,8 +36,6 @@ const val MAX_IMAGE_SIZE = 2048
 
 @Composable
 fun UriImage(uri: Uri?, modifier: Modifier = Modifier) {
-  if (uri == null) return
-
   val context = LocalContext.current
   val displayMetrics = LocalResources.current.displayMetrics
 
