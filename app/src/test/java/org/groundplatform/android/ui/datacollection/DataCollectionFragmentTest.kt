@@ -22,8 +22,6 @@ import androidx.compose.ui.test.performClick
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
-import java.util.Date
-import javax.inject.Inject
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
@@ -64,6 +62,8 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.shadows.ShadowToast
+import java.util.Date
+import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
@@ -550,17 +550,17 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   fun `Progress bar updates correctly when navigating between tasks`() {
     setupFragment()
 
-    val progressBar = fragment.view?.findViewById<android.widget.ProgressBar>(R.id.progressBar)
-    if (progressBar != null) {
-      // First task (0/1 progress)
-      assertThat(progressBar.progress).isEqualTo(0)
-      assertThat(progressBar.max).isEqualTo(100) // (2-1) * 100
+    val progressBar = fragment.view?.findViewById<android.widget.ProgressBar>(R.id.progress_bar)!!
 
-      runner().inputText(TASK_1_RESPONSE).clickNextButton()
+    // First task (0/1 progress)
+    assertThat(progressBar.progress).isEqualTo(0)
+    assertThat(progressBar.max).isEqualTo(100) // (2-1) * 100
 
-      // Second task (1/1 progress = 100)
-      assertThat(progressBar.progress).isEqualTo(100)
-    }
+    runner().inputText(TASK_1_RESPONSE).clickNextButton()
+    composeTestRule.waitForIdle()
+
+    // Second task (1/1 progress = 100)
+    assertThat(progressBar.progress).isEqualTo(100)
   }
 
   @Test
