@@ -13,7 +13,7 @@
 # limitations under the License.
 
 [versions]
-androidMapsUtilsVersion = "3.19.0"
+androidMapsUtilsVersion = "4.0.0"
 appcompatVersion = "1.7.1"
 autoValueVersion = "1.11.1"
 composeBom = "2026.02.00"
