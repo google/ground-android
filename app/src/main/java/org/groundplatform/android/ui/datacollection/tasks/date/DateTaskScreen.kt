@@ -36,6 +36,8 @@ import androidx.compose.ui.unit.dp
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.theme.AppTheme
 
+// TODO: Add trailing icon (close logo) for clearing selected date.
+
 @Composable
 fun DateTaskScreen(
   dateText: String,
@@ -44,6 +46,7 @@ fun DateTaskScreen(
   modifier: Modifier = Modifier,
 ) {
   Column(modifier = modifier) {
+    // TODO: Replace with simple text field.
     OutlinedTextField(
       value = dateText,
       onValueChange = {},

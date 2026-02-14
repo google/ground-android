@@ -25,6 +25,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
+import java.text.SimpleDateFormat
+import java.util.Calendar
 import org.groundplatform.android.R
 import org.groundplatform.android.model.submission.DateTimeTaskData
 import org.groundplatform.android.ui.datacollection.components.TaskView
@@ -32,8 +34,6 @@ import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.util.createComposeView
 import org.jetbrains.annotations.TestOnly
-import java.text.SimpleDateFormat
-import java.util.Calendar
 
 @AndroidEntryPoint
 class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
@@ -68,6 +68,7 @@ class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
     DateTaskScreen(dateText = dateText, hintText = hintText, onDateClick = { showDateDialog() })
   }
 
+  // TODO: Replace with bottom modal date picker.
   fun showDateDialog() {
     val calendar = Calendar.getInstance()
     val year = calendar[Calendar.YEAR]
