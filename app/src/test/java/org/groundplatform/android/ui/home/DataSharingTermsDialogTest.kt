@@ -16,9 +16,9 @@
 package org.groundplatform.android.ui.home
 
 import androidx.activity.ComponentActivity
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -116,9 +116,11 @@ class DataSharingTermsDialogTest : BaseHiltTest() {
       if (isVisible.value) {
         DataSharingTermsDialog(
           dataSharingTerms =
-            Survey.DataSharingTerms.newBuilder().setType(Survey.DataSharingTerms.Type.PRIVATE).build(),
+            Survey.DataSharingTerms.newBuilder()
+              .setType(Survey.DataSharingTerms.Type.PRIVATE)
+              .build(),
           onDismiss = { isVisible.value = false },
-          onConfirm = {}
+          onConfirm = {},
         )
       }
     }

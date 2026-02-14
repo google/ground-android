@@ -29,6 +29,7 @@ import kotlin.test.assertTrue
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.ADHOC_JOB
 import org.groundplatform.android.R
+import org.groundplatform.android.model.map.MapType
 import org.groundplatform.android.ui.components.LOCATION_LOCKED_TEST_TAG
 import org.groundplatform.android.ui.components.LOCATION_NOT_LOCKED_TEST_TAG
 import org.groundplatform.android.ui.components.MapFloatingActionButtonType
@@ -178,6 +179,8 @@ class HomeScreenMapContainerScreenTest : BaseHiltTest() {
     shouldShowMapActions: Boolean = true,
     shouldShowRecenterButton: Boolean = true,
     jobComponentState: JobMapComponentState = JobMapComponentState(),
+    showMapTypeSelector: Boolean = false,
+    mapTypes: List<MapType> = emptyList(),
     onBaseMapAction: (BaseMapAction) -> Unit = {},
     onJobComponentAction: (JobMapComponentAction) -> Unit = {},
   ) {
@@ -188,6 +191,8 @@ class HomeScreenMapContainerScreenTest : BaseHiltTest() {
         shouldShowRecenter = shouldShowRecenterButton,
         jobComponentState = jobComponentState,
         dataSharingTerms = null,
+        showMapTypeSelector = showMapTypeSelector,
+        mapTypes = mapTypes,
         onBaseMapAction = onBaseMapAction,
         onJobComponentAction = onJobComponentAction,
         onTermsConsentGiven = {},

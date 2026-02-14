@@ -54,7 +54,6 @@ import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.User
 
 @Composable
-@Suppress("LongMethod")
 fun HomeDrawer(
   user: User?,
   survey: Survey?,
@@ -69,94 +68,10 @@ fun HomeDrawer(
 ) {
   Column(modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
     // App Info Header
-    Column(
-      modifier =
-        Modifier.fillMaxWidth()
-          .background(MaterialTheme.colorScheme.surfaceVariant)
-          .padding(vertical = 24.dp, horizontal = 16.dp)
-    ) {
-      Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-        Image(
-          painter = painterResource(R.drawable.ground_logo),
-          contentDescription = null,
-          modifier = Modifier.size(24.dp),
-        )
-        Spacer(Modifier.width(8.dp))
-        Column(modifier = Modifier.weight(1f)) {
-          Text(
-            text = stringResource(R.string.app_name),
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Medium,
-          )
-        }
-        if (user?.photoUrl != null) {
-          androidx.compose.ui.viewinterop.AndroidView(
-            factory = { context ->
-              android.widget.ImageView(context).apply {
-                scaleType = android.widget.ImageView.ScaleType.CENTER_CROP
-              }
-            },
-            update = { imageView ->
-              com.bumptech.glide.Glide.with(imageView)
-                .load(user.photoUrl)
-                .circleCrop()
-                .into(imageView)
-            },
-            modifier = Modifier.size(32.dp).clip(CircleShape),
-          )
-        }
-      }
-    }
+    AppInfoHeader(user = user)
 
     // Survey Info
-    Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-      Row(verticalAlignment = Alignment.CenterVertically) {
-        Icon(
-          painter = painterResource(R.drawable.ic_content_paste),
-          contentDescription = stringResource(R.string.current_survey),
-          modifier = Modifier.size(14.dp),
-          tint = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Spacer(Modifier.width(4.dp))
-        Text(
-          text = stringResource(R.string.current_survey),
-          style = MaterialTheme.typography.labelSmall,
-          color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-      }
-      Spacer(Modifier.height(8.dp))
-
-      if (survey == null) {
-        Text(stringResource(R.string.no_survey_selected))
-      } else {
-        Text(
-          text = survey.title,
-          style = MaterialTheme.typography.titleMedium,
-          fontWeight = FontWeight.Bold,
-          maxLines = 3,
-          overflow = TextOverflow.Ellipsis,
-        )
-        if (survey.description.isNotEmpty()) {
-          Text(
-            text = survey.description,
-            style = MaterialTheme.typography.bodyMedium,
-            maxLines = 4,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(top = 8.dp),
-          )
-        }
-      }
-
-      Spacer(Modifier.height(16.dp))
-
-      Text(
-        text = stringResource(R.string.switch_survey),
-        style = MaterialTheme.typography.labelLarge,
-        color = MaterialTheme.colorScheme.primary,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier.clickable(onClick = onSwitchSurvey).padding(vertical = 8.dp),
-      )
-    }
+    SurveySelector(survey = survey, onSwitchSurvey = onSwitchSurvey)
 
     HorizontalDivider()
 
@@ -216,6 +131,100 @@ fun HomeDrawer(
 }
 
 private data class DrawerItem(val label: String, val icon: IconSource, val onClick: () -> Unit)
+
+@Composable
+private fun AppInfoHeader(user: User?) {
+  Column(
+    modifier =
+      Modifier.fillMaxWidth()
+        .background(MaterialTheme.colorScheme.surfaceVariant)
+        .padding(vertical = 24.dp, horizontal = 16.dp)
+  ) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+      Image(
+        painter = painterResource(R.drawable.ground_logo),
+        contentDescription = null,
+        modifier = Modifier.size(24.dp),
+      )
+      Spacer(Modifier.width(8.dp))
+      Column(modifier = Modifier.weight(1f)) {
+        Text(
+          text = stringResource(R.string.app_name),
+          fontSize = 18.sp,
+          fontWeight = FontWeight.Medium,
+        )
+      }
+      if (user?.photoUrl != null) {
+        androidx.compose.ui.viewinterop.AndroidView(
+          factory = { context ->
+            android.widget.ImageView(context).apply {
+              scaleType = android.widget.ImageView.ScaleType.CENTER_CROP
+            }
+          },
+          update = { imageView ->
+            com.bumptech.glide.Glide.with(imageView)
+              .load(user.photoUrl)
+              .circleCrop()
+              .into(imageView)
+          },
+          modifier = Modifier.size(32.dp).clip(CircleShape),
+        )
+      }
+    }
+  }
+}
+
+@Composable
+private fun SurveySelector(survey: Survey?, onSwitchSurvey: () -> Unit) {
+  Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+      Icon(
+        painter = painterResource(R.drawable.ic_content_paste),
+        contentDescription = stringResource(R.string.current_survey),
+        modifier = Modifier.size(14.dp),
+        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+      )
+      Spacer(Modifier.width(4.dp))
+      Text(
+        text = stringResource(R.string.current_survey),
+        style = MaterialTheme.typography.labelSmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+      )
+    }
+    Spacer(Modifier.height(8.dp))
+
+    if (survey == null) {
+      Text(stringResource(R.string.no_survey_selected))
+    } else {
+      Text(
+        text = survey.title,
+        style = MaterialTheme.typography.titleMedium,
+        fontWeight = FontWeight.Bold,
+        maxLines = 3,
+        overflow = TextOverflow.Ellipsis,
+      )
+      if (survey.description.isNotEmpty()) {
+        Text(
+          text = survey.description,
+          style = MaterialTheme.typography.bodyMedium,
+          maxLines = 4,
+          overflow = TextOverflow.Ellipsis,
+          modifier = Modifier.padding(top = 8.dp),
+        )
+      }
+    }
+
+    Spacer(Modifier.height(16.dp))
+
+    Text(
+      text = stringResource(R.string.switch_survey),
+      style = MaterialTheme.typography.labelLarge,
+      color = MaterialTheme.colorScheme.primary,
+      fontWeight = FontWeight.Bold,
+      modifier = Modifier.clickable(onClick = onSwitchSurvey).padding(vertical = 8.dp),
+    )
+  }
+}
 
 private sealed interface IconSource {
   data class Vector(val imageVector: androidx.compose.ui.graphics.vector.ImageVector) : IconSource
