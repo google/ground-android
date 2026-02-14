@@ -23,34 +23,22 @@ import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import javax.inject.Provider
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.databinding.FragmentDrawAreaTaskBinding
-import org.groundplatform.android.model.geometry.LineString
-import org.groundplatform.android.model.geometry.LineString.Companion.lineStringOf
-import org.groundplatform.android.model.submission.isNotNullOrEmpty
 import org.groundplatform.android.ui.components.ConfirmationDialog
-import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.InstructionsDialog
-import org.groundplatform.android.ui.datacollection.components.TaskButton
 import org.groundplatform.android.ui.datacollection.components.TaskView
 import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment.Companion.TASK_ID_FRAGMENT_ARG_KEY
-import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.util.renderComposableDialog
 
 @AndroidEntryPoint
 class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawAreaTaskViewModel>() {
   @Inject lateinit var drawAreaTaskMapFragmentProvider: Provider<DrawAreaTaskMapFragment>
-  // Action buttons
-  private lateinit var completeButton: TaskButton
-  private lateinit var addPointButton: TaskButton
-  private lateinit var nextButton: TaskButton
-
   private lateinit var drawAreaTaskMapFragment: DrawAreaTaskMapFragment
 
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
@@ -80,57 +68,11 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
     return rootView.root
   }
 
-  override fun onCreateActionButtons() {
-    addSkipButton()
-    addButton(ButtonAction.UNDO)
-      .setOnClickListener { removeLastVertex() }
-      .setOnValueChanged { button, value -> button.enableIfTrue(value.isNotNullOrEmpty()) }
-    addButton(ButtonAction.REDO)
-      .setOnClickListener { restoreLastVertex() }
-      .setOnValueChanged { button, value ->
-        button.enableIfTrue(viewModel.redoVertexStack.isNotEmpty() && value.isNotNullOrEmpty())
-      }
-    nextButton = addNextButton()
-    addPointButton =
-      addButton(ButtonAction.ADD_POINT).setOnClickListener {
-        viewModel.addLastVertex()
-        val intersected = viewModel.checkVertexIntersection()
-        if (!intersected) viewModel.triggerVibration()
-      }
-    completeButton =
-      addButton(ButtonAction.COMPLETE).setOnClickListener {
-        if (viewModel.validatePolygonCompletion()) {
-          viewModel.completePolygon()
-        }
-      }
-  }
-
-  /** Removes the last vertex from the polygon. */
-  private fun removeLastVertex() {
-    viewModel.removeLastVertex()
-
-    // Move the camera to the last vertex, if any.
-    moveToPosition()
-  }
-
-  private fun restoreLastVertex() {
-    viewModel.redoLastVertex()
-
-    moveToPosition()
-  }
-
-  private fun moveToPosition() {
-    val lastVertex = viewModel.getLastVertex() ?: return
-    drawAreaTaskMapFragment.moveToPosition(lastVertex)
-  }
-
   override fun onTaskViewAttached() {
-    onFeatureUpdated(null)
-    viewLifecycleOwner.lifecycleScope.launch {
-      merge(viewModel.draftArea, viewModel.draftUpdates)
-        .filterNotNull()
-        .collectLatest(::onFeatureUpdated)
-    }
+    // Collect camera movement events from ViewModel (e.g., after undo/redo)
+    viewModel.cameraMoveEvents
+      .onEach { coordinates -> drawAreaTaskMapFragment.moveToPosition(coordinates) }
+      .launchIn(viewLifecycleOwner.lifecycleScope)
   }
 
   override fun onTaskResume() {
@@ -154,22 +96,6 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
         }
       }
     }
-  }
-
-  private fun onFeatureUpdated(feature: Feature?) {
-    val geometry = feature?.geometry ?: lineStringOf()
-    check(geometry is LineString) { "Invalid area geometry type ${geometry.javaClass}" }
-
-    val closed = geometry.isClosed()
-    val markedComplete = viewModel.isMarkedComplete()
-    val tooClose = viewModel.isTooClose.value
-    val selfIntersecting = viewModel.hasSelfIntersection
-
-    addPointButton.showIfTrue(!closed)
-    addPointButton.enableIfTrue(!closed && !tooClose)
-    completeButton.showIfTrue(closed && !markedComplete)
-    completeButton.enableIfTrue(closed && !markedComplete && !selfIntersecting)
-    nextButton.showIfTrue(markedComplete)
   }
 
   private fun showInstructionsDialog() {

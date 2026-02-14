@@ -15,154 +15,137 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent">
 
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto">
-
-  <data>
-    <import type="org.groundplatform.android.R" />
-    <import type="android.view.View" />
-    <variable
-      name="viewModel"
-      type="org.groundplatform.android.ui.offlineareas.selector.OfflineAreaSelectorViewModel" />
-  </data>
-
-  <FrameLayout
+  <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <com.google.android.material.appbar.MaterialToolbar
+      android:id="@+id/offline_area_selector_toolbar"
       android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:fitsSystemWindows="true">
+      android:layout_height="wrap_content"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      app:title="@string/offline_area_selector_title" />
 
-      <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/offline_area_selector_toolbar"
+    <androidx.fragment.app.FragmentContainerView
+      android:id="@+id/map"
+      android:layout_width="match_parent"
+      android:layout_height="0dp"
+      android:layout_gravity="center"
+      app:layout_behavior="org.groundplatform.android.ui.home.mapcontainer.MapLayoutBehavior"
+      app:layout_constraintBottom_toBottomOf="@id/button_buttons"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintHorizontal_bias="0.5"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/offline_area_selector_toolbar" />
+
+    <View
+      android:id="@+id/top_mask"
+      android:layout_width="match_parent"
+      android:layout_height="24dp"
+      android:alpha="0.4"
+      android:background="@color/blackOverlay"
+      app:layout_constraintTop_toBottomOf="@+id/offline_area_selector_toolbar" />
+
+    <View
+      android:id="@+id/right_mask"
+      android:layout_width="24dp"
+      android:layout_height="0dp"
+      android:alpha="0.4"
+      android:background="@color/blackOverlay"
+      app:layout_constraintBottom_toTopOf="@id/bottom_mask"
+      app:layout_constraintRight_toRightOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/top_mask" />
+
+    <View
+      android:id="@+id/left_mask"
+      android:layout_width="24dp"
+      android:layout_height="0dp"
+      android:alpha="0.4"
+      android:background="@color/blackOverlay"
+      app:layout_constraintBottom_toTopOf="@id/bottom_mask"
+      app:layout_constraintLeft_toLeftOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/top_mask" />
+
+    <View
+      android:id="@+id/viewport_outline"
+      android:layout_width="0dp"
+      android:layout_height="0dp"
+      android:background="@drawable/offline_area_viewport_outline"
+      app:layout_constraintBottom_toTopOf="@id/bottom_mask"
+      app:layout_constraintLeft_toRightOf="@id/left_mask"
+      app:layout_constraintRight_toLeftOf="@id/right_mask"
+      app:layout_constraintTop_toBottomOf="@id/top_mask" />
+
+    <androidx.compose.ui.platform.ComposeView
+      android:id="@+id/location_lock_btn"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="bottom|end"
+      app:layout_constraintBottom_toBottomOf="@id/viewport_outline"
+      app:layout_constraintEnd_toEndOf="@id/viewport_outline" />
+
+    <FrameLayout
+      android:id="@+id/bottom_mask"
+      android:layout_width="match_parent"
+      android:layout_height="80dp"
+      app:layout_constraintBottom_toTopOf="@id/button_buttons"
+      app:layout_constraintTop_toBottomOf="@id/viewport_outline">
+
+      <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0.4"
+        android:background="@color/blackOverlay" />
+
+      <TextView
+        android:id="@+id/bottom_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:title="@string/offline_area_selector_title" />
-
-      <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/map"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
         android:layout_gravity="center"
-        app:layout_behavior="org.groundplatform.android.ui.home.mapcontainer.MapLayoutBehavior"
-        app:layout_constraintBottom_toBottomOf="@id/button_buttons"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/offline_area_selector_toolbar" />
+        android:layout_marginHorizontal="64dp"
+        android:textAlignment="center"
+        android:textColor="@color/textOverMap"
+        android:textSize="14sp" />
+    </FrameLayout>
 
-      <View
-        android:id="@+id/top_mask"
-        android:layout_width="match_parent"
-        android:layout_height="24dp"
-        android:alpha="0.4"
-        android:background="@color/blackOverlay"
-        app:layout_constraintTop_toBottomOf="@+id/offline_area_selector_toolbar" />
+    <LinearLayout
+      android:id="@+id/button_buttons"
+      android:layout_width="match_parent"
+      android:layout_height="90dp"
+      android:background="?attr/colorSurfaceContainer"
+      android:gravity="top"
+      android:orientation="horizontal"
+      app:layout_constraintBottom_toBottomOf="parent">
 
-      <View
-        android:id="@+id/right_mask"
-        android:layout_width="24dp"
-        android:layout_height="0dp"
-        android:alpha="0.4"
-        android:background="@color/blackOverlay"
-        app:layout_constraintBottom_toTopOf="@id/bottom_mask"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/top_mask" />
-
-      <View
-        android:id="@+id/left_mask"
-        android:layout_width="24dp"
-        android:layout_height="0dp"
-        android:alpha="0.4"
-        android:background="@color/blackOverlay"
-        app:layout_constraintBottom_toTopOf="@id/bottom_mask"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/top_mask" />
-
-      <View
-        android:id="@+id/viewport_outline"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:background="@drawable/offline_area_viewport_outline"
-        app:layout_constraintBottom_toTopOf="@id/bottom_mask"
-        app:layout_constraintLeft_toRightOf="@id/left_mask"
-        app:layout_constraintRight_toLeftOf="@id/right_mask"
-        app:layout_constraintTop_toBottomOf="@id/top_mask" />
-
-      <androidx.compose.ui.platform.ComposeView
-        android:id="@+id/location_lock_btn"
+      <Button
+        android:id="@+id/cancel_button"
+        style="?attr/materialButtonOutlinedStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        app:layout_constraintBottom_toBottomOf="@id/viewport_outline"
-        app:layout_constraintEnd_toEndOf="@id/viewport_outline" />
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_weight="0.5"
+        android:text="@string/offline_area_select_cancel_button" />
 
-      <FrameLayout
-        android:id="@+id/bottom_mask"
-        android:layout_width="match_parent"
-        android:layout_height="80dp"
-        app:layout_constraintBottom_toTopOf="@id/button_buttons"
-        app:layout_constraintTop_toBottomOf="@id/viewport_outline">
+      <Button
+        android:id="@+id/download_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_weight="0.5"
+        android:text="@string/offline_area_selector_download" />
+    </LinearLayout>
 
-        <View
-          android:layout_width="match_parent"
-          android:layout_height="match_parent"
-          android:alpha="0.4"
-          android:background="@color/blackOverlay" />
-
-        <TextView
-          android:id="@+id/bottom_text"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:layout_gravity="center"
-          android:layout_marginHorizontal="64dp"
-          android:text="@{viewModel.bottomText}"
-          android:textAlignment="center"
-          android:textColor="@color/textOverMap"
-          android:textSize="14sp" />
-      </FrameLayout>
-
-      <LinearLayout
-        android:id="@+id/button_buttons"
-        android:layout_width="match_parent"
-        android:layout_height="90dp"
-        android:background="?attr/colorSurfaceContainer"
-        android:gravity="top"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent">
-
-        <Button
-          android:id="@+id/cancel_button"
-          style="?attr/materialButtonOutlinedStyle"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_marginStart="16dp"
-          android:layout_marginTop="16dp"
-          android:layout_marginEnd="8dp"
-          android:layout_weight="0.5"
-          android:onClick="@{() -> viewModel.onCancelClick()}"
-          android:text="@string/offline_area_select_cancel_button" />
-
-        <Button
-          android:id="@+id/download_button"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_marginStart="8dp"
-          android:layout_marginTop="16dp"
-          android:layout_marginEnd="16dp"
-          android:layout_weight="0.5"
-          android:clickable="@{viewModel.downloadButtonEnabled}"
-          android:enabled="@{viewModel.downloadButtonEnabled}"
-          android:onClick="@{() -> viewModel.onDownloadClick()}"
-          android:text="@string/offline_area_selector_download" />
-      </LinearLayout>
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-  </FrameLayout>
-</layout>
+  </androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>

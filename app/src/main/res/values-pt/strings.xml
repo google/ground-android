@@ -56,7 +56,7 @@
   <!-- Label of button used enter the offline area selector. -->
   <string name="offline_area_selector_select">Selecionar área</string>
   <string name="no_basemaps_downloaded">Nenhuma imagem de mapa descarregada para uso offline</string>
-  <string name="connect_to_download_message">You are offline. Connect to download offline map imager</string>
+  <string name="connect_to_download_message">Está offline. Ligue-se à Internet para descarregar imagens do mapa offline</string>
   <string name="signing_in">Iniciando sessão</string>
   <string name="sign_in_with_google">Faça login com o Google</string>
   <!-- Precedes the build number shown in the side menu of debug builds. -->

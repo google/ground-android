@@ -41,6 +41,7 @@ import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.common.EphemeralPopups
 import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
+import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 import org.groundplatform.android.ui.datacollection.tasks.date.DateTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.instruction.InstructionTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.location.CaptureLocationTaskViewModel
@@ -111,21 +112,17 @@ internal constructor(
     }
   }
 
-  fun isFirstPosition(taskId: String): Boolean = withReady {
-    taskSequenceHandler.isFirstPosition(taskId)
-  }
+  private fun isFirstPosition(taskId: String): Boolean =
+    withReadyOrNull { taskSequenceHandler.isFirstPosition(taskId) } ?: false
 
-  fun isLastPosition(taskId: String): Boolean = withReady {
-    taskSequenceHandler.isLastPosition(taskId)
-  }
-
-  fun isLastPositionWithValue(task: Task, newValue: TaskData?): Boolean = withReady {
-    if (taskDataHandler.getData(task) == newValue) {
-      taskSequenceHandler.isLastPosition(task.id)
-    } else {
-      taskSequenceHandler.checkIfTaskIsLastWithValue(task.id to newValue)
-    }
-  }
+  private fun isLastPositionWithValue(task: Task, newValue: TaskData?): Boolean =
+    withReadyOrNull {
+      if (taskDataHandler.getData(task) == newValue) {
+        taskSequenceHandler.isLastPosition(task.id)
+      } else {
+        taskSequenceHandler.checkIfTaskIsLastWithValue(task.id to newValue)
+      }
+    } ?: false
 
   fun isAtFirstTask(): Boolean = withReady { taskSequenceHandler.isFirstPosition(it.currentTaskId) }
 
@@ -205,7 +202,18 @@ internal constructor(
 
     viewModel?.let { created ->
       val taskData = if (shouldLoadFromDraft) getValueFromDraft(state.job, task) else null
-      created.initialize(state.job, task, taskData)
+      created.initialize(
+        job = state.job,
+        task = task,
+        taskData = taskData,
+        taskPositionInterface =
+          object : TaskPositionInterface {
+            override fun isFirst(): Boolean = isFirstPosition(task.id)
+
+            override fun isLastWithValue(taskData: TaskData?): Boolean =
+              isLastPositionWithValue(task, taskData)
+          },
+      )
       updateDataAndInvalidateTasks(task, taskData)
       taskViewModels.value[task.id] = created
     }

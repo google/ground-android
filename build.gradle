@@ -102,8 +102,8 @@ tasks.register('checkCode', GradleBuild) {
 }
 
 ext {
-    androidCompileSdk = 35
+    androidCompileSdk = 36
     androidMinSdk = 24
-    androidTargetSdk = 35
+    androidTargetSdk = 36
     jvmToolchainVersion = 17
 }

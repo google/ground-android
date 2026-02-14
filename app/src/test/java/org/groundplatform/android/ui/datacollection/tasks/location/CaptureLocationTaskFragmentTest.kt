@@ -34,6 +34,7 @@ import org.groundplatform.android.ui.common.MapConfig
 import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
+import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.BaseTaskFragmentTest
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -126,40 +127,31 @@ class CaptureLocationTaskFragmentTest :
   }
 
   @Test
-  fun `displays correct action buttons`() {
+  fun `Initial action buttons state when task is optional`() = runWithTestDispatcher {
     setupTaskFragment<CaptureLocationTaskFragment>(job, task)
+    setupLocation(accuracy = 10.0)
 
     assertFragmentHasButtons(
-      ButtonAction.PREVIOUS,
-      ButtonAction.SKIP,
-      ButtonAction.UNDO,
-      ButtonAction.CAPTURE_LOCATION,
-      ButtonAction.NEXT,
+      ButtonActionState(ButtonAction.PREVIOUS, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.SKIP, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.UNDO, isEnabled = false, isVisible = false),
+      ButtonActionState(ButtonAction.CAPTURE_LOCATION, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.NEXT, isEnabled = false, isVisible = false),
     )
   }
 
   @Test
-  fun `action buttons when task is optional`() = runWithTestDispatcher {
-    setupTaskFragment<CaptureLocationTaskFragment>(job, task.copy(isRequired = false))
-    setupLocation()
-
-    runner()
-      .assertButtonIsHidden("Next")
-      .assertButtonIsEnabled("Skip")
-      .assertButtonIsHidden("Undo", true)
-      .assertButtonIsEnabled("Capture")
-  }
-
-  @Test
-  fun `action buttons when task is required`() = runWithTestDispatcher {
+  fun `Initial action buttons state when task is required`() = runWithTestDispatcher {
     setupTaskFragment<CaptureLocationTaskFragment>(job, task.copy(isRequired = true))
-    setupLocation()
+    setupLocation(accuracy = 10.0)
 
-    runner()
-      .assertButtonIsHidden("Next")
-      .assertButtonIsHidden("Skip")
-      .assertButtonIsHidden("Undo", true)
-      .assertButtonIsEnabled("Capture")
+    assertFragmentHasButtons(
+      ButtonActionState(ButtonAction.PREVIOUS, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.SKIP, isEnabled = false, isVisible = false),
+      ButtonActionState(ButtonAction.UNDO, isEnabled = false, isVisible = false),
+      ButtonActionState(ButtonAction.CAPTURE_LOCATION, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.NEXT, isEnabled = false, isVisible = false),
+    )
   }
 
   @Test

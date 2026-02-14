@@ -16,6 +16,10 @@
 
 package org.groundplatform.android.ui.datacollection.tasks
 
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
 import androidx.fragment.app.Fragment
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -24,7 +28,6 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.R
 import org.groundplatform.android.launchFragmentWithNavController
@@ -34,7 +37,7 @@ import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.TaskFragmentRunner
-import org.groundplatform.android.ui.datacollection.components.ButtonAction
+import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.util.view.isGone
 import org.mockito.kotlin.whenever
 
@@ -68,21 +71,47 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
     viewModel.taskTaskData.test { assertThat(expectMostRecentItem()).isEqualTo(taskData) }
   }
 
-  /** Asserts that the task fragment has the given list of buttons in the exact same order. */
-  protected fun assertFragmentHasButtons(vararg buttonActions: ButtonAction) {
-    // TODO: Also verify the visibility/state of the button
-    // Issue URL: https://github.com/google/ground-android/issues/2134
-    assertThat(fragment.buttonDataList.map { it.button.getAction() })
-      .containsExactlyElementsIn(buttonActions)
-    buttonActions.withIndex().forEach { (index, expected) ->
-      val actual = fragment.buttonDataList[index].button.getAction()
-      assertWithMessage("Incorrect button order").that(actual).isEqualTo(expected)
+  protected fun assertFragmentHasButtons(vararg buttonStates: ButtonActionState) {
+    buttonStates.forEach { state ->
+      val node =
+        state.action.contentDescription?.let {
+          composeTestRule.onNodeWithContentDescription(fragment.context!!.resources.getString(it))
+        }
+          ?: composeTestRule.onNodeWithText(
+            fragment.context!!.resources.getString(state.action.textId!!)
+          )
+
+      if (state.isVisible) {
+        node.assertExists()
+        if (state.isEnabled) {
+          node.assertIsEnabled()
+        } else {
+          node.assertIsNotEnabled()
+        }
+      } else {
+        node.assertDoesNotExist()
+      }
     }
   }
 
-  protected inline fun <reified T : Fragment> setupTaskFragment(job: Job, task: Task) {
+  protected inline fun <reified T : Fragment> setupTaskFragment(
+    job: Job,
+    task: Task,
+    isFistPosition: Boolean = false,
+    isLastPosition: Boolean = false,
+  ) {
     viewModel = viewModelFactory.create(DataCollectionViewModel.getViewModelClass(task.type)) as VM
-    viewModel.initialize(job, task, null)
+    viewModel.initialize(
+      job = job,
+      task = task,
+      taskData = null,
+      taskPositionInterface =
+        object : TaskPositionInterface {
+          override fun isFirst() = isFistPosition
+
+          override fun isLastWithValue(taskData: TaskData?) = isLastPosition
+        },
+    )
     whenever(dataCollectionViewModel.getTaskViewModel(task.id)).thenReturn(viewModel)
 
     launchFragmentWithNavController<T>(

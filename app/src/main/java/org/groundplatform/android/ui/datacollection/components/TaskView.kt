@@ -16,8 +16,8 @@
 package org.groundplatform.android.ui.datacollection.components
 
 import android.view.View
+import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
-import org.groundplatform.android.databinding.TaskFragActionButtonsBinding
 import org.groundplatform.android.databinding.TaskFragWithCombinedHeaderBinding
 import org.groundplatform.android.databinding.TaskFragWithHeaderBinding
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
@@ -25,8 +25,8 @@ import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 /** Wrapper class for holding entire task's view (except toolbar). */
 sealed interface TaskView {
 
-  /** Container for adding the action buttons for the task. */
-  val actionButtonsContainer: TaskFragActionButtonsBinding
+  /** ComposeView for the action buttons. */
+  val actionButtonsContainer: ComposeView
 
   /** Root-level view for the current task. */
   val root: View
@@ -59,7 +59,7 @@ data class TaskViewWithHeader(private val binding: TaskFragWithHeaderBinding) : 
 data class TaskViewWithCombinedHeader(private val binding: TaskFragWithCombinedHeaderBinding) :
   TaskView {
 
-  override val actionButtonsContainer = binding.actionButtons
+  override val actionButtonsContainer: ComposeView = binding.actionButtons
 
   override val root = binding.root
 

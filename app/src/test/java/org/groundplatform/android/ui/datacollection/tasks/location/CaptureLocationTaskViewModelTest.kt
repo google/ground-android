@@ -18,10 +18,17 @@ package org.groundplatform.android.ui.datacollection.tasks.location
 import android.location.Location
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.groundplatform.android.BaseHiltTest
+import org.groundplatform.android.FakeData.JOB
+import org.groundplatform.android.FakeData.newTask
 import org.groundplatform.android.model.submission.CaptureLocationTaskData
+import org.groundplatform.android.model.submission.TaskData
+import org.groundplatform.android.ui.datacollection.components.ButtonAction
+import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
@@ -77,6 +84,80 @@ class CaptureLocationTaskViewModelTest : BaseHiltTest() {
 
     val data = viewModel.taskTaskData.value as CaptureLocationTaskData
     assertThat(data.accuracy).isEqualTo(10.0)
+  }
+
+  @Test
+  fun `taskActionButtonStates should contain the necessary buttons`() = runTest {
+    setupViewModel()
+
+    val states = viewModel.taskActionButtonStates.first()
+
+    assertThat(states.map { it.action })
+      .containsExactly(
+        ButtonAction.PREVIOUS,
+        ButtonAction.SKIP,
+        ButtonAction.UNDO,
+        ButtonAction.CAPTURE_LOCATION,
+        ButtonAction.NEXT,
+      )
+      .inOrder()
+  }
+
+  @Test
+  fun `CAPTURE_LOCATION button should be disabled when location is not accurate`() = runTest {
+    setupViewModel()
+    setMockLocation(hasAccuracy = false)
+
+    val states = viewModel.taskActionButtonStates.first()
+
+    with(requireNotNull(states.find { it.action == ButtonAction.CAPTURE_LOCATION })) {
+      assertTrue(isVisible)
+      assertFalse(isEnabled)
+    }
+  }
+
+  @Test
+  fun `CAPTURE_LOCATION button should be enabled when location is accurate`() = runTest {
+    setupViewModel()
+    setMockLocation(hasAccuracy = true, accuracy = 5f)
+
+    val states = viewModel.taskActionButtonStates.first()
+
+    with(requireNotNull(states.find { it.action == ButtonAction.CAPTURE_LOCATION })) {
+      assertTrue(isVisible)
+      assertTrue(isEnabled)
+    }
+  }
+
+  @Test
+  fun `onButtonClick CAPTURE_LOCATION correctly captures the current location`() = runTest {
+    setupViewModel()
+    setMockLocation(hasAccuracy = true, accuracy = 10f)
+
+    viewModel.onButtonClick(ButtonAction.CAPTURE_LOCATION)
+
+    val data = viewModel.taskTaskData.value as CaptureLocationTaskData
+    assertThat(data.accuracy).isEqualTo(10.0)
+    assertThat(data.location).isNotNull()
+  }
+
+  private fun setupViewModel(
+    isTaskRequired: Boolean = false,
+    isFirst: Boolean = false,
+    isLastTaskWithValue: Boolean = false,
+  ) {
+    val task = newTask(isRequired = isTaskRequired)
+    viewModel.initialize(
+      job = JOB,
+      task = task,
+      taskData = null,
+      taskPositionInterface =
+        object : TaskPositionInterface {
+          override fun isFirst(): Boolean = isFirst
+
+          override fun isLastWithValue(taskData: TaskData?): Boolean = isLastTaskWithValue
+        },
+    )
   }
 
   private fun setMockLocation(hasAccuracy: Boolean, accuracy: Float? = null) {

@@ -163,13 +163,14 @@ object FakeData {
     multipleChoice: MultipleChoice? = null,
     isAddLoiTask: Boolean = false,
     condition: Condition? = null,
+    isRequired: Boolean = false,
   ): Task =
     Task(
       id = id,
       index = 0,
       type = type,
       label = "",
-      isRequired = false,
+      isRequired = isRequired,
       multipleChoice = multipleChoice,
       isAddLoiTask = isAddLoiTask,
       condition = condition,

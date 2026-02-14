@@ -32,7 +32,7 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
       - name: "TODO to Issue"
-        uses: alstr/todo-to-issue-action@v5.1.13
+        uses: alstr/todo-to-issue-action@v5.1.14
         with:
           AUTO_ASSIGN: "true"
           INSERT_ISSUE_URLS: "true"
