@@ -15,13 +15,15 @@
  */
 package org.groundplatform.android.ui.syncstatus
 
+import android.content.Context
+import android.util.Log
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.work.Configuration
+import androidx.work.testing.SynchronousExecutor
+import androidx.work.testing.WorkManagerTestInitHelper
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -51,6 +53,7 @@ import org.robolectric.RobolectricTestRunner
 class SyncStatusFragmentTest : BaseHiltTest() {
 
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
+  @Inject @ApplicationContext lateinit var context: Context
   @Inject lateinit var localLoiStore: LocalLocationOfInterestStore
   @Inject lateinit var localSubmissionStore: LocalSubmissionStore
   @Inject lateinit var localSurveyStore: LocalSurveyStore
@@ -61,7 +64,12 @@ class SyncStatusFragmentTest : BaseHiltTest() {
   fun `Toolbar should be displayed`() {
     setupFragment()
 
-    onView(withId(R.id.sync_status_toolbar)).check(matches(isDisplayed()))
+    composeTestRule
+      .onNodeWithText(
+        androidx.test.core.app.ApplicationProvider.getApplicationContext<android.content.Context>()
+          .getString(R.string.data_sync_status)
+      )
+      .assertIsDisplayed()
   }
 
   @Test
@@ -114,6 +122,13 @@ class SyncStatusFragmentTest : BaseHiltTest() {
   }
 
   private fun setupFragment() = runWithTestDispatcher {
+    val config =
+      Configuration.Builder()
+        .setMinimumLoggingLevel(Log.INFO)
+        .setExecutor(SynchronousExecutor())
+        .build()
+    WorkManagerTestInitHelper.initializeTestWorkManager(context, config)
+
     launchFragmentInHiltContainer<SyncStatusFragment>()
     advanceUntilIdle()
   }
