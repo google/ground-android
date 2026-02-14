@@ -137,7 +137,6 @@ to the base repository using a pull request.
 
 ## Initial build configuration
 
-### Add Google Maps API Key(s)
 
 ### Set up Firebase
 
@@ -157,15 +156,17 @@ to the base repository using a pull request.
 
 4. Download the config file for the Android app to `app/src/debug/google-services.json`
 
-5. Create a file named `secrets.properties` in the root of the project with the following contents:
+### Add Google Maps API Key(s)
 
-   ```
-   MAPS_API_KEY=<Your Maps SDK API key>
-   ```
+Create a file named `secrets.properties` in the root of the project with the following contents:
 
-   You can find the Maps SDK key for your Firebase project at 
-   http://console.cloud.google.com/google/maps-apis/credentials under 
-   "Android key (auto created by Firebase)". 
+```
+MAPS_API_KEY=<Your Maps SDK API key>
+```
+
+You can find the Maps SDK key for your Firebase project at 
+http://console.cloud.google.com/google/maps-apis/credentials under 
+"Android key (auto created by Firebase)". 
 
 ### Troubleshooting
 
