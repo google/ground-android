@@ -23,8 +23,11 @@ import javax.inject.Inject
 import javax.inject.Provider
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.groundplatform.android.data.local.room.converter.SubmissionDeltasConverter
@@ -358,6 +361,11 @@ internal constructor(
       onValid()
     }
   }
+
+  fun currentActiveTaskFlow(taskId: String): Flow<Boolean> =
+    uiState
+      .map { (it as? DataCollectionUiState.Ready)?.currentTaskId == taskId }
+      .distinctUntilChanged()
 
   companion object {
     private const val TASK_JOB_ID_KEY = "jobId"

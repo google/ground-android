@@ -17,11 +17,8 @@ package org.groundplatform.android.ui.datacollection.tasks.polygon
 
 import android.os.Bundle
 import android.view.View
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.flow.combine
@@ -29,6 +26,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment
+import org.groundplatform.android.ui.datacollection.tasks.launchWhenTaskVisible
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.gms.GmsExt.toBounds
 
@@ -39,28 +37,25 @@ class DrawAreaTaskMapFragment @Inject constructor() :
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
 
-    viewLifecycleOwner.lifecycleScope.launch {
-      viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-        launch {
-          combine(taskViewModel.isMarkedComplete, taskViewModel.isTooClose) { isComplete, tooClose
-              ->
-              !tooClose && !isComplete
-            }
-            .collect { shouldShow -> setCenterMarkerVisibility(shouldShow) }
-        }
+    launchWhenTaskVisible(dataCollectionViewModel, taskId) {
+      launch {
+        combine(taskViewModel.isMarkedComplete, taskViewModel.isTooClose) { isComplete, tooClose ->
+            !tooClose && !isComplete
+          }
+          .collect { shouldShow -> setCenterMarkerVisibility(shouldShow) }
+      }
 
-        launch {
-          map.cameraDragEvents.collect { coord ->
-            if (!taskViewModel.isMarkedComplete()) {
-              taskViewModel.updateLastVertexAndMaybeCompletePolygon(coord) { c1, c2 ->
-                map.getDistanceInPixels(c1, c2)
-              }
+      launch {
+        map.cameraDragEvents.collect { coord ->
+          if (!taskViewModel.isMarkedComplete()) {
+            taskViewModel.updateLastVertexAndMaybeCompletePolygon(coord) { c1, c2 ->
+              map.getDistanceInPixels(c1, c2)
             }
           }
         }
-
-        launch { taskViewModel.draftUpdates.collect { map.updateFeature(it) } }
       }
+
+      launch { taskViewModel.draftUpdates.collect { map.updateFeature(it) } }
     }
   }
 

@@ -20,9 +20,11 @@ import androidx.lifecycle.asFlow
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment
+import org.groundplatform.android.ui.datacollection.tasks.launchWhenTaskVisible
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.MapFragment
 
@@ -34,7 +36,7 @@ class DropPinTaskMapFragment @Inject constructor() :
     super.onMapReady(map)
 
     // Disable pan/zoom gestures if a marker has been placed on the map.
-    lifecycleScope.launch {
+    launchWhenTaskVisible(dataCollectionViewModel, taskId) {
       taskViewModel.features.asFlow().collect { features ->
         updateGestures(features, taskViewModel.captureLocation)
       }
