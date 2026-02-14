@@ -19,16 +19,13 @@ import android.app.DatePickerDialog
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.isNotDisplayed
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.isEnabled
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.compose.ui.test.performClick
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -45,9 +42,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.robolectric.RobolectricTestRunner
-
-// TODO: Add a test for selecting a date and verifying response.
-// Issue URL: https://github.com/google/ground-android/issues/2134
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
@@ -94,10 +88,7 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
   fun `default response is empty`() {
     setupTaskFragment<DateTaskFragment>(job, task)
 
-    onView(withId(R.id.user_date_response_text))
-      .check(matches(withText("")))
-      .check(matches(isDisplayed()))
-      .check(matches(isEnabled()))
+    composeTestRule.onNodeWithTag("dateInputText").assertIsDisplayed().assertTextContains("M/D/YY")
 
     runner().assertButtonIsDisabled("Next")
   }
@@ -113,7 +104,7 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
     view?.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1)
 
     assertThat(fragment.getDatePickerDialog()).isNull()
-    onView(withId(R.id.user_date_response_text)).perform(click())
+    composeTestRule.onNodeWithTag("dateInputText").performClick()
     assertThat(fragment.getDatePickerDialog()).isNotNull()
     assertThat(fragment.getDatePickerDialog()?.isShowing).isTrue()
   }
@@ -124,7 +115,7 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
 
     val view: View? = fragment.view?.findViewById(R.id.task_container)
     view?.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1)
-    onView(withId(R.id.user_date_response_text)).perform(click())
+    composeTestRule.onNodeWithTag("dateInputText").performClick()
     assertThat(fragment.getDatePickerDialog()?.isShowing).isTrue()
 
     val hardcodedYear = 2024
@@ -146,7 +137,7 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
 
     val view: View? = fragment.view?.findViewById(R.id.task_container)
     view?.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1)
-    onView(withId(R.id.user_date_response_text)).perform(click())
+    composeTestRule.onNodeWithTag("dateInputText").performClick()
     assertThat(fragment.getDatePickerDialog()?.isShowing).isTrue()
 
     val hardcodedYear = 2024
