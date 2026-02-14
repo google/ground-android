@@ -139,6 +139,8 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
               mapContainerViewModel.shouldShowRecenterButton.collectAsStateWithLifecycle()
             val dataSharingTerms by
               mapContainerViewModel.dataSharingTerms.collectAsStateWithLifecycle()
+            val showMapTypeSelector by
+              mapContainerViewModel.showMapTypeSelector.collectAsStateWithLifecycle()
 
             mapContainerViewModel.navigateToDataCollectionFragment.launchWhenStartedAndCollect {
               navigateToDataCollectionFragment(it)
@@ -150,6 +152,8 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
               shouldShowRecenter = shouldShowRecenter,
               jobComponentState = jobMapComponentState,
               dataSharingTerms = dataSharingTerms,
+              showMapTypeSelector = showMapTypeSelector,
+              mapTypes = map.supportedMapTypes,
               onBaseMapAction = { handleMapAction(it) },
               onJobComponentAction = {
                 handleJobMapComponentAction(
@@ -159,6 +163,9 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
               },
               onTermsConsentGiven = { mapContainerViewModel.onTermsConsentGiven() },
               onTermsConsentDismissed = { mapContainerViewModel.onTermsConsentDismissed() },
+              onMapTypeSelectorDismiss = {
+                mapContainerViewModel.showMapTypeSelector.value = false
+              },
             )
 
             AndroidView(factory = { bottomContainer }, modifier = Modifier.fillMaxSize())
