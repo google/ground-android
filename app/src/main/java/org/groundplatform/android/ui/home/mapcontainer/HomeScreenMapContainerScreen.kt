@@ -37,6 +37,8 @@ import org.groundplatform.android.model.job.Style
 import org.groundplatform.android.ui.components.MapFloatingActionButton
 import org.groundplatform.android.ui.components.MapFloatingActionButtonType
 import org.groundplatform.android.ui.components.RecenterButton
+import org.groundplatform.android.proto.Survey.DataSharingTerms
+import org.groundplatform.android.ui.home.DataSharingTermsDialog
 import org.groundplatform.android.ui.home.mapcontainer.jobs.AdHocDataCollectionButtonData
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponent
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentAction
@@ -50,10 +52,21 @@ fun HomeScreenMapContainerScreen(
   shouldShowMapActions: Boolean,
   shouldShowRecenter: Boolean,
   jobComponentState: JobMapComponentState,
+  dataSharingTerms: DataSharingTerms?,
   onBaseMapAction: (BaseMapAction) -> Unit,
   onJobComponentAction: (JobMapComponentAction) -> Unit,
+  onTermsConsentGiven: () -> Unit = {},
+  onTermsConsentDismissed: () -> Unit = {},
 ) {
   Box(modifier = modifier.fillMaxSize()) {
+    if (dataSharingTerms != null) {
+      DataSharingTermsDialog(
+        dataSharingTerms = dataSharingTerms,
+        onConfirm = onTermsConsentGiven,
+        onDismiss = onTermsConsentDismissed,
+      )
+    }
+
     if (shouldShowMapActions) {
       MapFloatingActionButton(
         modifier =
@@ -151,6 +164,7 @@ private fun HomeScreenMapContainerScreenPreview() {
         ),
       shouldShowMapActions = true,
       shouldShowRecenter = true,
+      dataSharingTerms = null,
       onBaseMapAction = {},
       onJobComponentAction = {},
     )

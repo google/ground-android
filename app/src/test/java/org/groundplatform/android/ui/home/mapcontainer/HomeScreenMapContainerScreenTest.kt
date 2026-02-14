@@ -187,8 +187,11 @@ class HomeScreenMapContainerScreenTest : BaseHiltTest() {
         shouldShowMapActions = shouldShowMapActions,
         shouldShowRecenter = shouldShowRecenterButton,
         jobComponentState = jobComponentState,
+        dataSharingTerms = null,
         onBaseMapAction = onBaseMapAction,
         onJobComponentAction = onJobComponentAction,
+        onTermsConsentGiven = {},
+        onTermsConsentDismissed = {},
       )
     }
   }

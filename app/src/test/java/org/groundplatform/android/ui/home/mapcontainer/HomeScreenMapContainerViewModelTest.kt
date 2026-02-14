@@ -23,6 +23,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.ADHOC_JOB
@@ -38,14 +39,20 @@ import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
+import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.ui.home.mapcontainer.jobs.AdHocDataCollectionButtonData
+import org.groundplatform.android.ui.home.mapcontainer.jobs.DataCollectionEntryPointData
 import org.groundplatform.android.ui.home.mapcontainer.jobs.SelectedLoiSheetData
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mock
+import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
+import org.mockito.MockitoAnnotations
+import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
 @HiltAndroidTest
@@ -57,11 +64,20 @@ class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
   @Inject lateinit var remoteDataStore: FakeRemoteDataStore
   @Inject lateinit var userRepository: UserRepository
   @Inject lateinit var activateSurvey: ActivateSurveyUseCase
-  @BindValue @Mock lateinit var loiRepository: LocationOfInterestRepository
+  @BindValue val localValueStore: LocalValueStore = org.mockito.Mockito.mock(LocalValueStore::class.java)
+  @BindValue val loiRepository: LocationOfInterestRepository = org.mockito.Mockito.mock(LocationOfInterestRepository::class.java)
 
   @OptIn(ExperimentalCoroutinesApi::class)
   @Before
   override fun setUp() {
+    val context = androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().targetContext
+    val config = androidx.work.Configuration.Builder()
+      .setMinimumLoggingLevel(android.util.Log.DEBUG)
+      .setExecutor(androidx.work.testing.SynchronousExecutor())
+      .build()
+    androidx.work.testing.WorkManagerTestInitHelper.initializeTestWorkManager(context, config)
+
+    MockitoAnnotations.openMocks(this)
     super.setUp()
     runWithTestDispatcher {
       // Setup user
@@ -73,10 +89,12 @@ class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
       remoteDataStore.predefinedLois = listOf(LOCATION_OF_INTEREST)
       activateSurvey(SURVEY.id)
       advanceUntilIdle()
+      org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
       `when`(loiRepository.getWithinBounds(SURVEY, BOUNDS))
         .thenReturn(flowOf(listOf(LOCATION_OF_INTEREST)))
       viewModel.onMapCameraMoved(CAMERA_POSITION)
       advanceUntilIdle()
+      org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
     }
   }
 
@@ -89,6 +107,64 @@ class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
     assertThat(pair.second)
       .isEqualTo(listOf(AdHocDataCollectionButtonData(canCollectData = true, ADHOC_JOB)))
   }
+
+  @Test
+  fun `queueDataCollection shows terms dialog when consent not given`() = runWithTestDispatcher {
+    whenever(localValueStore.getDataSharingConsent(anyString())).thenReturn(false)
+    val buttonData = AdHocDataCollectionButtonData(canCollectData = true, ADHOC_JOB)
+
+    viewModel.queueDataCollection(buttonData)
+    advanceUntilIdle()
+
+    assertThat(viewModel.dataSharingTerms.value).isEqualTo(SURVEY.dataSharingTerms)
+  }
+
+  @Test
+  fun `queueDataCollection navigates when consent already given`() = runWithTestDispatcher {
+    whenever(localValueStore.getDataSharingConsent(anyString())).thenReturn(true)
+    val buttonData = AdHocDataCollectionButtonData(canCollectData = true, ADHOC_JOB)
+    val navigationEvents = mutableListOf<DataCollectionEntryPointData>()
+    // We launch a collector for the SharedFlow
+    val job =
+      launch { viewModel.navigateToDataCollectionFragment.collect { navigationEvents.add(it) } }
+    advanceUntilIdle()
+
+    viewModel.queueDataCollection(buttonData)
+    advanceUntilIdle()
+    org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
+    advanceUntilIdle()
+
+    assertThat(viewModel.dataSharingTerms.value).isNull()
+    assertThat(navigationEvents).contains(buttonData)
+    job.cancel()
+  }
+
+  @Test
+  fun `onTermsConsentGiven updates consent and navigates`() = runWithTestDispatcher {
+    whenever(localValueStore.getDataSharingConsent(anyString())).thenReturn(false)
+    val buttonData = AdHocDataCollectionButtonData(canCollectData = true, ADHOC_JOB)
+    val navigationEvents = mutableListOf<DataCollectionEntryPointData>()
+    val job =
+      launch { viewModel.navigateToDataCollectionFragment.collect { navigationEvents.add(it) } }
+
+    viewModel.queueDataCollection(buttonData)
+    advanceUntilIdle()
+    
+    // TERMS shown
+    assertThat(viewModel.dataSharingTerms.value).isNotNull()
+
+    viewModel.onTermsConsentGiven()
+    advanceUntilIdle()
+    org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
+    advanceUntilIdle()
+
+    // Dialog hidden, navigation happened, consent saved
+    assertThat(viewModel.dataSharingTerms.value).isNull()
+    assertThat(navigationEvents).contains(buttonData)
+    verify(localValueStore).setDataSharingConsent(SURVEY.id, true)
+    job.cancel()
+  }
+
 
   companion object {
     private val BOUNDS = Bounds(Coordinates(-20.0, -20.0), Coordinates(-10.0, -10.0))

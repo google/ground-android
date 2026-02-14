@@ -18,6 +18,7 @@ package org.groundplatform.android.ui.home
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -110,11 +111,16 @@ class DataSharingTermsDialogTest : BaseHiltTest() {
 
   @Test
   fun `cancel button click dismisses the dialog`() {
+    val isVisible = mutableStateOf(true)
     composeTestRule.setContent {
-      DataSharingTermsDialog(
-        dataSharingTerms =
-          Survey.DataSharingTerms.newBuilder().setType(Survey.DataSharingTerms.Type.PRIVATE).build()
-      )
+      if (isVisible.value) {
+        DataSharingTermsDialog(
+          dataSharingTerms =
+            Survey.DataSharingTerms.newBuilder().setType(Survey.DataSharingTerms.Type.PRIVATE).build(),
+          onDismiss = { isVisible.value = false },
+          onConfirm = {}
+        )
+      }
     }
 
     composeTestRule
@@ -127,15 +133,22 @@ class DataSharingTermsDialogTest : BaseHiltTest() {
   @Test
   fun `agree button click invokes consent callback`() {
     var callbackCalled = false
+    val isVisible = mutableStateOf(true)
 
     composeTestRule.setContent {
-      DataSharingTermsDialog(
-        dataSharingTerms =
-          Survey.DataSharingTerms.newBuilder()
-            .setType(Survey.DataSharingTerms.Type.PRIVATE)
-            .build(),
-        consentGivenCallback = { callbackCalled = true },
-      )
+      if (isVisible.value) {
+        DataSharingTermsDialog(
+          dataSharingTerms =
+            Survey.DataSharingTerms.newBuilder()
+              .setType(Survey.DataSharingTerms.Type.PRIVATE)
+              .build(),
+          onConfirm = {
+            callbackCalled = true
+            isVisible.value = false
+          },
+          onDismiss = {},
+        )
+      }
     }
 
     composeTestRule

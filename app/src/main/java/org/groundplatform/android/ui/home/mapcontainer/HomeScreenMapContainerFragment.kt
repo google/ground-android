@@ -75,17 +75,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       is AdHocDataCollectionButtonData -> cardUiData.job.tasks.values.isNotEmpty()
     }
 
-  private fun showDataSharingTermsDialog(
-    cardUiData: DataCollectionEntryPointData,
-    dataSharingTerms: DataSharingTerms,
-  ) {
-    renderComposableDialog {
-      DataSharingTermsDialog(dataSharingTerms) {
-        mapContainerViewModel.grantDataSharingConsent()
-        navigateToDataCollectionFragment(cardUiData)
-      }
-    }
-  }
+
 
   /** Invoked when user clicks on the map cards to collect data. */
   private fun onCollectData(cardUiData: DataCollectionEntryPointData) {
@@ -102,28 +92,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       return
     }
 
-    mapContainerViewModel
-      .getDataSharingTerms()
-      .onSuccess { terms ->
-        if (terms == null) {
-          // Data sharing terms already accepted or missing.
-          navigateToDataCollectionFragment(cardUiData)
-        } else {
-          showDataSharingTermsDialog(cardUiData, terms)
-        }
-      }
-      .onFailure {
-        Timber.e(it, "Failed to get data sharing terms")
-        ephemeralPopups
-          .ErrorPopup()
-          .show(
-            if (it is GetDataSharingTermsUseCase.InvalidCustomSharingTermsException) {
-              R.string.invalid_data_sharing_terms
-            } else {
-              R.string.something_went_wrong
-            }
-          )
-      }
+    mapContainerViewModel.queueDataCollection(cardUiData)
   }
 
   /** Invoked when user clicks delete on a site. */
@@ -168,12 +137,19 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
               mapContainerViewModel.shouldShowMapActions.collectAsStateWithLifecycle()
             val shouldShowRecenter by
               mapContainerViewModel.shouldShowRecenterButton.collectAsStateWithLifecycle()
+            val dataSharingTerms by
+              mapContainerViewModel.dataSharingTerms.collectAsStateWithLifecycle()
+
+            mapContainerViewModel.navigateToDataCollectionFragment.launchWhenStartedAndCollect {
+              navigateToDataCollectionFragment(it)
+            }
 
             HomeScreenMapContainerScreen(
               locationLockButtonType = locationLockButton,
               shouldShowMapActions = shouldShowMapActions,
               shouldShowRecenter = shouldShowRecenter,
               jobComponentState = jobMapComponentState,
+              dataSharingTerms = dataSharingTerms,
               onBaseMapAction = { handleMapAction(it) },
               onJobComponentAction = {
                 handleJobMapComponentAction(
@@ -181,6 +157,8 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
                   action = it,
                 )
               },
+              onTermsConsentGiven = { mapContainerViewModel.onTermsConsentGiven() },
+              onTermsConsentDismissed = { mapContainerViewModel.onTermsConsentDismissed() },
             )
 
             AndroidView(factory = { bottomContainer }, modifier = Modifier.fillMaxSize())
@@ -263,6 +241,10 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   }
 
   private fun navigateToDataCollectionFragment(cardUiData: DataCollectionEntryPointData) {
+    if (findNavController().currentDestination?.id != R.id.home_screen_fragment) {
+      Timber.w("Refusing to navigate to data collection from ${findNavController().currentDestination?.label}")
+      return
+    }
     when (cardUiData) {
       is SelectedLoiSheetData ->
         findNavController()
