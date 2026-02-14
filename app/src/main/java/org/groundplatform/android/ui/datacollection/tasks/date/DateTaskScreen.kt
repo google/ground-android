@@ -45,6 +45,15 @@ fun DateTaskScreen(
   onDateClick: () -> Unit,
   modifier: Modifier = Modifier,
 ) {
+  val interactionSource = remember { MutableInteractionSource() }
+  LaunchedEffect(interactionSource) {
+    interactionSource.interactions.collect { interaction ->
+      if (interaction is PressInteraction.Release) {
+        onDateClick()
+      }
+    }
+  }
+
   Column(modifier = modifier) {
     // TODO: Replace with simple text field.
     OutlinedTextField(
@@ -53,17 +62,7 @@ fun DateTaskScreen(
       readOnly = true,
       placeholder = { Text(hintText) },
       modifier = Modifier.width(200.dp).testTag("dateInputText"),
-      interactionSource =
-        remember { MutableInteractionSource() }
-          .also { interactionSource ->
-            LaunchedEffect(interactionSource) {
-              interactionSource.interactions.collect {
-                if (it is PressInteraction.Release) {
-                  onDateClick()
-                }
-              }
-            }
-          },
+      interactionSource = interactionSource,
     )
   }
 }
