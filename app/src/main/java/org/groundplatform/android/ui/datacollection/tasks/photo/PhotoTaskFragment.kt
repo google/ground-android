@@ -23,6 +23,8 @@ import android.view.LayoutInflater
 import android.view.View
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -30,7 +32,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
-import org.groundplatform.android.databinding.PhotoTaskFragBinding
 import org.groundplatform.android.di.coroutines.ApplicationScope
 import org.groundplatform.android.di.coroutines.IoDispatcher
 import org.groundplatform.android.di.coroutines.MainScope
@@ -43,6 +44,7 @@ import org.groundplatform.android.ui.datacollection.components.TaskView
 import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.ui.home.HomeScreenViewModel
+import org.groundplatform.android.util.createComposeView
 import org.groundplatform.android.util.renderComposableDialog
 import timber.log.Timber
 
@@ -75,12 +77,13 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
     TaskViewFactory.createWithHeader(inflater)
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View {
-    val taskBinding = PhotoTaskFragBinding.inflate(inflater)
-    taskBinding.lifecycleOwner = this
-    taskBinding.fragment = this
-    taskBinding.viewModel = viewModel
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
-    return taskBinding.root
+    return createComposeView {
+      val isPhotoPresent by viewModel.isPhotoPresent.observeAsState(false)
+      val uri by viewModel.uri.observeAsState()
+
+      PhotoTaskScreen(isPhotoPresent = isPhotoPresent, uri = uri, onTakePhoto = { onTakePhoto() })
+    }
   }
 
   override fun onTaskViewAttached() {

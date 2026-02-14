@@ -16,6 +16,7 @@
 androidMapsUtilsVersion = "4.0.0"
 appcompatVersion = "1.7.1"
 autoValueVersion = "1.11.1"
+coilComposeVersion = "2.6.0"
 composeBom = "2026.02.00"
 constraintlayoutVersion = "2.2.1"
 coreKtxVersion = "1.17.0"
@@ -28,7 +29,6 @@ espressoContribVersion = "3.7.0"
 firebaseBomVersion = "33.1.2"
 firebaseCrashlyticsGradleVersion = "3.0.6"
 fragmentVersion = "1.8.9"
-glideVersion = "5.0.5"
 googleServicesVersion = "4.4.4"
 gradleVersion = "9.0.1"
 groundPlatformVersion = "bc2596d"
@@ -74,6 +74,7 @@ workVersion = "2.11.1"
 android-maps-utils = { module = "com.google.maps.android:android-maps-utils", version.ref = "androidMapsUtilsVersion" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompatVersion" }
 androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayoutVersion" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilComposeVersion" }
 androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
 androidx-compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
 androidx-core = { module = "androidx.test:core", version.ref = "coreVersion" }
@@ -128,7 +129,6 @@ firebase-messaging = { module = "com.google.firebase:firebase-messaging" }
 firebase-storage = { module = "com.google.firebase:firebase-storage" }
 firebase-perf = { module = "com.google.firebase:firebase-perf" }
 firebase-functions-ktx = { module = "com.google.firebase:firebase-functions-ktx" }
-glide = { module = "com.github.bumptech.glide:glide", version.ref = "glideVersion" }
 google-services = { module = "com.google.gms:google-services", version.ref = "googleServicesVersion" }
 gradle = { module = "com.android.tools.build:gradle", version.ref = "gradleVersion" }
 ground-platform = { module = "com.github.google:ground-platform", version.ref = "groundPlatformVersion" }
