@@ -23,9 +23,12 @@ import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -37,6 +40,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import org.groundplatform.android.R
 import org.groundplatform.android.common.Constants.CLUSTERING_ZOOM_THRESHOLD
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.model.Survey
@@ -61,10 +65,6 @@ import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentState
 import org.groundplatform.android.ui.home.mapcontainer.jobs.SelectedLoiSheetData
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.usecases.datasharingterms.GetDataSharingTermsUseCase
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
 import timber.log.Timber
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -142,8 +142,12 @@ internal constructor(
   private val _dataSharingTerms = MutableStateFlow<DataSharingTerms?>(null)
   val dataSharingTerms = _dataSharingTerms.asStateFlow()
 
-  private val _navigateToDataCollectionFragment = MutableSharedFlow<DataCollectionEntryPointData>()
+  private val _navigateToDataCollectionFragment =
+    MutableSharedFlow<DataCollectionEntryPointData>(extraBufferCapacity = 1)
   val navigateToDataCollectionFragment = _navigateToDataCollectionFragment.asSharedFlow()
+
+  private val _termsError = MutableSharedFlow<Int>(extraBufferCapacity = 1)
+  val termsError = _termsError.asSharedFlow()
 
   private var pendingDataCollectionEntryPointData: DataCollectionEntryPointData? = null
 
@@ -174,7 +178,7 @@ internal constructor(
           if (bounds == null || survey == null || !isZoomedIn) flowOf(listOf())
           else loiRepository.getWithinBounds(survey, bounds)
         }
-        .stateIn(viewModelScope, SharingStarted.Lazily, listOf())
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), listOf())
 
     adHocLoiJobs =
       activeSurvey.combine(isZoomedInFlow) { survey, isZoomedIn ->
@@ -187,7 +191,7 @@ internal constructor(
         .map { (loiCard, jobCards) -> JobMapComponentState(loiCard, jobCards) }
         .stateIn(
           scope = viewModelScope,
-          started = SharingStarted.Lazily,
+          started = SharingStarted.WhileSubscribed(5_000),
           initialValue = JobMapComponentState(),
         )
   }
@@ -211,7 +215,8 @@ internal constructor(
 
   fun queueDataCollection(data: DataCollectionEntryPointData) {
     if (!data.canCollectData) {
-      // TODO: Handle view-only mode or error if needed, though this check might belong in UI or use case.
+      // TODO: Handle view-only mode or error if needed, though this check might belong in UI or use
+      // case.
       // For now, mirroring fragment logic if acceptable, or just proceed to check terms.
       return
     }
@@ -226,23 +231,25 @@ internal constructor(
         } else {
           pendingDataCollectionEntryPointData = data
           _dataSharingTerms.value = terms
+          Timber.d("pendingData set to $data")
         }
       }
       .onFailure {
         Timber.e(it, "Failed to get data sharing terms")
-        // TODO: Emit error state or navigate anyway?
-        // For safety, preserving previous behavior might be tricky without context,
-        // but typically we'd show an error.
-        // Assuming fragment observes error via ephemeral popups or similar if we exposed it.
-        // For now, letting UI handle error presentation if this fails involved a bit more work,
-        // but the original code just showed a popup. We might need a SharedFlow for errors.
+        if (it is GetDataSharingTermsUseCase.InvalidCustomSharingTermsException) {
+          viewModelScope.launch { _termsError.emit(R.string.invalid_data_sharing_terms) }
+        }
       }
   }
 
   fun onTermsConsentGiven() {
     val data = pendingDataCollectionEntryPointData
+    Timber.d("onTermsConsentGiven data=$data")
     if (data != null) {
-      viewModelScope.launch { _navigateToDataCollectionFragment.emit(data) }
+      viewModelScope.launch {
+        Timber.d("Emitting navigation")
+        _navigateToDataCollectionFragment.emit(data)
+      }
     }
     _dataSharingTerms.value = null
     pendingDataCollectionEntryPointData = null

@@ -16,30 +16,38 @@
 
 package org.groundplatform.android.ui.home.mapcontainer
 
+import androidx.lifecycle.viewModelScope
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.ADHOC_JOB
 import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST
 import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST_FEATURE
 import org.groundplatform.android.FakeData.SURVEY
 import org.groundplatform.android.FakeData.USER
+import org.groundplatform.android.R
+import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.map.Bounds
 import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.repository.LocationOfInterestRepository
+import org.groundplatform.android.repository.MapStateRepository
 import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
-import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.ui.home.mapcontainer.jobs.AdHocDataCollectionButtonData
 import org.groundplatform.android.ui.home.mapcontainer.jobs.DataCollectionEntryPointData
 import org.groundplatform.android.ui.home.mapcontainer.jobs.SelectedLoiSheetData
@@ -48,7 +56,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.anyString
-import org.mockito.Mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
@@ -59,26 +66,56 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
   @Inject lateinit var viewModel: HomeScreenMapContainerViewModel
-  @Inject lateinit var surveyRepository: SurveyRepository
+  @BindValue
+  val surveyRepository: SurveyRepository = org.mockito.Mockito.mock(SurveyRepository::class.java)
   @Inject lateinit var authenticationManager: FakeAuthenticationManager
   @Inject lateinit var remoteDataStore: FakeRemoteDataStore
   @Inject lateinit var userRepository: UserRepository
-  @Inject lateinit var activateSurvey: ActivateSurveyUseCase
-  @BindValue val localValueStore: LocalValueStore = org.mockito.Mockito.mock(LocalValueStore::class.java)
-  @BindValue val loiRepository: LocationOfInterestRepository = org.mockito.Mockito.mock(LocationOfInterestRepository::class.java)
+  @BindValue
+  val activateSurvey: ActivateSurveyUseCase =
+    org.mockito.Mockito.mock(ActivateSurveyUseCase::class.java)
+  @BindValue
+  val mapStateRepository: MapStateRepository =
+    org.mockito.Mockito.mock(MapStateRepository::class.java)
+  @BindValue
+  val localValueStore: LocalValueStore = org.mockito.Mockito.mock(LocalValueStore::class.java)
+  @BindValue
+  val loiRepository: LocationOfInterestRepository =
+    org.mockito.Mockito.mock(LocationOfInterestRepository::class.java)
 
   @OptIn(ExperimentalCoroutinesApi::class)
   @Before
   override fun setUp() {
-    val context = androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().targetContext
-    val config = androidx.work.Configuration.Builder()
-      .setMinimumLoggingLevel(android.util.Log.DEBUG)
-      .setExecutor(androidx.work.testing.SynchronousExecutor())
-      .build()
+    val localTestDispatcher = StandardTestDispatcher()
+    Dispatchers.setMain(localTestDispatcher)
+    val context =
+      androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().targetContext
+    val config =
+      androidx.work.Configuration.Builder()
+        .setMinimumLoggingLevel(android.util.Log.DEBUG)
+        .setExecutor(androidx.work.testing.SynchronousExecutor())
+        .build()
     androidx.work.testing.WorkManagerTestInitHelper.initializeTestWorkManager(context, config)
+
+    whenever(surveyRepository.activeSurveyFlow)
+      .thenReturn(kotlinx.coroutines.flow.MutableStateFlow(SURVEY))
+    whenever(surveyRepository.activeSurvey).thenReturn(SURVEY)
+
+    whenever(mapStateRepository.mapTypeFlow)
+      .thenReturn(
+        kotlinx.coroutines.flow.MutableStateFlow(
+          org.groundplatform.android.model.map.MapType.TERRAIN
+        )
+      )
+    whenever(mapStateRepository.offlineImageryEnabledFlow)
+      .thenReturn(kotlinx.coroutines.flow.MutableStateFlow(false))
+    whenever(mapStateRepository.isLocationLockEnabled).thenReturn(false)
 
     MockitoAnnotations.openMocks(this)
     super.setUp()
+    // Overwrite the injected testDispatcher with our local one to ensure consistency
+    testDispatcher = localTestDispatcher
+
     runWithTestDispatcher {
       // Setup user
       authenticationManager.setUser(USER)
@@ -87,7 +124,6 @@ class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
       // Setup survey and LOIs
       remoteDataStore.surveys = listOf(SURVEY)
       remoteDataStore.predefinedLois = listOf(LOCATION_OF_INTEREST)
-      activateSurvey(SURVEY.id)
       advanceUntilIdle()
       org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
       `when`(loiRepository.getWithinBounds(SURVEY, BOUNDS))
@@ -95,7 +131,16 @@ class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
       viewModel.onMapCameraMoved(CAMERA_POSITION)
       advanceUntilIdle()
       org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
+      advanceUntilIdle()
+      org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
     }
+  }
+
+  @OptIn(ExperimentalCoroutinesApi::class)
+  @org.junit.After
+  fun tearDown() {
+    viewModel.viewModelScope.cancel()
+    Dispatchers.resetMain()
   }
 
   @Test
@@ -125,8 +170,9 @@ class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
     val buttonData = AdHocDataCollectionButtonData(canCollectData = true, ADHOC_JOB)
     val navigationEvents = mutableListOf<DataCollectionEntryPointData>()
     // We launch a collector for the SharedFlow
-    val job =
-      launch { viewModel.navigateToDataCollectionFragment.collect { navigationEvents.add(it) } }
+    val job = launch {
+      viewModel.navigateToDataCollectionFragment.collect { navigationEvents.add(it) }
+    }
     advanceUntilIdle()
 
     viewModel.queueDataCollection(buttonData)
@@ -144,12 +190,13 @@ class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
     whenever(localValueStore.getDataSharingConsent(anyString())).thenReturn(false)
     val buttonData = AdHocDataCollectionButtonData(canCollectData = true, ADHOC_JOB)
     val navigationEvents = mutableListOf<DataCollectionEntryPointData>()
-    val job =
-      launch { viewModel.navigateToDataCollectionFragment.collect { navigationEvents.add(it) } }
+    val job = launch {
+      viewModel.navigateToDataCollectionFragment.collect { navigationEvents.add(it) }
+    }
 
     viewModel.queueDataCollection(buttonData)
     advanceUntilIdle()
-    
+
     // TERMS shown
     assertThat(viewModel.dataSharingTerms.value).isNotNull()
 
@@ -165,6 +212,32 @@ class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
     job.cancel()
   }
 
+  @Test
+  fun `queueDataCollection emits error when terms are invalid`() = runWithTestDispatcher {
+    whenever(localValueStore.getDataSharingConsent(anyString())).thenReturn(false)
+    val buttonData = AdHocDataCollectionButtonData(canCollectData = true, ADHOC_JOB)
+
+    // Create survey with invalid terms (custom type but empty text)
+    // Use unique ID to ensure we don't use cached survey from setUp
+    val invalidTerms =
+      org.groundplatform.android.proto.Survey.DataSharingTerms.newBuilder()
+        .setType(org.groundplatform.android.proto.Survey.DataSharingTerms.Type.CUSTOM)
+        .setCustomText("")
+        .build()
+    val invalidSurvey = SURVEY.copy(id = "invalid_survey_id", dataSharingTerms = invalidTerms)
+    remoteDataStore.surveys = listOf(invalidSurvey)
+    whenever(surveyRepository.activeSurvey).thenReturn(invalidSurvey)
+    advanceUntilIdle()
+
+    val errorEvents = mutableListOf<Int>()
+    val job = launch { viewModel.termsError.collect { errorEvents.add(it) } }
+
+    viewModel.queueDataCollection(buttonData)
+    advanceUntilIdle()
+
+    assertThat(errorEvents).contains(R.string.invalid_data_sharing_terms)
+    job.cancel()
+  }
 
   companion object {
     private val BOUNDS = Bounds(Coordinates(-20.0, -20.0), Coordinates(-10.0, -10.0))

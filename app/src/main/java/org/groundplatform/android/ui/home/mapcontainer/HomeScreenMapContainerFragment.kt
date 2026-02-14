@@ -32,11 +32,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import org.groundplatform.android.R
 import org.groundplatform.android.model.locationofinterest.LOI_NAME_PROPERTY
-import org.groundplatform.android.proto.Survey.DataSharingTerms
 import org.groundplatform.android.ui.common.AbstractMapContainerFragment
 import org.groundplatform.android.ui.common.BaseMapViewModel
 import org.groundplatform.android.ui.common.EphemeralPopups
-import org.groundplatform.android.ui.home.DataSharingTermsDialog
 import org.groundplatform.android.ui.home.HomeScreenFragmentDirections
 import org.groundplatform.android.ui.home.HomeScreenViewModel
 import org.groundplatform.android.ui.home.mapcontainer.jobs.AdHocDataCollectionButtonData
@@ -46,8 +44,6 @@ import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentState
 import org.groundplatform.android.ui.home.mapcontainer.jobs.SelectedLoiSheetData
 import org.groundplatform.android.ui.map.MapFragment
 import org.groundplatform.android.ui.theme.AppTheme
-import org.groundplatform.android.usecases.datasharingterms.GetDataSharingTermsUseCase
-import org.groundplatform.android.util.renderComposableDialog
 import timber.log.Timber
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
@@ -74,8 +70,6 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       is SelectedLoiSheetData -> cardUiData.loi.job.tasks.values.count { !it.isAddLoiTask } > 0
       is AdHocDataCollectionButtonData -> cardUiData.job.tasks.values.isNotEmpty()
     }
-
-
 
   /** Invoked when user clicks on the map cards to collect data. */
   private fun onCollectData(cardUiData: DataCollectionEntryPointData) {
@@ -111,7 +105,11 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
         id = R.id.bottom_container
       }
 
-    return ComposeView(requireContext()).apply {
+    return createComposeView()
+  }
+
+  private fun createComposeView(): View =
+    ComposeView(requireContext()).apply {
       setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
       setContent {
         AppTheme {
@@ -146,6 +144,10 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
               navigateToDataCollectionFragment(it)
             }
 
+            mapContainerViewModel.termsError.launchWhenStartedAndCollect {
+              ephemeralPopups.ErrorPopup().show(getString(it))
+            }
+
             HomeScreenMapContainerScreen(
               locationLockButtonType = locationLockButton,
               shouldShowMapActions = shouldShowMapActions,
@@ -163,9 +165,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
               },
               onTermsConsentGiven = { mapContainerViewModel.onTermsConsentGiven() },
               onTermsConsentDismissed = { mapContainerViewModel.onTermsConsentDismissed() },
-              onMapTypeSelectorDismiss = {
-                mapContainerViewModel.showMapTypeSelector.value = false
-              },
+              onMapTypeSelectorDismiss = { mapContainerViewModel.showMapTypeSelector.value = false },
             )
 
             AndroidView(factory = { bottomContainer }, modifier = Modifier.fillMaxSize())
@@ -173,7 +173,6 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
         }
       }
     }
-  }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     // AbstractMapContainerFragment.onViewCreated calls map.attachToParent, which fails here
@@ -249,7 +248,9 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
   private fun navigateToDataCollectionFragment(cardUiData: DataCollectionEntryPointData) {
     if (findNavController().currentDestination?.id != R.id.home_screen_fragment) {
-      Timber.w("Refusing to navigate to data collection from ${findNavController().currentDestination?.label}")
+      Timber.w(
+        "Refusing to navigate to data collection from ${findNavController().currentDestination?.label}"
+      )
       return
     }
     when (cardUiData) {
