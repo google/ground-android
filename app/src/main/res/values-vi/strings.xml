@@ -57,7 +57,6 @@
   <string name="tos_title">Điều khoản dịch vụ</string>
   <string name="agree_terms">Đồng ý</string>
   <string name="agree_checkbox">Tôi đồng ý</string>
-  <string name="date">Ngày</string>
   <string name="time">Thời gian</string>
   <!-- Other strings (to be organized) -->
   <string name="sync_status">Trạng thái đồng bộ dữ liệu</string>
