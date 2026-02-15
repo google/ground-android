@@ -16,39 +16,48 @@
 package org.groundplatform.android.ui.signin
 
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.mapLatest
-import kotlinx.coroutines.flow.shareIn
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.NetworkStatus
 import org.groundplatform.android.system.auth.SignInState
 import org.groundplatform.android.ui.common.AbstractViewModel
 
+/** View model responsible for handling the sign-in screen. */
+@HiltViewModel
 class SignInViewModel
 @Inject
-internal constructor(
-  private val networkManager: NetworkManager,
-  private val userRepository: UserRepository,
-) : AbstractViewModel() {
+internal constructor(networkManager: NetworkManager, private val userRepository: UserRepository) :
+  AbstractViewModel() {
 
-  @OptIn(ExperimentalCoroutinesApi::class)
-  fun getNetworkFlow(): Flow<Boolean> =
+  val signInState: StateFlow<SignInState> =
+    userRepository
+      .getSignInState()
+      .stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Lazily,
+        initialValue = SignInState.SignedOut,
+      )
+
+  val networkAvailable: StateFlow<Boolean> =
     networkManager.networkStatusFlow
-      .mapLatest { it == NetworkStatus.AVAILABLE }
-      .shareIn(viewModelScope, SharingStarted.Lazily, replay = 0)
+      .map { it == NetworkStatus.AVAILABLE }
+      .stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Lazily,
+        initialValue = networkManager.isNetworkConnected(),
+      )
 
   fun onSignInButtonClick() {
-    viewModelScope.launch {
-      val state = userRepository.getSignInState().first()
-      if (state is SignInState.SignedOut || state is SignInState.Error) {
-        userRepository.signIn()
-      }
-    }
+    userRepository.signIn()
+  }
+
+  fun onSignOutButtonClick() {
+    userRepository.signOut()
   }
 }

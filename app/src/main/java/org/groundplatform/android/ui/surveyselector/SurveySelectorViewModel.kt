@@ -15,22 +15,27 @@
  */
 package org.groundplatform.android.ui.surveyselector
 
-import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import org.groundplatform.android.coroutines.ApplicationScope
-import org.groundplatform.android.coroutines.IoDispatcher
+import org.groundplatform.android.di.coroutines.ApplicationScope
+import org.groundplatform.android.di.coroutines.IoDispatcher
 import org.groundplatform.android.model.SurveyListItem
-import org.groundplatform.android.proto.Survey
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
@@ -39,130 +44,103 @@ import org.groundplatform.android.usecases.survey.RemoveOfflineSurveyUseCase
 import timber.log.Timber
 
 /** Represents view state and behaviors of the survey selector dialog. */
+@HiltViewModel
 class SurveySelectorViewModel
 @Inject
 internal constructor(
   private val activateSurveyUseCase: ActivateSurveyUseCase,
   @ApplicationScope private val externalScope: CoroutineScope,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-  private val listAvailableSurveysUseCase: ListAvailableSurveysUseCase,
+  listAvailableSurveysUseCase: ListAvailableSurveysUseCase,
   private val removeOfflineSurveyUseCase: RemoveOfflineSurveyUseCase,
   private val userRepository: UserRepository,
+  savedStateHandle: SavedStateHandle,
 ) : AbstractViewModel() {
 
-  private val _uiState: MutableStateFlow<UiState> = MutableStateFlow(UiState.FetchingSurveys)
-  val uiState: StateFlow<UiState> = _uiState.asStateFlow()
+  private val surveyIdToActivate: String? = savedStateHandle["surveyId"]
 
-  private val _surveys = MutableStateFlow<List<SurveyListItem>>(emptyList())
+  private val _events = Channel<SurveySelectorEvent>()
+  val events = _events.receiveAsFlow()
 
-  private val _onDeviceSurveys = MutableStateFlow<List<SurveyListItem>>(emptyList())
-  val onDeviceSurveys: StateFlow<List<SurveyListItem>> = _onDeviceSurveys
+  private val _isActivating = MutableStateFlow(false)
 
-  private val _sharedWithSurveys = MutableStateFlow<List<SurveyListItem>>(emptyList())
-  val sharedWithSurveys: StateFlow<List<SurveyListItem>> = _sharedWithSurveys
+  private val surveyList: Flow<List<SurveyListItem>> =
+    listAvailableSurveysUseCase()
+      .map { surveys -> surveys.sortedWith(compareBy({ !it.availableOffline }, { it.title })) }
+      .catch { error ->
+        Timber.e(error, "Failed to load available surveys")
+        _events.send(SurveySelectorEvent.ShowError(error))
+        emit(emptyList())
+      }
 
-  private val _publicListSurveys = MutableStateFlow<List<SurveyListItem>>(emptyList())
-  val publicListSurveys: StateFlow<List<SurveyListItem>> = _publicListSurveys
-
-  val showDeleteDialog = MutableStateFlow(false)
-  val selectedSurveyId = mutableStateOf<String?>(null)
-
-  var surveyActivationInProgress = false
+  val uiState: StateFlow<SurveySelectorUiState> =
+    combine(surveyList, _isActivating) { surveys, isActivating ->
+        SurveySelectorUiState(
+          isLoading = isActivating, // Initial loading handled by StateFlow initialValue
+          onDeviceSurveys = surveys.filter { it.isOnDevice() },
+          sharedSurveys = surveys.filter { it.isShared() },
+          publicSurveys = surveys.filter { it.isPublic() },
+        )
+      }
+      .stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = SurveySelectorUiState(isLoading = true),
+      )
 
   init {
-    viewModelScope.launch {
-      getSurveyList().distinctUntilChanged().collect {
-        _uiState.emit(UiState.SurveyListAvailable(it))
+    if (!surveyIdToActivate.isNullOrBlank()) {
+      viewModelScope.launch {
+        // Wait for the survey list to contain the target survey
+        surveyList.first { surveys -> surveys.any { it.id == surveyIdToActivate } }
+        // Once found, activate it
+        activateSurvey(surveyIdToActivate)
       }
     }
   }
 
-  /** Returns a flow of [SurveyListItem] to be displayed to the user. */
-  private fun getSurveyList(): Flow<List<SurveyListItem>> =
-    listAvailableSurveysUseCase().map { surveys ->
-      surveys.sortedWith(compareBy({ !it.availableOffline }, { it.title }))
-    }
-
   /** Triggers the specified survey to be loaded and activated. */
   fun activateSurvey(surveyId: String) {
-    synchronized(this) {
-      if (surveyActivationInProgress) {
-        // Ignore extra clicks while survey is loading, see #2729.
-        Timber.v("Ignoring extra survey click.")
-        return
-      }
-      surveyActivationInProgress = true
-    }
+    if (_isActivating.value) return
+
+    _isActivating.value = true
     viewModelScope.launch {
-      runCatching {
-          _uiState.emit(UiState.ActivatingSurvey)
-          activateSurveyUseCase(surveyId)
-        }
+      runCatching { activateSurveyUseCase(surveyId) }
         .fold(
           onSuccess = { result ->
+            _isActivating.value = false
             if (result) {
-              onSurveyActivated()
+              _events.send(SurveySelectorEvent.NavigateToHome)
             } else {
-              onSurveyActivationFailed()
+              _events.send(SurveySelectorEvent.ShowError(Exception("Survey activation failed")))
             }
           },
-          onFailure = { onSurveyActivationFailed(it) },
+          onFailure = {
+            Timber.e(it, "Failed to activate survey")
+            _isActivating.value = false
+            _events.send(SurveySelectorEvent.ShowError(it))
+          },
         )
     }
   }
 
-  private suspend fun onSurveyActivated() {
-    surveyActivationInProgress = false
-    _uiState.emit(UiState.SurveyActivated)
-    _uiState.emit(UiState.NavigateToHome)
-  }
-
-  private suspend fun onSurveyActivationFailed(error: Throwable? = null) {
-    Timber.e(error, "Failed to activate survey")
-    surveyActivationInProgress = false
-    _uiState.emit(UiState.Error)
-  }
-
+  /** Signs out the current user. */
   fun signOut() {
     userRepository.signOut()
   }
 
-  fun setSurveys(surveys: List<SurveyListItem>) {
-    _surveys.value = surveys
-
-    val grouped =
-      surveys.groupBy {
-        when {
-          it.availableOffline -> "onDevice"
-          it.generalAccess == Survey.GeneralAccess.PUBLIC -> "public"
-          it.generalAccess == Survey.GeneralAccess.RESTRICTED ||
-            it.generalAccess == Survey.GeneralAccess.UNLISTED -> "sharedWith"
-          else -> "other"
-        }
-      }
-    _onDeviceSurveys.value = grouped["onDevice"].orEmpty()
-    _sharedWithSurveys.value = grouped["sharedWith"].orEmpty()
-    _publicListSurveys.value = grouped["public"].orEmpty()
-  }
-
-  fun openDeleteDialog(id: String) {
-    selectedSurveyId.value = id
-    showDeleteDialog.value = true
-  }
-
-  fun closeDeleteDialog() {
-    showDeleteDialog.value = false
-    selectedSurveyId.value = null
-  }
-
-  fun confirmDelete(selectedSurveyId: String) {
-    deleteSurvey(selectedSurveyId)
-    closeDeleteDialog()
-  }
-
-  private fun deleteSurvey(surveyId: String) {
+  /**
+   * Confirms the deletion of a local survey.
+   *
+   * @param surveyId The ID of the survey to delete.
+   */
+  fun confirmDelete(surveyId: String) {
     externalScope.launch(ioDispatcher) { removeOfflineSurveyUseCase(surveyId) }
-    _surveys.value = _surveys.value.filterNot { it.id == surveyId }
-    setSurveys(_surveys.value)
   }
+}
+
+sealed interface SurveySelectorEvent {
+  object NavigateToHome : SurveySelectorEvent
+
+  data class ShowError(val error: Throwable) : SurveySelectorEvent
 }

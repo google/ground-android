@@ -288,4 +288,41 @@ class TaskSequenceHandlerTest {
       taskSequenceHandler.getTaskPosition(conditionalTask.id)
     }
   }
+
+  @Test
+  fun `generateValidTasksList handles large chain of conditional tasks`() {
+    // Create a chain of 100 tasks, each depending on the previous one.
+    val tasks = ArrayList<Task>()
+    tasks.add(createTask("task0", 0))
+    for (i in 1 until 100) {
+      tasks.add(createTask("task$i", i, condition = createCondition("task${i - 1}", option1.id)))
+    }
+
+    val handler = TaskSequenceHandler(tasks, taskDataHandler)
+
+    // Set task0 to option2 (condition fail for task1)
+    taskDataHandler.setData(
+      tasks[0],
+      MultipleChoiceTaskData(multipleChoice, listOf(conditionalOption.id)),
+    )
+
+    handler.invalidateCache()
+    val sequence = handler.getValidTasks()
+
+    // Expected: Only task0 visible.
+    assertThat(sequence.map { it.id }).containsExactly("task0")
+
+    // Set task0 to option1 (condition met for task1)
+    taskDataHandler.setData(tasks[0], MultipleChoiceTaskData(multipleChoice, listOf(option1.id)))
+    // Set all other tasks to satisfy next condition
+    for (i in 1 until 99) {
+      taskDataHandler.setData(tasks[i], MultipleChoiceTaskData(multipleChoice, listOf(option1.id)))
+    }
+
+    handler.invalidateCache()
+    val fullSequence = handler.getValidTasks()
+
+    // Expected: All tasks visible
+    assertThat(fullSequence).hasSize(100)
+  }
 }

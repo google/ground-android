@@ -70,6 +70,7 @@ android {
             proto {
                 srcDir 'src/test/proto'
             }
+            androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
         }
     }
     defaultConfig {
@@ -88,6 +89,8 @@ android {
         buildConfigField "int", "AUTH_EMULATOR_PORT", "9099"
         buildConfigField "String", "SIGNUP_FORM_LINK", "\"\""
         manifestPlaceholders.usesCleartextTraffic = true
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     // Use flag -PtestBuildType with desired variant to change default behavior.
@@ -107,7 +110,7 @@ android {
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
             ext.enableCrashlytics = false
@@ -178,6 +181,7 @@ dependencies {
     implementation libs.androidx.preference.ktx
 
     // Kotlin
+    implementation platform(libs.kotlinx.serialization.bom)
     implementation libs.kotlin.reflect
     implementation libs.kotlin.stdlib
     implementation libs.kotlinx.collections.immutable
@@ -185,29 +189,32 @@ dependencies {
     implementation libs.kotlinx.serialization.protobuf
 
     // Kotlin Coroutines
+    implementation platform(libs.kotlinx.coroutines.bom)
     implementation libs.kotlinx.coroutines.android
     implementation libs.kotlinx.coroutines.core
     testImplementation libs.kotlinx.coroutines.test
 
     // Android legacy support Libraries
-    implementation libs.androidx.legacy.support.v4
     implementation libs.androidx.appcompat
 
     // UI Widgets
     implementation libs.androidx.constraintlayout
-    implementation libs.androidx.cardview
-    implementation libs.androidx.recyclerview.selection
     implementation libs.material
 
     // Jetpack Compose
+    implementation platform(libs.androidx.compose.bom)
+    androidTestImplementation platform(libs.androidx.compose.bom)
     debugImplementation libs.androidx.ui.test.manifest
     debugImplementation libs.androidx.ui.tooling
+    implementation libs.androidx.material.icons
     implementation libs.androidx.material3.android
     implementation libs.androidx.runtime.livedata
     implementation libs.androidx.ui
     implementation libs.androidx.ui.tooling.preview.android
     stagingImplementation libs.androidx.ui.test.manifest
     testImplementation libs.androidx.ui.test.junit4
+    implementation libs.androidx.navigation.compose
+    implementation libs.androidx.hilt.navigation.compose
 
     // Images
     implementation libs.glide
@@ -249,9 +256,6 @@ dependencies {
     kspAndroidTest libs.hilt.android.compiler
 
     // Android Arch Lifecycle
-    implementation libs.androidx.lifecycle.extensions
-    implementation libs.androidx.lifecycle.livedata.ktx
-    implementation libs.androidx.lifecycle.reactivestreams.ktx
     implementation libs.androidx.lifecycle.runtime.ktx
 
     // Android Navigation
@@ -262,14 +266,12 @@ dependencies {
     compileOnly libs.auto.value.annotations
     ksp libs.auto.value
 
-    implementation libs.androidx.exifinterface
-
     // Logging
     implementation libs.timber
 
     // Room
     implementation libs.androidx.room.runtime
-    testImplementation libs.androidx.room.testing
+    androidTestImplementation libs.androidx.room.testing
     ksp libs.androidx.room.compiler
 
     // WorkManager
@@ -284,6 +286,7 @@ dependencies {
 
     // Testing
     androidTestImplementation libs.androidx.junit
+    androidTestImplementation libs.androidx.runner
     androidTestImplementation libs.core.testing
     androidTestImplementation libs.truth
     testImplementation libs.androidx.core
@@ -299,6 +302,8 @@ dependencies {
     testImplementation libs.truth
 
     // Mockito
+    testImplementation platform(libs.mockito.bom)
+    androidTestImplementation platform(libs.mockito.bom)
     testImplementation libs.mockito.core
     testImplementation libs.mockito.inline
     testImplementation libs.mockito.kotlin
@@ -315,10 +320,7 @@ dependencies {
     }
 
     // Fragments
-    implementation libs.androidx.fragment.ktx
-    debugImplementation libs.androidx.fragment.testing
-    //noinspection AndroidLintFragmentGradleConfiguration
-    stagingImplementation libs.androidx.fragment.testing
+    debugImplementation libs.androidx.fragment.testing.manifest
 
     // TODO: Move protos into shared module and set correct path here.
     // Issue URL: https://github.com/google/ground-android/issues/1748

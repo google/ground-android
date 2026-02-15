@@ -64,13 +64,6 @@
     <item name="colorPrimaryInverse">@color/md_theme_inversePrimary</item>
   </style>
 
-  <style name="AppTitle">
-    <item name="android:textColor">@android:color/white</item>
-    <item name="android:fontFamily">@font/display_500</item>
-    <item name="android:textSize">60sp</item>
-    <item name="android:letterSpacing">0.01</item>
-  </style>
-
   <style name="EditSubmission.Task.Text" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
     <item name="boxStrokeColor">?attr/colorPrimary</item>
   </style>
@@ -118,10 +111,6 @@
   <style name="TextAppearance.App.TitleMedium" parent="TextAppearance.Material3.TitleMedium">
     <item name="fontFamily">@font/text_700</item>
     <item name="android:textColor">?attr/colorOnSurface</item>
-  </style>
-
-  <style name="TextAppearance.App.TitleMedium.OnSurfaceContainer">
-    <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
   </style>
 
   <style name="TextAppearance.App.TitleLarge" parent="TextAppearance.Material3.TitleLarge">

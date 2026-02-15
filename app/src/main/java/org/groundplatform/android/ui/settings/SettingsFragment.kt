@@ -17,26 +17,38 @@ package org.groundplatform.android.ui.settings
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.net.toUri
 import androidx.core.os.LocaleListCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.preference.DropDownPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.common.Constants
 import org.groundplatform.android.common.PrefKeys
-import org.groundplatform.android.data.local.LocalValueStore
+import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.main.MainActivity
 
 /** Fragment containing app preferences saved as shared preferences. */
 @AndroidEntryPoint
 class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClickListener {
 
-  @Inject lateinit var localValueStore: LocalValueStore
+  @Inject lateinit var viewModelFactory: ViewModelFactory
+  private lateinit var viewModel: SettingsViewModel
+
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    viewModel = viewModelFactory[this, SettingsViewModel::class.java]
+  }
 
   override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
     preferenceManager.sharedPreferencesName = Constants.SHARED_PREFS_NAME
@@ -50,14 +62,27 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
 
       preference.onPreferenceClickListener = this
     }
+  }
 
-    val switchPreference = findPreference<SwitchPreferenceCompat>(PrefKeys.UPLOAD_MEDIA)
-    switchPreference?.isChecked = loadSwitchPreferenceState()
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
 
-    setupDropDownPreference(PrefKeys.LANGUAGE, localValueStore.selectedLanguage) {
-      updateLocaleAndRestart(it)
+    viewLifecycleOwner.lifecycleScope.launch {
+      viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        viewModel.uiState.filterNotNull().collect { state ->
+          val switchPreference = findPreference<SwitchPreferenceCompat>(PrefKeys.UPLOAD_MEDIA)
+          switchPreference?.onPreferenceChangeListener =
+            Preference.OnPreferenceChangeListener { _, _ ->
+              viewModel.refreshUserPreferences()
+              true
+            }
+          switchPreference?.isChecked = state.shouldUploadPhotosOnWifiOnly
+
+          setupDropDownPreference(PrefKeys.LANGUAGE, state.language) { applyLocaleAndRestart(it) }
+          setupDropDownPreference(PrefKeys.MEASUREMENT_UNITS, state.measurementUnits.name)
+        }
+      }
     }
-    setupDropDownPreference(PrefKeys.LENGTH_UNIT, localValueStore.selectedLengthUnit)
   }
 
   private fun setupDropDownPreference(
@@ -73,6 +98,7 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
             updateSummary(newValue)
             onPrefChanged(newValue)
           }
+          viewModel.refreshUserPreferences()
           true
         }
     }
@@ -84,9 +110,6 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
       summary = entries[index]
     }
   }
-
-  private fun loadSwitchPreferenceState() =
-    preferenceManager.sharedPreferences?.getBoolean(PrefKeys.UPLOAD_MEDIA, false) ?: false
 
   override fun onPreferenceClick(preference: Preference): Boolean {
     if (preference.key == PrefKeys.VISIT_WEBSITE) {
@@ -100,9 +123,7 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
     startActivity(intent)
   }
 
-  private fun updateLocaleAndRestart(languageCode: String) {
-    preferenceManager.sharedPreferences?.edit()?.putString(PrefKeys.LANGUAGE, languageCode)?.apply()
-
+  private fun applyLocaleAndRestart(languageCode: String) {
     val appLocale = LocaleListCompat.forLanguageTags(languageCode)
     AppCompatDelegate.setApplicationLocales(appLocale)
 
@@ -117,7 +138,7 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClic
     private val ALL_KEYS =
       arrayOf(
         PrefKeys.LANGUAGE,
-        PrefKeys.LENGTH_UNIT,
+        PrefKeys.MEASUREMENT_UNITS,
         PrefKeys.UPLOAD_MEDIA,
         PrefKeys.VISIT_WEBSITE,
       )

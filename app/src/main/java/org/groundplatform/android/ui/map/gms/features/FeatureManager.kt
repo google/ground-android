@@ -27,7 +27,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-import org.groundplatform.android.coroutines.MainScope
+import org.groundplatform.android.di.coroutines.MainScope
 import org.groundplatform.android.ui.map.Feature
 import timber.log.Timber
 
@@ -59,11 +59,9 @@ constructor(
    * The camera's current zoom level. This must be set here since this impl can't access
    * `map.cameraPosition` from off the main UI thread.
    */
-  var zoom: Float
-    get() = clusterRenderer.zoom
-    set(value) {
-      clusterRenderer.zoom = value
-    }
+  fun setZoom(newValue: Float) {
+    clusterRenderer.setZoom(newValue)
+  }
 
   /** Clears all managed state an binds to the provided [GoogleMap]. */
   fun onMapReady(map: GoogleMap) {
@@ -82,7 +80,12 @@ constructor(
     object : MarkerManager(map) {
       override fun onMarkerClick(marker: Marker): Boolean {
         if (super.onMarkerClick(marker)) return true
-        val tag = marker.tag as Feature.Tag
+        val tag =
+          marker.tag as? Feature.Tag
+            ?: run {
+              Timber.e("Invalid marker tag: ${marker.tag}")
+              return false
+            }
         val feature = featuresByTag[tag] ?: error("Feature not found for tag: $tag")
         coroutineScope.launch { _markerClicks.emit(feature) }
         return true

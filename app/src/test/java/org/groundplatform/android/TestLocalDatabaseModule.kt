@@ -24,6 +24,7 @@ import dagger.hilt.components.SingletonComponent
 import dagger.hilt.testing.TestInstallIn
 import javax.inject.Singleton
 import org.groundplatform.android.data.local.room.LocalDatabase
+import org.groundplatform.android.di.LocalDatabaseModule
 
 @Module
 @TestInstallIn(components = [SingletonComponent::class], replaces = [LocalDatabaseModule::class])

@@ -26,8 +26,8 @@ import dagger.assisted.AssistedInject
 import java.io.FileNotFoundException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
-import org.groundplatform.android.coroutines.IoDispatcher
 import org.groundplatform.android.data.remote.RemoteStorageManager
+import org.groundplatform.android.di.coroutines.IoDispatcher
 import org.groundplatform.android.model.mutation.SubmissionMutation
 import org.groundplatform.android.model.submission.PhotoTaskData
 import org.groundplatform.android.repository.MutationRepository

@@ -15,163 +15,134 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
-  xmlns:tools="http://schemas.android.com/tools">
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:fitsSystemWindows="true"
+  tools:background="?attr/colorOnSurfaceVariant">
 
-  <data>
-    <variable
-      name="fragment"
-      type="org.groundplatform.android.ui.common.AbstractMapContainerFragment" />
-    <variable
-      name="viewModel"
-      type="org.groundplatform.android.ui.common.BaseMapViewModel" />
-  </data>
-
-  <androidx.constraintlayout.widget.ConstraintLayout
+  <FrameLayout
+    android:id="@+id/map"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:background="?attr/colorOnSurfaceVariant">
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent" />
 
-    <FrameLayout
-      android:id="@+id/map"
+  <androidx.constraintlayout.utils.widget.ImageFilterView
+    android:id="@+id/centerMarker"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:scaleType="centerInside"
+    android:scaleX="0.5"
+    android:scaleY="0.5"
+    android:src="@drawable/ic_plus_sign"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent" />
+
+  <androidx.compose.ui.platform.ComposeView
+    android:id="@+id/map_type_btn"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="top|end"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintTop_toTopOf="parent" />
+
+  <androidx.compose.ui.platform.ComposeView
+    android:id="@+id/recenter_btn"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    app:layout_constraintBottom_toTopOf="@+id/location_lock_btn"
+    app:layout_constraintStart_toStartOf="parent" />
+
+  <com.google.android.material.card.MaterialCardView
+    android:id="@+id/infoCard"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="20dp"
+    android:layout_marginBottom="20dp"
+    app:cardCornerRadius="8dp"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toStartOf="@id/location_lock_btn"
+    app:layout_constraintStart_toStartOf="parent">
+
+    <LinearLayout
       android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent" />
-
-    <androidx.constraintlayout.utils.widget.ImageFilterView
-      android:id="@+id/centerMarker"
-      android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_gravity="center"
-      android:scaleType="centerInside"
-      android:scaleX="0.5"
-      android:scaleY="0.5"
-      android:src="@drawable/ic_plus_sign"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-      android:id="@+id/map_type_btn"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_gravity="top|end"
-      android:onClick="@{() -> fragment.showMapTypeSelectorDialog()}"
-      android:tint="?attr/colorOutline"
-      app:backgroundTint="?attr/colorSurface"
-      app:fabSize="mini"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintTop_toTopOf="parent"
-      app:srcCompat="@drawable/map_layers"
-      app:useCompatPadding="true" />
-
-    <androidx.compose.ui.platform.ComposeView
-      android:id="@+id/areaCard"
-      android:layout_width="0dp"
-      android:layout_height="wrap_content"
-      android:layout_marginStart="20dp"
-      android:layout_marginBottom="20dp"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toStartOf="@id/location_lock_btn"
-      app:layout_constraintStart_toStartOf="parent" />
-
-    <com.google.android.material.card.MaterialCardView
-      android:id="@+id/infoCard"
-      android:layout_width="0dp"
-      android:layout_height="wrap_content"
-      android:layout_marginStart="20dp"
-      android:layout_marginBottom="20dp"
-      app:cardCornerRadius="8dp"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toStartOf="@id/location_lock_btn"
-      app:layout_constraintStart_toStartOf="parent">
+      android:background="@android:color/white"
+      android:orientation="horizontal"
+      android:padding="8dp">
 
       <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:id="@+id/current_location"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="0.75"
         android:background="@android:color/white"
-        android:orientation="horizontal"
-        android:padding="8dp">
-
-        <LinearLayout
-          android:id="@+id/current_location"
-          android:layout_width="0dp"
-          android:layout_height="match_parent"
-          android:layout_weight="0.75"
-          android:background="@android:color/white"
-          android:orientation="vertical">
-          <TextView
-            android:id="@+id/current_location_title"
-            style="@style/TextAppearance.Material3.LabelSmall"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="#5E5E5E"
-            tools:text="Current location:" />
-          <TextView
-            android:id="@+id/current_location_value"
-            style="@style/TextAppearance.Material3.LabelMedium"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="#424940"
-            tools:text="29º58’15” N  114º36’17”W" />
-        </LinearLayout>
-
-        <LinearLayout
-          android:id="@+id/accuracy"
-          android:layout_width="0dp"
-          android:layout_height="match_parent"
-          android:layout_weight="0.25"
-          android:background="@android:color/white"
-          android:orientation="vertical">
-          <TextView
-            android:id="@+id/accuracy_title"
-            style="@style/TextAppearance.Material3.LabelSmall"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="#5E5E5E"
-            tools:text="Accuracy:" />
-          <TextView
-            android:id="@+id/accuracy_value"
-            style="@style/TextAppearance.Material3.LabelMedium"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="#424940"
-            tools:text="3m" />
-        </LinearLayout>
+        android:orientation="vertical">
+        <TextView
+          android:id="@+id/current_location_title"
+          style="@style/TextAppearance.Material3.LabelSmall"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:textColor="#5E5E5E"
+          tools:text="Current location:" />
+        <TextView
+          android:id="@+id/current_location_value"
+          style="@style/TextAppearance.Material3.LabelMedium"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:textColor="#424940"
+          tools:text="29º58’15” N  114º36’17”W" />
       </LinearLayout>
 
-    </com.google.android.material.card.MaterialCardView>
+      <LinearLayout
+        android:id="@+id/accuracy"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="0.25"
+        android:background="@android:color/white"
+        android:orientation="vertical">
+        <TextView
+          android:id="@+id/accuracy_title"
+          style="@style/TextAppearance.Material3.LabelSmall"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:textColor="#5E5E5E"
+          tools:text="Accuracy:" />
+        <TextView
+          android:id="@+id/accuracy_value"
+          style="@style/TextAppearance.Material3.LabelMedium"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          tools:text="3m" />
+      </LinearLayout>
+    </LinearLayout>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-      android:id="@+id/location_lock_btn"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_gravity="bottom|end"
-      android:onClick="@{() -> viewModel.onLocationLockClick()}"
-      app:backgroundTint="?attr/colorSurface"
-      app:fabSize="normal"
-      app:imageResource="@{viewModel.getLocationLockIcon()}"
-      app:layout_constraintBottom_toTopOf="@+id/bottom_container"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:tint="@{viewModel.getLocationLockIconTint()}"
-      app:useCompatPadding="true" />
+  </com.google.android.material.card.MaterialCardView>
 
-    <!-- Use this container to add overlay views that are anchored to location lock button. -->
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
-      android:id="@+id/bottom_container"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_gravity="bottom"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent" />
+  <androidx.compose.ui.platform.ComposeView
+    android:id="@+id/location_lock_btn"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom|end"
+    app:layout_constraintBottom_toTopOf="@+id/bottom_container"
+    app:layout_constraintEnd_toEndOf="parent" />
 
-  </androidx.constraintlayout.widget.ConstraintLayout>
-</layout>
+  <!-- Use this container to add overlay views that are anchored to location lock button. -->
+  <androidx.coordinatorlayout.widget.CoordinatorLayout
+    android:id="@+id/bottom_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

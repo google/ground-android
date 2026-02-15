@@ -126,8 +126,10 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
   ): List<LocationOfInterestMutationEntity> =
     locationOfInterestMutationDao.getMutations(id, *states)
 
-  override suspend fun insertOrUpdate(loi: LocationOfInterest) =
+  override suspend fun insertOrUpdate(loi: LocationOfInterest) {
+    require(!loi.geometry.isEmpty()) { "Cannot save LOI with empty geometry" }
     locationOfInterestDao.insertOrUpdate(loi.toLocalDataStoreObject())
+  }
 
   override suspend fun deleteNotIn(surveyId: String, ids: List<String>) =
     locationOfInterestDao.deleteNotIn(surveyId, ids)

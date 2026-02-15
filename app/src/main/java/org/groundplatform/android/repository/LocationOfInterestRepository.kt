@@ -29,6 +29,7 @@ import org.groundplatform.android.data.local.stores.LocalSurveyStore
 import org.groundplatform.android.data.remote.RemoteDataStore
 import org.groundplatform.android.data.sync.MutationSyncWorkManager
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
+import org.groundplatform.android.model.Role
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.geometry.Geometry
 import org.groundplatform.android.model.job.Job
@@ -99,9 +100,21 @@ constructor(
     pendingLois: List<String>,
   ) {
     // Insert new or update existing LOIs in local db.
-    lois.forEach { localLoiStore.insertOrUpdate(it) }
+    lois.forEach { validateAndInsertOrUpdate(it) }
     // Delete LOIs in local db not returned in latest list from server, skipping pending mutations.
     localLoiStore.deleteNotIn(surveyId, lois.map { it.id } + pendingLois)
+  }
+
+  /**
+   * Validates LOI geometry before inserting or updating it in the local store. Throws
+   * IllegalArgumentException if the geometry has empty coordinates.
+   */
+  private suspend fun validateAndInsertOrUpdate(loi: LocationOfInterest) {
+    require(!loi.geometry.isEmpty()) {
+      "Attempted to save LOI ${loi.id} with empty geometry. LOI: $loi"
+    }
+
+    localLoiStore.insertOrUpdate(loi)
   }
 
   /** This only works if the survey and location of interests are already cached to local db. */
@@ -152,6 +165,31 @@ constructor(
    * @return If successful, returns the provided locations of interest wrapped as `Loadable`
    */
   suspend fun applyAndEnqueue(mutation: LocationOfInterestMutation) {
+    when (mutation.type) {
+      Mutation.Type.CREATE -> {
+        val geometry =
+          requireNotNull(mutation.geometry) {
+            "CREATE mutation requires geometry. Mutation: $mutation"
+          }
+        require(!geometry.isEmpty()) {
+          "Attempted to apply CREATE with empty ${geometry::class.simpleName} geometry. Mutation: $mutation"
+        }
+      }
+
+      Mutation.Type.UPDATE -> {
+        // Partial updates may omit geometry. If present, it must be non-empty.
+        mutation.geometry?.let { g ->
+          require(!g.isEmpty()) {
+            "Attempted to apply UPDATE with empty ${g::class.simpleName} geometry. Mutation: $mutation"
+          }
+        }
+      }
+
+      else -> {
+        // DELETE / others — no geometry validation needed
+      }
+    }
+
     localLoiStore.applyAndEnqueue(mutation)
     mutationSyncWorkManager.enqueueSyncWorker()
   }
@@ -164,11 +202,58 @@ constructor(
 
   /** Returns a flow of all valid (not deleted) [LocationOfInterest] in the given [Survey]. */
   fun getValidLois(survey: Survey): Flow<Set<LocationOfInterest>> =
-    localLoiStore.getValidLois(survey)
+    localLoiStore.getValidLois(survey).map { lois ->
+      // Filter out LOIs with invalid/empty geometries to prevent crashes
+      lois
+        .filter { loi ->
+          val isValid = !loi.geometry.isEmpty()
+          if (!isValid) {
+            Timber.w("Filtering out LOI ${loi.id} with empty coordinates: $loi")
+          }
+          isValid
+        }
+        .toSet()
+    }
 
   /** Returns a flow of all [LocationOfInterest] within the map bounds (viewport). */
   fun getWithinBounds(survey: Survey, bounds: Bounds): Flow<List<LocationOfInterest>> =
     getValidLois(survey)
       .map { lois -> lois.filter { bounds.contains(it.geometry) } }
       .distinctUntilChanged()
+
+  /**
+   * Deletes a LOI by creating a DELETE mutation, applying it to the local db, and scheduling a task
+   * for remote sync. In free-form jobs, this will also delete associated submissions.
+   *
+   * @param loi The LocationOfInterest to delete
+   * @throws IllegalStateException if the LOI is predefined or the user doesn't have permission to
+   *   delete it
+   */
+  suspend fun deleteLoi(loi: LocationOfInterest) {
+    if (loi.isPredefined == true) {
+      error("Cannot delete predefined LOI: ${loi.id}")
+    }
+
+    val user = userRepository.getAuthenticatedUser()
+    val ownerId = loi.created.user.id
+    val isOwner = ownerId == user.id
+
+    val survey = localSurveyStore.getSurveyById(loi.surveyId)
+    val isOrganizer =
+      survey?.let {
+        runCatching { it.getRole(user.email) }
+          .getOrNull()
+          ?.let { role -> role == Role.SURVEY_ORGANIZER } ?: false
+      } ?: false
+
+    if (!isOwner && !isOrganizer) {
+      error(
+        "User ${user.id} does not have permission to delete LOI ${loi.id}. " +
+          "User must be the owner or a survey organizer."
+      )
+    }
+
+    val mutation = loi.toMutation(Mutation.Type.DELETE, user.id)
+    applyAndEnqueue(mutation)
+  }
 }

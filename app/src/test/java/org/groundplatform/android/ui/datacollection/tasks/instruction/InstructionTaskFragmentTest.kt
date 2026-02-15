@@ -27,6 +27,7 @@ import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
+import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.BaseTaskFragmentTest
 import org.junit.Rule
 import org.junit.Test
@@ -63,7 +64,10 @@ class InstructionTaskFragmentTest :
   @Test
   fun `action buttons`() {
     setupTaskFragment<InstructionTaskFragment>(job, task)
-    assertFragmentHasButtons(ButtonAction.PREVIOUS, ButtonAction.NEXT)
+    assertFragmentHasButtons(
+      ButtonActionState(ButtonAction.PREVIOUS, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.NEXT, isEnabled = true, isVisible = true),
+    )
   }
 
   @Test

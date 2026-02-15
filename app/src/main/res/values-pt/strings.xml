@@ -56,8 +56,9 @@
   <!-- Label of button used enter the offline area selector. -->
   <string name="offline_area_selector_select">Selecionar área</string>
   <string name="no_basemaps_downloaded">Nenhuma imagem de mapa descarregada para uso offline</string>
-  <string name="connect_to_download_message">You are offline. Connect to download offline map imager</string>
+  <string name="connect_to_download_message">Está offline. Ligue-se à Internet para descarregar imagens do mapa offline</string>
   <string name="signing_in">Iniciando sessão</string>
+  <string name="sign_in_with_google">Faça login com o Google</string>
   <!-- Precedes the build number shown in the side menu of debug builds. -->
   <string name="build">Build %s</string>
 
@@ -200,14 +201,14 @@
   <string name="data_collection_cancellation_confirm_button">Confirmar</string>
   <string name="something_went_wrong">Algo deu errado</string>
 
-  <string name="polygon_vertex_add_dialog_title">Erro</string>
+  <string name="polygon_vertex_add_dialog_title">Área inválida</string>
   <string name="polygon_vertex_add_dialog_message">A área não pode se cruzar</string>
   <string name="polygon_vertex_add_dialog_positive_button">Ok</string>
 
   <string name="clear">Clara</string>
 
   <string name="text_task_data_character_limit">255 caracteres no máx.</string>
-  <string name="area_message">Área: %1$.2f m²</string>
+  <string name="area_message">Área: %s</string>
 
   <string name="lang_english">Inglês</string>
   <string name="lang_french">Francês</string>
@@ -227,8 +228,20 @@
   <string name="dialog_message_update_required">Uma nova versão do aplicativo está disponível. Atualize para continuar usando o aplicativo.</string>
   <string name="dialog_button_update">Atualizar</string>
 
-  <string name="select_length_title">Unidade de comprimento</string>
+  <string name="select_length_title">Selecionar unidades</string>
   <string name="select_length_summary">Selecione a sua unidade preferida</string>
-  <string name="length_meters">Metros (m)</string>
-  <string name="length_feet">Pés (ft)</string>
+  <string name="length_metric">Métrica</string>
+  <string name="length_imperial">Imperial</string>
+
+  <string name="delete_site">Excluir site</string>
+  <string name="delete_site_dialog_title">Excluir site?</string>
+  <string name="delete_site_dialog_message">Este site e todos os dados associados serão excluídos permanentemente. Esta ação não pode ser desfeita.</string>
+  <string name="delete">Excluir</string>
+
+  <string name="location_not_accurate_heading">Sua localização não é precisa</string>
+  <string name="location_not_accurate_description">Tente ficar parado ou aguarde uma posição mais precisa</string>
+
+  <string name="recenter">Recentrar</string>
+
+  <string name="survey_load_timeout_error">O carregamento da pesquisa expirou. Verifique sua conexão e tente novamente.</string>
 </resources>

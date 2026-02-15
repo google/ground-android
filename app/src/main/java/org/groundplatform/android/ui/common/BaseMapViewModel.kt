@@ -44,7 +44,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.withIndex
 import kotlinx.coroutines.launch
-import org.groundplatform.android.R
 import org.groundplatform.android.common.Constants.DEFAULT_LOI_ZOOM_LEVEL
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.geometry.Coordinates
@@ -59,6 +58,7 @@ import org.groundplatform.android.system.FINE_LOCATION_UPDATES_REQUEST
 import org.groundplatform.android.system.LocationManager
 import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.system.SettingsManager
+import org.groundplatform.android.ui.components.MapFloatingActionButtonType
 import org.groundplatform.android.ui.map.CameraUpdateRequest
 import org.groundplatform.android.ui.map.NewCameraPositionViaBounds
 import org.groundplatform.android.ui.map.NewCameraPositionViaCoordinates
@@ -85,24 +85,6 @@ constructor(
 
   val mapType: Flow<MapType> = mapStateRepository.mapTypeFlow
 
-  val locationLockIconTint =
-    locationLock
-      .map { lockState ->
-        if (lockState.getOrDefault(false)) R.color.md_theme_primary
-        else R.color.md_theme_onSurfaceVariant
-      }
-      .stateIn(viewModelScope, SharingStarted.Lazily, R.color.md_theme_onSurfaceVariant)
-
-  // TODO: Consider adding another icon for representing "GPS disabled" state.
-  // Issue URL: https://github.com/google/ground-android/issues/1789
-  val locationLockIcon =
-    locationLock
-      .map { lockState ->
-        if (lockState.getOrDefault(false)) R.drawable.ic_gps_lock
-        else R.drawable.ic_gps_lock_not_fixed
-      }
-      .stateIn(viewModelScope, SharingStarted.Lazily, R.drawable.ic_gps_lock_not_fixed)
-
   val location: StateFlow<Location?> =
     locationLock
       .combine(getLocationUpdates()) { locationLock, latestLocation ->
@@ -113,6 +95,27 @@ constructor(
         }
       }
       .stateIn(viewModelScope, SharingStarted.Lazily, null)
+
+  val locationLockIconType: StateFlow<MapFloatingActionButtonType> =
+    locationLock
+      .map { lockState ->
+        if (lockState.getOrDefault(false)) {
+          MapFloatingActionButtonType.LocationLocked()
+        } else {
+          MapFloatingActionButtonType.LocationNotLocked
+        }
+      }
+      .stateIn(viewModelScope, SharingStarted.Lazily, MapFloatingActionButtonType.LocationNotLocked)
+
+  private val _shouldShowMapActions: MutableStateFlow<Boolean> = MutableStateFlow(false)
+  val shouldShowMapActions: StateFlow<Boolean> = _shouldShowMapActions
+
+  val showMapTypeSelector: MutableStateFlow<Boolean> = MutableStateFlow(false)
+
+  val shouldShowRecenterButton =
+    locationLock
+      .map { lockState -> !lockState.getOrDefault(false) && hasLocationPermission() }
+      .stateIn(viewModelScope, SharingStarted.Lazily, false)
 
   /** Flow of current position of camera. */
   var currentCameraPosition = MutableStateFlow<CameraPosition?>(null)
@@ -271,5 +274,9 @@ constructor(
     Timber.v("Camera moved : ${newCameraPosition.coordinates}")
     currentCameraPosition.value = newCameraPosition
     mapStateRepository.setCameraPosition(newCameraPosition)
+  }
+
+  fun onJobSelectionModalVisibilityChanged(isShown: Boolean) {
+    _shouldShowMapActions.value = !isShown
   }
 }

@@ -19,56 +19,35 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.lifecycleScope
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
-import kotlinx.coroutines.launch
-import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.common.EphemeralPopups
-import timber.log.Timber
+import org.groundplatform.android.ui.theme.AppTheme
 
 @AndroidEntryPoint
 class StartupFragment : AbstractFragment() {
 
   @Inject lateinit var popups: EphemeralPopups
 
-  private lateinit var viewModel: StartupViewModel
-
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    viewModel = getViewModel(StartupViewModel::class.java)
-  }
-
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
     savedInstanceState: Bundle?,
-  ): View? = inflater.inflate(R.layout.startup_frag, container, false)
-
-  override fun onResume() {
-    super.onResume()
-    showProgressDialog(R.string.initializing)
-    viewLifecycleOwner.lifecycleScope.launch {
-      try {
-        viewModel.initializeLogin()
-      } catch (t: Throwable) {
-        onInitFailed(t)
+  ): View =
+    ComposeView(requireContext()).apply {
+      setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+      setContent {
+        AppTheme {
+          StartupScreen(
+            onLoadFailed = { errorMessageId ->
+              errorMessageId?.let { popups.ErrorPopup().show(it) }
+              requireActivity().finish()
+            }
+          )
+        }
       }
     }
-  }
-
-  override fun onPause() {
-    dismissProgressDialog()
-    super.onPause()
-  }
-
-  private fun onInitFailed(t: Throwable) {
-    Timber.e(t, "Failed to launch app")
-    if (t is GooglePlayServicesNotAvailableException) {
-      popups.ErrorPopup().show(R.string.google_api_install_failed)
-    }
-    requireActivity().finish()
-  }
 }

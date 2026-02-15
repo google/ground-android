@@ -22,7 +22,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -30,10 +31,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -41,6 +42,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import java.text.SimpleDateFormat
 import java.util.Date
 import org.groundplatform.android.R
 import org.groundplatform.android.model.mutation.Mutation
@@ -61,8 +63,9 @@ fun SyncListItem(modifier: Modifier, detail: SyncStatusDetail) {
           fontWeight = FontWeight(500),
           letterSpacing = 0.1.sp,
         )
+        Spacer(Modifier.height(4.dp))
         Text(
-          text = detail.user,
+          text = "${detail.label} • ${detail.subtitle}",
           style =
             TextStyle(
               fontSize = 16.sp,
@@ -78,20 +81,12 @@ fun SyncListItem(modifier: Modifier, detail: SyncStatusDetail) {
             fontWeight = FontWeight(400),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
           )
-        Text(text = detail.label, style = textStyle)
-        Text(text = detail.subtitle, style = textStyle)
+        Text(text = detail.description, style = textStyle)
+        Spacer(Modifier.height(4.dp))
+        Text(text = stringResource(id = detail.status.toLabel()), fontSize = 11.sp)
       }
       Column(modifier = modifier.padding(start = 16.dp).align(alignment = CenterVertically)) {
-        Row(verticalAlignment = CenterVertically) {
-          Text(text = stringResource(id = detail.status.toLabel()), fontSize = 11.sp)
-          Spacer(modifier = Modifier.width(10.dp))
-          Icon(
-            imageVector = ImageVector.vectorResource(id = detail.status.toIcon()),
-            contentDescription = "",
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(1.dp).width(24.dp).height(24.dp),
-          )
-        }
+        StatusIcon(status = detail.status, modifier = Modifier)
       }
     }
     HorizontalDivider(
@@ -102,9 +97,35 @@ fun SyncListItem(modifier: Modifier, detail: SyncStatusDetail) {
   }
 }
 
+private fun Mutation.SyncStatus.isActiveProgress(): Boolean =
+  this == Mutation.SyncStatus.IN_PROGRESS || this == Mutation.SyncStatus.MEDIA_UPLOAD_IN_PROGRESS
+
 @Composable
-private fun Date.toFormattedDate(): String =
-  DateFormat.getDateFormat(LocalContext.current).format(this)
+private fun StatusIcon(status: Mutation.SyncStatus, modifier: Modifier = Modifier) {
+  val tint = MaterialTheme.colorScheme.onSurfaceVariant
+
+  if (status.isActiveProgress()) {
+    CircularProgressIndicator(
+      modifier = modifier.padding(1.dp).size(24.dp),
+      strokeWidth = 2.dp,
+      color = tint,
+    )
+  } else {
+    Icon(
+      painter = painterResource(id = status.toIcon()),
+      contentDescription = null,
+      tint = tint,
+      modifier = modifier.padding(1.dp).size(24.dp),
+    )
+  }
+}
+
+@Composable
+private fun Date.toFormattedDate(): String {
+  val locale = LocalConfiguration.current.locales[0]
+  val dateFormat = SimpleDateFormat("MMM d, yyyy", locale)
+  return dateFormat.format(this)
+}
 
 @Composable
 private fun Date.toFormattedTime(): String =
@@ -129,7 +150,7 @@ private fun Mutation.SyncStatus.toIcon(): Int =
     Mutation.SyncStatus.MEDIA_UPLOAD_IN_PROGRESS,
     Mutation.SyncStatus.IN_PROGRESS -> R.drawable.ic_sync
     Mutation.SyncStatus.MEDIA_UPLOAD_PENDING -> R.drawable.baseline_check_24
-    Mutation.SyncStatus.COMPLETED -> R.drawable.outline_done_all_24
+    Mutation.SyncStatus.COMPLETED -> R.drawable.baseline_check_24
     Mutation.SyncStatus.FAILED -> R.drawable.outline_error_outline_24
     Mutation.SyncStatus.UNKNOWN -> error("Unexpected status")
   }
@@ -137,7 +158,7 @@ private fun Mutation.SyncStatus.toIcon(): Int =
 @Composable
 @Preview(showBackground = true, showSystemUi = true)
 @ExcludeFromJacocoGeneratedReport
-fun PreviewSyncListItem(
+private fun PreviewSyncListItem(
   detail: SyncStatusDetail =
     SyncStatusDetail(
       user = "Jane Doe",
@@ -145,6 +166,7 @@ fun PreviewSyncListItem(
       label = "Map the farms",
       subtitle = "IDX21311",
       status = Mutation.SyncStatus.PENDING,
+      description = "Lacuna Fund Cocoa Mapping",
     )
 ) {
   AppTheme { SyncListItem(Modifier, detail) }

@@ -51,6 +51,7 @@
   <string name="no_basemaps_downloaded">Aucune image n&#8217;a été téléchargée pour l&#8217;utilisation hors ligne. Appuyez sur « Sélectionner et télécharger » pour commencer.</string>
   <string name="connect_to_download_message">Vous êtes hors ligne. Connectez-vous pour télécharger la carte hors ligne</string>
   <string name="signing_in">Se connecter</string>
+  <string name="sign_in_with_google">Se connecter avec Google</string>
   <!-- Precedes the build number shown in the side menu of debug builds. -->
   <string name="build">Générer %s</string>
   <string name="tos_title">Conditions générales</string>
@@ -183,12 +184,12 @@
   <string name="data_collection_cancellation_description">Si vous quittez, les données que vous n&#8217;avez pas encore soumises seront supprimées.</string>
   <string name="data_collection_cancellation_confirm_button">Confirmer</string>
   <string name="something_went_wrong">Quelque chose s&#8217;est mal passé</string>
-  <string name="polygon_vertex_add_dialog_title">Erreur</string>
+  <string name="polygon_vertex_add_dialog_title">Zone invalide</string>
   <string name="polygon_vertex_add_dialog_message">La zone ne peut pas s&#8217;auto-intersecter</string>
   <string name="polygon_vertex_add_dialog_positive_button">D&#8217;accord</string>
   <string name="clear">Claire</string>
   <string name="text_task_data_character_limit">255 caractères maximum</string>
-  <string name="area_message">Surface: %1$.2f m²</string>
+  <string name="area_message">Surface: %s</string>
   <string name="lang_english">Anglais</string>
   <string name="lang_french">Français</string>
   <string name="lang_spanish">Espagnol</string>
@@ -205,8 +206,19 @@
   <string name="dialog_message_update_required">Une nouvelle version de l&#8217;application est disponible. Veuillez mettre à jour pour continuer à utiliser l&#8217;application.</string>
   <string name="dialog_button_update">Mettre à jour</string>
 
-  <string name="select_length_title">Unité de longueur</string>
+  <string name="select_length_title">Sélectionner les unités</string>
   <string name="select_length_summary">Sélectionnez votre unité préférée</string>
-  <string name="length_meters">Mètres (m)</string>
-  <string name="length_feet">Pieds (pi)</string>
+  <string name="length_metric">Métrique</string>
+  <string name="length_imperial">Impérial</string>
+
+  <string name="delete_site">Supprimer le site</string>
+  <string name="delete_site_dialog_title">Supprimer le site ?</string>
+  <string name="delete_site_dialog_message">Ce site et toutes les données associées seront définitivement supprimés. Cette action ne peut pas être annulée.</string>
+  <string name="delete">Supprimer</string>
+
+  <string name="location_not_accurate_heading">Votre position n&#8217;est pas précise</string>
+  <string name="location_not_accurate_description">Essayez de rester immobile ou d&#8217;attendre une position plus précise</string>
+
+  <string name="recenter">Recentrer</string>
+  <string name="survey_load_timeout_error">Le chargement du sondage a expiré. Veuillez vérifier votre connexion et réessayer.</string>
 </resources>

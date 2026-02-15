@@ -249,6 +249,46 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   }
 
   @Test
+  fun `Load tasks from draft with conditional task data shows conditional task`() =
+    runWithTestDispatcher {
+      // Create draft with data that fulfills the conditional task condition
+      val expectedDeltas =
+        listOf(TASK_1_VALUE_DELTA, TASK_2_CONDITIONAL_VALUE_DELTA, TASK_CONDITIONAL_VALUE_DELTA)
+
+      setupFragmentWithDraft(expectedDeltas)
+
+      // Verify first task is loaded with data
+      runner()
+        .assertInputTextDisplayed(TASK_1_RESPONSE)
+        .clickNextButton()
+        // Verify second task has the conditional option selected
+        .assertOptionsDisplayed(TASK_2_OPTION_CONDITIONAL_LABEL)
+        .clickNextButton()
+        // Verify conditional task is shown and has its data
+        .validateTextIsDisplayed(TASK_CONDITIONAL_NAME)
+        .assertInputTextDisplayed(TASK_CONDITIONAL_RESPONSE)
+    }
+
+  @Test
+  fun `Does not load draft if it references missing job`() = runWithTestDispatcher {
+    setupFragment()
+
+    runner().inputText(TASK_1_RESPONSE).clickNextButton()
+
+    // Verify draft was saved
+    val draftId = submissionRepository.getDraftSubmissionsId()
+    assertThat(draftId).isNotEmpty()
+    assertThat(submissionRepository.countDraftSubmissions()).isEqualTo(1)
+
+    // Simulate deleting the job from the submission
+    val surveyWithMissingJob = SURVEY.copy(jobMap = emptyMap())
+
+    // Attempt to get draft with the survey that's missing the job
+    val result = submissionRepository.getDraftSubmission(draftId, surveyWithMissingJob)
+    assertThat(result).isNull()
+  }
+
+  @Test
   fun `Clicking done on final task saves the submission`() = runWithTestDispatcher {
     setupFragment()
 
@@ -510,17 +550,17 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   fun `Progress bar updates correctly when navigating between tasks`() {
     setupFragment()
 
-    val progressBar = fragment.view?.findViewById<android.widget.ProgressBar>(R.id.progressBar)
-    if (progressBar != null) {
-      // First task (0/1 progress)
-      assertThat(progressBar.progress).isEqualTo(0)
-      assertThat(progressBar.max).isEqualTo(100) // (2-1) * 100
+    val progressBar = fragment.view?.findViewById<android.widget.ProgressBar>(R.id.progress_bar)!!
 
-      runner().inputText(TASK_1_RESPONSE).clickNextButton()
+    // First task (0/1 progress)
+    assertThat(progressBar.progress).isEqualTo(0)
+    assertThat(progressBar.max).isEqualTo(100) // (2-1) * 100
 
-      // Second task (1/1 progress = 100)
-      assertThat(progressBar.progress).isEqualTo(100)
-    }
+    runner().inputText(TASK_1_RESPONSE).clickNextButton()
+    composeTestRule.waitForIdle()
+
+    // Second task (1/1 progress = 100)
+    assertThat(progressBar.progress).isEqualTo(100)
   }
 
   @Test

@@ -102,7 +102,7 @@ fun OfflineAreaListItem(
 @Composable
 @Preview(showBackground = true, showSystemUi = true)
 @ExcludeFromJacocoGeneratedReport
-fun PreviewOfflineAreaListItem() {
+private fun PreviewOfflineAreaListItem() {
   AppTheme {
     OfflineAreaListItem(
       offlineAreaDetails =

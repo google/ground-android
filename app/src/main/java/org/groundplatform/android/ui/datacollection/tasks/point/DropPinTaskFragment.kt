@@ -23,8 +23,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import javax.inject.Provider
 import org.groundplatform.android.R
-import org.groundplatform.android.model.submission.isNullOrEmpty
-import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.InstructionsDialog
 import org.groundplatform.android.ui.datacollection.components.TaskView
 import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
@@ -54,17 +52,8 @@ class DropPinTaskFragment @Inject constructor() : AbstractTaskFragment<DropPinTa
     return rowLayout
   }
 
-  override fun onCreateActionButtons() {
-    addSkipButton()
-    addUndoButton()
-    addButton(ButtonAction.DROP_PIN)
-      .setOnClickListener { viewModel.dropPin() }
-      .setOnValueChanged { button, value -> button.showIfTrue(value.isNullOrEmpty()) }
-    addNextButton(hideIfEmpty = true)
-  }
-
   override fun onTaskResume() {
-    if (isVisible && !viewModel.instructionsDialogShown) {
+    if (isVisible && viewModel.shouldShowInstructionsDialog()) {
       showInstructionsDialog()
     }
   }

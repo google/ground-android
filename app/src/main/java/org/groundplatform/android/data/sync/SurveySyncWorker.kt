@@ -28,7 +28,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
-import org.groundplatform.android.coroutines.IoDispatcher
+import org.groundplatform.android.di.coroutines.IoDispatcher
 import org.groundplatform.android.usecases.survey.SyncSurveyUseCase
 import timber.log.Timber
 

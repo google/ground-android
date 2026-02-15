@@ -34,7 +34,9 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
   var sharedLois = emptyList<LocationOfInterest>()
   var surveys = emptyList<Survey>()
   var publicSurveys = emptyList<Survey>()
-  var onLoadSurvey = { surveyId: String -> surveys.firstOrNull { it.id == surveyId } }
+  var onLoadSurvey: suspend (String) -> Survey? = { surveyId ->
+    surveys.firstOrNull { it.id == surveyId }
+  }
   var userProfileRefreshCount = 0
     private set
 

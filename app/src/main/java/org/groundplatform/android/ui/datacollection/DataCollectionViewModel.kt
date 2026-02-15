@@ -27,10 +27,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.groundplatform.android.coroutines.ApplicationScope
-import org.groundplatform.android.coroutines.IoDispatcher
 import org.groundplatform.android.data.local.room.converter.SubmissionDeltasConverter
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
+import org.groundplatform.android.di.coroutines.ApplicationScope
+import org.groundplatform.android.di.coroutines.IoDispatcher
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.submission.ValueDelta
@@ -41,6 +41,7 @@ import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.common.EphemeralPopups
 import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
+import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 import org.groundplatform.android.ui.datacollection.tasks.date.DateTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.instruction.InstructionTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.location.CaptureLocationTaskViewModel
@@ -111,21 +112,17 @@ internal constructor(
     }
   }
 
-  fun isFirstPosition(taskId: String): Boolean = withReady {
-    taskSequenceHandler.isFirstPosition(taskId)
-  }
+  private fun isFirstPosition(taskId: String): Boolean =
+    withReadyOrNull { taskSequenceHandler.isFirstPosition(taskId) } ?: false
 
-  fun isLastPosition(taskId: String): Boolean = withReady {
-    taskSequenceHandler.isLastPosition(taskId)
-  }
-
-  fun isLastPositionWithValue(task: Task, newValue: TaskData?): Boolean = withReady {
-    if (taskDataHandler.getData(task) == newValue) {
-      taskSequenceHandler.isLastPosition(task.id)
-    } else {
-      taskSequenceHandler.checkIfTaskIsLastWithValue(task.id to newValue)
-    }
-  }
+  private fun isLastPositionWithValue(task: Task, newValue: TaskData?): Boolean =
+    withReadyOrNull {
+      if (taskDataHandler.getData(task) == newValue) {
+        taskSequenceHandler.isLastPosition(task.id)
+      } else {
+        taskSequenceHandler.checkIfTaskIsLastWithValue(task.id to newValue)
+      }
+    } ?: false
 
   fun isAtFirstTask(): Boolean = withReady { taskSequenceHandler.isFirstPosition(it.currentTaskId) }
 
@@ -142,7 +139,7 @@ internal constructor(
     withReadyOrNull { state ->
       val taskId = state.currentTaskId
       getTaskViewModel(taskId)?.let { vm ->
-        taskDataHandler.setData(vm.task, vm.taskTaskData.value)
+        updateDataAndInvalidateTasks(vm.task, vm.taskTaskData.value)
         savedStateHandle[TASK_POSITION_ID] = taskId
         saveDraft(taskId)
       }
@@ -157,8 +154,7 @@ internal constructor(
     validateOrShow(taskViewModel) {
       val task = taskViewModel.task
       val value = taskViewModel.taskTaskData.value
-      taskDataHandler.setData(task, value)
-      taskSequenceHandler.invalidateCache()
+      updateDataAndInvalidateTasks(task, value)
 
       if (!taskSequenceHandler.isLastPosition(task.id)) {
         moveToNextTask()
@@ -180,8 +176,7 @@ internal constructor(
     if (validationError != null) {
       popups.get().ErrorPopup().show(validationError)
     } else {
-      taskDataHandler.setData(task, taskValue)
-      taskSequenceHandler.invalidateCache()
+      updateDataAndInvalidateTasks(task, taskValue)
       moveToPreviousTask()
     }
   }
@@ -207,8 +202,19 @@ internal constructor(
 
     viewModel?.let { created ->
       val taskData = if (shouldLoadFromDraft) getValueFromDraft(state.job, task) else null
-      created.initialize(state.job, task, taskData)
-      taskDataHandler.setData(task, taskData)
+      created.initialize(
+        job = state.job,
+        task = task,
+        taskData = taskData,
+        taskPositionInterface =
+          object : TaskPositionInterface {
+            override fun isFirst(): Boolean = isFirstPosition(task.id)
+
+            override fun isLastWithValue(taskData: TaskData?): Boolean =
+              isLastPositionWithValue(task, taskData)
+          },
+      )
+      updateDataAndInvalidateTasks(task, taskData)
       taskViewModels.value[task.id] = created
     }
     viewModel
@@ -217,6 +223,11 @@ internal constructor(
   fun getTypedLoiNameOrEmpty(): String = savedStateHandle.get<String>(TASK_LOI_NAME_KEY).orEmpty()
 
   fun isReady(): Boolean = uiState.value is DataCollectionUiState.Ready
+
+  private fun updateDataAndInvalidateTasks(task: Task, taskData: TaskData?) {
+    taskDataHandler.setData(task, taskData)
+    taskSequenceHandler.invalidateCache()
+  }
 
   private fun moveToNextTask() {
     moveToTask(withReady { taskSequenceHandler.getNextTask(it.currentTaskId) })
