@@ -36,6 +36,8 @@ import androidx.compose.ui.unit.dp
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.theme.AppTheme
 
+const val DATE_TEXT_TEST_TAG: String = "date task input test tag"
+
 // TODO: Add trailing icon (close logo) for clearing selected date.
 
 @Composable
@@ -61,7 +63,7 @@ fun DateTaskScreen(
       onValueChange = {},
       readOnly = true,
       placeholder = { Text(hintText) },
-      modifier = Modifier.width(200.dp).testTag("dateInputText"),
+      modifier = Modifier.width(200.dp).testTag(DATE_TEXT_TEST_TAG),
       interactionSource = interactionSource,
     )
   }

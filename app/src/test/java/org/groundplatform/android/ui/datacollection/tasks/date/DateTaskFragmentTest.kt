@@ -93,7 +93,7 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
     setupTaskFragment<DateTaskFragment>(job, task)
 
     composeTestRule
-      .onNodeWithTag("dateInputText")
+      .onNodeWithTag(DATE_TEXT_TEST_TAG)
       .assertIsDisplayed()
       .assertTextContains(getExpectedDateHint())
 
@@ -111,7 +111,7 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
     view?.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1)
 
     assertThat(fragment.getDatePickerDialog()).isNull()
-    composeTestRule.onNodeWithTag("dateInputText").performClick()
+    composeTestRule.onNodeWithTag(DATE_TEXT_TEST_TAG).performClick()
     assertThat(fragment.getDatePickerDialog()).isNotNull()
     assertThat(fragment.getDatePickerDialog()?.isShowing).isTrue()
   }
@@ -122,7 +122,7 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
 
     val view: View? = fragment.view?.findViewById(R.id.task_container)
     view?.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1)
-    composeTestRule.onNodeWithTag("dateInputText").performClick()
+    composeTestRule.onNodeWithTag(DATE_TEXT_TEST_TAG).performClick()
     assertThat(fragment.getDatePickerDialog()?.isShowing).isTrue()
 
     val hardcodedYear = 2024
@@ -144,7 +144,7 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
 
     val view: View? = fragment.view?.findViewById(R.id.task_container)
     view?.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1)
-    composeTestRule.onNodeWithTag("dateInputText").performClick()
+    composeTestRule.onNodeWithTag(DATE_TEXT_TEST_TAG).performClick()
     assertThat(fragment.getDatePickerDialog()?.isShowing).isTrue()
 
     val hardcodedYear = 2024

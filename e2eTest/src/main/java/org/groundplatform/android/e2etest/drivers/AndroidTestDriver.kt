@@ -29,7 +29,6 @@ import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isEnabled
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
@@ -46,6 +45,7 @@ import org.groundplatform.android.R
 import org.groundplatform.android.e2etest.TestConfig.DEFAULT_TIMEOUT
 import org.groundplatform.android.e2etest.TestConfig.TEST_PHOTO_FILE
 import org.groundplatform.android.e2etest.extensions.onTarget
+import org.groundplatform.android.ui.datacollection.tasks.date.DATE_TEXT_TEST_TAG
 
 @OptIn(ExperimentalTestApi::class)
 class AndroidTestDriver(
@@ -153,7 +153,8 @@ class AndroidTestDriver(
   }
 
   override fun setDate() {
-    composeRule.onNodeWithTag("dateInputText").performClick()
+    click(TestDriver.Target.TestTag(DATE_TEXT_TEST_TAG))
+
     device.wait(Until.findObject(By.clazz(DatePicker::class.java)), DEFAULT_TIMEOUT)
     device.findObject(By.text("OK")).click()
   }
