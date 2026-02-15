@@ -21,9 +21,19 @@ import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -35,9 +45,23 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
+
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
+import org.groundplatform.android.model.AuditInfo
+import org.groundplatform.android.model.User
+import org.groundplatform.android.model.job.Job as ModelJob
+import org.groundplatform.android.model.job.Style
+import org.groundplatform.android.model.geometry.Point
+import org.groundplatform.android.model.geometry.Coordinates
+import java.util.Date
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
@@ -119,10 +143,12 @@ internal constructor(
    * List of [LocationOfInterest] for the active survey that are present within the viewport and
    * zoom level is clustering threshold or higher.
    */
-  private val loisInViewport: StateFlow<List<LocationOfInterest>>
-
-  /** [Feature] clicked by the user. */
-  val featureClicked: MutableStateFlow<Feature?> = MutableStateFlow(null)
+  val loisInViewport: Flow<List<LocationOfInterest>>
+  private val featureClicked =
+    MutableSharedFlow<Feature?>(replay = 1, extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+  init {
+    featureClicked.tryEmit(null)
+  }
 
   /**
    * List of [Job]s which allow LOIs to be added during field collection, populated only when zoomed
@@ -168,17 +194,26 @@ internal constructor(
       }
 
     isZoomedInFlow =
-      getCurrentCameraPosition().mapNotNull { it.zoomLevel }.map { it >= CLUSTERING_ZOOM_THRESHOLD }
+      getCurrentCameraPosition().map { it.zoomLevel }.filterNotNull().map {
+        it >= CLUSTERING_ZOOM_THRESHOLD
+      }
 
+    // TODO: Verify if we can use flow on results of getWithinBounds directly.
     loisInViewport =
       activeSurvey
-        .combine(isZoomedInFlow) { survey, isZoomedIn -> Pair(survey, isZoomedIn) }
-        .flatMapLatest { (survey, isZoomedIn) ->
-          val bounds = currentCameraPosition.value?.bounds
-          if (bounds == null || survey == null || !isZoomedIn) flowOf(listOf())
-          else loiRepository.getWithinBounds(survey, bounds)
+        .flatMapLatest { survey ->
+          if (survey == null) flowOf(listOf())
+          else
+            getCurrentCameraPosition().flatMapLatest { cameraPosition ->
+              val bounds = cameraPosition.bounds
+              val zoomLevel = cameraPosition.zoomLevel
+              if (zoomLevel != null && zoomLevel >= CLUSTERING_ZOOM_THRESHOLD && bounds != null) {
+                loiRepository.getWithinBounds(survey, bounds)
+              } else {
+                flowOf(listOf())
+              }
+            }
         }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), listOf())
 
     adHocLoiJobs =
       activeSurvey.combine(isZoomedInFlow) { survey, isZoomedIn ->
@@ -188,12 +223,10 @@ internal constructor(
 
     jobMapComponentState =
       processDataCollectionEntryPoints()
-        .map { (loiCard, jobCards) -> JobMapComponentState(loiCard, jobCards) }
-        .stateIn(
-          scope = viewModelScope,
-          started = SharingStarted.WhileSubscribed(5_000),
-          initialValue = JobMapComponentState(),
-        )
+        .map { (loiCard, jobCards) ->
+          JobMapComponentState(loiCard, jobCards)
+        }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, JobMapComponentState())
   }
 
   /** Enables the location lock if the active survey doesn't have a default camera position. */
@@ -265,11 +298,10 @@ internal constructor(
    * Returns a flow of [DataCollectionEntryPointData] associated with the active survey's LOIs and
    * adhoc jobs for displaying the cards.
    */
-  @VisibleForTesting
-  fun processDataCollectionEntryPoints():
-    Flow<Pair<SelectedLoiSheetData?, List<AdHocDataCollectionButtonData>>> =
-    combine(loisInViewport, featureClicked, adHocLoiJobs) { loisInView, feature, jobs ->
+  fun processDataCollectionEntryPoints(): Flow<Pair<SelectedLoiSheetData?, List<AdHocDataCollectionButtonData>>> {
+    return combine(loisInViewport, featureClicked, adHocLoiJobs) { loisInView, feature, jobs ->
       val canUserSubmitData = userRepository.canUserSubmitData()
+
       val loiCard =
         loisInView
           .firstOrNull { it.geometry == feature?.geometry }
@@ -284,12 +316,13 @@ internal constructor(
           }
       if (loiCard == null && feature != null) {
         // The feature is not in view anymore.
-        featureClicked.value = null
+        featureClicked.tryEmit(null)
       }
-      val jobCard =
+      val jobCards =
         jobs.map { AdHocDataCollectionButtonData(canCollectData = canUserSubmitData, job = it) }
-      Pair(loiCard, jobCard)
+      Pair(loiCard, jobCards)
     }
+  }
 
   private fun updatedLoiSelectedStates(
     features: Set<Feature>,
@@ -310,7 +343,13 @@ internal constructor(
    * list of provided features is empty.
    */
   fun onFeatureClicked(features: Set<Feature>) {
-    featureClicked.value = features.minByOrNull { it.geometry.area }
+    println("DEBUG: onFeatureClicked: features.size=${features.size}")
+    val feature = features.minByOrNull { it.geometry.area }
+    println("DEBUG: onFeatureClicked: setting value to $feature on ${System.identityHashCode(featureClicked)}")
+    viewModelScope.launch {
+      featureClicked.emit(feature)
+      println("DEBUG: onFeatureClicked: emit completed, replayCache=${featureClicked.replayCache}")
+    }
   }
 
   fun grantDataSharingConsent() {
@@ -343,7 +382,7 @@ internal constructor(
   fun selectLocationOfInterest(id: String?) {
     selectedLoiIdFlow.value = id
     if (id == null) {
-      featureClicked.value = null
+      featureClicked.tryEmit(null)
     }
   }
 }
