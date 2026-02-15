@@ -77,21 +77,24 @@ fun HomeScreenMapContainerScreen(
     }
 
     if (shouldShowMapActions) {
-      MapFloatingActionButton(
+      Box(
         modifier =
-          Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top))
-            .align(Alignment.TopStart),
-        type = MapFloatingActionButtonType.OpenNavDrawer,
-        onClick = { onBaseMapAction(BaseMapAction.OnOpenNavDrawerClicked) },
-      )
+          Modifier.fillMaxWidth()
+            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top))
+            .padding(top = 16.dp, start = 16.dp, end = 16.dp)
+      ) {
+        MapFloatingActionButton(
+          modifier = Modifier.align(Alignment.TopStart),
+          type = MapFloatingActionButtonType.OpenNavDrawer,
+          onClick = { onBaseMapAction(BaseMapAction.OnOpenNavDrawerClicked) },
+        )
 
-      MapFloatingActionButton(
-        modifier =
-          Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top))
-            .align(Alignment.TopEnd),
-        type = MapFloatingActionButtonType.MapType,
-        onClick = { onBaseMapAction(BaseMapAction.OnMapTypeClicked) },
-      )
+        MapFloatingActionButton(
+          modifier = Modifier.align(Alignment.TopEnd),
+          type = MapFloatingActionButtonType.MapType,
+          onClick = { onBaseMapAction(BaseMapAction.OnMapTypeClicked) },
+        )
+      }
     }
 
     Column(
@@ -122,14 +125,13 @@ private fun LocationLockComponent(
     modifier =
       modifier
         .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom))
-        .fillMaxWidth(),
+        .fillMaxWidth()
+        .padding(horizontal = 16.dp, vertical = 8.dp),
     verticalAlignment = Alignment.CenterVertically,
   ) {
-    if (shouldShowRecenter)
-      RecenterButton(
-        modifier = Modifier.padding(start = 16.dp),
-        onClick = { onAction(BaseMapAction.OnLocationLockClicked) },
-      )
+    if (shouldShowRecenter) {
+      RecenterButton(onClick = { onAction(BaseMapAction.OnLocationLockClicked) })
+    }
 
     Spacer(modifier = Modifier.weight(1f))
 

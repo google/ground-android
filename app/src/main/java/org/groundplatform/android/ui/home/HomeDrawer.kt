@@ -66,7 +66,7 @@ fun HomeDrawer(
   onSignOut: () -> Unit,
   versionText: String,
 ) {
-  Column(modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
+  Column(modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).verticalScroll(rememberScrollState())) {
     // App Info Header
     AppInfoHeader(user = user)
 

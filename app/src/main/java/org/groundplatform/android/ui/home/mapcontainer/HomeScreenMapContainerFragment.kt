@@ -175,9 +175,6 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    // AbstractMapContainerFragment.onViewCreated calls map.attachToParent, which fails here
-    // because the R.id.map view hasn't been added by AndroidView yet (it happens in composition).
-    // So we skip super.onViewCreated and handle map attachment in the AndroidView update block.
     // super.onViewCreated(view, savedInstanceState)
 
     bottomContainer.bringToFront()
@@ -186,6 +183,22 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     // LOIs associated with the survey have been synced to the local db by this point. We can
     // enable location lock if no LOIs exist or a previous camera position doesn't exist.
     launchWhenStarted { mapContainerViewModel.maybeEnableLocationLock() }
+  }
+
+
+
+  override fun onDestroyView() {
+    // We need to remove the map fragment from the child fragment manager to prevent
+    // "No view found for id" error when the view is restored. This can happen because
+    // the AndroidView in Compose might not be ready when the FragmentManager tries to
+    // restore the fragment. By removing it here, we ensure it's re-added in the
+    // next onCreateView/update block of AndroidView.
+    if (isAdded) {
+       childFragmentManager.findFragmentById(R.id.map)?.let {
+        childFragmentManager.beginTransaction().remove(it).commitAllowingStateLoss()
+      }
+    }
+    super.onDestroyView()
   }
 
   private fun handleMapAction(action: BaseMapAction) {

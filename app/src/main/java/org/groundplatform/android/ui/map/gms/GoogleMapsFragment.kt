@@ -151,6 +151,11 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     @IdRes containerId: Int,
     onMapReadyCallback: (MapFragment) -> Unit,
   ) {
+    val container = containerFragment.view?.findViewById<View>(containerId)
+    if (container == null) {
+      Timber.e("Container view not found for id: $containerId")
+      return
+    }
     containerFragment.replaceFragment(containerId, this)
     getMapAsync { googleMap: GoogleMap ->
       onMapReady(googleMap)
@@ -234,6 +239,21 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   override fun enableCurrentLocationIndicator() {
     if (!map.isMyLocationEnabled) {
       map.isMyLocationEnabled = true
+    }
+  }
+
+  @SuppressLint("MissingPermission")
+  override fun disableCurrentLocationIndicator() {
+    if (!::map.isInitialized) {
+      return
+    }
+
+    try {
+      if (map.isMyLocationEnabled) {
+        map.isMyLocationEnabled = false
+      }
+    } catch (e: Exception) {
+      Timber.e(e, "Error disabling location indicator")
     }
   }
 
