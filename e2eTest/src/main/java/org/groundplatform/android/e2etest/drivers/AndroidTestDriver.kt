@@ -29,6 +29,7 @@ import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isEnabled
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
@@ -152,11 +153,7 @@ class AndroidTestDriver(
   }
 
   override fun setDate() {
-    val resName = composeRule.activity.resources.getResourceEntryName(R.id.user_date_response_text)
-    val packageName = composeRule.activity.packageName
-    val textInputField = device.findObject(By.res(packageName, resName))
-    textInputField?.click()
-
+    composeRule.onNodeWithTag("dateInputText").performClick()
     device.wait(Until.findObject(By.clazz(DatePicker::class.java)), DEFAULT_TIMEOUT)
     device.findObject(By.text("OK")).click()
   }
