@@ -119,6 +119,14 @@ internal constructor(
 
   suspend fun getOfflineAreas() = offlineAreaRepository.offlineAreas().first()
 
+
+  private val _showSignOutDialog = MutableSharedFlow<Boolean>()
+  val showSignOutDialog: SharedFlow<Boolean> = _showSignOutDialog.asSharedFlow()
+
+  fun showSignOutDialog() {
+    viewModelScope.launch { _showSignOutDialog.emit(true) }
+  }
+
   fun signOut() {
     viewModelScope.launch { userRepository.signOut() }
   }

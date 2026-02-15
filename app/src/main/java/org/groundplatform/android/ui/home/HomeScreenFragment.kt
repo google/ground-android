@@ -16,6 +16,7 @@
 package org.groundplatform.android.ui.home
 
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,8 +27,10 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.ComposeView
+import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.FragmentContainerView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -56,6 +59,7 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener {
   @Inject lateinit var userRepository: UserRepository
 
   private lateinit var homeScreenViewModel: HomeScreenViewModel
+  private lateinit var drawerLayout: DrawerLayout
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -69,16 +73,25 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener {
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
     
-    val root = FrameLayout(requireContext())
-    root.layoutParams =
+    drawerLayout = DrawerLayout(requireContext())
+    drawerLayout.layoutParams =
       ViewGroup.LayoutParams(
         ViewGroup.LayoutParams.MATCH_PARENT,
         ViewGroup.LayoutParams.MATCH_PARENT
       )
 
-    // 1. Map Container (FragmentContainerView) - Added first (bottom layer)
-    // We use a predefined ID if possible, or generate one. 
-    // Ideally we usage R.id.map_container_fragment if it exists (checked previously).
+    // -------------------------------------------------------------------------
+    // 1. Content View (FrameLayout)
+    //    Contains: Map (FragmentContainerView) + Overlays (ComposeView)
+    // -------------------------------------------------------------------------
+    val contentRoot = FrameLayout(requireContext())
+    contentRoot.layoutParams =
+      DrawerLayout.LayoutParams(
+        DrawerLayout.LayoutParams.MATCH_PARENT,
+        DrawerLayout.LayoutParams.MATCH_PARENT
+      )
+
+    // 1a. Map Container
     val mapContainer = FragmentContainerView(requireContext())
     mapContainer.id = R.id.map_container_fragment
     mapContainer.layoutParams =
@@ -86,15 +99,35 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener {
         FrameLayout.LayoutParams.MATCH_PARENT,
         FrameLayout.LayoutParams.MATCH_PARENT
       )
-    root.addView(mapContainer)
+    contentRoot.addView(mapContainer)
 
-    // 2. Compose Overlay - Added second (top layer)
-    val composeView = ComposeView(requireContext())
-    composeView.layoutParams =
+    // 1b. Overlays (Dialogs, etc.)
+    val overlaysView = ComposeView(requireContext())
+    overlaysView.layoutParams =
       FrameLayout.LayoutParams(
         FrameLayout.LayoutParams.MATCH_PARENT,
         FrameLayout.LayoutParams.MATCH_PARENT
       )
+    contentRoot.addView(overlaysView)
+
+    drawerLayout.addView(contentRoot)
+
+    // -------------------------------------------------------------------------
+    // 2. Drawer View (ComposeView)
+    // -------------------------------------------------------------------------
+    val drawerView = ComposeView(requireContext())
+    val drawerParams =
+      DrawerLayout.LayoutParams(
+        DrawerLayout.LayoutParams.WRAP_CONTENT,
+        DrawerLayout.LayoutParams.MATCH_PARENT
+      )
+    drawerParams.gravity = Gravity.START
+    drawerView.layoutParams = drawerParams
+    drawerLayout.addView(drawerView)
+
+    // -------------------------------------------------------------------------
+    // Logic setup
+    // -------------------------------------------------------------------------
     
     // Ensure the map fragment is added if not present
     if (childFragmentManager.findFragmentById(R.id.map_container_fragment) == null) {
@@ -106,12 +139,9 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener {
         .commit()
     }
 
-    composeView.setContent {
+    // Set content for Drawer
+    drawerView.setContent {
       org.groundplatform.android.ui.theme.AppTheme {
-        val drawerState =
-          androidx.compose.material3.rememberDrawerState(
-            androidx.compose.material3.DrawerValue.Closed
-          )
         val user by
           androidx.compose.runtime.produceState<User?>(initialValue = null) {
             value = userRepository.getAuthenticatedUser()
@@ -119,136 +149,137 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener {
         val survey by
           homeScreenViewModel.surveyRepository.activeSurveyFlow.collectAsStateWithLifecycle(null)
         val scope = androidx.compose.runtime.rememberCoroutineScope()
-
         val offlineAreasEnabled by homeScreenViewModel.showOfflineAreaMenuItem.observeAsState(true)
 
-        // Handle open drawer requests from ViewModel
+        // Close drawer callback
+        val closeDrawer: () -> Unit = {
+           scope.launch { drawerLayout.closeDrawer(GravityCompat.START) }
+        }
+
+        HomeDrawer(
+          user = user,
+          survey = survey,
+          onSwitchSurvey = {
+            findNavController()
+              .navigate(
+                HomeScreenFragmentDirections.actionHomeScreenFragmentToSurveySelectorFragment(
+                  false
+                )
+              )
+            closeDrawer()
+          },
+          onNavigateToOfflineAreas = {
+            if (offlineAreasEnabled) {
+              scope.launch {
+                if (homeScreenViewModel.getOfflineAreas().isEmpty())
+                  findNavController()
+                    .navigate(HomeScreenFragmentDirections.showOfflineAreaSelector())
+                else
+                  findNavController().navigate(HomeScreenFragmentDirections.showOfflineAreas())
+                closeDrawer()
+              }
+            }
+          },
+          onNavigateToSyncStatus = {
+            findNavController().navigate(HomeScreenFragmentDirections.showSyncStatus())
+            closeDrawer()
+          },
+          onNavigateToSettings = {
+            findNavController()
+              .navigate(
+                HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity()
+              )
+            closeDrawer()
+          },
+          onNavigateToAbout = {
+            findNavController().navigate(HomeScreenFragmentDirections.showAbout())
+            closeDrawer()
+          },
+          onNavigateToTerms = {
+            findNavController().navigate(HomeScreenFragmentDirections.showTermsOfService(true))
+            closeDrawer()
+          },
+          onSignOut = {
+             homeScreenViewModel.showSignOutDialog()
+             closeDrawer()
+          },
+          versionText =
+            String.format(
+              getString(R.string.build),
+              org.groundplatform.android.BuildConfig.VERSION_NAME,
+            ),
+        )
+      }
+    }
+
+    // Set content for Overlays
+    overlaysView.setContent {
+      org.groundplatform.android.ui.theme.AppTheme {
+        // Handle open drawer requests
         androidx.compose.runtime.LaunchedEffect(Unit) {
-          homeScreenViewModel.openDrawerRequestsFlow.collect { drawerState.open() }
+          homeScreenViewModel.openDrawerRequestsFlow.collect { 
+            drawerLayout.openDrawer(GravityCompat.START) 
+          }
         }
 
         val showSignOutDialog = remember { mutableStateOf(false) }
-
-        androidx.activity.compose.BackHandler(enabled = drawerState.isOpen) {
-          scope.launch { drawerState.close() }
+        
+        androidx.compose.runtime.LaunchedEffect(Unit) {
+          homeScreenViewModel.showSignOutDialog.collect {
+             showSignOutDialog.value = true
+          }
         }
-
-        HomeScreen(
-          drawerState = drawerState,
-          drawerContent = {
-            HomeDrawer(
-              user = user,
-              survey = survey,
-              onSwitchSurvey = {
-                findNavController()
-                  .navigate(
-                    HomeScreenFragmentDirections.actionHomeScreenFragmentToSurveySelectorFragment(
-                      false
-                    )
-                  )
-                scope.launch { drawerState.close() }
-              },
-              onNavigateToOfflineAreas = {
-                if (offlineAreasEnabled) {
-                  scope.launch {
-                    if (homeScreenViewModel.getOfflineAreas().isEmpty())
-                      findNavController()
-                        .navigate(HomeScreenFragmentDirections.showOfflineAreaSelector())
-                    else
-                      findNavController().navigate(HomeScreenFragmentDirections.showOfflineAreas())
-                    drawerState.close()
-                  }
-                }
-              },
-              onNavigateToSyncStatus = {
-                findNavController().navigate(HomeScreenFragmentDirections.showSyncStatus())
-                scope.launch { drawerState.close() }
-              },
-              onNavigateToSettings = {
-                findNavController()
-                  .navigate(
-                    HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity()
-                  )
-                scope.launch { drawerState.close() }
-              },
-              onNavigateToAbout = {
-                findNavController().navigate(HomeScreenFragmentDirections.showAbout())
-                scope.launch { drawerState.close() }
-              },
-              onNavigateToTerms = {
-                findNavController().navigate(HomeScreenFragmentDirections.showTermsOfService(true))
-                scope.launch { drawerState.close() }
-              },
-              onSignOut = { showSignOutDialog.value = true },
-              versionText =
-                String.format(
-                  getString(R.string.build),
-                  org.groundplatform.android.BuildConfig.VERSION_NAME,
-                ),
-            )
-          },
-          content = {
-            // Pass empty content or transparent content here if HomeScreen draws a background.
-            // If HomeScreen uses ModalNavigationDrawer, it puts `content` behind the drawer.
-            // We want the map to be visible.
-            // If the `HomeScreen` (ModalNavigationDrawer) has a transparent background for `content`, it should work.
-            // However, `AppTheme` might set a background color on the root Surface.
-            // We need to ensure this part is transparent.
-            // We put the UI overlays that sit ON TOP of the map here.
-            HomeScreenContent(
-              homeScreenViewModel = homeScreenViewModel,
-              ephemeralPopups = ephemeralPopups,
-              drawerState = drawerState,
-              showSignOutDialog = showSignOutDialog,
-              onNavigateToDataCollection = { loiId, loiName, jobId, restore, deltas, taskId ->
-                findNavController()
-                  .navigate(
-                    HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
-                      loiId,
-                      loiName,
-                      jobId,
-                      restore,
-                      deltas,
-                      taskId,
-                    )
-                  )
-              },
-            )
+        
+        HomeScreenContent(
+          homeScreenViewModel = homeScreenViewModel,
+          ephemeralPopups = ephemeralPopups,
+          showSignOutDialog = showSignOutDialog,
+          onNavigateToDataCollection = { loiId, loiName, jobId, restore, deltas, taskId ->
+            findNavController()
+              .navigate(
+                HomeScreenFragmentDirections.actionHomeScreenFragmentToDataCollectionFragment(
+                  loiId,
+                  loiName,
+                  jobId,
+                  restore,
+                  deltas,
+                  taskId,
+                )
+              )
           },
         )
       }
     }
     
-    root.addView(composeView)
-    
-    ViewCompat.setOnApplyWindowInsetsListener(root) { v, insets ->
-        val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-        v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-        WindowInsetsCompat.CONSUMED
+    ViewCompat.setOnApplyWindowInsetsListener(drawerLayout) { _, insets ->
+        // Return insets unconsumed so children (ComposeView, etc.) receive them.
+        insets
     }
     
-    return root
+    return drawerLayout
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
   }
 
-  override fun onBack(): Boolean = false
+  override fun onBack(): Boolean {
+    if (::drawerLayout.isInitialized && drawerLayout.isDrawerOpen(GravityCompat.START)) {
+      drawerLayout.closeDrawer(GravityCompat.START)
+      return true
+    }
+    return false
+  }
 }
 
 @Composable
 private fun HomeScreenContent(
   homeScreenViewModel: HomeScreenViewModel,
   ephemeralPopups: EphemeralPopups,
-  drawerState: androidx.compose.material3.DrawerState,
   showSignOutDialog: androidx.compose.runtime.MutableState<Boolean>,
   onNavigateToDataCollection: (String, String?, String, Boolean, String?, String) -> Unit,
 ) {
-  val scope = androidx.compose.runtime.rememberCoroutineScope()
   val view = androidx.compose.ui.platform.LocalView.current
-
-  // Map Container removed from here as it is now in the Fragment hierarchy.
 
   // Sign Out Confirmation
   if (showSignOutDialog.value) {
@@ -259,7 +290,6 @@ private fun HomeScreenContent(
       onConfirmClicked = {
         homeScreenViewModel.signOut()
         showSignOutDialog.value = false
-        scope.launch { drawerState.close() }
       },
       onDismiss = { showSignOutDialog.value = false },
     )
@@ -285,3 +315,4 @@ private fun HomeScreenContent(
     }
   }
 }
+
