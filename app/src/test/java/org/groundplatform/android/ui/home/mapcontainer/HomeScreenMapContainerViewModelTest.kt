@@ -231,6 +231,24 @@ class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
   }
 
   @Test
+  fun `onTermsConsentGiven does nothing when terms not shown`() = runWithTestDispatcher {
+    val navigationEvents = mutableListOf<DataCollectionEntryPointData>()
+    val job = launch {
+      viewModel.navigateToDataCollectionFragment.collect { navigationEvents.add(it) }
+    }
+
+    // TERMS hidden (default)
+    assertThat(viewModel.dataSharingTerms.value).isNull()
+
+    viewModel.onTermsConsentGiven()
+    advanceUntilIdle()
+
+    // No navigation happened
+    assertThat(navigationEvents).isEmpty()
+    job.cancel()
+  }
+
+  @Test
   fun `queueDataCollection emits error when terms are invalid`() = runWithTestDispatcher {
     whenever(localValueStore.getDataSharingConsent(anyString())).thenReturn(false)
     val buttonData = AdHocDataCollectionButtonData(canCollectData = true, ADHOC_JOB)

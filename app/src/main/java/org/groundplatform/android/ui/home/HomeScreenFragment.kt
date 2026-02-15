@@ -19,14 +19,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.foundation.layout.fillMaxSize
+import android.widget.FrameLayout
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.fragment.app.FragmentContainerView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -58,17 +62,50 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener {
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
   }
 
-  @Suppress("LongMethod", "CognitiveComplexMethod")
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
     savedInstanceState: Bundle?,
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
-    val composeView = androidx.compose.ui.platform.ComposeView(requireContext())
-    composeView.setViewCompositionStrategy(
-      androidx.compose.ui.platform.ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
-    )
+    
+    val root = FrameLayout(requireContext())
+    root.layoutParams =
+      ViewGroup.LayoutParams(
+        ViewGroup.LayoutParams.MATCH_PARENT,
+        ViewGroup.LayoutParams.MATCH_PARENT
+      )
+
+    // 1. Map Container (FragmentContainerView) - Added first (bottom layer)
+    // We use a predefined ID if possible, or generate one. 
+    // Ideally we usage R.id.map_container_fragment if it exists (checked previously).
+    val mapContainer = FragmentContainerView(requireContext())
+    mapContainer.id = R.id.map_container_fragment
+    mapContainer.layoutParams =
+      FrameLayout.LayoutParams(
+        FrameLayout.LayoutParams.MATCH_PARENT,
+        FrameLayout.LayoutParams.MATCH_PARENT
+      )
+    root.addView(mapContainer)
+
+    // 2. Compose Overlay - Added second (top layer)
+    val composeView = ComposeView(requireContext())
+    composeView.layoutParams =
+      FrameLayout.LayoutParams(
+        FrameLayout.LayoutParams.MATCH_PARENT,
+        FrameLayout.LayoutParams.MATCH_PARENT
+      )
+    
+    // Ensure the map fragment is added if not present
+    if (childFragmentManager.findFragmentById(R.id.map_container_fragment) == null) {
+      val mapFragment =
+        org.groundplatform.android.ui.home.mapcontainer.HomeScreenMapContainerFragment()
+      childFragmentManager
+        .beginTransaction()
+        .replace(R.id.map_container_fragment, mapFragment)
+        .commit()
+    }
+
     composeView.setContent {
       org.groundplatform.android.ui.theme.AppTheme {
         val drawerState =
@@ -82,6 +119,8 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener {
         val survey by
           homeScreenViewModel.surveyRepository.activeSurveyFlow.collectAsStateWithLifecycle(null)
         val scope = androidx.compose.runtime.rememberCoroutineScope()
+
+        val offlineAreasEnabled by homeScreenViewModel.showOfflineAreaMenuItem.observeAsState(true)
 
         // Handle open drawer requests from ViewModel
         androidx.compose.runtime.LaunchedEffect(Unit) {
@@ -97,8 +136,6 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener {
         HomeScreen(
           drawerState = drawerState,
           drawerContent = {
-            val offlineAreasEnabled by
-              homeScreenViewModel.showOfflineAreaMenuItem.observeAsState(true)
             HomeDrawer(
               user = user,
               survey = survey,
@@ -151,11 +188,17 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener {
             )
           },
           content = {
+            // Pass empty content or transparent content here if HomeScreen draws a background.
+            // If HomeScreen uses ModalNavigationDrawer, it puts `content` behind the drawer.
+            // We want the map to be visible.
+            // If the `HomeScreen` (ModalNavigationDrawer) has a transparent background for `content`, it should work.
+            // However, `AppTheme` might set a background color on the root Surface.
+            // We need to ensure this part is transparent.
+            // We put the UI overlays that sit ON TOP of the map here.
             HomeScreenContent(
               homeScreenViewModel = homeScreenViewModel,
               ephemeralPopups = ephemeralPopups,
               drawerState = drawerState,
-              childFragmentManager = childFragmentManager,
               showSignOutDialog = showSignOutDialog,
               onNavigateToDataCollection = { loiId, loiName, jobId, restore, deltas, taskId ->
                 findNavController()
@@ -175,13 +218,20 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener {
         )
       }
     }
-    return composeView
+    
+    root.addView(composeView)
+    
+    ViewCompat.setOnApplyWindowInsetsListener(root) { v, insets ->
+        val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+        v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+        WindowInsetsCompat.CONSUMED
+    }
+    
+    return root
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    // Removed binding logic.
-    // Navigation listener logic moved to Compose callbacks.
   }
 
   override fun onBack(): Boolean = false
@@ -192,31 +242,13 @@ private fun HomeScreenContent(
   homeScreenViewModel: HomeScreenViewModel,
   ephemeralPopups: EphemeralPopups,
   drawerState: androidx.compose.material3.DrawerState,
-  childFragmentManager: androidx.fragment.app.FragmentManager,
   showSignOutDialog: androidx.compose.runtime.MutableState<Boolean>,
   onNavigateToDataCollection: (String, String?, String, Boolean, String?, String) -> Unit,
 ) {
   val scope = androidx.compose.runtime.rememberCoroutineScope()
   val view = androidx.compose.ui.platform.LocalView.current
 
-  // Map Container
-  androidx.compose.ui.viewinterop.AndroidView(
-    factory = { context ->
-      android.widget.FrameLayout(context).apply { id = R.id.map_container_fragment }
-    },
-    update = { _ ->
-      val fragment = childFragmentManager.findFragmentById(R.id.map_container_fragment)
-      if (fragment == null) {
-        val mapFragment =
-          org.groundplatform.android.ui.home.mapcontainer.HomeScreenMapContainerFragment()
-        childFragmentManager
-          .beginTransaction()
-          .replace(R.id.map_container_fragment, mapFragment)
-          .commit()
-      }
-    },
-    modifier = Modifier.fillMaxSize(),
-  )
+  // Map Container removed from here as it is now in the Fragment hierarchy.
 
   // Sign Out Confirmation
   if (showSignOutDialog.value) {

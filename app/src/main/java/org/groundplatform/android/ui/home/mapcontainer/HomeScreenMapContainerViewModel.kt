@@ -277,6 +277,9 @@ internal constructor(
 
   fun onTermsConsentGiven() {
     val data = pendingDataCollectionEntryPointData
+    if (_dataSharingTerms.value == null) {
+      return
+    }
     Timber.d("onTermsConsentGiven data=$data")
     if (data != null) {
       viewModelScope.launch {
