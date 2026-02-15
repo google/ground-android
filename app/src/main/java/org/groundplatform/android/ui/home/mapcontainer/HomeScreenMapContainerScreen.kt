@@ -34,9 +34,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.Style
+import org.groundplatform.android.model.map.MapType
+import org.groundplatform.android.proto.Survey.DataSharingTerms
+import org.groundplatform.android.ui.basemapselector.BasemapSelectorScreen
 import org.groundplatform.android.ui.components.MapFloatingActionButton
 import org.groundplatform.android.ui.components.MapFloatingActionButtonType
 import org.groundplatform.android.ui.components.RecenterButton
+import org.groundplatform.android.ui.home.DataSharingTermsDialog
 import org.groundplatform.android.ui.home.mapcontainer.jobs.AdHocDataCollectionButtonData
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponent
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentAction
@@ -50,26 +54,47 @@ fun HomeScreenMapContainerScreen(
   shouldShowMapActions: Boolean,
   shouldShowRecenter: Boolean,
   jobComponentState: JobMapComponentState,
+  dataSharingTerms: DataSharingTerms?,
+  showMapTypeSelector: Boolean,
+  mapTypes: List<MapType>,
   onBaseMapAction: (BaseMapAction) -> Unit,
   onJobComponentAction: (JobMapComponentAction) -> Unit,
+  onTermsConsentGiven: () -> Unit = {},
+  onTermsConsentDismissed: () -> Unit = {},
+  onMapTypeSelectorDismiss: () -> Unit = {},
 ) {
   Box(modifier = modifier.fillMaxSize()) {
-    if (shouldShowMapActions) {
-      MapFloatingActionButton(
-        modifier =
-          Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top))
-            .align(Alignment.TopStart),
-        type = MapFloatingActionButtonType.OpenNavDrawer,
-        onClick = { onBaseMapAction(BaseMapAction.OnOpenNavDrawerClicked) },
-      )
+    if (showMapTypeSelector) {
+      BasemapSelectorScreen(mapTypes = mapTypes, onDismissRequest = onMapTypeSelectorDismiss)
+    }
 
-      MapFloatingActionButton(
-        modifier =
-          Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top))
-            .align(Alignment.TopEnd),
-        type = MapFloatingActionButtonType.MapType,
-        onClick = { onBaseMapAction(BaseMapAction.OnMapTypeClicked) },
+    if (dataSharingTerms != null) {
+      DataSharingTermsDialog(
+        dataSharingTerms = dataSharingTerms,
+        onConfirm = onTermsConsentGiven,
+        onDismiss = onTermsConsentDismissed,
       )
+    }
+
+    if (shouldShowMapActions) {
+      Box(
+        modifier =
+          Modifier.fillMaxWidth()
+            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top))
+            .padding(top = 16.dp, start = 16.dp, end = 16.dp)
+      ) {
+        MapFloatingActionButton(
+          modifier = Modifier.align(Alignment.TopStart),
+          type = MapFloatingActionButtonType.OpenNavDrawer,
+          onClick = { onBaseMapAction(BaseMapAction.OnOpenNavDrawerClicked) },
+        )
+
+        MapFloatingActionButton(
+          modifier = Modifier.align(Alignment.TopEnd),
+          type = MapFloatingActionButtonType.MapType,
+          onClick = { onBaseMapAction(BaseMapAction.OnMapTypeClicked) },
+        )
+      }
     }
 
     Column(
@@ -100,14 +125,13 @@ private fun LocationLockComponent(
     modifier =
       modifier
         .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom))
-        .fillMaxWidth(),
+        .fillMaxWidth()
+        .padding(horizontal = 16.dp, vertical = 8.dp),
     verticalAlignment = Alignment.CenterVertically,
   ) {
-    if (shouldShowRecenter)
-      RecenterButton(
-        modifier = Modifier.padding(start = 16.dp),
-        onClick = { onAction(BaseMapAction.OnLocationLockClicked) },
-      )
+    if (shouldShowRecenter) {
+      RecenterButton(onClick = { onAction(BaseMapAction.OnLocationLockClicked) })
+    }
 
     Spacer(modifier = Modifier.weight(1f))
 
@@ -151,6 +175,9 @@ private fun HomeScreenMapContainerScreenPreview() {
         ),
       shouldShowMapActions = true,
       shouldShowRecenter = true,
+      dataSharingTerms = null,
+      showMapTypeSelector = false,
+      mapTypes = listOf(MapType.ROAD, MapType.TERRAIN, MapType.SATELLITE),
       onBaseMapAction = {},
       onJobComponentAction = {},
     )

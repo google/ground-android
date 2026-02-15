@@ -15,31 +15,31 @@
  */
 package org.groundplatform.android.ui.home
 
+import android.content.Context
+import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.drawerlayout.widget.DrawerLayout
+import androidx.compose.ui.test.performScrollTo
 import androidx.navigation.NavController
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.action.ViewActions.swipeUp
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.contrib.DrawerMatchers.isClosed
-import androidx.test.espresso.contrib.DrawerMatchers.isOpen
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.isEnabled
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.rules.ActivityScenarioRule
+import androidx.work.Configuration
+import androidx.work.testing.SynchronousExecutor
+import androidx.work.testing.WorkManagerTestInitHelper
 import com.google.common.truth.Truth.assertThat
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
-import kotlin.test.assertFalse
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
@@ -59,6 +59,7 @@ import org.robolectric.RobolectricTestRunner
 
 abstract class AbstractHomeScreenFragmentTest : BaseHiltTest() {
 
+  @Inject @ApplicationContext lateinit var context: Context
   @Inject lateinit var localSurveyStore: LocalSurveyStore
   lateinit var fragment: HomeScreenFragment
   protected lateinit var navController: NavController
@@ -66,6 +67,13 @@ abstract class AbstractHomeScreenFragmentTest : BaseHiltTest() {
   @Before
   override fun setUp() {
     super.setUp()
+    val config =
+      Configuration.Builder()
+        .setMinimumLoggingLevel(Log.INFO)
+        .setExecutor(SynchronousExecutor())
+        .build()
+    WorkManagerTestInitHelper.initializeTestWorkManager(context, config)
+
     launchFragmentWithNavController<HomeScreenFragment>(
       destId = R.id.home_screen_fragment,
       navControllerCallback = { navController = it },
@@ -74,48 +82,38 @@ abstract class AbstractHomeScreenFragmentTest : BaseHiltTest() {
     }
   }
 
+  // ... (inside class)
   protected fun openDrawer(
     composeTestRule:
       AndroidComposeTestRule<ActivityScenarioRule<ComponentActivity>, ComponentActivity>
   ) {
-    onView(withId(R.id.drawer_layout)).check(matches(isClosed()))
     composeTestRule.onNodeWithTag(MapFloatingActionButtonType.OpenNavDrawer.testTag).performClick()
     composeTestRule.waitForIdle()
-    verifyDrawerOpen()
-    onView(withId(R.id.nav_view)).check(matches(isDisplayed()))
+    verifyDrawerOpen(composeTestRule)
   }
 
-  protected fun swipeUpDrawer() {
-    onView(withId(R.id.drawer_layout)).perform(swipeUp())
+  @Suppress("SwallowedException")
+  protected fun verifyDrawerOpen(
+    composeTestRule:
+      AndroidComposeTestRule<ActivityScenarioRule<ComponentActivity>, ComponentActivity>
+  ) {
+    composeTestRule.waitUntil(timeoutMillis = 5000) {
+      try {
+        composeTestRule.onNodeWithText("Offline map imagery").assertIsDisplayed()
+        true
+      } catch (e: AssertionError) {
+        false
+      }
+    }
+    composeTestRule.onNodeWithText("Offline map imagery").assertIsDisplayed()
   }
 
-  protected fun verifyDrawerOpen() {
-    computeScrollForDrawerLayout()
-    onView(withId(R.id.drawer_layout)).check(matches(isOpen()))
-  }
-
-  protected fun verifyDrawerClosed() {
-    computeScrollForDrawerLayout()
-    onView(withId(R.id.drawer_layout)).check(matches(isClosed()))
-  }
-
-  /**
-   * Invoke this method before doing any verifications on navigation drawer after performing an
-   * action on it.
-   */
-  private fun computeScrollForDrawerLayout() {
-    val drawerLayout = fragment.requireView().findViewById<DrawerLayout>(R.id.drawer_layout)
-    // Note that this only initiates a single computeScroll() in Robolectric. Normally, Android
-    // will compute several of these across multiple draw calls, but one seems sufficient for
-    // Robolectric. Note that Robolectric is also *supposed* to handle the animation loop one call
-    // to this method initiates in the view choreographer class, but it seems to not actually
-    // flush the choreographer per observation. In Espresso, this method is automatically called
-    // during draw (and a few other situations), but it's fine to call it directly once to kick it
-    // off (to avoid disparity between Espresso/Robolectric runs of the tests).
-    // NOTE TO DEVELOPERS: if this ever flakes, we can probably put this in a loop with fake time
-    // adjustments to simulate the render loop.
-    // Tracking bug: https://github.com/robolectric/robolectric/issues/5954
-    drawerLayout.computeScroll()
+  protected fun verifyDrawerClosed(
+    composeTestRule:
+      AndroidComposeTestRule<ActivityScenarioRule<ComponentActivity>, ComponentActivity>
+  ) {
+    // Drawer content should not be displayed
+    composeTestRule.onNodeWithText("Offline map imagery").assertIsNotDisplayed()
   }
 }
 
@@ -126,92 +124,77 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
 
   @Inject lateinit var surveyRepository: SurveyRepository
 
-  /**
-   * composeTestRule has to be created in the specific test file in order to access the required
-   * activity. [composeTestRule.activity]
-   */
   @get:Rule override val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
   @Test
   fun `all menu item is always enabled`() = runWithTestDispatcher {
     openDrawer(composeTestRule)
-    onView(withId(R.id.nav_offline_areas)).check(matches(isEnabled()))
-    onView(withId(R.id.sync_status)).check(matches(isEnabled()))
-    onView(withId(R.id.nav_settings)).check(matches(isEnabled()))
-    onView(withId(R.id.about)).check(matches(isEnabled()))
-
-    swipeUpDrawer()
-
-    onView(withId(R.id.terms_of_service)).check(matches(isEnabled()))
-    onView(withId(R.id.nav_log_version)).check(matches(isEnabled()))
+    composeTestRule.onNodeWithText("Offline map imagery").assertIsDisplayed().assertIsEnabled()
+    composeTestRule.onNodeWithText("Data sync status").assertIsDisplayed().assertIsEnabled()
+    composeTestRule
+      .onNodeWithText(fragment.getString(R.string.settings))
+      .performScrollTo()
+      .assertIsDisplayed()
+      .assertIsEnabled()
+    composeTestRule.onNodeWithText("About").performScrollTo().assertIsDisplayed().assertIsEnabled()
+    composeTestRule
+      .onNodeWithText("Terms of service")
+      .performScrollTo()
+      .assertIsDisplayed()
+      .assertIsEnabled()
+    composeTestRule
+      .onNodeWithText("Build ${org.groundplatform.android.BuildConfig.VERSION_NAME}")
+      .performScrollTo()
+      .assertIsDisplayed()
   }
 
   @Test
   fun `sign out dialog is displayed`() = runWithTestDispatcher {
     openDrawer(composeTestRule)
 
-    onView(withId(R.id.user_image)).check(matches(isDisplayed()))
-    openSignOutDialog()
-
     composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.sign_out))
-      .assertIsDisplayed()
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.close))
-      .assertIsDisplayed()
-
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.close))
+      .onNode(
+        hasText(fragment.getString(R.string.sign_out)) and
+          SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)
+      )
+      .performScrollTo()
       .performClick()
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.close))
-      .assertIsNotDisplayed()
-
-    openSignOutWarningDialog()
-
-    advanceUntilIdle()
 
     composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.sign_out_dialog_title))
+      .onNodeWithText(fragment.getString(R.string.sign_out_dialog_title))
       .assertIsDisplayed()
     composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.sign_out_dialog_body))
+      .onNodeWithText(fragment.getString(R.string.sign_out_dialog_body))
       .assertIsDisplayed()
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.cancel))
-      .assertIsDisplayed()
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.sign_out))
-      .assertIsDisplayed()
+    composeTestRule.onNodeWithText(fragment.getString(R.string.cancel)).assertIsDisplayed()
 
+    composeTestRule.onNodeWithText(fragment.getString(R.string.cancel)).performClick()
+    composeTestRule.onNodeWithText(fragment.getString(R.string.cancel)).assertIsNotDisplayed()
+
+    // Drawer should still be open. Click "Sign out" again.
     composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.cancel))
+      .onNode(
+        hasText(fragment.getString(R.string.sign_out)) and
+          SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)
+      )
+      .performScrollTo()
       .performClick()
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.cancel))
-      .assertIsNotDisplayed()
 
-    openSignOutWarningDialog()
+    // Click "Sign out" in the dialog.
     composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.sign_out))
+      .onNode(
+        hasText(fragment.getString(R.string.sign_out)) and
+          SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button)
+      )
       .performClick()
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.sign_out))
-      .assertIsNotDisplayed()
+
+    // Verify dialog closed and potential sign out behavior.
+    composeTestRule.onNodeWithText(fragment.getString(R.string.sign_out)).assertIsNotDisplayed()
   }
 
   @Test
   fun `on back returns false and does nothing`() {
-    assertFalse(fragment.onBack())
-  }
-
-  private fun openSignOutDialog() {
-    onView(withId(R.id.user_image)).perform(click())
-  }
-
-  private fun openSignOutWarningDialog() {
-    openSignOutDialog()
-    composeTestRule.onNodeWithText("Sign out").performClick()
+    assertThat(fragment.onBack()).isFalse()
   }
 }
 
@@ -222,7 +205,6 @@ class NavigationDrawerItemClickTest(
   private val menuItemLabel: String,
   private val expectedNavDirection: Int?,
   private val survey: Survey,
-  private val shouldDrawerCloseAfterClick: Boolean,
 ) : AbstractHomeScreenFragmentTest() {
 
   @Inject lateinit var surveyRepository: SurveyRepository
@@ -235,21 +217,22 @@ class NavigationDrawerItemClickTest(
     surveyRepository.activateSurvey(survey.id)
     advanceUntilIdle()
 
-    openDrawer(composeTestRule)
+    // openDrawer via helper in Abstract?
+    // We should implement openDrawer in Abstract using composeTestRule.
+    // AbstractHomeScreenFragmentTest needs composeTestRule reference?
+    // It takes it as arg.
 
-    onView(withId(R.id.drawer_layout)).perform(swipeUp())
+    // Using MapFloatingActionButtonType.OpenNavDrawer.testTag
+    composeTestRule.onNodeWithTag(MapFloatingActionButtonType.OpenNavDrawer.testTag).performClick()
+    composeTestRule.waitForIdle()
 
-    onView(withText(menuItemLabel)).check(matches(isEnabled())).perform(click())
+    composeTestRule.onNodeWithText(menuItemLabel).performScrollTo().performClick()
 
     if (expectedNavDirection != null) {
       assertThat(navController.currentDestination?.id).isEqualTo(expectedNavDirection)
     }
 
-    if (shouldDrawerCloseAfterClick) {
-      verifyDrawerClosed()
-    } else {
-      verifyDrawerOpen()
-    }
+    verifyDrawerClosed(composeTestRule)
   }
 
   companion object {
@@ -261,11 +244,11 @@ class NavigationDrawerItemClickTest(
       listOf(
         // TODO: Restore tests deleted in #2382.
         // Issue URL: https://github.com/google/ground-android/issues/2385
-        arrayOf("Data sync status", R.id.sync_status_fragment, TEST_SURVEY, true),
-        arrayOf("Terms of service", R.id.terms_of_service_fragment, TEST_SURVEY, true),
-        arrayOf("About", R.id.aboutFragment, TEST_SURVEY, true),
-        arrayOf("Offline map imagery", R.id.offline_area_selector_fragment, TEST_SURVEY, true),
-        arrayOf("Settings", R.id.settings_activity, TEST_SURVEY, true),
+        arrayOf("Data sync status", R.id.sync_status_fragment, TEST_SURVEY),
+        arrayOf("Terms of service", R.id.terms_of_service_fragment, TEST_SURVEY),
+        arrayOf("About", R.id.aboutFragment, TEST_SURVEY),
+        arrayOf("Offline map imagery", R.id.offline_area_selector_fragment, TEST_SURVEY),
+        arrayOf("Settings", R.id.settings_activity, TEST_SURVEY),
       )
   }
 }

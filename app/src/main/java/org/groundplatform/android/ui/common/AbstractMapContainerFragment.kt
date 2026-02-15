@@ -68,7 +68,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     )
   }
 
-  private fun onMapAttached(map: MapFragment) {
+  protected fun onMapAttached(map: MapFragment) {
     val viewModel = getMapViewModel()
 
     // Removes all markers, overlays, polylines and polygons from the map.
@@ -191,5 +191,10 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
 
   companion object {
     private val DEFAULT_MAP_CONFIG: MapConfig = MapConfig(showOfflineImagery = true)
+  }
+
+  override fun onDestroyView() {
+    map.disableCurrentLocationIndicator()
+    super.onDestroyView()
   }
 }

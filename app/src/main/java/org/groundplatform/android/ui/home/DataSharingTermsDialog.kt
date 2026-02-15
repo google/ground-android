@@ -22,8 +22,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -65,20 +63,12 @@ private fun generateDataSharingTermsHtml(dataSharingTerms: Survey.DataSharingTer
 @Composable
 fun DataSharingTermsDialog(
   dataSharingTerms: Survey.DataSharingTerms,
-  consentGivenCallback: () -> Unit = {},
+  onConfirm: () -> Unit = {},
+  onDismiss: () -> Unit = {},
 ) {
-  val showDialog = remember { mutableStateOf(true) }
-
-  fun dismissDialog() {
-    showDialog.value = false
-  }
-
-  if (!showDialog.value) {
-    return
-  }
 
   AlertDialog(
-    onDismissRequest = { dismissDialog() },
+    onDismissRequest = onDismiss,
     title = {
       Text(
         text = stringResource(R.string.data_consent_dialog_title),
@@ -90,17 +80,10 @@ fun DataSharingTermsDialog(
       HtmlText(html, Modifier.height(450.dp).fillMaxWidth())
     },
     dismissButton = {
-      TextButton(onClick = { dismissDialog() }) { Text(text = stringResource(R.string.cancel)) }
+      TextButton(onClick = onDismiss) { Text(text = stringResource(R.string.cancel)) }
     },
     confirmButton = {
-      TextButton(
-        onClick = {
-          consentGivenCallback()
-          dismissDialog()
-        }
-      ) {
-        Text(text = stringResource(R.string.agree_checkbox))
-      }
+      TextButton(onClick = onConfirm) { Text(text = stringResource(R.string.agree_checkbox)) }
     },
   )
 }
