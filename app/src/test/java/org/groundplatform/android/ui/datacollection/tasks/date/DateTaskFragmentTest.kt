@@ -16,6 +16,8 @@
 package org.groundplatform.android.ui.datacollection.tasks.date
 
 import android.app.DatePickerDialog
+import android.content.Context
+import android.text.format.DateFormat
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
@@ -26,9 +28,11 @@ import androidx.compose.ui.test.isNotDisplayed
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
+import java.text.SimpleDateFormat
 import javax.inject.Inject
 import org.groundplatform.android.R
 import org.groundplatform.android.model.job.Job
@@ -88,7 +92,10 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
   fun `default response is empty`() {
     setupTaskFragment<DateTaskFragment>(job, task)
 
-    composeTestRule.onNodeWithTag("dateInputText").assertIsDisplayed().assertTextContains("M/D/YY")
+    composeTestRule
+      .onNodeWithTag("dateInputText")
+      .assertIsDisplayed()
+      .assertTextContains(getExpectedDateHint())
 
     runner().assertButtonIsDisabled("Next")
   }
@@ -158,6 +165,13 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
   fun `hint text is visible`() {
     setupTaskFragment<DateTaskFragment>(job, task)
 
-    composeTestRule.onNodeWithText("M/D/YY").isDisplayed()
+    composeTestRule.onNodeWithText(getExpectedDateHint()).isDisplayed()
+  }
+
+  private fun getExpectedDateHint(): String {
+    val context = ApplicationProvider.getApplicationContext<Context>()
+    val hint = (DateFormat.getDateFormat(context) as SimpleDateFormat).toPattern().uppercase()
+    assertThat(hint).isNotEmpty()
+    return hint
   }
 }
