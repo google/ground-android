@@ -118,7 +118,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       }
     }
 
-  override  fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     // super.onViewCreated(view, savedInstanceState)
 
     bottomContainer.bringToFront()
@@ -128,8 +128,6 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     // enable location lock if no LOIs exist or a previous camera position doesn't exist.
     launchWhenStarted { mapContainerViewModel.maybeEnableLocationLock() }
   }
-
-
 
   internal fun handleMapAction(action: BaseMapAction) {
     when (action) {
@@ -231,8 +229,6 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   override fun onMapReady(map: MapFragment) {
     mapContainerViewModel.mapLoiFeatures.launchWhenStartedAndCollect { map.setFeatures(it) }
   }
-
-
 
   override fun onDestroyView() {
     // Remove the map fragment to prevent a crash during restoration (No view found for id).
