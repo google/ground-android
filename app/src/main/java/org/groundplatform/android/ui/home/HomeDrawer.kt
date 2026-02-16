@@ -131,7 +131,6 @@ private fun DrawerItems(
         icon = IconSource.Vector(Icons.AutoMirrored.Filled.ExitToApp),
         onClick = onSignOut,
       ),
-      DrawerItem(label = versionText, icon = IconSource.Vector(Icons.Default.Build), onClick = {}),
     )
 
   navItems.forEach { item ->
@@ -148,6 +147,26 @@ private fun DrawerItems(
         }
       },
       modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+    )
+  }
+
+  Row(
+    modifier =
+      Modifier.fillMaxWidth()
+        .padding(NavigationDrawerItemDefaults.ItemPadding)
+        .padding(start = 16.dp, end = 24.dp, top = 12.dp, bottom = 12.dp),
+    verticalAlignment = Alignment.CenterVertically,
+  ) {
+    Icon(
+      imageVector = Icons.Default.Build,
+      contentDescription = null,
+      tint = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+    Spacer(Modifier.width(12.dp))
+    Text(
+      text = versionText,
+      style = MaterialTheme.typography.labelLarge,
+      color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
   }
 }
