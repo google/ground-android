@@ -262,7 +262,7 @@ private fun SurveySelector(survey: Survey?, onSwitchSurvey: () -> Unit) {
       style = MaterialTheme.typography.labelLarge,
       color = MaterialTheme.colorScheme.primary,
       fontWeight = FontWeight.Bold,
-      modifier = Modifier.clickable(onClick = onSwitchSurvey).padding(vertical = 8.dp),
+      modifier = Modifier.padding(vertical = 8.dp).clickable(onClick = onSwitchSurvey),
     )
   }
 }
