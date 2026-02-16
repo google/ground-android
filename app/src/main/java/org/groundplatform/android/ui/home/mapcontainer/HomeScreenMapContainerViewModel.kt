@@ -15,25 +15,15 @@
  */
 package org.groundplatform.android.ui.home.mapcontainer
 
-import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -45,23 +35,8 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
-
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.merge
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.onEach
-import org.groundplatform.android.model.AuditInfo
-import org.groundplatform.android.model.User
-import org.groundplatform.android.model.job.Job as ModelJob
-import org.groundplatform.android.model.job.Style
-import org.groundplatform.android.model.geometry.Point
-import org.groundplatform.android.model.geometry.Coordinates
-import java.util.Date
-import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
@@ -69,6 +44,7 @@ import org.groundplatform.android.common.Constants.CLUSTERING_ZOOM_THRESHOLD
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.job.Job
+import org.groundplatform.android.model.job.Style
 import org.groundplatform.android.model.job.getDefaultColor
 import org.groundplatform.android.model.locationofinterest.LocationOfInterest
 import org.groundplatform.android.proto.Survey.DataSharingTerms
@@ -145,7 +121,12 @@ internal constructor(
    */
   val loisInViewport: Flow<List<LocationOfInterest>>
   private val featureClicked =
-    MutableSharedFlow<Feature?>(replay = 1, extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+    MutableSharedFlow<Feature?>(
+      replay = 1,
+      extraBufferCapacity = 1,
+      onBufferOverflow = BufferOverflow.DROP_OLDEST,
+    )
+
   init {
     featureClicked.tryEmit(null)
   }
@@ -194,26 +175,26 @@ internal constructor(
       }
 
     isZoomedInFlow =
-      getCurrentCameraPosition().map { it.zoomLevel }.filterNotNull().map {
-        it >= CLUSTERING_ZOOM_THRESHOLD
-      }
+      getCurrentCameraPosition()
+        .map { it.zoomLevel }
+        .filterNotNull()
+        .map { it >= CLUSTERING_ZOOM_THRESHOLD }
 
     // TODO: Verify if we can use flow on results of getWithinBounds directly.
     loisInViewport =
-      activeSurvey
-        .flatMapLatest { survey ->
-          if (survey == null) flowOf(listOf())
-          else
-            getCurrentCameraPosition().flatMapLatest { cameraPosition ->
-              val bounds = cameraPosition.bounds
-              val zoomLevel = cameraPosition.zoomLevel
-              if (zoomLevel != null && zoomLevel >= CLUSTERING_ZOOM_THRESHOLD && bounds != null) {
-                loiRepository.getWithinBounds(survey, bounds)
-              } else {
-                flowOf(listOf())
-              }
+      activeSurvey.flatMapLatest { survey ->
+        if (survey == null) flowOf(listOf())
+        else
+          getCurrentCameraPosition().flatMapLatest { cameraPosition ->
+            val bounds = cameraPosition.bounds
+            val zoomLevel = cameraPosition.zoomLevel
+            if (zoomLevel != null && zoomLevel >= CLUSTERING_ZOOM_THRESHOLD && bounds != null) {
+              loiRepository.getWithinBounds(survey, bounds)
+            } else {
+              flowOf(listOf())
             }
-        }
+          }
+      }
 
     adHocLoiJobs =
       activeSurvey.combine(isZoomedInFlow) { survey, isZoomedIn ->
@@ -223,9 +204,7 @@ internal constructor(
 
     jobMapComponentState =
       processDataCollectionEntryPoints()
-        .map { (loiCard, jobCards) ->
-          JobMapComponentState(loiCard, jobCards)
-        }
+        .map { (loiCard, jobCards) -> JobMapComponentState(loiCard, jobCards) }
         .stateIn(viewModelScope, SharingStarted.Eagerly, JobMapComponentState())
   }
 
@@ -301,8 +280,9 @@ internal constructor(
    * Returns a flow of [DataCollectionEntryPointData] associated with the active survey's LOIs and
    * adhoc jobs for displaying the cards.
    */
-  fun processDataCollectionEntryPoints(): Flow<Pair<SelectedLoiSheetData?, List<AdHocDataCollectionButtonData>>> {
-    return combine(loisInViewport, featureClicked, adHocLoiJobs) { loisInView, feature, jobs ->
+  fun processDataCollectionEntryPoints():
+    Flow<Pair<SelectedLoiSheetData?, List<AdHocDataCollectionButtonData>>> =
+    combine(loisInViewport, featureClicked, adHocLoiJobs) { loisInView, feature, jobs ->
       val canUserSubmitData = userRepository.canUserSubmitData()
 
       val loiCard =
@@ -325,7 +305,6 @@ internal constructor(
         jobs.map { AdHocDataCollectionButtonData(canCollectData = canUserSubmitData, job = it) }
       Pair(loiCard, jobCards)
     }
-  }
 
   private fun updatedLoiSelectedStates(
     features: Set<Feature>,
@@ -348,7 +327,9 @@ internal constructor(
   fun onFeatureClicked(features: Set<Feature>) {
     println("DEBUG: onFeatureClicked: features.size=${features.size}")
     val feature = features.minByOrNull { it.geometry.area }
-    println("DEBUG: onFeatureClicked: setting value to $feature on ${System.identityHashCode(featureClicked)}")
+    println(
+      "DEBUG: onFeatureClicked: setting value to $feature on ${System.identityHashCode(featureClicked)}"
+    )
     viewModelScope.launch {
       featureClicked.emit(feature)
       println("DEBUG: onFeatureClicked: emit completed, replayCache=${featureClicked.replayCache}")

@@ -20,4 +20,5 @@
     <item name="map" type="id"/>
     <item name="compose_content" type="id"/>
     <item name="bottom_container" type="id"/>
+    <item name="overlays_view" type="id"/>
 </resources>

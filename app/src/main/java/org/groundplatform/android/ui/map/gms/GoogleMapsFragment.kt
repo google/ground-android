@@ -143,6 +143,11 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
       ViewCompat.setOnApplyWindowInsetsListener(this) { view, insets ->
         onApplyWindowInsets(view, insets)
       }
+      layoutParams =
+        ViewGroup.LayoutParams(
+          ViewGroup.LayoutParams.MATCH_PARENT,
+          ViewGroup.LayoutParams.MATCH_PARENT,
+        )
     }
   }
 
@@ -156,7 +161,22 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
       Timber.e("Container view not found for id: $containerId")
       return
     }
-    containerFragment.replaceFragment(containerId, this)
+    // Always replace to ensure view re-attachment
+    // Use commitNow to ensure the view is added synchronously before AndroidView update completes
+    containerFragment.childFragmentManager.beginTransaction().replace(containerId, this).commitNow()
+
+    view?.addOnAttachStateChangeListener(
+      object : View.OnAttachStateChangeListener {
+        override fun onViewAttachedToWindow(v: View) {
+          Timber.v("Map View attached to window: $v")
+        }
+
+        override fun onViewDetachedFromWindow(v: View) {
+          Timber.v("Map View detached from window: $v")
+        }
+      }
+    )
+
     getMapAsync { googleMap: GoogleMap ->
       onMapReady(googleMap)
       onMapReadyCallback(this)

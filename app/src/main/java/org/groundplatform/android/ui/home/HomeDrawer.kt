@@ -66,67 +66,87 @@ fun HomeDrawer(
   onSignOut: () -> Unit,
   versionText: String,
 ) {
-  Column(modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).verticalScroll(rememberScrollState())) {
-    // App Info Header
+  Column(
+    modifier =
+      Modifier.fillMaxWidth()
+        .background(MaterialTheme.colorScheme.surface)
+        .verticalScroll(rememberScrollState())
+  ) {
     AppInfoHeader(user = user)
-
-    // Survey Info
     SurveySelector(survey = survey, onSwitchSurvey = onSwitchSurvey)
-
     HorizontalDivider()
+    DrawerItems(
+      onNavigateToOfflineAreas,
+      onNavigateToSyncStatus,
+      onNavigateToSettings,
+      onNavigateToAbout,
+      onNavigateToTerms,
+      onSignOut,
+      versionText,
+    )
+  }
+}
 
-    // Navigation Items
-    val navItems =
-      listOf(
-        DrawerItem(
-          label = stringResource(R.string.offline_map_imagery),
-          icon = IconSource.Drawable(R.drawable.ic_offline_pin),
-          onClick = onNavigateToOfflineAreas,
-        ),
-        DrawerItem(
-          label = stringResource(R.string.sync_status),
-          icon = IconSource.Drawable(R.drawable.ic_sync),
-          onClick = onNavigateToSyncStatus,
-        ),
-        DrawerItem(
-          label = stringResource(R.string.settings),
-          icon = IconSource.Vector(Icons.Default.Settings),
-          onClick = onNavigateToSettings,
-        ),
-        DrawerItem(
-          label = stringResource(R.string.about),
-          icon = IconSource.Drawable(R.drawable.info_outline),
-          onClick = onNavigateToAbout,
-        ),
-        DrawerItem(
-          label = stringResource(R.string.terms_of_service),
-          icon = IconSource.Drawable(R.drawable.feed),
-          onClick = onNavigateToTerms,
-        ),
-        DrawerItem(
-          label = stringResource(R.string.sign_out),
-          icon = IconSource.Vector(Icons.AutoMirrored.Filled.ExitToApp),
-          onClick = onSignOut,
-        ),
-        DrawerItem(label = versionText, icon = IconSource.Vector(Icons.Default.Build), onClick = {}),
-      )
+@Composable
+private fun DrawerItems(
+  onNavigateToOfflineAreas: () -> Unit,
+  onNavigateToSyncStatus: () -> Unit,
+  onNavigateToSettings: () -> Unit,
+  onNavigateToAbout: () -> Unit,
+  onNavigateToTerms: () -> Unit,
+  onSignOut: () -> Unit,
+  versionText: String,
+) {
+  val navItems =
+    listOf(
+      DrawerItem(
+        label = stringResource(R.string.offline_map_imagery),
+        icon = IconSource.Drawable(R.drawable.ic_offline_pin),
+        onClick = onNavigateToOfflineAreas,
+      ),
+      DrawerItem(
+        label = stringResource(R.string.sync_status),
+        icon = IconSource.Drawable(R.drawable.ic_sync),
+        onClick = onNavigateToSyncStatus,
+      ),
+      DrawerItem(
+        label = stringResource(R.string.settings),
+        icon = IconSource.Vector(Icons.Default.Settings),
+        onClick = onNavigateToSettings,
+      ),
+      DrawerItem(
+        label = stringResource(R.string.about),
+        icon = IconSource.Drawable(R.drawable.info_outline),
+        onClick = onNavigateToAbout,
+      ),
+      DrawerItem(
+        label = stringResource(R.string.terms_of_service),
+        icon = IconSource.Drawable(R.drawable.feed),
+        onClick = onNavigateToTerms,
+      ),
+      DrawerItem(
+        label = stringResource(R.string.sign_out),
+        icon = IconSource.Vector(Icons.AutoMirrored.Filled.ExitToApp),
+        onClick = onSignOut,
+      ),
+      DrawerItem(label = versionText, icon = IconSource.Vector(Icons.Default.Build), onClick = {}),
+    )
 
-    navItems.forEach { item ->
-      NavigationDrawerItem(
-        label = { Text(item.label) },
-        selected = false,
-        onClick = item.onClick,
-        icon = {
-          val description = item.label
-          when (item.icon) {
-            is IconSource.Vector -> Icon(item.icon.imageVector, contentDescription = description)
-            is IconSource.Drawable ->
-              Icon(painterResource(item.icon.id), contentDescription = description)
-          }
-        },
-        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
-      )
-    }
+  navItems.forEach { item ->
+    NavigationDrawerItem(
+      label = { Text(item.label) },
+      selected = false,
+      onClick = item.onClick,
+      icon = {
+        val description = item.label
+        when (item.icon) {
+          is IconSource.Vector -> Icon(item.icon.imageVector, contentDescription = description)
+          is IconSource.Drawable ->
+            Icon(painterResource(item.icon.id), contentDescription = description)
+        }
+      },
+      modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+    )
   }
 }
 

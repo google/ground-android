@@ -27,11 +27,9 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class AbstractMapContainerFragmentTest {
 
-  @Mock
-  lateinit var mapFragment: MapFragment
+  @Mock lateinit var mapFragment: MapFragment
 
-  @Mock
-  lateinit var viewModel: BaseMapViewModel
+  @Mock lateinit var viewModel: BaseMapViewModel
 
   @Before
   fun setUp() {
@@ -42,16 +40,16 @@ class AbstractMapContainerFragmentTest {
   fun `onDestroyView disables current location indicator`() {
     val fragment = TestMapContainerFragment(viewModel)
     fragment.map = mapFragment
-    
+
     // Call onDestroyView
     fragment.onDestroyView()
-    
+
     verify(mapFragment).disableCurrentLocationIndicator()
   }
 
   // Concrete implementation for testing
-  class TestMapContainerFragment(private val viewModel: BaseMapViewModel) : AbstractMapContainerFragment() {
+  class TestMapContainerFragment(private val viewModel: BaseMapViewModel) :
+    AbstractMapContainerFragment() {
     override fun getMapViewModel(): BaseMapViewModel = viewModel
   }
 }
-

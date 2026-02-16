@@ -19,14 +19,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -113,68 +108,17 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
       setContent {
         AppTheme {
-          Box(modifier = Modifier.fillMaxSize()) {
-            AndroidView(
-              factory = { context -> android.widget.FrameLayout(context).apply { id = R.id.map } },
-              modifier = Modifier.fillMaxSize(),
-              update = {
-                val fragment = childFragmentManager.findFragmentById(R.id.map)
-                if (fragment == null) {
-                  map.attachToParent(this@HomeScreenMapContainerFragment, R.id.map) {
-                    onMapAttached(it)
-                  }
-                }
-              },
-            )
-
-            val locationLockButton by
-              mapContainerViewModel.locationLockIconType.collectAsStateWithLifecycle()
-            val jobMapComponentState by
-              mapContainerViewModel.jobMapComponentState.collectAsStateWithLifecycle()
-            val shouldShowMapActions by
-              mapContainerViewModel.shouldShowMapActions.collectAsStateWithLifecycle()
-            val shouldShowRecenter by
-              mapContainerViewModel.shouldShowRecenterButton.collectAsStateWithLifecycle()
-            val dataSharingTerms by
-              mapContainerViewModel.dataSharingTerms.collectAsStateWithLifecycle()
-            val showMapTypeSelector by
-              mapContainerViewModel.showMapTypeSelector.collectAsStateWithLifecycle()
-
-            mapContainerViewModel.navigateToDataCollectionFragment.launchWhenStartedAndCollect {
-              navigateToDataCollectionFragment(it)
-            }
-
-            mapContainerViewModel.termsError.launchWhenStartedAndCollect {
-              ephemeralPopups.ErrorPopup().show(getString(it))
-            }
-
-            HomeScreenMapContainerScreen(
-              locationLockButtonType = locationLockButton,
-              shouldShowMapActions = shouldShowMapActions,
-              shouldShowRecenter = shouldShowRecenter,
-              jobComponentState = jobMapComponentState,
-              dataSharingTerms = dataSharingTerms,
-              showMapTypeSelector = showMapTypeSelector,
-              mapTypes = map.supportedMapTypes,
-              onBaseMapAction = { handleMapAction(it) },
-              onJobComponentAction = {
-                handleJobMapComponentAction(
-                  jobMapComponentState = jobMapComponentState,
-                  action = it,
-                )
-              },
-              onTermsConsentGiven = { mapContainerViewModel.onTermsConsentGiven() },
-              onTermsConsentDismissed = { mapContainerViewModel.onTermsConsentDismissed() },
-              onMapTypeSelectorDismiss = { mapContainerViewModel.showMapTypeSelector.value = false },
-            )
-
-            AndroidView(factory = { bottomContainer }, modifier = Modifier.fillMaxSize())
-          }
+          HomeScreenMapContainerContent(
+            map = map,
+            mapContainerViewModel = mapContainerViewModel,
+            bottomContainer = bottomContainer,
+            fragment = this@HomeScreenMapContainerFragment,
+          )
         }
       }
     }
 
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+  override  fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     // super.onViewCreated(view, savedInstanceState)
 
     bottomContainer.bringToFront()
@@ -187,21 +131,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
 
 
-  override fun onDestroyView() {
-    // We need to remove the map fragment from the child fragment manager to prevent
-    // "No view found for id" error when the view is restored. This can happen because
-    // the AndroidView in Compose might not be ready when the FragmentManager tries to
-    // restore the fragment. By removing it here, we ensure it's re-added in the
-    // next onCreateView/update block of AndroidView.
-    if (isAdded) {
-       childFragmentManager.findFragmentById(R.id.map)?.let {
-        childFragmentManager.beginTransaction().remove(it).commitAllowingStateLoss()
-      }
-    }
-    super.onDestroyView()
-  }
-
-  private fun handleMapAction(action: BaseMapAction) {
+  internal fun handleMapAction(action: BaseMapAction) {
     when (action) {
       BaseMapAction.OnLocationLockClicked -> mapContainerViewModel.onLocationLockClick()
       BaseMapAction.OnMapTypeClicked -> showMapTypeSelectorDialog()
@@ -209,7 +139,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     }
   }
 
-  private fun handleJobMapComponentAction(
+  internal fun handleJobMapComponentAction(
     jobMapComponentState: JobMapComponentState,
     action: JobMapComponentAction,
   ) {
@@ -259,7 +189,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     ephemeralPopups.InfoPopup(bottomContainer, messageId, EphemeralPopups.PopupDuration.LONG).show()
   }
 
-  private fun navigateToDataCollectionFragment(cardUiData: DataCollectionEntryPointData) {
+  internal fun navigateToDataCollectionFragment(cardUiData: DataCollectionEntryPointData) {
     if (findNavController().currentDestination?.id != R.id.home_screen_fragment) {
       Timber.w(
         "Refusing to navigate to data collection from ${findNavController().currentDestination?.label}"
@@ -294,8 +224,24 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     }
   }
 
+  fun onMapReadyPublic(map: MapFragment) {
+    onMapAttached(map)
+  }
+
   override fun onMapReady(map: MapFragment) {
     mapContainerViewModel.mapLoiFeatures.launchWhenStartedAndCollect { map.setFeatures(it) }
+  }
+
+
+
+  override fun onDestroyView() {
+    // Remove the map fragment to prevent a crash during restoration (No view found for id).
+    // The fragment will be re-added by Compose when the view is recreated.
+    val mapFragment = childFragmentManager.findFragmentById(R.id.map)
+    if (mapFragment != null) {
+      childFragmentManager.beginTransaction().remove(mapFragment).commitNowAllowingStateLoss()
+    }
+    super.onDestroyView()
   }
 
   override fun getMapViewModel(): BaseMapViewModel = mapContainerViewModel

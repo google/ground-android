@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android.ui.home.mapcontainer
 
+import android.view.ViewGroup
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,10 +29,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.launch
+import org.groundplatform.android.R
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.Style
 import org.groundplatform.android.model.map.MapType
@@ -45,7 +56,9 @@ import org.groundplatform.android.ui.home.mapcontainer.jobs.AdHocDataCollectionB
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponent
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentAction
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentState
+import org.groundplatform.android.ui.map.MapFragment
 import org.groundplatform.android.ui.theme.AppTheme
+import timber.log.Timber
 
 @Composable
 fun HomeScreenMapContainerScreen(
@@ -181,5 +194,102 @@ private fun HomeScreenMapContainerScreenPreview() {
       onBaseMapAction = {},
       onJobComponentAction = {},
     )
+  }
+}
+
+@Composable
+internal fun MapFrame(map: MapFragment, fragment: HomeScreenMapContainerFragment) {
+  AndroidView(
+    factory = { context ->
+      android.widget.FrameLayout(context).apply {
+        id = R.id.map
+        layoutParams =
+          android.widget.FrameLayout.LayoutParams(
+            android.widget.FrameLayout.LayoutParams.MATCH_PARENT,
+            android.widget.FrameLayout.LayoutParams.MATCH_PARENT,
+          )
+      }
+    },
+    modifier = Modifier.fillMaxSize(),
+    update = {
+      val container = it
+      val mapFragment = fragment.childFragmentManager.findFragmentById(R.id.map) as? MapFragment
+      val currentMap = mapFragment ?: map
+      if (map !== currentMap) {
+        fragment.map = currentMap
+      }
+
+      val fragmentView = (mapFragment as? Fragment)?.view
+      if (mapFragment == null || fragmentView == null || fragmentView.parent != container) {
+        Timber.d("Attaching map fragment to container: $container")
+        try {
+          map.attachToParent(fragment, R.id.map) { fragment.onMapReadyPublic(it) }
+        } catch (e: Exception) {
+          Timber.e(e, "Failed to attach map fragment")
+        }
+      }
+    },
+  )
+}
+
+@Composable
+internal fun HomeScreenMapContainerContent(
+  map: MapFragment,
+  mapContainerViewModel: HomeScreenMapContainerViewModel,
+  bottomContainer: ViewGroup,
+  fragment: HomeScreenMapContainerFragment,
+) {
+  Box(modifier = Modifier.fillMaxSize()) {
+    MapFrame(map, fragment)
+
+    val locationLockButton by
+      mapContainerViewModel.locationLockIconType.collectAsStateWithLifecycle()
+    val jobMapComponentState by
+      mapContainerViewModel.jobMapComponentState.collectAsStateWithLifecycle()
+    val shouldShowMapActions by
+      mapContainerViewModel.shouldShowMapActions.collectAsStateWithLifecycle()
+    val shouldShowRecenter by
+      mapContainerViewModel.shouldShowRecenterButton.collectAsStateWithLifecycle()
+    val dataSharingTerms by mapContainerViewModel.dataSharingTerms.collectAsStateWithLifecycle()
+    val showMapTypeSelector by
+      mapContainerViewModel.showMapTypeSelector.collectAsStateWithLifecycle()
+
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    LaunchedEffect(Unit) {
+      lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        launch {
+          mapContainerViewModel.navigateToDataCollectionFragment.collect {
+            fragment.navigateToDataCollectionFragment(it)
+          }
+        }
+        launch {
+          mapContainerViewModel.termsError.collect {
+            fragment.ephemeralPopups.ErrorPopup().show(fragment.getString(it))
+          }
+        }
+      }
+    }
+
+    HomeScreenMapContainerScreen(
+      locationLockButtonType = locationLockButton,
+      shouldShowMapActions = shouldShowMapActions,
+      shouldShowRecenter = shouldShowRecenter,
+      jobComponentState = jobMapComponentState,
+      dataSharingTerms = dataSharingTerms,
+      showMapTypeSelector = showMapTypeSelector,
+      mapTypes = map.supportedMapTypes,
+      onBaseMapAction = { fragment.handleMapAction(it) },
+      onJobComponentAction = {
+        fragment.handleJobMapComponentAction(
+          jobMapComponentState = jobMapComponentState,
+          action = it,
+        )
+      },
+      onTermsConsentGiven = { mapContainerViewModel.onTermsConsentGiven() },
+      onTermsConsentDismissed = { mapContainerViewModel.onTermsConsentDismissed() },
+      onMapTypeSelectorDismiss = { mapContainerViewModel.showMapTypeSelector.value = false },
+    )
+
+    AndroidView(factory = { bottomContainer }, modifier = Modifier.fillMaxSize())
   }
 }

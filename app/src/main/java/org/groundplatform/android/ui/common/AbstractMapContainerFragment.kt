@@ -45,6 +45,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
+    (childFragmentManager.findFragmentById(R.id.map) as? MapFragment)?.let { map = it }
     map.attachToParent(this, R.id.map) { onMapAttached(it) }
 
     if (view is ViewGroup) {
@@ -189,12 +190,12 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
   /** Configuration to enable/disable base map features. */
   open fun getMapConfig() = DEFAULT_MAP_CONFIG
 
-  companion object {
-    private val DEFAULT_MAP_CONFIG: MapConfig = MapConfig(showOfflineImagery = true)
-  }
-
   override fun onDestroyView() {
     map.disableCurrentLocationIndicator()
     super.onDestroyView()
+  }
+
+  companion object {
+    private val DEFAULT_MAP_CONFIG: MapConfig = MapConfig(showOfflineImagery = true)
   }
 }

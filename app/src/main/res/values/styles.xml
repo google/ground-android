@@ -26,7 +26,7 @@
     <item name="android:windowSharedElementExitTransition">@android:transition/move</item>
     <item name="android:windowTranslucentStatus">true</item>
     <item name="android:windowTranslucentNavigation">true</item>
-    <item name="fontFamily">@font/text_500</item>
+    <item name="fontFamily">@font/manrope_medium</item>
     <item name="toolbarStyle">@style/Widget.App.Toolbar</item>
     <item name="toolbarNavigationButtonStyle">@style/Widget.App.Toolbar.Button.Navigation</item>
   </style>
@@ -89,12 +89,12 @@
 
 
   <style name="TextAppearance.App.TitleMedium" parent="TextAppearance.Material3.TitleMedium">
-    <item name="fontFamily">@font/text_700</item>
+    <item name="fontFamily">@font/manrope_bold</item>
     <item name="android:textColor">?attr/colorOnSurface</item>
   </style>
 
   <style name="TextAppearance.App.TitleLarge" parent="TextAppearance.Material3.TitleLarge">
-    <item name="fontFamily">@font/text_700</item>
+    <item name="fontFamily">@font/manrope_bold</item>
   </style>
 
   <style name="TextAppearance.App.TitleLarge.OnSurface">
@@ -102,11 +102,11 @@
   </style>
 
   <style name="TextAppearance.App.BodySmall" parent="TextAppearance.Material3.BodySmall">
-    <item name="fontFamily">@font/text_500</item>
+    <item name="fontFamily">@font/manrope_medium</item>
   </style>
 
   <style name="TextAppearance.App.BodyMedium" parent="TextAppearance.Material3.BodyMedium">
-    <item name="fontFamily">@font/text_500</item>
+    <item name="fontFamily">@font/manrope_medium</item>
     <item name="android:textColor">?attr/colorOnSurface</item>
   </style>
 
@@ -133,6 +133,6 @@
 
   <style name="TextAppearance.App.MapClusterLabel" parent="TextAppearance.Material3.LabelMedium">
     <item name="android:textColor">@color/blackOverlay</item>
-    <item name="android:fontFamily">@font/text_700</item>
+    <item name="android:fontFamily">@font/manrope_bold</item>
   </style>
 </resources>

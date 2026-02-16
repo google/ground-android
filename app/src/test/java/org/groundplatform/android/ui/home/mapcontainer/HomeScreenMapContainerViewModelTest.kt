@@ -24,15 +24,11 @@ import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.ADHOC_JOB
@@ -48,7 +44,6 @@ import org.groundplatform.android.model.map.Bounds
 import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.MapStateRepository
-import org.groundplatform.android.model.locationofinterest.LocationOfInterest
 import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
@@ -125,7 +120,8 @@ class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
       authenticationManager.setUser(USER)
       authenticationManager.signIn()
       userRepository.saveUserDetails(USER)
-      // Spy userRepository to prevent actual survey role checks if needed, but if sign-in works, it might be fine. 
+      // Spy userRepository to prevent actual survey role checks if needed, but if sign-in works, it
+      // might be fine.
       // Reverting spy for now to test if signIn() fixes it.
       // userRepository = org.mockito.Mockito.spy(userRepository)
       // org.mockito.kotlin.doReturn(true).whenever(userRepository).canUserSubmitData()
@@ -136,10 +132,12 @@ class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
       advanceUntilIdle()
       org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
       `when`(loiRepository.getWithinBounds(org.mockito.kotlin.any(), org.mockito.kotlin.any()))
-        .thenReturn(flow { 
-            emit(listOf(LOCATION_OF_INTEREST)) 
-            awaitCancellation() 
-        })
+        .thenReturn(
+          flow {
+            emit(listOf(LOCATION_OF_INTEREST))
+            awaitCancellation()
+          }
+        )
       viewModel.onMapCameraMoved(CAMERA_POSITION)
       advanceUntilIdle()
       org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
@@ -156,18 +154,16 @@ class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
 
   @Test
   fun `renders the job card when zoomed into LOI and clicked on`() = runWithTestDispatcher {
-    val job = launch {
-      viewModel.jobMapComponentState.collect()
-    }
+    val job = launch { viewModel.jobMapComponentState.collect() }
     viewModel.onFeatureClicked(features = setOf(LOCATION_OF_INTEREST_FEATURE))
     advanceUntilIdle()
-    
+
     val state = viewModel.jobMapComponentState.value
     assertThat(state.selectedLoi)
       .isEqualTo(SelectedLoiSheetData(canCollectData = true, LOCATION_OF_INTEREST, 0, true))
     assertThat(state.adHocDataCollectionButtonData)
       .isEqualTo(listOf(AdHocDataCollectionButtonData(canCollectData = true, ADHOC_JOB)))
-      
+
     job.cancel()
   }
 
