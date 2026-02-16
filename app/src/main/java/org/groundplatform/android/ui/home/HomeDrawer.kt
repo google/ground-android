@@ -133,23 +133,31 @@ private fun DrawerItems(
       ),
     )
 
-  navItems.forEach { item ->
-    NavigationDrawerItem(
-      label = { Text(item.label) },
-      selected = false,
-      onClick = item.onClick,
-      icon = {
-        val description = null
-        when (item.icon) {
-          is IconSource.Vector -> Icon(item.icon.imageVector, contentDescription = description)
-          is IconSource.Drawable ->
-            Icon(painterResource(item.icon.id), contentDescription = description)
-        }
-      },
-      modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
-    )
-  }
+  navItems.forEach { item -> DrawerNavigationItem(item) }
 
+  DrawerVersionFooter(versionText)
+}
+
+@Composable
+private fun DrawerNavigationItem(item: DrawerItem) {
+  NavigationDrawerItem(
+    label = { Text(item.label) },
+    selected = false,
+    onClick = item.onClick,
+    icon = {
+      val description = null
+      when (item.icon) {
+        is IconSource.Vector -> Icon(item.icon.imageVector, contentDescription = description)
+        is IconSource.Drawable ->
+          Icon(painterResource(item.icon.id), contentDescription = description)
+      }
+    },
+    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+  )
+}
+
+@Composable
+private fun DrawerVersionFooter(versionText: String) {
   Row(
     modifier =
       Modifier.fillMaxWidth()

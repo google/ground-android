@@ -23,7 +23,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.core.view.GravityCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -41,7 +40,6 @@ import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.common.BackPressListener
 import org.groundplatform.android.ui.common.EphemeralPopups
 import org.groundplatform.android.ui.components.ConfirmationDialog
-import org.groundplatform.android.ui.main.MainViewModel
 import org.groundplatform.android.util.setComposableContent
 
 /**
@@ -59,7 +57,6 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    getViewModel(MainViewModel::class.java).windowInsets.observe(this) { onApplyWindowInsets(it) }
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
   }
 
@@ -80,6 +77,12 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener {
     // Ensure nav drawer cannot be swiped out, which would conflict with map pan gestures.
     binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
 
+    setupComposeView(binding)
+    setupDrawerContent(binding)
+    restoreDraftSubmission(binding)
+  }
+
+  private fun setupComposeView(binding: HomeScreenFragBinding) {
     binding.composeView.setComposableContent {
       val showSignOutDialog =
         homeScreenViewModel.showSignOutDialog.collectAsStateWithLifecycle(false)
@@ -95,7 +98,9 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener {
         )
       }
     }
+  }
 
+  private fun setupDrawerContent(binding: HomeScreenFragBinding) {
     binding.drawerView.setComposableContent {
       val user by
         produceState<User?>(initialValue = null) { value = userRepository.getAuthenticatedUser() }
@@ -140,7 +145,9 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener {
         versionText = String.format(getString(R.string.build), BuildConfig.VERSION_NAME),
       )
     }
+  }
 
+  private fun restoreDraftSubmission(binding: HomeScreenFragBinding) {
     // Re-open data collection screen if draft submission is present.
     viewLifecycleOwner.lifecycleScope.launch {
       homeScreenViewModel.getDraftSubmission()?.let { draft ->
@@ -176,8 +183,6 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener {
   private fun closeDrawer() {
     binding.drawerLayout.closeDrawer(GravityCompat.START)
   }
-
-  private fun onApplyWindowInsets(insets: WindowInsetsCompat) {}
 
   override fun onBack(): Boolean = false
 }
