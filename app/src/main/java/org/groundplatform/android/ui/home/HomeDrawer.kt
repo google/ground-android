@@ -139,7 +139,7 @@ private fun DrawerItems(
       selected = false,
       onClick = item.onClick,
       icon = {
-        val description = item.label
+        val description = null
         when (item.icon) {
           is IconSource.Vector -> Icon(item.icon.imageVector, contentDescription = description)
           is IconSource.Drawable ->
