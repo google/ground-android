@@ -21,8 +21,11 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.groundplatform.android.data.sync.MediaUploadWorkManager
@@ -55,8 +58,8 @@ internal constructor(
   private val savedStateHandle: SavedStateHandle = SavedStateHandle()
   private val _openDrawerRequests: MutableSharedFlow<Unit> = MutableSharedFlow()
   val openDrawerRequestsFlow: SharedFlow<Unit> = _openDrawerRequests.asSharedFlow()
-  private val _showSignOutDialog: MutableSharedFlow<Boolean> = MutableSharedFlow()
-  val showSignOutDialog: SharedFlow<Boolean> = _showSignOutDialog.asSharedFlow()
+  private val _showSignOutDialog: MutableStateFlow<Boolean> = MutableStateFlow(false)
+  val showSignOutDialog: StateFlow<Boolean> = _showSignOutDialog.asStateFlow()
 
   // TODO: Allow tile source configuration from a non-survey accessible source.
   // Issue URL: https://github.com/google/ground-android/issues/1730
@@ -93,7 +96,7 @@ internal constructor(
     }
   }
 
-  /** Attempts to return draft submission for the currently active survey. */
+  /** Attempts to return draft submission for the currently active active survey. */
   suspend fun getDraftSubmission(): DraftSubmission? {
     val draftId = submissionRepository.getDraftSubmissionsId()
     val survey = surveyRepository.activeSurveyFlow.first()
@@ -126,6 +129,10 @@ internal constructor(
   }
 
   fun showSignOutDialog() {
-    viewModelScope.launch { _showSignOutDialog.emit(true) }
+    _showSignOutDialog.value = true
+  }
+
+  fun dismissSignOutDialog() {
+    _showSignOutDialog.value = false
   }
 }

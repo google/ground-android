@@ -44,6 +44,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -152,7 +153,15 @@ private fun DrawerNavigationItem(item: DrawerItem) {
           Icon(painterResource(item.icon.id), contentDescription = description)
       }
     },
-    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+    modifier =
+      Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+        .then(
+          if (item.label == stringResource(R.string.sign_out)) {
+            Modifier.testTag("SignOutButton")
+          } else {
+            Modifier
+          }
+        ),
   )
 }
 

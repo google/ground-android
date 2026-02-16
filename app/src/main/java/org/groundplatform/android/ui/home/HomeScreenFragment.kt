@@ -20,10 +20,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.core.view.GravityCompat
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -75,7 +75,7 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener {
     super.onViewCreated(view, savedInstanceState)
     val binding = binding
     // Ensure nav drawer cannot be swiped out, which would conflict with map pan gestures.
-    binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+    // binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
 
     setupComposeView(binding)
     setupDrawerContent(binding)
@@ -84,17 +84,18 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener {
 
   private fun setupComposeView(binding: HomeScreenFragBinding) {
     binding.composeView.setComposableContent {
-      val showSignOutDialog =
-        homeScreenViewModel.showSignOutDialog.collectAsStateWithLifecycle(false)
+      val showSignOutDialog = homeScreenViewModel.showSignOutDialog.collectAsState(false)
 
       LaunchedEffect(Unit) { homeScreenViewModel.openDrawerRequestsFlow.collect { openDrawer() } }
 
       if (showSignOutDialog.value) {
+
         ConfirmationDialog(
           title = R.string.sign_out_dialog_title,
           description = R.string.sign_out_dialog_body,
           confirmButtonText = R.string.sign_out,
           onConfirmClicked = { homeScreenViewModel.signOut() },
+          onDismiss = { homeScreenViewModel.dismissSignOutDialog() },
         )
       }
     }
