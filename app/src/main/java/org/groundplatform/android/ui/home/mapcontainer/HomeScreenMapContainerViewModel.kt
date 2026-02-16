@@ -15,17 +15,20 @@
  */
 package org.groundplatform.android.ui.home.mapcontainer
 
-import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -34,8 +37,9 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import org.groundplatform.android.R
 import org.groundplatform.android.common.Constants.CLUSTERING_ZOOM_THRESHOLD
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.model.Survey
@@ -60,6 +64,7 @@ import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentState
 import org.groundplatform.android.ui.home.mapcontainer.jobs.SelectedLoiSheetData
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.usecases.datasharingterms.GetDataSharingTermsUseCase
+import timber.log.Timber
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @SharedViewModel
@@ -113,7 +118,7 @@ internal constructor(
    * List of [LocationOfInterest] for the active survey that are present within the viewport and
    * zoom level is clustering threshold or higher.
    */
-  private val loisInViewport: StateFlow<List<LocationOfInterest>>
+  val loisInViewport: Flow<List<LocationOfInterest>>
 
   /** [Feature] clicked by the user. */
   val featureClicked: MutableStateFlow<Feature?> = MutableStateFlow(null)
@@ -133,6 +138,18 @@ internal constructor(
    */
   val jobMapComponentState: StateFlow<JobMapComponentState>
 
+  private val _dataSharingTerms = MutableStateFlow<DataSharingTerms?>(null)
+  val dataSharingTerms = _dataSharingTerms.asStateFlow()
+
+  private val _navigateToDataCollectionFragment =
+    MutableSharedFlow<DataCollectionEntryPointData>(extraBufferCapacity = 1)
+  val navigateToDataCollectionFragment = _navigateToDataCollectionFragment.asSharedFlow()
+
+  private val _termsError = MutableSharedFlow<Int>(extraBufferCapacity = 1)
+  val termsError = _termsError.asSharedFlow()
+
+  private var pendingDataCollectionEntryPointData: DataCollectionEntryPointData? = null
+
   init {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
 
@@ -150,7 +167,10 @@ internal constructor(
       }
 
     isZoomedInFlow =
-      getCurrentCameraPosition().mapNotNull { it.zoomLevel }.map { it >= CLUSTERING_ZOOM_THRESHOLD }
+      getCurrentCameraPosition()
+        .map { it.zoomLevel }
+        .filterNotNull()
+        .map { it >= CLUSTERING_ZOOM_THRESHOLD }
 
     loisInViewport =
       activeSurvey
@@ -195,15 +215,66 @@ internal constructor(
 
   fun getDataSharingTerms(): Result<DataSharingTerms?> = getDataSharingTermsUseCase()
 
+  fun queueDataCollection(data: DataCollectionEntryPointData) {
+    if (!data.canCollectData) {
+      // TODO: Handle view-only mode or error if needed, though this check might belong in UI or use
+      // case.
+      // For now, mirroring fragment logic if acceptable, or just proceed to check terms.
+      return
+    }
+
+    // If tasks are invalid, UI usually handles it, but we can verify here if needed.
+    // For now, assuming data is valid enough to check terms.
+
+    getDataSharingTermsUseCase()
+      .onSuccess { terms ->
+        if (terms == null) {
+          viewModelScope.launch { _navigateToDataCollectionFragment.emit(data) }
+        } else {
+          pendingDataCollectionEntryPointData = data
+          _dataSharingTerms.value = terms
+          Timber.d("pendingData set to $data")
+        }
+      }
+      .onFailure {
+        Timber.e(it, "Failed to get data sharing terms")
+        if (it is GetDataSharingTermsUseCase.InvalidCustomSharingTermsException) {
+          viewModelScope.launch { _termsError.emit(R.string.invalid_data_sharing_terms) }
+        }
+      }
+  }
+
+  fun onTermsConsentGiven() {
+    val data = pendingDataCollectionEntryPointData
+    if (_dataSharingTerms.value == null) {
+      return
+    }
+    Timber.d("onTermsConsentGiven data=$data")
+    if (data != null) {
+      viewModelScope.launch {
+        Timber.d("Emitting navigation")
+        _navigateToDataCollectionFragment.emit(data)
+      }
+    }
+    _dataSharingTerms.value = null
+    pendingDataCollectionEntryPointData = null
+    grantDataSharingConsent()
+  }
+
+  fun onTermsConsentDismissed() {
+    _dataSharingTerms.value = null
+    pendingDataCollectionEntryPointData = null
+  }
+
   /**
    * Returns a flow of [DataCollectionEntryPointData] associated with the active survey's LOIs and
    * adhoc jobs for displaying the cards.
    */
-  @VisibleForTesting
   fun processDataCollectionEntryPoints():
     Flow<Pair<SelectedLoiSheetData?, List<AdHocDataCollectionButtonData>>> =
     combine(loisInViewport, featureClicked, adHocLoiJobs) { loisInView, feature, jobs ->
       val canUserSubmitData = userRepository.canUserSubmitData()
+
       val loiCard =
         loisInView
           .firstOrNull { it.geometry == feature?.geometry }
@@ -220,9 +291,9 @@ internal constructor(
         // The feature is not in view anymore.
         featureClicked.value = null
       }
-      val jobCard =
+      val jobCards =
         jobs.map { AdHocDataCollectionButtonData(canCollectData = canUserSubmitData, job = it) }
-      Pair(loiCard, jobCard)
+      Pair(loiCard, jobCards)
     }
 
   private fun updatedLoiSelectedStates(
