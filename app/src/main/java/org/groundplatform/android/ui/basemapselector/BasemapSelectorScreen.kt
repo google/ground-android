@@ -71,7 +71,7 @@ fun BasemapSelectorScreen(
 ) {
   val currentMapType by viewModel.currentMapType.collectAsStateWithLifecycle()
   val isOfflineImageryEnabled by viewModel.isOfflineImageryEnabled.collectAsStateWithLifecycle()
-  val sheetState = rememberModalBottomSheetState()
+  val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
   val scope = rememberCoroutineScope()
 
   fun onMapTypeSelected(mapType: MapType) {

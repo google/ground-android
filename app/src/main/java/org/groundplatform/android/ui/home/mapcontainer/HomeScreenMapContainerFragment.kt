@@ -20,19 +20,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import org.groundplatform.android.R
-import org.groundplatform.android.databinding.BasemapLayoutBinding
 import org.groundplatform.android.model.locationofinterest.LOI_NAME_PROPERTY
-import org.groundplatform.android.proto.Survey.DataSharingTerms
 import org.groundplatform.android.ui.common.AbstractMapContainerFragment
 import org.groundplatform.android.ui.common.BaseMapViewModel
 import org.groundplatform.android.ui.common.EphemeralPopups
-import org.groundplatform.android.ui.home.DataSharingTermsDialog
 import org.groundplatform.android.ui.home.HomeScreenFragmentDirections
 import org.groundplatform.android.ui.home.HomeScreenViewModel
 import org.groundplatform.android.ui.home.mapcontainer.jobs.AdHocDataCollectionButtonData
@@ -41,9 +38,7 @@ import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentActio
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentState
 import org.groundplatform.android.ui.home.mapcontainer.jobs.SelectedLoiSheetData
 import org.groundplatform.android.ui.map.MapFragment
-import org.groundplatform.android.usecases.datasharingterms.GetDataSharingTermsUseCase
-import org.groundplatform.android.util.renderComposableDialog
-import org.groundplatform.android.util.setComposableContent
+import org.groundplatform.android.ui.theme.AppTheme
 import timber.log.Timber
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
@@ -54,7 +49,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
   private lateinit var homeScreenViewModel: HomeScreenViewModel
-  private lateinit var binding: BasemapLayoutBinding
+  private lateinit var bottomContainer: ViewGroup
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -71,18 +66,6 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       is AdHocDataCollectionButtonData -> cardUiData.job.tasks.values.isNotEmpty()
     }
 
-  private fun showDataSharingTermsDialog(
-    cardUiData: DataCollectionEntryPointData,
-    dataSharingTerms: DataSharingTerms,
-  ) {
-    renderComposableDialog {
-      DataSharingTermsDialog(dataSharingTerms) {
-        mapContainerViewModel.grantDataSharingConsent()
-        navigateToDataCollectionFragment(cardUiData)
-      }
-    }
-  }
-
   /** Invoked when user clicks on the map cards to collect data. */
   private fun onCollectData(cardUiData: DataCollectionEntryPointData) {
     if (!cardUiData.canCollectData) {
@@ -98,28 +81,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       return
     }
 
-    mapContainerViewModel
-      .getDataSharingTerms()
-      .onSuccess { terms ->
-        if (terms == null) {
-          // Data sharing terms already accepted or missing.
-          navigateToDataCollectionFragment(cardUiData)
-        } else {
-          showDataSharingTermsDialog(cardUiData, terms)
-        }
-      }
-      .onFailure {
-        Timber.e(it, "Failed to get data sharing terms")
-        ephemeralPopups
-          .ErrorPopup()
-          .show(
-            if (it is GetDataSharingTermsUseCase.InvalidCustomSharingTermsException) {
-              R.string.invalid_data_sharing_terms
-            } else {
-              R.string.something_went_wrong
-            }
-          )
-      }
+    mapContainerViewModel.queueDataCollection(cardUiData)
   }
 
   /** Invoked when user clicks delete on a site. */
@@ -133,38 +95,33 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     savedInstanceState: Bundle?,
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
-    binding = BasemapLayoutBinding.inflate(inflater, container, false)
-    return binding.root
+    bottomContainer =
+      androidx.coordinatorlayout.widget.CoordinatorLayout(requireContext()).apply {
+        id = R.id.bottom_container
+      }
+
+    return createComposeView()
   }
 
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
-    binding.composeContent.apply {
+  private fun createComposeView(): View =
+    ComposeView(requireContext()).apply {
       setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-      setComposableContent {
-        val locationLockButton by
-          mapContainerViewModel.locationLockIconType.collectAsStateWithLifecycle()
-        val jobMapComponentState by
-          mapContainerViewModel.jobMapComponentState.collectAsStateWithLifecycle()
-        val shouldShowMapActions by
-          mapContainerViewModel.shouldShowMapActions.collectAsStateWithLifecycle()
-        val shouldShowRecenter by
-          mapContainerViewModel.shouldShowRecenterButton.collectAsStateWithLifecycle()
-
-        HomeScreenMapContainerScreen(
-          locationLockButtonType = locationLockButton,
-          shouldShowMapActions = shouldShowMapActions,
-          shouldShowRecenter = shouldShowRecenter,
-          jobComponentState = jobMapComponentState,
-          onBaseMapAction = { handleMapAction(it) },
-          onJobComponentAction = {
-            handleJobMapComponentAction(jobMapComponentState = jobMapComponentState, action = it)
-          },
-        )
+      setContent {
+        AppTheme {
+          HomeScreenMapContainerContent(
+            map = map,
+            mapContainerViewModel = mapContainerViewModel,
+            bottomContainer = bottomContainer,
+            fragment = this@HomeScreenMapContainerFragment,
+          )
+        }
       }
     }
 
-    binding.bottomContainer.bringToFront()
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    // super.onViewCreated(view, savedInstanceState)
+
+    bottomContainer.bringToFront()
     showDataCollectionHint()
 
     // LOIs associated with the survey have been synced to the local db by this point. We can
@@ -172,7 +129,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     launchWhenStarted { mapContainerViewModel.maybeEnableLocationLock() }
   }
 
-  private fun handleMapAction(action: BaseMapAction) {
+  internal fun handleMapAction(action: BaseMapAction) {
     when (action) {
       BaseMapAction.OnLocationLockClicked -> mapContainerViewModel.onLocationLockClick()
       BaseMapAction.OnMapTypeClicked -> showMapTypeSelectorDialog()
@@ -180,7 +137,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     }
   }
 
-  private fun handleJobMapComponentAction(
+  internal fun handleJobMapComponentAction(
     jobMapComponentState: JobMapComponentState,
     action: JobMapComponentAction,
   ) {
@@ -208,9 +165,9 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     if (!this::mapContainerViewModel.isInitialized) {
       return Timber.w("showDataCollectionHint() called before mapContainerViewModel initialized")
     }
-    if (!this::binding.isInitialized) {
-      return Timber.w("showDataCollectionHint() called before binding initialized")
-    }
+
+    // binding check no longer valid.
+    // composeView and bottomContainer are initialized in onCreateView.
 
     // Decides which survey-related popup to show based on the current survey.
     mapContainerViewModel.surveyUpdateFlow.launchWhenStartedAndCollectFirst { surveyProperties ->
@@ -225,13 +182,18 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       null
     }
 
+  // ... showInfoPopup ...
   private fun showInfoPopup(messageId: Int) {
-    ephemeralPopups
-      .InfoPopup(binding.bottomContainer, messageId, EphemeralPopups.PopupDuration.LONG)
-      .show()
+    ephemeralPopups.InfoPopup(bottomContainer, messageId, EphemeralPopups.PopupDuration.LONG).show()
   }
 
-  private fun navigateToDataCollectionFragment(cardUiData: DataCollectionEntryPointData) {
+  internal fun navigateToDataCollectionFragment(cardUiData: DataCollectionEntryPointData) {
+    if (findNavController().currentDestination?.id != R.id.home_screen_fragment) {
+      Timber.w(
+        "Refusing to navigate to data collection from ${findNavController().currentDestination?.label}"
+      )
+      return
+    }
     when (cardUiData) {
       is SelectedLoiSheetData ->
         findNavController()
@@ -260,8 +222,22 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     }
   }
 
+  fun onMapReadyPublic(map: MapFragment) {
+    onMapAttached(map)
+  }
+
   override fun onMapReady(map: MapFragment) {
     mapContainerViewModel.mapLoiFeatures.launchWhenStartedAndCollect { map.setFeatures(it) }
+  }
+
+  override fun onDestroyView() {
+    // Remove the map fragment to prevent a crash during restoration (No view found for id).
+    // The fragment will be re-added by Compose when the view is recreated.
+    val mapFragment = childFragmentManager.findFragmentById(R.id.map)
+    if (mapFragment != null) {
+      childFragmentManager.beginTransaction().remove(mapFragment).commitNowAllowingStateLoss()
+    }
+    super.onDestroyView()
   }
 
   override fun getMapViewModel(): BaseMapViewModel = mapContainerViewModel

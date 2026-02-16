@@ -95,7 +95,7 @@ private fun AddLoiButton(onClick: () -> Unit) {
       modifier =
         Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom))
           .align(Alignment.BottomCenter)
-          .padding(bottom = 36.dp),
+          .padding(bottom = 16.dp),
       icon = Icons.Filled.Add,
       contentDescription = stringResource(id = R.string.add_site),
       onClick = onClick,

@@ -108,4 +108,7 @@ interface MapFragment {
 
   /** Removes all markers, overlays, polylines and polygons from the map. */
   fun clear()
+
+  /** Disables the current location indicator. */
+  fun disableCurrentLocationIndicator()
 }
