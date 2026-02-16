@@ -55,6 +55,8 @@ internal constructor(
   private val savedStateHandle: SavedStateHandle = SavedStateHandle()
   private val _openDrawerRequests: MutableSharedFlow<Unit> = MutableSharedFlow()
   val openDrawerRequestsFlow: SharedFlow<Unit> = _openDrawerRequests.asSharedFlow()
+  private val _showSignOutDialog: MutableSharedFlow<Boolean> = MutableSharedFlow()
+  val showSignOutDialog: SharedFlow<Boolean> = _showSignOutDialog.asSharedFlow()
 
   // TODO: Allow tile source configuration from a non-survey accessible source.
   // Issue URL: https://github.com/google/ground-android/issues/1730
@@ -121,5 +123,9 @@ internal constructor(
 
   fun signOut() {
     viewModelScope.launch { userRepository.signOut() }
+  }
+
+  fun showSignOutDialog() {
+    viewModelScope.launch { _showSignOutDialog.emit(true) }
   }
 }
