@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -70,6 +71,7 @@ fun HomeDrawer(
     modifier =
       Modifier.fillMaxWidth()
         .background(MaterialTheme.colorScheme.surface)
+        .systemBarsPadding()
         .verticalScroll(rememberScrollState())
   ) {
     AppInfoHeader(user = user)
