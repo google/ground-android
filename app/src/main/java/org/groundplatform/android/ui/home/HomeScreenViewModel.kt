@@ -60,6 +60,9 @@ internal constructor(
   // Issue URL: https://github.com/google/ground-android/issues/1730
   val showOfflineAreaMenuItem: LiveData<Boolean> = MutableLiveData(true)
 
+  private val _showSignOutDialog = MutableSharedFlow<Boolean>()
+  val showSignOutDialog: SharedFlow<Boolean> = _showSignOutDialog.asSharedFlow()
+
   /* Indicates the application is being restored after a photo capture.
    *
    * We need to persist this state here to control [HomeScreenFragement] UI treatments when returning
@@ -118,6 +121,10 @@ internal constructor(
   }
 
   suspend fun getOfflineAreas() = offlineAreaRepository.offlineAreas().first()
+
+  fun showSignOutDialog() {
+    viewModelScope.launch { _showSignOutDialog.emit(true) }
+  }
 
   fun signOut() {
     viewModelScope.launch { userRepository.signOut() }
