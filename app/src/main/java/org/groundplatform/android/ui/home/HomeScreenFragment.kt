@@ -17,17 +17,17 @@ package org.groundplatform.android.ui.home
 
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.core.view.GravityCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.google.android.material.imageview.ShapeableImageView
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.launch
@@ -40,14 +40,9 @@ import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.common.BackPressListener
 import org.groundplatform.android.ui.common.EphemeralPopups
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.produceState
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.groundplatform.android.ui.components.ConfirmationDialog
 import org.groundplatform.android.ui.main.MainViewModel
 import org.groundplatform.android.util.setComposableContent
-import org.groundplatform.android.util.systemInsets
 
 /**
  * Fragment containing the map container and location of interest sheet fragments and NavigationView
@@ -86,11 +81,10 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener {
     binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
 
     binding.composeView.setComposableContent {
-      val showSignOutDialog = homeScreenViewModel.showSignOutDialog.collectAsStateWithLifecycle(false)
+      val showSignOutDialog =
+        homeScreenViewModel.showSignOutDialog.collectAsStateWithLifecycle(false)
 
-       LaunchedEffect(Unit) {
-         homeScreenViewModel.openDrawerRequestsFlow.collect { openDrawer() }
-       }
+      LaunchedEffect(Unit) { homeScreenViewModel.openDrawerRequestsFlow.collect { openDrawer() } }
 
       if (showSignOutDialog.value) {
         ConfirmationDialog(
@@ -103,10 +97,10 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener {
     }
 
     binding.drawerView.setComposableContent {
-      val user by produceState<User?>(initialValue = null) {
-        value = userRepository.getAuthenticatedUser()
-      }
-      val survey by homeScreenViewModel.surveyRepository.activeSurveyFlow.collectAsStateWithLifecycle()
+      val user by
+        produceState<User?>(initialValue = null) { value = userRepository.getAuthenticatedUser() }
+      val survey by
+        homeScreenViewModel.surveyRepository.activeSurveyFlow.collectAsStateWithLifecycle()
 
       HomeDrawer(
         user = user,
