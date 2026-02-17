@@ -19,7 +19,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
-import androidx.lifecycle.asFlow
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -35,7 +34,6 @@ import org.groundplatform.android.ui.datacollection.components.TaskView
 import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment.Companion.TASK_ID_FRAGMENT_ARG_KEY
-import org.groundplatform.android.ui.datacollection.tasks.launchWhenTaskVisible
 import org.groundplatform.android.util.renderComposableDialog
 
 @AndroidEntryPoint
@@ -68,8 +66,6 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
       )
       .commit()
 
-    setupObservables()
-
     return rootView.root
   }
 
@@ -80,34 +76,24 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
       .launchIn(viewLifecycleOwner.lifecycleScope)
   }
 
-  private fun setupObservables() {
-    launchWhenTaskVisible(dataCollectionViewModel, taskId) {
-      launch {
-        if (!viewModel.instructionsDialogShown) {
-          showInstructionsDialog()
-        }
-      }
-      launch {
-        viewModel.polygonArea.asFlow().collect { area ->
-          Toast.makeText(
-              requireContext(),
-              getString(R.string.area_message, area),
-              Toast.LENGTH_LONG,
-            )
-            .show()
-        }
-      }
-      launch {
-        viewModel.showSelfIntersectionDialog.collect {
-          renderComposableDialog {
-            ConfirmationDialog(
-              title = R.string.polygon_vertex_add_dialog_title,
-              description = R.string.polygon_vertex_add_dialog_message,
-              confirmButtonText = R.string.polygon_vertex_add_dialog_positive_button,
-              dismissButtonText = null,
-              onConfirmClicked = {},
-            )
-          }
+  override fun onTaskResume() {
+    if (isVisible && !viewModel.instructionsDialogShown) {
+      showInstructionsDialog()
+    }
+    viewModel.polygonArea.observe(viewLifecycleOwner) { area ->
+      Toast.makeText(requireContext(), getString(R.string.area_message, area), Toast.LENGTH_LONG)
+        .show()
+    }
+    viewLifecycleOwner.lifecycleScope.launch {
+      viewModel.showSelfIntersectionDialog.collect {
+        renderComposableDialog {
+          ConfirmationDialog(
+            title = R.string.polygon_vertex_add_dialog_title,
+            description = R.string.polygon_vertex_add_dialog_message,
+            confirmButtonText = R.string.polygon_vertex_add_dialog_positive_button,
+            dismissButtonText = null,
+            onConfirmClicked = {},
+          )
         }
       }
     }

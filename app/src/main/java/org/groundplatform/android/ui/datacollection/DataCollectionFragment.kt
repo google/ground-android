@@ -174,6 +174,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   private fun onTaskSubmitted() {
     // Hide close button
     binding.dataCollectionToolbar.navigationIcon = null
+    viewPager.adapter = null
 
     // Display a confirmation dialog and move to home screen after that.
     renderComposableDialog {
