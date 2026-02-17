@@ -17,12 +17,17 @@ package org.groundplatform.android.ui.home
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.printToLog
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
@@ -168,14 +173,14 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
   }
 
   @Test
-  @Ignore("Flaky in Robolectric - Click on NavigationDrawerItem not registering reliably")
+//  @Ignore("Flaky in Robolectric - Click on NavigationDrawerItem not registering reliably")
   fun `sign out dialog is displayed`() = runWithTestDispatcher {
     openDrawer(composeTestRule)
     composeTestRule.waitForIdle()
 
     // Click "Sign out" menu item
-    composeTestRule.onRoot().printToLog("FinalHierarchy")
-    composeTestRule.onNodeWithTag("SignOutButton").performClick()
+    onView(withId(R.id.drawer_layout)).perform(swipeUp())
+    composeTestRule.onNodeWithTag(fragment.getString(R.string.sign_out)).performTouchInput { click() }
     composeTestRule.waitForIdle()
 
     composeTestRule
@@ -185,14 +190,14 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
       .onNodeWithText(fragment.getString(R.string.sign_out_dialog_body))
       .assertIsDisplayed()
     composeTestRule.onNodeWithText(fragment.getString(R.string.cancel)).assertIsDisplayed()
-    composeTestRule.onNodeWithText(fragment.getString(R.string.sign_out)).assertIsDisplayed()
+    composeTestRule.onNode(hasText(fragment.getString(R.string.sign_out)) and hasAnyAncestor(isDialog())).assertIsDisplayed()
 
-    composeTestRule.onNodeWithText(fragment.getString(R.string.cancel)).performClick()
+    composeTestRule.onNodeWithText(fragment.getString(R.string.cancel)).performTouchInput { click() }
     composeTestRule.onNodeWithText(fragment.getString(R.string.cancel)).assertIsNotDisplayed()
 
     openSignOutWarningDialog()
-    composeTestRule.onNodeWithText(fragment.getString(R.string.sign_out)).performClick()
-    composeTestRule.onNodeWithText(fragment.getString(R.string.sign_out)).assertIsNotDisplayed()
+    composeTestRule.onNode(hasText(fragment.getString(R.string.sign_out)) and hasAnyAncestor(isDialog())).performTouchInput { click() }
+    composeTestRule.onNode(hasText(fragment.getString(R.string.sign_out)) and hasAnyAncestor(isDialog())).assertIsNotDisplayed()
   }
 
   @Test
@@ -211,7 +216,7 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
     // But `openSignOutDialog` was calling `openDrawer`? No, `sign out dialog is displayed` called
     // `openDrawer` at start.
     // So we just need to click "Sign out" again.
-    composeTestRule.onNodeWithText(fragment.getString(R.string.sign_out)).performClick()
+    composeTestRule.onNodeWithTag(fragment.getString(R.string.sign_out)).performTouchInput { click() }
   }
 }
 
@@ -239,7 +244,8 @@ class NavigationDrawerItemClickTest(
 
     onView(withId(R.id.drawer_layout)).perform(swipeUp())
 
-    composeTestRule.onNodeWithText(menuItemLabel).performClick()
+    composeTestRule.onNodeWithTag(menuItemLabel).performTouchInput { click() }
+    composeTestRule.waitForIdle()
 
     if (expectedNavDirection != null) {
       assertThat(navController.currentDestination?.id).isEqualTo(expectedNavDirection)

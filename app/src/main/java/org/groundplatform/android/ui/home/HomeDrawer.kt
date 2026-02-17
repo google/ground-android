@@ -153,15 +153,8 @@ private fun DrawerNavigationItem(item: DrawerItem) {
           Icon(painterResource(item.icon.id), contentDescription = description)
       }
     },
-    modifier =
-      Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-        .then(
-          if (item.label == stringResource(R.string.sign_out)) {
-            Modifier.testTag("SignOutButton")
-          } else {
-            Modifier
-          }
-        ),
+      modifier =
+        Modifier.padding(NavigationDrawerItemDefaults.ItemPadding).testTag(item.label),
   )
 }
 
