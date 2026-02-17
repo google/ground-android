@@ -16,9 +16,7 @@
 package org.groundplatform.android.ui.datacollection.tasks.location
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import org.groundplatform.android.ui.common.MapConfig
@@ -30,17 +28,11 @@ import org.groundplatform.android.ui.map.MapFragment
 class CaptureLocationTaskMapFragment @Inject constructor() :
   AbstractTaskMapFragment<CaptureLocationTaskViewModel>() {
 
-  override fun onCreateView(
-    inflater: LayoutInflater,
-    container: ViewGroup?,
-    savedInstanceState: Bundle?,
-  ): View {
-    val root = super.onCreateView(inflater, container, savedInstanceState)
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
     launchWhenTaskVisible(dataCollectionViewModel, taskId) {
       getMapViewModel().getLocationUpdates().collect { taskViewModel.updateLocation(it) }
     }
-
-    return root
   }
 
   override fun getMapConfig(): MapConfig = super.getMapConfig().copy(allowGestures = false)
