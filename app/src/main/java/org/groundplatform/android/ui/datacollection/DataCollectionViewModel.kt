@@ -362,7 +362,7 @@ internal constructor(
     }
   }
 
-  fun currentActiveTaskFlow(taskId: String): Flow<Boolean> =
+  fun isCurrentActiveTaskFlow(taskId: String): Flow<Boolean> =
     uiState
       .map { (it as? DataCollectionUiState.Ready)?.currentTaskId == taskId }
       .distinctUntilChanged()

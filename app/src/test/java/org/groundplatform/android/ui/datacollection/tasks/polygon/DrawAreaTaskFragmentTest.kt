@@ -233,6 +233,13 @@ class DrawAreaTaskFragmentTest :
     assertThat(ShadowDialog.getLatestDialog()).isNull()
   }
 
+  @Test
+  fun `Instructions dialog is not shown when task is not visible`() = runWithTestDispatcher {
+    setupTaskFragment<DrawAreaTaskFragment>(job, task, isTaskActive = false)
+
+    assertThat(ShadowDialog.getLatestDialog()).isNull()
+  }
+
   /** Overwrites the last vertex and also adds a new one. */
   private fun updateLastVertexAndAddPoint(coordinate: Coordinates) {
     updateLastVertex(coordinate, false)

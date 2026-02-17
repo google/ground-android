@@ -28,6 +28,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.flow.flowOf
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.R
 import org.groundplatform.android.launchFragmentWithNavController
@@ -99,6 +100,7 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
     task: Task,
     isFistPosition: Boolean = false,
     isLastPosition: Boolean = false,
+    isTaskActive: Boolean = true,
   ) {
     viewModel = viewModelFactory.create(DataCollectionViewModel.getViewModelClass(task.type)) as VM
     viewModel.initialize(
@@ -113,6 +115,8 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
         },
     )
     whenever(dataCollectionViewModel.getTaskViewModel(task.id)).thenReturn(viewModel)
+    whenever(dataCollectionViewModel.isCurrentActiveTaskFlow(task.id))
+      .thenReturn(flowOf(isTaskActive))
 
     launchFragmentWithNavController<T>(
       destId = R.id.data_collection_fragment,

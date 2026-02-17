@@ -37,7 +37,7 @@ internal fun Fragment.launchWhenTaskVisible(
 ) {
   viewLifecycleOwner.lifecycleScope.launch {
     repeatOnLifecycle(Lifecycle.State.STARTED) {
-      viewModel.currentActiveTaskFlow(taskId).collectLatest { isActive ->
+      viewModel.isCurrentActiveTaskFlow(taskId).collectLatest { isActive ->
         if (isActive) {
           coroutineScope { block() }
         }
