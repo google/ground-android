@@ -16,6 +16,7 @@
 package org.groundplatform.android.ui.datacollection.components
 
 import android.net.Uri
+import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -32,7 +33,7 @@ import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.theme.AppTheme
 
-const val MAX_IMAGE_SIZE = 2048
+@VisibleForTesting const val MAX_IMAGE_SIZE = 2048
 
 @Composable
 fun UriImage(uri: Uri?, modifier: Modifier = Modifier) {
