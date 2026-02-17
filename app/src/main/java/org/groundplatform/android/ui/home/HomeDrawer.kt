@@ -153,8 +153,7 @@ private fun DrawerNavigationItem(item: DrawerItem) {
           Icon(painterResource(item.icon.id), contentDescription = description)
       }
     },
-      modifier =
-        Modifier.padding(NavigationDrawerItemDefaults.ItemPadding).testTag(item.label),
+    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding).testTag(item.label),
   )
 }
 
