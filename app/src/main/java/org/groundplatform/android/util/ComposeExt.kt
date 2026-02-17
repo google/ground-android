@@ -20,6 +20,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
 import org.groundplatform.android.ui.theme.AppTheme
 
@@ -49,7 +50,10 @@ fun Activity.renderComposableDialog(composable: @Composable () -> Unit) =
  * @return A [View] instance of [ComposeView] configured to display the provided composable.
  */
 fun Fragment.createComposeView(composable: @Composable () -> Unit): View =
-  ComposeView(requireContext()).apply { setComposableContent { composable() } }
+  ComposeView(requireContext()).apply {
+    setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+    setComposableContent { composable() }
+  }
 
 /**
  * Creates a [ComposeView] within an [Activity] that hosts the provided composable function.
@@ -58,7 +62,10 @@ fun Fragment.createComposeView(composable: @Composable () -> Unit): View =
  * @return A [View] instance of [ComposeView] configured to display the provided composable.
  */
 fun Activity.createComposeView(composable: @Composable () -> Unit): View =
-  ComposeView(this).apply { setComposableContent { composable() } }
+  ComposeView(this).apply {
+    setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+    setComposableContent { composable() }
+  }
 
 /**
  * Sets the content of a [ComposeView] to the provided composable function wrapped in [AppTheme].
