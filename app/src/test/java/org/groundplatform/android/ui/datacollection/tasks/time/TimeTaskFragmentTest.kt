@@ -15,23 +15,21 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.time
 
-import android.view.View
-import android.view.ViewGroup
-import android.widget.LinearLayout
+import android.content.Context
+import android.text.format.DateFormat
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.isDisplayed
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.isEnabled
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.compose.ui.test.performClick
+import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
+import java.text.SimpleDateFormat
 import javax.inject.Inject
-import org.groundplatform.android.R
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.common.ViewModelFactory
@@ -69,10 +67,11 @@ class TimeTaskFragmentTest : BaseTaskFragmentTest<TimeTaskFragment, TimeTaskView
   fun `response when default is empty`() {
     setupTaskFragment<TimeTaskFragment>(job, task)
 
-    onView(withId(R.id.user_time_response_text))
-      .check(matches(withText("")))
-      .check(matches(isDisplayed()))
-      .check(matches(isEnabled()))
+    composeTestRule
+      .onNodeWithTag(TIME_TEXT_TEST_TAG)
+      .assertIsDisplayed()
+      .assertIsEnabled()
+      .assertTextContains(getExpectedTimeHint())
 
     runner().assertButtonIsDisabled("Next")
   }
@@ -80,17 +79,12 @@ class TimeTaskFragmentTest : BaseTaskFragmentTest<TimeTaskFragment, TimeTaskView
   @Test
   fun `response when on user input`() {
     setupTaskFragment<TimeTaskFragment>(job, task)
-    // NOTE: The task container layout is given 0dp height to allow Android's constraint system to
-    // determine the appropriate height. Unfortunately, Espresso does not perform actions on views
-    // with height zero, and it doesn't seem to repro constraint calculations. Force the view to
-    // have a height of 1 to ensure the action performed below actually takes place.
-    val view: View? = fragment.view?.findViewById(R.id.task_container)
-    view?.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1)
 
     assertThat(fragment.getTimePickerDialog()).isNull()
     runner().assertButtonIsDisabled("Next")
 
-    onView(withId(R.id.user_time_response_text)).perform(click())
+    composeTestRule.onNodeWithTag(TIME_TEXT_TEST_TAG).performClick()
+
     assertThat(fragment.getTimePickerDialog()!!.isShowing).isTrue()
   }
 
@@ -120,6 +114,19 @@ class TimeTaskFragmentTest : BaseTaskFragmentTest<TimeTaskFragment, TimeTaskView
   fun `hint text is visible`() {
     setupTaskFragment<TimeTaskFragment>(job, task)
 
-    composeTestRule.onNodeWithText("H:MM A").isDisplayed()
+    composeTestRule.onNodeWithText(getExpectedTimeHint()).isDisplayed()
+  }
+
+  private fun getExpectedTimeHint(): String {
+    val context = ApplicationProvider.getApplicationContext<Context>()
+    val timeFormat = DateFormat.getTimeFormat(context)
+    val hint =
+      if (timeFormat is SimpleDateFormat) {
+        timeFormat.toPattern().uppercase()
+      } else {
+        "HH:MM AM/PM"
+      }
+    assertThat(hint).isNotEmpty()
+    return hint
   }
 }
