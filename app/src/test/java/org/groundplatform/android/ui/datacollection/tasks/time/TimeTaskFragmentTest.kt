@@ -17,9 +17,6 @@ package org.groundplatform.android.ui.datacollection.tasks.time
 
 import android.content.Context
 import android.text.format.DateFormat
-import android.view.View
-import android.view.ViewGroup
-import android.widget.LinearLayout
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertTextContains
@@ -33,7 +30,6 @@ import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import java.text.SimpleDateFormat
 import javax.inject.Inject
-import org.groundplatform.android.R
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.common.ViewModelFactory
