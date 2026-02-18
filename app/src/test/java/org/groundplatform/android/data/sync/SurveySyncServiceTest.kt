@@ -58,25 +58,24 @@ class SurveySyncServiceTest : BaseHiltTest() {
   private lateinit var workManager: WorkManager
   private lateinit var testDriver: TestDriver
 
+  override fun workManagerConfig(): Configuration =
+    Configuration.Builder()
+      .setMinimumLoggingLevel(Log.VERBOSE)
+      .setExecutor(SynchronousExecutor())
+      .setWorkerFactory(
+        object : WorkerFactory() {
+          override fun createWorker(
+            appContext: Context,
+            workerClassName: String,
+            workerParameters: WorkerParameters,
+          ) = SurveySyncWorker(context, workerParameters, syncSurvey, ioDispatcher)
+        }
+      )
+      .build()
+
   @Before
   override fun setUp() {
     super.setUp()
-
-    val config =
-      Configuration.Builder()
-        .setMinimumLoggingLevel(Log.VERBOSE)
-        .setExecutor(SynchronousExecutor())
-        .setWorkerFactory(
-          object : WorkerFactory() {
-            override fun createWorker(
-              appContext: Context,
-              workerClassName: String,
-              workerParameters: WorkerParameters,
-            ) = SurveySyncWorker(context, workerParameters, syncSurvey, ioDispatcher)
-          }
-        )
-        .build()
-    WorkManagerTestInitHelper.initializeTestWorkManager(context, config)
     workManager = WorkManager.getInstance(context)
     testDriver = WorkManagerTestInitHelper.getTestDriver(context)!!
   }

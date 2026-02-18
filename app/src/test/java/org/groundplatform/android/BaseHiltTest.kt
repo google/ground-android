@@ -17,6 +17,9 @@ package org.groundplatform.android
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.test.core.app.ApplicationProvider
+import androidx.work.Configuration
+import androidx.work.testing.WorkManagerTestInitHelper
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltTestApplication
 import javax.annotation.OverridingMethodsMustInvokeSuper
@@ -51,6 +54,8 @@ open class BaseHiltTest {
   @Inject lateinit var database: LocalDatabase
   @Inject lateinit var testDispatcher: TestDispatcher
 
+  protected open fun workManagerConfig(): Configuration = Configuration.Builder().build()
+
   open fun runWithTestDispatcher(testBody: suspend TestScope.() -> Unit) =
     runTest(context = testDispatcher, testBody = testBody)
 
@@ -58,6 +63,14 @@ open class BaseHiltTest {
   @OverridingMethodsMustInvokeSuper
   open fun setUp() {
     hiltRule.inject()
+    try {
+      WorkManagerTestInitHelper.initializeTestWorkManager(
+        ApplicationProvider.getApplicationContext(),
+        workManagerConfig(),
+      )
+    } catch (_: IllegalStateException) {
+      // Already initialized
+    }
   }
 
   @After
