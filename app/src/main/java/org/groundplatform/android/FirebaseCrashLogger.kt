@@ -24,8 +24,9 @@ import org.groundplatform.android.common.Constants.isReleaseBuild
 @Singleton
 class FirebaseCrashLogger @Inject constructor() {
 
+  private val crashlytics by lazy { FirebaseCrashlytics.getInstance() }
+
   fun recordException(priority: Int, message: String, t: Throwable?) {
-    val crashlytics = FirebaseCrashlytics.getInstance()
     crashlytics.log(message)
     if (t != null && priority == Log.ERROR) {
       crashlytics.recordException(t)
@@ -42,7 +43,7 @@ class FirebaseCrashLogger @Inject constructor() {
 
   private fun setCustomKeys(init: KeysBuilder.() -> Unit) {
     if (isReleaseBuild()) {
-      KeysBuilder(FirebaseCrashlytics.getInstance()).init()
+      KeysBuilder(crashlytics).init()
     }
   }
 
