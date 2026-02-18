@@ -65,6 +65,7 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
         DrawAreaTaskMapFragment::class.java.simpleName,
       )
       .commit()
+
     return rootView.root
   }
 

@@ -29,6 +29,7 @@ import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.asFlow
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -148,16 +149,12 @@ abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
 
   @MustBeInvokedByOverriders
   override fun onMapReady(map: MapFragment) {
-    viewLifecycleOwner.lifecycleScope.launch {
-      repeatOnLifecycle(Lifecycle.State.STARTED) {
-        getMapViewModel().getCurrentCameraPosition().collect { onMapCameraMoved(it) }
-      }
+    launchWhenTaskVisible(dataCollectionViewModel, taskId) {
+      launch { getMapViewModel().getCurrentCameraPosition().collect { onMapCameraMoved(it) } }
+      launch { renderFeatures().asFlow().collect { map.setFeatures(it) } }
+      // Allow the fragment to restore map viewport to previously drawn feature.
+      setDefaultViewPort()
     }
-
-    renderFeatures().observe(this) { map.setFeatures(it) }
-
-    // Allow the fragment to restore map viewport to previously drawn feature.
-    setDefaultViewPort()
   }
 
   /** Must be overridden by subclasses. */

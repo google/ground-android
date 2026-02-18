@@ -696,7 +696,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
         .selectOption(TASK_2_OPTION_CONDITIONAL_LABEL)
         .selectOption(TASK_2_OPTION_LABEL)
         .clickDoneButton()
-        .validateTextIsNotDisplayed(TASK_CONDITIONAL_NAME)
+        .validateTextDoesNotExist(TASK_CONDITIONAL_NAME)
 
       // Conditional task data is not submitted.
       assertSubmissionSaved(listOf(TASK_1_VALUE_DELTA, TASK_2_VALUE_DELTA))
