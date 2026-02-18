@@ -238,10 +238,9 @@ dependencies {
     implementation libs.firebase.config
     implementation libs.firebase.crashlytics
     implementation libs.firebase.firestore
-    implementation libs.firebase.functions.ktx
+    implementation libs.firebase.functions
     implementation libs.firebase.messaging
     implementation libs.firebase.messaging.directboot
-    implementation libs.firebase.messaging.ktx
     implementation libs.firebase.perf
     implementation libs.firebase.storage
 
