@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,26 +16,20 @@
 package org.groundplatform.android.di
 
 import android.content.Context
-import android.content.res.Resources
-import com.google.android.gms.common.GoogleApiAvailability
+import androidx.work.WorkManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import java.util.Locale
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
-@Module(includes = [ViewModelModule::class])
-object GroundApplicationModule {
+@Module
+object WorkManagerModule {
 
   @Provides
   @Singleton
-  fun googleApiAvailability(): GoogleApiAvailability = GoogleApiAvailability.getInstance()
-
-  @Provides
-  fun provideResources(@ApplicationContext context: Context): Resources = context.resources
-
-  @Provides fun provideLocale(): Locale = Locale.getDefault()
+  fun provideWorkManager(@ApplicationContext context: Context): WorkManager =
+    WorkManager.getInstance(context)
 }
