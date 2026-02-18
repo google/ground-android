@@ -47,6 +47,7 @@ class FirebaseCrashLogger @Inject constructor() {
     }
   }
 
+  @Suppress("MethodOverloading")
   private class KeysBuilder(private val crashlytics: FirebaseCrashlytics) {
     fun key(key: String, value: String) = crashlytics.setCustomKey(key, value)
 

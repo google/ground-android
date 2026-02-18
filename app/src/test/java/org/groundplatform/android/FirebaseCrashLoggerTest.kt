@@ -32,7 +32,6 @@ class FirebaseCrashLoggerTest {
 
   private val crashlytics: FirebaseCrashlytics = mock()
   private val firebaseCrashLogger = FirebaseCrashLogger()
-  
   private lateinit var mockCrashlyticsStatic: MockedStatic<FirebaseCrashlytics>
   private lateinit var mockConstantsStatic: MockedStatic<Constants>
 
