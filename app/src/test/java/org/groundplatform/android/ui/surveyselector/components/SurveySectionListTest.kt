@@ -109,20 +109,20 @@ class SurveySectionListTest : BaseHiltTest() {
       SurveySectionList(sectionData = sectionData, onConfirmDelete = {}, onCardClick = {})
     }
 
-    // "Public Survey" should not be visible initially.
+    // "Public Survey" is expanded by default
     composeTestRule.onNodeWithText("Public Survey").assertIsDisplayed()
 
-    // Click the public section header to expand it.
+    // Click the public section header to collapse it
     val publicTitle = composeTestRule.activity.getString(R.string.section_public)
     composeTestRule.onNodeWithText("$publicTitle (1)").performClick()
 
-    // Now it should be displayed.
+    // Now it should disappear
     composeTestRule.onNodeWithText("Public Survey").assertDoesNotExist()
 
-    // Click again to collapse it.
+    // Click again to expand it
     composeTestRule.onNodeWithText("$publicTitle (1)").performClick()
 
-    // It should disappear.
+    // It should be displayed
     composeTestRule.onNodeWithText("Public Survey").assertIsDisplayed()
   }
 
