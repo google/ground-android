@@ -37,12 +37,14 @@ class FirebaseCrashLoggerTest {
 
   @Before
   fun setup() {
-    mockCrashlyticsStatic = mockStatic(FirebaseCrashlytics::class.java).apply {
-      `when`<FirebaseCrashlytics> { FirebaseCrashlytics.getInstance() }.thenReturn(crashlytics)
-    }
-    mockConstantsStatic = mockStatic(Constants::class.java).apply {
-      `when`<Boolean> { Constants.isReleaseBuild() }.thenReturn(true)
-    }
+    mockCrashlyticsStatic =
+      mockStatic(FirebaseCrashlytics::class.java).apply {
+        `when`<FirebaseCrashlytics> { FirebaseCrashlytics.getInstance() }.thenReturn(crashlytics)
+      }
+    mockConstantsStatic =
+      mockStatic(Constants::class.java).apply {
+        `when`<Boolean> { Constants.isReleaseBuild() }.thenReturn(true)
+      }
   }
 
   @After
