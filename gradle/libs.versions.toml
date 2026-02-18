@@ -16,6 +16,7 @@
 androidMapsUtilsVersion = "4.0.0"
 appcompatVersion = "1.7.1"
 autoValueVersion = "1.11.1"
+coilComposeVersion = "2.6.0"
 composeBom = "2026.02.00"
 constraintlayoutVersion = "2.2.1"
 coreKtxVersion = "1.17.0"
@@ -114,6 +115,7 @@ androidx-work-testing = { module = "androidx.work:work-testing", version.ref = "
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workVersion" }
 auto-value = { module = "com.google.auto.value:auto-value", version.ref = "autoValueVersion" }
 auto-value-annotations = { module = "com.google.auto.value:auto-value-annotations", version.ref = "autoValueVersion" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilComposeVersion" }
 core-testing = { module = "android.arch.core:core-testing", version.ref = "coreTestingVersion" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBomVersion" }
 firebase-config = { module = "com.google.firebase:firebase-config" }
