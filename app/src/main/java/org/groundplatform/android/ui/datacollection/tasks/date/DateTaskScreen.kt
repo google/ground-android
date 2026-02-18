@@ -72,7 +72,7 @@ fun DateTaskScreen(
 @Preview(showBackground = true)
 @Composable
 @ExcludeFromJacocoGeneratedReport
-fun DateTaskScreenPreview() {
+private fun DateTaskScreenPreview() {
   AppTheme {
     Column(
       modifier = Modifier.padding(16.dp),
