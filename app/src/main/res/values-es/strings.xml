@@ -65,7 +65,6 @@
   <string name="tos_title">Términos de servicio</string>
   <string name="agree_terms">Aceptar</string>
   <string name="agree_checkbox">Estoy de acuerdo</string>
-  <string name="date">Fecha</string>
   <string name="time">Hora</string>
   <!-- Other strings (to be organized) -->
   <string name="sync_status">Estado de sincronización de datos</string>

@@ -57,7 +57,6 @@
   <string name="tos_title">Conditions générales</string>
   <string name="agree_terms">Accepter</string>
   <string name="agree_checkbox">J&#8217;accepte</string>
-  <string name="date">Date</string>
   <string name="time">l&#8217;heure</string>
   <!-- Other strings (to be organized) -->
   <string name="sync_status">État de synchronisation</string>
