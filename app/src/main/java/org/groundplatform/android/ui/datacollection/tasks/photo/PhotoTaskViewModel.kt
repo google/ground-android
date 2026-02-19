@@ -47,10 +47,10 @@ class PhotoTaskViewModel @Inject constructor(private val userMediaRepository: Us
   var hasLaunchedCamera: Boolean = false
   var capturedUri: Uri? = null
 
-  val localImageUri: Flow<Uri> =
+  val localImageUri: Flow<Uri?> =
     taskTaskData
-      .filterIsInstance<PhotoTaskData>()
-      .map { it.remoteFilename }
+      .filterIsInstance<PhotoTaskData?>()
+      .map { it?.remoteFilename }
       .map { userMediaRepository.getDownloadUrl(it) }
 
   override fun getButtonStates(taskData: TaskData?): List<ButtonActionState> =
