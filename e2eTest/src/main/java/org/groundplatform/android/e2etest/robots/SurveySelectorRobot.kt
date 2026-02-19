@@ -16,19 +16,9 @@
 package org.groundplatform.android.e2etest.robots
 
 import androidx.compose.ui.test.ExperimentalTestApi
-import org.groundplatform.android.R
 import org.groundplatform.android.e2etest.drivers.TestDriver
 
 @OptIn(ExperimentalTestApi::class)
 class SurveySelectorRobot(override val testDriver: TestDriver) : Robot<SurveySelectorRobot>() {
-  fun expandPrivateSurveys() {
-    testDriver.click(
-      TestDriver.Target.Text(
-        text = testDriver.getStringResource(R.string.section_shared_with_me),
-        substring = true,
-      )
-    )
-  }
-
   fun selectSurvey(name: String) = testDriver.click(TestDriver.Target.Text(name))
 }

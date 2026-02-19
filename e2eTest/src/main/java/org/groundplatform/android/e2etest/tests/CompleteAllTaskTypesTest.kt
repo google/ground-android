@@ -74,10 +74,7 @@ class CompleteAllTaskTypesTest {
   fun run() {
     SignInRobot(testDriver).signIn()
     TermsOfServiceRobot(testDriver).agree()
-    with(SurveySelectorRobot(testDriver)) {
-      expandPrivateSurveys()
-      selectSurvey(TestConfig.SURVEY_NAME)
-    }
+    with(SurveySelectorRobot(testDriver)) { selectSurvey(TestConfig.SURVEY_NAME) }
     // Add new LOI and test all task types except DRAW_AREA
     with(HomeScreenRobot(testDriver)) {
       moveMap()

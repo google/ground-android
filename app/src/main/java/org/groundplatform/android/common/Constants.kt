@@ -63,5 +63,5 @@ object Constants {
   const val ACCURACY_THRESHOLD_IN_M = 15.0f
 
   // TODO: Move to a util class
-  fun isReleaseBuild(): Boolean = BuildConfig.BUILD_TYPE.contentEquals("release")
+  @JvmStatic fun isReleaseBuild(): Boolean = BuildConfig.BUILD_TYPE.contentEquals("release")
 }

@@ -21,8 +21,11 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToKey
 import androidx.core.os.bundleOf
 import androidx.navigation.NavController
 import com.google.common.truth.Truth.assertThat
@@ -42,6 +45,7 @@ import org.groundplatform.android.proto.Survey
 import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
+import org.groundplatform.android.ui.surveyselector.components.SURVEY_LIST_TEST_TAG
 import org.groundplatform.android.ui.surveyselector.components.formatSectionTitle
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
 import org.groundplatform.android.usecases.survey.ListAvailableSurveysUseCase
@@ -87,25 +91,21 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     setUpFragment()
 
     composeTestRule
-      .onNodeWithText(
-        formatSectionTitle(composeTestRule.activity.getString(R.string.section_on_device), 0)
-      )
+      .onNodeWithTag(SURVEY_LIST_TEST_TAG)
+      .performScrollToKey(R.string.section_on_device)
       .assertIsDisplayed()
     composeTestRule
-      .onNodeWithText(
-        formatSectionTitle(composeTestRule.activity.getString(R.string.section_shared_with_me), 2)
-      )
+      .onNodeWithTag(SURVEY_LIST_TEST_TAG)
+      .performScrollToKey(R.string.section_shared_with_me)
       .assertIsDisplayed()
     composeTestRule
-      .onNodeWithText(
-        formatSectionTitle(composeTestRule.activity.getString(R.string.section_public), 0)
-      )
+      .onNodeWithTag(SURVEY_LIST_TEST_TAG)
+      .performScrollToKey(R.string.section_public)
       .assertIsDisplayed()
 
     composeTestRule
-      .onNodeWithText(
-        formatSectionTitle(composeTestRule.activity.getString(R.string.section_shared_with_me), 2)
-      )
+      .onNodeWithTag(SURVEY_LIST_TEST_TAG)
+      .performScrollToKey(R.string.section_shared_with_me)
       .performClick()
 
     composeTestRule.onNodeWithText(TEST_SURVEY_1.title).assertIsDisplayed()
@@ -145,14 +145,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
       navControllerCallback = { navController = it },
     )
     advanceUntilIdle()
-
-    composeTestRule
-      .onNodeWithText(
-        formatSectionTitle(composeTestRule.activity.getString(R.string.section_shared_with_me), 2)
-      )
-      .performClick()
-    advanceUntilIdle()
-    composeTestRule.onNodeWithText(TEST_SURVEY_2.title).performClick()
+    composeTestRule.onNodeWithText(TEST_SURVEY_2.title).performScrollTo().performClick()
     advanceUntilIdle()
 
     // Assert that navigation to home screen was requested
@@ -173,14 +166,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
       navControllerCallback = { navController = it },
     )
     advanceUntilIdle()
-
-    // Click second item
-    composeTestRule
-      .onNodeWithText(
-        formatSectionTitle(composeTestRule.activity.getString(R.string.section_shared_with_me), 2)
-      )
-      .performClick()
-    composeTestRule.onNodeWithText(TEST_SURVEY_2.title).performClick()
+    composeTestRule.onNodeWithText(TEST_SURVEY_2.title).performScrollTo().performClick()
     advanceUntilIdle()
 
     // Assert survey is activated.

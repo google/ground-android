@@ -16,8 +16,10 @@
 package org.groundplatform.android.ui.surveyselector.components
 
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -83,11 +85,13 @@ class SurveySectionListTest : BaseHiltTest() {
       SurveySectionList(sectionData = sectionData, onConfirmDelete = {}, onCardClick = {})
     }
 
-    // "On Device" is expanded by default, so its survey card is visible.
+    // Non-empty survey sections are expanded by default
     composeTestRule.onNodeWithText("Device Survey").assertIsDisplayed()
+    composeTestRule.onNodeWithText("Public Survey").assertIsDisplayed()
+    composeTestRule.onAllNodesWithContentDescription("Collapse").assertCountEquals(2)
 
-    // "Public" is collapsed by default, so its survey card should not be visible.
-    composeTestRule.onNodeWithText("Public Survey").assertDoesNotExist()
+    // Empty sections are collapsed
+    composeTestRule.onAllNodesWithContentDescription("Expand").assertCountEquals(1)
   }
 
   @Test
@@ -105,21 +109,21 @@ class SurveySectionListTest : BaseHiltTest() {
       SurveySectionList(sectionData = sectionData, onConfirmDelete = {}, onCardClick = {})
     }
 
-    // "Public Survey" should not be visible initially.
-    composeTestRule.onNodeWithText("Public Survey").assertDoesNotExist()
+    // "Public Survey" is expanded by default
+    composeTestRule.onNodeWithText("Public Survey").assertIsDisplayed()
 
-    // Click the public section header to expand it.
+    // Click the public section header to collapse it
     val publicTitle = composeTestRule.activity.getString(R.string.section_public)
     composeTestRule.onNodeWithText("$publicTitle (1)").performClick()
 
-    // Now it should be displayed.
-    composeTestRule.onNodeWithText("Public Survey").assertIsDisplayed()
+    // Now it should disappear
+    composeTestRule.onNodeWithText("Public Survey").assertDoesNotExist()
 
-    // Click again to collapse it.
+    // Click again to expand it
     composeTestRule.onNodeWithText("$publicTitle (1)").performClick()
 
-    // It should disappear.
-    composeTestRule.onNodeWithText("Public Survey").assertDoesNotExist()
+    // It should be displayed
+    composeTestRule.onNodeWithText("Public Survey").assertIsDisplayed()
   }
 
   @Test
