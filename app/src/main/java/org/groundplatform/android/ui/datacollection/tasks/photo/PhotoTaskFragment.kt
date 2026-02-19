@@ -24,7 +24,7 @@ import android.view.View
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -79,10 +79,8 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   override fun onCreateTaskBody(inflater: LayoutInflater): View {
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
     return createComposeView {
-      val isPhotoPresent by viewModel.isPhotoPresent.observeAsState(false)
-      val uri by viewModel.uri.observeAsState()
-
-      PhotoTaskScreen(isPhotoPresent = isPhotoPresent, uri = uri, onTakePhoto = { onTakePhoto() })
+      val uri by viewModel.localImageUri.collectAsStateWithLifecycle(null)
+      PhotoTaskScreen(uri = uri, onTakePhoto = { onTakePhoto() })
     }
   }
 
