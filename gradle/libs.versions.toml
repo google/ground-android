@@ -16,7 +16,7 @@
 androidMapsUtilsVersion = "4.0.0"
 appcompatVersion = "1.7.1"
 autoValueVersion = "1.11.1"
-coilComposeVersion = "2.6.0"
+coilComposeVersion = "2.7.0"
 composeBom = "2026.02.00"
 constraintlayoutVersion = "2.2.1"
 coreKtxVersion = "1.17.0"

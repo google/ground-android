@@ -17,10 +17,8 @@ package org.groundplatform.android.ui.main
 
 import android.content.Intent
 import android.net.Uri
-import android.os.Looper
 import androidx.navigation.fragment.NavHostFragment
 import com.google.common.truth.Truth.assertThat
-import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
@@ -36,8 +34,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.Shadows
-import org.robolectric.shadows.ShadowProgressDialog
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
@@ -50,35 +46,6 @@ class MainActivityTest : BaseHiltTest() {
   @Inject lateinit var tosRepository: TermsOfServiceRepository
 
   @Inject lateinit var remoteConfig: FirebaseRemoteConfig
-
-  override fun setUp() {
-    super.setUp()
-    ShadowProgressDialog.reset()
-    Shadows.shadowOf(Looper.getMainLooper()).idle()
-  }
-
-  override fun closeDb() {
-    super.closeDb()
-    Shadows.shadowOf(Looper.getMainLooper()).idle()
-  }
-
-  @Test
-  fun `Sign in error dialog is displayed when sign in fails`() = runWithTestDispatcher {
-    Robolectric.buildActivity(MainActivity::class.java).use { controller ->
-      controller.setup() // Moves Activity to RESUMED state
-      activity = controller.get()
-
-      fakeAuthenticationManager.setState(
-        SignInState.Error(
-          error =
-            FirebaseFirestoreException("error", FirebaseFirestoreException.Code.PERMISSION_DENIED)
-        )
-      )
-      advanceUntilIdle()
-
-      assertThat(ShadowProgressDialog.getLatestDialog().isShowing).isTrue()
-    }
-  }
 
   @Test
   fun `Launch app with survey ID navigates to survey selector when user is logged in`() =

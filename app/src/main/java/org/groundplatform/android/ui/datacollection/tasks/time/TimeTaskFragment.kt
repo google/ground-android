@@ -20,20 +20,20 @@ import android.content.DialogInterface
 import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.asLiveData
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.Calendar
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.map
+import java.util.Date
 import org.groundplatform.android.R
-import org.groundplatform.android.databinding.TimeTaskFragBinding
 import org.groundplatform.android.model.submission.DateTimeTaskData
 import org.groundplatform.android.ui.datacollection.components.TaskView
 import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
+import org.groundplatform.android.util.createComposeView
 import org.jetbrains.annotations.TestOnly
 
 @AndroidEntryPoint
@@ -41,46 +41,30 @@ class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
 
   private var timePickerDialog: TimePickerDialog? = null
 
-  lateinit var timeText: LiveData<String>
-  lateinit var timeTextHint: LiveData<String>
-
-  override fun onTaskViewAttached() {
-    super.onTaskViewAttached()
-    timeText =
-      viewModel.taskTaskData
-        .filterIsInstance<DateTimeTaskData?>()
-        .map { taskData ->
-          if (taskData != null) {
-            val calendar = Calendar.getInstance()
-            calendar.timeInMillis = taskData.timeInMillis
-            DateFormat.getTimeFormat(requireContext()).format(calendar.time)
-          } else {
-            ""
-          }
-        }
-        .asLiveData()
-
-    timeTextHint =
-      MutableLiveData<String>().apply {
-        val timeFormat = DateFormat.getTimeFormat(requireContext())
-        val hint =
-          if (timeFormat is SimpleDateFormat) {
-            timeFormat.toPattern().uppercase()
-          } else {
-            "HH:MM AM/PM" // Fallback hint if DateFormat is not SimpleDateFormat
-          }
-        value = hint
-      }
-  }
-
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithHeader(inflater)
 
-  override fun onCreateTaskBody(inflater: LayoutInflater): View {
-    val taskBinding = TimeTaskFragBinding.inflate(inflater)
-    taskBinding.lifecycleOwner = this
-    taskBinding.fragment = this
-    return taskBinding.root
+  override fun onCreateTaskBody(inflater: LayoutInflater): View = createComposeView {
+    val taskData by viewModel.taskTaskData.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+
+    val timeText =
+      remember(taskData) {
+        (taskData as? DateTimeTaskData)?.let {
+          DateFormat.getTimeFormat(context).format(Date(it.timeInMillis))
+        } ?: ""
+      }
+
+    val hintText = remember {
+      val timeFormat = DateFormat.getTimeFormat(context)
+      if (timeFormat is SimpleDateFormat) {
+        timeFormat.toPattern().uppercase()
+      } else {
+        "HH:MM AM/PM" // Fallback hint if DateFormat is not SimpleDateFormat
+      }
+    }
+
+    TimeTaskScreen(timeText = timeText, hintText = hintText, onTimeClick = { showTimeDialog() })
   }
 
   fun showTimeDialog() {
