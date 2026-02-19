@@ -37,9 +37,8 @@ import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
+import org.groundplatform.android.FragmentScenarioRule
 import org.groundplatform.android.R
-import org.groundplatform.android.launchFragmentInHiltContainer
-import org.groundplatform.android.launchFragmentWithNavController
 import org.groundplatform.android.model.SurveyListItem
 import org.groundplatform.android.proto.Survey
 import org.groundplatform.android.repository.SurveyRepository
@@ -78,6 +77,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   private lateinit var navController: NavController
 
   @get:Rule override val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+  @get:Rule val fragmentScenario = FragmentScenarioRule()
 
   @Before
   override fun setUp() {
@@ -139,7 +139,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
     whenever(activateSurvey(TEST_SURVEY_2.id)).thenReturn(true)
 
-    launchFragmentWithNavController<SurveySelectorFragment>(
+    fragmentScenario.launchFragmentWithNavController<SurveySelectorFragment>(
       fragmentArgs = bundleOf(Pair("shouldExitApp", false), Pair("surveyId", "")),
       destId = R.id.surveySelectorFragment,
       navControllerCallback = { navController = it },
@@ -160,7 +160,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
 
     setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
 
-    launchFragmentWithNavController<SurveySelectorFragment>(
+    fragmentScenario.launchFragmentWithNavController<SurveySelectorFragment>(
       fragmentArgs = bundleOf(Pair("shouldExitApp", false), Pair("surveyId", "")),
       destId = R.id.surveySelectorFragment,
       navControllerCallback = { navController = it },
@@ -222,7 +222,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   private fun setUpFragment(
     optBundle: Bundle = bundleOf(Pair("shouldExitApp", false), Pair("surveyId", ""))
   ) = runWithTestDispatcher {
-    launchFragmentInHiltContainer<SurveySelectorFragment>(optBundle) {
+    fragmentScenario.launchFragmentInHiltContainer<SurveySelectorFragment>(optBundle) {
       fragment = this as SurveySelectorFragment
     }
 

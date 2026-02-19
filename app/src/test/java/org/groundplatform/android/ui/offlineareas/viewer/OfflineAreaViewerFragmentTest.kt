@@ -31,12 +31,13 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.OFFLINE_AREA
+import org.groundplatform.android.FragmentScenarioRule
 import org.groundplatform.android.R
 import org.groundplatform.android.data.local.stores.LocalOfflineAreaStore
-import org.groundplatform.android.launchFragmentWithNavController
 import org.groundplatform.android.model.map.MapType
 import org.groundplatform.android.ui.common.MapConfig
 import org.groundplatform.android.util.view.isGone
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -45,6 +46,7 @@ import org.robolectric.RobolectricTestRunner
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class OfflineAreaViewerFragmentTest : BaseHiltTest() {
+  @get:Rule val fragmentScenario = FragmentScenarioRule()
 
   @Inject lateinit var localOfflineAreaStore: LocalOfflineAreaStore
   private lateinit var fragment: OfflineAreaViewerFragment
@@ -107,7 +109,7 @@ class OfflineAreaViewerFragmentTest : BaseHiltTest() {
     val argsBundle =
       fragmentArgs ?: OfflineAreaViewerFragmentArgs.Builder("id_1").build().toBundle()
 
-    launchFragmentWithNavController<OfflineAreaViewerFragment>(
+    fragmentScenario.launchFragmentWithNavController<OfflineAreaViewerFragment>(
       argsBundle,
       destId = R.id.offline_area_viewer_fragment,
     ) {
