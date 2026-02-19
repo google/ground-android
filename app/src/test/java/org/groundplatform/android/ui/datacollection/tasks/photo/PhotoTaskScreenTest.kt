@@ -16,6 +16,7 @@
 package org.groundplatform.android.ui.datacollection.tasks.photo
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -35,22 +36,19 @@ class PhotoTaskScreenTest : BaseHiltTest() {
 
   @Test
   fun `shows capture button when photo is not present`() {
-    composeTestRule.setContent {
-      PhotoTaskScreen(uri = null, onTakePhoto = {})
-    }
+    composeTestRule.setContent { PhotoTaskScreen(uri = null, onTakePhoto = {}) }
 
     composeTestRule.onNodeWithText("Camera").assertIsDisplayed()
+    composeTestRule.onNodeWithContentDescription("Preview").assertIsNotDisplayed()
   }
 
   @Test
   fun `shows photo preview when photo is present`() {
     composeTestRule.setContent {
-      PhotoTaskScreen(
-        uri = "content://media/external/images/media/1".toUri(),
-        onTakePhoto = {},
-      )
+      PhotoTaskScreen(uri = "content://media/external/images/media/1".toUri(), onTakePhoto = {})
     }
 
+    composeTestRule.onNodeWithText("Camera").assertIsNotDisplayed()
     composeTestRule.onNodeWithContentDescription("Preview").assertIsDisplayed()
   }
 
@@ -59,10 +57,7 @@ class PhotoTaskScreenTest : BaseHiltTest() {
     var onTakePhotoCalled = false
 
     composeTestRule.setContent {
-      PhotoTaskScreen(
-        uri = null,
-        onTakePhoto = { onTakePhotoCalled = true },
-      )
+      PhotoTaskScreen(uri = null, onTakePhoto = { onTakePhotoCalled = true })
     }
 
     composeTestRule.onNodeWithText("Camera").performClick()
