@@ -47,7 +47,7 @@ class PhotoTaskViewModel @Inject constructor(private val userMediaRepository: Us
   var hasLaunchedCamera: Boolean = false
   var capturedUri: Uri? = null
 
-  val localImageUri: Flow<Uri?> =
+  val localImageUri: Flow<Uri> =
     taskTaskData
       .filterIsInstance<PhotoTaskData?>()
       .map { it?.remoteFilename }
