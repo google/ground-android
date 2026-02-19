@@ -17,5 +17,12 @@ package org.groundplatform.android.ui.common
 
 // https://stackoverflow.com/questions/47824761/how-would-i-add-an-annotation-to-exclude-a-method-from-a-jacoco-code-coverage-re
 @Retention(AnnotationRetention.RUNTIME)
-@Target(AnnotationTarget.FUNCTION)
+@Target(
+  AnnotationTarget.FUNCTION,
+  AnnotationTarget.CLASS,
+  AnnotationTarget.FILE,
+  AnnotationTarget.PROPERTY,
+  AnnotationTarget.PROPERTY_GETTER,
+  AnnotationTarget.CONSTRUCTOR,
+)
 annotation class ExcludeFromJacocoGeneratedReport
