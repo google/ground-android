@@ -22,8 +22,8 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.groundplatform.android.BaseHiltTest
+import org.groundplatform.android.FragmentScenarioRule
 import org.groundplatform.android.R
-import org.groundplatform.android.launchFragmentWithNavController
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -41,11 +41,12 @@ class AboutFragmentTest : BaseHiltTest() {
    * activity. [composeTestRule.activity]
    */
   @get:Rule override val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+  @get:Rule val fragmentScenario = FragmentScenarioRule()
 
   @Before
   override fun setUp() {
     super.setUp()
-    launchFragmentWithNavController<AboutFragment>(destId = R.id.aboutFragment) {
+    fragmentScenario.launchFragmentWithNavController<AboutFragment>(destId = R.id.aboutFragment) {
       fragment = this as AboutFragment
     }
   }

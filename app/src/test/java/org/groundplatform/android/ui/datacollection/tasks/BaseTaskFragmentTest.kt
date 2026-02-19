@@ -30,8 +30,8 @@ import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.flowOf
 import org.groundplatform.android.BaseHiltTest
+import org.groundplatform.android.FragmentScenarioRule
 import org.groundplatform.android.R
-import org.groundplatform.android.launchFragmentWithNavController
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.task.Task
@@ -40,10 +40,12 @@ import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.TaskFragmentRunner
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.util.view.isGone
+import org.junit.Rule
 import org.mockito.kotlin.whenever
 
 abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractTaskViewModel> :
   BaseHiltTest() {
+  @get:Rule val fragmentScenario = FragmentScenarioRule()
 
   abstract val dataCollectionViewModel: DataCollectionViewModel
   abstract val viewModelFactory: ViewModelFactory
@@ -118,7 +120,7 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
     whenever(dataCollectionViewModel.isCurrentActiveTaskFlow(task.id))
       .thenReturn(flowOf(isTaskActive))
 
-    launchFragmentWithNavController<T>(
+    fragmentScenario.launchFragmentWithNavController<T>(
       destId = R.id.data_collection_fragment,
       preTransactionAction = {
         fragment = this as F

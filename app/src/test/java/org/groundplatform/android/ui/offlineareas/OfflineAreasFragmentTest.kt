@@ -36,10 +36,10 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.OFFLINE_AREA
+import org.groundplatform.android.FragmentScenarioRule
 import org.groundplatform.android.R
 import org.groundplatform.android.data.local.stores.LocalOfflineAreaStore
-import org.groundplatform.android.launchFragmentInHiltContainer
-import org.groundplatform.android.launchFragmentWithNavController
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -48,6 +48,7 @@ import org.robolectric.RobolectricTestRunner
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class OfflineAreasFragmentTest : BaseHiltTest() {
+  @get:Rule val fragmentScenario = FragmentScenarioRule()
 
   private lateinit var fragment: OfflineAreasFragment
 
@@ -77,7 +78,7 @@ class OfflineAreasFragmentTest : BaseHiltTest() {
     localOfflineAreaStore.insertOrUpdate(OFFLINE_AREA)
     advanceUntilIdle()
 
-    launchFragmentWithNavController<OfflineAreasFragment>(
+    fragmentScenario.launchFragmentWithNavController<OfflineAreasFragment>(
       destId = R.id.offline_areas_fragment,
       navControllerCallback = { navController = it },
     )
@@ -106,6 +107,8 @@ class OfflineAreasFragmentTest : BaseHiltTest() {
   }
 
   private fun setupFragment() {
-    launchFragmentInHiltContainer<OfflineAreasFragment> { fragment = this as OfflineAreasFragment }
+    fragmentScenario.launchFragmentInHiltContainer<OfflineAreasFragment> {
+      fragment = this as OfflineAreasFragment
+    }
   }
 }

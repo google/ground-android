@@ -28,12 +28,13 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
-import org.groundplatform.android.launchFragmentInHiltContainer
+import org.groundplatform.android.FragmentScenarioRule
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.NetworkStatus
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
 import org.groundplatform.android.system.auth.SignInState
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -44,6 +45,8 @@ import org.robolectric.RobolectricTestRunner
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class SignInFragmentTest : BaseHiltTest() {
+
+  @get:Rule val fragmentScenario = FragmentScenarioRule()
 
   @BindValue @Mock lateinit var networkManager: NetworkManager
 
@@ -59,7 +62,7 @@ class SignInFragmentTest : BaseHiltTest() {
   fun `Clicking sign-in button when network is available should attempt login`() =
     runWithTestDispatcher {
       whenever(networkManager.networkStatusFlow).thenReturn(flowOf(NetworkStatus.AVAILABLE))
-      launchFragmentInHiltContainer<SignInFragment>()
+      fragmentScenario.launchFragmentInHiltContainer<SignInFragment>()
       fakeAuthenticationManager.setUser(TEST_USER)
 
       // TODO: Replace with a single click action.
@@ -74,7 +77,7 @@ class SignInFragmentTest : BaseHiltTest() {
   @Test
   fun `Sign-in should only execute once when clicked multiple times`() = runWithTestDispatcher {
     whenever(networkManager.networkStatusFlow).thenReturn(flowOf(NetworkStatus.AVAILABLE))
-    launchFragmentInHiltContainer<SignInFragment>()
+    fragmentScenario.launchFragmentInHiltContainer<SignInFragment>()
     fakeAuthenticationManager.setUser(TEST_USER)
 
     getSignInButton().performClick().performClick()
@@ -89,7 +92,7 @@ class SignInFragmentTest : BaseHiltTest() {
   @Test
   @Ignore("Fix flakiness on remote builds")
   fun `Back press should finish activity`() {
-    launchFragmentInHiltContainer<SignInFragment> {
+    fragmentScenario.launchFragmentInHiltContainer<SignInFragment> {
       val fragment = this as SignInFragment
       assertThat(fragment.onBack()).isFalse()
       assertThat(activity?.isFinishing).isTrue()
