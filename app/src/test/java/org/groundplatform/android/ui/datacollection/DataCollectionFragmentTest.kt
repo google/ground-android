@@ -17,6 +17,7 @@
 package org.groundplatform.android.ui.datacollection
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.google.common.truth.Truth.assertThat
@@ -70,6 +71,7 @@ import org.robolectric.shadows.ShadowToast
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class DataCollectionFragmentTest : BaseHiltTest() {
+  @get:Rule(order = 4) val composeTestRule = createComposeRule()
   @get:Rule(order = 5) val fragmentScenario = FragmentScenarioRule()
 
   @Inject lateinit var activateSurvey: ActivateSurveyUseCase
@@ -825,7 +827,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     }
   }
 
-  private fun runner() = TaskFragmentRunner(this, fragment)
+  private fun runner() = TaskFragmentRunner(this, composeTestRule, fragment)
 
   private fun getToolbar() =
     fragment.view?.findViewById<com.google.android.material.appbar.MaterialToolbar>(

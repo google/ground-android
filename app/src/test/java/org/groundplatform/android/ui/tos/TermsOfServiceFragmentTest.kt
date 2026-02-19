@@ -60,11 +60,7 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
 
   @BindValue @Mock lateinit var networkManager: NetworkManager
 
-  /**
-   * composeTestRule has to be created in the specific test file in order to access the required
-   * activity. [composeTestRule.activity]
-   */
-  @get:Rule override val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+  @get:Rule val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
   override fun setUp() {
     super.setUp()

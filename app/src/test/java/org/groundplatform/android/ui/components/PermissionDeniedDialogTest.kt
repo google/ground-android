@@ -15,24 +15,21 @@
  */
 package org.groundplatform.android.ui.components
 
-import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import dagger.hilt.android.testing.HiltAndroidTest
 import kotlin.test.Test
-import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.R
+import org.groundplatform.android.getString
 import org.junit.Rule
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
-@HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-class PermissionDeniedDialogTest : BaseHiltTest() {
+class PermissionDeniedDialogTest {
 
-  @get:Rule override val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+  @get:Rule val composeTestRule = createComposeRule()
 
   @Test
   fun `PermissionDeniedDialog displays correct title`() {
@@ -40,9 +37,7 @@ class PermissionDeniedDialogTest : BaseHiltTest() {
       PermissionDeniedDialog(signupLink = "http://example.com", onSignOut = {}, onCloseApp = {})
     }
 
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.permission_denied))
-      .assertIsDisplayed()
+    composeTestRule.onNodeWithText(getString(R.string.permission_denied)).assertIsDisplayed()
   }
 
   @Test
@@ -51,9 +46,7 @@ class PermissionDeniedDialogTest : BaseHiltTest() {
       PermissionDeniedDialog(signupLink = "http://example.com", onSignOut = {}, onCloseApp = {})
     }
 
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.sign_out))
-      .assertIsDisplayed()
+    composeTestRule.onNodeWithText(getString(R.string.sign_out)).assertIsDisplayed()
   }
 
   @Test
@@ -62,9 +55,7 @@ class PermissionDeniedDialogTest : BaseHiltTest() {
       PermissionDeniedDialog(signupLink = "http://example.com", onSignOut = {}, onCloseApp = {})
     }
 
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.close_app))
-      .assertIsDisplayed()
+    composeTestRule.onNodeWithText(getString(R.string.close_app)).assertIsDisplayed()
   }
 
   @Test
@@ -79,9 +70,7 @@ class PermissionDeniedDialogTest : BaseHiltTest() {
       )
     }
 
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.sign_out))
-      .performClick()
+    composeTestRule.onNodeWithText(getString(R.string.sign_out)).performClick()
 
     assert(signOutCalled)
   }
@@ -98,9 +87,7 @@ class PermissionDeniedDialogTest : BaseHiltTest() {
       )
     }
 
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.close_app))
-      .performClick()
+    composeTestRule.onNodeWithText(getString(R.string.close_app)).performClick()
 
     assert(closeAppCalled)
   }
@@ -111,9 +98,7 @@ class PermissionDeniedDialogTest : BaseHiltTest() {
       PermissionDeniedDialog(signupLink = "http://example.com", onSignOut = {}, onCloseApp = {})
     }
 
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.signup_request_access))
-      .assertIsDisplayed()
+    composeTestRule.onNodeWithText(getString(R.string.signup_request_access)).assertIsDisplayed()
   }
 
   @Test
@@ -122,12 +107,8 @@ class PermissionDeniedDialogTest : BaseHiltTest() {
       PermissionDeniedDialog(signupLink = "", onSignOut = {}, onCloseApp = {})
     }
 
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.signup_request_access))
-      .assertDoesNotExist()
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.admin_request_access))
-      .assertIsDisplayed()
+    composeTestRule.onNodeWithText(getString(R.string.signup_request_access)).assertDoesNotExist()
+    composeTestRule.onNodeWithText(getString(R.string.admin_request_access)).assertIsDisplayed()
   }
 
   @Test
@@ -135,8 +116,6 @@ class PermissionDeniedDialogTest : BaseHiltTest() {
     composeTestRule.setContent {
       PermissionDeniedDialog(signupLink = "", onSignOut = {}, onCloseApp = {})
     }
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.signout_warning))
-      .assertIsDisplayed()
+    composeTestRule.onNodeWithText(getString(R.string.signout_warning)).assertIsDisplayed()
   }
 }

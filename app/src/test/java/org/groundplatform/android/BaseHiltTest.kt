@@ -16,7 +16,6 @@
 package org.groundplatform.android
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.compose.ui.test.junit4.createComposeRule
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltTestApplication
 import javax.annotation.OverridingMethodsMustInvokeSuper
@@ -44,9 +43,7 @@ open class BaseHiltTest {
   /* Allows creating mocks using @Mock annotation. */
   @get:Rule(order = 2) var rule: MockitoRule = MockitoJUnit.rule()
 
-  @get:Rule(order = 3) open val composeTestRule = createComposeRule()
-
-  @get:Rule(order = 4) val flakyTestRule = FlakyTestRule()
+  @get:Rule(order = 3) val flakyTestRule = FlakyTestRule()
 
   @Inject lateinit var database: LocalDatabase
   @Inject lateinit var testDispatcher: TestDispatcher

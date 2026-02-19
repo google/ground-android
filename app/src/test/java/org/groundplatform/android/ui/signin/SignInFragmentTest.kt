@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android.ui.signin
 
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import app.cash.turbine.test
@@ -45,6 +46,8 @@ import org.robolectric.RobolectricTestRunner
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class SignInFragmentTest : BaseHiltTest() {
+
+  @get:Rule val composeTestRule = createComposeRule()
 
   @get:Rule val fragmentScenario = FragmentScenarioRule()
 

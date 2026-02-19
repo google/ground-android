@@ -127,11 +127,7 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
 
   @Inject lateinit var surveyRepository: SurveyRepository
 
-  /**
-   * composeTestRule has to be created in the specific test file in order to access the required
-   * activity. [composeTestRule.activity]
-   */
-  @get:Rule override val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+  @get:Rule val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
   @Test
   fun `all menu item is always enabled`() = runWithTestDispatcher {
@@ -228,7 +224,7 @@ class NavigationDrawerItemClickTest(
 
   @Inject lateinit var surveyRepository: SurveyRepository
 
-  @get:Rule override val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+  @get:Rule val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
   @Test
   fun `clicking drawer menu item navigates correctly`() = runWithTestDispatcher {

@@ -16,8 +16,10 @@
 
 package org.groundplatform.android.ui.datacollection.tasks
 
+import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.fragment.app.Fragment
@@ -45,6 +47,7 @@ import org.mockito.kotlin.whenever
 
 abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractTaskViewModel> :
   BaseHiltTest() {
+  @get:Rule val composeTestRule = createAndroidComposeRule<ComponentActivity>()
   @get:Rule val fragmentScenario = FragmentScenarioRule()
 
   abstract val dataCollectionViewModel: DataCollectionViewModel
@@ -53,7 +56,7 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
   lateinit var fragment: F
   lateinit var viewModel: VM
 
-  protected fun runner() = TaskFragmentRunner(this)
+  protected fun runner() = TaskFragmentRunner(this, composeTestRule)
 
   protected fun hasTaskViewWithHeader(task: Task) {
     onView(withId(R.id.data_collection_header))

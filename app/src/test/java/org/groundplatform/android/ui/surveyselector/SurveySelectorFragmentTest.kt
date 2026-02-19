@@ -76,7 +76,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   private lateinit var fragment: SurveySelectorFragment
   private lateinit var navController: NavController
 
-  @get:Rule override val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+  @get:Rule val composeTestRule = createAndroidComposeRule<ComponentActivity>()
   @get:Rule val fragmentScenario = FragmentScenarioRule()
 
   @Before

@@ -15,15 +15,13 @@
  */
 package org.groundplatform.android.ui.surveyselector.components
 
-import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
-import dagger.hilt.android.testing.HiltAndroidTest
-import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.R
+import org.groundplatform.android.getString
 import org.groundplatform.android.model.SurveyListItem
 import org.groundplatform.android.proto.Survey
 import org.junit.Rule
@@ -31,11 +29,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
-@HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-class SurveyCardItemTest : BaseHiltTest() {
+class SurveyCardItemTest {
 
-  @get:Rule override val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+  @get:Rule val composeTestRule = createComposeRule()
 
   @Test
   fun `Displays restricted survey correctly`() {
@@ -49,9 +46,7 @@ class SurveyCardItemTest : BaseHiltTest() {
       )
     composeTestRule.setContent { SurveyCardItem(item = item, onCardClick = {}, menuClick = {}) }
 
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.access_restricted))
-      .assertIsDisplayed()
+    composeTestRule.onNodeWithText(getString(R.string.access_restricted)).assertIsDisplayed()
 
     assertAvailableOffline(false)
   }
@@ -68,9 +63,7 @@ class SurveyCardItemTest : BaseHiltTest() {
       )
     composeTestRule.setContent { SurveyCardItem(item = item, onCardClick = {}, menuClick = {}) }
 
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.access_restricted))
-      .assertIsDisplayed()
+    composeTestRule.onNodeWithText(getString(R.string.access_restricted)).assertIsDisplayed()
 
     assertAvailableOffline(false)
   }
@@ -87,9 +80,7 @@ class SurveyCardItemTest : BaseHiltTest() {
       )
     composeTestRule.setContent { SurveyCardItem(item = item, onCardClick = {}, menuClick = {}) }
 
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.access_unlisted))
-      .assertIsDisplayed()
+    composeTestRule.onNodeWithText(getString(R.string.access_unlisted)).assertIsDisplayed()
 
     assertAvailableOffline(false)
   }
@@ -106,9 +97,7 @@ class SurveyCardItemTest : BaseHiltTest() {
       )
     composeTestRule.setContent { SurveyCardItem(item = item, onCardClick = {}, menuClick = {}) }
 
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.access_public))
-      .assertIsDisplayed()
+    composeTestRule.onNodeWithText(getString(R.string.access_public)).assertIsDisplayed()
 
     assertAvailableOffline(false)
   }
@@ -130,15 +119,11 @@ class SurveyCardItemTest : BaseHiltTest() {
 
   private fun assertAvailableOffline(isAvailable: Boolean) {
     composeTestRule
-      .onNodeWithContentDescription(
-        composeTestRule.activity.getString(R.string.offline_icon_description)
-      )
+      .onNodeWithContentDescription(getString(R.string.offline_icon_description))
       .apply { if (isAvailable) assertIsDisplayed() else assertIsNotDisplayed() }
 
     composeTestRule
-      .onNodeWithContentDescription(
-        composeTestRule.activity.getString(R.string.more_options_icon_description)
-      )
+      .onNodeWithContentDescription(getString(R.string.more_options_icon_description))
       .apply { if (isAvailable) assertIsDisplayed() else assertIsNotDisplayed() }
   }
 }

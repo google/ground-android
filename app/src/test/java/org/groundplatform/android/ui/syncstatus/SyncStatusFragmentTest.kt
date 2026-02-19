@@ -16,6 +16,7 @@
 package org.groundplatform.android.ui.syncstatus
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.test.espresso.Espresso.onView
@@ -50,6 +51,7 @@ import org.robolectric.RobolectricTestRunner
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class SyncStatusFragmentTest : BaseHiltTest() {
+  @get:Rule val composeTestRule = createComposeRule()
   @get:Rule val fragmentScenario = FragmentScenarioRule()
 
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore

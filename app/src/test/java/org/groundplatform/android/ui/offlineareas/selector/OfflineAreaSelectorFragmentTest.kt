@@ -57,7 +57,7 @@ class OfflineAreaSelectorFragmentTest : BaseHiltTest() {
 
   private val offlineAreaRepository: OfflineAreaRepository = mock()
 
-  @get:Rule override val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+  @get:Rule val composeTestRule = createAndroidComposeRule<ComponentActivity>()
   @get:Rule val fragmentScenario = FragmentScenarioRule()
 
   @Before

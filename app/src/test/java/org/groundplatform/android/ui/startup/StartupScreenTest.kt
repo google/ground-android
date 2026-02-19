@@ -15,27 +15,35 @@
  */
 package org.groundplatform.android.ui.startup
 
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import com.google.common.truth.Truth.assertThat
-import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.flow.MutableStateFlow
-import org.groundplatform.android.BaseHiltTest
+import kotlinx.coroutines.test.runTest
 import org.groundplatform.android.R
+import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
+import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 
-@HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-class StartupScreenTest : BaseHiltTest() {
+class StartupScreenTest {
+  @get:Rule val composeTestRule = createComposeRule()
 
   @Mock private lateinit var mockViewModel: StartupViewModel
 
+  @Before
+  fun setUp() {
+    MockitoAnnotations.openMocks(this)
+  }
+
   @Test
-  fun `Loading state shows loading dialog`() {
+  fun `Loading state shows loading dialog`() = runTest {
     setState(StartupState.Loading)
 
     composeTestRule.setContent { StartupScreen(onLoadFailed = {}, viewModel = mockViewModel) }
@@ -45,7 +53,7 @@ class StartupScreenTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Error state invokes onLoadFailed`() {
+  fun `Error state invokes onLoadFailed`() = runTest {
     var onLoadFailedCalled = false
     setState(StartupState.Error(null))
 

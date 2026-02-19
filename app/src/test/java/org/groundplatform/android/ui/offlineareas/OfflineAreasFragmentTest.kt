@@ -18,6 +18,7 @@ package org.groundplatform.android.ui.offlineareas
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.isDisplayed
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onChildAt
 import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.onNodeWithTag
@@ -48,6 +49,7 @@ import org.robolectric.RobolectricTestRunner
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class OfflineAreasFragmentTest : BaseHiltTest() {
+  @get:Rule val composeTestRule = createComposeRule()
   @get:Rule val fragmentScenario = FragmentScenarioRule()
 
   private lateinit var fragment: OfflineAreasFragment
