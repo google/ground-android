@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.photo
 
+import android.net.Uri
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -36,7 +37,7 @@ class PhotoTaskScreenTest : BaseHiltTest() {
 
   @Test
   fun `shows capture button when photo is not present`() {
-    composeTestRule.setContent { PhotoTaskScreen(uri = null, onTakePhoto = {}) }
+    composeTestRule.setContent { PhotoTaskScreen(uri = Uri.EMPTY, onTakePhoto = {}) }
 
     composeTestRule.onNodeWithText("Camera").assertIsDisplayed()
     composeTestRule.onNodeWithContentDescription("Preview").assertIsNotDisplayed()
@@ -57,7 +58,7 @@ class PhotoTaskScreenTest : BaseHiltTest() {
     var onTakePhotoCalled = false
 
     composeTestRule.setContent {
-      PhotoTaskScreen(uri = null, onTakePhoto = { onTakePhotoCalled = true })
+      PhotoTaskScreen(uri = Uri.EMPTY, onTakePhoto = { onTakePhotoCalled = true })
     }
 
     composeTestRule.onNodeWithText("Camera").performClick()

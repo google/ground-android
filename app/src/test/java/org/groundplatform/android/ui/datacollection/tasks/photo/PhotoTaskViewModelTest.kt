@@ -167,6 +167,21 @@ class PhotoTaskViewModelTest : BaseHiltTest() {
     }
   }
 
+  @Test
+  fun clearResponse_clearsUriFlow() = runWithTestDispatcher {
+    val mockUri = mock<Uri>()
+    whenever(userMediaRepository.getDownloadUrl(any())).thenReturn(mockUri)
+
+    viewModel.setValue(PhotoTaskData("path/photo.jpg"))
+    advanceUntilIdle()
+    assertThat(viewModel.uri.first()).isNotNull()
+
+    viewModel.clearResponse()
+    advanceUntilIdle()
+
+    assertThat(viewModel.uri.first()).isEqualTo(Uri.EMPTY)
+  }
+
   private fun setupViewModel(
     isTaskRequired: Boolean = false,
     isFirstTask: Boolean = false,
