@@ -31,7 +31,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -42,6 +44,8 @@ import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.components.ConfirmationDialog
 import org.groundplatform.android.ui.surveyselector.SurveySection
 
+@VisibleForTesting const val SURVEY_LIST_TEST_TAG = "survey_list"
+
 /** Renders the content of the survey list, including sections and confirmation dialogs. */
 @Composable
 fun SurveySectionList(
@@ -49,7 +53,7 @@ fun SurveySectionList(
   onConfirmDelete: (String) -> Unit,
   onCardClick: (String) -> Unit,
 ) {
-  val expandedStates = rememberExpandedStates()
+  val expandedStates = rememberExpandedStates(sectionData)
   var surveyIdToDelete by rememberSaveable { mutableStateOf<String?>(null) }
 
   if (surveyIdToDelete != null) {
@@ -66,7 +70,7 @@ fun SurveySectionList(
   }
 
   LazyColumn(
-    modifier = Modifier.fillMaxSize().padding(16.dp),
+    modifier = Modifier.fillMaxSize().padding(16.dp).testTag(SURVEY_LIST_TEST_TAG),
     verticalArrangement = Arrangement.spacedBy(8.dp),
   ) {
     surveySections(
@@ -115,13 +119,14 @@ private fun LazyListScope.surveySections(
 }
 
 @Composable
-private fun rememberExpandedStates(): MutableMap<Int, Boolean> = remember {
-  mutableStateMapOf(
-    R.string.section_on_device to true,
-    R.string.section_shared_with_me to false,
-    R.string.section_public to false,
-  )
-}
+private fun rememberExpandedStates(
+  sectionData: List<SurveySection>
+): SnapshotStateMap<Int, Boolean> =
+  remember(sectionData) {
+    mutableStateMapOf<Int, Boolean>().apply {
+      sectionData.forEach { put(it.titleResId, it.surveys.isNotEmpty()) }
+    }
+  }
 
 @VisibleForTesting fun formatSectionTitle(title: String, count: Int): String = "$title ($count)"
 
