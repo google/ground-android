@@ -15,17 +15,13 @@
  */
 package org.groundplatform.android.ui.common
 
-import android.content.res.ColorStateList
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.view.View
 import android.widget.ImageView
-import androidx.core.content.ContextCompat
-import androidx.core.widget.ImageViewCompat
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
-import com.google.android.gms.common.SignInButton
 import java.net.HttpURLConnection
 import java.net.URL
 import kotlinx.coroutines.CoroutineScope
@@ -39,12 +35,6 @@ import org.groundplatform.android.R
  * injectable, since binding adapters must be static.
  */
 object BindingAdapters {
-
-  @JvmStatic
-  @BindingAdapter("onClick")
-  fun bindGoogleSignOnButtonClick(button: SignInButton, onClickCallback: View.OnClickListener?) {
-    button.setOnClickListener(onClickCallback)
-  }
 
   @JvmStatic
   @BindingAdapter("imageUrl")
@@ -86,17 +76,6 @@ object BindingAdapters {
       .downsample(DownsampleStrategy.AT_MOST)
       .error(R.drawable.outline_error_outline_24)
       .into(view)
-  }
-
-  @JvmStatic
-  @BindingAdapter("tint")
-  fun bindImageTint(imageView: ImageView, colorId: Int) {
-    if (colorId == 0) {
-      // Workaround for default value from uninitialized LiveData.
-      return
-    }
-    val tint = ContextCompat.getColor(imageView.context, colorId)
-    ImageViewCompat.setImageTintList(imageView, ColorStateList.valueOf(tint))
   }
 
   @JvmStatic

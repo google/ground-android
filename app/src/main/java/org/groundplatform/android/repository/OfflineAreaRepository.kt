@@ -16,18 +16,17 @@
 package org.groundplatform.android.repository
 
 import java.io.File
+import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
-import org.groundplatform.android.common.Constants
+import kotlinx.coroutines.flow.mapNotNull
 import org.groundplatform.android.data.local.stores.LocalOfflineAreaStore
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.android.model.imagery.LocalTileSource
 import org.groundplatform.android.model.imagery.OfflineArea
-import org.groundplatform.android.model.imagery.RemoteMogTileSource
 import org.groundplatform.android.model.imagery.TileSource
 import org.groundplatform.android.model.map.Bounds
 import org.groundplatform.android.system.GeocodingManager
@@ -107,26 +106,37 @@ constructor(
   private fun getLocalTileSourcePath(): String = getLocalTileDirectory().path
 
   fun getOfflineTileSourcesFlow(): Flow<TileSource> =
-    localOfflineAreaStore
-      .offlineAreas()
-      .map { list -> list.map { it.bounds } }
-      .map { bounds ->
-        LocalTileSource("file://${getLocalTileSourcePath()}/{z}/{x}/{y}.jpg", bounds)
-      }
+    localOfflineAreaStore.offlineAreas().mapNotNull(::mapOfflineAreasToTileSource)
 
-  /** Returns the default configured tile source. */
-  fun getRemoteTileSource(): TileSource =
-    RemoteMogTileSource(remotePath = Constants.DEFAULT_MOG_TILE_LOCATION)
+  private fun mapOfflineAreasToTileSource(list: List<OfflineArea>): TileSource? {
+    if (list.isEmpty()) return null
+    val maxZoom = list.maxOfOrNull { it.zoomRange.last } ?: return null
+    val bounds = list.map { it.bounds }
 
-  suspend fun hasHiResImagery(bounds: Bounds): Boolean {
-    val maxZoom = mogClient.collection.sources.maxZoom()
-    return mogClient.buildTilesRequests(bounds, maxZoom..maxZoom).isNotEmpty()
+    return LocalTileSource(
+      localFilePath = "file://${getLocalTileSourcePath()}/{z}/{x}/{y}.jpg",
+      clipBounds = bounds,
+      maxZoom = maxZoom,
+    )
   }
 
-  suspend fun estimateSizeOnDisk(bounds: Bounds): Int {
-    val requests = mogClient.buildTilesRequests(bounds)
-    return requests.sumOf { it.totalBytes }
-  }
+  suspend fun hasHiResImagery(bounds: Bounds): Result<Boolean> =
+    try {
+      val maxZoom = mogClient.collection.sources.maxZoom()
+      Result.success(mogClient.buildTilesRequests(bounds, maxZoom..maxZoom).isNotEmpty())
+    } catch (e: IOException) {
+      Timber.e(e, "Network error while checking hi-res imagery")
+      Result.failure(e)
+    }
+
+  suspend fun estimateSizeOnDisk(bounds: Bounds): Result<Int> =
+    try {
+      val requests = mogClient.buildTilesRequests(bounds)
+      Result.success(requests.sumOf { it.totalBytes })
+    } catch (e: IOException) {
+      Timber.e(e, "Network error while estimating download size.")
+      Result.failure(e)
+    }
 
   /** Returns the number of bytes occupied by tiles on the local device. */
   fun sizeOnDevice(offlineArea: OfflineArea): ByteCount =

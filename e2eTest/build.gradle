@@ -64,11 +64,12 @@ android {
 }
 
 dependencies {
+    implementation libs.androidx.compose.ui.test.junit4
     androidTestUtil libs.androidx.orchestrator
     implementation libs.androidx.appcompat
-    implementation libs.androidx.cardview
     implementation libs.androidx.core.ktx
     implementation libs.androidx.espresso.core
+    implementation libs.androidx.espresso.intents
     implementation libs.androidx.junit
     implementation libs.androidx.rules
     implementation libs.androidx.uiautomator

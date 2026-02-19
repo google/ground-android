@@ -154,17 +154,29 @@ class TaskFragmentRunner(
     )
 
   internal fun validateTextIsDisplayed(text: String): TaskFragmentRunner {
-    onView(withText(text)).check(matches(isDisplayed()))
+    if (baseHiltTest.composeTestRule.onAllNodes(hasText(text)).fetchSemanticsNodes().isNotEmpty()) {
+      baseHiltTest.composeTestRule.onNodeWithText(text).assertIsDisplayed()
+    } else {
+      onView(withText(text)).check(matches(isDisplayed()))
+    }
     return this
   }
 
   internal fun validateTextIsNotDisplayed(text: String): TaskFragmentRunner {
-    onView(withText(text)).check(matches(not(isDisplayed())))
+    if (baseHiltTest.composeTestRule.onAllNodes(hasText(text)).fetchSemanticsNodes().isNotEmpty()) {
+      baseHiltTest.composeTestRule.onNodeWithText(text).assertIsNotDisplayed()
+    } else {
+      onView(withText(text)).check(matches(not(isDisplayed())))
+    }
     return this
   }
 
   internal fun validateTextDoesNotExist(text: String): TaskFragmentRunner {
-    onView(withText(text)).check(doesNotExist())
+    if (baseHiltTest.composeTestRule.onAllNodes(hasText(text)).fetchSemanticsNodes().isNotEmpty()) {
+      baseHiltTest.composeTestRule.onNodeWithText(text).assertDoesNotExist()
+    } else {
+      onView(withText(text)).check(doesNotExist())
+    }
     return this
   }
 
@@ -240,9 +252,9 @@ class TaskFragmentRunner(
     isContentDescription: Boolean = false,
   ): TaskFragmentRunner {
     if (isContentDescription) {
-      baseHiltTest.composeTestRule.onNodeWithContentDescription(text).assertIsNotDisplayed()
+      baseHiltTest.composeTestRule.onNodeWithContentDescription(text).assertDoesNotExist()
     } else {
-      baseHiltTest.composeTestRule.onNodeWithText(text).assertIsNotDisplayed()
+      baseHiltTest.composeTestRule.onNodeWithText(text).assertDoesNotExist()
     }
     return this
   }

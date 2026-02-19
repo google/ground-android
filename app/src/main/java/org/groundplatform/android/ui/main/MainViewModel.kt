@@ -19,8 +19,6 @@ import android.net.Uri
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes.SIGN_IN_CANCELLED
-import com.google.android.gms.common.api.ApiException
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
@@ -32,7 +30,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.groundplatform.android.BuildConfig
 import org.groundplatform.android.common.Constants.SURVEY_PATH_SEGMENT
-import org.groundplatform.android.coroutines.IoDispatcher
+import org.groundplatform.android.di.coroutines.IoDispatcher
 import org.groundplatform.android.model.User
 import org.groundplatform.android.repository.TermsOfServiceRepository
 import org.groundplatform.android.repository.UserRepository
@@ -42,7 +40,6 @@ import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.common.SharedViewModel
 import org.groundplatform.android.usecases.session.ClearUserSessionUseCase
 import org.groundplatform.android.usecases.survey.ReactivateLastSurveyUseCase
-import org.groundplatform.android.util.isPermissionDeniedException
 import timber.log.Timber
 
 /** Top-level view model representing state of the [MainActivity] shared by all fragments. */
@@ -83,30 +80,12 @@ constructor(
     _deepLinkUri.value = uri
   }
 
-  private suspend fun onSignInStateChange(signInState: SignInState): MainUiState =
+  private suspend fun onSignInStateChange(signInState: SignInState): MainUiState? =
     when (signInState) {
-      is SignInState.Error -> onUserSignInError(signInState.error)
       is SignInState.SignedIn -> onUserSignedIn(signInState.user)
       is SignInState.SignedOut -> onUserSignedOut()
-      is SignInState.SigningIn -> MainUiState.OnUserSigningIn
+      else -> null
     }
-
-  private fun onUserSignInError(error: Throwable): MainUiState {
-    Timber.e(error, "Sign in failed")
-    return if (error.isPermissionDeniedException()) {
-      MainUiState.OnPermissionDenied
-    } else if (error.isSignInCancelledException()) {
-      Timber.d("User cancelled sign in")
-      MainUiState.OnUserSignedOut
-    } else {
-      // TODO: Display some error dialog to the user with a helpful user-readable message.
-      // Issue URL: https://github.com/google/ground-android/issues/1808
-      onUserSignedOut()
-    }
-  }
-
-  private fun Throwable.isSignInCancelledException() =
-    this is ApiException && statusCode == SIGN_IN_CANCELLED
 
   private fun onUserSignedOut(): MainUiState {
     // Scope of subscription is until view model is cleared. Dispose it manually otherwise, firebase
@@ -142,7 +121,9 @@ constructor(
         MainUiState.ShowHomeScreen
       }
     } catch (e: Throwable) {
-      onUserSignInError(e)
+      Timber.e(e)
+      // TODO: Display some error dialog to the user with a helpful user-readable message.
+      onUserSignedOut()
     }
 
   /** Returns true if the user has already accepted the Terms of Service. */

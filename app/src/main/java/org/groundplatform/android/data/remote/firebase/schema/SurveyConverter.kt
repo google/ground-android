@@ -65,7 +65,7 @@ internal object SurveyConverter {
     }
 
   private fun getGeneralAccess(surveyProto: SurveyProto): SurveyProto.GeneralAccess =
-    surveyProto.generalAccess ?: SurveyProto.GeneralAccess.GENERAL_ACCESS_UNSPECIFIED
+    surveyProto.generalAccess
 
   /** Build SurveyModel from parsed data. */
   private fun createSurveyModel(

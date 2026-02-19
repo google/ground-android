@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,16 +20,12 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.components.SingletonComponent
 import dagger.hilt.testing.TestInstallIn
-import javax.inject.Singleton
-import org.groundplatform.android.data.sync.FakeWorkManager
-import org.groundplatform.android.data.sync.WorkManagerModule
+import org.groundplatform.android.di.WorkManagerModule
+import org.mockito.Mockito
 
 @Module
 @TestInstallIn(components = [SingletonComponent::class], replaces = [WorkManagerModule::class])
 object TestWorkManagerModule {
-  @Provides
-  @Singleton
-  fun provideWorkManager(): WorkManager {
-    return FakeWorkManager()
-  }
+
+  @Provides fun provideWorkManager(): WorkManager = Mockito.mock(WorkManager::class.java)
 }

@@ -24,6 +24,7 @@ import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
+import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.BaseTaskFragmentTest
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -67,7 +68,11 @@ class NumberTaskFragmentTest : BaseTaskFragmentTest<NumberTaskFragment, NumberTa
   fun `response when on user input next button is enabled`() = runWithTestDispatcher {
     setupTaskFragment<NumberTaskFragment>(job, task)
 
-    runner().inputNumber(123.1).assertInputNumberDisplayed("123.1").assertButtonIsEnabled("Next")
+    runner()
+      .assertButtonIsDisabled("Next")
+      .inputNumber(123.1)
+      .assertInputNumberDisplayed("123.1")
+      .assertButtonIsEnabled("Next")
 
     hasValue(NumberTaskData("123.1"))
   }
@@ -86,23 +91,24 @@ class NumberTaskFragmentTest : BaseTaskFragmentTest<NumberTaskFragment, NumberTa
   }
 
   @Test
-  fun `action buttons`() {
+  fun `Initial action buttons state when task is optional`() {
     setupTaskFragment<NumberTaskFragment>(job, task)
 
-    assertFragmentHasButtons(ButtonAction.PREVIOUS, ButtonAction.SKIP, ButtonAction.NEXT)
+    assertFragmentHasButtons(
+      ButtonActionState(ButtonAction.PREVIOUS, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.SKIP, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.NEXT, isEnabled = false, isVisible = true),
+    )
   }
 
   @Test
-  fun `action buttons when task is optional`() {
-    setupTaskFragment<NumberTaskFragment>(job, task.copy(isRequired = false))
-
-    runner().assertButtonIsDisabled("Next").assertButtonIsEnabled("Skip")
-  }
-
-  @Test
-  fun `action buttons when task is required`() {
+  fun `Initial action buttons state when task is required`() {
     setupTaskFragment<NumberTaskFragment>(job, task.copy(isRequired = true))
 
-    runner().assertButtonIsDisabled("Next").assertButtonIsHidden("Skip")
+    assertFragmentHasButtons(
+      ButtonActionState(ButtonAction.PREVIOUS, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.SKIP, isEnabled = false, isVisible = false),
+      ButtonActionState(ButtonAction.NEXT, isEnabled = false, isVisible = true),
+    )
   }
 }

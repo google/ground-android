@@ -82,7 +82,7 @@ fun JobSelectionRow(job: Job, onClick: () -> Unit) {
 @Composable
 @Preview(showSystemUi = true)
 @ExcludeFromJacocoGeneratedReport
-fun PreviewJobSelectionRow() {
+private fun PreviewJobSelectionRow() {
   AppTheme {
     Column {
       Spacer(modifier = Modifier.size(60.dp))

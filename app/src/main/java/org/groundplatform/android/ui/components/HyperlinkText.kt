@@ -41,7 +41,8 @@ fun HyperlinkText(
   linkTextDecoration: TextDecoration = TextDecoration.None,
   fontSize: TextUnit = TextUnit.Unspecified,
 ) {
-  val fullText = LocalContext.current.getText(fullTextResId).toSpannable()
+  val resources = LocalContext.current.resources
+  val fullText = resources.getText(fullTextResId).toSpannable()
   val annotations = fullText.getSpans(0, fullText.length, Annotation::class.java)
 
   val annotatedString = buildAnnotatedString {

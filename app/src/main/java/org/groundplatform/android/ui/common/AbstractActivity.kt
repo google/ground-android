@@ -35,7 +35,7 @@ abstract class AbstractActivity : AppCompatActivity() {
     super.onCreate(savedInstanceState)
   }
 
-  override fun setContentView(view: View) {
+  override fun setContentView(view: View?) {
     super.setContentView(view)
     ViewCompat.setOnApplyWindowInsetsListener(window.decorView.rootView) { _, insets ->
       insets.apply { onWindowInsetChanged(this) }

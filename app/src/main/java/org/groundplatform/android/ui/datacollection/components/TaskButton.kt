@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,129 +15,95 @@
  */
 package org.groundplatform.android.ui.datacollection.components
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import org.groundplatform.android.model.submission.TaskData
+import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
+import org.groundplatform.android.ui.theme.AppTheme
 
-class TaskButton(initialAction: ButtonAction) {
-
-  private lateinit var clickCallback: () -> Unit
-
-  private var action: MutableState<ButtonAction> = mutableStateOf(initialAction)
-  private var enabled: MutableState<Boolean> = mutableStateOf(true)
-  private var hidden: MutableState<Boolean> = mutableStateOf(false)
-
-  private var taskUpdatedCallback: ((button: TaskButton, taskData: TaskData?) -> Unit)? = null
-
-  @Composable
-  fun CreateButton() {
-    if (!hidden.value) {
-      when (action.value.theme) {
-        ButtonAction.Theme.DARK_GREEN ->
-          Button(onClick = { clickCallback() }, enabled = enabled.value) { Content() }
-        ButtonAction.Theme.LIGHT_GREEN ->
-          FilledTonalButton(onClick = { clickCallback() }, enabled = enabled.value) { Content() }
-        ButtonAction.Theme.OUTLINED ->
-          OutlinedButton(onClick = { clickCallback() }, enabled = enabled.value) { Content() }
-        ButtonAction.Theme.TRANSPARENT ->
-          OutlinedButton(
-            border = null,
-            onClick = { clickCallback() },
-            enabled = enabled.value,
-            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
-          ) {
-            Content()
-          }
+@Composable
+fun TaskButton(
+  modifier: Modifier = Modifier,
+  state: ButtonActionState,
+  onClick: (ButtonAction) -> Unit,
+) {
+  when (state.action.theme) {
+    ButtonAction.Theme.DARK_GREEN ->
+      Button(modifier = modifier, onClick = { onClick(state.action) }, enabled = state.isEnabled) {
+        Content(action = state.action)
       }
-    }
+    ButtonAction.Theme.LIGHT_GREEN ->
+      FilledTonalButton(
+        modifier = modifier,
+        onClick = { onClick(state.action) },
+        enabled = state.isEnabled,
+      ) {
+        Content(action = state.action)
+      }
+    ButtonAction.Theme.OUTLINED ->
+      OutlinedButton(
+        modifier = modifier,
+        onClick = { onClick(state.action) },
+        enabled = state.isEnabled,
+      ) {
+        Content(action = state.action)
+      }
+    ButtonAction.Theme.TRANSPARENT ->
+      OutlinedButton(
+        modifier = modifier,
+        border = null,
+        onClick = { onClick(state.action) },
+        enabled = state.isEnabled,
+        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+      ) {
+        Content(action = state.action)
+      }
   }
+}
 
-  @Composable
-  private fun Content() {
-    // Icon
-    action.value.drawableId?.let {
+@Composable
+private fun Content(modifier: Modifier = Modifier, action: ButtonAction) {
+  when {
+    action.drawableId != null -> {
       Icon(
-        imageVector = ImageVector.vectorResource(id = it),
-        contentDescription = action.value.contentDescription?.let { resId -> stringResource(resId) },
+        modifier = modifier,
+        imageVector = ImageVector.vectorResource(id = action.drawableId),
+        contentDescription = action.contentDescription?.let { resId -> stringResource(resId) },
       )
     }
-
-    // Label
-    action.value.textId?.let { textId -> Text(text = stringResource(id = textId)) }
-  }
-
-  /** Updates the `visibility` property button. */
-  fun showIfTrue(result: Boolean): TaskButton = if (result) show() else hide()
-
-  /** Updates the `isEnabled` property of button. */
-  fun enableIfTrue(result: Boolean): TaskButton = if (result) enable() else disable()
-
-  fun getAction(): ButtonAction = action.value
-
-  fun done(): TaskButton {
-    action.value = ButtonAction.DONE
-    return this
-  }
-
-  fun next(): TaskButton {
-    action.value = ButtonAction.NEXT
-    return this
-  }
-
-  fun toggleDone(done: Boolean): TaskButton {
-    if (action.value == ButtonAction.NEXT && done) {
-      done()
-    } else if (action.value == ButtonAction.DONE && !done) {
-      next()
+    action.textId != null -> {
+      Text(modifier = modifier, text = stringResource(id = action.textId))
     }
-    return this
   }
+}
 
-  fun show(): TaskButton {
-    hidden.value = false
-    return this
-  }
-
-  fun hide(): TaskButton {
-    hidden.value = true
-    return this
-  }
-
-  fun enable(): TaskButton {
-    enabled.value = true
-    return this
-  }
-
-  fun disable(): TaskButton {
-    enabled.value = false
-    return this
-  }
-
-  /** Register a callback to be invoked when this view is clicked. */
-  fun setOnClickListener(block: () -> Unit): TaskButton {
-    this.clickCallback = block
-    return this
-  }
-
-  /** Register a callback to be invoked when [TaskData] is updated. */
-  fun setOnValueChanged(block: (button: TaskButton, taskData: TaskData?) -> Unit): TaskButton {
-    this.taskUpdatedCallback = block
-    return this
-  }
-
-  /** Must be called when a new [TaskData] is available. */
-  fun onValueChanged(taskData: TaskData?) {
-    taskUpdatedCallback?.let { it(this, taskData) }
+@Preview(showBackground = true)
+@Composable
+@ExcludeFromJacocoGeneratedReport
+private fun TaskButtonAllPreview() {
+  AppTheme {
+    Column(
+      modifier = Modifier.padding(16.dp),
+      verticalArrangement = Arrangement.spacedBy(8.dp),
+      horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+      ButtonAction.entries.forEach { action ->
+        TaskButton(state = ButtonActionState(action), onClick = {})
+      }
+    }
   }
 }

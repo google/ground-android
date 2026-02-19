@@ -19,6 +19,9 @@ import org.groundplatform.android.model.User
 
 sealed class SignInState {
 
+  /** Returns true if a sign-in attempt is allowed based on current state. */
+  fun shouldAllowSignIn(): Boolean = this is SignedOut || this is Error
+
   data object SignedOut : SignInState()
 
   data object SigningIn : SignInState()

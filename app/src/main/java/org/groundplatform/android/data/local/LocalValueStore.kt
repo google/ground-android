@@ -21,9 +21,9 @@ import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 import org.groundplatform.android.common.Constants.DEFAULT_MAP_TYPE
-import org.groundplatform.android.common.Constants.LENGTH_UNIT_METER
 import org.groundplatform.android.common.PrefKeys
 import org.groundplatform.android.model.map.CameraPosition
+import org.groundplatform.android.model.settings.MeasurementUnits
 import org.groundplatform.android.util.allowThreadDiskReads
 import org.groundplatform.android.util.allowThreadDiskWrites
 import timber.log.Timber
@@ -108,10 +108,11 @@ constructor(private val preferences: SharedPreferences, private val locale: Loca
 
   var selectedLengthUnit: String
     get() = allowThreadDiskReads {
-      preferences.getString(PrefKeys.LENGTH_UNIT, LENGTH_UNIT_METER) ?: LENGTH_UNIT_METER
+      preferences.getString(PrefKeys.MEASUREMENT_UNITS, MeasurementUnits.METRIC.name)
+        ?: MeasurementUnits.METRIC.name
     }
     set(value) = allowThreadDiskReads {
-      preferences.edit { putString(PrefKeys.LENGTH_UNIT, value) }
+      preferences.edit { putString(PrefKeys.MEASUREMENT_UNITS, value) }
     }
 
   /** Removes all values stored in the local store. */

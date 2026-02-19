@@ -411,12 +411,12 @@ fun SurveyEntityAndRelations.toModelObject(): Survey {
     surveyEntity.dataSharingTerms?.let {
       DataSharingTerms.parseFrom(surveyEntity.dataSharingTerms)
     },
-    generalAccess = surveyEntity.generalAccess?.toGeneralAccess(),
+    surveyEntity.generalAccess.toGeneralAccess(),
   )
 }
 
 fun Int.toGeneralAccess(): org.groundplatform.android.proto.Survey.GeneralAccess =
-  org.groundplatform.android.proto.Survey.GeneralAccess.values().find { it.number == this }
+  org.groundplatform.android.proto.Survey.GeneralAccess.entries.find { it.number == this }
     ?: org.groundplatform.android.proto.Survey.GeneralAccess.UNRECOGNIZED
 
 private fun JSONObject.toStringMap(): Map<String, String> {
@@ -432,7 +432,7 @@ fun Survey.toLocalDataStoreObject() =
     description = description,
     acl = JSONObject(acl as Map<*, *>),
     dataSharingTerms = dataSharingTerms?.toByteArray(),
-    generalAccess = generalAccess?.ordinal,
+    generalAccess = generalAccess.ordinal,
     dataVisibility = dataVisibility?.ordinal,
   )
 
@@ -515,11 +515,13 @@ fun ExpressionEntity.toModelObject(): Expression =
     optionIds = optionIds?.split(',')?.toSet() ?: setOf(),
   )
 
-@Throws(LocalDataConsistencyException::class)
-fun DraftSubmissionEntity.toModelObject(survey: Survey): DraftSubmission {
+fun DraftSubmissionEntity.toModelObject(survey: Survey): DraftSubmission? {
   val job =
     survey.getJob(jobId)
-      ?: throw LocalDataConsistencyException("Unknown jobId in submission mutation $id")
+      ?: run {
+        Timber.w("Draft submission $id references jobId $jobId that no longer exists, discarding")
+        return null
+      }
 
   return DraftSubmission(
     id = id,

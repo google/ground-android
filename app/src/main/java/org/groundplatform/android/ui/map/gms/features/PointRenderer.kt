@@ -24,11 +24,15 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import javax.inject.Inject
 import org.groundplatform.android.R
+import org.groundplatform.android.common.Constants.isReleaseBuild
 import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.ui.IconFactory
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.gms.MARKER_Z
 import org.groundplatform.android.ui.map.gms.toLatLng
+import org.jetbrains.annotations.TestOnly
+
+@TestOnly const val TEST_MARKER_TAG = "Test point"
 
 class PointRenderer
 @Inject
@@ -56,6 +60,9 @@ constructor(resources: Resources, private val markerIconFactory: IconFactory) :
       icon(getMarkerIcon(style, selected))
       zIndex(MARKER_Z)
       visible(visible)
+      if (!isReleaseBuild()) {
+        contentDescription(TEST_MARKER_TAG)
+      }
     }
     val marker = map.addMarker(markerOptions) ?: error("Failed to create marker")
     marker.tag = tag

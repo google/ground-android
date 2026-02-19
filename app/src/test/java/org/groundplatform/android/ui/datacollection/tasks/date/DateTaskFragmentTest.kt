@@ -16,21 +16,23 @@
 package org.groundplatform.android.ui.datacollection.tasks.date
 
 import android.app.DatePickerDialog
+import android.content.Context
+import android.text.format.DateFormat
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.isNotDisplayed
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.isEnabled
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.compose.ui.test.performClick
+import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
+import java.text.SimpleDateFormat
 import javax.inject.Inject
 import org.groundplatform.android.R
 import org.groundplatform.android.model.job.Job
@@ -38,14 +40,12 @@ import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
+import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.BaseTaskFragmentTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.robolectric.RobolectricTestRunner
-
-// TODO: Add a test for selecting a date and verifying response.
-// Issue URL: https://github.com/google/ground-android/issues/2134
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
@@ -67,13 +67,35 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
   }
 
   @Test
+  fun `Initial action buttons state when task is optional`() {
+    setupTaskFragment<DateTaskFragment>(job, task)
+
+    assertFragmentHasButtons(
+      ButtonActionState(ButtonAction.PREVIOUS, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.SKIP, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.NEXT, isEnabled = false, isVisible = true),
+    )
+  }
+
+  @Test
+  fun `Initial action buttons state when task is required`() {
+    setupTaskFragment<DateTaskFragment>(job, task.copy(isRequired = true))
+
+    assertFragmentHasButtons(
+      ButtonActionState(ButtonAction.PREVIOUS, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.SKIP, isEnabled = false, isVisible = false),
+      ButtonActionState(ButtonAction.NEXT, isEnabled = false, isVisible = true),
+    )
+  }
+
+  @Test
   fun `default response is empty`() {
     setupTaskFragment<DateTaskFragment>(job, task)
 
-    onView(withId(R.id.user_response_text))
-      .check(matches(withText("")))
-      .check(matches(isDisplayed()))
-      .check(matches(isEnabled()))
+    composeTestRule
+      .onNodeWithTag(DATE_TEXT_TEST_TAG)
+      .assertIsDisplayed()
+      .assertTextContains(getExpectedDateHint())
 
     runner().assertButtonIsDisabled("Next")
   }
@@ -86,10 +108,10 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
     // with height zero, and it doesn't seem to repro constraint calculations. Force the view to
     // have a height of 1 to ensure the action performed below actually takes place.
     val view: View? = fragment.view?.findViewById(R.id.task_container)
-    view?.layoutParams = ViewGroup.LayoutParams(0, 1)
+    view?.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1)
 
     assertThat(fragment.getDatePickerDialog()).isNull()
-    onView(withId(R.id.user_response_text)).perform(click())
+    composeTestRule.onNodeWithTag(DATE_TEXT_TEST_TAG).performClick()
     assertThat(fragment.getDatePickerDialog()).isNotNull()
     assertThat(fragment.getDatePickerDialog()?.isShowing).isTrue()
   }
@@ -99,8 +121,8 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
     setupTaskFragment<DateTaskFragment>(job, task)
 
     val view: View? = fragment.view?.findViewById(R.id.task_container)
-    view?.layoutParams = ViewGroup.LayoutParams(0, 1)
-    onView(withId(R.id.user_response_text)).perform(click())
+    view?.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1)
+    composeTestRule.onNodeWithTag(DATE_TEXT_TEST_TAG).performClick()
     assertThat(fragment.getDatePickerDialog()?.isShowing).isTrue()
 
     val hardcodedYear = 2024
@@ -113,6 +135,7 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
     datePickerDialog?.getButton(DatePickerDialog.BUTTON_POSITIVE)?.performClick()
 
     composeTestRule.onNodeWithText("10/10/24").isDisplayed()
+    runner().assertButtonIsEnabled("Next")
   }
 
   @Test
@@ -120,8 +143,8 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
     setupTaskFragment<DateTaskFragment>(job, task)
 
     val view: View? = fragment.view?.findViewById(R.id.task_container)
-    view?.layoutParams = ViewGroup.LayoutParams(0, 1)
-    onView(withId(R.id.user_response_text)).perform(click())
+    view?.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1)
+    composeTestRule.onNodeWithTag(DATE_TEXT_TEST_TAG).performClick()
     assertThat(fragment.getDatePickerDialog()?.isShowing).isTrue()
 
     val hardcodedYear = 2024
@@ -142,26 +165,13 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
   fun `hint text is visible`() {
     setupTaskFragment<DateTaskFragment>(job, task)
 
-    composeTestRule.onNodeWithText("M/D/YY").isDisplayed()
+    composeTestRule.onNodeWithText(getExpectedDateHint()).isDisplayed()
   }
 
-  @Test
-  fun `displays correct action buttons`() {
-    setupTaskFragment<DateTaskFragment>(job, task)
-    assertFragmentHasButtons(ButtonAction.PREVIOUS, ButtonAction.SKIP, ButtonAction.NEXT)
-  }
-
-  @Test
-  fun `action buttons when task is optional`() {
-    setupTaskFragment<DateTaskFragment>(job, task.copy(isRequired = false))
-
-    runner().assertButtonIsDisabled("Next").assertButtonIsEnabled("Skip")
-  }
-
-  @Test
-  fun `action buttons when task is required`() {
-    setupTaskFragment<DateTaskFragment>(job, task.copy(isRequired = true))
-
-    runner().assertButtonIsDisabled("Next").assertButtonIsHidden("Skip")
+  private fun getExpectedDateHint(): String {
+    val context = ApplicationProvider.getApplicationContext<Context>()
+    val hint = (DateFormat.getDateFormat(context) as SimpleDateFormat).toPattern().uppercase()
+    assertThat(hint).isNotEmpty()
+    return hint
   }
 }

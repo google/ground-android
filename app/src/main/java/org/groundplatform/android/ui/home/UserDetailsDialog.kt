@@ -50,7 +50,7 @@ fun UserDetailsDialog(user: User, signOutCallback: () -> Unit, dismissCallback: 
 @Composable
 @Preview
 @ExcludeFromJacocoGeneratedReport
-fun PreviewUserDetailsDialog() {
+private fun PreviewUserDetailsDialog() {
   AppTheme {
     UserDetailsDialog(
       user = User("id_1", "random@email.com", "Dummy name"),

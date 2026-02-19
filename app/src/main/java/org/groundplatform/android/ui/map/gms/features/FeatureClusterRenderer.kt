@@ -41,7 +41,7 @@ class FeatureClusterRenderer(
   context: Context,
   map: GoogleMap,
   clusterManager: ClusterManager<FeatureClusterItem>,
-  var zoom: Float,
+  private var zoom: Float,
 ) : DefaultClusterRenderer<FeatureClusterItem>(context, map, clusterManager) {
   /**
    * Called when the cluster balloon is shown so that implementations can unhide related map items.
@@ -53,6 +53,13 @@ class FeatureClusterRenderer(
   lateinit var onClusterItemRendered: (Feature.Tag) -> Unit
 
   private val markerIconFactory: IconFactory = IconFactory(context)
+
+  private var oldZoom = zoom
+
+  fun setZoom(newZoom: Float) {
+    oldZoom = zoom
+    zoom = newZoom
+  }
 
   /**
    * Hides the marker provided by [DefaultClusterRenderer] and instead triggers the callback
@@ -101,8 +108,33 @@ class FeatureClusterRenderer(
   /**
    * Indicates whether or not a cluster should be rendered as a cluster or individual map items.
    *
-   * Returns true iff the current zoom level is less than [CLUSTERING_ZOOM_THRESHOLD].
+   * Returns true if the current zoom level is less than [CLUSTERING_ZOOM_THRESHOLD].
    */
   override fun shouldRenderAsCluster(cluster: Cluster<FeatureClusterItem>): Boolean =
-    zoom < CLUSTERING_ZOOM_THRESHOLD
+    isClusterMode(zoom)
+
+  /**
+   * Determines whether the cluster should be re-rendered.
+   *
+   * The default implementation skips rendering when the clusters haven't changed, as an
+   * optimization. This override also considers the current zoom level so that a re-render is forced
+   * when the rendering mode changes (cluster vs individual items) even if the clusters are the
+   * same.
+   *
+   * @return true if the rendering mode changed due to crossing [CLUSTERING_ZOOM_THRESHOLD], or if
+   *   the clusters differ; false otherwise.
+   */
+  override fun shouldRender(
+    oldClusters: Set<Cluster<FeatureClusterItem?>?>,
+    newClusters: Set<Cluster<FeatureClusterItem?>?>,
+  ): Boolean =
+    if (hasRenderingModeChanged()) {
+      true
+    } else {
+      super.shouldRender(oldClusters, newClusters)
+    }
+
+  private fun hasRenderingModeChanged(): Boolean = isClusterMode(oldZoom) != isClusterMode(zoom)
+
+  private fun isClusterMode(zoom: Float): Boolean = zoom < CLUSTERING_ZOOM_THRESHOLD
 }

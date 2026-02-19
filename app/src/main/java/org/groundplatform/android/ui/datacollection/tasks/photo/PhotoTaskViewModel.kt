@@ -16,18 +16,20 @@
 package org.groundplatform.android.ui.datacollection.tasks.photo
 
 import android.net.Uri
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import java.io.IOException
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.groundplatform.android.data.remote.firebase.FirebaseStorageManager
 import org.groundplatform.android.model.submission.PhotoTaskData
+import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.submission.isNotNullOrEmpty
 import org.groundplatform.android.repository.UserMediaRepository
+import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 import timber.log.Timber
 
@@ -45,20 +47,44 @@ class PhotoTaskViewModel @Inject constructor(private val userMediaRepository: Us
   var hasLaunchedCamera: Boolean = false
   var capturedUri: Uri? = null
 
-  val uri: LiveData<Uri> =
-    taskTaskData
-      .filterIsInstance<PhotoTaskData>()
-      .map { it.remoteFilename }
-      .map { userMediaRepository.getDownloadUrl(it) }
-      .asLiveData()
+  val uri: Flow<Uri> =
+    taskTaskData.map { taskData ->
+      if (taskData is PhotoTaskData && taskData.isNotNullOrEmpty()) {
+        userMediaRepository.getDownloadUrl(taskData.remoteFilename)
+      } else {
+        Uri.EMPTY
+      }
+    }
 
-  val isPhotoPresent: LiveData<Boolean> = taskTaskData.map { it.isNotNullOrEmpty() }.asLiveData()
+  override fun getButtonStates(taskData: TaskData?): List<ButtonActionState> =
+    listOf(
+      getPreviousButton(),
+      getUndoButton(taskData),
+      getSkipButton(taskData),
+      getNextButton(taskData),
+    )
+
+  suspend fun createImageFileUri(): Uri {
+    val file = userMediaRepository.createImageFile(task.id)
+    return userMediaRepository.getUriForFile(file)
+  }
+
+  fun waitForPhotoCapture(taskId: String) {
+    taskWaitingForPhoto = taskId
+  }
+
+  fun onCaptureResult(result: Boolean) {
+    if (result && capturedUri != null) {
+      viewModelScope.launch { savePhotoTaskData(capturedUri!!) }
+    }
+    hasLaunchedCamera = false
+  }
 
   /**
    * Saves photo data stored on an on-device URI in Ground-associated storage and prepares it for
    * inclusion in a data collection submission.
    */
-  suspend fun savePhotoTaskData(uri: Uri) {
+  private suspend fun savePhotoTaskData(uri: Uri) {
     val currentTask = taskWaitingForPhoto
     requireNotNull(currentTask) { "Photo captured but no task waiting for the result" }
 

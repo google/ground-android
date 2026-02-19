@@ -25,7 +25,7 @@ object PrefKeys {
   const val DROP_PIN_INSTRUCTIONS_SHOWN = "drop_pin_instructions_shown"
   const val LANGUAGE = "language"
   const val LAST_VIEWPORT_PREFIX = "last_viewport_"
-  const val LENGTH_UNIT = "length_unit"
+  const val MEASUREMENT_UNITS = "measurement_units"
   const val LOCATION_LOCK_ENABLED = "location_lock_enabled"
   const val MAP_TYPE = "map_type"
   const val OFFLINE_MAP_IMAGERY = "offline_map_imagery"

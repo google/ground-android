@@ -15,12 +15,12 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.multiplechoice
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -52,6 +52,7 @@ import org.groundplatform.android.ui.theme.AppTheme
 const val MULTIPLE_CHOICE_ITEM_TEST_TAG = "multiple choice item test tag"
 const val OTHER_INPUT_TEXT_TEST_TAG = "other input test tag"
 const val SELECT_MULTIPLE_RADIO_TEST_TAG = "select multiple radio test tag"
+const val SELECT_MULTIPLE_CHECKBOX_TEST_TAG = "select multiple checkbox test tag"
 
 /**
  * A composable function that displays a single item in a multiple-choice list.
@@ -83,8 +84,8 @@ fun MultipleChoiceItemView(
     }
   }
 
-  Column(modifier = Modifier.testTag(MULTIPLE_CHOICE_ITEM_TEST_TAG)) {
-    Row(modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+  Column(modifier = modifier.testTag(MULTIPLE_CHOICE_ITEM_TEST_TAG)) {
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
       when (item.cardinality) {
         MultipleChoice.Cardinality.SELECT_ONE -> {
           RadioButton(
@@ -95,21 +96,24 @@ fun MultipleChoiceItemView(
         }
 
         MultipleChoice.Cardinality.SELECT_MULTIPLE -> {
-          Checkbox(checked = item.isSelected, onCheckedChange = { toggleItem(item) })
+          Checkbox(
+            modifier = Modifier.testTag(SELECT_MULTIPLE_CHECKBOX_TEST_TAG),
+            checked = item.isSelected,
+            onCheckedChange = { toggleItem(item) },
+          )
         }
       }
 
-      ClickableText(
+      Text(
         text = item.toTextLabel(),
-        modifier = modifier,
+        modifier = Modifier.clickable(onClick = { toggleItem(item) }),
         style = MaterialTheme.typography.bodyLarge,
-        onClick = { toggleItem(item) },
       )
     }
 
     if (item.isOtherOption) {
-      Row(modifier = modifier.padding(horizontal = 48.dp)) {
-        OtherTextField(modifier, item, focusRequester, otherValueChanged)
+      Row(modifier = Modifier.padding(horizontal = 48.dp)) {
+        OtherTextField(Modifier, item, focusRequester, otherValueChanged)
       }
     }
 
@@ -128,8 +132,8 @@ private fun OtherTextField(
 ) {
   OutlinedTextField(
     supportingText = {
-      Row(modifier = modifier.fillMaxWidth()) {
-        Spacer(modifier = modifier.weight(1f))
+      Row(modifier = Modifier.fillMaxWidth()) {
+        Spacer(modifier = Modifier.weight(1f))
         Text(
           "${item.otherText.length} / ${Constants.TEXT_DATA_CHAR_LIMIT}",
           textAlign = TextAlign.End,
@@ -140,7 +144,7 @@ private fun OtherTextField(
     value = item.otherText,
     textStyle = MaterialTheme.typography.bodyLarge,
     onValueChange = { otherValueChanged(it) },
-    modifier = Modifier.testTag(OTHER_INPUT_TEXT_TEST_TAG).focusRequester(focusRequester),
+    modifier = modifier.testTag(OTHER_INPUT_TEXT_TEST_TAG).focusRequester(focusRequester),
   )
 }
 
@@ -151,7 +155,7 @@ private fun MultipleChoiceItem.toTextLabel() =
 @Preview(backgroundColor = 0xFFFFFFFF, showBackground = true)
 @Composable
 @ExcludeFromJacocoGeneratedReport
-fun SelectOneListItemPreview() {
+private fun SelectOneListItemPreview() {
   AppTheme {
     MultipleChoiceItemView(
       item =
@@ -167,7 +171,7 @@ fun SelectOneListItemPreview() {
 @Preview(backgroundColor = 0xFFFFFFFF, showBackground = true)
 @Composable
 @ExcludeFromJacocoGeneratedReport
-fun SelectMultipleListItemPreview() {
+private fun SelectMultipleListItemPreview() {
   AppTheme {
     MultipleChoiceItemView(
       item =
@@ -183,7 +187,7 @@ fun SelectMultipleListItemPreview() {
 @Preview(backgroundColor = 0xFFFFFFFF, showBackground = true)
 @Composable
 @ExcludeFromJacocoGeneratedReport
-fun SelectOneOtherListItemPreview() {
+private fun SelectOneOtherListItemPreview() {
   AppTheme {
     MultipleChoiceItemView(
       item =
@@ -201,7 +205,7 @@ fun SelectOneOtherListItemPreview() {
 @Preview(backgroundColor = 0xFFFFFFFF, showBackground = true)
 @Composable
 @ExcludeFromJacocoGeneratedReport
-fun SelectMultipleOtherListItemPreview() {
+private fun SelectMultipleOtherListItemPreview() {
   AppTheme {
     MultipleChoiceItemView(
       item =

@@ -15,10 +15,17 @@
  */
 package org.groundplatform.android.ui.util
 
+import androidx.annotation.VisibleForTesting
+import java.util.Locale
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.cos
 import org.groundplatform.android.model.geometry.Coordinates
+import org.groundplatform.android.model.settings.MeasurementUnits
+
+@VisibleForTesting const val SQUARE_METERS_PER_ACRE = 4046.86
+@VisibleForTesting const val SQUARE_METERS_PER_HECTARE = 10_000
+@VisibleForTesting const val SQUARE_FEET_PER_SQUARE_METER = 10.7639
 
 /**
  * Calculates the area of a polygon using the Shoelace formula.
@@ -42,6 +49,26 @@ fun calculateShoelacePolygonArea(coordinates: List<Coordinates>): Double {
       points[i].first * points[j].second - points[j].first * points[i].second
     }
   ) / 2.0
+}
+
+fun getFormattedArea(areaInSquareMeters: Double, measurementUnits: MeasurementUnits): String {
+  val (convertedArea, stringUnit) =
+    when (measurementUnits) {
+      MeasurementUnits.METRIC ->
+        if (areaInSquareMeters < SQUARE_METERS_PER_HECTARE) {
+          areaInSquareMeters to "m²"
+        } else {
+          areaInSquareMeters / SQUARE_METERS_PER_HECTARE to "ha"
+        }
+      MeasurementUnits.IMPERIAL ->
+        if (areaInSquareMeters < SQUARE_METERS_PER_ACRE) {
+          areaInSquareMeters * SQUARE_FEET_PER_SQUARE_METER to "ft²"
+        } else {
+          areaInSquareMeters / SQUARE_METERS_PER_ACRE to "ac"
+        }
+    }
+  val rounded = String.format(Locale.getDefault(), "%.2f", convertedArea)
+  return "$rounded $stringUnit"
 }
 
 /** Converts geographic coordinate to meters relative to reference point. */

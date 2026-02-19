@@ -15,14 +15,12 @@
  */
 package org.groundplatform.android.ui.common
 
-import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.IdRes
-import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
@@ -32,15 +30,12 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import org.groundplatform.android.R
 import org.groundplatform.android.ui.util.ViewUtil
 import org.groundplatform.android.util.Debug
 
 abstract class AbstractFragment : Fragment() {
 
   @Inject lateinit var viewModelFactory: ViewModelFactory
-
-  private var progressDialog: AlertDialog? = null
 
   protected fun <T : ViewModel> getViewModel(modelClass: Class<T>): T =
     viewModelFactory[this, modelClass]
@@ -120,20 +115,6 @@ abstract class AbstractFragment : Fragment() {
   }
 
   protected fun getAbstractActivity(): AbstractActivity = requireActivity() as AbstractActivity
-
-  protected fun showProgressDialog(@StringRes messageId: Int = R.string.loading) {
-    if (progressDialog == null) {
-      progressDialog = modalSpinner(messageId)
-    }
-    progressDialog?.show()
-  }
-
-  protected fun dismissProgressDialog() {
-    if (progressDialog != null) {
-      progressDialog?.dismiss()
-      progressDialog = null
-    }
-  }
 
   protected fun launchWhenStarted(fn: suspend () -> Unit) {
     lifecycleScope.launch { repeatOnLifecycle(Lifecycle.State.STARTED) { fn() } }

@@ -27,6 +27,7 @@ import org.groundplatform.android.proto.Survey
  * @param jobMap A mapping from job IDs to their respective job details.
  * @param acl A map defining user roles and permissions for accessing the survey.
  * @param dataSharingTerms Terms governing how data collected through this survey can be shared.
+ * @param generalAccess Specifies who has access to the survey beyond users in the ACLs
  * @param dataVisibility Specifies the visibility level for Locations of Interest (LOIs) associated
  *   with this survey.
  */
@@ -37,7 +38,7 @@ data class Survey(
   val jobMap: Map<String, Job>,
   val acl: Map<String, String> = mapOf(),
   val dataSharingTerms: Survey.DataSharingTerms? = null,
-  val generalAccess: Survey.GeneralAccess?,
+  val generalAccess: Survey.GeneralAccess,
   val dataVisibility: Survey.DataVisibility? = null,
 ) {
   val jobs: Collection<Job>

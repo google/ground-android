@@ -17,6 +17,7 @@
 package org.groundplatform.android.ui.map.gms.mog
 
 import android.util.LruCache
+import com.google.firebase.storage.StorageException
 import java.io.InputStream
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -40,7 +41,13 @@ typealias MogPathOrUrl = String
 typealias MogUrl = String
 
 /** Client responsible for fetching and caching MOG metadata and image tiles. */
-class MogClient(val collection: MogCollection, val remoteStorageManager: RemoteStorageManager) {
+class MogClient(
+  val collection: MogCollection,
+  val remoteStorageManager: RemoteStorageManager,
+  private val inputStreamFactory: (String, LongRange?) -> InputStream = { url, range ->
+    UrlInputStream(url, range)
+  },
+) {
 
   private val cache: LruCache<String, Deferred<MogMetadata?>> = LruCache(16)
 
@@ -119,7 +126,7 @@ class MogClient(val collection: MogCollection, val remoteStorageManager: RemoteS
    * tile's respective coordinates.
    */
   private fun getTiles(tilesRequest: MogTilesRequest): Flow<MogTile> = flow {
-    UrlInputStream(tilesRequest.sourceUrl, tilesRequest.byteRange).use { inputStream ->
+    inputStreamFactory(tilesRequest.sourceUrl, tilesRequest.byteRange).use { inputStream ->
       emitAll(
         MogTileReader(inputStream, tilesRequest.byteRange.first).readTiles(tilesRequest.tiles)
       )
@@ -210,11 +217,16 @@ class MogClient(val collection: MogCollection, val remoteStorageManager: RemoteS
 
   private suspend fun MogPathOrUrl.toUrl(): MogUrl? =
     if (startsWith("/")) {
-      nullIfError { remoteStorageManager.getDownloadUrl(this).toString() }
+      try {
+        remoteStorageManager.getDownloadUrl(this).toString()
+      } catch (e: StorageException) {
+        Timber.w(e, "File not found for path: $this")
+        null
+      }
     } else this
 
-  private fun MogUrl.readMetadata(mogBounds: TileCoordinates): MogMetadata? =
-    nullIfError { UrlInputStream(this) }?.use { this.readMogMetadataAndClose(mogBounds, it) }
+  private fun MogUrl.readMetadata(mogBounds: TileCoordinates): MogMetadata =
+    inputStreamFactory(this, null).use { this.readMogMetadataAndClose(mogBounds, it) }
 
   /** Reads the metadata from the specified input stream. */
   private fun MogUrl.readMogMetadataAndClose(
@@ -230,11 +242,3 @@ class MogClient(val collection: MogCollection, val remoteStorageManager: RemoteS
       }
   }
 }
-
-private inline fun <T> nullIfError(fn: () -> T) =
-  try {
-    fn()
-  } catch (e: Exception) {
-    Timber.e(e)
-    null
-  }

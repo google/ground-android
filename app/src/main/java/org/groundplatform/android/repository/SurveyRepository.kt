@@ -31,19 +31,18 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withTimeout
-import kotlinx.coroutines.withTimeoutOrNull
 import org.groundplatform.android.FirebaseCrashLogger
-import org.groundplatform.android.coroutines.ApplicationScope
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.local.stores.LocalSurveyStore
 import org.groundplatform.android.data.remote.RemoteDataStore
+import org.groundplatform.android.di.coroutines.ApplicationScope
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.SurveyListItem
 import org.groundplatform.android.model.User
 import timber.log.Timber
 
 private const val ACTIVATE_SURVEY_TIMEOUT_MILLS: Long = 3 * 1000
-private const val LOAD_REMOTE_SURVEY_TIMEOUT_MILLS: Long = 15 * 1000
+private const val LOAD_REMOTE_SURVEY_TIMEOUT_MILLS: Long = 30 * 1000
 
 /** Maintains the state of currently active survey. */
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -71,7 +70,7 @@ constructor(
   suspend fun saveSurvey(survey: Survey) = localSurveyStore.insertOrUpdateSurvey(survey)
 
   suspend fun getRemoteSurvey(surveyId: String): Survey? =
-    withTimeoutOrNull(LOAD_REMOTE_SURVEY_TIMEOUT_MILLS) { remoteDataStore.loadSurvey(surveyId) }
+    withTimeout(LOAD_REMOTE_SURVEY_TIMEOUT_MILLS) { remoteDataStore.loadSurvey(surveyId) }
 
   fun getRemoteSurveys(user: User): Flow<List<SurveyListItem>> =
     combine(remoteDataStore.getRestrictedSurveyList(user), remoteDataStore.getPublicSurveyList()) {

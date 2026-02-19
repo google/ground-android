@@ -15,10 +15,10 @@
  */
 package org.groundplatform.android.data.remote.firebase
 
+import com.google.firebase.Firebase
 import com.google.firebase.firestore.WriteBatch
 import com.google.firebase.functions.FirebaseFunctions
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.messaging.ktx.messaging
+import com.google.firebase.messaging.messaging
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CancellationException
@@ -29,9 +29,10 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-import org.groundplatform.android.coroutines.IoDispatcher
+import org.groundplatform.android.BuildConfig.USE_EMULATORS
 import org.groundplatform.android.data.remote.RemoteDataStore
 import org.groundplatform.android.data.remote.firebase.schema.GroundFirestore
+import org.groundplatform.android.di.coroutines.IoDispatcher
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.SurveyListItem
 import org.groundplatform.android.model.TermsOfService
@@ -42,7 +43,7 @@ import org.groundplatform.android.model.mutation.SubmissionMutation
 import org.groundplatform.android.model.toListItem
 import timber.log.Timber
 
-const val PROFILE_REFRESH_CLOUD_FUNCTION_NAME = "profile-refresh"
+private const val PROFILE_REFRESH_CLOUD_FUNCTION_NAME = "profile-refresh"
 
 @Singleton
 class FirestoreDataStore
@@ -91,6 +92,7 @@ internal constructor(
     withContext(ioDispatcher) { db().surveys().survey(survey.id).lois().fetchSharedLois(survey) }
 
   override suspend fun subscribeToSurveyUpdates(surveyId: String) {
+    if (USE_EMULATORS) return
     Timber.d("Subscribing to FCM topic $surveyId")
     try {
       Firebase.messaging.subscribeToTopic(surveyId).await()

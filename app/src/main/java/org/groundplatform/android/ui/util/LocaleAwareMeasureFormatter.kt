@@ -23,6 +23,7 @@ import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.floor
 import kotlin.math.pow
+import org.groundplatform.android.model.settings.MeasurementUnits
 
 private const val METERS_TO_FEET = 3.28084
 
@@ -38,10 +39,14 @@ class LocaleAwareMeasureFormatter @Inject constructor(locale: Locale) {
   private val distanceFormatter =
     MeasureFormat.getInstance(uLocale, MeasureFormat.FormatWidth.SHORT)
 
-  fun formatDistance(distanceInMeters: Double, unit: MeasureUnit): String {
-    val distance = if (unit == MeasureUnit.FOOT) distanceInMeters.toFeet() else distanceInMeters
-    val roundedDistance = getRoundedDistance(distance)
-    return distanceFormatter.format(Measure(roundedDistance, unit))
+  fun formatDistance(distanceInMeters: Double, unit: MeasurementUnits): String {
+    val distanceMeasure =
+      when (unit) {
+        MeasurementUnits.METRIC -> Measure(getRoundedDistance(distanceInMeters), MeasureUnit.METER)
+        MeasurementUnits.IMPERIAL ->
+          Measure(getRoundedDistance(distanceInMeters.toFeet()), MeasureUnit.FOOT)
+      }
+    return distanceFormatter.format(distanceMeasure)
   }
 
   private fun getRoundedDistance(distance: Double): Double =

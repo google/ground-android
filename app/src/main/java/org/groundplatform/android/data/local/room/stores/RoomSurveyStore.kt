@@ -129,7 +129,7 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
   }
 
   private suspend fun insertOrUpdateTasks(jobId: String, tasks: Collection<Task>) {
-    tasks.forEach { insertOrUpdateTask(jobId, it) }
+    tasks.sortedBy { it.index }.forEach { insertOrUpdateTask(jobId, it) }
     taskDao.deleteNotIn(jobId, tasks.map { it.id })
   }
 

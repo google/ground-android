@@ -20,8 +20,8 @@ import dagger.Module
 import dagger.hilt.components.SingletonComponent
 import dagger.hilt.testing.TestInstallIn
 import javax.inject.Singleton
+import org.groundplatform.android.di.AuthenticationModule
 import org.groundplatform.android.system.auth.AuthenticationManager
-import org.groundplatform.android.system.auth.AuthenticationModule
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
 
 @Module

@@ -18,7 +18,9 @@ package org.groundplatform.android.ui.home
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.drawerlayout.widget.DrawerLayout
@@ -29,11 +31,11 @@ import androidx.test.espresso.action.ViewActions.swipeUp
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.DrawerMatchers.isClosed
 import androidx.test.espresso.contrib.DrawerMatchers.isOpen
-import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.isEnabled
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
@@ -47,6 +49,7 @@ import org.groundplatform.android.data.local.stores.LocalSurveyStore
 import org.groundplatform.android.launchFragmentWithNavController
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.repository.SurveyRepository
+import org.groundplatform.android.ui.components.MapFloatingActionButtonType
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -71,11 +74,15 @@ abstract class AbstractHomeScreenFragmentTest : BaseHiltTest() {
     }
   }
 
-  protected fun openDrawer() {
+  protected fun openDrawer(
+    composeTestRule:
+      AndroidComposeTestRule<ActivityScenarioRule<ComponentActivity>, ComponentActivity>
+  ) {
     onView(withId(R.id.drawer_layout)).check(matches(isClosed()))
-    onView(withId(R.id.hamburger_btn)).check(matches(ViewMatchers.isDisplayed())).perform(click())
+    composeTestRule.onNodeWithTag(MapFloatingActionButtonType.OpenNavDrawer.testTag).performClick()
+    composeTestRule.waitForIdle()
     verifyDrawerOpen()
-    onView(withId(R.id.nav_view)).check(matches(ViewMatchers.isDisplayed()))
+    onView(withId(R.id.nav_view)).check(matches(isDisplayed()))
   }
 
   protected fun swipeUpDrawer() {
@@ -127,7 +134,7 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
 
   @Test
   fun `all menu item is always enabled`() = runWithTestDispatcher {
-    openDrawer()
+    openDrawer(composeTestRule)
     onView(withId(R.id.nav_offline_areas)).check(matches(isEnabled()))
     onView(withId(R.id.sync_status)).check(matches(isEnabled()))
     onView(withId(R.id.nav_settings)).check(matches(isEnabled()))
@@ -141,7 +148,7 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
 
   @Test
   fun `sign out dialog is displayed`() = runWithTestDispatcher {
-    openDrawer()
+    openDrawer(composeTestRule)
 
     onView(withId(R.id.user_image)).check(matches(isDisplayed()))
     openSignOutDialog()
@@ -220,13 +227,15 @@ class NavigationDrawerItemClickTest(
 
   @Inject lateinit var surveyRepository: SurveyRepository
 
+  @get:Rule override val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+
   @Test
   fun `clicking drawer menu item navigates correctly`() = runWithTestDispatcher {
     localSurveyStore.insertOrUpdateSurvey(survey)
     surveyRepository.activateSurvey(survey.id)
     advanceUntilIdle()
 
-    openDrawer()
+    openDrawer(composeTestRule)
 
     onView(withId(R.id.drawer_layout)).perform(swipeUp())
 

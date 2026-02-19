@@ -124,4 +124,11 @@ constructor(
     }
     return file
   }
+
+  fun getUriForFile(file: File): Uri =
+    androidx.core.content.FileProvider.getUriForFile(
+      context,
+      org.groundplatform.android.BuildConfig.APPLICATION_ID,
+      file,
+    )
 }

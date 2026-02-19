@@ -28,25 +28,31 @@ jobs:
 
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.head_ref }}
       - name: "TODO to Issue"
-        uses: alstr/todo-to-issue-action@v5.1.13
+        uses: alstr/todo-to-issue-action@v5.1.14
         with:
           AUTO_ASSIGN: "true"
           INSERT_ISSUE_URLS: "true"
           CLOSE_ISSUES: "false"
       - name: Set Git user
+        # Use env to pass values from workflow expressions into the shell safely.
+        env:
+          ACTOR: ${{ github.actor }}
+          HEAD_REF: ${{ github.head_ref }}
         run: |
-          git config --global user.name ${{ github.actor }}
-          git config --global user.email `git log -n 1 --pretty=format:%ae remotes/origin/${{ github.head_ref }}`
+          git config --global user.name "$ACTOR"
+          git config --global user.email "$(git log -n 1 --pretty=format:%ae remotes/origin/$HEAD_REF)"
       - name: Commit and Push Changes
+        env:
+          HEAD_REF: ${{ github.head_ref }}
         run: |
           git add -A
-          if [[ `git status --porcelain` ]]; then
+          if [[ $(git status --porcelain) ]]; then
             git commit -m "Automatically added GitHub issue links to TODOs"
-            git push origin ${{ github.head_ref }}
+            git push origin "$HEAD_REF"
           else
             echo "No changes to commit"
           fi

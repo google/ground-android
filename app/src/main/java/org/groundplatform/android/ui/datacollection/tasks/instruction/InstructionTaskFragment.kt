@@ -26,7 +26,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,7 +33,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dagger.hilt.android.AndroidEntryPoint
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
-import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.TaskView
 import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
@@ -47,15 +45,11 @@ class InstructionTaskFragment : AbstractTaskFragment<InstructionTaskViewModel>()
     TaskViewFactory.createWithoutHeader(inflater)
 
   override fun onCreateTaskBody(inflater: LayoutInflater): View = createComposeView {
-    ShowTextField()
-  }
-
-  override fun onCreateActionButtons() {
-    addButton(ButtonAction.NEXT).setOnClickListener { moveToNext() }
+    ShowTextField(viewModel.task.label)
   }
 
   @Composable
-  private fun ShowTextField() {
+  private fun ShowTextField(text: String) {
     Box(
       modifier =
         Modifier.fillMaxSize()
@@ -63,12 +57,12 @@ class InstructionTaskFragment : AbstractTaskFragment<InstructionTaskViewModel>()
           .border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(2.dp))
           .padding(16.dp)
     ) {
-      Text(text = viewModel.task.label, fontSize = 24.sp)
+      Text(text = text, fontSize = 24.sp)
     }
   }
 
   @Composable
   @Preview(showBackground = true)
   @ExcludeFromJacocoGeneratedReport
-  fun PreviewTextField() = ShowTextField()
+  private fun PreviewTextField() = ShowTextField("Sample instruction text")
 }

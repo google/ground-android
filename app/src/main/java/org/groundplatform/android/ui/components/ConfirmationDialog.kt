@@ -69,7 +69,7 @@ fun ConfirmationDialog(
 @Composable
 @Preview
 @ExcludeFromJacocoGeneratedReport
-fun PreviewConfirmationDialog() {
+private fun PreviewConfirmationDialog() {
   AppTheme {
     ConfirmationDialog(
       title = R.string.data_collection_cancellation_title,
@@ -83,7 +83,7 @@ fun PreviewConfirmationDialog() {
 @Composable
 @Preview
 @ExcludeFromJacocoGeneratedReport
-fun PreviewConfirmationDialogWithoutCancel() {
+private fun PreviewConfirmationDialogWithoutCancel() {
   AppTheme {
     ConfirmationDialog(
       title = R.string.data_collection_cancellation_title,
