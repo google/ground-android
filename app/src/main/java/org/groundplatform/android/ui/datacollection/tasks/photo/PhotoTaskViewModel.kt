@@ -59,8 +59,6 @@ class PhotoTaskViewModel @Inject constructor(private val userMediaRepository: Us
       }
     }
 
-  val isPhotoPresent: LiveData<Boolean> = taskTaskData.map { it.isNotNullOrEmpty() }.asLiveData()
-
   override fun getButtonStates(taskData: TaskData?): List<ButtonActionState> =
     listOf(
       getPreviousButton(),
