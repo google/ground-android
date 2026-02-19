@@ -79,7 +79,7 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   override fun onCreateTaskBody(inflater: LayoutInflater): View {
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
     return createComposeView {
-      val uri by viewModel.localImageUri.collectAsStateWithLifecycle(Uri.EMPTY)
+      val uri by viewModel.uri.collectAsStateWithLifecycle(Uri.EMPTY)
       PhotoTaskScreen(uri = uri, onTakePhoto = { onTakePhoto() })
     }
   }
