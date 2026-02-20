@@ -20,28 +20,31 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.groundplatform.android.model.settings.MeasurementUnits
 import org.groundplatform.android.model.settings.UserSettings
-import org.groundplatform.android.usecases.user.GetUserSettingsUseCase
+import org.groundplatform.android.repository.UserRepository
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.mockito.Mock
-import org.mockito.Mockito.verify
+import org.mockito.Mockito.doReturn
 import org.mockito.MockitoAnnotations
-import org.mockito.kotlin.times
-import org.mockito.kotlin.whenever
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SettingsViewModelTest {
 
   @get:Rule val instantExecutorRule = InstantTaskExecutorRule()
 
-  @Mock lateinit var getUserSettingsUseCase: GetUserSettingsUseCase
+  @Mock lateinit var userRepository: UserRepository
 
   private lateinit var viewModel: SettingsViewModel
 
@@ -66,14 +69,15 @@ class SettingsViewModelTest {
         measurementUnits = MeasurementUnits.METRIC,
         shouldUploadPhotosOnWifiOnly = false,
       )
-    whenever(getUserSettingsUseCase.invoke()).thenReturn(userSettings)
+    doReturn(flowOf(userSettings)).`when`(userRepository).userSettingsFlow
 
-    viewModel = SettingsViewModel(getUserSettingsUseCase)
+    viewModel = SettingsViewModel(userRepository)
+
+    backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect() }
 
     testDispatcher.scheduler.advanceUntilIdle()
 
     assertEquals(userSettings, viewModel.uiState.value)
-    verify(getUserSettingsUseCase).invoke()
   }
 
   @Test
@@ -81,18 +85,20 @@ class SettingsViewModelTest {
     val settings1 = UserSettings("en", MeasurementUnits.METRIC, false)
     val settings2 = UserSettings("fr", MeasurementUnits.IMPERIAL, true)
 
-    whenever(getUserSettingsUseCase.invoke()).thenReturn(settings1)
+    val flow = MutableSharedFlow<UserSettings>(replay = 1)
+    flow.emit(settings1)
 
-    viewModel = SettingsViewModel(getUserSettingsUseCase)
+    doReturn(flow).`when`(userRepository).userSettingsFlow
+
+    viewModel = SettingsViewModel(userRepository)
+
+    backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect() }
     testDispatcher.scheduler.advanceUntilIdle()
     assertEquals(settings1, viewModel.uiState.value)
 
-    whenever(getUserSettingsUseCase.invoke()).thenReturn(settings2)
-
-    viewModel.refreshUserPreferences()
+    flow.emit(settings2)
     testDispatcher.scheduler.advanceUntilIdle()
 
     assertEquals(settings2, viewModel.uiState.value)
-    verify(getUserSettingsUseCase, times(2)).invoke()
   }
 }
