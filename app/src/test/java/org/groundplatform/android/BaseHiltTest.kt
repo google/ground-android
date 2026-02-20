@@ -48,7 +48,7 @@ open class BaseHiltTest {
   @Inject lateinit var database: LocalDatabase
   @Inject lateinit var testDispatcher: TestDispatcher
 
-  open fun runWithTestDispatcher(testBody: suspend TestScope.() -> Unit) =
+  fun runWithTestDispatcher(testBody: suspend TestScope.() -> Unit) =
     runTest(context = testDispatcher, testBody = testBody)
 
   @Before
@@ -58,7 +58,7 @@ open class BaseHiltTest {
   }
 
   @After
-  open fun closeDb() {
+  fun closeDb() {
     database.close()
   }
 }
