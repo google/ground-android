@@ -65,6 +65,7 @@ import org.groundplatform.android.ui.theme.AppTheme
 @Composable
 fun SettingsScreen(
   onBack: () -> Unit,
+  onLocaleChanged: (String) -> Unit,
   onVisitWebsiteClick: (url: Uri) -> Unit,
   viewModel: SettingsViewModel = hiltViewModel(),
 ) {
@@ -81,7 +82,10 @@ fun SettingsScreen(
       onUploadMediaOverUnmeteredConnectionOnlyChange = {
         viewModel.updateUploadMediaOverUnmeteredConnectionOnly(it)
       },
-      onLanguageChange = { viewModel.updateSelectedLanguage(it) },
+      onLanguageChange = {
+        viewModel.updateSelectedLanguage(it)
+        onLocaleChanged(it)
+      },
       onMeasurementUnitsChange = { viewModel.updateMeasurementUnits(it) },
       onVisitWebsiteClick = { onVisitWebsiteClick(websiteUrl.toUri()) },
       onBack = onBack,
