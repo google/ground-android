@@ -20,6 +20,11 @@ import androidx.core.content.edit
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.onStart
 import org.groundplatform.android.common.Constants.DEFAULT_MAP_TYPE
 import org.groundplatform.android.common.PrefKeys
 import org.groundplatform.android.model.map.CameraPosition
@@ -123,6 +128,43 @@ constructor(private val preferences: SharedPreferences, private val locale: Loca
     set(value) = allowThreadDiskWrites {
       preferences.edit { putBoolean(PrefKeys.UPLOAD_MEDIA, value) }
     }
+
+  private fun watchString(key: String, defaultValue: String): Flow<String> =
+    callbackFlow {
+        val listener =
+          SharedPreferences.OnSharedPreferenceChangeListener { prefs, k ->
+            if (k == key) {
+              trySend(prefs.getString(key, defaultValue) ?: defaultValue)
+            }
+          }
+        preferences.registerOnSharedPreferenceChangeListener(listener)
+        awaitClose { preferences.unregisterOnSharedPreferenceChangeListener(listener) }
+      }
+      .onStart { emit(preferences.getString(key, defaultValue) ?: defaultValue) }
+      .distinctUntilChanged()
+
+  private fun watchBoolean(key: String, defaultValue: Boolean): Flow<Boolean> =
+    callbackFlow {
+        val listener =
+          SharedPreferences.OnSharedPreferenceChangeListener { prefs, k ->
+            if (k == key) {
+              trySend(prefs.getBoolean(key, defaultValue))
+            }
+          }
+        preferences.registerOnSharedPreferenceChangeListener(listener)
+        awaitClose { preferences.unregisterOnSharedPreferenceChangeListener(listener) }
+      }
+      .onStart { emit(preferences.getBoolean(key, defaultValue)) }
+      .distinctUntilChanged()
+
+  val selectedLanguageFlow: Flow<String>
+    get() = watchString(PrefKeys.LANGUAGE, locale.language)
+
+  val selectedLengthUnitFlow: Flow<String>
+    get() = watchString(PrefKeys.MEASUREMENT_UNITS, MeasurementUnits.METRIC.name)
+
+  val shouldUploadMediaOverUnmeteredConnectionOnlyFlow: Flow<Boolean>
+    get() = watchBoolean(PrefKeys.UPLOAD_MEDIA, false)
 
   fun clearLastCameraPosition(surveyId: String) = allowThreadDiskReads {
     preferences.edit { remove(PrefKeys.LAST_VIEWPORT_PREFIX + surveyId) }

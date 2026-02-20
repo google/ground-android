@@ -15,8 +15,8 @@
  */
 package org.groundplatform.android.repository
 
-import javax.inject.Inject
-import javax.inject.Singleton
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.local.stores.LocalUserStore
 import org.groundplatform.android.data.remote.RemoteDataStore
@@ -29,6 +29,8 @@ import org.groundplatform.android.proto.Survey
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.auth.AuthenticationManager
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * Coordinates persistence of [User] instance in local data store. For more details on this pattern
@@ -130,6 +132,21 @@ constructor(
         measurementUnits = MeasurementUnits.valueOf(selectedLengthUnit),
         shouldUploadPhotosOnWifiOnly = shouldUploadMediaOverUnmeteredConnectionOnly,
       )
+    }
+
+  val userSettingsFlow: Flow<UserSettings> =
+    with(localValueStore) {
+      combine(
+        selectedLanguageFlow,
+        selectedLengthUnitFlow,
+        shouldUploadMediaOverUnmeteredConnectionOnlyFlow,
+      ) { language, unit, uploadWifiOnly ->
+        UserSettings(
+          language = language,
+          measurementUnits = MeasurementUnits.valueOf(unit),
+          shouldUploadPhotosOnWifiOnly = uploadWifiOnly,
+        )
+      }
     }
 
   fun updateSelectedLanguage(language: String) {
