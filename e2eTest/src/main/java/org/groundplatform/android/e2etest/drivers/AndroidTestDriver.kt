@@ -46,6 +46,7 @@ import org.groundplatform.android.e2etest.TestConfig.DEFAULT_TIMEOUT
 import org.groundplatform.android.e2etest.TestConfig.TEST_PHOTO_FILE
 import org.groundplatform.android.e2etest.extensions.onTarget
 import org.groundplatform.android.ui.datacollection.tasks.date.DATE_TEXT_TEST_TAG
+import org.groundplatform.android.ui.datacollection.tasks.time.TIME_TEXT_TEST_TAG
 
 @OptIn(ExperimentalTestApi::class)
 class AndroidTestDriver(
@@ -149,7 +150,7 @@ class AndroidTestDriver(
       Instrumentation.ActivityResult(Activity.RESULT_OK, Intent())
     }
 
-    click(TestDriver.Target.ViewId(R.id.btn_camera))
+    composeRule.onTarget(TestDriver.Target.Text("Camera")).performClick()
   }
 
   override fun setDate() {
@@ -160,10 +161,7 @@ class AndroidTestDriver(
   }
 
   override fun setTime() {
-    val resName = composeRule.activity.resources.getResourceEntryName(R.id.user_time_response_text)
-    val packageName = composeRule.activity.packageName
-    val textInputField = device.findObject(By.res(packageName, resName))
-    textInputField?.click()
+    click(TestDriver.Target.TestTag(TIME_TEXT_TEST_TAG))
 
     device.wait(Until.findObject(By.clazz(TimePicker::class.java)), DEFAULT_TIMEOUT)
     device.findObject(By.text("OK")).click()

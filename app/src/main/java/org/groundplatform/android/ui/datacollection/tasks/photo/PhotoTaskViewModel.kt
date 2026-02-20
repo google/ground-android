@@ -16,13 +16,11 @@
 package org.groundplatform.android.ui.datacollection.tasks.photo
 
 import android.net.Uri
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import java.io.IOException
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -49,14 +47,14 @@ class PhotoTaskViewModel @Inject constructor(private val userMediaRepository: Us
   var hasLaunchedCamera: Boolean = false
   var capturedUri: Uri? = null
 
-  val uri: LiveData<Uri> =
-    taskTaskData
-      .filterIsInstance<PhotoTaskData>()
-      .map { it.remoteFilename }
-      .map { userMediaRepository.getDownloadUrl(it) }
-      .asLiveData()
-
-  val isPhotoPresent: LiveData<Boolean> = taskTaskData.map { it.isNotNullOrEmpty() }.asLiveData()
+  val uri: Flow<Uri> =
+    taskTaskData.map { taskData ->
+      if (taskData is PhotoTaskData && taskData.isNotNullOrEmpty()) {
+        userMediaRepository.getDownloadUrl(taskData.remoteFilename)
+      } else {
+        Uri.EMPTY
+      }
+    }
 
   override fun getButtonStates(taskData: TaskData?): List<ButtonActionState> =
     listOf(

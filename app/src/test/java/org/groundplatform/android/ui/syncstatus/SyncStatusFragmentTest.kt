@@ -31,16 +31,17 @@ import org.groundplatform.android.FakeData.SURVEY
 import org.groundplatform.android.FakeData.USER
 import org.groundplatform.android.FakeData.newLoiMutation
 import org.groundplatform.android.FakeData.newSubmissionMutation
+import org.groundplatform.android.FragmentScenarioRule
 import org.groundplatform.android.R
 import org.groundplatform.android.data.local.stores.LocalLocationOfInterestStore
 import org.groundplatform.android.data.local.stores.LocalSubmissionStore
 import org.groundplatform.android.data.local.stores.LocalSurveyStore
 import org.groundplatform.android.data.local.stores.LocalUserStore
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
-import org.groundplatform.android.launchFragmentInHiltContainer
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.repository.SurveyRepository
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -49,6 +50,7 @@ import org.robolectric.RobolectricTestRunner
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class SyncStatusFragmentTest : BaseHiltTest() {
+  @get:Rule val fragmentScenario = FragmentScenarioRule()
 
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
   @Inject lateinit var localLoiStore: LocalLocationOfInterestStore
@@ -114,7 +116,7 @@ class SyncStatusFragmentTest : BaseHiltTest() {
   }
 
   private fun setupFragment() = runWithTestDispatcher {
-    launchFragmentInHiltContainer<SyncStatusFragment>()
+    fragmentScenario.launchFragmentInHiltContainer<SyncStatusFragment>()
     advanceUntilIdle()
   }
 }

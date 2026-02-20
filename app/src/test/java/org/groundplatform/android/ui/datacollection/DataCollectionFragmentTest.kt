@@ -33,11 +33,11 @@ import org.groundplatform.android.FakeData
 import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST
 import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST_NAME
 import org.groundplatform.android.FakeData.USER
+import org.groundplatform.android.FragmentScenarioRule
 import org.groundplatform.android.R
 import org.groundplatform.android.data.local.room.converter.SubmissionDeltasConverter
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.data.sync.MutationSyncWorkManager
-import org.groundplatform.android.launchFragmentWithNavController
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.model.map.CameraPosition
@@ -59,6 +59,7 @@ import org.groundplatform.android.repository.SubmissionRepository
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.ui.datacollection.tasks.point.DropPinTaskViewModel
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -69,6 +70,7 @@ import org.robolectric.shadows.ShadowToast
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class DataCollectionFragmentTest : BaseHiltTest() {
+  @get:Rule(order = 5) val fragmentScenario = FragmentScenarioRule()
 
   @Inject lateinit var activateSurvey: ActivateSurveyUseCase
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
@@ -815,7 +817,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
         .build()
         .toBundle()
 
-    launchFragmentWithNavController<DataCollectionFragment>(
+    fragmentScenario.launchFragmentWithNavController<DataCollectionFragment>(
       argsBundle,
       destId = R.id.data_collection_fragment,
     ) {

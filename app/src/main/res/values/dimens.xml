@@ -22,9 +22,6 @@
   <item name="default_marker_scale_factor" format="float" type="dimen">2</item>
   <item name="selected_marker_scale_factor" format="float" type="dimen">1.5</item>
 
-  <!-- Task -->
-  <dimen name="task_value_top_padding">4dp</dimen>
-
   <!-- Task selection tabs -->
   <dimen name="map_btn_margin_bottom">48dp</dimen>
   <dimen name="toolbar_elevation">4dp</dimen>

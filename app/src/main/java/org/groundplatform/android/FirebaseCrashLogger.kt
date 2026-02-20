@@ -17,7 +17,6 @@ package org.groundplatform.android
 
 import android.util.Log
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.google.firebase.crashlytics.KeyValueBuilder
 import javax.inject.Inject
 import javax.inject.Singleton
 import org.groundplatform.android.common.Constants.isReleaseBuild
@@ -25,8 +24,9 @@ import org.groundplatform.android.common.Constants.isReleaseBuild
 @Singleton
 class FirebaseCrashLogger @Inject constructor() {
 
+  private val crashlytics by lazy { FirebaseCrashlytics.getInstance() }
+
   fun recordException(priority: Int, message: String, t: Throwable?) {
-    val crashlytics = FirebaseCrashlytics.getInstance()
     crashlytics.log(message)
     if (t != null && priority == Log.ERROR) {
       crashlytics.recordException(t)
@@ -41,9 +41,24 @@ class FirebaseCrashLogger @Inject constructor() {
     setCustomKeys { key("screenName", viewClass) }
   }
 
-  private fun setCustomKeys(init: KeyValueBuilder.() -> Unit) {
+  private fun setCustomKeys(init: KeysBuilder.() -> Unit) {
     if (isReleaseBuild()) {
-      KeyValueBuilder(FirebaseCrashlytics.getInstance()).init()
+      KeysBuilder(crashlytics).init()
     }
+  }
+
+  @Suppress("MethodOverloading")
+  private class KeysBuilder(private val crashlytics: FirebaseCrashlytics) {
+    fun key(key: String, value: String) = crashlytics.setCustomKey(key, value)
+
+    fun key(key: String, value: Boolean) = crashlytics.setCustomKey(key, value)
+
+    fun key(key: String, value: Int) = crashlytics.setCustomKey(key, value)
+
+    fun key(key: String, value: Long) = crashlytics.setCustomKey(key, value)
+
+    fun key(key: String, value: Float) = crashlytics.setCustomKey(key, value)
+
+    fun key(key: String, value: Double) = crashlytics.setCustomKey(key, value)
   }
 }

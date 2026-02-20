@@ -51,7 +51,6 @@
   <color name="md_theme_surfaceContainerLow">#F8FAFD</color>
   <color name="md_theme_surfaceContainerLowest">#FFFFFF</color>
   <color name="md_theme_onSurface">#1A1C19</color>
-  <color name="md_theme_on_surface_disabled">#1E1A1C19</color>
   <color name="md_theme_surfaceVariant">#DDE5D9</color>
   <color name="md_theme_onSurfaceVariant">#424940</color>
   <color name="md_theme_inverseSurface">#2E312D</color>

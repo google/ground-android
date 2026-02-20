@@ -28,8 +28,9 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import java.util.Locale
 import kotlin.test.assertEquals
 import org.groundplatform.android.BaseHiltTest
-import org.groundplatform.android.launchFragmentInHiltContainer
+import org.groundplatform.android.FragmentScenarioRule
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
@@ -40,6 +41,7 @@ import org.robolectric.Shadows
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class SettingsFragmentTest : BaseHiltTest() {
+  @get:Rule val fragmentScenario = FragmentScenarioRule()
 
   private lateinit var fragment: SettingsFragment
 
@@ -47,14 +49,10 @@ class SettingsFragmentTest : BaseHiltTest() {
   override fun setUp() {
     super.setUp()
     resetPreferences()
-    launchFragmentInHiltContainer<SettingsFragment>() { fragment = this as SettingsFragment }
+    fragmentScenario.launchFragmentInHiltContainer<SettingsFragment>() {
+      fragment = this as SettingsFragment
+    }
   }
-
-  //  @After
-  //  fun tearDown() {
-  //    // Critical: Reset locale after EVERY test to prevent state bleeding
-  //    AppCompatDelegate.setApplicationLocales(LocaleListCompat.getEmptyLocaleList())
-  //  }
 
   private fun resetPreferences() {
     PreferenceManager.getDefaultSharedPreferences(ApplicationProvider.getApplicationContext())

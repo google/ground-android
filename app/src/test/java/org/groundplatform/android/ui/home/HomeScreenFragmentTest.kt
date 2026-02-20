@@ -44,9 +44,9 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
+import org.groundplatform.android.FragmentScenarioRule
 import org.groundplatform.android.R
 import org.groundplatform.android.data.local.stores.LocalSurveyStore
-import org.groundplatform.android.launchFragmentWithNavController
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.ui.components.MapFloatingActionButtonType
@@ -58,6 +58,7 @@ import org.robolectric.ParameterizedRobolectricTestRunner
 import org.robolectric.RobolectricTestRunner
 
 abstract class AbstractHomeScreenFragmentTest : BaseHiltTest() {
+  @get:Rule val fragmentScenario = FragmentScenarioRule()
 
   @Inject lateinit var localSurveyStore: LocalSurveyStore
   lateinit var fragment: HomeScreenFragment
@@ -66,7 +67,7 @@ abstract class AbstractHomeScreenFragmentTest : BaseHiltTest() {
   @Before
   override fun setUp() {
     super.setUp()
-    launchFragmentWithNavController<HomeScreenFragment>(
+    fragmentScenario.launchFragmentWithNavController<HomeScreenFragment>(
       destId = R.id.home_screen_fragment,
       navControllerCallback = { navController = it },
     ) {

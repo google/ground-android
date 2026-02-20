@@ -23,8 +23,9 @@ import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
-import org.groundplatform.android.launchFragmentInHiltContainer
+import org.groundplatform.android.FragmentScenarioRule
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -38,6 +39,7 @@ class TestVisibilityFragment : Fragment(android.R.layout.simple_list_item_1)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class TaskFragmentExtensionsTest : BaseHiltTest() {
+  @get:Rule val fragmentScenario = FragmentScenarioRule()
 
   @Mock lateinit var dataCollectionViewModel: DataCollectionViewModel
 
@@ -54,7 +56,7 @@ class TaskFragmentExtensionsTest : BaseHiltTest() {
   fun `block does not execute when task is inactive`() = runWithTestDispatcher {
     var blockExecuted = false
 
-    launchFragmentInHiltContainer<TestVisibilityFragment> {
+    fragmentScenario.launchFragmentInHiltContainer<TestVisibilityFragment> {
       launchWhenTaskVisible(dataCollectionViewModel, taskId) { blockExecuted = true }
     }
 
@@ -66,7 +68,7 @@ class TaskFragmentExtensionsTest : BaseHiltTest() {
   fun `block executes when task becomes active`() = runWithTestDispatcher {
     var blockExecuted = false
 
-    launchFragmentInHiltContainer<TestVisibilityFragment> {
+    fragmentScenario.launchFragmentInHiltContainer<TestVisibilityFragment> {
       launchWhenTaskVisible(dataCollectionViewModel, taskId) { blockExecuted = true }
     }
 
@@ -81,7 +83,7 @@ class TaskFragmentExtensionsTest : BaseHiltTest() {
     var isRunning = false
     var executionCount = 0
 
-    launchFragmentInHiltContainer<TestVisibilityFragment> {
+    fragmentScenario.launchFragmentInHiltContainer<TestVisibilityFragment> {
       launchWhenTaskVisible(dataCollectionViewModel, taskId) {
         executionCount++
         isRunning = true
@@ -113,7 +115,7 @@ class TaskFragmentExtensionsTest : BaseHiltTest() {
     var executionCount = 0
     var isRunning = false
 
-    launchFragmentInHiltContainer<TestVisibilityFragment> {
+    fragmentScenario.launchFragmentInHiltContainer<TestVisibilityFragment> {
       launchWhenTaskVisible(dataCollectionViewModel, taskId) {
         executionCount++
         isRunning = true
