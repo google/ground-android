@@ -16,7 +16,6 @@
 package org.groundplatform.android.ui.settings
 
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,9 +26,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -45,15 +46,19 @@ import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.groundplatform.android.R
 import org.groundplatform.android.model.settings.MeasurementUnits
 import org.groundplatform.android.model.settings.UserSettings
+import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
+import org.groundplatform.android.ui.components.Toolbar
 import org.groundplatform.android.ui.theme.AppTheme
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
+fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel(), onBack: () -> Unit) {
   val uiState by viewModel.uiState.collectAsStateWithLifecycle()
   val context = LocalContext.current
 
@@ -61,6 +66,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
   val languageCodes = stringArrayResource(R.array.language_entry_values)
   val measurementUnits = stringArrayResource(R.array.length_entries)
   val measurementUnitValues = stringArrayResource(R.array.length_entry_values)
+  val websiteUrl = stringResource(R.string.ground_website)
 
   uiState?.let { settings ->
     SettingsScreen(
@@ -75,14 +81,15 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
       onLanguageChange = { viewModel.updateSelectedLanguage(it) },
       onMeasurementUnitsChange = { viewModel.updateMeasurementUnits(it) },
       onVisitWebsiteClick = {
-        val websiteUrl = context.getString(R.string.ground_website)
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(websiteUrl))
+        val intent = Intent(Intent.ACTION_VIEW, websiteUrl.toUri())
         context.startActivity(intent)
       },
+      onBack = onBack,
     )
   }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
   settings: UserSettings,
@@ -94,56 +101,63 @@ fun SettingsScreen(
   onLanguageChange: (String) -> Unit,
   onMeasurementUnitsChange: (MeasurementUnits) -> Unit,
   onVisitWebsiteClick: () -> Unit,
+  onBack: () -> Unit,
 ) {
-  Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-    // General Section
-    SettingsCategoryHeader(stringResource(R.string.general_title))
+  Scaffold(
+    topBar = {
+      Toolbar(stringRes = R.string.settings, showNavigationIcon = true, iconClick = onBack)
+    }
+  ) { innerPadding ->
+    Column(modifier = Modifier.padding(innerPadding).verticalScroll(rememberScrollState())) {
+      // General Section
+      SettingsCategoryHeader(stringResource(R.string.general_title))
 
-    // Upload Media
-    SettingsSwitchItem(
-      title = stringResource(R.string.upload_media_title),
-      summary = stringResource(R.string.over_wifi_summary),
-      checked = settings.shouldUploadPhotosOnWifiOnly,
-      onCheckedChange = onUploadMediaOverUnmeteredConnectionOnlyChange,
-    )
+      // Upload Media
+      SettingsSwitchItem(
+        title = stringResource(R.string.upload_media_title),
+        summary = stringResource(R.string.over_wifi_summary),
+        checked = settings.shouldUploadPhotosOnWifiOnly,
+        onCheckedChange = onUploadMediaOverUnmeteredConnectionOnlyChange,
+      )
 
-    // Language
-    val currentLanguageIndex = languageCodes.indexOf(settings.language).takeIf { it >= 0 } ?: 0
-    SettingsDialogItem(
-      title = stringResource(R.string.select_language_title),
-      summary = languages.getOrElse(currentLanguageIndex) { "" },
-      dialogTitle = stringResource(R.string.select_language_title),
-      options = languages,
-      selectedIndex = currentLanguageIndex,
-      onOptionSelected = { index -> onLanguageChange(languageCodes[index]) },
-    )
+      // Language
+      val currentLanguageIndex = languageCodes.indexOf(settings.language).takeIf { it >= 0 } ?: 0
+      SettingsDialogItem(
+        title = stringResource(R.string.select_language_title),
+        summary = languages.getOrElse(currentLanguageIndex) { "" },
+        dialogTitle = stringResource(R.string.select_language_title),
+        options = languages,
+        selectedIndex = currentLanguageIndex,
+        onOptionSelected = { index -> onLanguageChange(languageCodes[index]) },
+      )
 
-    // Measurement Units
-    val currentUnitIndex =
-      measurementUnitValues.indexOf(settings.measurementUnits.name).takeIf { it >= 0 } ?: 0
-    SettingsDialogItem(
-      title = stringResource(R.string.select_length_title),
-      summary = measurementUnits.getOrElse(currentUnitIndex) { "" },
-      dialogTitle = stringResource(R.string.select_length_title),
-      options = measurementUnits,
-      selectedIndex = currentUnitIndex,
-      onOptionSelected = { index ->
-        val selectedUnit = MeasurementUnits.valueOf(measurementUnitValues[index])
-        onMeasurementUnitsChange(selectedUnit)
-      },
-    )
+      // Measurement Units
+      val currentUnitIndex =
+        measurementUnitValues.indexOf(settings.measurementUnits.name).takeIf { it >= 0 } ?: 0
+      SettingsDialogItem(
+        title = stringResource(R.string.select_length_title),
+        summary = measurementUnits.getOrElse(currentUnitIndex) { "" },
+        dialogTitle = stringResource(R.string.select_length_title),
+        options = measurementUnits,
+        selectedIndex = currentUnitIndex,
+        onOptionSelected = { index ->
+          val selectedUnit = MeasurementUnits.valueOf(measurementUnitValues[index])
+          onMeasurementUnitsChange(selectedUnit)
+        },
+      )
 
-    HorizontalDivider()
+      HorizontalDivider()
 
-    // Help Section
-    SettingsCategoryHeader(stringResource(R.string.help_title))
+      // Help Section
+      SettingsCategoryHeader(stringResource(R.string.help_title))
 
-    // Visit Website
-    SettingsItem(
-      title = stringResource(R.string.visit_website_title),
-      summary = stringResource(R.string.ground_website),
-      onClick = onVisitWebsiteClick,
-    )
+      // Visit Website
+      SettingsItem(
+        title = stringResource(R.string.visit_website_title),
+        summary = stringResource(R.string.ground_website),
+        onClick = onVisitWebsiteClick,
+      )
+    }
   }
 }
 
@@ -245,6 +259,7 @@ fun SettingsDialogItem(
 
 @Preview(showBackground = true)
 @Composable
+@ExcludeFromJacocoGeneratedReport
 private fun SettingsScreenPreview() {
   AppTheme {
     SettingsScreen(
@@ -262,6 +277,7 @@ private fun SettingsScreenPreview() {
       onLanguageChange = {},
       onMeasurementUnitsChange = {},
       onVisitWebsiteClick = {},
+      onBack = {},
     )
   }
 }
