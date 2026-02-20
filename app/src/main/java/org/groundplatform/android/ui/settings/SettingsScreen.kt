@@ -17,15 +17,19 @@ package org.groundplatform.android.ui.settings
 
 import android.net.Uri
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -41,8 +45,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
@@ -63,20 +69,15 @@ fun SettingsScreen(
   viewModel: SettingsViewModel = hiltViewModel(),
 ) {
   val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
-  val languages = stringArrayResource(R.array.language_entries)
-  val languageCodes = stringArrayResource(R.array.language_entry_values)
-  val measurementUnits = stringArrayResource(R.array.length_entries)
-  val measurementUnitValues = stringArrayResource(R.array.length_entry_values)
   val websiteUrl = stringResource(R.string.ground_website)
 
-  uiState?.let { settings ->
+  if (uiState == null) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+      CircularProgressIndicator()
+    }
+  } else {
     SettingsScreen(
-      settings = settings,
-      languages = languages.toList(),
-      languageCodes = languageCodes.toList(),
-      measurementUnits = measurementUnits.toList(),
-      measurementUnitValues = measurementUnitValues.toList(),
+      settings = uiState!!,
       onUploadMediaOverUnmeteredConnectionOnlyChange = {
         viewModel.updateUploadMediaOverUnmeteredConnectionOnly(it)
       },
@@ -88,20 +89,35 @@ fun SettingsScreen(
   }
 }
 
+private data class Option(val label: String, val value: String)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SettingsScreen(
   settings: UserSettings,
-  languages: List<String>,
-  languageCodes: List<String>,
-  measurementUnits: List<String>,
-  measurementUnitValues: List<String>,
   onUploadMediaOverUnmeteredConnectionOnlyChange: (Boolean) -> Unit,
   onLanguageChange: (String) -> Unit,
   onMeasurementUnitsChange: (MeasurementUnits) -> Unit,
   onVisitWebsiteClick: () -> Unit,
   onBack: () -> Unit,
 ) {
+  val configuration = LocalConfiguration.current
+  val resources = LocalContext.current.resources
+
+  val languages =
+    remember(configuration) {
+      val labels = resources.getStringArray(R.array.language_entries)
+      val values = resources.getStringArray(R.array.language_entry_values)
+      labels.zip(values) { label, value -> Option(label, value) }
+    }
+
+  val measurementUnits =
+    remember(configuration) {
+      val labels = resources.getStringArray(R.array.length_entries)
+      val values = resources.getStringArray(R.array.length_entry_values)
+      labels.zip(values) { label, value -> Option(label, value) }
+    }
+
   Scaffold(
     topBar = {
       Toolbar(stringRes = R.string.settings, showNavigationIcon = true, iconClick = onBack)
@@ -120,27 +136,29 @@ private fun SettingsScreen(
       )
 
       // Language
-      val currentLanguageIndex = languageCodes.indexOf(settings.language).takeIf { it >= 0 } ?: 0
+      val currentLanguage =
+        languages.find { it.value == settings.language } ?: languages.firstOrNull()
       SettingsDialogItem(
         title = stringResource(R.string.select_language_title),
-        summary = languages.getOrElse(currentLanguageIndex) { "" },
+        summary = currentLanguage?.label ?: "",
         dialogTitle = stringResource(R.string.select_language_title),
         options = languages,
-        selectedIndex = currentLanguageIndex,
-        onOptionSelected = { index -> onLanguageChange(languageCodes[index]) },
+        selectedOption = currentLanguage,
+        onOptionSelected = { onLanguageChange(it.value) },
       )
 
       // Measurement Units
-      val currentUnitIndex =
-        measurementUnitValues.indexOf(settings.measurementUnits.name).takeIf { it >= 0 } ?: 0
+      val currentUnit =
+        measurementUnits.find { it.value == settings.measurementUnits.name }
+          ?: measurementUnits.firstOrNull()
       SettingsDialogItem(
         title = stringResource(R.string.select_length_title),
-        summary = measurementUnits.getOrElse(currentUnitIndex) { "" },
+        summary = currentUnit?.label ?: "",
         dialogTitle = stringResource(R.string.select_length_title),
         options = measurementUnits,
-        selectedIndex = currentUnitIndex,
-        onOptionSelected = { index ->
-          val selectedUnit = MeasurementUnits.valueOf(measurementUnitValues[index])
+        selectedOption = currentUnit,
+        onOptionSelected = {
+          val selectedUnit = MeasurementUnits.valueOf(it.value)
           onMeasurementUnitsChange(selectedUnit)
         },
       )
@@ -171,8 +189,11 @@ fun SettingsCategoryHeader(title: String) {
 }
 
 @Composable
-fun SettingsItem(title: String, summary: String? = null, onClick: () -> Unit) {
-  Column(modifier = Modifier.fillMaxWidth().clickable(onClick = onClick).padding(16.dp)) {
+private fun SettingsItem(title: String, summary: String? = null, onClick: () -> Unit) {
+  Column(
+    modifier =
+      Modifier.fillMaxWidth().clickable(onClick = onClick, role = Role.Button).padding(16.dp)
+  ) {
     Text(text = title, style = MaterialTheme.typography.titleMedium)
     if (summary != null) {
       Text(
@@ -185,14 +206,17 @@ fun SettingsItem(title: String, summary: String? = null, onClick: () -> Unit) {
 }
 
 @Composable
-fun SettingsSwitchItem(
+private fun SettingsSwitchItem(
   title: String,
   summary: String? = null,
   checked: Boolean,
   onCheckedChange: (Boolean) -> Unit,
 ) {
   Row(
-    modifier = Modifier.fillMaxWidth().clickable { onCheckedChange(!checked) }.padding(16.dp),
+    modifier =
+      Modifier.fillMaxWidth()
+        .toggleable(value = checked, onValueChange = onCheckedChange, role = Role.Switch)
+        .padding(16.dp),
     verticalAlignment = Alignment.CenterVertically,
   ) {
     Column(modifier = Modifier.weight(1f)) {
@@ -205,18 +229,18 @@ fun SettingsSwitchItem(
         )
       }
     }
-    Switch(checked = checked, onCheckedChange = onCheckedChange)
+    Switch(checked = checked, onCheckedChange = null) // Null because Row handles click
   }
 }
 
 @Composable
-fun SettingsDialogItem(
+private fun SettingsDialogItem(
   title: String,
   summary: String,
   dialogTitle: String,
-  options: List<String>,
-  selectedIndex: Int,
-  onOptionSelected: (Int) -> Unit,
+  options: List<Option>,
+  selectedOption: Option?,
+  onOptionSelected: (Option) -> Unit,
 ) {
   var showDialog by remember { mutableStateOf(false) }
 
@@ -226,23 +250,23 @@ fun SettingsDialogItem(
       title = { Text(dialogTitle) },
       text = {
         Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-          options.forEachIndexed { index, option ->
+          options.forEach { option ->
             Row(
               modifier =
                 Modifier.fillMaxWidth()
                   .clickable {
-                    onOptionSelected(index)
+                    onOptionSelected(option)
                     showDialog = false
                   }
                   .padding(vertical = 12.dp),
               verticalAlignment = Alignment.CenterVertically,
             ) {
               RadioButton(
-                selected = index == selectedIndex,
+                selected = option == selectedOption,
                 onClick = null, // Handled by Row clickable
               )
               Spacer(modifier = Modifier.width(8.dp))
-              Text(text = option)
+              Text(text = option.label)
             }
           }
         }
@@ -268,10 +292,6 @@ private fun SettingsScreenPreview() {
           measurementUnits = MeasurementUnits.METRIC,
           shouldUploadPhotosOnWifiOnly = true,
         ),
-      languages = listOf("English", "French", "Spanish"),
-      languageCodes = listOf("en", "fr", "es"),
-      measurementUnits = listOf("Metric", "Imperial"),
-      measurementUnitValues = listOf("METRIC", "IMPERIAL"),
       onUploadMediaOverUnmeteredConnectionOnlyChange = {},
       onLanguageChange = {},
       onMeasurementUnitsChange = {},
