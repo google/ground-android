@@ -19,31 +19,26 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.test.runTest
 import org.groundplatform.android.R
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.MockitoAnnotations
+import org.mockito.junit.MockitoJUnit
+import org.mockito.junit.MockitoRule
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 
 @RunWith(RobolectricTestRunner::class)
 class StartupScreenTest {
+  @get:Rule var rule: MockitoRule = MockitoJUnit.rule()
   @get:Rule val composeTestRule = createComposeRule()
 
   @Mock private lateinit var mockViewModel: StartupViewModel
 
-  @Before
-  fun setUp() {
-    MockitoAnnotations.openMocks(this)
-  }
-
   @Test
-  fun `Loading state shows loading dialog`() = runTest {
+  fun `Loading state shows loading dialog`() {
     setState(StartupState.Loading)
 
     composeTestRule.setContent { StartupScreen(onLoadFailed = {}, viewModel = mockViewModel) }
@@ -53,7 +48,7 @@ class StartupScreenTest {
   }
 
   @Test
-  fun `Error state invokes onLoadFailed`() = runTest {
+  fun `Error state invokes onLoadFailed`() {
     var onLoadFailedCalled = false
     setState(StartupState.Error(null))
 

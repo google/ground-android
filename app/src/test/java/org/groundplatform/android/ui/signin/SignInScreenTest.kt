@@ -29,7 +29,6 @@ import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.FirebaseFirestoreException.Code
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.test.runTest
 import org.groundplatform.android.system.auth.SignInState
 import org.groundplatform.android.ui.theme.AppTheme
 import org.junit.Before
@@ -38,6 +37,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
+import org.mockito.junit.MockitoJUnit
+import org.mockito.junit.MockitoRule
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
@@ -45,6 +46,7 @@ import org.robolectric.RobolectricTestRunner
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
 class SignInScreenTest {
+  @get:Rule var rule: MockitoRule = MockitoJUnit.rule()
   @get:Rule val composeTestRule = createComposeRule()
 
   @Mock private lateinit var viewModel: SignInViewModel
@@ -67,82 +69,78 @@ class SignInScreenTest {
   }
 
   @Test
-  fun `Clicking Google sign-in button should invoke sign-in`() = runTest {
+  fun `Clicking Google sign-in button should invoke sign-in`() {
     composeTestRule.onNodeWithTag(BUTTON_TEST_TAG).performClick()
     composeTestRule.waitForIdle()
     verify(viewModel).onSignInButtonClick()
   }
 
   @Test
-  fun `Google sign-in button is disabled when not connected to the internet`() = runTest {
-    networkAvailableState.emit(false)
+  fun `Google sign-in button is disabled when not connected to the internet`() {
+    networkAvailableState.value = false
     composeTestRule.waitForIdle()
     composeTestRule.onNodeWithTag(BUTTON_TEST_TAG).assertIsNotEnabled()
   }
 
   @Test
-  fun `Google sign-in button is disabled when signing in`() = runTest {
-    signInState.emit(SignInState.SigningIn)
+  fun `Google sign-in button is disabled when signing in`() {
+    signInState.value = SignInState.SigningIn
     composeTestRule.waitForIdle()
     composeTestRule.onNodeWithTag(BUTTON_TEST_TAG).assertIsNotEnabled()
   }
 
   @Test
-  fun `Loading dialog is displayed when signing in`() = runTest {
-    signInState.emit(SignInState.SigningIn)
+  fun `Loading dialog is displayed when signing in`() {
+    signInState.value = SignInState.SigningIn
     composeTestRule.waitForIdle()
     composeTestRule.onNodeWithText("Signing in").assertIsDisplayed()
   }
 
   @Test
-  fun `Error is displayed when not connected to the internet`() = runTest {
-    networkAvailableState.emit(false)
+  fun `Error is displayed when not connected to the internet`() {
+    networkAvailableState.value = false
     composeTestRule.waitForIdle()
     composeTestRule.onNodeWithText("Connect to the internet to sign in").assertIsDisplayed()
   }
 
   @Test
-  fun `Permission denied dialog is displayed on Firestore permission denied error`() = runTest {
-    signInState.emit(
+  fun `Permission denied dialog is displayed on Firestore permission denied error`() {
+    signInState.value =
       SignInState.Error(FirebaseFirestoreException("Permission denied", Code.PERMISSION_DENIED))
-    )
     composeTestRule.waitForIdle()
     composeTestRule.onNodeWithText("Permission denied").assertIsDisplayed()
   }
 
   @Test
-  fun `Clicking close app on permission denied dialog should exit app`() = runTest {
-    signInState.emit(
+  fun `Clicking close app on permission denied dialog should exit app`() {
+    signInState.value =
       SignInState.Error(FirebaseFirestoreException("Permission denied", Code.PERMISSION_DENIED))
-    )
     composeTestRule.waitForIdle()
     composeTestRule.onNodeWithText("Close app").performClick()
     verify(onExitClick).invoke()
   }
 
   @Test
-  fun `Clicking sign out on permission denied dialog should sign out`() = runTest {
-    signInState.emit(
+  fun `Clicking sign out on permission denied dialog should sign out`() {
+    signInState.value =
       SignInState.Error(FirebaseFirestoreException("Permission denied", Code.PERMISSION_DENIED))
-    )
     composeTestRule.waitForIdle()
     composeTestRule.onNodeWithText("Sign out").performClick()
     verify(viewModel).onSignOutButtonClick()
   }
 
   @Test
-  fun `Nothing is displayed on sign in cancelled by user`() = runTest {
-    signInState.emit(
+  fun `Nothing is displayed on sign in cancelled by user`() {
+    signInState.value =
       SignInState.Error(ApiException(Status(GoogleSignInStatusCodes.SIGN_IN_CANCELLED)))
-    )
     composeTestRule.waitForIdle()
     composeTestRule.onNodeWithText("Permission denied").assertDoesNotExist()
     composeTestRule.onNodeWithText("Something went wrong").assertDoesNotExist()
   }
 
   @Test
-  fun `Snackbar is displayed on unknown error`() = runTest {
-    signInState.emit(SignInState.Error(Error("Some other error")))
+  fun `Snackbar is displayed on unknown error`() {
+    signInState.value = SignInState.Error(Error("Some other error"))
     composeTestRule.waitForIdle()
     composeTestRule.onNodeWithText("Something went wrong").assertIsDisplayed()
   }
