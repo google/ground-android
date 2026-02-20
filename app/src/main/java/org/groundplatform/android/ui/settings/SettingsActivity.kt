@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android.ui.settings
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import dagger.hilt.android.AndroidEntryPoint
@@ -25,6 +26,16 @@ import org.groundplatform.android.ui.theme.AppTheme
 class SettingsActivity : AbstractActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    setContent { AppTheme { SettingsScreen(onBack = { finish() }) } }
+    setContent {
+      AppTheme {
+        SettingsScreen(
+          onBack = { finish() },
+          onVisitWebsiteClick = { url ->
+            val intent = Intent(Intent.ACTION_VIEW, url)
+            startActivity(intent)
+          },
+        )
+      }
+    }
   }
 }

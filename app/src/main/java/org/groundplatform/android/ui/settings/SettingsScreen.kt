@@ -15,7 +15,7 @@
  */
 package org.groundplatform.android.ui.settings
 
-import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -41,7 +41,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -58,9 +57,12 @@ import org.groundplatform.android.ui.theme.AppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel(), onBack: () -> Unit) {
+fun SettingsScreen(
+  onBack: () -> Unit,
+  onVisitWebsiteClick: (url: Uri) -> Unit,
+  viewModel: SettingsViewModel = hiltViewModel(),
+) {
   val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-  val context = LocalContext.current
 
   val languages = stringArrayResource(R.array.language_entries)
   val languageCodes = stringArrayResource(R.array.language_entry_values)
@@ -80,10 +82,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel(), onBack: () ->
       },
       onLanguageChange = { viewModel.updateSelectedLanguage(it) },
       onMeasurementUnitsChange = { viewModel.updateMeasurementUnits(it) },
-      onVisitWebsiteClick = {
-        val intent = Intent(Intent.ACTION_VIEW, websiteUrl.toUri())
-        context.startActivity(intent)
-      },
+      onVisitWebsiteClick = { onVisitWebsiteClick(websiteUrl.toUri()) },
       onBack = onBack,
     )
   }
@@ -91,7 +90,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel(), onBack: () ->
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(
+private fun SettingsScreen(
   settings: UserSettings,
   languages: List<String>,
   languageCodes: List<String>,
