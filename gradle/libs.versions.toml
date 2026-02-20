@@ -13,7 +13,7 @@
 # limitations under the License.
 
 [versions]
-androidMapsUtilsVersion = "4.0.0"
+androidMapsUtilsVersion = "4.1.0"
 appcompatVersion = "1.7.1"
 autoValueVersion = "1.11.1"
 coilComposeVersion = "2.7.0"
