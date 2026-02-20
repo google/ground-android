@@ -17,7 +17,7 @@ package org.groundplatform.android.ui.settings
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -29,7 +29,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.fragment.compose.AndroidFragment
 import dagger.hilt.android.AndroidEntryPoint
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.AbstractActivity
@@ -54,9 +53,7 @@ class SettingsActivity : AbstractActivity() {
             )
           }
         ) { innerPadding ->
-          AndroidFragment<SettingsFragment>(
-            modifier = Modifier.padding(innerPadding).fillMaxSize()
-          )
+          Box(modifier = Modifier.padding(innerPadding)) { SettingsScreen() }
         }
       }
     }

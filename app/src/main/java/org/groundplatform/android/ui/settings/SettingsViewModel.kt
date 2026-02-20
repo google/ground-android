@@ -20,14 +20,18 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import org.groundplatform.android.model.settings.MeasurementUnits
 import org.groundplatform.android.model.settings.UserSettings
+import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.usecases.user.GetUserSettingsUseCase
 
 class SettingsViewModel
 @Inject
-internal constructor(private val getUserSettingsUseCase: GetUserSettingsUseCase) :
-  AbstractViewModel() {
+internal constructor(
+  private val getUserSettingsUseCase: GetUserSettingsUseCase,
+  private val userRepository: UserRepository,
+) : AbstractViewModel() {
 
   private val _uiState: MutableStateFlow<UserSettings?> = MutableStateFlow(null)
   val uiState: StateFlow<UserSettings?> = _uiState
@@ -41,5 +45,20 @@ internal constructor(private val getUserSettingsUseCase: GetUserSettingsUseCase)
       val prefs = getUserSettingsUseCase.invoke()
       _uiState.value = prefs
     }
+  }
+
+  fun updateUploadMediaOverUnmeteredConnectionOnly(enabled: Boolean) {
+    userRepository.updateUploadMediaOverUnmeteredConnectionOnly(enabled)
+    refreshUserPreferences()
+  }
+
+  fun updateMeasurementUnits(measurementUnits: MeasurementUnits) {
+    userRepository.updateMeasurementUnits(measurementUnits)
+    refreshUserPreferences()
+  }
+
+  fun updateSelectedLanguage(language: String) {
+    userRepository.updateSelectedLanguage(language)
+    refreshUserPreferences()
   }
 }
