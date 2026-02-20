@@ -19,6 +19,7 @@ import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,10 +29,16 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
@@ -45,6 +52,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -129,100 +137,116 @@ private fun SettingsScreen(
   ) { innerPadding ->
     Column(modifier = Modifier.padding(innerPadding).verticalScroll(rememberScrollState())) {
       // General Section
-      SettingsCategoryHeader(stringResource(R.string.general_title))
+      SettingsCategory(stringResource(R.string.general_title)) {
+        // Upload Media
+        SettingsSwitchItem(
+          title = stringResource(R.string.upload_media_title),
+          summary = stringResource(R.string.over_wifi_summary),
+          icon = Icons.Default.Share,
+          checked = settings.shouldUploadPhotosOnWifiOnly,
+          onCheckedChange = onUploadMediaOverUnmeteredConnectionOnlyChange,
+        )
 
-      // Upload Media
-      SettingsSwitchItem(
-        title = stringResource(R.string.upload_media_title),
-        summary = stringResource(R.string.over_wifi_summary),
-        checked = settings.shouldUploadPhotosOnWifiOnly,
-        onCheckedChange = onUploadMediaOverUnmeteredConnectionOnlyChange,
-      )
+        // Language
+        val currentLanguage =
+          languages.find { it.value == settings.language } ?: languages.firstOrNull()
+        var showLanguageDialog by remember { mutableStateOf(false) }
 
-      // Language
-      val currentLanguage =
-        languages.find { it.value == settings.language } ?: languages.firstOrNull()
-      SettingsDialogItem(
-        title = stringResource(R.string.select_language_title),
-        summary = currentLanguage?.label ?: "",
-        dialogTitle = stringResource(R.string.select_language_title),
-        options = languages,
-        selectedOption = currentLanguage,
-        onOptionSelected = { onLanguageChange(it.value) },
-      )
+        if (showLanguageDialog) {
+          SingleSelectionDialog(
+            title = stringResource(R.string.select_language_title),
+            options = languages,
+            selectedOption = currentLanguage,
+            onOptionSelected = {
+              onLanguageChange(it.value)
+              showLanguageDialog = false
+            },
+            onDismiss = { showLanguageDialog = false },
+          )
+        }
 
-      // Measurement Units
-      val currentUnit =
-        measurementUnits.find { it.value == settings.measurementUnits.name }
-          ?: measurementUnits.firstOrNull()
-      SettingsDialogItem(
-        title = stringResource(R.string.select_length_title),
-        summary = currentUnit?.label ?: "",
-        dialogTitle = stringResource(R.string.select_length_title),
-        options = measurementUnits,
-        selectedOption = currentUnit,
-        onOptionSelected = {
-          val selectedUnit = MeasurementUnits.valueOf(it.value)
-          onMeasurementUnitsChange(selectedUnit)
-        },
-      )
+        SettingsItem(
+          title = stringResource(R.string.select_language_title),
+          summary = currentLanguage?.label ?: "",
+          icon = Icons.Default.Person,
+          onClick = { showLanguageDialog = true },
+        )
+
+        // Measurement Units
+        val currentUnit =
+          measurementUnits.find { it.value == settings.measurementUnits.name }
+            ?: measurementUnits.firstOrNull()
+        var showUnitDialog by remember { mutableStateOf(false) }
+
+        if (showUnitDialog) {
+          SingleSelectionDialog(
+            title = stringResource(R.string.select_length_title),
+            options = measurementUnits,
+            selectedOption = currentUnit,
+            onOptionSelected = {
+              onMeasurementUnitsChange(MeasurementUnits.valueOf(it.value))
+              showUnitDialog = false
+            },
+            onDismiss = { showUnitDialog = false },
+          )
+        }
+
+        SettingsItem(
+          title = stringResource(R.string.select_length_title),
+          summary = currentUnit?.label ?: "",
+          icon = Icons.Default.Edit,
+          onClick = { showUnitDialog = true },
+        )
+      }
 
       HorizontalDivider()
 
       // Help Section
-      SettingsCategoryHeader(stringResource(R.string.help_title))
-
-      // Visit Website
-      SettingsItem(
-        title = stringResource(R.string.visit_website_title),
-        summary = stringResource(R.string.ground_website),
-        onClick = onVisitWebsiteClick,
-      )
+      SettingsCategory(stringResource(R.string.help_title)) {
+        SettingsItem(
+          title = stringResource(R.string.visit_website_title),
+          summary = stringResource(R.string.ground_website),
+          icon = Icons.Default.Info,
+          onClick = onVisitWebsiteClick,
+        )
+      }
     }
   }
 }
 
 @Composable
-fun SettingsCategoryHeader(title: String) {
-  Text(
-    text = title,
-    style = MaterialTheme.typography.labelLarge,
-    color = MaterialTheme.colorScheme.primary,
-    modifier = Modifier.padding(start = 16.dp, top = 24.dp, bottom = 8.dp),
-  )
-}
-
-@Composable
-private fun SettingsItem(title: String, summary: String? = null, onClick: () -> Unit) {
-  Column(
-    modifier =
-      Modifier.fillMaxWidth().clickable(onClick = onClick, role = Role.Button).padding(16.dp)
-  ) {
-    Text(text = title, style = MaterialTheme.typography.titleMedium)
-    if (summary != null) {
-      Text(
-        text = summary,
-        style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-      )
-    }
+fun SettingsCategory(title: String, content: @Composable ColumnScope.() -> Unit) {
+  Column(modifier = Modifier.fillMaxWidth()) {
+    Text(
+      text = title,
+      style = MaterialTheme.typography.labelLarge,
+      color = MaterialTheme.colorScheme.primary,
+      modifier = Modifier.padding(start = 16.dp, top = 24.dp, bottom = 8.dp),
+    )
+    content()
   }
 }
 
 @Composable
-private fun SettingsSwitchItem(
+private fun SettingsItem(
   title: String,
   summary: String? = null,
-  checked: Boolean,
-  onCheckedChange: (Boolean) -> Unit,
+  icon: ImageVector? = null,
+  onClick: () -> Unit,
 ) {
   Row(
     modifier =
-      Modifier.fillMaxWidth()
-        .toggleable(value = checked, onValueChange = onCheckedChange, role = Role.Switch)
-        .padding(16.dp),
+      Modifier.fillMaxWidth().clickable(onClick = onClick, role = Role.Button).padding(16.dp),
     verticalAlignment = Alignment.CenterVertically,
   ) {
+    if (icon != null) {
+      Icon(
+        imageVector = icon,
+        contentDescription = null,
+        modifier = Modifier.padding(end = 16.dp),
+        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+      )
+    }
     Column(modifier = Modifier.weight(1f)) {
       Text(text = title, style = MaterialTheme.typography.titleMedium)
       if (summary != null) {
@@ -233,55 +257,76 @@ private fun SettingsSwitchItem(
         )
       }
     }
-    Switch(checked = checked, onCheckedChange = null) // Null because Row handles click
   }
 }
 
 @Composable
-private fun SettingsDialogItem(
+private fun SettingsSwitchItem(
   title: String,
-  summary: String,
-  dialogTitle: String,
+  summary: String? = null,
+  icon: ImageVector? = null,
+  checked: Boolean,
+  onCheckedChange: (Boolean) -> Unit,
+) {
+  Row(
+    modifier =
+      Modifier.fillMaxWidth()
+        .toggleable(value = checked, onValueChange = onCheckedChange, role = Role.Switch)
+        .padding(16.dp),
+    verticalAlignment = Alignment.CenterVertically,
+  ) {
+    if (icon != null) {
+      Icon(
+        imageVector = icon,
+        contentDescription = null,
+        modifier = Modifier.padding(end = 16.dp),
+        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+      )
+    }
+    Column(modifier = Modifier.weight(1f)) {
+      Text(text = title, style = MaterialTheme.typography.titleMedium)
+      if (summary != null) {
+        Text(
+          text = summary,
+          style = MaterialTheme.typography.bodyMedium,
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+      }
+    }
+    Switch(checked = checked, onCheckedChange = null)
+  }
+}
+
+@Composable
+private fun SingleSelectionDialog(
+  title: String,
   options: List<Option>,
   selectedOption: Option?,
   onOptionSelected: (Option) -> Unit,
+  onDismiss: () -> Unit,
 ) {
-  var showDialog by remember { mutableStateOf(false) }
-
-  if (showDialog) {
-    AlertDialog(
-      onDismissRequest = { showDialog = false },
-      title = { Text(dialogTitle) },
-      text = {
-        Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-          options.forEach { option ->
-            Row(
-              modifier =
-                Modifier.fillMaxWidth()
-                  .clickable {
-                    onOptionSelected(option)
-                    showDialog = false
-                  }
-                  .padding(vertical = 12.dp),
-              verticalAlignment = Alignment.CenterVertically,
-            ) {
-              RadioButton(
-                selected = option == selectedOption,
-                onClick = null, // Handled by Row clickable
-              )
-              Spacer(modifier = Modifier.width(8.dp))
-              Text(text = option.label)
-            }
+  AlertDialog(
+    onDismissRequest = onDismiss,
+    title = { Text(title) },
+    text = {
+      Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+        options.forEach { option ->
+          Row(
+            modifier =
+              Modifier.fillMaxWidth()
+                .clickable { onOptionSelected(option) }
+                .padding(vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+          ) {
+            RadioButton(selected = option == selectedOption, onClick = null)
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(text = option.label)
           }
         }
-      },
-      confirmButton = {
-        TextButton(onClick = { showDialog = false }) { Text(stringResource(R.string.cancel)) }
-      },
-    )
-  }
-
-  SettingsItem(title = title, summary = summary, onClick = { showDialog = true })
+      }
+    },
+    confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
+  )
 }
 
 @Preview(showBackground = true)
