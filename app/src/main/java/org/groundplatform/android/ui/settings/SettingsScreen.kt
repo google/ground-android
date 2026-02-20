@@ -68,6 +68,7 @@ import org.groundplatform.android.model.settings.UserSettings
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.components.Toolbar
 import org.groundplatform.android.ui.theme.AppTheme
+import androidx.compose.ui.platform.LocalResources
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -114,7 +115,7 @@ private fun SettingsScreen(
   onBack: () -> Unit,
 ) {
   val configuration = LocalConfiguration.current
-  val resources = LocalContext.current.resources
+  val resources = LocalResources.current
 
   val languages =
     remember(configuration) {
