@@ -16,6 +16,7 @@
 package org.groundplatform.android.ui.settings
 
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,6 +27,7 @@ import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.usecases.user.GetUserSettingsUseCase
 
+@HiltViewModel
 class SettingsViewModel
 @Inject
 internal constructor(
