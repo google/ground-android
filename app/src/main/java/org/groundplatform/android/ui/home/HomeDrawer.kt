@@ -190,19 +190,11 @@ private fun AppInfoHeader(user: User) {
         )
       }
       if (user.photoUrl != null) {
-        androidx.compose.ui.viewinterop.AndroidView(
-          factory = { context ->
-            android.widget.ImageView(context).apply {
-              scaleType = android.widget.ImageView.ScaleType.CENTER_CROP
-            }
-          },
-          update = { imageView ->
-            com.bumptech.glide.Glide.with(imageView)
-              .load(user.photoUrl)
-              .circleCrop()
-              .into(imageView)
-          },
+        coil.compose.AsyncImage(
+          model = user.photoUrl,
+          contentDescription = null,
           modifier = Modifier.size(32.dp).clip(CircleShape),
+          contentScale = androidx.compose.ui.layout.ContentScale.Crop,
         )
       }
     }

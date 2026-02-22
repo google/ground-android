@@ -160,7 +160,7 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
       .assertIsDisplayed()
     composeTestRule
       .onNodeWithText(
-        fragment.getString(R.string.build, org.groundplatform.android.BuildConfig.VERSION_NAME),
+        fragment.getString(R.string.build, org.groundplatform.android.BuildConfig.VERSION_NAME)
       )
       .assertIsDisplayed()
   }
