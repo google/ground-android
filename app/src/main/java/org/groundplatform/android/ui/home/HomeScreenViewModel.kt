@@ -23,10 +23,14 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.groundplatform.android.data.sync.MediaUploadWorkManager
 import org.groundplatform.android.data.sync.MutationSyncWorkManager
@@ -39,6 +43,12 @@ import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.common.SharedViewModel
 import timber.log.Timber
+
+data class HomeDrawerState(
+  val user: org.groundplatform.android.model.User,
+  val survey: org.groundplatform.android.model.Survey?,
+  val appVersion: String,
+)
 
 private const val AWAITING_PHOTO_CAPTURE_KEY = "awaiting_photo_capture"
 
@@ -80,6 +90,17 @@ internal constructor(
   init {
     viewModelScope.launch { kickLocalMutationSyncWorkers() }
   }
+
+  val drawerState: StateFlow<HomeDrawerState?> =
+    flow { emit(userRepository.getAuthenticatedUser()) }
+      .combine(surveyRepository.activeSurveyFlow) { user, survey ->
+        HomeDrawerState(
+          user = user,
+          survey = survey,
+          appVersion = org.groundplatform.android.BuildConfig.VERSION_NAME,
+        )
+      }
+      .stateIn(viewModelScope, SharingStarted.Lazily, null)
 
   /**
    * Enqueue data and photo upload workers for all pending mutations when home screen is first

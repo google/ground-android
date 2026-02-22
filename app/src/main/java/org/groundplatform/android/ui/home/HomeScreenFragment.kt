@@ -22,7 +22,6 @@ import android.view.ViewGroup
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.produceState
 import androidx.core.view.GravityCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -30,12 +29,9 @@ import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.launch
-import org.groundplatform.android.BuildConfig
 import org.groundplatform.android.R
 import org.groundplatform.android.data.local.room.converter.SubmissionDeltasConverter
 import org.groundplatform.android.databinding.HomeScreenFragBinding
-import org.groundplatform.android.model.User
-import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.common.BackPressListener
 import org.groundplatform.android.ui.common.EphemeralPopups
@@ -51,7 +47,6 @@ import org.groundplatform.android.util.setComposableContent
 class HomeScreenFragment : AbstractFragment(), BackPressListener {
 
   @Inject lateinit var ephemeralPopups: EphemeralPopups
-  @Inject lateinit var userRepository: UserRepository
   private lateinit var binding: HomeScreenFragBinding
   private lateinit var homeScreenViewModel: HomeScreenViewModel
 
@@ -103,16 +98,13 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener {
 
   private fun setupDrawerContent(binding: HomeScreenFragBinding) {
     binding.drawerView.setComposableContent {
-      val user by
-        produceState<User?>(initialValue = null) { value = userRepository.getAuthenticatedUser() }
-      val survey by
-        homeScreenViewModel.surveyRepository.activeSurveyFlow.collectAsStateWithLifecycle()
+      val drawerState by homeScreenViewModel.drawerState.collectAsStateWithLifecycle()
 
-      user?.let {
+      drawerState?.let { state ->
         HomeDrawer(
-          user = it,
-          survey = survey,
-          versionText = String.format(getString(R.string.build), BuildConfig.VERSION_NAME),
+          user = state.user,
+          survey = state.survey,
+          versionText = String.format(getString(R.string.build), state.appVersion),
           onAction = { action ->
             when (action) {
               HomeDrawerAction.OnSwitchSurvey -> {
