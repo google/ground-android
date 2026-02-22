@@ -158,15 +158,11 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
     composeTestRule
       .onNodeWithText(fragment.getString(R.string.terms_of_service))
       .assertIsDisplayed()
-    // Version number is dynamic, so we just check if the footer exists/is displayed by checking for
-    // build text format
-    // or just assume if others are present, it's fine.
-    // Actually, checking for the string matches what we do in production code.
-    // We can just verify the "Build" prefix or similar if needed, but let's skip strict version
-    // check for now or match partial text?
-    // Using onNodeWithText matches exact text.
-    // Let's rely on the fact that BuildConfig.VERSION_NAME might be available in test.
-    // Or we can just skip the specific version check or check that specific node exists.
+    composeTestRule
+      .onNodeWithText(
+        fragment.getString(R.string.build, org.groundplatform.android.BuildConfig.VERSION_NAME),
+      )
+      .assertIsDisplayed()
   }
 
   @Test
