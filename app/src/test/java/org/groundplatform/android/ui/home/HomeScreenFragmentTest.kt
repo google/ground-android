@@ -213,16 +213,6 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
   }
 
   private fun openSignOutWarningDialog() {
-    // Open drawer if closed? The previous test logic assumed drawer open state might be persisted
-    // or re-opened?
-    // Actually openSignOutDialog() clicked the header. Here we need to open drawer first if not
-    // open.
-    // But this helper is called AFTER closing the dialog, so drawer should still be open?
-    // Wait, when dialog opens, drawer is still open in background?
-    // When "Cancel" is clicked, dialog closes. Drawer should be visible.
-    // But `openSignOutDialog` was calling `openDrawer`? No, `sign out dialog is displayed` called
-    // `openDrawer` at start.
-    // So we just need to click "Sign out" again.
     composeTestRule.onNodeWithTag(fragment.getString(R.string.sign_out)).performTouchInput {
       click()
     }
