@@ -49,31 +49,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.groundplatform.android.R
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.User
-
-sealed interface HomeDrawerAction {
-  data object OnSwitchSurvey : HomeDrawerAction
-
-  data object OnNavigateToOfflineAreas : HomeDrawerAction
-
-  data object OnNavigateToSyncStatus : HomeDrawerAction
-
-  data object OnNavigateToSettings : HomeDrawerAction
-
-  data object OnNavigateToAbout : HomeDrawerAction
-
-  data object OnNavigateToTerms : HomeDrawerAction
-
-  data object OnSignOut : HomeDrawerAction
-}
+import org.groundplatform.android.ui.theme.AppTheme
 
 @Composable
 fun HomeDrawer(
-  user: User?,
+  user: User,
   survey: Survey?,
   versionText: String,
   onAction: (HomeDrawerAction) -> Unit,
@@ -92,53 +78,54 @@ fun HomeDrawer(
   }
 }
 
+private val NAV_ITEMS =
+  listOf(
+    DrawerItem(
+      labelId = R.string.offline_map_imagery,
+      icon = IconSource.Drawable(R.drawable.ic_offline_pin),
+      action = HomeDrawerAction.OnNavigateToOfflineAreas,
+    ),
+    DrawerItem(
+      labelId = R.string.sync_status,
+      icon = IconSource.Drawable(R.drawable.ic_sync),
+      action = HomeDrawerAction.OnNavigateToSyncStatus,
+    ),
+    DrawerItem(
+      labelId = R.string.settings,
+      icon = IconSource.Vector(Icons.Default.Settings),
+      action = HomeDrawerAction.OnNavigateToSettings,
+    ),
+    DrawerItem(
+      labelId = R.string.about,
+      icon = IconSource.Drawable(R.drawable.info_outline),
+      action = HomeDrawerAction.OnNavigateToAbout,
+    ),
+    DrawerItem(
+      labelId = R.string.terms_of_service,
+      icon = IconSource.Drawable(R.drawable.feed),
+      action = HomeDrawerAction.OnNavigateToTerms,
+    ),
+    DrawerItem(
+      labelId = R.string.sign_out,
+      icon = IconSource.Vector(Icons.AutoMirrored.Filled.ExitToApp),
+      action = HomeDrawerAction.OnSignOut,
+    ),
+  )
+
 @Composable
 private fun DrawerItems(onAction: (HomeDrawerAction) -> Unit, versionText: String) {
-  val navItems =
-    listOf(
-      DrawerItem(
-        label = stringResource(R.string.offline_map_imagery),
-        icon = IconSource.Drawable(R.drawable.ic_offline_pin),
-        onClick = { onAction(HomeDrawerAction.OnNavigateToOfflineAreas) },
-      ),
-      DrawerItem(
-        label = stringResource(R.string.sync_status),
-        icon = IconSource.Drawable(R.drawable.ic_sync),
-        onClick = { onAction(HomeDrawerAction.OnNavigateToSyncStatus) },
-      ),
-      DrawerItem(
-        label = stringResource(R.string.settings),
-        icon = IconSource.Vector(Icons.Default.Settings),
-        onClick = { onAction(HomeDrawerAction.OnNavigateToSettings) },
-      ),
-      DrawerItem(
-        label = stringResource(R.string.about),
-        icon = IconSource.Drawable(R.drawable.info_outline),
-        onClick = { onAction(HomeDrawerAction.OnNavigateToAbout) },
-      ),
-      DrawerItem(
-        label = stringResource(R.string.terms_of_service),
-        icon = IconSource.Drawable(R.drawable.feed),
-        onClick = { onAction(HomeDrawerAction.OnNavigateToTerms) },
-      ),
-      DrawerItem(
-        label = stringResource(R.string.sign_out),
-        icon = IconSource.Vector(Icons.AutoMirrored.Filled.ExitToApp),
-        onClick = { onAction(HomeDrawerAction.OnSignOut) },
-      ),
-    )
-
-  navItems.forEach { item -> DrawerNavigationItem(item) }
+  NAV_ITEMS.forEach { item -> DrawerNavigationItem(item, onAction) }
 
   DrawerVersionFooter(versionText)
 }
 
 @Composable
-private fun DrawerNavigationItem(item: DrawerItem) {
+private fun DrawerNavigationItem(item: DrawerItem, onAction: (HomeDrawerAction) -> Unit) {
+  val label = stringResource(item.labelId)
   NavigationDrawerItem(
-    label = { Text(item.label) },
+    label = { Text(label) },
     selected = false,
-    onClick = item.onClick,
+    onClick = { onAction(item.action) },
     icon = {
       val description = null
       when (item.icon) {
@@ -147,7 +134,7 @@ private fun DrawerNavigationItem(item: DrawerItem) {
           Icon(painterResource(item.icon.id), contentDescription = description)
       }
     },
-    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding).testTag(item.label),
+    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding).testTag(label),
   )
 }
 
@@ -174,10 +161,14 @@ private fun DrawerVersionFooter(versionText: String) {
   }
 }
 
-private data class DrawerItem(val label: String, val icon: IconSource, val onClick: () -> Unit)
+private data class DrawerItem(
+  @androidx.annotation.StringRes val labelId: Int,
+  val icon: IconSource,
+  val action: HomeDrawerAction,
+)
 
 @Composable
-private fun AppInfoHeader(user: User?) {
+private fun AppInfoHeader(user: User) {
   Column(
     modifier =
       Modifier.fillMaxWidth()
@@ -198,7 +189,7 @@ private fun AppInfoHeader(user: User?) {
           fontWeight = FontWeight.Medium,
         )
       }
-      if (user?.photoUrl != null) {
+      if (user.photoUrl != null) {
         androidx.compose.ui.viewinterop.AndroidView(
           factory = { context ->
             android.widget.ImageView(context).apply {
@@ -274,4 +265,22 @@ private sealed interface IconSource {
   data class Vector(val imageVector: androidx.compose.ui.graphics.vector.ImageVector) : IconSource
 
   data class Drawable(@androidx.annotation.DrawableRes val id: Int) : IconSource
+}
+
+@Preview(showBackground = true)
+@Composable
+fun HomeDrawerPreview() {
+  val mockUser =
+    User(id = "1", email = "test@example.com", displayName = "Jane Doe", photoUrl = null)
+  val mockSurvey =
+    Survey(
+      id = "1",
+      title = "Tree Survey",
+      description = "A comprehensive survey for mapping urban tree canopy and assessing health.",
+      jobMap = emptyMap(),
+      generalAccess = org.groundplatform.android.proto.Survey.GeneralAccess.PUBLIC,
+    )
+  AppTheme {
+    HomeDrawer(user = mockUser, survey = mockSurvey, versionText = "1.0.0-preview", onAction = {})
+  }
 }

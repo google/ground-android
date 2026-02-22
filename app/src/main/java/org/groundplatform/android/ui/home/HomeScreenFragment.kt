@@ -108,52 +108,56 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener {
       val survey by
         homeScreenViewModel.surveyRepository.activeSurveyFlow.collectAsStateWithLifecycle()
 
-      HomeDrawer(
-        user = user,
-        survey = survey,
-        versionText = String.format(getString(R.string.build), BuildConfig.VERSION_NAME),
-        onAction = { action ->
-          when (action) {
-            HomeDrawerAction.OnSwitchSurvey -> {
-              findNavController()
-                .navigate(
-                  HomeScreenFragmentDirections.actionHomeScreenFragmentToSurveySelectorFragment(
-                    false
+      user?.let {
+        HomeDrawer(
+          user = it,
+          survey = survey,
+          versionText = String.format(getString(R.string.build), BuildConfig.VERSION_NAME),
+          onAction = { action ->
+            when (action) {
+              HomeDrawerAction.OnSwitchSurvey -> {
+                findNavController()
+                  .navigate(
+                    HomeScreenFragmentDirections.actionHomeScreenFragmentToSurveySelectorFragment(
+                      false
+                    )
                   )
-                )
-            }
-            HomeDrawerAction.OnNavigateToOfflineAreas -> {
-              lifecycleScope.launch {
-                if (homeScreenViewModel.getOfflineAreas().isEmpty())
-                  findNavController()
-                    .navigate(HomeScreenFragmentDirections.showOfflineAreaSelector())
-                else findNavController().navigate(HomeScreenFragmentDirections.showOfflineAreas())
               }
-              closeDrawer()
+              HomeDrawerAction.OnNavigateToOfflineAreas -> {
+                lifecycleScope.launch {
+                  if (homeScreenViewModel.getOfflineAreas().isEmpty())
+                    findNavController()
+                      .navigate(HomeScreenFragmentDirections.showOfflineAreaSelector())
+                  else findNavController().navigate(HomeScreenFragmentDirections.showOfflineAreas())
+                }
+                closeDrawer()
+              }
+              HomeDrawerAction.OnNavigateToSyncStatus -> {
+                findNavController().navigate(HomeScreenFragmentDirections.showSyncStatus())
+                closeDrawer()
+              }
+              HomeDrawerAction.OnNavigateToSettings -> {
+                findNavController()
+                  .navigate(
+                    HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity()
+                  )
+                closeDrawer()
+              }
+              HomeDrawerAction.OnNavigateToAbout -> {
+                findNavController().navigate(HomeScreenFragmentDirections.showAbout())
+                closeDrawer()
+              }
+              HomeDrawerAction.OnNavigateToTerms -> {
+                findNavController().navigate(HomeScreenFragmentDirections.showTermsOfService(true))
+                closeDrawer()
+              }
+              HomeDrawerAction.OnSignOut -> {
+                homeScreenViewModel.showSignOutDialog()
+              }
             }
-            HomeDrawerAction.OnNavigateToSyncStatus -> {
-              findNavController().navigate(HomeScreenFragmentDirections.showSyncStatus())
-              closeDrawer()
-            }
-            HomeDrawerAction.OnNavigateToSettings -> {
-              findNavController()
-                .navigate(HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity())
-              closeDrawer()
-            }
-            HomeDrawerAction.OnNavigateToAbout -> {
-              findNavController().navigate(HomeScreenFragmentDirections.showAbout())
-              closeDrawer()
-            }
-            HomeDrawerAction.OnNavigateToTerms -> {
-              findNavController().navigate(HomeScreenFragmentDirections.showTermsOfService(true))
-              closeDrawer()
-            }
-            HomeDrawerAction.OnSignOut -> {
-              homeScreenViewModel.showSignOutDialog()
-            }
-          }
-        },
-      )
+          },
+        )
+      }
     }
   }
 
