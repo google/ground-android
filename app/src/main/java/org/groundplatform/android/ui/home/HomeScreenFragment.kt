@@ -111,39 +111,48 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener {
       HomeDrawer(
         user = user,
         survey = survey,
-        onSwitchSurvey = {
-          findNavController()
-            .navigate(
-              HomeScreenFragmentDirections.actionHomeScreenFragmentToSurveySelectorFragment(false)
-            )
-        },
-        onNavigateToOfflineAreas = {
-          lifecycleScope.launch {
-            if (homeScreenViewModel.getOfflineAreas().isEmpty())
-              findNavController().navigate(HomeScreenFragmentDirections.showOfflineAreaSelector())
-            else findNavController().navigate(HomeScreenFragmentDirections.showOfflineAreas())
-          }
-          closeDrawer()
-        },
-        onNavigateToSyncStatus = {
-          findNavController().navigate(HomeScreenFragmentDirections.showSyncStatus())
-          closeDrawer()
-        },
-        onNavigateToSettings = {
-          findNavController()
-            .navigate(HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity())
-          closeDrawer()
-        },
-        onNavigateToAbout = {
-          findNavController().navigate(HomeScreenFragmentDirections.showAbout())
-          closeDrawer()
-        },
-        onNavigateToTerms = {
-          findNavController().navigate(HomeScreenFragmentDirections.showTermsOfService(true))
-          closeDrawer()
-        },
-        onSignOut = { homeScreenViewModel.showSignOutDialog() },
         versionText = String.format(getString(R.string.build), BuildConfig.VERSION_NAME),
+        onAction = { action ->
+          when (action) {
+            HomeDrawerAction.OnSwitchSurvey -> {
+              findNavController()
+                .navigate(
+                  HomeScreenFragmentDirections.actionHomeScreenFragmentToSurveySelectorFragment(
+                    false
+                  )
+                )
+            }
+            HomeDrawerAction.OnNavigateToOfflineAreas -> {
+              lifecycleScope.launch {
+                if (homeScreenViewModel.getOfflineAreas().isEmpty())
+                  findNavController()
+                    .navigate(HomeScreenFragmentDirections.showOfflineAreaSelector())
+                else findNavController().navigate(HomeScreenFragmentDirections.showOfflineAreas())
+              }
+              closeDrawer()
+            }
+            HomeDrawerAction.OnNavigateToSyncStatus -> {
+              findNavController().navigate(HomeScreenFragmentDirections.showSyncStatus())
+              closeDrawer()
+            }
+            HomeDrawerAction.OnNavigateToSettings -> {
+              findNavController()
+                .navigate(HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity())
+              closeDrawer()
+            }
+            HomeDrawerAction.OnNavigateToAbout -> {
+              findNavController().navigate(HomeScreenFragmentDirections.showAbout())
+              closeDrawer()
+            }
+            HomeDrawerAction.OnNavigateToTerms -> {
+              findNavController().navigate(HomeScreenFragmentDirections.showTermsOfService(true))
+              closeDrawer()
+            }
+            HomeDrawerAction.OnSignOut -> {
+              homeScreenViewModel.showSignOutDialog()
+            }
+          }
+        },
       )
     }
   }

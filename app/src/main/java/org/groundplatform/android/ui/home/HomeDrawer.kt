@@ -55,18 +55,28 @@ import org.groundplatform.android.R
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.User
 
+sealed interface HomeDrawerAction {
+  data object OnSwitchSurvey : HomeDrawerAction
+
+  data object OnNavigateToOfflineAreas : HomeDrawerAction
+
+  data object OnNavigateToSyncStatus : HomeDrawerAction
+
+  data object OnNavigateToSettings : HomeDrawerAction
+
+  data object OnNavigateToAbout : HomeDrawerAction
+
+  data object OnNavigateToTerms : HomeDrawerAction
+
+  data object OnSignOut : HomeDrawerAction
+}
+
 @Composable
 fun HomeDrawer(
   user: User?,
   survey: Survey?,
-  onSwitchSurvey: () -> Unit,
-  onNavigateToOfflineAreas: () -> Unit,
-  onNavigateToSyncStatus: () -> Unit,
-  onNavigateToSettings: () -> Unit,
-  onNavigateToAbout: () -> Unit,
-  onNavigateToTerms: () -> Unit,
-  onSignOut: () -> Unit,
   versionText: String,
+  onAction: (HomeDrawerAction) -> Unit,
 ) {
   Column(
     modifier =
@@ -76,61 +86,45 @@ fun HomeDrawer(
         .verticalScroll(rememberScrollState())
   ) {
     AppInfoHeader(user = user)
-    SurveySelector(survey = survey, onSwitchSurvey = onSwitchSurvey)
+    SurveySelector(survey = survey, onSwitchSurvey = { onAction(HomeDrawerAction.OnSwitchSurvey) })
     HorizontalDivider()
-    DrawerItems(
-      onNavigateToOfflineAreas,
-      onNavigateToSyncStatus,
-      onNavigateToSettings,
-      onNavigateToAbout,
-      onNavigateToTerms,
-      onSignOut,
-      versionText,
-    )
+    DrawerItems(onAction, versionText)
   }
 }
 
 @Composable
-private fun DrawerItems(
-  onNavigateToOfflineAreas: () -> Unit,
-  onNavigateToSyncStatus: () -> Unit,
-  onNavigateToSettings: () -> Unit,
-  onNavigateToAbout: () -> Unit,
-  onNavigateToTerms: () -> Unit,
-  onSignOut: () -> Unit,
-  versionText: String,
-) {
+private fun DrawerItems(onAction: (HomeDrawerAction) -> Unit, versionText: String) {
   val navItems =
     listOf(
       DrawerItem(
         label = stringResource(R.string.offline_map_imagery),
         icon = IconSource.Drawable(R.drawable.ic_offline_pin),
-        onClick = onNavigateToOfflineAreas,
+        onClick = { onAction(HomeDrawerAction.OnNavigateToOfflineAreas) },
       ),
       DrawerItem(
         label = stringResource(R.string.sync_status),
         icon = IconSource.Drawable(R.drawable.ic_sync),
-        onClick = onNavigateToSyncStatus,
+        onClick = { onAction(HomeDrawerAction.OnNavigateToSyncStatus) },
       ),
       DrawerItem(
         label = stringResource(R.string.settings),
         icon = IconSource.Vector(Icons.Default.Settings),
-        onClick = onNavigateToSettings,
+        onClick = { onAction(HomeDrawerAction.OnNavigateToSettings) },
       ),
       DrawerItem(
         label = stringResource(R.string.about),
         icon = IconSource.Drawable(R.drawable.info_outline),
-        onClick = onNavigateToAbout,
+        onClick = { onAction(HomeDrawerAction.OnNavigateToAbout) },
       ),
       DrawerItem(
         label = stringResource(R.string.terms_of_service),
         icon = IconSource.Drawable(R.drawable.feed),
-        onClick = onNavigateToTerms,
+        onClick = { onAction(HomeDrawerAction.OnNavigateToTerms) },
       ),
       DrawerItem(
         label = stringResource(R.string.sign_out),
         icon = IconSource.Vector(Icons.AutoMirrored.Filled.ExitToApp),
-        onClick = onSignOut,
+        onClick = { onAction(HomeDrawerAction.OnSignOut) },
       ),
     )
 
