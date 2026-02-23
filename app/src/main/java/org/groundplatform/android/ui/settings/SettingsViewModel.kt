@@ -21,27 +21,32 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
+import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.model.settings.MeasurementUnits
 import org.groundplatform.android.model.settings.UserSettings
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.ui.common.AbstractViewModel
 
 @HiltViewModel
-class SettingsViewModel @Inject internal constructor(private val userRepository: UserRepository) :
-  AbstractViewModel() {
+class SettingsViewModel
+@Inject
+internal constructor(
+  private val localValueStore: LocalValueStore,
+  private val userRepository: UserRepository,
+) : AbstractViewModel() {
 
   val uiState: StateFlow<UserSettings?> =
     userRepository.userSettingsFlow.stateIn(viewModelScope, SharingStarted.Lazily, null)
 
   fun updateUploadMediaOverUnmeteredConnectionOnly(enabled: Boolean) {
-    userRepository.updateUploadMediaOverUnmeteredConnectionOnly(enabled)
+    localValueStore.shouldUploadMediaOverUnmeteredConnectionOnly = enabled
   }
 
   fun updateMeasurementUnits(measurementUnits: MeasurementUnits) {
-    userRepository.updateMeasurementUnits(measurementUnits)
+    localValueStore.selectedLengthUnit = measurementUnits.name
   }
 
   fun updateSelectedLanguage(language: String) {
-    userRepository.updateSelectedLanguage(language)
+    localValueStore.selectedLanguage = language
   }
 }

@@ -15,6 +15,8 @@
  */
 package org.groundplatform.android.repository
 
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import org.groundplatform.android.data.local.LocalValueStore
@@ -29,8 +31,6 @@ import org.groundplatform.android.proto.Survey
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.auth.AuthenticationManager
 import timber.log.Timber
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Coordinates persistence of [User] instance in local data store. For more details on this pattern
@@ -148,16 +148,4 @@ constructor(
         )
       }
     }
-
-  fun updateSelectedLanguage(language: String) {
-    localValueStore.selectedLanguage = language
-  }
-
-  fun updateMeasurementUnits(measurementUnits: MeasurementUnits) {
-    localValueStore.selectedLengthUnit = measurementUnits.name
-  }
-
-  fun updateUploadMediaOverUnmeteredConnectionOnly(enabled: Boolean) {
-    localValueStore.shouldUploadMediaOverUnmeteredConnectionOnly = enabled
-  }
 }
