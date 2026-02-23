@@ -96,22 +96,6 @@ internal fun SettingsScreen(
   onVisitWebsiteClick: () -> Unit,
   onBack: () -> Unit,
 ) {
-  val configuration = LocalConfiguration.current
-  val resources = LocalResources.current
-
-  val languages =
-    remember(configuration) {
-      val labels = resources.getStringArray(R.array.language_entries)
-      val values = resources.getStringArray(R.array.language_entry_values)
-      labels.zip(values) { label, value -> Option(label, value) }
-    }
-
-  val measurementUnits =
-    remember(configuration) {
-      val labels = resources.getStringArray(R.array.length_entries)
-      val values = resources.getStringArray(R.array.length_entry_values)
-      labels.zip(values) { label, value -> Option(label, value) }
-    }
 
   Scaffold(
     topBar = {
@@ -130,53 +114,10 @@ internal fun SettingsScreen(
         )
 
         // Language
-        val currentLanguage =
-          languages.find { it.value == settings.language } ?: languages.firstOrNull()
-        var showLanguageDialog by remember { mutableStateOf(false) }
-
-        if (showLanguageDialog) {
-          SingleSelectionDialog(
-            title = stringResource(R.string.select_language_title),
-            options = languages,
-            selectedOption = currentLanguage,
-            onOptionSelected = {
-              onLanguageChange(it.value)
-              showLanguageDialog = false
-            },
-            onDismiss = { showLanguageDialog = false },
-          )
-        }
-
-        SettingsItem(
-          title = stringResource(R.string.select_language_title),
-          summary = currentLanguage?.label ?: "",
-          onClick = { showLanguageDialog = true },
-        )
+        SelectLanguageSetting(settings.language, onLanguageChange)
 
         // Measurement Units
-        val currentUnit =
-          measurementUnits.find { it.value == settings.measurementUnits.name }
-            ?: measurementUnits.firstOrNull()
-        var showUnitDialog by remember { mutableStateOf(false) }
-
-        if (showUnitDialog) {
-          SingleSelectionDialog(
-            title = stringResource(R.string.select_length_title),
-            options = measurementUnits,
-            selectedOption = currentUnit,
-            onOptionSelected = {
-              onMeasurementUnitsChange(MeasurementUnits.valueOf(it.value))
-              showUnitDialog = false
-            },
-            onDismiss = { showUnitDialog = false },
-          )
-        }
-
-        SettingsItem(
-          title = stringResource(R.string.select_length_title),
-          summary = currentUnit?.label ?: "",
-          onClick = { showUnitDialog = true },
-        )
+        SelectUnitSetting(settings.measurementUnits.name, onMeasurementUnitsChange)
       }
 
       HorizontalDivider()
@@ -191,6 +132,80 @@ internal fun SettingsScreen(
       }
     }
   }
+}
+
+@Composable
+private fun SelectLanguageSetting(currentValue: String, onLanguageChange: (String) -> Unit) {
+  val configuration = LocalConfiguration.current
+  val resources = LocalResources.current
+
+  val languages =
+    remember(configuration) {
+      val labels = resources.getStringArray(R.array.language_entries)
+      val values = resources.getStringArray(R.array.language_entry_values)
+      labels.zip(values) { label, value -> Option(label, value) }
+    }
+
+  val currentLanguage = languages.find { it.value == currentValue } ?: languages.firstOrNull()
+  var showLanguageDialog by remember { mutableStateOf(false) }
+
+  if (showLanguageDialog) {
+    SingleSelectionDialog(
+      title = stringResource(R.string.select_language_title),
+      options = languages,
+      selectedOption = currentLanguage,
+      onOptionSelected = {
+        onLanguageChange(it.value)
+        showLanguageDialog = false
+      },
+      onDismiss = { showLanguageDialog = false },
+    )
+  }
+
+  SettingsItem(
+    title = stringResource(R.string.select_language_title),
+    summary = currentLanguage?.label ?: "",
+    onClick = { showLanguageDialog = true },
+  )
+}
+
+@Composable
+private fun SelectUnitSetting(
+  currentValue: String,
+  onMeasurementUnitsChange: (MeasurementUnits) -> Unit,
+) {
+  val configuration = LocalConfiguration.current
+  val resources = LocalResources.current
+
+  val measurementUnits =
+    remember(configuration) {
+      val labels = resources.getStringArray(R.array.length_entries)
+      val values = resources.getStringArray(R.array.length_entry_values)
+      labels.zip(values) { label, value -> Option(label, value) }
+    }
+
+  val currentUnit =
+    measurementUnits.find { it.value == currentValue } ?: measurementUnits.firstOrNull()
+  var showUnitDialog by remember { mutableStateOf(false) }
+
+  if (showUnitDialog) {
+    SingleSelectionDialog(
+      title = stringResource(R.string.select_length_title),
+      options = measurementUnits,
+      selectedOption = currentUnit,
+      onOptionSelected = {
+        onMeasurementUnitsChange(MeasurementUnits.valueOf(it.value))
+        showUnitDialog = false
+      },
+      onDismiss = { showUnitDialog = false },
+    )
+  }
+
+  SettingsItem(
+    title = stringResource(R.string.select_length_title),
+    summary = currentUnit?.label ?: "",
+    onClick = { showUnitDialog = true },
+  )
 }
 
 @Preview(showBackground = true)
