@@ -44,7 +44,7 @@ jobs:
           HEAD_REF: ${{ github.head_ref }}
         run: |
           git config --global user.name "$ACTOR"
-          git config --global user.email "$(git log -n 1 --pretty=format:%ae remotes/origin/$HEAD_REF)"
+          git config --global user.email "$(git log -n 1 --pretty=format:%ae -- "remotes/origin/$HEAD_REF")"
       - name: Commit and Push Changes
         env:
           HEAD_REF: ${{ github.head_ref }}
@@ -52,7 +52,7 @@ jobs:
           git add -A
           if [[ $(git status --porcelain) ]]; then
             git commit -m "Automatically added GitHub issue links to TODOs"
-            git push origin "$HEAD_REF"
+            git push origin -- "$HEAD_REF"
           else
             echo "No changes to commit"
           fi
