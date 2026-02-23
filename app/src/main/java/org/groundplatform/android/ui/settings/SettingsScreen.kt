@@ -29,13 +29,8 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.net.toUri
@@ -46,11 +41,10 @@ import org.groundplatform.android.model.settings.MeasurementUnits
 import org.groundplatform.android.model.settings.UserSettings
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.components.Toolbar
-import org.groundplatform.android.ui.settings.components.Option
 import org.groundplatform.android.ui.settings.components.SettingsCategory
 import org.groundplatform.android.ui.settings.components.SettingsItem
+import org.groundplatform.android.ui.settings.components.SettingsSelectItem
 import org.groundplatform.android.ui.settings.components.SettingsSwitchItem
-import org.groundplatform.android.ui.settings.components.SingleSelectionDialog
 import org.groundplatform.android.ui.theme.AppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -114,8 +108,8 @@ internal fun SettingsScreen(
         )
 
         // Language
-        SelectSetting(
-          titleResId = R.string.select_language_title,
+        SettingsSelectItem(
+          title = stringResource(R.string.select_language_title),
           entriesResId = R.array.language_entries,
           entryValues = R.array.language_entry_values,
           currentValue = settings.language,
@@ -123,8 +117,8 @@ internal fun SettingsScreen(
         )
 
         // Measurement Units
-        SelectSetting(
-          titleResId = R.string.select_length_title,
+        SettingsSelectItem(
+          title = stringResource(R.string.select_length_title),
           entriesResId = R.array.length_entries,
           entryValues = R.array.length_entry_values,
           currentValue = settings.measurementUnits.name,
@@ -144,48 +138,6 @@ internal fun SettingsScreen(
       }
     }
   }
-}
-
-@Composable
-private fun SelectSetting(
-  titleResId: Int,
-  entriesResId: Int,
-  entryValues: Int,
-  currentValue: String,
-  onValueChanged: (String) -> Unit,
-) {
-  val configuration = LocalConfiguration.current
-  val resources = LocalResources.current
-
-  val measurementUnits =
-    remember(configuration) {
-      val labels = resources.getStringArray(entriesResId)
-      val values = resources.getStringArray(entryValues)
-      labels.zip(values) { label, value -> Option(label, value) }
-    }
-
-  val currentUnit =
-    measurementUnits.find { it.value == currentValue } ?: measurementUnits.firstOrNull()
-  var showUnitDialog by remember { mutableStateOf(false) }
-
-  if (showUnitDialog) {
-    SingleSelectionDialog(
-      title = stringResource(titleResId),
-      options = measurementUnits,
-      selectedOption = currentUnit,
-      onOptionSelected = {
-        onValueChanged(it.value)
-        showUnitDialog = false
-      },
-      onDismiss = { showUnitDialog = false },
-    )
-  }
-
-  SettingsItem(
-    title = stringResource(titleResId),
-    summary = currentUnit?.label ?: "",
-    onClick = { showUnitDialog = true },
-  )
 }
 
 @Preview(showBackground = true)
