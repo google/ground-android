@@ -69,6 +69,7 @@ import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.components.Toolbar
 import org.groundplatform.android.ui.theme.AppTheme
 import androidx.compose.ui.platform.LocalResources
+import androidx.annotation.VisibleForTesting
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -105,8 +106,9 @@ fun SettingsScreen(
 private data class Option(val label: String, val value: String)
 
 @OptIn(ExperimentalMaterial3Api::class)
+@VisibleForTesting
 @Composable
-private fun SettingsScreen(
+internal fun SettingsScreen(
   settings: UserSettings,
   onUploadMediaOverUnmeteredConnectionOnlyChange: (Boolean) -> Unit,
   onLanguageChange: (String) -> Unit,
