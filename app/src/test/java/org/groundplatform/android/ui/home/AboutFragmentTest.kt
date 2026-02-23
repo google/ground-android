@@ -22,8 +22,8 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.groundplatform.android.BaseHiltTest
-import org.groundplatform.android.FragmentScenarioRule
 import org.groundplatform.android.R
+import org.groundplatform.android.testrules.FragmentScenarioRule
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test

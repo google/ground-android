@@ -31,7 +31,6 @@ import org.groundplatform.android.FakeData.SURVEY
 import org.groundplatform.android.FakeData.USER
 import org.groundplatform.android.FakeData.newLoiMutation
 import org.groundplatform.android.FakeData.newSubmissionMutation
-import org.groundplatform.android.FragmentScenarioRule
 import org.groundplatform.android.R
 import org.groundplatform.android.data.local.stores.LocalLocationOfInterestStore
 import org.groundplatform.android.data.local.stores.LocalSubmissionStore
@@ -41,6 +40,7 @@ import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.repository.SurveyRepository
+import org.groundplatform.android.testrules.FragmentScenarioRule
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

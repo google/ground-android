@@ -24,7 +24,6 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runTest
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.MapStateRepository
@@ -45,9 +44,9 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class BaseMapViewModelTest : BaseHiltTest() {
 
   @Mock lateinit var locationManager: LocationManager
@@ -61,13 +60,14 @@ class BaseMapViewModelTest : BaseHiltTest() {
   private lateinit var viewModel: BaseMapViewModel
 
   @Before
-  fun setup() {
+  override fun setUp() {
+    super.setUp()
     MockitoAnnotations.openMocks(this)
   }
 
   @Test
   fun `Should display the correct location icon and hide the recenter button when the location is locked`() =
-    runTest {
+    runWithTestDispatcher {
       setupMocks(isLocationLocked = true)
 
       val iconType = viewModel.locationLockIconType.first()
@@ -78,7 +78,7 @@ class BaseMapViewModelTest : BaseHiltTest() {
 
   @Test
   fun `Should display the correct location icon and show the recenter button when the location is not locked`() =
-    runTest {
+    runWithTestDispatcher {
       setupMocks(isLocationLocked = false)
 
       val iconType = viewModel.locationLockIconType.first()
@@ -89,7 +89,7 @@ class BaseMapViewModelTest : BaseHiltTest() {
 
   @Test
   fun `Should display the correct icon and hide the recenter button if location permissions were not granted`() =
-    runTest {
+    runWithTestDispatcher {
       setupMocks(isLocationLocked = false, hasLocationPermissions = false)
 
       val iconType = viewModel.locationLockIconType.first()
@@ -100,7 +100,7 @@ class BaseMapViewModelTest : BaseHiltTest() {
 
   @Test
   fun `Should update map actions visibility when job selection modal visibility changes`() =
-    runTest {
+    runWithTestDispatcher {
       setupMocks()
 
       viewModel.onJobSelectionModalVisibilityChanged(isShown = true)
@@ -111,20 +111,21 @@ class BaseMapViewModelTest : BaseHiltTest() {
     }
 
   @Test
-  fun `Should enable location lock correctly and receive location updates`() = runTest {
-    setupMocks()
+  fun `Should enable location lock correctly and receive location updates`() =
+    runWithTestDispatcher {
+      setupMocks()
 
-    viewModel.enableLocationLockAndGetUpdates()
+      viewModel.enableLocationLockAndGetUpdates()
 
-    assertEquals(true, viewModel.locationLock.value.getOrNull())
-    verify(permissionsManager).obtainPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-    verify(settingsManager).enableLocationSettings(FINE_LOCATION_UPDATES_REQUEST)
-    verify(locationManager).requestLocationUpdates()
-  }
+      assertEquals(true, viewModel.locationLock.value.getOrNull())
+      verify(permissionsManager).obtainPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+      verify(settingsManager).enableLocationSettings(FINE_LOCATION_UPDATES_REQUEST)
+      verify(locationManager).requestLocationUpdates()
+    }
 
   @Test
   fun `Should fallback and receive location updates when location settings fails with SETTINGS_CHANGE_UNAVAILABLE`() =
-    runTest {
+    runWithTestDispatcher {
       val apiException = ApiException(Status(SETTINGS_CHANGE_UNAVAILABLE))
       setupMocks(
         enableLocationSettingsException = apiException,
@@ -141,7 +142,7 @@ class BaseMapViewModelTest : BaseHiltTest() {
 
   @Test
   fun `Should not enable location lock and disable location updates if location settings fails with other exception`() =
-    runTest {
+    runWithTestDispatcher {
       val apiException = ApiException(Status(CommonStatusCodes.INTERNAL_ERROR))
       setupMocks(
         enableLocationSettingsException = apiException,
@@ -157,15 +158,16 @@ class BaseMapViewModelTest : BaseHiltTest() {
     }
 
   @Test
-  fun `Should disable location lock on map drag and stop receiving location updates`() = runTest {
-    setupMocks()
+  fun `Should disable location lock on map drag and stop receiving location updates`() =
+    runWithTestDispatcher {
+      setupMocks()
 
-    viewModel.onLocationLockClick()
-    viewModel.onMapDragged()
+      viewModel.onLocationLockClick()
+      viewModel.onMapDragged()
 
-    assertEquals(false, viewModel.locationLock.value.getOrNull())
-    verify(locationManager).disableLocationUpdates()
-  }
+      assertEquals(false, viewModel.locationLock.value.getOrNull())
+      verify(locationManager).disableLocationUpdates()
+    }
 
   private fun setupMocks(
     isLocationLocked: Boolean = false,

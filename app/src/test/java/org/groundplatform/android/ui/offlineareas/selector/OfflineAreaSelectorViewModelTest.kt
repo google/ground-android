@@ -19,12 +19,8 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import kotlin.test.assertNull
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.map.Bounds
@@ -39,7 +35,6 @@ import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.system.SettingsManager
 import org.groundplatform.android.ui.offlineareas.selector.model.BottomTextState
 import org.groundplatform.android.util.toMbString
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -68,7 +63,6 @@ class OfflineAreaSelectorViewModelTest : BaseHiltTest() {
   @Before
   override fun setUp() {
     super.setUp()
-    Dispatchers.setMain(testDispatcher)
     viewModel =
       OfflineAreaSelectorViewModel(
         offlineAreaRepository,
@@ -83,13 +77,8 @@ class OfflineAreaSelectorViewModelTest : BaseHiltTest() {
       )
   }
 
-  @After
-  fun tearDown() {
-    Dispatchers.resetMain()
-  }
-
   @Test
-  fun `Should show download size correctly`() = runTest {
+  fun `Should show download size correctly`() = runWithTestDispatcher {
     setupMocks(estimatedSizeOnDisk = Result.success(1024 * 1024 * 5))
 
     viewModel.onMapCameraMoved(CAMERA_POSITION)
@@ -100,7 +89,7 @@ class OfflineAreaSelectorViewModelTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Should show appropriate message when there is no imagery`() = runTest {
+  fun `Should show appropriate message when there is no imagery`() = runWithTestDispatcher {
     setupMocks(hasHiResImagery = Result.success(false))
 
     viewModel.onMapCameraMoved(CAMERA_POSITION)
@@ -112,7 +101,7 @@ class OfflineAreaSelectorViewModelTest : BaseHiltTest() {
 
   @Test
   fun `Should show appropriate message when there's a network error checking for high res imagery`() =
-    runTest {
+    runWithTestDispatcher {
       setupMocks(hasHiResImagery = Result.failure(SocketTimeoutException("timeout")))
 
       viewModel.onMapCameraMoved(CAMERA_POSITION)
@@ -124,7 +113,7 @@ class OfflineAreaSelectorViewModelTest : BaseHiltTest() {
 
   @Test
   fun `Should show appropriate message when there's a network error checking for estimated imagery size`() =
-    runTest {
+    runWithTestDispatcher {
       setupMocks(estimatedSizeOnDisk = Result.failure(UnknownHostException("unknown")))
 
       viewModel.onMapCameraMoved(CAMERA_POSITION)
@@ -135,7 +124,7 @@ class OfflineAreaSelectorViewModelTest : BaseHiltTest() {
     }
 
   @Test
-  fun `Should show area too large when zoom is too low`() = runTest {
+  fun `Should show area too large when zoom is too low`() = runWithTestDispatcher {
     setupMocks()
     val lowZoomPosition = CAMERA_POSITION.copy(zoomLevel = 5.0f)
 
@@ -147,7 +136,7 @@ class OfflineAreaSelectorViewModelTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Should reset state on map drag`() = runTest {
+  fun `Should reset state on map drag`() = runWithTestDispatcher {
     setupMocks()
     viewModel.onMapCameraMoved(CAMERA_POSITION)
     advanceUntilIdle()

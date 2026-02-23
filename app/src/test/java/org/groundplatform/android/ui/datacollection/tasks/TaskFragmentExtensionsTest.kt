@@ -23,7 +23,7 @@ import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
-import org.groundplatform.android.FragmentScenarioRule
+import org.groundplatform.android.testrules.FragmentScenarioRule
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.junit.Rule
 import org.junit.Test

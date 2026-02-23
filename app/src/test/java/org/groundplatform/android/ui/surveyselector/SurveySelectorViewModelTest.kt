@@ -18,16 +18,13 @@ package org.groundplatform.android.ui.surveyselector
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
-import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
-import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.TestScope
 import org.groundplatform.android.BaseHiltTest
-import org.groundplatform.android.di.coroutines.ApplicationScope
-import org.groundplatform.android.di.coroutines.IoDispatcher
 import org.groundplatform.android.model.SurveyListItem
 import org.groundplatform.android.proto.Survey
 import org.groundplatform.android.repository.UserRepository
@@ -46,21 +43,21 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class SurveySelectorViewModelTest : BaseHiltTest() {
 
-  @BindValue @Mock lateinit var activateSurveyUseCase: ActivateSurveyUseCase
-  @BindValue @Mock lateinit var listAvailableSurveysUseCase: ListAvailableSurveysUseCase
-  @BindValue @Mock lateinit var removeOfflineSurveyUseCase: RemoveOfflineSurveyUseCase
-  @BindValue @Mock lateinit var userRepository: UserRepository
+  @Mock lateinit var activateSurveyUseCase: ActivateSurveyUseCase
+  @Mock lateinit var listAvailableSurveysUseCase: ListAvailableSurveysUseCase
+  @Mock lateinit var removeOfflineSurveyUseCase: RemoveOfflineSurveyUseCase
+  @Mock lateinit var userRepository: UserRepository
 
-  @Mock lateinit var savedStateHandle: SavedStateHandle
-
-  @Inject @ApplicationScope lateinit var externalScope: CoroutineScope
-  @Inject @IoDispatcher lateinit var ioDispatcher: CoroutineDispatcher
+  private lateinit var externalScope: CoroutineScope
+  private lateinit var ioDispatcher: CoroutineDispatcher
 
   private lateinit var viewModel: SurveySelectorViewModel
 
   @Before
   override fun setUp() {
     super.setUp()
+    externalScope = TestScope(testDispatcher)
+    ioDispatcher = testDispatcher
     whenever(listAvailableSurveysUseCase()).thenReturn(flowOf(listOf(TEST_SURVEY)))
     viewModel =
       SurveySelectorViewModel(
