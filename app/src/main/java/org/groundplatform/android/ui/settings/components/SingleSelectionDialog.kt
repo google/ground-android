@@ -20,6 +20,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.groundplatform.android.R
 
+internal data class Option(val label: String, val value: String)
+
 @Composable
 internal fun SingleSelectionDialog(
   title: String,
