@@ -16,35 +16,22 @@
 package org.groundplatform.android.ui.settings
 
 import android.net.Uri
-import androidx.compose.foundation.clickable
+import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -52,13 +39,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -67,9 +51,12 @@ import org.groundplatform.android.model.settings.MeasurementUnits
 import org.groundplatform.android.model.settings.UserSettings
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.components.Toolbar
+import org.groundplatform.android.ui.settings.components.Option
+import org.groundplatform.android.ui.settings.components.SettingsCategory
+import org.groundplatform.android.ui.settings.components.SettingsItem
+import org.groundplatform.android.ui.settings.components.SettingsSwitchItem
+import org.groundplatform.android.ui.settings.components.SingleSelectionDialog
 import org.groundplatform.android.ui.theme.AppTheme
-import androidx.compose.ui.platform.LocalResources
-import androidx.annotation.VisibleForTesting
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -102,8 +89,6 @@ fun SettingsScreen(
     )
   }
 }
-
-private data class Option(val label: String, val value: String)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @VisibleForTesting
@@ -215,121 +200,6 @@ internal fun SettingsScreen(
       }
     }
   }
-}
-
-@Composable
-fun SettingsCategory(title: String, content: @Composable ColumnScope.() -> Unit) {
-  Column(modifier = Modifier.fillMaxWidth()) {
-    Text(
-      text = title,
-      style = MaterialTheme.typography.labelLarge,
-      color = MaterialTheme.colorScheme.primary,
-      modifier = Modifier.padding(start = 16.dp, top = 24.dp, bottom = 8.dp),
-    )
-    content()
-  }
-}
-
-@Composable
-private fun SettingsItem(
-  title: String,
-  summary: String? = null,
-  icon: ImageVector? = null,
-  onClick: () -> Unit,
-) {
-  Row(
-    modifier =
-      Modifier.fillMaxWidth().clickable(onClick = onClick, role = Role.Button).padding(16.dp),
-    verticalAlignment = Alignment.CenterVertically,
-  ) {
-    if (icon != null) {
-      Icon(
-        imageVector = icon,
-        contentDescription = null,
-        modifier = Modifier.padding(end = 16.dp),
-        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-      )
-    }
-    Column(modifier = Modifier.weight(1f)) {
-      Text(text = title, style = MaterialTheme.typography.titleMedium)
-      if (summary != null) {
-        Text(
-          text = summary,
-          style = MaterialTheme.typography.bodyMedium,
-          color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-      }
-    }
-  }
-}
-
-@Composable
-private fun SettingsSwitchItem(
-  title: String,
-  summary: String? = null,
-  icon: ImageVector? = null,
-  checked: Boolean,
-  onCheckedChange: (Boolean) -> Unit,
-) {
-  Row(
-    modifier =
-      Modifier.fillMaxWidth()
-        .toggleable(value = checked, onValueChange = onCheckedChange, role = Role.Switch)
-        .padding(16.dp),
-    verticalAlignment = Alignment.CenterVertically,
-  ) {
-    if (icon != null) {
-      Icon(
-        imageVector = icon,
-        contentDescription = null,
-        modifier = Modifier.padding(end = 16.dp),
-        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-      )
-    }
-    Column(modifier = Modifier.weight(1f)) {
-      Text(text = title, style = MaterialTheme.typography.titleMedium)
-      if (summary != null) {
-        Text(
-          text = summary,
-          style = MaterialTheme.typography.bodyMedium,
-          color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-      }
-    }
-    Switch(checked = checked, onCheckedChange = null)
-  }
-}
-
-@Composable
-private fun SingleSelectionDialog(
-  title: String,
-  options: List<Option>,
-  selectedOption: Option?,
-  onOptionSelected: (Option) -> Unit,
-  onDismiss: () -> Unit,
-) {
-  AlertDialog(
-    onDismissRequest = onDismiss,
-    title = { Text(title) },
-    text = {
-      Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-        options.forEach { option ->
-          Row(
-            modifier =
-              Modifier.fillMaxWidth()
-                .clickable { onOptionSelected(option) }
-                .padding(vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-          ) {
-            RadioButton(selected = option == selectedOption, onClick = null)
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(text = option.label)
-          }
-        }
-      }
-    },
-    confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
-  )
 }
 
 @Preview(showBackground = true)
