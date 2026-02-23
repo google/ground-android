@@ -24,9 +24,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -130,7 +133,7 @@ internal fun SettingsScreen(
         SettingsSwitchItem(
           title = stringResource(R.string.upload_media_title),
           summary = stringResource(R.string.over_wifi_summary),
-          icon = Icons.Default.Share,
+          icon = Icons.AutoMirrored.Filled.Send,
           checked = settings.shouldUploadPhotosOnWifiOnly,
           onCheckedChange = onUploadMediaOverUnmeteredConnectionOnlyChange,
         )
