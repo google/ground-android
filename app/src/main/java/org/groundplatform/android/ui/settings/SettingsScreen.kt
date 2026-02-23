@@ -23,14 +23,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Send
-import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -133,7 +125,6 @@ internal fun SettingsScreen(
         SettingsSwitchItem(
           title = stringResource(R.string.upload_media_title),
           summary = stringResource(R.string.over_wifi_summary),
-          icon = Icons.AutoMirrored.Filled.Send,
           checked = settings.shouldUploadPhotosOnWifiOnly,
           onCheckedChange = onUploadMediaOverUnmeteredConnectionOnlyChange,
         )
@@ -159,7 +150,6 @@ internal fun SettingsScreen(
         SettingsItem(
           title = stringResource(R.string.select_language_title),
           summary = currentLanguage?.label ?: "",
-          icon = Icons.Default.Person,
           onClick = { showLanguageDialog = true },
         )
 
@@ -185,7 +175,6 @@ internal fun SettingsScreen(
         SettingsItem(
           title = stringResource(R.string.select_length_title),
           summary = currentUnit?.label ?: "",
-          icon = Icons.Default.Edit,
           onClick = { showUnitDialog = true },
         )
       }
@@ -197,7 +186,6 @@ internal fun SettingsScreen(
         SettingsItem(
           title = stringResource(R.string.visit_website_title),
           summary = stringResource(R.string.ground_website),
-          icon = Icons.Default.Info,
           onClick = onVisitWebsiteClick,
         )
       }
