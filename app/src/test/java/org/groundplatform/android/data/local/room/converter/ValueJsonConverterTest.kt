@@ -16,9 +16,7 @@
 package org.groundplatform.android.data.local.room.converter
 
 import com.google.common.truth.Truth.assertThat
-import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.collections.immutable.persistentListOf
-import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.LineString
@@ -41,13 +39,12 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
 
-@HiltAndroidTest
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class ValueJsonConverterTest(
   private val task: Task,
   private val taskData: TaskData,
   private val input: Any,
-) : BaseHiltTest() {
+) {
 
   @Test
   fun `to json object`() {

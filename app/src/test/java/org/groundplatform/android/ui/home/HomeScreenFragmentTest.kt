@@ -44,11 +44,11 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
-import org.groundplatform.android.FragmentScenarioRule
 import org.groundplatform.android.R
 import org.groundplatform.android.data.local.stores.LocalSurveyStore
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.repository.SurveyRepository
+import org.groundplatform.android.testrules.FragmentScenarioRule
 import org.groundplatform.android.ui.components.MapFloatingActionButtonType
 import org.junit.Before
 import org.junit.Rule

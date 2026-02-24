@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android
+package org.groundplatform.android.testrules
 
 import android.content.ComponentName
 import android.content.Intent
@@ -29,6 +29,8 @@ import androidx.navigation.Navigation
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
+import org.groundplatform.android.HiltTestActivity
+import org.groundplatform.android.R
 import org.junit.rules.ExternalResource
 
 class FragmentScenarioRule : ExternalResource() {

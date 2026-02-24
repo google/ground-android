@@ -19,6 +19,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.components.SingletonComponent
 import dagger.hilt.testing.TestInstallIn
+import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
@@ -32,11 +33,14 @@ import org.groundplatform.android.di.coroutines.MainDispatcher
   replaces = [CoroutineDispatchersModule::class],
 )
 object TestCoroutineDispatchersModule {
-  private val testDispatcher = StandardTestDispatcher()
 
-  @Provides fun provideTestDispatcher(): TestDispatcher = testDispatcher
+  @Provides @Singleton fun provideTestDispatcher(): TestDispatcher = StandardTestDispatcher()
 
-  @IoDispatcher @Provides fun provideIoDispatcher(): CoroutineDispatcher = testDispatcher
+  @IoDispatcher
+  @Provides
+  fun provideIoDispatcher(testDispatcher: TestDispatcher): CoroutineDispatcher = testDispatcher
 
-  @MainDispatcher @Provides fun provideMainDispatcher(): CoroutineDispatcher = testDispatcher
+  @MainDispatcher
+  @Provides
+  fun provideMainDispatcher(testDispatcher: TestDispatcher): CoroutineDispatcher = testDispatcher
 }
