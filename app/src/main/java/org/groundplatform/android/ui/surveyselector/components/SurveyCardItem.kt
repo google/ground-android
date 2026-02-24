@@ -27,13 +27,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import org.groundplatform.android.R
 import org.groundplatform.android.model.SurveyListItem
 
 @Composable
@@ -54,10 +50,7 @@ fun SurveyCardItem(
       Spacer(modifier = Modifier.height(8.dp))
       Text(
         text = item.title,
-        fontFamily = FontFamily(Font(R.font.text_500)),
-        fontSize = 18.sp,
-        fontWeight = FontWeight.Medium,
-        lineHeight = 28.sp,
+        style = MaterialTheme.typography.titleLarge,
         color = MaterialTheme.colorScheme.onSurface,
       )
       item.description
@@ -66,10 +59,8 @@ fun SurveyCardItem(
           Spacer(modifier = Modifier.height(4.dp))
           Text(
             text = it,
-            fontSize = 14.sp,
+            style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Normal,
-            fontFamily = FontFamily(Font(R.font.text_500)),
-            lineHeight = 20.sp,
             color = MaterialTheme.colorScheme.outline,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,

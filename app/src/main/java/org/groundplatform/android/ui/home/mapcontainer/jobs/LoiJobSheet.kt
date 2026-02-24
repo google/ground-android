@@ -150,7 +150,7 @@ private fun LoiHeader(loiHelper: LocationOfInterestHelper, loi: LocationOfIntere
     Text(
       loiHelper.getDisplayLoiName(loi),
       color = MaterialTheme.colorScheme.onSurface,
-      fontSize = 28.sp,
+      style = MaterialTheme.typography.headlineMedium,
     )
   }
 }

@@ -57,7 +57,7 @@ class InstructionTaskFragment : AbstractTaskFragment<InstructionTaskViewModel>()
           .border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(2.dp))
           .padding(16.dp)
     ) {
-      Text(text = text, fontSize = 24.sp)
+      Text(text = text, style = MaterialTheme.typography.headlineSmall)
     }
   }
 
