@@ -94,7 +94,6 @@ private fun BodyContent(onDismiss: () -> Unit) {
         modifier = Modifier.padding(horizontal = 24.dp, vertical = 10.dp),
         text = stringResource(id = R.string.close),
         style = MaterialTheme.typography.bodyMedium,
-
       )
     }
   }
