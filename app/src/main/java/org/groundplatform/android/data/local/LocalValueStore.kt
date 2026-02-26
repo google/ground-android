@@ -158,13 +158,13 @@ constructor(private val preferences: SharedPreferences, private val locale: Loca
       .distinctUntilChanged()
 
   val selectedLanguageFlow: Flow<String>
-    get() = watchString(PrefKeys.LANGUAGE, locale.language)
+    get() = watchString(PrefKeys.LANGUAGE, selectedLanguage)
 
   val selectedLengthUnitFlow: Flow<String>
-    get() = watchString(PrefKeys.MEASUREMENT_UNITS, MeasurementUnits.METRIC.name)
+    get() = watchString(PrefKeys.MEASUREMENT_UNITS, selectedLengthUnit)
 
   val shouldUploadMediaOverUnmeteredConnectionOnlyFlow: Flow<Boolean>
-    get() = watchBoolean(PrefKeys.UPLOAD_MEDIA, false)
+    get() = watchBoolean(PrefKeys.UPLOAD_MEDIA, shouldUploadMediaOverUnmeteredConnectionOnly)
 
   fun clearLastCameraPosition(surveyId: String) = allowThreadDiskReads {
     preferences.edit { remove(PrefKeys.LAST_VIEWPORT_PREFIX + surveyId) }

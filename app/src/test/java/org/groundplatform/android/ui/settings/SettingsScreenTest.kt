@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android.ui.settings
 
+import android.content.pm.PackageInfo
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -25,13 +26,12 @@ import org.groundplatform.android.R
 import org.groundplatform.android.model.settings.MeasurementUnits
 import org.groundplatform.android.model.settings.UserSettings
 import org.groundplatform.android.ui.theme.AppTheme
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows
-import android.content.pm.PackageInfo
-import org.junit.Before
 
 @RunWith(RobolectricTestRunner::class)
 class SettingsScreenTest {
@@ -49,11 +49,12 @@ class SettingsScreenTest {
 
   @Test
   fun testSettingsScreen_InitialState() {
-    val settings = UserSettings(
-      language = "en",
-      measurementUnits = MeasurementUnits.METRIC,
-      shouldUploadPhotosOnWifiOnly = true
-    )
+    val settings =
+      UserSettings(
+        language = "en",
+        measurementUnits = MeasurementUnits.METRIC,
+        shouldUploadPhotosOnWifiOnly = true,
+      )
 
     composeTestRule.setContent {
       AppTheme {
@@ -63,27 +64,40 @@ class SettingsScreenTest {
           onLanguageChange = {},
           onMeasurementUnitsChange = {},
           onVisitWebsiteClick = {},
-          onBack = {}
+          onBack = {},
         )
       }
     }
 
     composeTestRule.onNodeWithText(context.getString(R.string.general_title)).assertIsDisplayed()
-    composeTestRule.onNodeWithText(context.getString(R.string.upload_media_title)).assertIsDisplayed()
-    composeTestRule.onNodeWithText(context.getString(R.string.select_language_title)).assertIsDisplayed()
-    composeTestRule.onNodeWithText(context.getString(R.string.select_length_title)).assertIsDisplayed()
-    composeTestRule.onNodeWithText(context.getString(R.string.help_title)).performScrollTo().assertIsDisplayed()
-    composeTestRule.onNodeWithText(context.getString(R.string.visit_website_title)).performScrollTo().assertIsDisplayed()
+    composeTestRule
+      .onNodeWithText(context.getString(R.string.upload_media_title))
+      .assertIsDisplayed()
+    composeTestRule
+      .onNodeWithText(context.getString(R.string.select_language_title))
+      .assertIsDisplayed()
+    composeTestRule
+      .onNodeWithText(context.getString(R.string.select_length_title))
+      .assertIsDisplayed()
+    composeTestRule
+      .onNodeWithText(context.getString(R.string.help_title))
+      .performScrollTo()
+      .assertIsDisplayed()
+    composeTestRule
+      .onNodeWithText(context.getString(R.string.visit_website_title))
+      .performScrollTo()
+      .assertIsDisplayed()
   }
 
   @Test
   fun testSettingsScreen_ToggleUploadMedia() {
     var uploadMediaChecked = false
-    val settings = UserSettings(
-      language = "en",
-      measurementUnits = MeasurementUnits.METRIC,
-      shouldUploadPhotosOnWifiOnly = false
-    )
+    val settings =
+      UserSettings(
+        language = "en",
+        measurementUnits = MeasurementUnits.METRIC,
+        shouldUploadPhotosOnWifiOnly = false,
+      )
 
     composeTestRule.setContent {
       AppTheme {
@@ -93,7 +107,7 @@ class SettingsScreenTest {
           onLanguageChange = {},
           onMeasurementUnitsChange = {},
           onVisitWebsiteClick = {},
-          onBack = {}
+          onBack = {},
         )
       }
     }
@@ -105,11 +119,12 @@ class SettingsScreenTest {
   @Test
   fun testSettingsScreen_ChangeLanguage() {
     var selectedLanguage: String? = null
-    val settings = UserSettings(
-      language = "en",
-      measurementUnits = MeasurementUnits.METRIC,
-      shouldUploadPhotosOnWifiOnly = false
-    )
+    val settings =
+      UserSettings(
+        language = "en",
+        measurementUnits = MeasurementUnits.METRIC,
+        shouldUploadPhotosOnWifiOnly = false,
+      )
 
     composeTestRule.setContent {
       AppTheme {
@@ -119,7 +134,7 @@ class SettingsScreenTest {
           onLanguageChange = { selectedLanguage = it },
           onMeasurementUnitsChange = {},
           onVisitWebsiteClick = {},
-          onBack = {}
+          onBack = {},
         )
       }
     }
@@ -132,11 +147,12 @@ class SettingsScreenTest {
   @Test
   fun testSettingsScreen_ChangeUnits() {
     var selectedUnits: MeasurementUnits? = null
-    val settings = UserSettings(
-      language = "en",
-      measurementUnits = MeasurementUnits.METRIC,
-      shouldUploadPhotosOnWifiOnly = false
-    )
+    val settings =
+      UserSettings(
+        language = "en",
+        measurementUnits = MeasurementUnits.METRIC,
+        shouldUploadPhotosOnWifiOnly = false,
+      )
 
     composeTestRule.setContent {
       AppTheme {
@@ -146,7 +162,7 @@ class SettingsScreenTest {
           onLanguageChange = {},
           onMeasurementUnitsChange = { selectedUnits = it },
           onVisitWebsiteClick = {},
-          onBack = {}
+          onBack = {},
         )
       }
     }
@@ -159,11 +175,12 @@ class SettingsScreenTest {
   @Test
   fun testSettingsScreen_VisitWebsite() {
     var visited = false
-    val settings = UserSettings(
-      language = "en",
-      measurementUnits = MeasurementUnits.METRIC,
-      shouldUploadPhotosOnWifiOnly = false
-    )
+    val settings =
+      UserSettings(
+        language = "en",
+        measurementUnits = MeasurementUnits.METRIC,
+        shouldUploadPhotosOnWifiOnly = false,
+      )
 
     composeTestRule.setContent {
       AppTheme {
@@ -173,12 +190,15 @@ class SettingsScreenTest {
           onLanguageChange = {},
           onMeasurementUnitsChange = {},
           onVisitWebsiteClick = { visited = true },
-          onBack = {}
+          onBack = {},
         )
       }
     }
 
-    composeTestRule.onNodeWithText(context.getString(R.string.visit_website_title)).performScrollTo().performClick()
+    composeTestRule
+      .onNodeWithText(context.getString(R.string.visit_website_title))
+      .performScrollTo()
+      .performClick()
     assert(visited)
   }
 }
