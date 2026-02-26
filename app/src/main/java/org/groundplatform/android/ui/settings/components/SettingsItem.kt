@@ -1,6 +1,7 @@
 package org.groundplatform.android.ui.settings.components
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -38,5 +39,10 @@ internal fun SettingsItem(title: String, summary: String? = null, onClick: () ->
 @Preview(showBackground = true)
 @Composable
 private fun Preview() {
-  AppTheme { SettingsItem(title = "Name", summary = "Summary", onClick = {}) }
+  AppTheme {
+    Column(verticalArrangement = Arrangement.SpaceEvenly) {
+      SettingsItem(title = "Name", summary = "Summary", onClick = {})
+      SettingsItem(title = "Name", summary = null, onClick = {})
+    }
+  }
 }
