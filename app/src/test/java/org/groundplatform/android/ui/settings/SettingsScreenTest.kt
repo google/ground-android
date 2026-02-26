@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Google LLC
+ * Copyright 2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package org.groundplatform.android.ui.settings
 
-import android.content.pm.PackageInfo
+import android.content.Context
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -31,20 +31,17 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.Shadows
 
 @RunWith(RobolectricTestRunner::class)
 class SettingsScreenTest {
 
   @get:Rule val composeTestRule = createComposeRule()
 
-  private val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+  private lateinit var context: Context
 
   @Before
-  fun setUp() {
-    val packageInfo = PackageInfo()
-    packageInfo.packageName = "org.groundplatform.android"
-    Shadows.shadowOf(context.packageManager).installPackage(packageInfo)
+  fun setup() {
+    context = ApplicationProvider.getApplicationContext()
   }
 
   @Test
