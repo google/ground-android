@@ -35,7 +35,7 @@ class SettingsViewModelTest {
 
   @Mock lateinit var userRepository: UserRepository
 
-  private lateinit var viewModel: SettingsViewModel
+//  private lateinit var viewModel: SettingsViewModel
 
   private val testDispatcher = StandardTestDispatcher()
 
