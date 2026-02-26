@@ -173,7 +173,6 @@
   <string name="visit_website_title">Visitar site</string>
   <string name="accuracy">Precisão:</string>
   <string name="select_language_title">Selecionar idioma</string>
-  <string name="select_language_summary">Selecione o seu idioma preferido</string>
   <!-- Data Sharing Consent Text -->
   <string name="data_sharing_no_terms">*Não há termos para exibir.*</string>
   <string name="data_sharing_private_message">
