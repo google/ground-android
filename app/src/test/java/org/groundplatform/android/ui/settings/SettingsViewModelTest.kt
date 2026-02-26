@@ -17,17 +17,12 @@ package org.groundplatform.android.ui.settings
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.model.settings.MeasurementUnits
 import org.groundplatform.android.model.settings.UserSettings
 import org.groundplatform.android.repository.UserRepository
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -46,17 +41,9 @@ class SettingsViewModelTest {
 
   private lateinit var viewModel: SettingsViewModel
 
-  private val testDispatcher = StandardTestDispatcher()
-
   @Before
   fun setup() {
     MockitoAnnotations.openMocks(this)
-    Dispatchers.setMain(testDispatcher)
-  }
-
-  @After
-  fun tearDown() {
-    Dispatchers.resetMain()
   }
 
   @Test
