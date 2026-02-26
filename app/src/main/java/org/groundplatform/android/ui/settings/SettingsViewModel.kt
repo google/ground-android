@@ -15,12 +15,10 @@
  */
 package org.groundplatform.android.ui.settings
 
-import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.model.settings.MeasurementUnits
 import org.groundplatform.android.model.settings.UserSettings
@@ -30,23 +28,29 @@ import org.groundplatform.android.ui.common.AbstractViewModel
 @HiltViewModel
 class SettingsViewModel
 @Inject
-internal constructor(
-  private val localValueStore: LocalValueStore,
-  private val userRepository: UserRepository,
-) : AbstractViewModel() {
+internal constructor(private val localValueStore: LocalValueStore, userRepository: UserRepository) :
+  AbstractViewModel() {
 
-  val uiState: StateFlow<UserSettings?> =
-    userRepository.userSettingsFlow.stateIn(viewModelScope, SharingStarted.Lazily, null)
+  private var _uiState: MutableStateFlow<UserSettings> =
+    MutableStateFlow(userRepository.getUserSettings())
+  val uiState: StateFlow<UserSettings> = _uiState
 
-  fun updateUploadMediaOverUnmeteredConnectionOnly(enabled: Boolean) {
-    localValueStore.shouldUploadMediaOverUnmeteredConnectionOnly = enabled
-  }
-
-  fun updateMeasurementUnits(measurementUnits: MeasurementUnits) {
-    localValueStore.selectedLengthUnit = measurementUnits.name
+  private fun updateState(newUiState: UserSettings) {
+    _uiState.value = newUiState
   }
 
   fun updateSelectedLanguage(language: String) {
     localValueStore.selectedLanguage = language
+    updateState(_uiState.value.copy(language = language))
+  }
+
+  fun updateMeasurementUnits(measurementUnits: MeasurementUnits) {
+    localValueStore.selectedLengthUnit = measurementUnits.name
+    updateState(_uiState.value.copy(measurementUnits = measurementUnits))
+  }
+
+  fun updateUploadMediaOverUnmeteredConnectionOnly(enabled: Boolean) {
+    localValueStore.shouldUploadMediaOverUnmeteredConnectionOnly = enabled
+    updateState(_uiState.value.copy(shouldUploadPhotosOnWifiOnly = enabled))
   }
 }

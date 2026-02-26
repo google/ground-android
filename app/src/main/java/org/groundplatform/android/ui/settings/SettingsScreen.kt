@@ -17,19 +17,15 @@ package org.groundplatform.android.ui.settings
 
 import android.net.Uri
 import androidx.annotation.VisibleForTesting
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -58,25 +54,19 @@ fun SettingsScreen(
   val uiState by viewModel.uiState.collectAsStateWithLifecycle()
   val websiteUrl = stringResource(R.string.ground_website)
 
-  if (uiState == null) {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-      CircularProgressIndicator()
-    }
-  } else {
-    SettingsScreen(
-      settings = uiState!!,
-      onUploadMediaOverUnmeteredConnectionOnlyChange = {
-        viewModel.updateUploadMediaOverUnmeteredConnectionOnly(it)
-      },
-      onLanguageChange = {
-        viewModel.updateSelectedLanguage(it)
-        onLocaleChanged(it)
-      },
-      onMeasurementUnitsChange = { viewModel.updateMeasurementUnits(it) },
-      onVisitWebsiteClick = { onVisitWebsiteClick(websiteUrl.toUri()) },
-      onBack = onBack,
-    )
-  }
+  SettingsScreen(
+    settings = uiState,
+    onUploadMediaOverUnmeteredConnectionOnlyChange = {
+      viewModel.updateUploadMediaOverUnmeteredConnectionOnly(it)
+    },
+    onLanguageChange = {
+      viewModel.updateSelectedLanguage(it)
+      onLocaleChanged(it)
+    },
+    onMeasurementUnitsChange = { viewModel.updateMeasurementUnits(it) },
+    onVisitWebsiteClick = { onVisitWebsiteClick(websiteUrl.toUri()) },
+    onBack = onBack,
+  )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
