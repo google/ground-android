@@ -11,7 +11,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import org.groundplatform.android.ui.theme.AppTheme
 
 @Composable
 internal fun SettingsItem(title: String, summary: String? = null, onClick: () -> Unit) {
@@ -31,4 +33,10 @@ internal fun SettingsItem(title: String, summary: String? = null, onClick: () ->
       }
     }
   }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun Preview() {
+  AppTheme { SettingsItem(title = "Name", summary = "Summary", onClick = {}) }
 }

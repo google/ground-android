@@ -7,6 +7,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalResources
+import androidx.compose.ui.tooling.preview.Preview
+import org.groundplatform.android.R
+import org.groundplatform.android.ui.theme.AppTheme
 
 @Composable
 internal fun SettingsSelectItem(
@@ -35,7 +38,7 @@ internal fun SettingsSelectItem(
       options = allOptions,
       selectedOption = selectedOption,
       onOptionSelected = {
-        onValueChanged(it.value)
+        onValueChanged(it)
         showUnitDialog = false
       },
       onDismiss = { showUnitDialog = false },
@@ -47,4 +50,20 @@ internal fun SettingsSelectItem(
     summary = selectedOption?.label ?: "",
     onClick = { showUnitDialog = true },
   )
+}
+
+internal data class Option(val label: String, val value: String)
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewSelectItem() {
+  AppTheme {
+    SettingsSelectItem(
+      title = "Language",
+      entriesResId = R.array.language_entries,
+      entryValues = R.array.language_entry_values,
+      currentValue = "en",
+      onValueChanged = {},
+    )
+  }
 }

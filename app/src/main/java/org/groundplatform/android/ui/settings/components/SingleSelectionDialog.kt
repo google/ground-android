@@ -17,17 +17,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.groundplatform.android.R
-
-internal data class Option(val label: String, val value: String)
+import org.groundplatform.android.ui.theme.AppTheme
 
 @Composable
 internal fun SingleSelectionDialog(
   title: String,
   options: List<Option>,
   selectedOption: Option?,
-  onOptionSelected: (Option) -> Unit,
+  onOptionSelected: (String) -> Unit,
   onDismiss: () -> Unit,
 ) {
   AlertDialog(
@@ -39,7 +39,7 @@ internal fun SingleSelectionDialog(
           Row(
             modifier =
               Modifier.fillMaxWidth()
-                .clickable { onOptionSelected(option) }
+                .clickable { onOptionSelected(option.value) }
                 .padding(vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
           ) {
@@ -52,4 +52,32 @@ internal fun SingleSelectionDialog(
     },
     confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
   )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun Preview_nothingSelected() {
+  AppTheme {
+    SingleSelectionDialog(
+      title = "Select value",
+      options = listOf(Option("Option 1", "value1"), Option("Option 2", "value2")),
+      selectedOption = null,
+      onOptionSelected = {},
+      onDismiss = {},
+    )
+  }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun Preview_valueSelected() {
+  AppTheme {
+    SingleSelectionDialog(
+      title = "Select value",
+      options = listOf(Option("Option 1", "value1"), Option("Option 2", "value2")),
+      selectedOption = Option("Option 1", "value1"),
+      onOptionSelected = {},
+      onDismiss = {},
+    )
+  }
 }
