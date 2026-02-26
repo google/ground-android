@@ -224,7 +224,6 @@
   <string name="dialog_button_update">Update</string>
 
   <string name="select_length_title">Select units</string>
-  <string name="select_length_summary">Select your preferred unit</string>
   <string name="length_metric">Metric</string>
   <string name="length_imperial">Imperial</string>
 

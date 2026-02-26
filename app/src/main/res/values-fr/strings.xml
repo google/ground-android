@@ -204,7 +204,6 @@
   <string name="dialog_button_update">Mettre à jour</string>
 
   <string name="select_length_title">Sélectionner les unités</string>
-  <string name="select_length_summary">Sélectionnez votre unité préférée</string>
   <string name="length_metric">Métrique</string>
   <string name="length_imperial">Impérial</string>
 
