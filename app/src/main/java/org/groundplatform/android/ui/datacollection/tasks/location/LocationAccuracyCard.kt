@@ -36,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.groundplatform.android.R
 
@@ -62,7 +61,6 @@ fun LocationAccuracyCard(onDismiss: () -> Unit, modifier: Modifier = Modifier) {
         Text(
           text = stringResource(R.string.location_not_accurate_heading),
           style = MaterialTheme.typography.titleMedium,
-          fontWeight = FontWeight.Bold,
           color = MaterialTheme.colorScheme.onSurface,
         )
         Spacer(Modifier.height(4.dp))

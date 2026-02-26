@@ -35,9 +35,9 @@ import junit.framework.Assert.assertFalse
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
-import org.groundplatform.android.FragmentScenarioRule
 import org.groundplatform.android.R
 import org.groundplatform.android.repository.OfflineAreaRepository
+import org.groundplatform.android.testrules.FragmentScenarioRule
 import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Rule
@@ -57,7 +57,7 @@ class OfflineAreaSelectorFragmentTest : BaseHiltTest() {
 
   private val offlineAreaRepository: OfflineAreaRepository = mock()
 
-  @get:Rule override val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+  @get:Rule val composeTestRule = createAndroidComposeRule<ComponentActivity>()
   @get:Rule val fragmentScenario = FragmentScenarioRule()
 
   @Before

@@ -15,9 +15,7 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.instruction
 
-import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -29,7 +27,6 @@ import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.BaseTaskFragmentTest
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -42,8 +39,6 @@ class InstructionTaskFragmentTest :
 
   @BindValue @Mock override lateinit var dataCollectionViewModel: DataCollectionViewModel
   @Inject override lateinit var viewModelFactory: ViewModelFactory
-
-  @get:Rule override val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
   private val task =
     Task(

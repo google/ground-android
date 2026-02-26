@@ -16,9 +16,8 @@
 
 package org.groundplatform.android.ui.offlineareas.selector
 
-import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -26,6 +25,7 @@ import javax.inject.Inject
 import kotlin.test.Test
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.R
+import org.groundplatform.android.getString
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.runner.RunWith
@@ -35,7 +35,7 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class DownloadProgressDialogTest : BaseHiltTest() {
 
-  @get:Rule override val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+  @get:Rule val composeTestRule = createComposeRule()
 
   @Inject lateinit var viewModel: OfflineAreaSelectorViewModel
 
@@ -44,12 +44,7 @@ class DownloadProgressDialogTest : BaseHiltTest() {
     composeTestRule.setContent { DownloadProgressDialog(viewModel.downloadProgress.value!!, {}) }
 
     composeTestRule
-      .onNodeWithText(
-        composeTestRule.activity.getString(
-          R.string.offline_map_imagery_download_progress_dialog_title,
-          0,
-        )
-      )
+      .onNodeWithText(getString(R.string.offline_map_imagery_download_progress_dialog_title, 0))
       .assertIsDisplayed()
   }
 
@@ -58,11 +53,7 @@ class DownloadProgressDialogTest : BaseHiltTest() {
     composeTestRule.setContent { DownloadProgressDialog(viewModel.downloadProgress.value!!, {}) }
 
     composeTestRule
-      .onNodeWithText(
-        composeTestRule.activity.getString(
-          R.string.offline_map_imagery_download_progress_dialog_message
-        )
-      )
+      .onNodeWithText(getString(R.string.offline_map_imagery_download_progress_dialog_message))
       .assertIsDisplayed()
   }
 
@@ -74,9 +65,7 @@ class DownloadProgressDialogTest : BaseHiltTest() {
       DownloadProgressDialog(viewModel.downloadProgress.value!!, { isDismissed = true })
     }
 
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.cancel))
-      .performClick()
+    composeTestRule.onNodeWithText(getString(R.string.cancel)).performClick()
 
     assertTrue(isDismissed)
   }
@@ -88,12 +77,7 @@ class DownloadProgressDialogTest : BaseHiltTest() {
     composeTestRule.setContent { DownloadProgressDialog(viewModel.downloadProgress.value!!, {}) }
 
     composeTestRule
-      .onNodeWithText(
-        composeTestRule.activity.getString(
-          R.string.offline_map_imagery_download_progress_dialog_title,
-          50,
-        )
-      )
+      .onNodeWithText(getString(R.string.offline_map_imagery_download_progress_dialog_title, 50))
       .assertIsDisplayed()
   }
 }

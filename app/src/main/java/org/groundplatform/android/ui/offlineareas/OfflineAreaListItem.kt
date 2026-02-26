@@ -31,12 +31,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.theme.AppTheme
@@ -69,16 +65,7 @@ fun OfflineAreaListItem(
         verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.Start,
       ) {
-        Text(
-          text = offlineAreaDetails.name,
-          style =
-            TextStyle(
-              fontSize = 16.sp,
-              lineHeight = 24.sp,
-              fontFamily = FontFamily(Font(R.font.text_500)),
-              color = MaterialTheme.colorScheme.onSurface,
-            ),
-        )
+        Text(text = offlineAreaDetails.name, color = MaterialTheme.colorScheme.onSurface)
 
         Text(
           text =
@@ -86,13 +73,7 @@ fun OfflineAreaListItem(
               id = R.string.offline_area_list_item_size_on_disk_mb,
               offlineAreaDetails.sizeOnDisk,
             ),
-          style =
-            TextStyle(
-              fontSize = 16.sp,
-              lineHeight = 24.sp,
-              fontFamily = FontFamily(Font(R.font.text_500)),
-              color = MaterialTheme.colorScheme.onSurfaceVariant,
-            ),
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
       }
     }

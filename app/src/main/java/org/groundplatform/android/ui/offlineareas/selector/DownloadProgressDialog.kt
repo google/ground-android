@@ -34,8 +34,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import org.groundplatform.android.R
 
@@ -51,7 +49,6 @@ fun DownloadProgressDialog(progress: Float, onDismiss: () -> Unit) {
           (progress * 100).toInt(),
         ),
         color = MaterialTheme.colorScheme.onSurface,
-        fontFamily = FontFamily(Font(R.font.text_500)),
       )
     },
     text = {
@@ -69,14 +66,11 @@ fun DownloadProgressDialog(progress: Float, onDismiss: () -> Unit) {
         Text(
           stringResource(R.string.offline_map_imagery_download_progress_dialog_message),
           color = MaterialTheme.colorScheme.onSurfaceVariant,
-          fontFamily = FontFamily(Font(R.font.text_500)),
         )
       }
     },
     dismissButton = {
-      TextButton(onClick = { onDismiss() }) {
-        Text(text = stringResource(R.string.cancel), fontFamily = FontFamily(Font(R.font.text_500)))
-      }
+      TextButton(onClick = { onDismiss() }) { Text(text = stringResource(R.string.cancel)) }
     },
     confirmButton = {},
   )

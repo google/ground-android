@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -45,8 +46,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -59,6 +58,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.FirebaseFirestoreException.Code
 import org.groundplatform.android.BuildConfig
 import org.groundplatform.android.R
+import org.groundplatform.android.proto.style
 import org.groundplatform.android.system.auth.SignInState
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.components.LoadingDialog
@@ -198,9 +198,7 @@ private fun LogoAndTitle(modifier: Modifier = Modifier) {
     Text(
       text = stringResource(id = R.string.app_name),
       color = Color.White,
-      fontSize = 60.sp,
-      fontFamily = FontFamily(Font(R.font.display_500)),
-      letterSpacing = 0.6.sp,
+      style = MaterialTheme.typography.displayLarge,
     )
   }
 }

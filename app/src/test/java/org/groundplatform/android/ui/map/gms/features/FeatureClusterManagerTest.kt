@@ -15,38 +15,37 @@
  */
 package org.groundplatform.android.ui.map.gms.features
 
-import android.os.Looper.getMainLooper
 import androidx.test.core.app.ApplicationProvider
 import com.google.android.gms.maps.GoogleMap
 import com.google.common.truth.Truth.assertThat
 import com.google.maps.android.collections.MarkerManager
-import dagger.hilt.android.testing.HiltAndroidTest
-import org.groundplatform.android.BaseHiltTest
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.groundplatform.android.FakeData
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
+import org.mockito.junit.MockitoJUnit
+import org.mockito.junit.MockitoRule
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.Shadows.shadowOf
 
-@HiltAndroidTest
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
-class FeatureClusterManagerTest : BaseHiltTest() {
+class FeatureClusterManagerTest {
+  @get:Rule val mockitoRule: MockitoRule = MockitoJUnit.rule()
   @Mock private lateinit var map: GoogleMap
 
   private lateinit var featureClusterManager: FeatureClusterManager
 
   @Before
-  override fun setUp() {
-    super.setUp()
+  fun setUp() {
     featureClusterManager =
       FeatureClusterManager(
         ApplicationProvider.getApplicationContext(),
         map,
         object : MarkerManager(map) {},
       )
-    shadowOf(getMainLooper()).idle()
   }
 
   @Test

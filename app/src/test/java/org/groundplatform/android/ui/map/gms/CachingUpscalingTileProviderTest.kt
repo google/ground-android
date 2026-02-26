@@ -19,10 +19,9 @@ import android.graphics.Bitmap
 import com.google.android.gms.maps.model.Tile
 import com.google.android.gms.maps.model.TileProvider
 import com.google.common.truth.Truth.assertThat
-import dagger.hilt.android.testing.HiltAndroidTest
 import java.io.ByteArrayOutputStream
 import kotlin.test.Test
-import org.groundplatform.android.BaseHiltTest
+import org.junit.Before
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
@@ -36,9 +35,8 @@ import org.robolectric.RobolectricTestRunner
  * - Coordinate calculation correctness
  * - Error handling and edge cases
  */
-@HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-class CachingUpscalingTileProviderTest : BaseHiltTest() {
+class CachingUpscalingTileProviderTest {
 
   private lateinit var fakeTileProvider: FakeTileProvider
   private lateinit var provider: CachingUpscalingTileProvider
@@ -46,8 +44,8 @@ class CachingUpscalingTileProviderTest : BaseHiltTest() {
   private val dataMaxZoom = 15
   private val tileSize = 256
 
-  override fun setUp() {
-    super.setUp()
+  @Before
+  fun setUp() {
     fakeTileProvider = FakeTileProvider()
     provider = CachingUpscalingTileProvider(source = fakeTileProvider, zoomThreshold = dataMaxZoom)
   }

@@ -21,23 +21,24 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.clustering.Cluster
 import com.google.maps.android.clustering.ClusterManager
-import dagger.hilt.android.testing.HiltAndroidTest
-import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST_CLUSTER_ITEM
 import org.groundplatform.android.common.Constants.CLUSTERING_ZOOM_THRESHOLD
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito.mock
+import org.mockito.junit.MockitoJUnit
+import org.mockito.junit.MockitoRule
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
-@HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-class FeatureClusterRendererTest : BaseHiltTest() {
+class FeatureClusterRendererTest {
+  @get:Rule val mockitoRule: MockitoRule = MockitoJUnit.rule()
 
   @Mock private lateinit var map: GoogleMap
   @Mock private lateinit var clusterManager: ClusterManager<FeatureClusterItem>
@@ -47,8 +48,7 @@ class FeatureClusterRendererTest : BaseHiltTest() {
   private lateinit var featureClusterRenderer: FeatureClusterRenderer
 
   @Before
-  override fun setUp() {
-    super.setUp()
+  fun setUp() {
     context = ApplicationProvider.getApplicationContext()
     com.google.android.gms.maps.MapsInitializer.initialize(context)
     featureClusterRenderer = FeatureClusterRenderer(context, map, clusterManager, 10f)

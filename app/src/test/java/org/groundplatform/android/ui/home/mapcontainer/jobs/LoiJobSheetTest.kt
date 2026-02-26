@@ -15,17 +15,15 @@
  */
 package org.groundplatform.android.ui.home.mapcontainer.jobs
 
-import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
-import dagger.hilt.android.testing.HiltAndroidTest
 import kotlin.test.Test
-import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.FakeData.USER
 import org.groundplatform.android.R
+import org.groundplatform.android.getString
 import org.groundplatform.android.model.AuditInfo
 import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.Point
@@ -37,64 +35,50 @@ import org.junit.Rule
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
-@HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-class LoiJobSheetTest : BaseHiltTest() {
-
-  @get:Rule override val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+class LoiJobSheetTest {
+  @get:Rule val composeTestRule = createComposeRule()
 
   @Test
   fun `add data button is shown for predefined LOIs`() {
     setContent(TASK_AND_PREDEFINED_LOI)
 
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.add_data))
-      .assertIsDisplayed()
+    composeTestRule.onNodeWithText(getString(R.string.add_data)).assertIsDisplayed()
   }
 
   @Test
   fun `add data button is not shown for LOIs without Job`() {
     setContent(NO_TASK_LOI)
 
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.add_data))
-      .assertIsNotDisplayed()
+    composeTestRule.onNodeWithText(getString(R.string.add_data)).assertIsNotDisplayed()
   }
 
   @Test
   fun `add data button is not shown for LOIs with no submissions`() {
     setContent(NO_SUBMISSION_LOI)
 
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.add_data))
-      .assertIsNotDisplayed()
+    composeTestRule.onNodeWithText(getString(R.string.add_data)).assertIsNotDisplayed()
   }
 
   @Test
   fun `delete button is shown for free-form LOIs when user can delete`() {
     setContent(FREE_FORM_LOI, showDeleteLoiButton = true)
 
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.delete_site))
-      .assertIsDisplayed()
+    composeTestRule.onNodeWithText(getString(R.string.delete_site)).assertIsDisplayed()
   }
 
   @Test
   fun `delete button is not shown for predefined LOIs`() {
     setContent(TASK_AND_PREDEFINED_LOI, showDeleteLoiButton = true)
 
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.delete_site))
-      .assertIsNotDisplayed()
+    composeTestRule.onNodeWithText(getString(R.string.delete_site)).assertIsNotDisplayed()
   }
 
   @Test
   fun `delete button is not shown when user cannot delete`() {
     setContent(FREE_FORM_LOI, showDeleteLoiButton = false)
 
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.delete_site))
-      .assertIsNotDisplayed()
+    composeTestRule.onNodeWithText(getString(R.string.delete_site)).assertIsNotDisplayed()
   }
 
   private fun setContent(loi: LocationOfInterest, showDeleteLoiButton: Boolean = false) {

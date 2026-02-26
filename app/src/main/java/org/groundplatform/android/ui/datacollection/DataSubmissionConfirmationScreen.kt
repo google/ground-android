@@ -35,13 +35,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.theme.AppTheme
@@ -83,19 +79,13 @@ private fun BodyContent(onDismiss: () -> Unit) {
   Column(horizontalAlignment = Alignment.CenterHorizontally) {
     Text(
       text = stringResource(R.string.data_collection_complete),
-      fontFamily = FontFamily(Font(R.font.text_500)),
-      lineHeight = 28.sp,
-      fontSize = 22.sp,
-      fontWeight = FontWeight(400),
+      style = MaterialTheme.typography.titleLarge,
     )
     Spacer(modifier = Modifier.height(8.dp))
     Text(
       modifier = Modifier.padding(horizontal = 28.dp),
       text = stringResource(R.string.data_collection_complete_details),
-      fontSize = 14.sp,
-      lineHeight = 20.sp,
-      fontWeight = FontWeight(400),
-      fontFamily = FontFamily(Font(R.font.text_500)),
+      style = MaterialTheme.typography.bodyMedium,
       textAlign = TextAlign.Center,
     )
     Spacer(modifier = Modifier.height(30.dp))
@@ -103,9 +93,7 @@ private fun BodyContent(onDismiss: () -> Unit) {
       Text(
         modifier = Modifier.padding(horizontal = 24.dp, vertical = 10.dp),
         text = stringResource(id = R.string.close),
-        fontSize = 14.sp,
-        lineHeight = 20.sp,
-        fontFamily = FontFamily(Font(R.font.text_500)),
+        style = MaterialTheme.typography.bodyMedium,
       )
     }
   }

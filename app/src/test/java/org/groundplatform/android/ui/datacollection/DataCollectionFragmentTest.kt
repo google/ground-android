@@ -17,6 +17,7 @@
 package org.groundplatform.android.ui.datacollection
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.google.common.truth.Truth.assertThat
@@ -33,7 +34,6 @@ import org.groundplatform.android.FakeData
 import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST
 import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST_NAME
 import org.groundplatform.android.FakeData.USER
-import org.groundplatform.android.FragmentScenarioRule
 import org.groundplatform.android.R
 import org.groundplatform.android.data.local.room.converter.SubmissionDeltasConverter
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
@@ -57,6 +57,7 @@ import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.MutationRepository
 import org.groundplatform.android.repository.SubmissionRepository
 import org.groundplatform.android.repository.UserRepository
+import org.groundplatform.android.testrules.FragmentScenarioRule
 import org.groundplatform.android.ui.datacollection.tasks.point.DropPinTaskViewModel
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
 import org.junit.Rule
@@ -70,6 +71,7 @@ import org.robolectric.shadows.ShadowToast
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class DataCollectionFragmentTest : BaseHiltTest() {
+  @get:Rule(order = 4) val composeTestRule = createComposeRule()
   @get:Rule(order = 5) val fragmentScenario = FragmentScenarioRule()
 
   @Inject lateinit var activateSurvey: ActivateSurveyUseCase
@@ -825,7 +827,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     }
   }
 
-  private fun runner() = TaskFragmentRunner(this, fragment)
+  private fun runner() = TaskFragmentRunner(this, composeTestRule, fragment)
 
   private fun getToolbar() =
     fragment.view?.findViewById<com.google.android.material.appbar.MaterialToolbar>(

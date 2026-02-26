@@ -30,7 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import dagger.hilt.android.AndroidEntryPoint
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.datacollection.components.TaskView
@@ -57,7 +56,7 @@ class InstructionTaskFragment : AbstractTaskFragment<InstructionTaskViewModel>()
           .border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(2.dp))
           .padding(16.dp)
     ) {
-      Text(text = text, fontSize = 24.sp)
+      Text(text = text, style = MaterialTheme.typography.headlineSmall)
     }
   }
 

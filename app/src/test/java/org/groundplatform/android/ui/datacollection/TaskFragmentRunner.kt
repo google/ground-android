@@ -29,6 +29,7 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.isEnabled
 import androidx.compose.ui.test.isNotDisplayed
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -58,6 +59,7 @@ import org.hamcrest.CoreMatchers.not
 /** Helper class for interacting with the data collection tasks and verifying the ui state. */
 class TaskFragmentRunner(
   private val baseHiltTest: BaseHiltTest,
+  private val composeTestRule: ComposeContentTestRule,
   private val fragment: DataCollectionFragment? = null,
 ) {
 
@@ -75,7 +77,7 @@ class TaskFragmentRunner(
     return this
   }
 
-  private fun getTextInputNode() = baseHiltTest.composeTestRule.onNodeWithTag(INPUT_TEXT_TEST_TAG)
+  private fun getTextInputNode() = composeTestRule.onNodeWithTag(INPUT_TEXT_TEST_TAG)
 
   internal fun inputText(text: String): TaskFragmentRunner {
     getTextInputNode().assertIsDisplayed().performTextInput(text)
@@ -92,8 +94,7 @@ class TaskFragmentRunner(
     return this
   }
 
-  private fun getNumberInputNode() =
-    baseHiltTest.composeTestRule.onNodeWithTag(INPUT_NUMBER_TEST_TAG)
+  private fun getNumberInputNode() = composeTestRule.onNodeWithTag(INPUT_NUMBER_TEST_TAG)
 
   internal fun inputNumber(number: Double): TaskFragmentRunner {
     getNumberInputNode().performTextInput(number.toString())
@@ -111,13 +112,13 @@ class TaskFragmentRunner(
   }
 
   internal fun selectOption(optionText: String): TaskFragmentRunner {
-    baseHiltTest.composeTestRule.onNodeWithText(optionText).performClick()
+    composeTestRule.onNodeWithText(optionText).performClick()
     return this
   }
 
   internal fun assertOptionsDisplayed(vararg text: String): TaskFragmentRunner {
     text.forEach {
-      baseHiltTest.composeTestRule
+      composeTestRule
         .onNodeWithTag(MULTIPLE_CHOICE_LIST_TEST_TAG)
         .performScrollToNode(hasText(it))
         .assertIsDisplayed()
@@ -145,17 +146,16 @@ class TaskFragmentRunner(
     return this
   }
 
-  private fun getOtherInputNode() =
-    baseHiltTest.composeTestRule.onNodeWithTag(OTHER_INPUT_TEXT_TEST_TAG)
+  private fun getOtherInputNode() = composeTestRule.onNodeWithTag(OTHER_INPUT_TEXT_TEST_TAG)
 
   private fun getRadioButtonNode(text: String) =
-    baseHiltTest.composeTestRule.onNode(
+    composeTestRule.onNode(
       hasTestTag(SELECT_MULTIPLE_RADIO_TEST_TAG) and hasAnySibling(hasText(text))
     )
 
   internal fun validateTextIsDisplayed(text: String): TaskFragmentRunner {
-    if (baseHiltTest.composeTestRule.onAllNodes(hasText(text)).fetchSemanticsNodes().isNotEmpty()) {
-      baseHiltTest.composeTestRule.onNodeWithText(text).assertIsDisplayed()
+    if (composeTestRule.onAllNodes(hasText(text)).fetchSemanticsNodes().isNotEmpty()) {
+      composeTestRule.onNodeWithText(text).assertIsDisplayed()
     } else {
       onView(withText(text)).check(matches(isDisplayed()))
     }
@@ -163,8 +163,8 @@ class TaskFragmentRunner(
   }
 
   internal fun validateTextIsNotDisplayed(text: String): TaskFragmentRunner {
-    if (baseHiltTest.composeTestRule.onAllNodes(hasText(text)).fetchSemanticsNodes().isNotEmpty()) {
-      baseHiltTest.composeTestRule.onNodeWithText(text).assertIsNotDisplayed()
+    if (composeTestRule.onAllNodes(hasText(text)).fetchSemanticsNodes().isNotEmpty()) {
+      composeTestRule.onNodeWithText(text).assertIsNotDisplayed()
     } else {
       onView(withText(text)).check(matches(not(isDisplayed())))
     }
@@ -172,8 +172,8 @@ class TaskFragmentRunner(
   }
 
   internal fun validateTextDoesNotExist(text: String): TaskFragmentRunner {
-    if (baseHiltTest.composeTestRule.onAllNodes(hasText(text)).fetchSemanticsNodes().isNotEmpty()) {
-      baseHiltTest.composeTestRule.onNodeWithText(text).assertDoesNotExist()
+    if (composeTestRule.onAllNodes(hasText(text)).fetchSemanticsNodes().isNotEmpty()) {
+      composeTestRule.onNodeWithText(text).assertDoesNotExist()
     } else {
       onView(withText(text)).check(doesNotExist())
     }
@@ -209,11 +209,9 @@ class TaskFragmentRunner(
   private fun clickButtonInternal(text: String, isContentDescription: Boolean = false) =
     waitUntilDone {
       if (isContentDescription) {
-        baseHiltTest.composeTestRule
-          .onNode(hasContentDescription(text).and(isEnabled()))
-          .performClick()
+        composeTestRule.onNode(hasContentDescription(text).and(isEnabled())).performClick()
       } else {
-        baseHiltTest.composeTestRule.onNode(hasText(text).and(isEnabled())).performClick()
+        composeTestRule.onNode(hasText(text).and(isEnabled())).performClick()
       }
     }
 
@@ -222,12 +220,9 @@ class TaskFragmentRunner(
     isContentDescription: Boolean = false,
   ): TaskFragmentRunner {
     if (isContentDescription) {
-      baseHiltTest.composeTestRule
-        .onNodeWithContentDescription(text)
-        .assertIsDisplayed()
-        .assertIsNotEnabled()
+      composeTestRule.onNodeWithContentDescription(text).assertIsDisplayed().assertIsNotEnabled()
     } else {
-      baseHiltTest.composeTestRule.onNodeWithText(text).assertIsDisplayed().assertIsNotEnabled()
+      composeTestRule.onNodeWithText(text).assertIsDisplayed().assertIsNotEnabled()
     }
     return this
   }
@@ -237,12 +232,9 @@ class TaskFragmentRunner(
     isContentDescription: Boolean = false,
   ): TaskFragmentRunner {
     if (isContentDescription) {
-      baseHiltTest.composeTestRule
-        .onNodeWithContentDescription(text)
-        .assertIsDisplayed()
-        .assertIsEnabled()
+      composeTestRule.onNodeWithContentDescription(text).assertIsDisplayed().assertIsEnabled()
     } else {
-      baseHiltTest.composeTestRule.onNodeWithText(text).assertIsDisplayed().assertIsEnabled()
+      composeTestRule.onNodeWithText(text).assertIsDisplayed().assertIsEnabled()
     }
     return this
   }
@@ -252,15 +244,15 @@ class TaskFragmentRunner(
     isContentDescription: Boolean = false,
   ): TaskFragmentRunner {
     if (isContentDescription) {
-      baseHiltTest.composeTestRule.onNodeWithContentDescription(text).assertDoesNotExist()
+      composeTestRule.onNodeWithContentDescription(text).assertDoesNotExist()
     } else {
-      baseHiltTest.composeTestRule.onNodeWithText(text).assertDoesNotExist()
+      composeTestRule.onNodeWithText(text).assertDoesNotExist()
     }
     return this
   }
 
   internal fun assertLoiNameDialogIsDisplayed(): TaskFragmentRunner {
-    with(baseHiltTest.composeTestRule) {
+    with(composeTestRule) {
       val resources = fragment?.resources ?: error("Fragment not found")
       onNodeWithText(resources.getString(R.string.loi_name_dialog_title)).isDisplayed()
       onNodeWithText(resources.getString(R.string.loi_name_dialog_body)).isDisplayed()
@@ -269,7 +261,7 @@ class TaskFragmentRunner(
   }
 
   internal fun assertLoiNameDialogIsNotDisplayed(): TaskFragmentRunner {
-    with(baseHiltTest.composeTestRule) {
+    with(composeTestRule) {
       val resources = fragment?.resources ?: error("Fragment not found")
       onNodeWithText(resources.getString(R.string.loi_name_dialog_title)).isNotDisplayed()
       onNodeWithText(resources.getString(R.string.loi_name_dialog_body)).isNotDisplayed()
@@ -278,9 +270,7 @@ class TaskFragmentRunner(
   }
 
   internal fun inputLoiName(loiName: String): TaskFragmentRunner {
-    baseHiltTest.composeTestRule
-      .onNodeWithTag(LOI_NAME_TEXT_FIELD_TEST_TAG)
-      .performTextInput(loiName)
+    composeTestRule.onNodeWithTag(LOI_NAME_TEXT_FIELD_TEST_TAG).performTextInput(loiName)
     return this
   }
 

@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android.ui.signin
 
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import app.cash.turbine.test
@@ -28,11 +29,11 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
-import org.groundplatform.android.FragmentScenarioRule
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.NetworkStatus
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
 import org.groundplatform.android.system.auth.SignInState
+import org.groundplatform.android.testrules.FragmentScenarioRule
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -45,6 +46,8 @@ import org.robolectric.RobolectricTestRunner
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class SignInFragmentTest : BaseHiltTest() {
+
+  @get:Rule val composeTestRule = createComposeRule()
 
   @get:Rule val fragmentScenario = FragmentScenarioRule()
 

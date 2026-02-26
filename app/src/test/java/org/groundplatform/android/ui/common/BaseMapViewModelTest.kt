@@ -36,18 +36,16 @@ import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.system.SettingsManager
 import org.groundplatform.android.ui.components.MapFloatingActionButtonType
 import org.junit.Assert.assertEquals
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class BaseMapViewModelTest : BaseHiltTest() {
 
   @Mock lateinit var locationManager: LocationManager
@@ -59,11 +57,6 @@ class BaseMapViewModelTest : BaseHiltTest() {
   @Mock lateinit var locationOfInterestRepository: LocationOfInterestRepository
 
   private lateinit var viewModel: BaseMapViewModel
-
-  @Before
-  fun setup() {
-    MockitoAnnotations.openMocks(this)
-  }
 
   @Test
   fun `Should display the correct location icon and hide the recenter button when the location is locked`() =
