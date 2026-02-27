@@ -42,6 +42,7 @@ import org.groundplatform.android.model.job.Style
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentAction.OnAddDataClicked
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentAction.OnDeleteSiteClicked
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentAction.OnJobSelected
+import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.theme.AppTheme
 
 @Composable
@@ -122,6 +123,7 @@ sealed interface JobMapComponentAction {
 
 @Preview
 @Composable
+@ExcludeFromJacocoGeneratedReport
 private fun JobMapComponentPreview() {
   AppTheme {
     JobMapComponent(

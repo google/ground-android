@@ -41,6 +41,7 @@ import org.groundplatform.android.ui.home.mapcontainer.jobs.AdHocDataCollectionB
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponent
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentAction
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentState
+import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.theme.AppTheme
 
 @Composable
@@ -128,6 +129,7 @@ sealed interface BaseMapAction {
 
 @Preview(showSystemUi = true)
 @Composable
+@ExcludeFromJacocoGeneratedReport
 private fun HomeScreenMapContainerScreenPreview() {
   AppTheme {
     HomeScreenMapContainerScreen(
