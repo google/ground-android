@@ -43,6 +43,14 @@ import org.groundplatform.android.ui.settings.components.SettingsSelectItem
 import org.groundplatform.android.ui.settings.components.SettingsSwitchItem
 import org.groundplatform.android.ui.theme.AppTheme
 
+/**
+ * Stateful composable for the settings screen.
+ *
+ * @param onBack callback to be invoked when the back button is clicked.
+ * @param onLocaleChanged callback to be invoked when the application language is changed.
+ * @param onVisitWebsiteClick callback to be invoked when the "Visit website" item is clicked.
+ * @param viewModel the [SettingsViewModel] for managing user settings state.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(

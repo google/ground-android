@@ -33,6 +33,14 @@ import androidx.compose.ui.unit.dp
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.theme.AppTheme
 
+/**
+ * A reusable settings item component with a title, optional summary, and a switch toggle.
+ *
+ * @param title The primary text to be displayed for the setting.
+ * @param summary Optional secondary text providing additional details about the setting.
+ * @param checked Whether the switch is currently in the "on" position.
+ * @param onCheckedChange Callback to be invoked when the switch state is toggled.
+ */
 @Composable
 internal fun SettingsSwitchItem(
   title: String,

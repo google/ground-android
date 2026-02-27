@@ -32,6 +32,13 @@ import androidx.compose.ui.unit.dp
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.theme.AppTheme
 
+/**
+ * A reusable UI component representing a single row in a settings screen.
+ *
+ * @param title The primary text to be displayed for the setting.
+ * @param summary Optional secondary text to be displayed below the title, providing more detail.
+ * @param onClick The callback to be invoked when the item is clicked.
+ */
 @Composable
 internal fun SettingsItem(title: String, summary: String? = null, onClick: () -> Unit) {
   Row(

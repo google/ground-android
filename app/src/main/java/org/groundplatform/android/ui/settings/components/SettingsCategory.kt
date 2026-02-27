@@ -25,6 +25,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
+/**
+ * A composable that groups related settings under a labeled category.
+ *
+ * @param title The text to be displayed as the header for the category.
+ * @param content The composable content to be displayed within the category, usually a list of
+ *   settings items.
+ */
 @Composable
 internal fun SettingsCategory(title: String, content: @Composable ColumnScope.() -> Unit) {
   Column(modifier = Modifier.fillMaxWidth()) {

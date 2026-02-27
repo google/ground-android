@@ -15,18 +15,38 @@
  */
 package org.groundplatform.android.ui.settings.components
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.dp
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.theme.AppTheme
 
+/**
+ * A settings item that allows users to select a single value from a list of options.
+ *
+ * When clicked, it displays a dropdown menu with options populated from the provided resource IDs.
+ *
+ * @param title The title of the settings item.
+ * @param entriesResId The resource ID of the string array containing the display labels.
+ * @param entryValues The resource ID of the string array containing the underlying values.
+ * @param currentValue The currently selected value.
+ * @param onValueChanged Callback triggered when a new value is selected.
+ */
 @Composable
 internal fun SettingsSelectItem(
   title: String,
@@ -46,26 +66,32 @@ internal fun SettingsSelectItem(
     }
 
   val selectedOption = allOptions.find { it.value == currentValue } ?: allOptions.firstOrNull()
-  var showDialog by remember { mutableStateOf(false) }
+  var expanded by remember { mutableStateOf(false) }
 
-  if (showDialog) {
-    SingleSelectionDialog(
+  Box(modifier = Modifier.fillMaxWidth()) {
+    SettingsItem(
       title = title,
-      options = allOptions,
-      selectedOption = selectedOption,
-      onOptionSelected = {
-        onValueChanged(it)
-        showDialog = false
-      },
-      onDismiss = { showDialog = false },
+      summary = selectedOption?.label ?: "",
+      onClick = { expanded = true },
     )
-  }
 
-  SettingsItem(
-    title = title,
-    summary = selectedOption?.label ?: "",
-    onClick = { showDialog = true },
-  )
+    DropdownMenu(
+      expanded = expanded,
+      onDismissRequest = { expanded = false },
+      offset = DpOffset(16.dp, 0.dp),
+      modifier = Modifier.widthIn(min = 200.dp),
+    ) {
+      allOptions.forEach { option ->
+        DropdownMenuItem(
+          text = { Text(text = option.label) },
+          onClick = {
+            onValueChanged(option.value)
+            expanded = false
+          },
+        )
+      }
+    }
+  }
 }
 
 internal data class Option(val label: String, val value: String)
