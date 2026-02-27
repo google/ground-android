@@ -64,8 +64,8 @@ internal constructor(
   private val _openDrawerRequests: MutableSharedFlow<Unit> = MutableSharedFlow()
   val openDrawerRequestsFlow: SharedFlow<Unit> = _openDrawerRequests.asSharedFlow()
 
-  private val _showLogoutDialog = MutableStateFlow(LogoutDialogState.HIDDEN)
-  val showLogoutDialog: StateFlow<LogoutDialogState> = _showLogoutDialog.asStateFlow()
+  private val _showLogoutDialog = MutableStateFlow(AccountDialogState.HIDDEN)
+  val showLogoutDialog: StateFlow<AccountDialogState> = _showLogoutDialog.asStateFlow()
 
   val user: Flow<User> =
     userRepository
@@ -137,26 +137,27 @@ internal constructor(
   suspend fun getOfflineAreas() = offlineAreaRepository.offlineAreas().first()
 
   fun signOut() {
-    _showLogoutDialog.value = LogoutDialogState.HIDDEN
+    _showLogoutDialog.value = AccountDialogState.HIDDEN
     viewModelScope.launch { userRepository.signOut() }
   }
 
   fun showUserDetails() {
-    _showLogoutDialog.value = LogoutDialogState.USER_DETAILS
+    _showLogoutDialog.value = AccountDialogState.USER_DETAILS
   }
 
   fun showSignOutConfirmation() {
-    _showLogoutDialog.value = LogoutDialogState.SIGN_OUT_CONFIRMATION
+    _showLogoutDialog.value = AccountDialogState.SIGN_OUT_CONFIRMATION
   }
 
   fun dismissLogoutDialog() {
-    _showLogoutDialog.value = LogoutDialogState.HIDDEN
+    _showLogoutDialog.value = AccountDialogState.HIDDEN
   }
 
   /**
-   * Represents the possible visibility states of the user profile and logout confirmation dialogs.
+   * Represents the possible visibility states of dialogs related to the user's account, such as
+   * profile details and sign-out confirmation.
    */
-  enum class LogoutDialogState {
+  enum class AccountDialogState {
     HIDDEN,
     USER_DETAILS,
     SIGN_OUT_CONFIRMATION,

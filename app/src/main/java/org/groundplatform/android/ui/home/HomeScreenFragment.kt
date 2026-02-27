@@ -43,7 +43,6 @@ import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.common.BackPressListener
 import org.groundplatform.android.ui.common.EphemeralPopups
-import org.groundplatform.android.ui.components.ConfirmationDialog
 import org.groundplatform.android.ui.main.MainViewModel
 import org.groundplatform.android.util.setComposableContent
 import org.groundplatform.android.util.systemInsets
@@ -199,24 +198,12 @@ class HomeScreenFragment :
     val state by homeScreenViewModel.showLogoutDialog.collectAsState()
     val user by homeScreenViewModel.user.collectAsState(null)
 
-    when (state) {
-      HomeScreenViewModel.LogoutDialogState.USER_DETAILS ->
-        user?.let {
-          UserDetailsDialog(
-            it,
-            { homeScreenViewModel.showSignOutConfirmation() },
-            { homeScreenViewModel.dismissLogoutDialog() },
-          )
-        }
-      HomeScreenViewModel.LogoutDialogState.SIGN_OUT_CONFIRMATION ->
-        ConfirmationDialog(
-          title = R.string.sign_out_dialog_title,
-          description = R.string.sign_out_dialog_body,
-          confirmButtonText = R.string.sign_out,
-          onConfirmClicked = { homeScreenViewModel.signOut() },
-          onDismiss = { homeScreenViewModel.dismissLogoutDialog() },
-        )
-      else -> {}
-    }
+    UserAccountDialogs(
+      state = state,
+      user = user,
+      onSignOut = { homeScreenViewModel.signOut() },
+      onShowSignOutConfirmation = { homeScreenViewModel.showSignOutConfirmation() },
+      onDismiss = { homeScreenViewModel.dismissLogoutDialog() },
+    )
   }
 }

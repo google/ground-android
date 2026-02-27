@@ -28,6 +28,9 @@ import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
 import org.groundplatform.android.system.auth.SignInState
+import org.groundplatform.android.ui.home.HomeScreenViewModel.AccountDialogState.HIDDEN
+import org.groundplatform.android.ui.home.HomeScreenViewModel.AccountDialogState.SIGN_OUT_CONFIRMATION
+import org.groundplatform.android.ui.home.HomeScreenViewModel.AccountDialogState.USER_DETAILS
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -51,23 +54,23 @@ class HomeScreenViewModelTest : BaseHiltTest() {
   @Test
   fun testShowUserDetails() {
     viewModel.showUserDetails()
-    assertThat(viewModel.showLogoutDialog.value)
-      .isEqualTo(HomeScreenViewModel.LogoutDialogState.USER_DETAILS)
+
+    assertThat(viewModel.showLogoutDialog.value).isEqualTo(USER_DETAILS)
   }
 
   @Test
   fun testShowSignOutConfirmation() {
     viewModel.showSignOutConfirmation()
-    assertThat(viewModel.showLogoutDialog.value)
-      .isEqualTo(HomeScreenViewModel.LogoutDialogState.SIGN_OUT_CONFIRMATION)
+
+    assertThat(viewModel.showLogoutDialog.value).isEqualTo(SIGN_OUT_CONFIRMATION)
   }
 
   @Test
   fun testDismissLogoutDialog() {
     viewModel.showUserDetails()
     viewModel.dismissLogoutDialog()
-    assertThat(viewModel.showLogoutDialog.value)
-      .isEqualTo(HomeScreenViewModel.LogoutDialogState.HIDDEN)
+
+    assertThat(viewModel.showLogoutDialog.value).isEqualTo(HIDDEN)
   }
 
   @Test
@@ -77,8 +80,7 @@ class HomeScreenViewModelTest : BaseHiltTest() {
 
     advanceUntilIdle()
 
-    assertThat(viewModel.showLogoutDialog.value)
-      .isEqualTo(HomeScreenViewModel.LogoutDialogState.HIDDEN)
+    assertThat(viewModel.showLogoutDialog.value).isEqualTo(HIDDEN)
     assertThat(authenticationManager.signInState.filterIsInstance<SignInState.SignedOut>().first())
       .isEqualTo(SignInState.SignedOut)
   }
