@@ -29,6 +29,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.groundplatform.android.R
+import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.theme.AppTheme
 
 @Composable
@@ -51,6 +52,7 @@ fun SurveyEmptyState(onSignOut: () -> Unit) {
 
 @Preview(showBackground = true)
 @Composable
+@ExcludeFromJacocoGeneratedReport
 fun SurveyEmptyStatePreview() {
   AppTheme { SurveyEmptyState(onSignOut = {}) }
 }

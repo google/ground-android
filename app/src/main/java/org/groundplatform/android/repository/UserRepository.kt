@@ -128,7 +128,15 @@ constructor(
       UserSettings(
         language = selectedLanguage,
         measurementUnits = MeasurementUnits.valueOf(selectedLengthUnit),
-        shouldUploadPhotosOnWifiOnly = shouldUploadMediaOverUnmeteredConnectionOnly(),
+        shouldUploadPhotosOnWifiOnly = shouldUploadMediaOverUnmeteredConnectionOnly,
       )
     }
+
+  fun setUserSettings(userSettings: UserSettings) {
+    with(localValueStore) {
+      selectedLanguage = userSettings.language
+      selectedLengthUnit = userSettings.measurementUnits.name
+      shouldUploadMediaOverUnmeteredConnectionOnly = userSettings.shouldUploadPhotosOnWifiOnly
+    }
+  }
 }
