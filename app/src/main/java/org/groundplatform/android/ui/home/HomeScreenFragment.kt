@@ -32,6 +32,7 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.navigation.NavigationView
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 import kotlinx.coroutines.launch
 import org.groundplatform.android.BuildConfig
 import org.groundplatform.android.R
@@ -46,7 +47,6 @@ import org.groundplatform.android.ui.components.ConfirmationDialog
 import org.groundplatform.android.ui.main.MainViewModel
 import org.groundplatform.android.util.setComposableContent
 import org.groundplatform.android.util.systemInsets
-import javax.inject.Inject
 
 /**
  * Fragment containing the map container and location of interest sheet fragments and NavigationView
@@ -132,9 +132,7 @@ class HomeScreenFragment :
     val menuItem = navigationView.menu.findItem(R.id.nav_log_version)
     menuItem.title = String.format(getString(R.string.build), BuildConfig.VERSION_NAME)
 
-    binding.composeView.setComposableContent {
-      SetupUserConfirmationDialog()
-    }
+    binding.composeView.setComposableContent { SetupUserConfirmationDialog() }
   }
 
   private fun updateNavHeader() =
