@@ -33,7 +33,7 @@ internal constructor(
   private val updateUserSettingsUseCase: UpdateUserSettingsUseCase,
 ) : AbstractViewModel() {
 
-  private var _uiState: MutableStateFlow<UserSettings> = MutableStateFlow(getUserSettingsUseCase())
+  private val _uiState: MutableStateFlow<UserSettings> = MutableStateFlow(getUserSettingsUseCase())
   val uiState: StateFlow<UserSettings> = _uiState
 
   private fun updateState(newUiState: UserSettings) {
