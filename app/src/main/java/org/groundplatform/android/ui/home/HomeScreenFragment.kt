@@ -195,8 +195,8 @@ class HomeScreenFragment :
 
   @Composable
   private fun SetupUserConfirmationDialog() {
-    val state by homeScreenViewModel.showLogoutDialog.collectAsState()
-    val user by homeScreenViewModel.user.collectAsState(null)
+    val state by homeScreenViewModel.showLogoutDialog.collectAsStateWithLifecycle()
+    val user by homeScreenViewModel.user.collectAsStateWithLifecycle(null)
 
     UserAccountDialogs(
       state = state,
