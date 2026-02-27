@@ -16,6 +16,7 @@
 package org.groundplatform.android.ui.settings
 
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.groundplatform.android.model.settings.MeasurementUnits
@@ -23,7 +24,6 @@ import org.groundplatform.android.model.settings.UserSettings
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.usecases.user.GetUserSettingsUseCase
 import org.groundplatform.android.usecases.user.UpdateUserSettingsUseCase
-import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel
