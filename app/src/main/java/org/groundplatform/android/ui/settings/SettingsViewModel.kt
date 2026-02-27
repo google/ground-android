@@ -16,41 +16,40 @@
 package org.groundplatform.android.ui.settings
 
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.model.settings.MeasurementUnits
 import org.groundplatform.android.model.settings.UserSettings
-import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.ui.common.AbstractViewModel
+import org.groundplatform.android.usecases.user.GetUserSettingsUseCase
+import org.groundplatform.android.usecases.user.UpdateUserSettingsUseCase
+import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel
 @Inject
-internal constructor(private val localValueStore: LocalValueStore, userRepository: UserRepository) :
-  AbstractViewModel() {
+internal constructor(
+  getUserSettingsUseCase: GetUserSettingsUseCase,
+  private val updateUserSettingsUseCase: UpdateUserSettingsUseCase,
+) : AbstractViewModel() {
 
-  private var _uiState: MutableStateFlow<UserSettings> =
-    MutableStateFlow(userRepository.getUserSettings())
+  private var _uiState: MutableStateFlow<UserSettings> = MutableStateFlow(getUserSettingsUseCase())
   val uiState: StateFlow<UserSettings> = _uiState
 
   private fun updateState(newUiState: UserSettings) {
     _uiState.value = newUiState
+    updateUserSettingsUseCase(newUiState)
   }
 
   fun updateSelectedLanguage(language: String) {
-    localValueStore.selectedLanguage = language
     updateState(_uiState.value.copy(language = language))
   }
 
   fun updateMeasurementUnits(measurementUnits: MeasurementUnits) {
-    localValueStore.selectedLengthUnit = measurementUnits.name
     updateState(_uiState.value.copy(measurementUnits = measurementUnits))
   }
 
   fun updateUploadMediaOverUnmeteredConnectionOnly(enabled: Boolean) {
-    localValueStore.shouldUploadMediaOverUnmeteredConnectionOnly = enabled
     updateState(_uiState.value.copy(shouldUploadPhotosOnWifiOnly = enabled))
   }
 }

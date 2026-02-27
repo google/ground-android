@@ -19,10 +19,10 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.model.settings.MeasurementUnits
 import org.groundplatform.android.model.settings.UserSettings
-import org.groundplatform.android.repository.UserRepository
+import org.groundplatform.android.usecases.user.GetUserSettingsUseCase
+import org.groundplatform.android.usecases.user.UpdateUserSettingsUseCase
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -36,8 +36,8 @@ class SettingsViewModelTest {
 
   @get:Rule val instantExecutorRule = InstantTaskExecutorRule()
 
-  @Mock lateinit var userRepository: UserRepository
-  @Mock lateinit var localValueStore: LocalValueStore
+  @Mock lateinit var getUserSettingsUseCase: GetUserSettingsUseCase
+  @Mock lateinit var updateUserSettingsUseCase: UpdateUserSettingsUseCase
 
   private lateinit var viewModel: SettingsViewModel
 
@@ -49,46 +49,49 @@ class SettingsViewModelTest {
   @Test
   fun `uiState is populated with initial user settings`() = runTest {
     val userSettings = UserSettings("en", MeasurementUnits.METRIC, false)
-    `when`(userRepository.getUserSettings()).thenReturn(userSettings)
+    `when`(getUserSettingsUseCase()).thenReturn(userSettings)
 
-    viewModel = SettingsViewModel(localValueStore, userRepository)
+    viewModel = SettingsViewModel(getUserSettingsUseCase, updateUserSettingsUseCase)
 
     assertThat(viewModel.uiState.value).isEqualTo(userSettings)
   }
 
   @Test
-  fun `updateSelectedLanguage updates local store and uiState`() = runTest {
+  fun `updateSelectedLanguage updates use case and uiState`() = runTest {
     val initialSettings = UserSettings("en", MeasurementUnits.METRIC, false)
-    `when`(userRepository.getUserSettings()).thenReturn(initialSettings)
-    viewModel = SettingsViewModel(localValueStore, userRepository)
+    `when`(getUserSettingsUseCase()).thenReturn(initialSettings)
+    viewModel = SettingsViewModel(getUserSettingsUseCase, updateUserSettingsUseCase)
 
     viewModel.updateSelectedLanguage("fr")
 
-    verify(localValueStore).selectedLanguage = "fr"
+    val expectedSettings = initialSettings.copy(language = "fr")
+    verify(updateUserSettingsUseCase).invoke(expectedSettings)
     assertThat(viewModel.uiState.value.language).isEqualTo("fr")
   }
 
   @Test
-  fun `updateMeasurementUnits updates local store and uiState`() = runTest {
+  fun `updateMeasurementUnits updates use case and uiState`() = runTest {
     val initialSettings = UserSettings("en", MeasurementUnits.METRIC, false)
-    `when`(userRepository.getUserSettings()).thenReturn(initialSettings)
-    viewModel = SettingsViewModel(localValueStore, userRepository)
+    `when`(getUserSettingsUseCase()).thenReturn(initialSettings)
+    viewModel = SettingsViewModel(getUserSettingsUseCase, updateUserSettingsUseCase)
 
     viewModel.updateMeasurementUnits(MeasurementUnits.IMPERIAL)
 
-    verify(localValueStore).selectedLengthUnit = MeasurementUnits.IMPERIAL.name
+    val expectedSettings = initialSettings.copy(measurementUnits = MeasurementUnits.IMPERIAL)
+    verify(updateUserSettingsUseCase).invoke(expectedSettings)
     assertThat(viewModel.uiState.value.measurementUnits).isEqualTo(MeasurementUnits.IMPERIAL)
   }
 
   @Test
-  fun `updateUploadMediaOverUnmeteredConnectionOnly updates local store and uiState`() = runTest {
+  fun `updateUploadMediaOverUnmeteredConnectionOnly updates use case and uiState`() = runTest {
     val initialSettings = UserSettings("en", MeasurementUnits.METRIC, false)
-    `when`(userRepository.getUserSettings()).thenReturn(initialSettings)
-    viewModel = SettingsViewModel(localValueStore, userRepository)
+    `when`(getUserSettingsUseCase()).thenReturn(initialSettings)
+    viewModel = SettingsViewModel(getUserSettingsUseCase, updateUserSettingsUseCase)
 
     viewModel.updateUploadMediaOverUnmeteredConnectionOnly(true)
 
-    verify(localValueStore).shouldUploadMediaOverUnmeteredConnectionOnly = true
+    val expectedSettings = initialSettings.copy(shouldUploadPhotosOnWifiOnly = true)
+    verify(updateUserSettingsUseCase).invoke(expectedSettings)
     assertThat(viewModel.uiState.value.shouldUploadPhotosOnWifiOnly).isTrue()
   }
 }
