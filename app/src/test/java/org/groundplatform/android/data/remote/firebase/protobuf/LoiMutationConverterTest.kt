@@ -21,7 +21,6 @@ import java.time.Instant
 import java.util.Date
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST_NAME
-import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.LinearRing
 import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.model.geometry.Polygon
@@ -47,6 +46,7 @@ import org.groundplatform.android.proto.LocationOfInterest.SOURCE_FIELD_NUMBER
 import org.groundplatform.android.proto.LocationOfInterest.SUBMISSION_COUNT_FIELD_NUMBER
 import org.groundplatform.android.proto.Point.COORDINATES_FIELD_NUMBER
 import org.groundplatform.android.proto.Polygon.SHELL_FIELD_NUMBER
+import org.groundplatform.domain.model.geometry.Coordinates
 import org.junit.Assert.assertThrows
 import org.junit.Test
 

@@ -18,12 +18,12 @@ package org.groundplatform.android.ui.map
 import android.annotation.SuppressLint
 import androidx.annotation.IdRes
 import kotlinx.coroutines.flow.SharedFlow
-import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.imagery.TileSource
 import org.groundplatform.android.model.map.Bounds
 import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.model.map.MapType
 import org.groundplatform.android.ui.common.AbstractFragment
+import org.groundplatform.domain.model.geometry.Coordinates
 
 /** Implementation of Fragment which supports displaying a map. */
 interface MapFragment {
@@ -75,11 +75,15 @@ interface MapFragment {
   /** Disables map gestures for rotation. */
   fun disableRotation()
 
-  /** Centers the map viewport around the specified [Coordinates]. */
+  /**
+   * Centers the map viewport around the specified
+   * [org.groundplatform.domain.model.geometry.Coordinates].
+   */
   fun moveCamera(coordinates: Coordinates, shouldAnimate: Boolean)
 
   /**
-   * Centers the map viewport around the specified [Coordinates] and updates the map's current zoom
+   * Centers the map viewport around the specified
+   * [org.groundplatform.domain.model.geometry.Coordinates] and updates the map's current zoom
    * level.
    */
   fun moveCamera(coordinates: Coordinates, zoomLevel: Float, shouldAnimate: Boolean)
@@ -98,7 +102,10 @@ interface MapFragment {
   /** Updates an existing [Feature] present on the map. */
   fun updateFeature(feature: Feature)
 
-  /** Returns the actual distance in pixels between provided [Coordinates]s. */
+  /**
+   * Returns the actual distance in pixels between provided
+   * [org.groundplatform.domain.model.geometry.Coordinates]s.
+   */
   fun getDistanceInPixels(coordinates1: Coordinates, coordinates2: Coordinates): Double
 
   fun addTileOverlay(source: TileSource)

@@ -25,12 +25,12 @@ import org.groundplatform.android.FakeData.USER
 import org.groundplatform.android.R
 import org.groundplatform.android.getString
 import org.groundplatform.android.model.AuditInfo
-import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.Style
 import org.groundplatform.android.model.locationofinterest.LocationOfInterest
 import org.groundplatform.android.model.task.Task
+import org.groundplatform.domain.model.geometry.Coordinates
 import org.junit.Rule
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner

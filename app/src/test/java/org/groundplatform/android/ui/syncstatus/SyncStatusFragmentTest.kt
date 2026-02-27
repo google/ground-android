@@ -38,10 +38,10 @@ import org.groundplatform.android.data.local.stores.LocalSubmissionStore
 import org.groundplatform.android.data.local.stores.LocalSurveyStore
 import org.groundplatform.android.data.local.stores.LocalUserStore
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
-import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.testrules.FragmentScenarioRule
+import org.groundplatform.domain.model.geometry.Coordinates
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

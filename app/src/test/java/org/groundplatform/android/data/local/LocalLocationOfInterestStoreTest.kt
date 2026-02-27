@@ -36,7 +36,6 @@ import org.groundplatform.android.data.local.stores.LocalSurveyStore
 import org.groundplatform.android.data.local.stores.LocalUserStore
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.User
-import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.LinearRing
 import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.model.geometry.Polygon
@@ -49,6 +48,7 @@ import org.groundplatform.android.model.submission.TextTaskData
 import org.groundplatform.android.model.submission.ValueDelta
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.map.gms.GmsExt.getShellCoordinates
+import org.groundplatform.domain.model.geometry.Coordinates
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner

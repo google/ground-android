@@ -19,7 +19,6 @@ import com.google.protobuf.timestamp
 import java.util.Date
 import kotlinx.collections.immutable.toImmutableMap
 import org.groundplatform.android.model.User
-import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.Geometry
 import org.groundplatform.android.model.geometry.LineString
 import org.groundplatform.android.model.geometry.LinearRing
@@ -59,6 +58,7 @@ import org.groundplatform.android.proto.locationOfInterest
 import org.groundplatform.android.proto.point
 import org.groundplatform.android.proto.submission
 import org.groundplatform.android.proto.taskData
+import org.groundplatform.domain.model.geometry.Coordinates
 
 fun SubmissionMutation.createSubmissionMessage(user: User) = submission {
   assert(userId == user.id) { "UserId doesn't match: expected $userId, found ${user.id}" }

@@ -16,7 +16,6 @@
 package org.groundplatform.android.ui.map.gms
 
 import com.google.android.gms.maps.model.LatLngBounds
-import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.Geometry
 import org.groundplatform.android.model.geometry.LineString
 import org.groundplatform.android.model.geometry.LinearRing
@@ -24,6 +23,7 @@ import org.groundplatform.android.model.geometry.MultiPolygon
 import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.model.geometry.Polygon
 import org.groundplatform.android.model.map.Bounds
+import org.groundplatform.domain.model.geometry.Coordinates
 
 /** Extensions for indirectly using GMS functions in map-provider agnostic codebase. */
 object GmsExt {
@@ -48,7 +48,10 @@ object GmsExt {
     return null
   }
 
-  /** Returns the list of [Coordinates] in the geometry or in the outer shell of the geometry. */
+  /**
+   * Returns the list of [org.groundplatform.domain.model.geometry.Coordinates] in the geometry or
+   * in the outer shell of the geometry.
+   */
   fun Geometry.getShellCoordinates(): List<Coordinates> =
     when (this) {
       is Point -> listOf(coordinates)

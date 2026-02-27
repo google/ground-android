@@ -42,7 +42,7 @@ constructor(
   private val tooltipMarkerRenderer: TooltipMarkerRenderer,
 ) : MapsItemRenderer<LineString, Polyline> {
 
-  // These must be done lazily since resources are not available before the app completes
+  // These must be done lazily since composeResources are not available before the app completes
   // initialization.
   private val defaultStrokeWidth by lazy { resources.getDimension(R.dimen.line_geometry_width) }
   private val circleCap by lazy {

@@ -20,8 +20,8 @@ import java.util.Locale
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.cos
-import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.settings.MeasurementUnits
+import org.groundplatform.domain.model.geometry.Coordinates
 
 @VisibleForTesting const val SQUARE_METERS_PER_ACRE = 4046.86
 @VisibleForTesting const val SQUARE_METERS_PER_HECTARE = 10_000
