@@ -64,8 +64,8 @@ internal constructor(
   private val _openDrawerRequests: MutableSharedFlow<Unit> = MutableSharedFlow()
   val openDrawerRequestsFlow: SharedFlow<Unit> = _openDrawerRequests.asSharedFlow()
 
-  private val _showLogoutDialog = MutableStateFlow(AccountDialogState.HIDDEN)
-  val showLogoutDialog: StateFlow<AccountDialogState> = _showLogoutDialog.asStateFlow()
+  private val _accountDialogState = MutableStateFlow(AccountDialogState.HIDDEN)
+  val accountDialogState: StateFlow<AccountDialogState> = _accountDialogState.asStateFlow()
 
   val user: Flow<User> =
     userRepository
@@ -137,20 +137,20 @@ internal constructor(
   suspend fun getOfflineAreas() = offlineAreaRepository.offlineAreas().first()
 
   fun signOut() {
-    _showLogoutDialog.value = AccountDialogState.HIDDEN
+    _accountDialogState.value = AccountDialogState.HIDDEN
     viewModelScope.launch { userRepository.signOut() }
   }
 
   fun showUserDetails() {
-    _showLogoutDialog.value = AccountDialogState.USER_DETAILS
+    _accountDialogState.value = AccountDialogState.USER_DETAILS
   }
 
   fun showSignOutConfirmation() {
-    _showLogoutDialog.value = AccountDialogState.SIGN_OUT_CONFIRMATION
+    _accountDialogState.value = AccountDialogState.SIGN_OUT_CONFIRMATION
   }
 
   fun dismissLogoutDialog() {
-    _showLogoutDialog.value = AccountDialogState.HIDDEN
+    _accountDialogState.value = AccountDialogState.HIDDEN
   }
 
   /**

@@ -55,14 +55,14 @@ class HomeScreenViewModelTest : BaseHiltTest() {
   fun testShowUserDetails() {
     viewModel.showUserDetails()
 
-    assertThat(viewModel.showLogoutDialog.value).isEqualTo(USER_DETAILS)
+    assertThat(viewModel.accountDialogState.value).isEqualTo(USER_DETAILS)
   }
 
   @Test
   fun testShowSignOutConfirmation() {
     viewModel.showSignOutConfirmation()
 
-    assertThat(viewModel.showLogoutDialog.value).isEqualTo(SIGN_OUT_CONFIRMATION)
+    assertThat(viewModel.accountDialogState.value).isEqualTo(SIGN_OUT_CONFIRMATION)
   }
 
   @Test
@@ -70,7 +70,7 @@ class HomeScreenViewModelTest : BaseHiltTest() {
     viewModel.showUserDetails()
     viewModel.dismissLogoutDialog()
 
-    assertThat(viewModel.showLogoutDialog.value).isEqualTo(HIDDEN)
+    assertThat(viewModel.accountDialogState.value).isEqualTo(HIDDEN)
   }
 
   @Test
@@ -80,7 +80,7 @@ class HomeScreenViewModelTest : BaseHiltTest() {
 
     advanceUntilIdle()
 
-    assertThat(viewModel.showLogoutDialog.value).isEqualTo(HIDDEN)
+    assertThat(viewModel.accountDialogState.value).isEqualTo(HIDDEN)
     assertThat(authenticationManager.signInState.filterIsInstance<SignInState.SignedOut>().first())
       .isEqualTo(SignInState.SignedOut)
   }
