@@ -17,6 +17,7 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+  package="org.groundplatform.android"
   xmlns:tools="http://schemas.android.com/tools">
 
   <uses-permission android:name="android.permission.INTERNET" />
@@ -42,7 +43,8 @@
     android:roundIcon="@mipmap/ic_launcher_round"
     android:supportsRtl="true"
     android:theme="@style/AppTheme.Base"
-    android:usesCleartextTraffic="${usesCleartextTraffic}">
+    android:usesCleartextTraffic="${usesCleartextTraffic}"
+    tools:replace="android:name">
 
     <service
       android:name="org.groundplatform.android.data.remote.firebase.FirebaseMessagingService"
