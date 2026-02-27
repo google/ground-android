@@ -93,7 +93,10 @@ class UserAccountDialogsTest {
   @Test
   fun clickSignOutInUserDetails_invokesShowSignOutConfirmation() {
     var showSignOutConfirmationClicked = false
-    setupContent(state = USER_DETAILS, onShowSignOutConfirmation = { showSignOutConfirmationClicked = true })
+    setupContent(
+      state = USER_DETAILS,
+      onShowSignOutConfirmation = { showSignOutConfirmationClicked = true },
+    )
 
     composeTestRule.onNodeWithText(getString(R.string.sign_out)).performClick()
 
