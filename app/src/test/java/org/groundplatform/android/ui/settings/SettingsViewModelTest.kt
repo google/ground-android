@@ -16,25 +16,20 @@
 package org.groundplatform.android.ui.settings
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlinx.coroutines.Dispatchers
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
 import org.groundplatform.android.model.settings.MeasurementUnits
 import org.groundplatform.android.model.settings.UserSettings
 import org.groundplatform.android.usecases.user.GetUserSettingsUseCase
-import org.junit.After
+import org.groundplatform.android.usecases.user.UpdateUserSettingsUseCase
 import org.junit.Before
 import org.junit.Rule
+import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito.verify
+import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
-import org.mockito.kotlin.times
-import org.mockito.kotlin.whenever
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SettingsViewModelTest {
@@ -42,57 +37,61 @@ class SettingsViewModelTest {
   @get:Rule val instantExecutorRule = InstantTaskExecutorRule()
 
   @Mock lateinit var getUserSettingsUseCase: GetUserSettingsUseCase
+  @Mock lateinit var updateUserSettingsUseCase: UpdateUserSettingsUseCase
 
   private lateinit var viewModel: SettingsViewModel
-
-  private val testDispatcher = StandardTestDispatcher()
 
   @Before
   fun setup() {
     MockitoAnnotations.openMocks(this)
-    Dispatchers.setMain(testDispatcher)
-  }
-
-  @After
-  fun tearDown() {
-    Dispatchers.resetMain()
   }
 
   @Test
-  fun `uiState is populated with correct user settings`() = runTest {
-    val userSettings =
-      UserSettings(
-        language = "en",
-        measurementUnits = MeasurementUnits.METRIC,
-        shouldUploadPhotosOnWifiOnly = false,
-      )
-    whenever(getUserSettingsUseCase.invoke()).thenReturn(userSettings)
+  fun `uiState is populated with initial user settings`() = runTest {
+    val userSettings = UserSettings("en", MeasurementUnits.METRIC, false)
+    `when`(getUserSettingsUseCase()).thenReturn(userSettings)
 
-    viewModel = SettingsViewModel(getUserSettingsUseCase)
+    viewModel = SettingsViewModel(getUserSettingsUseCase, updateUserSettingsUseCase)
 
-    testDispatcher.scheduler.advanceUntilIdle()
-
-    assertEquals(userSettings, viewModel.uiState.value)
-    verify(getUserSettingsUseCase).invoke()
+    assertThat(viewModel.uiState.value).isEqualTo(userSettings)
   }
 
   @Test
-  fun `Refreshing preferences updates the uiState again`() = runTest {
-    val settings1 = UserSettings("en", MeasurementUnits.METRIC, false)
-    val settings2 = UserSettings("fr", MeasurementUnits.IMPERIAL, true)
+  fun `updateSelectedLanguage updates use case and uiState`() = runTest {
+    val initialSettings = UserSettings("en", MeasurementUnits.METRIC, false)
+    `when`(getUserSettingsUseCase()).thenReturn(initialSettings)
+    viewModel = SettingsViewModel(getUserSettingsUseCase, updateUserSettingsUseCase)
 
-    whenever(getUserSettingsUseCase.invoke()).thenReturn(settings1)
+    viewModel.updateSelectedLanguage("fr")
 
-    viewModel = SettingsViewModel(getUserSettingsUseCase)
-    testDispatcher.scheduler.advanceUntilIdle()
-    assertEquals(settings1, viewModel.uiState.value)
+    val expectedSettings = initialSettings.copy(language = "fr")
+    verify(updateUserSettingsUseCase).invoke(expectedSettings)
+    assertThat(viewModel.uiState.value.language).isEqualTo("fr")
+  }
 
-    whenever(getUserSettingsUseCase.invoke()).thenReturn(settings2)
+  @Test
+  fun `updateMeasurementUnits updates use case and uiState`() = runTest {
+    val initialSettings = UserSettings("en", MeasurementUnits.METRIC, false)
+    `when`(getUserSettingsUseCase()).thenReturn(initialSettings)
+    viewModel = SettingsViewModel(getUserSettingsUseCase, updateUserSettingsUseCase)
 
-    viewModel.refreshUserPreferences()
-    testDispatcher.scheduler.advanceUntilIdle()
+    viewModel.updateMeasurementUnits(MeasurementUnits.IMPERIAL)
 
-    assertEquals(settings2, viewModel.uiState.value)
-    verify(getUserSettingsUseCase, times(2)).invoke()
+    val expectedSettings = initialSettings.copy(measurementUnits = MeasurementUnits.IMPERIAL)
+    verify(updateUserSettingsUseCase).invoke(expectedSettings)
+    assertThat(viewModel.uiState.value.measurementUnits).isEqualTo(MeasurementUnits.IMPERIAL)
+  }
+
+  @Test
+  fun `updateUploadMediaOverUnmeteredConnectionOnly updates use case and uiState`() = runTest {
+    val initialSettings = UserSettings("en", MeasurementUnits.METRIC, false)
+    `when`(getUserSettingsUseCase()).thenReturn(initialSettings)
+    viewModel = SettingsViewModel(getUserSettingsUseCase, updateUserSettingsUseCase)
+
+    viewModel.updateUploadMediaOverUnmeteredConnectionOnly(true)
+
+    val expectedSettings = initialSettings.copy(shouldUploadPhotosOnWifiOnly = true)
+    verify(updateUserSettingsUseCase).invoke(expectedSettings)
+    assertThat(viewModel.uiState.value.shouldUploadPhotosOnWifiOnly).isTrue()
   }
 }
