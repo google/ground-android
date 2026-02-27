@@ -158,7 +158,6 @@
   <string name="visit_website_title">Truy cập trang web</string>
   <string name="accuracy">Độ chính xác:</string>
   <string name="select_language_title">Chọn ngôn ngữ</string>
-  <string name="select_language_summary">Chọn ngôn ngữ ưu tiên</string>
   <!-- Data Sharing Consent Text -->
   <string name="data_sharing_no_terms">*Không có điều khoản nào để hiển thị*</string>
   <string name="data_sharing_private_message">## Chia sẻ dữ liệu riêng tư
@@ -199,7 +198,6 @@
   <string name="dialog_message_update_required">A new version of the app is available. Please update to continue using the app.</string>
   <string name="dialog_button_update">Cập nhật</string>
   <string name="select_length_title">Chọn đơn vị</string>
-  <string name="select_length_summary">Chọn đơn vị ưa thích của bạn</string>
   <string name="length_metric">Hệ mét</string>
   <string name="length_imperial">Hệ Anh</string>
 
