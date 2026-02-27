@@ -21,6 +21,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.core.view.GravityCompat
@@ -31,7 +32,6 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.navigation.NavigationView
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 import kotlinx.coroutines.launch
 import org.groundplatform.android.BuildConfig
 import org.groundplatform.android.R
@@ -46,6 +46,7 @@ import org.groundplatform.android.ui.components.ConfirmationDialog
 import org.groundplatform.android.ui.main.MainViewModel
 import org.groundplatform.android.util.setComposableContent
 import org.groundplatform.android.util.systemInsets
+import javax.inject.Inject
 
 /**
  * Fragment containing the map container and location of interest sheet fragments and NavigationView
@@ -132,28 +133,7 @@ class HomeScreenFragment :
     menuItem.title = String.format(getString(R.string.build), BuildConfig.VERSION_NAME)
 
     binding.composeView.setComposableContent {
-      val state by homeScreenViewModel.showLogoutDialog.collectAsState()
-      val user by homeScreenViewModel.user.collectAsState(null)
-
-      when (state) {
-        HomeScreenViewModel.LogoutDialogState.USER_DETAILS ->
-          user?.let {
-            UserDetailsDialog(
-              it,
-              { homeScreenViewModel.showSignOutConfirmation() },
-              { homeScreenViewModel.dismissLogoutDialog() },
-            )
-          }
-        HomeScreenViewModel.LogoutDialogState.SIGN_OUT_CONFIRMATION ->
-          ConfirmationDialog(
-            title = R.string.sign_out_dialog_title,
-            description = R.string.sign_out_dialog_body,
-            confirmButtonText = R.string.sign_out,
-            onConfirmClicked = { homeScreenViewModel.signOut() },
-            onDismiss = { homeScreenViewModel.dismissLogoutDialog() },
-          )
-        else -> {}
-      }
+      SetupUserConfirmationDialog()
     }
   }
 
@@ -214,5 +194,31 @@ class HomeScreenFragment :
     }
     closeDrawer()
     return true
+  }
+
+  @Composable
+  private fun SetupUserConfirmationDialog() {
+    val state by homeScreenViewModel.showLogoutDialog.collectAsState()
+    val user by homeScreenViewModel.user.collectAsState(null)
+
+    when (state) {
+      HomeScreenViewModel.LogoutDialogState.USER_DETAILS ->
+        user?.let {
+          UserDetailsDialog(
+            it,
+            { homeScreenViewModel.showSignOutConfirmation() },
+            { homeScreenViewModel.dismissLogoutDialog() },
+          )
+        }
+      HomeScreenViewModel.LogoutDialogState.SIGN_OUT_CONFIRMATION ->
+        ConfirmationDialog(
+          title = R.string.sign_out_dialog_title,
+          description = R.string.sign_out_dialog_body,
+          confirmButtonText = R.string.sign_out,
+          onConfirmClicked = { homeScreenViewModel.signOut() },
+          onDismiss = { homeScreenViewModel.dismissLogoutDialog() },
+        )
+      else -> {}
+    }
   }
 }
