@@ -22,11 +22,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.core.view.GravityCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.imageview.ShapeableImageView
@@ -195,8 +195,8 @@ class HomeScreenFragment :
 
   @Composable
   private fun SetupUserConfirmationDialog() {
-    val state by homeScreenViewModel.accountDialogState.collectAsState()
-    val user by homeScreenViewModel.user.collectAsState(null)
+    val state by homeScreenViewModel.accountDialogState.collectAsStateWithLifecycle()
+    val user by homeScreenViewModel.user.collectAsStateWithLifecycle(null)
 
     UserAccountDialogs(
       state = state,
