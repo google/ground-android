@@ -29,6 +29,8 @@ import org.groundplatform.android.data.local.stores.LocalSurveyStore
 import org.groundplatform.android.data.local.stores.LocalUserStore
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.model.Role
+import org.groundplatform.android.model.settings.MeasurementUnits
+import org.groundplatform.android.model.settings.UserSettings
 import org.groundplatform.android.proto.Survey
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
@@ -171,5 +173,29 @@ class UserRepositoryTest : BaseHiltTest() {
     surveyRepository.activateSurvey(survey.id)
 
     assertThat(userRepository.canUserSubmitData()).isFalse()
+  }
+
+  @Test
+  fun `getUserSettings() returns correct settings`() {
+    localValueStore.selectedLanguage = "fr"
+    localValueStore.selectedLengthUnit = MeasurementUnits.IMPERIAL.name
+    localValueStore.shouldUploadMediaOverUnmeteredConnectionOnly = true
+
+    val settings = userRepository.getUserSettings()
+
+    assertThat(settings.language).isEqualTo("fr")
+    assertThat(settings.measurementUnits).isEqualTo(MeasurementUnits.IMPERIAL)
+    assertThat(settings.shouldUploadPhotosOnWifiOnly).isTrue()
+  }
+
+  @Test
+  fun `setUserSettings() updates local store`() {
+    val settings = UserSettings("fr", MeasurementUnits.IMPERIAL, true)
+
+    userRepository.setUserSettings(settings)
+
+    assertThat(localValueStore.selectedLanguage).isEqualTo("fr")
+    assertThat(localValueStore.selectedLengthUnit).isEqualTo(MeasurementUnits.IMPERIAL.name)
+    assertThat(localValueStore.shouldUploadMediaOverUnmeteredConnectionOnly).isTrue()
   }
 }
