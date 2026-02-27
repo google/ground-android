@@ -19,13 +19,17 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import javax.inject.Inject
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.groundplatform.android.data.sync.MediaUploadWorkManager
 import org.groundplatform.android.data.sync.MutationSyncWorkManager
@@ -36,10 +40,10 @@ import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.android.repository.SubmissionRepository
 import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.repository.UserRepository
+import org.groundplatform.android.system.auth.SignInState
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.common.SharedViewModel
 import timber.log.Timber
-import javax.inject.Inject
 
 private const val AWAITING_PHOTO_CAPTURE_KEY = "awaiting_photo_capture"
 
@@ -63,8 +67,11 @@ internal constructor(
   private val _showLogoutDialog = MutableStateFlow(LogoutDialogState.HIDDEN)
   val showLogoutDialog: StateFlow<LogoutDialogState> = _showLogoutDialog.asStateFlow()
 
-  private val _authenticatedUser = MutableStateFlow<User?>(null)
-  val authenticatedUser: StateFlow<User?> = _authenticatedUser.asStateFlow()
+  val user: Flow<User> =
+    userRepository
+      .getSignInState()
+      .filter { it is SignInState.SignedIn }
+      .map { (it as SignInState.SignedIn).user }
 
   // TODO: Allow tile source configuration from a non-survey accessible source.
   // Issue URL: https://github.com/google/ground-android/issues/1730
@@ -83,10 +90,7 @@ internal constructor(
     }
 
   init {
-    viewModelScope.launch {
-      kickLocalMutationSyncWorkers()
-      _authenticatedUser.value = userRepository.getAuthenticatedUser()
-    }
+    viewModelScope.launch { kickLocalMutationSyncWorkers() }
   }
 
   /**

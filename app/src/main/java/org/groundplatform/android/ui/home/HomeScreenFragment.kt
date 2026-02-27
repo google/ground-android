@@ -133,7 +133,7 @@ class HomeScreenFragment :
 
     binding.composeView.setComposableContent {
       val state by homeScreenViewModel.showLogoutDialog.collectAsState()
-      val user by homeScreenViewModel.authenticatedUser.collectAsState()
+      val user by homeScreenViewModel.user.collectAsState(null)
 
       when (state) {
         HomeScreenViewModel.LogoutDialogState.USER_DETAILS ->
