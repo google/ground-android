@@ -26,11 +26,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import qrgenerator.qrkitpainter.PatternType
 import qrgenerator.qrkitpainter.QrBallType
-import qrgenerator.qrkitpainter.QrFrameType
 import qrgenerator.qrkitpainter.QrKitLogo
 import qrgenerator.qrkitpainter.QrKitShapes
 import qrgenerator.qrkitpainter.QrPixelType.SquarePixel
-import qrgenerator.qrkitpainter.getSelectedFrameShape
 import qrgenerator.qrkitpainter.getSelectedPattern
 import qrgenerator.qrkitpainter.getSelectedPixel
 import qrgenerator.qrkitpainter.getSelectedQrBall
@@ -41,7 +39,6 @@ import qrgenerator.qrkitpainter.rememberQrKitPainter
  *
  * The composable is intentionally generic, it accepts any string payload, making it reusable for
  * GeoJSON, URLs, or any other data that fits within QR code capacity limits.
- *
  */
 @Composable
 fun GroundQrCode(
