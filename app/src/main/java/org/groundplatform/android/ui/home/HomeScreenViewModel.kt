@@ -19,14 +19,17 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.groundplatform.android.data.sync.MediaUploadWorkManager
 import org.groundplatform.android.data.sync.MutationSyncWorkManager
+import org.groundplatform.android.model.User
 import org.groundplatform.android.model.submission.DraftSubmission
 import org.groundplatform.android.repository.MutationRepository
 import org.groundplatform.android.repository.OfflineAreaRepository
@@ -36,6 +39,7 @@ import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.common.SharedViewModel
 import timber.log.Timber
+import javax.inject.Inject
 
 private const val AWAITING_PHOTO_CAPTURE_KEY = "awaiting_photo_capture"
 
@@ -56,6 +60,12 @@ internal constructor(
   private val _openDrawerRequests: MutableSharedFlow<Unit> = MutableSharedFlow()
   val openDrawerRequestsFlow: SharedFlow<Unit> = _openDrawerRequests.asSharedFlow()
 
+  private val _showLogoutDialog = MutableStateFlow(LogoutDialogState.HIDDEN)
+  val showLogoutDialog: StateFlow<LogoutDialogState> = _showLogoutDialog.asStateFlow()
+
+  private val _authenticatedUser = MutableStateFlow<User?>(null)
+  val authenticatedUser: StateFlow<User?> = _authenticatedUser.asStateFlow()
+
   // TODO: Allow tile source configuration from a non-survey accessible source.
   // Issue URL: https://github.com/google/ground-android/issues/1730
   val showOfflineAreaMenuItem: LiveData<Boolean> = MutableLiveData(true)
@@ -73,7 +83,10 @@ internal constructor(
     }
 
   init {
-    viewModelScope.launch { kickLocalMutationSyncWorkers() }
+    viewModelScope.launch {
+      kickLocalMutationSyncWorkers()
+      _authenticatedUser.value = userRepository.getAuthenticatedUser()
+    }
   }
 
   /**
@@ -120,6 +133,28 @@ internal constructor(
   suspend fun getOfflineAreas() = offlineAreaRepository.offlineAreas().first()
 
   fun signOut() {
+    _showLogoutDialog.value = LogoutDialogState.HIDDEN
     viewModelScope.launch { userRepository.signOut() }
+  }
+
+  fun showUserDetails() {
+    _showLogoutDialog.value = LogoutDialogState.USER_DETAILS
+  }
+
+  fun showSignOutConfirmation() {
+    _showLogoutDialog.value = LogoutDialogState.SIGN_OUT_CONFIRMATION
+  }
+
+  fun dismissLogoutDialog() {
+    _showLogoutDialog.value = LogoutDialogState.HIDDEN
+  }
+
+  /**
+   * Represents the possible visibility states of the user profile and logout confirmation dialogs.
+   */
+  enum class LogoutDialogState {
+    HIDDEN,
+    USER_DETAILS,
+    SIGN_OUT_CONFIRMATION,
   }
 }

@@ -21,7 +21,8 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.core.view.GravityCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -37,7 +38,6 @@ import org.groundplatform.android.R
 import org.groundplatform.android.data.local.room.converter.SubmissionDeltasConverter
 import org.groundplatform.android.databinding.HomeScreenFragBinding
 import org.groundplatform.android.databinding.NavDrawerHeaderBinding
-import org.groundplatform.android.model.User
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.common.BackPressListener
@@ -60,7 +60,6 @@ class HomeScreenFragment :
   @Inject lateinit var userRepository: UserRepository
   private lateinit var binding: HomeScreenFragBinding
   private lateinit var homeScreenViewModel: HomeScreenViewModel
-  private lateinit var user: User
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -96,9 +95,9 @@ class HomeScreenFragment :
           HomeScreenFragmentDirections.actionHomeScreenFragmentToSurveySelectorFragment(false)
         )
     }
-    viewLifecycleOwner.lifecycleScope.launch { user = userRepository.getAuthenticatedUser() }
+
     navHeader.findViewById<ShapeableImageView>(R.id.user_image).setOnClickListener {
-      showSignOutConfirmationDialogs()
+      homeScreenViewModel.showUserDetails()
     }
     updateNavHeader()
     // Re-open data collection screen if draft submission is present.
@@ -131,6 +130,31 @@ class HomeScreenFragment :
     val navigationView = view.findViewById<NavigationView>(R.id.nav_view)
     val menuItem = navigationView.menu.findItem(R.id.nav_log_version)
     menuItem.title = String.format(getString(R.string.build), BuildConfig.VERSION_NAME)
+
+    binding.composeView.setComposableContent {
+      val state by homeScreenViewModel.showLogoutDialog.collectAsState()
+      val user by homeScreenViewModel.authenticatedUser.collectAsState()
+
+      when (state) {
+        HomeScreenViewModel.LogoutDialogState.USER_DETAILS ->
+          user?.let {
+            UserDetailsDialog(
+              it,
+              { homeScreenViewModel.showSignOutConfirmation() },
+              { homeScreenViewModel.dismissLogoutDialog() },
+            )
+          }
+        HomeScreenViewModel.LogoutDialogState.SIGN_OUT_CONFIRMATION ->
+          ConfirmationDialog(
+            title = R.string.sign_out_dialog_title,
+            description = R.string.sign_out_dialog_body,
+            confirmButtonText = R.string.sign_out,
+            onConfirmClicked = { homeScreenViewModel.signOut() },
+            onDismiss = { homeScreenViewModel.dismissLogoutDialog() },
+          )
+        else -> {}
+      }
+    }
   }
 
   private fun updateNavHeader() =
@@ -190,45 +214,5 @@ class HomeScreenFragment :
     }
     closeDrawer()
     return true
-  }
-
-  private fun showSignOutConfirmationDialogs() {
-    val showUserDetailsDialog = mutableStateOf(false)
-    val showSignOutDialog = mutableStateOf(false)
-
-    fun showUserDetailsDialog() {
-      showUserDetailsDialog.value = true
-      showSignOutDialog.value = false
-    }
-
-    fun showSignOutDialog() {
-      showUserDetailsDialog.value = false
-      showSignOutDialog.value = true
-    }
-
-    fun hideAllDialogs() {
-      showUserDetailsDialog.value = false
-      showSignOutDialog.value = false
-    }
-
-    // Init state for composition
-    showUserDetailsDialog()
-
-    // Note: Adding a compose view to the fragment's view dynamically causes the navigation click to
-    // stop working after 1st time. Revisit this once the navigation drawer is also generated using
-    // compose.
-    binding.composeView.setComposableContent {
-      if (showUserDetailsDialog.value) {
-        UserDetailsDialog(user, { showSignOutDialog() }, { hideAllDialogs() })
-      }
-      if (showSignOutDialog.value) {
-        ConfirmationDialog(
-          title = R.string.sign_out_dialog_title,
-          description = R.string.sign_out_dialog_body,
-          confirmButtonText = R.string.sign_out,
-          onConfirmClicked = { homeScreenViewModel.signOut() },
-        )
-      }
-    }
   }
 }
