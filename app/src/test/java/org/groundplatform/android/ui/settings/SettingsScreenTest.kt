@@ -15,18 +15,16 @@
  */
 package org.groundplatform.android.ui.settings
 
-import android.content.Context
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import androidx.test.core.app.ApplicationProvider
 import org.groundplatform.android.R
+import org.groundplatform.android.getString
 import org.groundplatform.android.model.settings.MeasurementUnits
 import org.groundplatform.android.model.settings.UserSettings
 import org.groundplatform.android.ui.theme.AppTheme
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,13 +34,6 @@ import org.robolectric.RobolectricTestRunner
 class SettingsScreenTest {
 
   @get:Rule val composeTestRule = createComposeRule()
-
-  private lateinit var context: Context
-
-  @Before
-  fun setup() {
-    context = ApplicationProvider.getApplicationContext()
-  }
 
   @Test
   fun testSettingsScreen_InitialState() {
@@ -66,22 +57,16 @@ class SettingsScreenTest {
       }
     }
 
-    composeTestRule.onNodeWithText(context.getString(R.string.general_title)).assertIsDisplayed()
+    composeTestRule.onNodeWithText(getString(R.string.general_title)).assertIsDisplayed()
+    composeTestRule.onNodeWithText(getString(R.string.upload_media_title)).assertIsDisplayed()
+    composeTestRule.onNodeWithText(getString(R.string.select_language_title)).assertIsDisplayed()
+    composeTestRule.onNodeWithText(getString(R.string.select_length_title)).assertIsDisplayed()
     composeTestRule
-      .onNodeWithText(context.getString(R.string.upload_media_title))
-      .assertIsDisplayed()
-    composeTestRule
-      .onNodeWithText(context.getString(R.string.select_language_title))
-      .assertIsDisplayed()
-    composeTestRule
-      .onNodeWithText(context.getString(R.string.select_length_title))
-      .assertIsDisplayed()
-    composeTestRule
-      .onNodeWithText(context.getString(R.string.help_title))
+      .onNodeWithText(getString(R.string.help_title))
       .performScrollTo()
       .assertIsDisplayed()
     composeTestRule
-      .onNodeWithText(context.getString(R.string.visit_website_title))
+      .onNodeWithText(getString(R.string.visit_website_title))
       .performScrollTo()
       .assertIsDisplayed()
   }
@@ -109,7 +94,7 @@ class SettingsScreenTest {
       }
     }
 
-    composeTestRule.onNodeWithText(context.getString(R.string.upload_media_title)).performClick()
+    composeTestRule.onNodeWithText(getString(R.string.upload_media_title)).performClick()
     assert(uploadMediaChecked)
   }
 
@@ -136,8 +121,8 @@ class SettingsScreenTest {
       }
     }
 
-    composeTestRule.onNodeWithText(context.getString(R.string.select_language_title)).performClick()
-    composeTestRule.onNodeWithText(context.getString(R.string.lang_french)).performClick()
+    composeTestRule.onNodeWithText(getString(R.string.select_language_title)).performClick()
+    composeTestRule.onNodeWithText(getString(R.string.lang_french)).performClick()
     assert(selectedLanguage == "fr")
   }
 
@@ -164,8 +149,8 @@ class SettingsScreenTest {
       }
     }
 
-    composeTestRule.onNodeWithText(context.getString(R.string.select_length_title)).performClick()
-    composeTestRule.onNodeWithText(context.getString(R.string.length_imperial)).performClick()
+    composeTestRule.onNodeWithText(getString(R.string.select_length_title)).performClick()
+    composeTestRule.onNodeWithText(getString(R.string.length_imperial)).performClick()
     assert(selectedUnits == MeasurementUnits.IMPERIAL)
   }
 
@@ -193,7 +178,7 @@ class SettingsScreenTest {
     }
 
     composeTestRule
-      .onNodeWithText(context.getString(R.string.visit_website_title))
+      .onNodeWithText(getString(R.string.visit_website_title))
       .performScrollTo()
       .performClick()
     assert(visited)
