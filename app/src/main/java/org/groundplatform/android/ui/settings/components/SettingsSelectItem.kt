@@ -24,6 +24,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.tooling.preview.Preview
 import org.groundplatform.android.R
+import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.theme.AppTheme
 
 @Composable
@@ -45,25 +46,25 @@ internal fun SettingsSelectItem(
     }
 
   val selectedOption = allOptions.find { it.value == currentValue } ?: allOptions.firstOrNull()
-  var showUnitDialog by remember { mutableStateOf(false) }
+  var showDialog by remember { mutableStateOf(false) }
 
-  if (showUnitDialog) {
+  if (showDialog) {
     SingleSelectionDialog(
       title = title,
       options = allOptions,
       selectedOption = selectedOption,
       onOptionSelected = {
         onValueChanged(it)
-        showUnitDialog = false
+        showDialog = false
       },
-      onDismiss = { showUnitDialog = false },
+      onDismiss = { showDialog = false },
     )
   }
 
   SettingsItem(
     title = title,
     summary = selectedOption?.label ?: "",
-    onClick = { showUnitDialog = true },
+    onClick = { showDialog = true },
   )
 }
 
@@ -71,6 +72,7 @@ internal data class Option(val label: String, val value: String)
 
 @Preview(showBackground = true)
 @Composable
+@ExcludeFromJacocoGeneratedReport
 private fun PreviewSelectItem() {
   AppTheme {
     SettingsSelectItem(
