@@ -16,6 +16,7 @@
 package org.groundplatform.android.e2etest.robots
 
 import org.groundplatform.android.R
+import org.groundplatform.android.e2etest.MultipleChoiceType
 import org.groundplatform.android.e2etest.TestConfig.ARABICA_TEXT
 import org.groundplatform.android.e2etest.TestConfig.COFFEE_TEXT
 import org.groundplatform.android.e2etest.TestConfig.COVER_CROPPING_TEXT
@@ -47,7 +48,13 @@ class DataCollectionRobot(override val testDriver: TestDriver) : Robot<DataColle
             "Something is wrong with the tasks defined in the Firebase emulator"
           )
         Task.Type.TEXT -> textTask()
-        Task.Type.MULTIPLE_CHOICE -> multipleChoiceTask(task.selectIndexes!!, task.isACondition)
+        Task.Type.MULTIPLE_CHOICE -> {
+          if (task.isConditional) {
+            multipleChoiceTask(MultipleChoiceType.Conditional)
+          } else {
+            multipleChoiceTask(MultipleChoiceType.Regular(task.selectIndexes!!))
+          }
+        }
         Task.Type.PHOTO -> cameraTask()
         Task.Type.NUMBER -> numberTask()
         Task.Type.DATE -> dateTask()
@@ -115,26 +122,26 @@ class DataCollectionRobot(override val testDriver: TestDriver) : Robot<DataColle
     testDriver.click(TestDriver.Target.Text(testDriver.getStringResource(R.string.save)))
   }
 
-  private fun multipleChoiceTask(selectIndexes: List<Int>, isConditional: Boolean = false) {
-    when (selectIndexes.size) {
-      1 if isConditional -> {
-        conditionalTask(TestDriver.Target.TestTag(SELECT_MULTIPLE_RADIO_TEST_TAG))
-      }
-      1 -> {
-        testDriver.selectFromList(
-          TestDriver.Target.TestTag(SELECT_MULTIPLE_RADIO_TEST_TAG),
-          selectIndexes[0],
-        )
-      }
-      else -> {
-        selectIndexes.forEach {
+  private fun multipleChoiceTask(multipleChoiceType: MultipleChoiceType) {
+    when (multipleChoiceType) {
+      is MultipleChoiceType.Regular -> {
+        if (multipleChoiceType.selectIndexes.size == 1) {
           testDriver.selectFromList(
-            TestDriver.Target.TestTag(SELECT_MULTIPLE_CHECKBOX_TEST_TAG),
-            it,
+            TestDriver.Target.TestTag(SELECT_MULTIPLE_RADIO_TEST_TAG),
+            multipleChoiceType.selectIndexes[0],
           )
+        } else {
+          multipleChoiceType.selectIndexes.forEach {
+            testDriver.selectFromList(
+              TestDriver.Target.TestTag(SELECT_MULTIPLE_CHECKBOX_TEST_TAG),
+              it,
+            )
+          }
+          testDriver.insertText("Other", TestDriver.Target.TestTag(OTHER_INPUT_TEXT_TEST_TAG))
         }
-        testDriver.insertText("Other", TestDriver.Target.TestTag(OTHER_INPUT_TEXT_TEST_TAG))
       }
+      MultipleChoiceType.Conditional ->
+        conditionalTask(TestDriver.Target.TestTag(SELECT_MULTIPLE_RADIO_TEST_TAG))
     }
   }
 
