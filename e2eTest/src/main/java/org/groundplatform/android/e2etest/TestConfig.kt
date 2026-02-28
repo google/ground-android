@@ -36,7 +36,7 @@ object TestConfig {
       TestTask(
         taskType = Task.Type.MULTIPLE_CHOICE,
         selectIndexes = listOf(1),
-        isACondition = true,
+        isConditional = true,
       ),
       TestTask(taskType = Task.Type.MULTIPLE_CHOICE, selectIndexes = (0..3).toList()),
       TestTask(Task.Type.NUMBER),
