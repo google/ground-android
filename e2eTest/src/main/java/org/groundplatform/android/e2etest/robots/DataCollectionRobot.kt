@@ -17,13 +17,13 @@ package org.groundplatform.android.e2etest.robots
 
 import org.groundplatform.android.R
 import org.groundplatform.android.e2etest.MultipleChoiceType
-import org.groundplatform.android.e2etest.TestConfig.ARABICA_TEXT
-import org.groundplatform.android.e2etest.TestConfig.COFFEE_TEXT
-import org.groundplatform.android.e2etest.TestConfig.COVER_CROPPING_TEXT
+import org.groundplatform.android.e2etest.TestConfig.CONDITIONAL_TRIGGER_OPTION
+import org.groundplatform.android.e2etest.TestConfig.EXPECTED_CONDITIONAL_OPTION
+import org.groundplatform.android.e2etest.TestConfig.COVER_CROPPING_TEST_OPTION
 import org.groundplatform.android.e2etest.TestConfig.LOI_NAME
-import org.groundplatform.android.e2etest.TestConfig.NEXT_BUTTON_TEXT
-import org.groundplatform.android.e2etest.TestConfig.PALM_TEXT
-import org.groundplatform.android.e2etest.TestConfig.PREVIOUS_BUTTON_TEXT
+import org.groundplatform.android.e2etest.TestConfig.NEXT_NAVIGATION_TEST_OPTION
+import org.groundplatform.android.e2etest.TestConfig.PALM_TEST_OPTION
+import org.groundplatform.android.e2etest.TestConfig.PREVIOUS_NAVIGATION_TEST_OPTION
 import org.groundplatform.android.e2etest.TestTask
 import org.groundplatform.android.e2etest.drivers.TestDriver
 import org.groundplatform.android.model.task.Task
@@ -164,16 +164,16 @@ class DataCollectionRobot(override val testDriver: TestDriver) : Robot<DataColle
   private fun conditionalTask(target: TestDriver.Target) {
     if (target is TestDriver.Target.TestTag && target.tag == SELECT_MULTIPLE_RADIO_TEST_TAG) {
 
-      testDriver.assertVisible(ARABICA_TEXT)
-      testDriver.click(TestDriver.Target.Text(COFFEE_TEXT))
-      testDriver.click(TestDriver.Target.Text(NEXT_BUTTON_TEXT))
-      testDriver.assertVisible(ARABICA_TEXT, true)
-      testDriver.click(TestDriver.Target.Text(PREVIOUS_BUTTON_TEXT))
-      testDriver.click(TestDriver.Target.Text(PALM_TEXT))
-      testDriver.click(TestDriver.Target.Text(NEXT_BUTTON_TEXT))
-      testDriver.assertVisible(ARABICA_TEXT, false)
-      testDriver.click(TestDriver.Target.Text(COVER_CROPPING_TEXT))
-      testDriver.click(TestDriver.Target.Text(PREVIOUS_BUTTON_TEXT))
+      testDriver.assertVisible(CONDITIONAL_TRIGGER_OPTION)
+      testDriver.click(TestDriver.Target.Text(EXPECTED_CONDITIONAL_OPTION))
+      testDriver.click(TestDriver.Target.Text(NEXT_NAVIGATION_TEST_OPTION))
+      testDriver.assertVisible(CONDITIONAL_TRIGGER_OPTION, true)
+      testDriver.click(TestDriver.Target.Text(PREVIOUS_NAVIGATION_TEST_OPTION))
+      testDriver.click(TestDriver.Target.Text(PALM_TEST_OPTION))
+      testDriver.click(TestDriver.Target.Text(NEXT_NAVIGATION_TEST_OPTION))
+      testDriver.assertVisible(CONDITIONAL_TRIGGER_OPTION, false)
+      testDriver.click(TestDriver.Target.Text(COVER_CROPPING_TEST_OPTION))
+      testDriver.click(TestDriver.Target.Text(PREVIOUS_NAVIGATION_TEST_OPTION))
     }
   }
 }

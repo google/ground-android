@@ -49,10 +49,10 @@ object TestConfig {
   val TEST_LIST_DRAW_AREA = listOf(TestTask(taskType = Task.Type.DRAW_AREA, isRequired = true))
   const val LOI_NAME = "Test location"
   const val TEST_PHOTO_FILE = "e2e_test_photo.webp"
-  const val ARABICA_TEXT = "Arabica"
-  const val COFFEE_TEXT = "Coffee"
-  const val NEXT_BUTTON_TEXT = "Next"
-  const val PREVIOUS_BUTTON_TEXT = "Previous"
-  const val COVER_CROPPING_TEXT = "Cover Cropping"
-  const val PALM_TEXT = "Palm"
+  const val CONDITIONAL_TRIGGER_OPTION = "Arabica"
+  const val EXPECTED_CONDITIONAL_OPTION = "Coffee"
+  const val NEXT_NAVIGATION_TEST_OPTION = "Next"
+  const val PREVIOUS_NAVIGATION_TEST_OPTION = "Previous"
+  const val COVER_CROPPING_TEST_OPTION = "Cover Cropping"
+  const val PALM_TEST_OPTION = "Palm"
 }
