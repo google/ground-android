@@ -18,8 +18,8 @@ package org.groundplatform.android.e2etest.robots
 import org.groundplatform.android.R
 import org.groundplatform.android.e2etest.MultipleChoiceType
 import org.groundplatform.android.e2etest.TestConfig.CONDITIONAL_TRIGGER_OPTION
-import org.groundplatform.android.e2etest.TestConfig.EXPECTED_CONDITIONAL_OPTION
 import org.groundplatform.android.e2etest.TestConfig.COVER_CROPPING_TEST_OPTION
+import org.groundplatform.android.e2etest.TestConfig.EXPECTED_CONDITIONAL_OPTION
 import org.groundplatform.android.e2etest.TestConfig.LOI_NAME
 import org.groundplatform.android.e2etest.TestConfig.NEXT_NAVIGATION_TEST_OPTION
 import org.groundplatform.android.e2etest.TestConfig.PALM_TEST_OPTION
