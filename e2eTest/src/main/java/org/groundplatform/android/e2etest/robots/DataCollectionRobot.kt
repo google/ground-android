@@ -164,14 +164,14 @@ class DataCollectionRobot(override val testDriver: TestDriver) : Robot<DataColle
   private fun conditionalTask(target: TestDriver.Target) {
     if (target is TestDriver.Target.TestTag && target.tag == SELECT_MULTIPLE_RADIO_TEST_TAG) {
 
-      testDriver.assertVisible(CONDITIONAL_TRIGGER_OPTION)
-      testDriver.click(TestDriver.Target.Text(EXPECTED_CONDITIONAL_OPTION))
+      testDriver.assertVisible(EXPECTED_CONDITIONAL_OPTION)
+      testDriver.click(TestDriver.Target.Text(CONDITIONAL_TRIGGER_OPTION))
       testDriver.click(TestDriver.Target.Text(NEXT_NAVIGATION_TEST_OPTION))
-      testDriver.assertVisible(CONDITIONAL_TRIGGER_OPTION, true)
+      testDriver.assertVisible(EXPECTED_CONDITIONAL_OPTION, true)
       testDriver.click(TestDriver.Target.Text(PREVIOUS_NAVIGATION_TEST_OPTION))
       testDriver.click(TestDriver.Target.Text(PALM_TEST_OPTION))
       testDriver.click(TestDriver.Target.Text(NEXT_NAVIGATION_TEST_OPTION))
-      testDriver.assertVisible(CONDITIONAL_TRIGGER_OPTION, false)
+      testDriver.assertVisible(EXPECTED_CONDITIONAL_OPTION, false)
       testDriver.click(TestDriver.Target.Text(COVER_CROPPING_TEST_OPTION))
       testDriver.click(TestDriver.Target.Text(PREVIOUS_NAVIGATION_TEST_OPTION))
     }
