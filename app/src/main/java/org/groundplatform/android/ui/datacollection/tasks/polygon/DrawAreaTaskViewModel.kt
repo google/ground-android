@@ -36,7 +36,6 @@ import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
-import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.LineString
 import org.groundplatform.android.model.geometry.LinearRing
 import org.groundplatform.android.model.geometry.Polygon
@@ -62,6 +61,7 @@ import org.groundplatform.android.ui.util.isSelfIntersecting
 import org.groundplatform.android.usecases.user.GetUserSettingsUseCase
 import org.groundplatform.android.util.distanceTo
 import org.groundplatform.android.util.penult
+import org.groundplatform.domain.model.geometry.Coordinates
 import org.jetbrains.annotations.VisibleForTesting
 import timber.log.Timber
 

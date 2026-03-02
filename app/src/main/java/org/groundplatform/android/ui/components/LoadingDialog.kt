@@ -33,8 +33,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
-import org.groundplatform.android.ui.theme.AppTheme
-import org.groundplatform.android.ui.theme.sizes
+import org.groundplatform.theme.AppTheme
+import org.groundplatform.theme.sizes
 
 @Composable
 fun LoadingDialog(messageId: Int) {

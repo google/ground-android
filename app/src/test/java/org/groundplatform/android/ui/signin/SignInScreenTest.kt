@@ -30,7 +30,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException.Code
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.groundplatform.android.system.auth.SignInState
-import org.groundplatform.android.ui.theme.AppTheme
+import org.groundplatform.theme.AppTheme
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test

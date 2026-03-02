@@ -56,7 +56,7 @@ static def getGitHash() {
 }
 
 android {
-    compileSdk rootProject.androidCompileSdk
+    compileSdk = libs.versions.androidCompileSdk.get().toInteger()
     sourceSets {
         main {
             proto {
@@ -75,8 +75,8 @@ android {
     }
     defaultConfig {
         applicationId "org.groundplatform.android"
-        minSdkVersion rootProject.androidMinSdk
-        targetSdkVersion rootProject.androidTargetSdk
+        minSdkVersion libs.versions.androidMinSdk.get().toInteger()
+        targetSdkVersion libs.versions.androidTargetSdk.get().toInteger()
 
         versionCode getGitCommitCount()
         versionName "${getGitBranchName()}-${getGitHash()}-debug"
@@ -177,6 +177,8 @@ configurations {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation project(':core:ui')
+    implementation project(':core:domain')
     implementation libs.androidx.multidex
     implementation libs.androidx.preference.ktx
 
@@ -260,10 +262,6 @@ dependencies {
     // Android Navigation
     implementation libs.androidx.navigation.fragment.ktx
     implementation libs.androidx.navigation.ui.ktx
-
-    // Auto-value
-    compileOnly libs.auto.value.annotations
-    ksp libs.auto.value
 
     // Logging
     implementation libs.timber
@@ -371,7 +369,7 @@ apply plugin: 'androidx.navigation.safeargs'
 apply plugin: 'com.google.gms.google-services'
 
 kotlin {
-    jvmToolchain rootProject.jvmToolchainVersion
+    jvmToolchain libs.versions.jvmToolchainVersion.get().toInteger()
 }
 
 secrets {

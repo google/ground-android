@@ -16,7 +16,6 @@
 
 package org.groundplatform.android.data.remote.firebase.schema
 
-import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.Geometry
 import org.groundplatform.android.model.geometry.LinearRing
 import org.groundplatform.android.model.geometry.MultiPolygon
@@ -27,6 +26,7 @@ import org.groundplatform.android.proto.LinearRing as LinearRingProto
 import org.groundplatform.android.proto.MultiPolygon as MultiPolygonProto
 import org.groundplatform.android.proto.Point as PointProto
 import org.groundplatform.android.proto.Polygon as PolygonProto
+import org.groundplatform.domain.model.geometry.Coordinates
 
 /**
  * Converts between Geometry model objects and their equivalent remote representation using protos.

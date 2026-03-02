@@ -43,7 +43,7 @@ import org.groundplatform.android.R
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.Style
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
-import org.groundplatform.android.ui.theme.AppTheme
+import org.groundplatform.theme.AppTheme
 
 @Composable
 fun JobSelectionModal(jobs: List<Job>, onJobClicked: (job: Job) -> Unit, onDismiss: () -> Unit) {

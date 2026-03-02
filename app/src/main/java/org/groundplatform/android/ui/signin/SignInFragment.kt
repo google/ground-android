@@ -24,7 +24,7 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import dagger.hilt.android.AndroidEntryPoint
 import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.common.BackPressListener
-import org.groundplatform.android.ui.theme.AppTheme
+import org.groundplatform.theme.AppTheme
 
 @AndroidEntryPoint
 class SignInFragment : AbstractFragment(), BackPressListener {

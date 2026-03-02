@@ -20,7 +20,6 @@ import com.google.protobuf.timestamp
 import java.time.Instant
 import java.util.Date
 import org.groundplatform.android.model.User
-import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.model.locationofinterest.generateProperties
 import org.groundplatform.android.model.mutation.LocationOfInterestMutation
@@ -32,6 +31,7 @@ import org.groundplatform.android.proto.coordinates
 import org.groundplatform.android.proto.geometry
 import org.groundplatform.android.proto.locationOfInterest
 import org.groundplatform.android.proto.point
+import org.groundplatform.domain.model.geometry.Coordinates
 import org.junit.Assert.assertThrows
 import org.junit.Test
 

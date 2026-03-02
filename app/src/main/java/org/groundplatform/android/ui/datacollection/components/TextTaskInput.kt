@@ -33,7 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.groundplatform.android.common.Constants
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
-import org.groundplatform.android.ui.theme.AppTheme
+import org.groundplatform.theme.AppTheme
 
 @Composable
 fun TextTaskInput(

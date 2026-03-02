@@ -33,7 +33,6 @@ import org.groundplatform.android.data.local.stores.LocalSurveyStore
 import org.groundplatform.android.data.local.stores.LocalUserStore
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.User
-import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.Style
@@ -45,6 +44,7 @@ import org.groundplatform.android.model.submission.SubmissionData
 import org.groundplatform.android.model.submission.TextTaskData
 import org.groundplatform.android.model.submission.ValueDelta
 import org.groundplatform.android.model.task.Task
+import org.groundplatform.domain.model.geometry.Coordinates
 import org.hamcrest.MatcherAssert
 import org.hamcrest.Matchers
 import org.junit.Test

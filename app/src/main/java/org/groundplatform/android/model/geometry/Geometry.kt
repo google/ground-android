@@ -22,6 +22,7 @@ import org.groundplatform.android.ui.map.gms.GmsExt.center
 import org.groundplatform.android.ui.map.gms.GmsExt.toBounds
 import org.groundplatform.android.ui.map.gms.toLatLngList
 import org.groundplatform.android.ui.util.isClosed
+import org.groundplatform.domain.model.geometry.Coordinates
 
 /** A common ancestor for all geometry types. */
 @Serializable

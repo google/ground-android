@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.ui.theme
+package org.groundplatform.theme
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -93,6 +93,6 @@ private val DarkColors =
 @Composable
 fun AppTheme(content: @Composable () -> Unit) {
   CompositionLocalProvider(LocalSizes provides Size()) {
-    MaterialTheme(colorScheme = LightColors, content = content, typography = AppTypography)
+    MaterialTheme(colorScheme = LightColors, content = content, typography = appTypography())
   }
 }

@@ -22,7 +22,6 @@ import kotlinx.collections.immutable.persistentListOf
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.data.remote.firebase.protobuf.createSubmissionMessage
 import org.groundplatform.android.data.remote.firebase.protobuf.toFirestoreMap
-import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.LinearRing
 import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.model.geometry.Polygon
@@ -74,6 +73,7 @@ import org.groundplatform.android.proto.TaskData.SKIPPED_FIELD_NUMBER
 import org.groundplatform.android.proto.TaskData.TASK_ID_FIELD_NUMBER
 import org.groundplatform.android.proto.TaskData.TEXT_RESPONSE_FIELD_NUMBER
 import org.groundplatform.android.proto.TaskData.TextResponse.TEXT_FIELD_NUMBER
+import org.groundplatform.domain.model.geometry.Coordinates
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith

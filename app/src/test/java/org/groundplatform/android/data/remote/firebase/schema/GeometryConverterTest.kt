@@ -18,7 +18,6 @@ package org.groundplatform.android.data.remote.firebase.schema
 
 import com.google.common.truth.Truth.assertThat
 import org.groundplatform.android.data.remote.firebase.schema.GeometryConverter.toGeometry
-import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.LinearRing
 import org.groundplatform.android.model.geometry.MultiPolygon
 import org.groundplatform.android.model.geometry.Point
@@ -29,6 +28,7 @@ import org.groundplatform.android.proto.linearRing
 import org.groundplatform.android.proto.multiPolygon
 import org.groundplatform.android.proto.point
 import org.groundplatform.android.proto.polygon
+import org.groundplatform.domain.model.geometry.Coordinates
 import org.junit.Test
 
 typealias Path = Array<Pair<Double, Double>>

@@ -19,7 +19,6 @@ import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import org.groundplatform.android.data.local.LocalValueStore
-import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.Style
@@ -31,6 +30,7 @@ import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.BaseTaskFragmentTest
+import org.groundplatform.domain.model.geometry.Coordinates
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

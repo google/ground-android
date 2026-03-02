@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
-import org.groundplatform.android.ui.theme.AppTheme
+import org.groundplatform.theme.AppTheme
 
 /**
  * A settings item that allows users to select a single value from a list of options.

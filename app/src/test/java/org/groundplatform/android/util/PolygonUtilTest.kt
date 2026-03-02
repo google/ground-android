@@ -20,7 +20,6 @@ import java.util.Locale
 import junit.framework.TestCase.assertFalse
 import kotlin.test.Test
 import kotlin.test.assertTrue
-import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.settings.MeasurementUnits
 import org.groundplatform.android.ui.util.SQUARE_FEET_PER_SQUARE_METER
 import org.groundplatform.android.ui.util.SQUARE_METERS_PER_ACRE
@@ -30,6 +29,7 @@ import org.groundplatform.android.ui.util.getFormattedArea
 import org.groundplatform.android.ui.util.isClosed
 import org.groundplatform.android.ui.util.isSelfIntersecting
 import org.groundplatform.android.ui.util.segmentsIntersect
+import org.groundplatform.domain.model.geometry.Coordinates
 import org.junit.Assert.assertEquals
 import org.junit.runner.RunWith
 
