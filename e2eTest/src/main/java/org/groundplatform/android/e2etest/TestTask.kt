@@ -21,4 +21,11 @@ data class TestTask(
   val taskType: Task.Type,
   val isRequired: Boolean = false,
   val selectIndexes: List<Int>? = null,
+  val isConditional: Boolean = false,
 )
+
+sealed class MultipleChoiceType {
+  data class Regular(val selectIndexes: List<Int>) : MultipleChoiceType()
+
+  data object Conditional : MultipleChoiceType()
+}

@@ -36,6 +36,8 @@ interface TestDriver {
 
   fun getStringResource(id: Int): String
 
+  fun assertVisible(componentText: String, isVisible: Boolean = false)
+
   sealed class Target {
     data class TestTag(val tag: String) : Target()
 
