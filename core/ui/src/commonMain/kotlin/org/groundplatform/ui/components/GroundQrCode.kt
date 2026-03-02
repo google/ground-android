@@ -16,6 +16,7 @@
 package org.groundplatform.ui.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -24,15 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import qrgenerator.qrkitpainter.PatternType
-import qrgenerator.qrkitpainter.QrBallType
-import qrgenerator.qrkitpainter.QrKitLogo
-import qrgenerator.qrkitpainter.QrKitShapes
-import qrgenerator.qrkitpainter.QrPixelType.SquarePixel
-import qrgenerator.qrkitpainter.getSelectedPattern
-import qrgenerator.qrkitpainter.getSelectedPixel
-import qrgenerator.qrkitpainter.getSelectedQrBall
-import qrgenerator.qrkitpainter.rememberQrKitPainter
+import io.github.alexzhirkevich.qrose.rememberQrCodePainter
 
 /**
  * Displays a QR code generated from the given [content] string.
@@ -47,17 +40,9 @@ fun GroundQrCode(
   contentDescription: String,
   centerLogoPainter: Painter?,
 ) {
-  val painter =
-    rememberQrKitPainter(content) {
-      shapes =
-        QrKitShapes(
-          ballShape = getSelectedQrBall(QrBallType.SquareQrBall()),
-          darkPixelShape = getSelectedPixel(SquarePixel()),
-          codeShape = getSelectedPattern(PatternType.SquarePattern),
-        )
-      logo = QrKitLogo(centerLogoPainter)
-    }
-  Image(modifier = modifier, painter = painter, contentDescription = contentDescription)
+  val qrcodePainter = rememberQrCodePainter(data = content) { logo { painter = centerLogoPainter } }
+
+  Box(modifier) { Image(painter = qrcodePainter, contentDescription = contentDescription) }
 }
 
 @Preview

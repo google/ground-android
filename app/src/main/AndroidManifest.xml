@@ -43,8 +43,7 @@
     android:roundIcon="@mipmap/ic_launcher_round"
     android:supportsRtl="true"
     android:theme="@style/AppTheme.Base"
-    android:usesCleartextTraffic="${usesCleartextTraffic}"
-    tools:replace="android:name,android:allowBackup">
+    android:usesCleartextTraffic="${usesCleartextTraffic}">
 
     <service
       android:name="org.groundplatform.android.data.remote.firebase.FirebaseMessagingService"

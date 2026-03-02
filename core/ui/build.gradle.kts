@@ -36,13 +36,7 @@ kotlin {
         implementation(libs.compose.ui.tooling.preview)
         implementation(libs.compose.components.resources)
         implementation(libs.androidx.lifecycle.runtime.compose)
-        implementation("network.chaintech:qr-kit:${libs.versions.qrKitVersion.get()}") {
-          // qr-kit's transitive dep (cmp-image-pick-n-crop) incorrectly declares
-          // test dependencies as runtime deps, causing version conflicts with AGP's
-          // consistent resolution.
-          exclude(group = "androidx.compose.ui", module = "ui-test-junit4")
-          exclude(group = "org.jetbrains.compose.ui", module = "ui-tooling")
-        }
+        implementation(libs.qrose)
       }
     }
 
