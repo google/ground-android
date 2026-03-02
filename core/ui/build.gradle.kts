@@ -42,10 +42,10 @@ kotlin {
 
     commonTest { dependencies { implementation(libs.kotlin.test) } }
 
-    androidMain { dependencies { implementation(libs.compose.ui.tooling.preview) } }
+    androidMain { dependencies {} }
 
     iosMain { dependencies {} }
   }
 }
 
-dependencies { androidRuntimeClasspath(libs.compose.ui.tooling.preview) }
+dependencies { androidRuntimeClasspath(libs.compose.ui.tooling) }
