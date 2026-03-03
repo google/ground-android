@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package org.groundplatform.android.model.submission
+package org.groundplatform.domain.model.submission
 
 import kotlinx.serialization.Serializable
-import org.groundplatform.android.model.task.MultipleChoice
-import org.groundplatform.android.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskViewModel
+import org.groundplatform.domain.model.task.MultipleChoice
 
 /** User responses to a select-one (radio) or select-multiple (checkbox) field. */
 @Serializable
@@ -35,10 +34,7 @@ data class MultipleChoiceTaskData(
   fun getOtherText(): String =
     selectedOptionIds
       .firstOrNull { it.isOtherText() }
-      ?.removeSurrounding(
-        prefix = MultipleChoiceTaskViewModel.OTHER_PREFIX,
-        suffix = MultipleChoiceTaskViewModel.OTHER_SUFFIX,
-      ) ?: ""
+      ?.removeSurrounding(prefix = OTHER_PREFIX, suffix = OTHER_SUFFIX) ?: ""
 
   override fun isEmpty(): Boolean = selectedOptionIds.isEmpty()
 
@@ -53,11 +49,12 @@ data class MultipleChoiceTaskData(
 
   override fun toString(): String = selectedOptionIds.sorted().joinToString()
 
-  private fun String.isOtherText(): Boolean =
-    startsWith(MultipleChoiceTaskViewModel.OTHER_PREFIX) &&
-      endsWith(MultipleChoiceTaskViewModel.OTHER_SUFFIX)
+  private fun String.isOtherText(): Boolean = startsWith(OTHER_PREFIX) && endsWith(OTHER_SUFFIX)
 
   companion object {
+    private const val OTHER_PREFIX: String = "[ "
+    private const val OTHER_SUFFIX: String = " ]"
+
     fun fromList(multipleChoice: MultipleChoice?, ids: List<String>): TaskData? =
       if (ids.isEmpty()) {
         null

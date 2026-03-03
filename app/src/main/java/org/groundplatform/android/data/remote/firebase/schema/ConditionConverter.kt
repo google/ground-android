@@ -16,11 +16,11 @@
 
 package org.groundplatform.android.data.remote.firebase.schema
 
-import org.groundplatform.android.model.task.Condition
-import org.groundplatform.android.model.task.Condition.MatchType
-import org.groundplatform.android.model.task.Expression
-import org.groundplatform.android.model.task.Expression.ExpressionType
 import org.groundplatform.android.proto.Task
+import org.groundplatform.domain.model.task.Condition
+import org.groundplatform.domain.model.task.Condition.MatchType
+import org.groundplatform.domain.model.task.Expression
+import org.groundplatform.domain.model.task.Expression.ExpressionType
 import timber.log.Timber
 
 /** Converts between Firestore nested objects and [Condition] instances. */

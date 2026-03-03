@@ -18,12 +18,12 @@ package org.groundplatform.android.data.remote.firebase.schema
 
 import org.groundplatform.android.data.remote.firebase.schema.ConditionConverter.toCondition
 import org.groundplatform.android.data.remote.firebase.schema.MultipleChoiceConverter.toMultipleChoice
-import org.groundplatform.android.model.task.Condition
-import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.proto.Task as TaskProto
 import org.groundplatform.android.proto.Task.DataCollectionLevel
 import org.groundplatform.android.proto.Task.DrawGeometry.Method
 import org.groundplatform.android.proto.Task.TaskTypeCase
+import org.groundplatform.domain.model.task.Condition
+import org.groundplatform.domain.model.task.Task
 
 /** Converts between Firestore nested objects and [Task] instances. */
 internal object TaskConverter {

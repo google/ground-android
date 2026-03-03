@@ -15,8 +15,8 @@
  */
 package org.groundplatform.android.model
 
-import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.proto.Survey
+import org.groundplatform.domain.model.job.Job
 
 /**
  * Configuration, schema, and Access Control Lists (ACLs) for a single survey.

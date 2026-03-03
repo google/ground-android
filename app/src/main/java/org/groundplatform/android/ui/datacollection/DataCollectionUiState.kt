@@ -15,8 +15,8 @@
  */
 package org.groundplatform.android.ui.datacollection
 
-import org.groundplatform.android.model.job.Job
-import org.groundplatform.android.model.task.Task
+import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.task.Task
 
 /**
  * Top-level UI state for the Data Collection flow.

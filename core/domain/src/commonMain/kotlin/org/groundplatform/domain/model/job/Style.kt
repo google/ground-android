@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google LLC
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.model.submission
+package org.groundplatform.domain.model.job
 
-/** User-provided value for a single data collection [Task]. */
-interface TaskData {
-  fun isEmpty(): Boolean
-}
-
-fun TaskData?.isNullOrEmpty(): Boolean = this?.isEmpty() ?: true
-
-fun TaskData?.isNotNullOrEmpty(): Boolean = !this.isNullOrEmpty()
+data class Style(val color: String)

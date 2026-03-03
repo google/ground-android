@@ -13,16 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.model.submission
+package org.groundplatform.domain.model.submission
 
-import org.groundplatform.domain.model.submission.TaskData
-import org.groundplatform.domain.model.task.Task
+/** User-provided value for a single data collection [org.groundplatform.domain.model.task.Task]. */
+interface TaskData {
+  fun isEmpty(): Boolean
+}
 
-/**
- * Represents a change to an individual value in a submission.
- *
- * @property taskId the id of the task task being updated.
- * @property taskType the type of task being updated.
- * @property newTaskData the new value of the value, or empty if removed.
- */
-data class ValueDelta(val taskId: String, val taskType: Task.Type, val newTaskData: TaskData?)
+fun TaskData?.isNullOrEmpty(): Boolean = this?.isEmpty() ?: true
+
+fun TaskData?.isNotNullOrEmpty(): Boolean = !this.isNullOrEmpty()

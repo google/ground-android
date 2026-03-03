@@ -33,11 +33,11 @@ import org.groundplatform.android.data.local.room.dao.TaskDao
 import org.groundplatform.android.data.local.room.dao.insertOrUpdate
 import org.groundplatform.android.data.local.stores.LocalSurveyStore
 import org.groundplatform.android.model.Survey
-import org.groundplatform.android.model.job.Job
-import org.groundplatform.android.model.task.Condition
-import org.groundplatform.android.model.task.MultipleChoice
-import org.groundplatform.android.model.task.Option
-import org.groundplatform.android.model.task.Task
+import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.task.Condition
+import org.groundplatform.domain.model.task.MultipleChoice
+import org.groundplatform.domain.model.task.Option
+import org.groundplatform.domain.model.task.Task
 
 /** Manages access to [Survey] objects persisted in local storage. */
 @Singleton
@@ -118,14 +118,8 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
 
   private suspend fun insertOrUpdateTask(jobId: String, task: Task) {
     taskDao.insertOrUpdate(task.toLocalDataStoreObject(jobId))
-    if (task.multipleChoice != null) {
-      insertOrUpdateMultipleChoice(task.id, task.multipleChoice)
-    }
-    if (task.condition != null) {
-      insertOrUpdateCondition(task.id, task.condition)
-    } else {
-      deleteCondition(task.id)
-    }
+    task.multipleChoice?.let { insertOrUpdateMultipleChoice(task.id, it) }
+    task.condition?.let { insertOrUpdateCondition(task.id, it) } ?: run { deleteCondition(task.id) }
   }
 
   private suspend fun insertOrUpdateTasks(jobId: String, tasks: Collection<Task>) {

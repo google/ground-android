@@ -44,9 +44,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.groundplatform.android.R
 import org.groundplatform.android.common.Constants
-import org.groundplatform.android.model.task.MultipleChoice
-import org.groundplatform.android.model.task.Option
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
+import org.groundplatform.domain.model.task.MultipleChoice
+import org.groundplatform.domain.model.task.Option
 import org.groundplatform.ui.theme.AppTheme
 
 const val MULTIPLE_CHOICE_ITEM_TEST_TAG = "multiple choice item test tag"

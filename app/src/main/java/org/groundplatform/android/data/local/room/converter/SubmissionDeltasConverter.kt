@@ -19,10 +19,10 @@ package org.groundplatform.android.data.local.room.converter
 import kotlinx.collections.immutable.toPersistentList
 import org.groundplatform.android.data.local.LocalDataConsistencyException
 import org.groundplatform.android.data.remote.DataStoreException
-import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.submission.ValueDelta
-import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.util.Enums.toEnum
+import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.task.Task
 import org.json.JSONException
 import org.json.JSONObject
 import timber.log.Timber

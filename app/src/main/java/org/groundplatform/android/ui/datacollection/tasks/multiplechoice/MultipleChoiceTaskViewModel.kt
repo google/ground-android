@@ -21,15 +21,15 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import org.groundplatform.android.R
 import org.groundplatform.android.common.Constants
-import org.groundplatform.android.model.job.Job
-import org.groundplatform.android.model.submission.MultipleChoiceTaskData
-import org.groundplatform.android.model.submission.MultipleChoiceTaskData.Companion.fromList
-import org.groundplatform.android.model.submission.TaskData
-import org.groundplatform.android.model.task.MultipleChoice.Cardinality.SELECT_MULTIPLE
-import org.groundplatform.android.model.task.Option
-import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
+import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.submission.MultipleChoiceTaskData
+import org.groundplatform.domain.model.submission.MultipleChoiceTaskData.Companion.fromList
+import org.groundplatform.domain.model.submission.TaskData
+import org.groundplatform.domain.model.task.MultipleChoice.Cardinality.SELECT_MULTIPLE
+import org.groundplatform.domain.model.task.Option
+import org.groundplatform.domain.model.task.Task
 
 class MultipleChoiceTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
 

@@ -29,11 +29,7 @@ import org.groundplatform.android.data.remote.firebase.protobuf.toFirestoreMap
 import org.groundplatform.android.data.remote.firebase.schema.LoiConverter.toLoi
 import org.groundplatform.android.model.AuditInfo
 import org.groundplatform.android.model.Survey
-import org.groundplatform.android.model.job.Job
-import org.groundplatform.android.model.job.Style
 import org.groundplatform.android.model.locationofinterest.LocationOfInterest
-import org.groundplatform.android.model.task.MultipleChoice
-import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.proto.LocationOfInterest as LocationOfInterestProto
 import org.groundplatform.android.proto.LocationOfInterest.Source
 import org.groundplatform.android.proto.LocationOfInterestKt.property
@@ -44,6 +40,10 @@ import org.groundplatform.android.proto.locationOfInterest
 import org.groundplatform.android.proto.point
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.Point
+import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.job.Style
+import org.groundplatform.domain.model.task.MultipleChoice
+import org.groundplatform.domain.model.task.Task
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock

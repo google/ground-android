@@ -25,12 +25,9 @@ import org.groundplatform.android.model.mutation.Mutation
 import org.groundplatform.android.model.mutation.SubmissionMutation
 import org.groundplatform.android.model.submission.CaptureLocationTaskData
 import org.groundplatform.android.model.submission.DateTimeTaskData
-import org.groundplatform.android.model.submission.GeometryTaskData
-import org.groundplatform.android.model.submission.MultipleChoiceTaskData
 import org.groundplatform.android.model.submission.NumberTaskData
 import org.groundplatform.android.model.submission.PhotoTaskData
 import org.groundplatform.android.model.submission.SkippedTaskData
-import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.submission.TextTaskData
 import org.groundplatform.android.proto.LinearRing as LinearRingProto
 import org.groundplatform.android.proto.LocationOfInterest.Property
@@ -59,6 +56,9 @@ import org.groundplatform.domain.model.geometry.LinearRing
 import org.groundplatform.domain.model.geometry.MultiPolygon
 import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.geometry.Polygon
+import org.groundplatform.domain.model.submission.GeometryTaskData
+import org.groundplatform.domain.model.submission.MultipleChoiceTaskData
+import org.groundplatform.domain.model.submission.TaskData
 
 fun SubmissionMutation.createSubmissionMessage(user: User) = submission {
   assert(userId == user.id) { "UserId doesn't match: expected $userId, found ${user.id}" }

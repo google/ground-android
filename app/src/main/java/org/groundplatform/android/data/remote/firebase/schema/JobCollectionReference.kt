@@ -20,7 +20,7 @@ import com.google.firebase.firestore.CollectionReference
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.tasks.await
 import org.groundplatform.android.data.remote.firebase.base.FluentCollectionReference
-import org.groundplatform.android.model.job.Job
+import org.groundplatform.domain.model.job.Job
 import timber.log.Timber
 
 class JobCollectionReference internal constructor(ref: CollectionReference) :

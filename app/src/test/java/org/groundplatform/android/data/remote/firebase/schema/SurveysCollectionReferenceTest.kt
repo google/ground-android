@@ -28,13 +28,12 @@ import com.google.firebase.firestore.QuerySnapshot
 import java.util.concurrent.Executor
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
-import org.groundplatform.android.FakeData
 import org.groundplatform.android.data.remote.firebase.protobuf.toFirestoreMap
 import org.groundplatform.android.model.User
 import org.groundplatform.android.proto.Role
 import org.groundplatform.android.proto.Survey as SurveyProto
 import org.groundplatform.android.proto.Survey.DataVisibility.DATA_VISIBILITY_UNSPECIFIED
-import org.groundplatform.android.proto.copy
+import org.groundplatform.android.proto.SurveyKt.dataSharingTerms
 import org.groundplatform.android.proto.survey
 import org.junit.Before
 import org.junit.Test
@@ -151,7 +150,10 @@ class SurveysCollectionReferenceTest {
       name = "Survey $id"
       description = "Description for $id"
       acl.put(TEST_USER.email, Role.DATA_COLLECTOR)
-      dataSharingTerms = FakeData.DATA_SHARING_TERMS.copy {}
+      dataSharingTerms = dataSharingTerms {
+        type = SurveyProto.DataSharingTerms.Type.CUSTOM
+        customText = "## Introduction\n\nOnly one rule: **BE EXCELLENT TO ONE ANOTHER!**"
+      }
       this.generalAccess = generalAccess
       dataVisibility = DATA_VISIBILITY_UNSPECIFIED
     }
