@@ -13,22 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.model.geometry
+package org.groundplatform.domain.model.geometry
 
-import com.google.maps.android.SphericalUtil.computeArea
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.groundplatform.android.ui.map.gms.GmsExt.center
-import org.groundplatform.android.ui.map.gms.GmsExt.toBounds
-import org.groundplatform.android.ui.map.gms.toLatLngList
-import org.groundplatform.android.ui.util.isClosed
-import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.util.isClosed
 
 /** A common ancestor for all geometry types. */
 @Serializable
 sealed interface Geometry {
-  val area: Double
-
   /**
    * Returns the center coordinates of the geometry. It may or may not be within the geometry bounds
    * if the shape is irregular.
@@ -51,11 +44,6 @@ sealed interface Geometry {
 @Serializable
 @SerialName("polygon")
 data class Polygon(val shell: LinearRing, val holes: List<LinearRing> = listOf()) : Geometry {
-  override val area: Double
-    get() =
-      computeArea(shell.coordinates.toLatLngList()) -
-        holes.sumOf { computeArea(it.coordinates.toLatLngList()) }
-
   override fun center(): Coordinates = shell.center()
 
   override fun isEmpty() = shell.isEmpty()
@@ -67,9 +55,6 @@ data class Polygon(val shell: LinearRing, val holes: List<LinearRing> = listOf()
 @Serializable
 @SerialName("point")
 data class Point(val coordinates: Coordinates) : Geometry {
-  override val area: Double
-    get() = 0.0
-
   override fun center(): Coordinates = coordinates
 
   override fun isEmpty() = false
@@ -79,9 +64,6 @@ data class Point(val coordinates: Coordinates) : Geometry {
 @Serializable
 @SerialName("multi_polygon")
 data class MultiPolygon(val polygons: List<Polygon>) : Geometry {
-  override val area: Double
-    get() = polygons.sumOf { it.area }
-
   override fun center(): Coordinates = polygons.map { it.center() }.centerOrError()
 
   override fun isEmpty() = polygons.all { it.isEmpty() }
@@ -91,9 +73,6 @@ data class MultiPolygon(val polygons: List<Polygon>) : Geometry {
 @Serializable
 @SerialName("line_string")
 data class LineString(val coordinates: List<Coordinates>) : Geometry {
-  override val area: Double
-    get() = 0.0
-
   override fun center(): Coordinates = coordinates.centerOrError()
 
   override fun isEmpty() = coordinates.isEmpty()
@@ -112,9 +91,6 @@ data class LineString(val coordinates: List<Coordinates>) : Geometry {
 @Serializable
 @SerialName("linear_ring")
 data class LinearRing(val coordinates: List<Coordinates>) : Geometry {
-  override val area: Double
-    get() = 0.0
-
   init {
     validate()
   }
@@ -164,10 +140,20 @@ data class LinearRing(val coordinates: List<Coordinates>) : Geometry {
 }
 
 /**
- * Returns the center coordinates of the bounding box from the given list of coordinates.
+ * Returns the center coordinates of the bounding box from the given list of coordinates. This
+ * mirrors the behavior of `LatLngBounds.center`, but is implemented in pure Kotlin and does not
+ * depend on Google Maps classes to keep this a pure domain module
  *
  * Note: This might return an unexpected result for oddly shaped polygons. Check if this can be
  * replaced with a centroid. See (#1737) for more info.
  */
-private fun List<Coordinates>?.centerOrError(): Coordinates =
-  this?.map { Point(it) }?.toBounds()?.center() ?: error("missing vertices")
+private fun List<Coordinates>?.centerOrError(): Coordinates {
+  if (this.isNullOrEmpty()) error("missing vertices")
+
+  val minLat = this.minOf { it.lat }
+  val maxLat = this.maxOf { it.lat }
+  val minLng = this.minOf { it.lng }
+  val maxLng = this.maxOf { it.lng }
+
+  return Coordinates(lat = (minLat + maxLat) / 2.0, lng = (minLng + maxLng) / 2.0)
+}

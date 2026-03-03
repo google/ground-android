@@ -37,9 +37,6 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.data.local.LocalValueStore
-import org.groundplatform.android.model.geometry.LineString
-import org.groundplatform.android.model.geometry.LinearRing
-import org.groundplatform.android.model.geometry.Polygon
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.Style
 import org.groundplatform.android.model.settings.MeasurementUnits
@@ -53,6 +50,9 @@ import org.groundplatform.android.ui.datacollection.tasks.polygon.DrawAreaTaskVi
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.gms.GmsExt.getShellCoordinates
 import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.geometry.LineString
+import org.groundplatform.domain.model.geometry.LinearRing
+import org.groundplatform.domain.model.geometry.Polygon
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith

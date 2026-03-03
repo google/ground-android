@@ -29,9 +29,6 @@ import org.groundplatform.android.FakeData
 import org.groundplatform.android.data.local.stores.LocalLocationOfInterestStore
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.data.sync.MutationSyncWorkManager
-import org.groundplatform.android.model.geometry.LinearRing
-import org.groundplatform.android.model.geometry.Point
-import org.groundplatform.android.model.geometry.Polygon
 import org.groundplatform.android.model.map.Bounds
 import org.groundplatform.android.model.mutation.Mutation.Type.CREATE
 import org.groundplatform.android.proto.Survey.DataVisibility
@@ -39,6 +36,9 @@ import org.groundplatform.android.system.auth.FakeAuthenticationManager
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
 import org.groundplatform.android.usecases.survey.SyncSurveyUseCase
 import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.geometry.LinearRing
+import org.groundplatform.domain.model.geometry.Point
+import org.groundplatform.domain.model.geometry.Polygon
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

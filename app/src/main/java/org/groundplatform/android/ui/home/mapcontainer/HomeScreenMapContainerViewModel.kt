@@ -39,6 +39,7 @@ import kotlinx.coroutines.flow.stateIn
 import org.groundplatform.android.common.Constants.CLUSTERING_ZOOM_THRESHOLD
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.model.Survey
+import org.groundplatform.android.model.helpers.area
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.getDefaultColor
 import org.groundplatform.android.model.locationofinterest.LocationOfInterest
@@ -244,7 +245,7 @@ internal constructor(
    * list of provided features is empty.
    */
   fun onFeatureClicked(features: Set<Feature>) {
-    featureClicked.value = features.minByOrNull { it.geometry.area }
+    featureClicked.value = features.minByOrNull { it.geometry.area() }
   }
 
   fun grantDataSharingConsent() {

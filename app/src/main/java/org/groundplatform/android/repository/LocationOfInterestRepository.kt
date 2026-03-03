@@ -31,7 +31,6 @@ import org.groundplatform.android.data.sync.MutationSyncWorkManager
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.android.model.Role
 import org.groundplatform.android.model.Survey
-import org.groundplatform.android.model.geometry.Geometry
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.locationofinterest.LocationOfInterest
 import org.groundplatform.android.model.locationofinterest.generateProperties
@@ -42,6 +41,7 @@ import org.groundplatform.android.model.mutation.Mutation.SyncStatus
 import org.groundplatform.android.proto.Survey.DataVisibility
 import org.groundplatform.android.system.auth.AuthenticationManager
 import org.groundplatform.android.ui.map.gms.GmsExt.contains
+import org.groundplatform.domain.model.geometry.Geometry
 import timber.log.Timber
 
 /**

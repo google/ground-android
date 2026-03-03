@@ -16,8 +16,8 @@
 package org.groundplatform.android.data.remote.firebase.schema
 
 import org.groundplatform.android.data.local.room.converter.GeometryWrapperTypeConverter
-import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.model.submission.CaptureLocationTaskData
+import org.groundplatform.domain.model.geometry.Point
 import org.json.JSONObject
 
 /** Converts between [CaptureLocationTaskData] and its equivalent [JSONObject] representation. */

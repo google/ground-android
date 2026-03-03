@@ -23,7 +23,6 @@ import kotlin.test.assertFailsWith
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.newTask
 import org.groundplatform.android.data.sync.MutationSyncWorkManager
-import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.submission.CaptureLocationTaskData
 import org.groundplatform.android.model.submission.DropPinTaskData
@@ -32,6 +31,7 @@ import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.SubmissionRepository
 import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.geometry.Point
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

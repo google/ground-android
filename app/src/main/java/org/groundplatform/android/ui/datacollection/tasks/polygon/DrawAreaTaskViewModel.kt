@@ -36,9 +36,6 @@ import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
-import org.groundplatform.android.model.geometry.LineString
-import org.groundplatform.android.model.geometry.LinearRing
-import org.groundplatform.android.model.geometry.Polygon
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.getDefaultColor
 import org.groundplatform.android.model.settings.MeasurementUnits
@@ -53,15 +50,18 @@ import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.AbstractMapTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 import org.groundplatform.android.ui.map.Feature
+import org.groundplatform.android.ui.util.FormatterUtils.getFormattedArea
 import org.groundplatform.android.ui.util.LocaleAwareMeasureFormatter
 import org.groundplatform.android.ui.util.VibrationHelper
-import org.groundplatform.android.ui.util.calculateShoelacePolygonArea
-import org.groundplatform.android.ui.util.getFormattedArea
-import org.groundplatform.android.ui.util.isSelfIntersecting
 import org.groundplatform.android.usecases.user.GetUserSettingsUseCase
 import org.groundplatform.android.util.distanceTo
 import org.groundplatform.android.util.penult
 import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.geometry.LineString
+import org.groundplatform.domain.model.geometry.LinearRing
+import org.groundplatform.domain.model.geometry.Polygon
+import org.groundplatform.domain.model.util.calculateShoelacePolygonArea
+import org.groundplatform.domain.model.util.isSelfIntersecting
 import org.jetbrains.annotations.VisibleForTesting
 import timber.log.Timber
 
