@@ -43,7 +43,7 @@ import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.Style
 import org.groundplatform.android.model.job.getDefaultColor
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
-import org.groundplatform.theme.AppTheme
+import org.groundplatform.ui.theme.AppTheme
 
 @Composable
 fun JobSelectionRow(job: Job, onClick: () -> Unit) {

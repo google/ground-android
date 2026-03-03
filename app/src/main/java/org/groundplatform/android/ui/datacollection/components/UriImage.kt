@@ -31,7 +31,7 @@ import coil.request.ImageRequest
 import coil.size.Scale
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
-import org.groundplatform.theme.AppTheme
+import org.groundplatform.ui.theme.AppTheme
 
 @VisibleForTesting const val MAX_IMAGE_SIZE = 2048
 

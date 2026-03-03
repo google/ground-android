@@ -28,7 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.datacollection.tasks.location.LocationAccuracyCard
-import org.groundplatform.theme.AppTheme
+import org.groundplatform.ui.theme.AppTheme
 
 @Composable
 fun TaskFooter(

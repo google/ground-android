@@ -43,7 +43,7 @@ import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentAction.OnAddDataClicked
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentAction.OnDeleteSiteClicked
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentAction.OnJobSelected
-import org.groundplatform.theme.AppTheme
+import org.groundplatform.ui.theme.AppTheme
 
 @Composable
 fun JobMapComponent(state: JobMapComponentState, onAction: (JobMapComponentAction) -> Unit) {

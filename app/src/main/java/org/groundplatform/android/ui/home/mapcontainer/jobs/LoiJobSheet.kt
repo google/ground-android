@@ -60,7 +60,7 @@ import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.common.LocationOfInterestHelper
 import org.groundplatform.android.ui.components.ConfirmationDialog
 import org.groundplatform.domain.model.geometry.Coordinates
-import org.groundplatform.theme.AppTheme
+import org.groundplatform.ui.theme.AppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -30,7 +30,7 @@ import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.common.BackPressListener
 import org.groundplatform.android.ui.common.EphemeralPopups
 import org.groundplatform.android.ui.home.HomeScreenFragmentDirections
-import org.groundplatform.theme.AppTheme
+import org.groundplatform.ui.theme.AppTheme
 
 /** User interface implementation of survey selector screen. */
 @AndroidEntryPoint
