@@ -158,11 +158,11 @@
   <string name="select_language_title">เลือกภาษา</string>
   <!-- Data Sharing Consent Text -->
   <string name="data_sharing_no_terms">ไม่มีข้อกำหนดที่จะแสดง</string>
-  <string name="data_sharing_private_message">    ## การแบ่งปันข้อมูลแบบส่วนตัว
-    \nข้อมูลจะถูกแบ่งปันเฉพาะกับผู้จัดทำแบบสำรวจเท่านั้น และอาจไม่มีการเผยแพร่หรือใช้งานข้อมูลที่เก็บรวบรวมต่อสาธารณะ
+  <string name="data_sharing_private_message">## การแบ่งปันข้อมูลแบบส่วนตัว
+    ข้อมูลจะถูกแบ่งปันเฉพาะกับผู้จัดทำแบบสำรวจเท่านั้น และอาจไม่มีการเผยแพร่หรือใช้งานข้อมูลที่เก็บรวบรวมต่อสาธารณะ
   </string>
-  <string name="data_sharing_public_message">    ##การแบ่งปันข้อมูลแบบสาธารณะ
-    \nผู้จัดทำแบบสำรวจอาจแบ่งปันและใช้งานข้อมูลต่อสาธารณะภายใต้ *Creative Commons CC0 1.0 License*:
+  <string name="data_sharing_public_message">##การแบ่งปันข้อมูลแบบสาธารณะ
+    ผู้จัดทำแบบสำรวจอาจแบ่งปันและใช้งานข้อมูลต่อสาธารณะภายใต้ *Creative Commons CC0 1.0 License*:
   </string>
   <string name="draft_restored">บันทึกข้อมูลที่ยังไม่ได้บันทึกถูกกู้คืนแล้ว</string>
   <string name="load_tos_failed">ไม่สามารถเชื่อมต่อได้ กรุณาลองใหม่ภายหลัง</string>
