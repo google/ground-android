@@ -1,4 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
   ~ Copyright 2026 Google LLC
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -113,7 +115,7 @@
   <string name="camera_permissions_needed">ທ່ານຈຳເປັນຕ້ອງອະນຸຍາດສິດການໃຊ້ກ້ອງໃຫ້ແອັບນີ້ ເພື່ອສົ່ງຮູບພາບ.</string>
   <string name="incomplete_area">ພື້ນທີ່ຍັງບໍ່ສົມບູນ</string>
   <string name="initializing">ກຳລັງເລີ່ມຕົ້ນ…</string>
-  <string name="draw_area_task_instruction">ຂະຍັບແຜນທີ່ ແລະ ແຕະ \"ເພີ່ມຈຸດ\" ເພື່ອເພີ່ມຈຸດອ້ອມພື້ນທີ່ທີ່ຕ້ອງການ</string>
+  <string name="draw_area_task_instruction">ຂະຍັບແຜນທີ່ ແລະ ແຕະ “ເພີ່ມຈຸດ” ເພື່ອເພີ່ມຈຸດອ້ອມພື້ນທີ່ທີ່ຕ້ອງການ</string>
   <string name="close">ປິດ</string>
   <string name="data_consent_dialog_title">ຂໍ້ຕົກລົງການແບ່ງປັນຂໍ້ມູນ</string>
   <string name="map_location">ຕຳແໜ່ງແຜນທີ່:</string>
