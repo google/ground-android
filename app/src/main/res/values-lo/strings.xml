@@ -186,6 +186,7 @@
   <string name="lang_spanish">ພາສາສະແປນ</string>
   <string name="lang_portuguese">ພາສາໂປຣຕຸເກດ</string>
   <string name="lang_vietnamese">ພາສາຫວຽດນາມ</string>
+  <string name="lang_thai">ພາສາໄທ</string>
   <string name="lang_lao">ພາສາລາວ</string>
   <string name="access_restricted">ຈຳກັດການເຂົ້າເຖິງ</string>
   <string name="access_unlisted">ບໍ່ສະແດງໃນລາຍການ</string>
@@ -206,5 +207,4 @@
   <string name="location_not_accurate_heading">ຕຳແໜ່ງຂອງທ່ານບໍ່ແມ່ນຍຳ</string>
   <string name="location_not_accurate_description">ລອງຢືນນິ່ງໆ ຫຼື ລໍຖ້າໃຫ້ໄດ້ຕຳແໜ່ງທີ່ແມ່ນຍຳກວ່າ</string>
   <string name="recenter">ຈັດຕຳແໜ່ງກາງໃໝ່</string>
-  <string name="lang_thai">ພາສາໄທ</string>
 </resources>

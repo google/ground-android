@@ -212,6 +212,7 @@
   <string name="lang_portuguese">Portugués</string>
 
   <string name="lang_vietnamese">Vietnamita</string>
+  <string name="lang_thai">Tailandés</string>
   <string name="lang_lao">Lao</string>
   <string name="access_restricted">Restringido</string>
   <string name="access_unlisted">No listado</string>
@@ -239,5 +240,4 @@
 
   <string name="recenter">Recentrar</string>
   <string name="survey_load_timeout_error">La carga de la encuesta ha excedido el tiempo de espera. Verifica tu conexión e inténtalo de nuevo.</string>
-  <string name="lang_thai">Tailandés</string>
 </resources>

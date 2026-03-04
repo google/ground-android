@@ -187,6 +187,7 @@
   <string name="lang_spanish">สเปน</string>
   <string name="lang_portuguese">โปรตุเกส</string>
   <string name="lang_vietnamese">เวียดนาม</string>
+  <string name="lang_thai">ภาษาไทย</string>
   <string name="lang_lao">ภาษาลาว</string>
   <string name="access_restricted">จำกัดสิทธิ์</string>
   <string name="access_unlisted">ไม่แสดงสาธารณะ</string>
@@ -207,5 +208,4 @@
   <string name="location_not_accurate_heading">ตำแหน่งของคุณยังไม่แม่นยำ</string>
   <string name="location_not_accurate_description">ลองยืนนิ่ง ๆ หรือรอให้ระบบระบุตำแหน่งได้แม่นยำยิ่งขึ้น</string>
   <string name="recenter">จัดกึ่งกลางใหม่</string>
-  <string name="lang_thai">ภาษาไทย</string>
 </resources>

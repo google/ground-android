@@ -213,6 +213,7 @@
   <string name="lang_portuguese">Português</string>
 
   <string name="lang_vietnamese">Vietnamita</string>
+  <string name="lang_thai">Tailandês</string>
   <string name="lang_lao">Lao</string>
   <string name="access_restricted">Restrito</string>
   <string name="access_unlisted">Não listado</string>
@@ -241,5 +242,4 @@
   <string name="recenter">Recentrar</string>
 
   <string name="survey_load_timeout_error">O carregamento da pesquisa expirou. Verifique sua conexão e tente novamente.</string>
-  <string name="lang_thai">Tailandês</string>
 </resources>
