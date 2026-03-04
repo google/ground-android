@@ -187,6 +187,7 @@
   <string name="lang_spanish">Tiếng Tây Ban Nha</string>
   <string name="lang_portuguese">Tiếng Bồ Đào Nha</string>
   <string name="lang_vietnamese">Tiếng Việt</string>
+  <string name="lang_lao">Tiếng Lào</string>
   <string name="access_restricted">Hạn chế</string>
   <string name="access_unlisted">Không công khai</string>
   <string name="access_public">Công khai</string>
@@ -211,4 +212,5 @@
 
   <string name="recenter">Recenter</string>
   <string name="survey_load_timeout_error">Đã hết thời gian tải khảo sát. Vui lòng kiểm tra kết nối và thử lại.</string>
+  <string name="lang_thai">Tiếng Thái</string>
 </resources>

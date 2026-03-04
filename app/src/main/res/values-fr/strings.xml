@@ -192,6 +192,7 @@
   <string name="lang_spanish">Espagnol</string>
   <string name="lang_portuguese">Portugais</string>
   <string name="lang_vietnamese">Vietnamien</string>
+  <string name="lang_lao">Lao</string>
   <string name="access_restricted">Restreint</string>
   <string name="access_unlisted">Non répertorié</string>
   <string name="access_public">Public</string>
@@ -217,4 +218,5 @@
 
   <string name="recenter">Recentrer</string>
   <string name="survey_load_timeout_error">Le chargement du sondage a expiré. Veuillez vérifier votre connexion et réessayer.</string>
+  <string name="lang_thai">Thaï</string>
 </resources>
