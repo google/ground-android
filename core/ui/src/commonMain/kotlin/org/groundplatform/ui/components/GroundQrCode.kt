@@ -16,7 +16,6 @@
 package org.groundplatform.ui.components
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -40,9 +39,14 @@ fun GroundQrCode(
   contentDescription: String,
   centerLogoPainter: Painter?,
 ) {
-  val qrcodePainter = rememberQrCodePainter(data = content) { logo { painter = centerLogoPainter } }
+  val qrcodePainter =
+    rememberQrCodePainter(data = content) {
+      if (centerLogoPainter != null) {
+        logo { painter = centerLogoPainter }
+      }
+    }
 
-  Box(modifier) { Image(painter = qrcodePainter, contentDescription = contentDescription) }
+  Image(painter = qrcodePainter, contentDescription = contentDescription, modifier = modifier)
 }
 
 @Preview
