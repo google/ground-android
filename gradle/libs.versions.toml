@@ -21,7 +21,6 @@ appcompatVersion = "1.7.1"
 autoValueVersion = "1.11.1"
 coilComposeVersion = "2.7.0"
 composeBom = "2026.02.01"
-composeMultiplatformVersion = "1.10.1"
 constraintlayoutVersion = "2.2.1"
 coreKtxVersion = "1.17.0"
 coreTesting = "2.2.0"
@@ -188,5 +187,3 @@ detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detektVersion" }
 protobuf = { id = "com.google.protobuf", version.ref = "protobufVersion" }
 room = { id = "androidx.room", version.ref = "roomVersion" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlinVersion" }
-android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "gradleVersion" }
-android-lint = { id = "com.android.lint", version.ref = "gradleVersion" }
