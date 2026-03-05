@@ -17,10 +17,12 @@ androidCompileSdk = "36"
 androidMinSdk = "24"
 androidTargetSdk = "36"
 androidMapsUtilsVersion = "4.1.0"
+androidXLifecycleVersion = "2.9.6"
 appcompatVersion = "1.7.1"
 autoValueVersion = "1.11.1"
 coilComposeVersion = "2.7.0"
 composeBom = "2026.02.01"
+composeMultiplatformVersion = "1.10.2"
 constraintlayoutVersion = "2.2.1"
 coreKtxVersion = "1.17.0"
 coreTesting = "2.2.0"
@@ -50,6 +52,7 @@ ktfmtVersion = "0.25.0"
 lifecycleVersion = "2.10.0"
 markdownVersion = "0.7.3"
 materialVersion = "1.13.0"
+material3Version = "1.9.0"
 mockitoBom = "5.22.0"
 mockitoInlineVersion = "5.2.0"
 mockitoKotlinVersion = "6.2.3"
@@ -175,9 +178,19 @@ testing = { module = "com.jraska.livedata:testing", version.ref = "testingVersio
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timberVersion" }
 truth = { module = "com.google.truth:truth", version.ref = "truthVersion" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbineVersion" }
+#Multiplatform
+androidx-lifecycle-runtime-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidXLifecycleVersion" }
+compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatformVersion" }
+compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "composeMultiplatformVersion" }
+compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "material3Version" }
+compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "composeMultiplatformVersion" }
+compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "composeMultiplatformVersion" }
+compose-ui-tooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "composeMultiplatformVersion" }
+compose-ui-tooling-preview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "composeMultiplatformVersion" }
 
 [plugins]
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlinVersion" }
+compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatformVersion" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlinVersion" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinVersion" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "kspVersion" }
@@ -187,3 +200,5 @@ detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detektVersion" }
 protobuf = { id = "com.google.protobuf", version.ref = "protobufVersion" }
 room = { id = "androidx.room", version.ref = "roomVersion" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlinVersion" }
+android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "gradleVersion" }
+android-lint = { id = "com.android.lint", version.ref = "gradleVersion" }
