@@ -19,7 +19,7 @@ package org.groundplatform.android.util
 import com.google.android.gms.maps.model.LatLng
 import com.google.common.truth.Truth.assertThat
 import junit.framework.TestCase.assertEquals
-import org.groundplatform.android.model.geometry.Coordinates
+import org.groundplatform.domain.model.geometry.Coordinates
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner

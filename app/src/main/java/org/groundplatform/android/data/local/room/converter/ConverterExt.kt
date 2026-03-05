@@ -17,7 +17,7 @@ package org.groundplatform.android.data.local.room.converter
 
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
-import java.util.*
+import java.util.Date
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.collections.immutable.toPersistentMap
 import org.groundplatform.android.data.local.LocalDataConsistencyException
@@ -54,9 +54,6 @@ import org.groundplatform.android.data.local.room.relations.TaskEntityAndRelatio
 import org.groundplatform.android.model.AuditInfo
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.User
-import org.groundplatform.android.model.geometry.Coordinates
-import org.groundplatform.android.model.geometry.Geometry
-import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.model.imagery.OfflineArea
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.Job.DataCollectionStrategy
@@ -75,6 +72,9 @@ import org.groundplatform.android.model.task.Option
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.model.task.TaskId
 import org.groundplatform.android.proto.Survey.DataSharingTerms
+import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.geometry.Geometry
+import org.groundplatform.domain.model.geometry.Point
 import org.json.JSONObject
 import timber.log.Timber
 
