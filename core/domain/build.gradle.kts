@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-plugins { alias(libs.plugins.kotlin.multiplatform) }
+plugins {
+  alias(libs.plugins.kotlin.multiplatform)
+  alias(libs.plugins.kotlin.serialization)
+}
 
 kotlin {
   // We do not add an Android target here because this is a pure domain module.
@@ -29,7 +32,12 @@ kotlin {
   iosSimulatorArm64()
 
   sourceSets {
-    commonMain { dependencies { implementation(libs.kotlin.stdlib) } }
+    commonMain {
+      dependencies {
+        implementation(libs.kotlin.stdlib)
+        implementation(libs.kotlinx.serialization.json)
+      }
+    }
 
     commonTest { dependencies { implementation(libs.kotlin.test) } }
   }
