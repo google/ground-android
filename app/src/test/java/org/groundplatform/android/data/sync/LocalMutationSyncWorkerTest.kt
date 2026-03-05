@@ -38,7 +38,6 @@ import org.groundplatform.android.data.local.stores.LocalSurveyStore
 import org.groundplatform.android.data.local.stores.LocalUserStore
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.di.coroutines.IoDispatcher
-import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.model.mutation.LocationOfInterestMutation
 import org.groundplatform.android.model.mutation.Mutation
 import org.groundplatform.android.model.mutation.Mutation.SyncStatus.FAILED
@@ -50,6 +49,7 @@ import org.groundplatform.android.model.mutation.SubmissionMutation
 import org.groundplatform.android.repository.MutationRepository
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
+import org.groundplatform.domain.model.geometry.Point
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

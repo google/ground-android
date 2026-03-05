@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.model.geometry
+package org.groundplatform.domain.model.geometry
 
-/**
- * Represents types of geometry errors.
- *
- * Typically thrown when a construction does not satisfy definitional constraints for a given
- * geometry.
- */
-class InvalidGeometryException(override val message: String) : Throwable(message)
+import kotlinx.serialization.Serializable
+
+/** A pair of latitude and longitude coordinates in decimal degrees. */
+@Serializable
+data class Coordinates(val lat: Double, val lng: Double) : Comparable<Coordinates> {
+  override fun compareTo(other: Coordinates): Int =
+    compareValuesBy(this, other, { it.lat }, { it.lng })
+}

@@ -18,6 +18,14 @@ package org.groundplatform.android.model.geometry
 import com.google.common.truth.Truth.assertThat
 import org.groundplatform.android.data.local.room.converter.toLocalDataStoreObject
 import org.groundplatform.android.data.remote.firebase.schema.Path
+import org.groundplatform.android.ui.map.gms.GmsExt.area
+import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.geometry.InvalidGeometryException
+import org.groundplatform.domain.model.geometry.LineString
+import org.groundplatform.domain.model.geometry.LinearRing
+import org.groundplatform.domain.model.geometry.MultiPolygon
+import org.groundplatform.domain.model.geometry.Point
+import org.groundplatform.domain.model.geometry.Polygon
 import org.junit.Assert
 import org.junit.Test
 
@@ -75,7 +83,7 @@ class GeometryTest {
   @Test
   fun `point area`() {
     val point = point(x, y)
-    assertThat(point.area).isEqualTo(0.0)
+    assertThat(point.area()).isEqualTo(0.0)
   }
 
   @Test
@@ -89,7 +97,7 @@ class GeometryTest {
   fun `polygon area`() {
     val polygon = polygon(path1, path2)
 
-    assertThat(polygon.area).isEqualTo(4130.091187385864)
+    assertThat(polygon.area()).isEqualTo(4130.091187385864)
   }
 
   @Test
@@ -110,7 +118,7 @@ class GeometryTest {
   fun `multi polygon area`() {
     val multiPolygon = multiPolygon(polygon(path1, path2), polygon(path3, path4))
 
-    assertThat(multiPolygon.area).isEqualTo(5953.0440156963905)
+    assertThat(multiPolygon.area()).isEqualTo(5953.0440156963905)
   }
 
   @Test
@@ -168,7 +176,7 @@ class GeometryTest {
 
   @Test
   fun `area of line string`() {
-    assertThat(LineString(CLOSED_LOOP).area).isEqualTo(0.0)
+    assertThat(LineString(CLOSED_LOOP).area()).isEqualTo(0.0)
   }
 
   private fun point(x: Double, y: Double) = Point(Coordinates(x, y))

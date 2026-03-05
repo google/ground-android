@@ -44,7 +44,6 @@ import kotlin.math.sqrt
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
-import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.imagery.LocalTileSource
 import org.groundplatform.android.model.imagery.RemoteMogTileSource
 import org.groundplatform.android.model.imagery.TileSource
@@ -59,6 +58,7 @@ import org.groundplatform.android.ui.map.gms.mog.MogSourceProvider.DEFAULT_MOG_M
 import org.groundplatform.android.ui.map.gms.mog.MogTileProvider
 import org.groundplatform.android.util.invert
 import org.groundplatform.android.util.systemInsets
+import org.groundplatform.domain.model.geometry.Coordinates
 import timber.log.Timber
 
 const val TILE_OVERLAY_Z = 0f
