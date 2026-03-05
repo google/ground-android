@@ -27,3 +27,4 @@ plugins {
 }
 
 include ':app', ':e2eTest'
+include ':core:domain'
