@@ -52,3 +52,16 @@ captures/
 # Ctags
 **/tags
 GEMINI.md
+
+# Xcode / iOSApp
+.cxx
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+!*.xcodeproj/project.xcworkspace/
+!*.xcworkspace/contents.xcworkspacedata
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+DerivedData/
+.swiftpm/
+iosApp/.build/
