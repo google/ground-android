@@ -116,12 +116,12 @@
   <string name="camera_permissions_needed">ທ່ານຕ້ອງອະນຸຍາດສິດໃຫ້ແອັບນີ້ໃຊ້ກ້ອງ ເພື່ອສົ່ງຮູບພາບ</string>
   <string name="incomplete_area">ພື້ນທີ່ຍັງບໍ່ສົມບູນ</string>
   <string name="initializing">ກຳລັງເລີ່ມຕົ້ນ…</string>
-  <string name="draw_area_task_instruction">Move the map and tap “Add point” to add points around the desired area</string>
+  <string name="draw_area_task_instruction">ເລື່ອນແຜນທີ່ ແລ້ວແຕະ “ເພີ່ມຈຸດ” ເພື່ອເພີ່ມຈຸດຮອບບໍລິເວນທີ່ຕ້ອງການ.</string>
   <string name="close">ປິດ</string>
   <string name="data_consent_dialog_title">ຂໍ້ຕົກລົງການແບ່ງປັນຂໍ້ມູນ</string>
   <string name="map_location">ຕຳແໜ່ງໃນແຜນທີ່:</string>
   <string name="sign_out_dialog_title">ຄຳເຕືອນການອອກຈາກລະບົບ</string>
-  <string name="sign_out_dialog_body">If you sign out:\n \u2022 Any unsynced data will be discarded\n \u2022 You won’t be able to sign in if you’re offline\n \u2022 Offline surveys won’t be available until you sign in again\n\nAre you sure you want to sign out?</string>
+  <string name="sign_out_dialog_body">ຖ້າທ່ານອອກຈາກລະບົບ:\n \u2022 ຂໍ້ມູນທີ່ຍັງບໍ່ໄດ້ຊິ້ງຈະຖືກລຶບຖິ້ມ\n \u2022 ທ່ານຈະບໍ່ສາມາດເຂົ້າລະບົບໄດ້ຖ້າທ່ານອອບໄລນ໌\n \u2022 ແບບສຳຫຼວດອອບໄລນ໌ຈະບໍ່ສາມາດໃຊ້ໄດ້ຈົນກວ່າທ່ານຈະເຂົ້າລະບົບອີກຄັ້ງ\n\nທ່ານແນ່ໃຈບໍວ່າຕ້ອງການອອກຈາກລະບົບ?</string>
   <string name="read_only_data_collection_hint">ແບບສຳຫຼວດເປັນແບບເບິ່ງຢ່າງດຽວ</string>
   <string name="no_submissions">ບໍ່ມີການສົ່ງຂໍ້ມູນ</string>
   <string name="dismiss_info_popup">ປິດແຈ້ງເຕືອນ</string>

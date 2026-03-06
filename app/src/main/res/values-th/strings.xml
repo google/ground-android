@@ -116,7 +116,7 @@
   <string name="camera_permissions_needed">คุณต้องอนุญาตสิทธิ์การใช้งานกล้องให้แอปพลิเคชันนี้เพื่อส่งรูปภาพ</string>
   <string name="incomplete_area">พื้นที่ยังไม่เสร็จสมบูรณ์</string>
   <string name="initializing">กำลังเริ่มต้นระบบ…</string>
-  <string name="draw_area_task_instruction">เลื่อนแผนที่แล้วแตะ \"เพิ่มจุด\" เพื่อเพิ่มจุดรอบพื้นที่ที่ต้องการ</string>
+  <string name="draw_area_task_instruction">เลื่อนแผนที่แล้วแตะ “เพิ่มจุด” เพื่อเพิ่มจุดรอบพื้นที่ที่ต้องการ</string>
   <string name="close">ปิด</string>
   <string name="data_consent_dialog_title">ข้อตกลงการแบ่งปันข้อมูล</string>
   <string name="map_location">ตำแหน่งบนแผนที่:</string>
