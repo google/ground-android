@@ -25,7 +25,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.common.EphemeralPopups
-import org.groundplatform.android.ui.theme.AppTheme
+import org.groundplatform.ui.theme.AppTheme
 
 @AndroidEntryPoint
 class StartupFragment : AbstractFragment() {
