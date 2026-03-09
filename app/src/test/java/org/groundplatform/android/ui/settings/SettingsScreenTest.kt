@@ -24,7 +24,7 @@ import org.groundplatform.android.R
 import org.groundplatform.android.getString
 import org.groundplatform.android.model.settings.MeasurementUnits
 import org.groundplatform.android.model.settings.UserSettings
-import org.groundplatform.android.ui.theme.AppTheme
+import org.groundplatform.ui.theme.AppTheme
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

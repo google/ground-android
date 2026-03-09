@@ -62,8 +62,8 @@ import org.groundplatform.android.system.auth.SignInState
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.components.LoadingDialog
 import org.groundplatform.android.ui.components.PermissionDeniedDialog
-import org.groundplatform.android.ui.theme.AppTheme
 import org.groundplatform.android.util.isPermissionDeniedException
+import org.groundplatform.ui.theme.AppTheme
 
 const val BUTTON_TEST_TAG = "google_sign_in_button"
 
