@@ -36,7 +36,7 @@ import androidx.core.net.toUri
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.datacollection.components.UriImage
-import org.groundplatform.android.ui.theme.AppTheme
+import org.groundplatform.ui.theme.AppTheme
 
 @Composable
 fun PhotoTaskScreen(uri: Uri, onTakePhoto: () -> Unit, modifier: Modifier = Modifier) {
