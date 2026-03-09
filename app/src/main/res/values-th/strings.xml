@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright 2026 Google LLC
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources>
+  <!--
+    LOI DATA FORMS
+  -->
+  <!-- Shown below fields that are required but left empty (TBD). -->
+  <string name="required_task">จำเป็นต้องกรอกข้อมูลในช่องนี้</string>
+  <!--
+    LOCATION (GPS/CELL/WIFI) UPDATE ERROR MESSAGES
+  -->
+  <!-- Shown when user has refused to grant app fine grained location permission. -->
+  <string name="no_fine_location_permissions">ไม่สามารถแสดงตำแหน่งปัจจุบันได้หากไม่ได้รับอนุญาต</string>
+  <!-- Shown when an unknown error occurs obtaining fine grained location permission. -->
+  <string name="location_updates_unknown_error">ไม่สามารถเปิดการอัปเดตตำแหน่งได้</string>
+  <!-- Shown when user has refused to enable location services in settings.-->
+  <string name="location_disabled_in_settings">กรุณาเปิดใช้งานตำแหน่งในตั้งค่าระบบ</string>
+  <string name="map_view">มุมมองแผนที่</string>
+  <string name="unexpected_error">เกิดข้อผิดพลาดที่ไม่คาดคิด</string>
+  <string name="survey_load_timeout_error">การโหลดแบบสำรวจหมดเวลา กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ตแล้วลองใหม่อีกครั้ง</string>
+  <string name="google_api_install_failed">การติดตั้ง Google Play Services ล้มเหลว</string>
+  <string name="sign_out">ออกจากระบบ</string>
+  <string name="ok">ตกลง</string>
+  <string name="add_data">เพิ่มข้อมูล</string>
+  <!-- Untranslated strings -->
+  <string name="offline_area_selector">เลือกพื้นที่เพื่อดาวน์โหลด</string>
+  <string name="offline_area_selector_prompt">เลือกแผนที่ฐานสำหรับใช้งานแบบออฟไลน์</string>
+  <string name="offline_area_selector_download">ดาวน์โหลด</string>
+  <string name="camera">กล้อง</string>
+  <string name="photo_preview">ตัวอย่างภาพ</string>
+  <string name="settings">การตั้งค่า</string>
+  <string name="offline_area_viewer_title">พื้นที่ที่ดาวน์โหลดแล้ว</string>
+  <string name="offline_area_viewer_remove_button">ลบออกจากอุปกรณ์</string>
+  <string name="offline_area_download_error">การดาวน์โหลดล้มเหลว กรุณาลองใหม่อีกครั้ง</string>
+  <!-- Label of button used enter the offline area selector. -->
+  <string name="offline_area_selector_select">เลือกพื้นที่</string>
+  <string name="no_basemaps_downloaded">ยังไม่มีภาพแผนที่ที่ดาวน์โหลดไว้สำหรับใช้งานออฟไลน์</string>
+  <string name="connect_to_download_message">คุณออฟไลน์อยู่ เชื่อมต่ออินเทอร์เน็ตเพื่อดาวน์โหลดภาพแผนที่ออฟไลน์</string>
+  <string name="signing_in">กำลังลงชื่อเข้าใช้</string>
+  <string name="sign_in_with_google">ลงชื่อเข้าใช้ด้วย Google</string>
+  <!-- Precedes the build number shown in the side menu of debug builds. -->
+  <string name="build">สร้าง %s</string>
+  <string name="tos_title">ข้อกำหนดในการให้บริการ</string>
+  <string name="agree_terms">ยอมรับ</string>
+  <string name="agree_checkbox">ฉันยอมรับ</string>
+  <!-- Other strings (to be organized) -->
+  <string name="sync_status">สถานะการซิงค์ข้อมูล</string>
+  <string name="add_point">เพิ่มจุด</string>
+  <string name="complete_polygon">เสร็จสิ้น</string>
+  <string name="road_map">แผนที่ถนน</string>
+  <string name="satellite">ภาพถ่ายดาวเทียม</string>
+  <string name="terrain">ภูมิประเทศ</string>
+  <string name="next">ถัดไป</string>
+  <string name="done">เสร็จแล้ว</string>
+  <string name="skip">ข้าม</string>
+  <string name="drop_pin">ปักหมุด</string>
+  <string name="add_site">เพิ่มไซต์</string>
+  <string name="job_site_icon">ไอคอนไซต์งาน</string>
+  <string name="drop_a_pin_tooltip_text">เลื่อนแผนที่จนหมุดตรงกลางอยู่ในตำแหน่งที่ต้องการ</string>
+  <string name="current_location">ตำแหน่งปัจจุบัน:</string>
+  <string name="loading">กำลังโหลด…</string>
+  <string name="no_tasks_error">งานนี้ไม่มีภารกิจที่ต้องทำเพิ่มเติมแล้ว</string>
+  <string name="invalid_data_sharing_terms">แบบสำรวจนี้ตั้งค่าไม่ถูกต้อง (ไม่มีข้อตกลงการแบ่งปันข้อมูล) กรุณาติดต่อผู้จัดทำแบบสำรวจ</string>
+  <string name="collect_data_viewer_error">ไม่สามารถเก็บข้อมูลได้ เนื่องจากผู้ใช้มีสิทธิ์เป็นผู้ดูเท่านั้น</string>
+  <string name="offline_map_imagery">ภาพแผนที่ออฟไลน์</string>
+  <string name="offline_map_imagery_no_areas_downloaded_image">ไม่มีภาพแผนที่ที่ดาวน์โหลดไว้</string>
+  <string name="offline_map_imagery_pref_description">ซ่อนหรือแสดงภาพแผนที่ที่ดาวน์โหลดไว้</string>
+  <string name="layers">ชั้นข้อมูล</string>
+  <string name="base_map">แผนที่ฐาน</string>
+  <string name="offline_map_imagery_download_progress_dialog_title">กำลังดาวน์โหลด - %d%%</string>
+  <string name="offline_map_imagery_download_progress_dialog_message">เวลาในการดาวน์โหลดอาจแตกต่างกัน ขึ้นอยู่กับขนาดพื้นที่ที่เลือกและความเร็วอินเทอร์เน็ตของคุณ</string>
+  <string name="multiple_regions">หลายภูมิภาค</string>
+  <string name="permission_denied">ไม่ได้รับอนุญาต</string>
+  <string name="close_app">ปิดแอป</string>
+  <string name="cancel">ยกเลิก</string>
+  <string name="save">บันทึก</string>
+  <string name="no_imagery_available_for_area">ไม่มีภาพแผนที่สำหรับพื้นที่นี้ กรุณาเลือกพื้นที่ที่มีภาพแผนที่เพื่อดาวน์โหลดลงอุปกรณ์ของคุณ</string>
+  <string name="selected_offline_area_size">พื้นที่ที่เลือกอาจใช้พื้นที่จัดเก็บสูงสุด %s\u00A0MB บนอุปกรณ์ของคุณ</string>
+  <string name="selected_offline_area_too_large">ซูมเข้าและเลือกพื้นที่ที่เล็กลงเพื่อดาวน์โหลดลงอุปกรณ์ของคุณ</string>
+  <string name="offline_area_size_loading_symbol">…</string>
+  <string name="offline_area_select_cancel_button">ยกเลิก</string>
+  <string name="offline_area_selector_title">ดาวน์โหลดพื้นที่นี้หรือไม่?</string>
+  <string name="capture">บันทึกภาพ</string>
+  <string name="surveys">แบบสำรวจ</string>
+  <string name="offline_icon_description">ไอคอนที่แสดงเมื่อแบบสำรวจพร้อมใช้งานแบบออฟไลน์</string>
+  <string name="more_options_icon_description">ตัวเลือกเพิ่มเติม</string>
+  <string name="remove_offline_access_warning_title">คำเตือน</string>
+  <string name="remove_offline_access_warning_confirm_button">ลบ</string>
+  <string name="remove_offline_access_warning_dialog_body">หากคุณลบการเข้าถึงแบบออฟไลน์:\n \u2022 ข้อมูลที่ยังไม่ได้ซิงค์จะถูกลบ\n\nคุณแน่ใจหรือไม่ว่าต้องการลบการเข้าถึงแบบออฟไลน์?</string>
+  <string name="unnamed_point">จุดที่ไม่มีชื่อ</string>
+  <string name="unnamed_area">พื้นที่ที่ไม่มีชื่อ</string>
+  <string name="unnamed_job">งานที่ไม่มีชื่อ</string>
+  <string name="offline_area_size_on_disk_mb">%s\u00A0MB บนอุปกรณ์</string>
+  <string name="offline_area_list_item_size_on_disk_mb">%s\u00A0MB</string>
+  <string name="offline_downloaded_areas">พื้นที่ที่ดาวน์โหลดแล้ว</string>
+  <string name="offline_area_list_tip">พร้อมใช้งานแบบออฟไลน์</string>
+  <string name="offline_area_list_item_icon">ไอคอนรายการพื้นที่ออฟไลน์</string>
+  <string name="no_surveys_available">ไม่มีแบบสำรวจที่พร้อมใช้งาน กรุณาติดต่อผู้จัดทำแบบสำรวจเพื่อขอสิทธิ์เข้าถึง</string>
+  <string name="previous">ก่อนหน้า</string>
+  <string name="network_error_when_signing_in">เชื่อมต่ออินเทอร์เน็ตเพื่อลงชื่อเข้าใช้</string>
+  <string name="camera_permissions_needed">คุณต้องอนุญาตสิทธิ์การใช้งานกล้องให้แอปพลิเคชันนี้เพื่อส่งรูปภาพ</string>
+  <string name="incomplete_area">พื้นที่ยังไม่เสร็จสมบูรณ์</string>
+  <string name="initializing">กำลังเริ่มต้นระบบ…</string>
+  <string name="draw_area_task_instruction">เลื่อนแผนที่แล้วแตะ “เพิ่มจุด” เพื่อเพิ่มจุดรอบพื้นที่ที่ต้องการ</string>
+  <string name="close">ปิด</string>
+  <string name="data_consent_dialog_title">ข้อตกลงการแบ่งปันข้อมูล</string>
+  <string name="map_location">ตำแหน่งบนแผนที่:</string>
+  <string name="sign_out_dialog_title">คำเตือนการออกจากระบบ</string>
+  <string name="sign_out_dialog_body">หากคุณออกจากระบบ:\n \u2022 ข้อมูลที่ยังไม่ได้ซิงค์จะถูกลบ\n \u2022 คุณจะไม่สามารถลงชื่อเข้าใช้ได้หากออฟไลน์\n \u2022 แบบสำรวจออฟไลน์จะไม่สามารถใช้งานได้จนกว่าคุณจะลงชื่อเข้าใช้อีกครั้ง\n\nคุณแน่ใจหรือไม่ว่าต้องการออกจากระบบ?</string>
+  <string name="read_only_data_collection_hint">แบบสำรวจเป็นแบบอ่านอย่างเดียว</string>
+  <string name="no_submissions">ไม่มีการส่งข้อมูล</string>
+  <string name="dismiss_info_popup">ปิดข้อความ</string>
+  <string name="other">อื่น ๆ</string>
+  <plurals name="submission_count">
+    <item quantity="other">การส่งข้อมูล %d รายการ</item>
+  </plurals>
+  <string name="loi_name_dialog_title">ตั้งชื่อสถานที่นี้</string>
+  <string name="loi_name_dialog_body">จะสร้างไซต์เก็บข้อมูลใหม่</string>
+  <string name="current_survey">แบบสำรวจปัจจุบัน</string>
+  <string name="switch_survey">เปลี่ยนแบบสำรวจ</string>
+  <string name="no_survey_selected">ยังไม่ได้เลือกแบบสำรวจ</string>
+  <string name="undo">เลิกทำ</string>
+  <string name="redo">ทำซ้ำ</string>
+  <string name="view_licenses_title">ใบอนุญาต</string>
+  <string name="about">เกี่ยวกับ</string>
+  <string name="terms_of_service">ข้อกำหนดในการให้บริการ</string>
+  <string name="about_ground">Ground เป็นโครงการโอเพนซอร์สที่พัฒนาโดย Google และ FAO ภายใต้ความร่วมมือ Forest Data Partnership โดยได้รับความช่วยเหลือจาก SIG, Ecam และผู้มีส่วนร่วมจากชุมชนโอเพนซอร์ส \n\nโครงการนี้ได้รับอนุญาตภายใต้ <annotation type="apache_license">Apache License, Version 2.0</annotation> \n\nดู <annotation type="all_licenses">ใบอนุญาตอื่น ๆ</annotation></string>
+  <string name="pending_retry">รอการลองใหม่</string>
+  <string name="uploaded">อัปโหลดแล้ว</string>
+  <string name="uploading_form_data">กำลังอัปโหลดข้อมูลแบบฟอร์ม</string>
+  <string name="pending">รอดำเนินการ</string>
+  <string name="photos_pending">รูปภาพรอดำเนินการ</string>
+  <string name="photos_pending_retry">รูปภาพรอการลองใหม่</string>
+  <string name="uploading_photos">กำลังอัปโหลดรูปภาพ</string>
+  <string name="data_sync_status">สถานะการซิงค์ข้อมูล</string>
+  <string name="signout_warning">หากคุณออกจากระบบ ข้อมูลที่ยังไม่ได้บันทึกทั้งหมดจะสูญหาย</string>
+  <string name="admin_request_access">หากต้องการดำเนินการต่อ โปรดติดต่อผู้ดูแลระบบของคุณเพื่อขอสิทธิ์เข้าถึง</string>
+  <string name="signup_request_access">หากต้องการดำเนินการต่อ กรุณา<annotation type="sign_up_link">ลงทะเบียนเพื่อขอสิทธิ์เข้าถึง</annotation></string>
+  <!-- Settings -->
+  <string name="general_title">ทั่วไป</string>
+  <string name="upload_media_title">อัปโหลดรูปภาพ</string>
+  <string name="over_wifi_summary">ผ่าน Wi-Fi เท่านั้น</string>
+  <string name="help_title">ช่วยเหลือ</string>
+  <string name="visit_website_title">เยี่ยมชมเว็บไซต์</string>
+  <string name="accuracy">ความแม่นยำ:</string>
+  <string name="select_language_title">เลือกภาษา</string>
+  <!-- Data Sharing Consent Text -->
+  <string name="data_sharing_no_terms">ไม่มีข้อกำหนดที่จะแสดง</string>
+  <string name="data_sharing_private_message">## การแบ่งปันข้อมูลแบบส่วนตัว
+    \nข้อมูลจะถูกแบ่งปันเฉพาะกับผู้จัดทำแบบสำรวจเท่านั้น และอาจไม่มีการเผยแพร่หรือใช้งานข้อมูลที่เก็บรวบรวมต่อสาธารณะ
+  </string>
+  <string name="data_sharing_public_message">##การแบ่งปันข้อมูลแบบสาธารณะ
+    \nผู้จัดทำแบบสำรวจอาจแบ่งปันและใช้งานข้อมูลต่อสาธารณะภายใต้ *Creative Commons CC0 1.0 License*:
+  </string>
+  <string name="draft_restored">บันทึกข้อมูลที่ยังไม่ได้บันทึกถูกกู้คืนแล้ว</string>
+  <string name="load_tos_failed">ไม่สามารถเชื่อมต่อได้ กรุณาลองใหม่ภายหลัง</string>
+  <string name="data_submitted_image">ภาพการส่งข้อมูล</string>
+  <string name="data_collection_complete">การเก็บข้อมูลเสร็จสมบูรณ์!</string>
+  <string name="data_collection_complete_details">ข้อมูลของคุณถูกบันทึกแล้ว และจะซิงค์อัตโนมัติเมื่อคุณเชื่อมต่ออินเทอร์เน็ต</string>
+  <string name="allow_location_confirmation">อนุญาตการเข้าถึงตำแหน่ง</string>
+  <string name="allow_location_title">อนุญาตการแชร์ตำแหน่ง</string>
+  <string name="allow_location_description">หากคุณไม่อนุญาตให้ Ground เข้าถึงตำแหน่งของอุปกรณ์นี้ คุณจะไม่สามารถเก็บข้อมูลสำหรับไซต์นี้ต่อได้</string>
+  <string name="data_collection_cancellation_title">หยุดการเก็บข้อมูลหรือไม่?</string>
+  <string name="data_collection_cancellation_description">หากคุณออกจากหน้านี้ ข้อมูลที่ยังไม่ได้ส่งจะถูกลบ</string>
+  <string name="data_collection_cancellation_confirm_button">ยืนยัน</string>
+  <string name="something_went_wrong">เกิดข้อผิดพลาดบางประการ</string>
+  <string name="polygon_vertex_add_dialog_title">พื้นที่ไม่ถูกต้อง</string>
+  <string name="polygon_vertex_add_dialog_message">เส้นขอบเขตพื้นที่ต้องไม่ตัดกันเอง</string>
+  <string name="polygon_vertex_add_dialog_positive_button">ตกลง</string>
+  <string name="clear">ล้างข้อมูล</string>
+  <string name="text_task_data_character_limit">สูงสุด 255 ตัวอักษร</string>
+  <string name="area_message">พื้นที่: %s</string>
+  <string name="lang_english">อังกฤษ</string>
+  <string name="lang_french">ฝรั่งเศส</string>
+  <string name="lang_spanish">สเปน</string>
+  <string name="lang_portuguese">โปรตุเกส</string>
+  <string name="lang_vietnamese">เวียดนาม</string>
+  <string name="lang_thai">ไทย</string>
+  <string name="lang_lao">ลาว</string>
+  <string name="access_restricted">จำกัดสิทธิ์</string>
+  <string name="access_unlisted">ไม่แสดงสาธารณะ</string>
+  <string name="access_public">สาธารณะ</string>
+  <string name="section_on_device">บนอุปกรณ์นี้</string>
+  <string name="section_shared_with_me">แชร์กับฉัน</string>
+  <string name="section_public">สาธารณะ</string>
+  <string name="dialog_title_update_required">จำเป็นต้องอัปเดต</string>
+  <string name="dialog_message_update_required">มีแอปเวอร์ชันใหม่พร้อมใช้งาน กรุณาอัปเดตเพื่อใช้งานต่อ</string>
+  <string name="dialog_button_update">อัปเดต</string>
+  <string name="select_length_title">เลือกหน่วยวัด</string>
+  <string name="length_metric">เมตริก</string>
+  <string name="length_imperial">อิมพีเรียล</string>
+  <string name="delete_site">ลบไซต์</string>
+  <string name="delete_site_dialog_title">ลบไซต์นี้หรือไม่?</string>
+  <string name="delete_site_dialog_message">ไซต์นี้และข้อมูลทั้งหมดที่เกี่ยวข้องจะถูกลบอย่างถาวร การดำเนินการนี้ไม่สามารถย้อนกลับได้</string>
+  <string name="delete">ลบ</string>
+  <string name="location_not_accurate_heading">ตำแหน่งของคุณยังไม่แม่นยำ</string>
+  <string name="location_not_accurate_description">ลองยืนนิ่ง ๆ หรือรอให้ระบบระบุตำแหน่งได้แม่นยำยิ่งขึ้น</string>
+  <string name="recenter">จัดกึ่งกลางใหม่</string>
+</resources>

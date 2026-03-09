@@ -187,6 +187,8 @@
   <string name="lang_spanish">Tiếng Tây Ban Nha</string>
   <string name="lang_portuguese">Tiếng Bồ Đào Nha</string>
   <string name="lang_vietnamese">Tiếng Việt</string>
+  <string name="lang_thai">Tiếng Thái</string>
+  <string name="lang_lao">Tiếng Lào</string>
   <string name="access_restricted">Hạn chế</string>
   <string name="access_unlisted">Không công khai</string>
   <string name="access_public">Công khai</string>
