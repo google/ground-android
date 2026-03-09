@@ -19,8 +19,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.core.view.GravityCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -35,7 +35,6 @@ import org.groundplatform.android.databinding.HomeScreenFragBinding
 import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.common.BackPressListener
 import org.groundplatform.android.ui.common.EphemeralPopups
-import org.groundplatform.android.ui.components.ConfirmationDialog
 import org.groundplatform.android.util.setComposableContent
 
 /**
@@ -69,8 +68,6 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener {
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     val binding = binding
-    // Ensure nav drawer cannot be swiped out, which would conflict with map pan gestures.
-    // binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
 
     setupComposeView(binding)
     setupDrawerContent(binding)
@@ -79,20 +76,8 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener {
 
   private fun setupComposeView(binding: HomeScreenFragBinding) {
     binding.composeView.setComposableContent {
-      val showSignOutDialog = homeScreenViewModel.showSignOutDialog.collectAsState(false)
-
       LaunchedEffect(Unit) { homeScreenViewModel.openDrawerRequestsFlow.collect { openDrawer() } }
-
-      if (showSignOutDialog.value) {
-
-        ConfirmationDialog(
-          title = R.string.sign_out_dialog_title,
-          description = R.string.sign_out_dialog_body,
-          confirmButtonText = R.string.sign_out,
-          onConfirmClicked = { homeScreenViewModel.signOut() },
-          onDismiss = { homeScreenViewModel.dismissSignOutDialog() },
-        )
-      }
+      SetupUserConfirmationDialog()
     }
   }
 
@@ -144,7 +129,10 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener {
                 closeDrawer()
               }
               HomeDrawerAction.OnSignOut -> {
-                homeScreenViewModel.showSignOutDialog()
+                homeScreenViewModel.showSignOutConfirmation()
+              }
+              HomeDrawerAction.OnUserDetails -> {
+                homeScreenViewModel.showUserDetails()
               }
             }
           },
@@ -191,4 +179,18 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener {
   }
 
   override fun onBack(): Boolean = false
+
+  @Composable
+  private fun SetupUserConfirmationDialog() {
+    val state by homeScreenViewModel.accountDialogState.collectAsStateWithLifecycle()
+    val user by homeScreenViewModel.user.collectAsStateWithLifecycle(null)
+
+    UserAccountDialogs(
+      state = state,
+      user = user,
+      onSignOut = { homeScreenViewModel.signOut() },
+      onShowSignOutConfirmation = { homeScreenViewModel.showSignOutConfirmation() },
+      onDismiss = { homeScreenViewModel.dismissLogoutDialog() },
+    )
+  }
 }

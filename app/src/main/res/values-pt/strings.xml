@@ -173,7 +173,6 @@
   <string name="visit_website_title">Visitar site</string>
   <string name="accuracy">Precisão:</string>
   <string name="select_language_title">Selecionar idioma</string>
-  <string name="select_language_summary">Selecione o seu idioma preferido</string>
   <!-- Data Sharing Consent Text -->
   <string name="data_sharing_no_terms">*Não há termos para exibir.*</string>
   <string name="data_sharing_private_message">
@@ -214,6 +213,8 @@
   <string name="lang_portuguese">Português</string>
 
   <string name="lang_vietnamese">Vietnamita</string>
+  <string name="lang_thai">Tailandês</string>
+  <string name="lang_lao">Lao</string>
   <string name="access_restricted">Restrito</string>
   <string name="access_unlisted">Não listado</string>
   <string name="access_public">Público</string>
@@ -227,7 +228,6 @@
   <string name="dialog_button_update">Atualizar</string>
 
   <string name="select_length_title">Selecionar unidades</string>
-  <string name="select_length_summary">Selecione a sua unidade preferida</string>
   <string name="length_metric">Métrica</string>
   <string name="length_imperial">Imperial</string>
 

@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
 package org.groundplatform.android.ui.datacollection.tasks.location
 
 import android.location.Location
@@ -20,6 +22,7 @@ import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.groundplatform.android.BaseHiltTest
@@ -37,6 +40,7 @@ import org.robolectric.RobolectricTestRunner
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class CaptureLocationTaskViewModelTest : BaseHiltTest() {
 
   private val viewModel = CaptureLocationTaskViewModel()

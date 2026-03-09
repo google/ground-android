@@ -24,6 +24,8 @@ import android.provider.MediaStore
 import android.widget.DatePicker
 import android.widget.TimePicker
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
@@ -168,4 +170,12 @@ class AndroidTestDriver(
   }
 
   override fun getStringResource(id: Int): String = composeRule.activity.getString(id)
+
+  override fun assertVisible(componentText: String, isVisible: Boolean) {
+    if (isVisible) {
+      composeRule.onTarget(TestDriver.Target.Text(componentText)).assertIsDisplayed()
+    } else {
+      composeRule.onTarget(TestDriver.Target.Text(componentText)).assertIsNotDisplayed()
+    }
+  }
 }

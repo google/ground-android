@@ -17,6 +17,7 @@ package org.groundplatform.android.ui.main
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.navigation.fragment.NavHostFragment
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
@@ -30,6 +31,7 @@ import org.groundplatform.android.R
 import org.groundplatform.android.repository.TermsOfServiceRepository
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
 import org.groundplatform.android.system.auth.SignInState
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -39,6 +41,7 @@ import org.robolectric.RobolectricTestRunner
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class MainActivityTest : BaseHiltTest() {
+  @get:Rule val composeTestRule = createComposeRule()
 
   private lateinit var activity: MainActivity
   @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager

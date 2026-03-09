@@ -37,13 +37,13 @@ import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
-import org.groundplatform.android.FragmentScenarioRule
 import org.groundplatform.android.R
 import org.groundplatform.android.model.SurveyListItem
 import org.groundplatform.android.proto.Survey
 import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
+import org.groundplatform.android.testrules.FragmentScenarioRule
 import org.groundplatform.android.ui.surveyselector.components.SURVEY_LIST_TEST_TAG
 import org.groundplatform.android.ui.surveyselector.components.formatSectionTitle
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
@@ -76,7 +76,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   private lateinit var fragment: SurveySelectorFragment
   private lateinit var navController: NavController
 
-  @get:Rule override val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+  @get:Rule val composeTestRule = createAndroidComposeRule<ComponentActivity>()
   @get:Rule val fragmentScenario = FragmentScenarioRule()
 
   @Before

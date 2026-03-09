@@ -22,6 +22,7 @@ import android.net.Uri
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
@@ -38,6 +39,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.groundplatform.android.BaseHiltTest
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -48,6 +50,7 @@ import org.robolectric.annotation.Config
 @OptIn(ExperimentalCoroutinesApi::class)
 @Config(qualifiers = "w480dp-h1080dp-mdpi")
 class UriImageTest : BaseHiltTest() {
+  @get:Rule val composeTestRule = createComposeRule()
 
   private lateinit var context: Context
   private val capturedRequests = mutableListOf<ImageRequest>()

@@ -93,6 +93,6 @@ private val DarkColors =
 @Composable
 fun AppTheme(content: @Composable () -> Unit) {
   CompositionLocalProvider(LocalSizes provides Size()) {
-    MaterialTheme(colorScheme = LightColors, content = content)
+    MaterialTheme(colorScheme = LightColors, content = content, typography = AppTypography)
   }
 }

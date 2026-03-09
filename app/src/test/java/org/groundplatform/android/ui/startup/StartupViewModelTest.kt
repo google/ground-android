@@ -33,7 +33,6 @@ import org.robolectric.RobolectricTestRunner
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class StartupViewModelTest : BaseHiltTest() {
-
   @Mock private lateinit var googleApiManager: GoogleApiManager
   @Mock private lateinit var userRepository: UserRepository
   @Mock private lateinit var popups: EphemeralPopups

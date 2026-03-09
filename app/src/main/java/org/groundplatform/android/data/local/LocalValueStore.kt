@@ -115,12 +115,14 @@ constructor(private val preferences: SharedPreferences, private val locale: Loca
       preferences.edit { putString(PrefKeys.MEASUREMENT_UNITS, value) }
     }
 
+  var shouldUploadMediaOverUnmeteredConnectionOnly: Boolean
+    get() = allowThreadDiskReads { preferences.getBoolean(PrefKeys.UPLOAD_MEDIA, false) }
+    set(value) = allowThreadDiskWrites {
+      preferences.edit { putBoolean(PrefKeys.UPLOAD_MEDIA, value) }
+    }
+
   /** Removes all values stored in the local store. */
   fun clear() = allowThreadDiskWrites { preferences.edit { clear() } }
-
-  fun shouldUploadMediaOverUnmeteredConnectionOnly(): Boolean = allowThreadDiskReads {
-    preferences.getBoolean(PrefKeys.UPLOAD_MEDIA, false)
-  }
 
   fun clearLastCameraPosition(surveyId: String) = allowThreadDiskReads {
     preferences.edit { remove(PrefKeys.LAST_VIEWPORT_PREFIX + surveyId) }

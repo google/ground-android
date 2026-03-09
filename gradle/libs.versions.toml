@@ -13,10 +13,16 @@
 # limitations under the License.
 
 [versions]
+androidCompileSdk = "36"
+androidMinSdk = "24"
+androidTargetSdk = "36"
 androidMapsUtilsVersion = "4.1.0"
+androidXLifecycleVersion = "2.9.6"
 appcompatVersion = "1.7.1"
 autoValueVersion = "1.11.1"
-composeBom = "2026.02.00"
+coilComposeVersion = "2.7.0"
+composeBom = "2026.02.01"
+composeMultiplatformVersion = "1.10.2"
 constraintlayoutVersion = "2.2.1"
 coreKtxVersion = "1.17.0"
 coreTesting = "2.2.0"
@@ -26,7 +32,7 @@ coilVersion = "2.7.0"
 coroutinesVersion = "1.10.2"
 detektVersion = "1.23.8"
 espressoContribVersion = "3.7.0"
-firebaseBomVersion = "34.9.0"
+firebaseBomVersion = "34.10.0"
 firebaseCrashlyticsGradleVersion = "3.0.6"
 fragmentVersion = "1.8.9"
 googleServicesVersion = "4.4.4"
@@ -35,6 +41,7 @@ groundPlatformVersion = "bc2596d"
 gsonVersion = "2.13.2"
 hiltJetpackVersion = "1.3.0"
 hiltVersion = "2.59.2"
+jvmToolchainVersion = "17"
 jsonVersion = "20251224"
 junitKtx = "1.3.0"
 junitVersion = "4.13.2"
@@ -46,7 +53,8 @@ ktfmtVersion = "0.25.0"
 lifecycleVersion = "2.10.0"
 markdownVersion = "0.7.3"
 materialVersion = "1.13.0"
-mockitoBom = "5.21.0"
+material3Version = "1.9.0"
+mockitoBom = "5.22.0"
 mockitoInlineVersion = "5.2.0"
 mockitoKotlinVersion = "6.2.3"
 multidex = "2.0.1"
@@ -60,6 +68,7 @@ playServicesOssLicensesVersion = "17.4.0"
 preferenceKtx = "1.2.1"
 protobufKotlinLiteVersion = "4.26.1"
 protobufVersion = "0.9.6"
+qroseVersion = "1.1.2"
 robolectricVersion = "4.16.1"
 roomVersion = "2.8.4"
 secretsGradlePluginVersion = "2.0.1"
@@ -149,7 +158,7 @@ kotlinx-coroutines-bom = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-bo
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test" }
 kotlinx-serialization-bom = { module = "org.jetbrains.kotlinx:kotlinx-serialization-bom", version.ref = "kotlinxBom" }
-kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxBom" }
 kotlinx-serialization-protobuf = { module = "org.jetbrains.kotlinx:kotlinx-serialization-protobuf" }
 markdown = { module = "org.jetbrains:markdown", version.ref = "markdownVersion" }
 material = { module = "com.google.android.material:material", version.ref = "materialVersion" }
@@ -171,9 +180,20 @@ testing = { module = "com.jraska.livedata:testing", version.ref = "testingVersio
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timberVersion" }
 truth = { module = "com.google.truth:truth", version.ref = "truthVersion" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbineVersion" }
+#Multiplatform
+androidx-lifecycle-runtime-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidXLifecycleVersion" }
+compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatformVersion" }
+compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "composeMultiplatformVersion" }
+compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "material3Version" }
+compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "composeMultiplatformVersion" }
+compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "composeMultiplatformVersion" }
+compose-ui-tooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "composeMultiplatformVersion" }
+compose-ui-tooling-preview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "composeMultiplatformVersion" }
+qrose = { module = "io.github.alexzhirkevich:qrose", version.ref = "qroseVersion" }
 
 [plugins]
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlinVersion" }
+compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatformVersion" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlinVersion" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinVersion" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "kspVersion" }
@@ -182,3 +202,6 @@ hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hiltVersi
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detektVersion" }
 protobuf = { id = "com.google.protobuf", version.ref = "protobufVersion" }
 room = { id = "androidx.room", version.ref = "roomVersion" }
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlinVersion" }
+android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "gradleVersion" }
+android-lint = { id = "com.android.lint", version.ref = "gradleVersion" }

@@ -48,7 +48,6 @@ import org.robolectric.RobolectricTestRunner
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class TimeTaskFragmentTest : BaseTaskFragmentTest<TimeTaskFragment, TimeTaskViewModel>() {
-
   @BindValue @Mock override lateinit var dataCollectionViewModel: DataCollectionViewModel
   @Inject override lateinit var viewModelFactory: ViewModelFactory
 

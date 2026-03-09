@@ -15,14 +15,14 @@
  */
 package org.groundplatform.android.ui.home
 
+import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDialog
-import androidx.compose.ui.test.junit4.ComposeTestRule
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -47,11 +47,11 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
-import org.groundplatform.android.FragmentScenarioRule
 import org.groundplatform.android.R
 import org.groundplatform.android.data.local.stores.LocalSurveyStore
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.repository.SurveyRepository
+import org.groundplatform.android.testrules.FragmentScenarioRule
 import org.groundplatform.android.ui.components.MapFloatingActionButtonType
 import org.junit.Before
 import org.junit.Rule
@@ -137,11 +137,7 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
 
   @Inject lateinit var surveyRepository: SurveyRepository
 
-  /**
-   * composeTestRule has to be created in the specific test file in order to access the required
-   * activity. [composeTestRule.activity]
-   */
-  @get:Rule override val composeTestRule = createComposeRule()
+  @get:Rule val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
   @Test
   fun `all menu item is always enabled`() = runWithTestDispatcher {
@@ -226,7 +222,7 @@ class NavigationDrawerItemClickTest(
 
   @Inject lateinit var surveyRepository: SurveyRepository
 
-  @get:Rule override val composeTestRule = createComposeRule()
+  @get:Rule val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
   @Test
   fun `clicking drawer menu item navigates correctly`() = runWithTestDispatcher {

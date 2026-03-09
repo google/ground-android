@@ -15,17 +15,15 @@
  */
 package org.groundplatform.android.ui.surveyselector.components
 
-import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import dagger.hilt.android.testing.HiltAndroidTest
-import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.R
+import org.groundplatform.android.getString
 import org.groundplatform.android.model.SurveyListItem
 import org.groundplatform.android.proto.Survey
 import org.groundplatform.android.ui.surveyselector.SurveySection
@@ -36,11 +34,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
-@HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-class SurveySectionListTest : BaseHiltTest() {
+class SurveySectionListTest {
 
-  @get:Rule override val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+  @get:Rule val composeTestRule = createComposeRule()
 
   @Test
   fun `Displays section headers correctly`() {
@@ -59,9 +56,9 @@ class SurveySectionListTest : BaseHiltTest() {
       SurveySectionList(sectionData = sectionData, onConfirmDelete = {}, onCardClick = {})
     }
 
-    val onDeviceTitle = composeTestRule.activity.getString(R.string.section_on_device)
-    val sharedTitle = composeTestRule.activity.getString(R.string.section_shared_with_me)
-    val publicTitle = composeTestRule.activity.getString(R.string.section_public)
+    val onDeviceTitle = getString(R.string.section_on_device)
+    val sharedTitle = getString(R.string.section_shared_with_me)
+    val publicTitle = getString(R.string.section_public)
 
     composeTestRule.onNodeWithText("$onDeviceTitle (1)").assertIsDisplayed()
     composeTestRule.onNodeWithText("$sharedTitle (0)").assertIsDisplayed()
@@ -113,7 +110,7 @@ class SurveySectionListTest : BaseHiltTest() {
     composeTestRule.onNodeWithText("Public Survey").assertIsDisplayed()
 
     // Click the public section header to collapse it
-    val publicTitle = composeTestRule.activity.getString(R.string.section_public)
+    val publicTitle = getString(R.string.section_public)
     composeTestRule.onNodeWithText("$publicTitle (1)").performClick()
 
     // Now it should disappear
@@ -168,20 +165,18 @@ class SurveySectionListTest : BaseHiltTest() {
     }
 
     // Verify dialog title doesn't exist yet
-    val dialogTitle =
-      composeTestRule.activity.getString(R.string.remove_offline_access_warning_title)
+    val dialogTitle = getString(R.string.remove_offline_access_warning_title)
     composeTestRule.onNodeWithText(dialogTitle).assertDoesNotExist()
 
     // Click menu icon on survey card
-    val menuDescription = composeTestRule.activity.getString(R.string.more_options_icon_description)
+    val menuDescription = getString(R.string.more_options_icon_description)
     composeTestRule.onNodeWithContentDescription(menuDescription).performClick()
 
     // Dialog should be visible
     composeTestRule.onNodeWithText(dialogTitle).assertIsDisplayed()
 
     // Click confirm button
-    val confirmButtonText =
-      composeTestRule.activity.getString(R.string.remove_offline_access_warning_confirm_button)
+    val confirmButtonText = getString(R.string.remove_offline_access_warning_confirm_button)
     composeTestRule.onNodeWithText(confirmButtonText).performClick()
 
     // Callback should be invoked with survey id
@@ -209,18 +204,17 @@ class SurveySectionListTest : BaseHiltTest() {
       )
     }
 
-    val dialogTitle =
-      composeTestRule.activity.getString(R.string.remove_offline_access_warning_title)
+    val dialogTitle = getString(R.string.remove_offline_access_warning_title)
 
     // Click menu icon to open dialog
-    val menuDescription = composeTestRule.activity.getString(R.string.more_options_icon_description)
+    val menuDescription = getString(R.string.more_options_icon_description)
     composeTestRule.onNodeWithContentDescription(menuDescription).performClick()
 
     // Asserts dialog visible
     composeTestRule.onNodeWithText(dialogTitle).assertIsDisplayed()
 
     // Click cancel button
-    val dismissButtonText = composeTestRule.activity.getString(R.string.cancel)
+    val dismissButtonText = getString(R.string.cancel)
     composeTestRule.onNodeWithText(dismissButtonText).performClick()
 
     // Dialog should be dismissed

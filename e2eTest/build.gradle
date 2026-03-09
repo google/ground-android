@@ -21,11 +21,11 @@ plugins {
 android {
     targetProjectPath ':app'
     namespace = 'org.groundplatform.android.e2etest'
-    compileSdk rootProject.androidCompileSdk
+    compileSdk = libs.versions.androidCompileSdk.get().toInteger()
 
     defaultConfig {
-        minSdkVersion rootProject.androidMinSdk
-        targetSdkVersion rootProject.androidTargetSdk
+        minSdkVersion libs.versions.androidMinSdk.get().toInteger()
+        targetSdkVersion libs.versions.androidTargetSdk.get().toInteger()
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArguments clearPackageData: 'true'
     }
@@ -80,5 +80,5 @@ dependencies {
 }
 
 kotlin {
-    jvmToolchain rootProject.jvmToolchainVersion
+    jvmToolchain libs.versions.jvmToolchainVersion.get().toInteger()
 }

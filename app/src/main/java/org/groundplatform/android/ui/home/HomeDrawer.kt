@@ -71,7 +71,7 @@ fun HomeDrawer(
         .systemBarsPadding()
         .verticalScroll(rememberScrollState())
   ) {
-    AppInfoHeader(user = user)
+    AppInfoHeader(user = user, onAction = onAction)
     SurveySelector(survey = survey, onSwitchSurvey = { onAction(HomeDrawerAction.OnSwitchSurvey) })
     HorizontalDivider()
     DrawerItems(onAction, versionText)
@@ -168,7 +168,7 @@ private data class DrawerItem(
 )
 
 @Composable
-private fun AppInfoHeader(user: User) {
+private fun AppInfoHeader(user: User, onAction: (HomeDrawerAction) -> Unit) {
   Column(
     modifier =
       Modifier.fillMaxWidth()
@@ -193,7 +193,10 @@ private fun AppInfoHeader(user: User) {
         coil.compose.AsyncImage(
           model = user.photoUrl,
           contentDescription = null,
-          modifier = Modifier.size(32.dp).clip(CircleShape),
+          modifier =
+            Modifier.size(32.dp).clip(CircleShape).clickable {
+              onAction(HomeDrawerAction.OnUserDetails)
+            },
           contentScale = androidx.compose.ui.layout.ContentScale.Crop,
         )
       }

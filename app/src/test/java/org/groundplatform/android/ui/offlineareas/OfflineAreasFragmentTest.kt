@@ -18,6 +18,7 @@ package org.groundplatform.android.ui.offlineareas
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.isDisplayed
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onChildAt
 import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.onNodeWithTag
@@ -36,9 +37,9 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.OFFLINE_AREA
-import org.groundplatform.android.FragmentScenarioRule
 import org.groundplatform.android.R
 import org.groundplatform.android.data.local.stores.LocalOfflineAreaStore
+import org.groundplatform.android.testrules.FragmentScenarioRule
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,6 +49,7 @@ import org.robolectric.RobolectricTestRunner
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class OfflineAreasFragmentTest : BaseHiltTest() {
+  @get:Rule val composeTestRule = createComposeRule()
   @get:Rule val fragmentScenario = FragmentScenarioRule()
 
   private lateinit var fragment: OfflineAreasFragment

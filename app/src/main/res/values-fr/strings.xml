@@ -159,7 +159,6 @@
   <string name="visit_website_title">Visiter le site web</string>
   <string name="accuracy">Précision :</string>
   <string name="select_language_title">Choix de la langue</string>
-  <string name="select_language_summary">Choisissez votre langue</string>
   <!-- Data Sharing Consent Text -->
   <string name="data_sharing_no_terms">*Aucune condition à afficher.*</string>
   <string name="data_sharing_private_message">
@@ -193,6 +192,8 @@
   <string name="lang_spanish">Espagnol</string>
   <string name="lang_portuguese">Portugais</string>
   <string name="lang_vietnamese">Vietnamien</string>
+  <string name="lang_thai">Thaï</string>
+  <string name="lang_lao">Lao</string>
   <string name="access_restricted">Restreint</string>
   <string name="access_unlisted">Non répertorié</string>
   <string name="access_public">Public</string>
@@ -205,7 +206,6 @@
   <string name="dialog_button_update">Mettre à jour</string>
 
   <string name="select_length_title">Sélectionner les unités</string>
-  <string name="select_length_summary">Sélectionnez votre unité préférée</string>
   <string name="length_metric">Métrique</string>
   <string name="length_imperial">Impérial</string>
 

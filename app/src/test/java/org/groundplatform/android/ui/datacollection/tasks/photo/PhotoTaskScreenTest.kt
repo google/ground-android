@@ -18,22 +18,20 @@ package org.groundplatform.android.ui.datacollection.tasks.photo
 import android.net.Uri
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.core.net.toUri
 import com.google.common.truth.Truth.assertThat
-import dagger.hilt.android.testing.HiltAndroidTest
-import org.groundplatform.android.BaseHiltTest
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
-@HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-@Config(qualifiers = "w600dp-h1024dp")
-class PhotoTaskScreenTest : BaseHiltTest() {
+class PhotoTaskScreenTest {
+  @get:Rule val composeTestRule = createComposeRule()
 
   @Test
   fun `shows capture button when photo is not present`() {

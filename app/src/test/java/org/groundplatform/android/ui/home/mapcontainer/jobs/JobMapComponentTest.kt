@@ -16,31 +16,28 @@
 
 package org.groundplatform.android.ui.home.mapcontainer.jobs
 
-import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import dagger.hilt.android.testing.HiltAndroidTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.ADHOC_JOB
 import org.groundplatform.android.FakeData.JOB
 import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST
 import org.groundplatform.android.FakeData.newTask
 import org.groundplatform.android.R
+import org.groundplatform.android.getString
 import org.junit.Rule
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
-@HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-class JobMapComponentTest : BaseHiltTest() {
-  @get:Rule override val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+class JobMapComponentTest {
+  @get:Rule val composeTestRule = createComposeRule()
 
   @Test
   fun `ActionButton to add new LOI is shown when there is data`() {
@@ -51,9 +48,7 @@ class JobMapComponentTest : BaseHiltTest() {
       )
     )
 
-    composeTestRule
-      .onNodeWithContentDescription(composeTestRule.activity.getString(R.string.add_site))
-      .assertIsDisplayed()
+    composeTestRule.onNodeWithContentDescription(getString(R.string.add_site)).assertIsDisplayed()
   }
 
   @Test
@@ -61,7 +56,7 @@ class JobMapComponentTest : BaseHiltTest() {
     setContent(JobMapComponentState())
 
     composeTestRule
-      .onNodeWithContentDescription(composeTestRule.activity.getString(R.string.add_site))
+      .onNodeWithContentDescription(getString(R.string.add_site))
       .assertIsNotDisplayed()
   }
 
@@ -85,14 +80,12 @@ class JobMapComponentTest : BaseHiltTest() {
       onAction = { performedActions += it },
     )
 
-    composeTestRule
-      .onNodeWithContentDescription(composeTestRule.activity.getString(R.string.add_site))
-      .performClick()
+    composeTestRule.onNodeWithContentDescription(getString(R.string.add_site)).performClick()
 
     composeTestRule.onNodeWithText("Job 1").assertIsDisplayed()
     composeTestRule.onNodeWithText("Job 2").assertIsDisplayed()
     composeTestRule
-      .onNodeWithContentDescription(composeTestRule.activity.getString(R.string.add_site))
+      .onNodeWithContentDescription(getString(R.string.add_site))
       .assertIsNotDisplayed()
     assertTrue(
       performedActions.any {
@@ -121,9 +114,7 @@ class JobMapComponentTest : BaseHiltTest() {
       onAction = { performedActions += it },
     )
 
-    composeTestRule
-      .onNodeWithContentDescription(composeTestRule.activity.getString(R.string.add_site))
-      .performClick()
+    composeTestRule.onNodeWithContentDescription(getString(R.string.add_site)).performClick()
 
     composeTestRule.onNodeWithText("Job 1").performClick()
 
@@ -150,9 +141,7 @@ class JobMapComponentTest : BaseHiltTest() {
       onAction = { performedActions += it },
     )
 
-    composeTestRule
-      .onNodeWithContentDescription(composeTestRule.activity.getString(R.string.add_site))
-      .performClick()
+    composeTestRule.onNodeWithContentDescription(getString(R.string.add_site)).performClick()
 
     composeTestRule.onNodeWithText(ADHOC_JOB.name!!).assertDoesNotExist()
     assertTrue(
@@ -174,7 +163,7 @@ class JobMapComponentTest : BaseHiltTest() {
     setContent(JobMapComponentState(selectedLoi = selectedLoiSheetData))
 
     composeTestRule
-      .onNodeWithContentDescription(composeTestRule.activity.getString(R.string.add_site))
+      .onNodeWithContentDescription(getString(R.string.add_site))
       .assertIsNotDisplayed()
     composeTestRule.onNodeWithText(selectedLoiSheetData.loi.job.name!!).assertIsDisplayed()
   }
@@ -189,12 +178,8 @@ class JobMapComponentTest : BaseHiltTest() {
       onAction = { performedActions += it },
     )
 
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.delete_site))
-      .performClick()
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.delete))
-      .performClick()
+    composeTestRule.onNodeWithText(getString(R.string.delete_site)).performClick()
+    composeTestRule.onNodeWithText(getString(R.string.delete)).performClick()
 
     assertTrue(
       performedActions.any {
@@ -223,9 +208,7 @@ class JobMapComponentTest : BaseHiltTest() {
       onAction = { performedActions += it },
     )
 
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.add_data))
-      .performClick()
+    composeTestRule.onNodeWithText(getString(R.string.add_data)).performClick()
 
     composeTestRule.waitForIdle()
 

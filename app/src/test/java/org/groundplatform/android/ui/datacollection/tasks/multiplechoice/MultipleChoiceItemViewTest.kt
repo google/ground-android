@@ -16,24 +16,24 @@
 package org.groundplatform.android.ui.datacollection.tasks.multiplechoice
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import com.google.common.truth.Truth.assertThat
-import dagger.hilt.android.testing.HiltAndroidTest
 import junit.framework.TestCase.assertTrue
-import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.common.Constants
 import org.groundplatform.android.model.task.MultipleChoice
 import org.groundplatform.android.model.task.Option
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
-@HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-class MultipleChoiceItemViewTest : BaseHiltTest() {
+class MultipleChoiceItemViewTest {
+  @get:Rule val composeTestRule = createComposeRule()
 
   @Test
   fun `SELECT_ONE multiple choice shows radio buttons and toggles select event correctly`() {
