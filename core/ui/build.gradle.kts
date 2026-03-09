@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
-
 plugins {
   alias(libs.plugins.kotlin.multiplatform)
   alias(libs.plugins.android.kotlin.multiplatform.library)
@@ -33,12 +30,11 @@ kotlin {
   }
 
   val xcfName = "GroundUiKit"
-  val xcf = XCFramework(xcfName)
 
   listOf(iosX64(), iosArm64(), iosSimulatorArm64()).forEach {
     it.binaries.framework {
       baseName = xcfName
-      xcf.add(this)
+      isStatic = true
     }
   }
 
