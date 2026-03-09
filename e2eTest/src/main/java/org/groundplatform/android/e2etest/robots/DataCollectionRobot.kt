@@ -54,11 +54,7 @@ class DataCollectionRobot(override val testDriver: TestDriver) : Robot<DataColle
   private fun executeTask(task: TestTask) {
     when (task.taskType) {
       Task.Type.UNKNOWN ->
-        error(
-          IllegalStateException(
-            "Something is wrong with the tasks defined in the Firebase emulator"
-          )
-        )
+        error("Something is wrong with the tasks defined in the Firebase emulator")
       Task.Type.TEXT -> textTask()
       Task.Type.MULTIPLE_CHOICE ->
         if (task.isConditional) {
