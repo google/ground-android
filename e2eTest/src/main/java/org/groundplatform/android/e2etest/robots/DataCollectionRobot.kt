@@ -42,37 +42,8 @@ class DataCollectionRobot(override val testDriver: TestDriver) : Robot<DataColle
 
   fun runTasks(taskList: List<TestTask>) {
     taskList.forEach { task ->
-      when (task.taskType) {
-        Task.Type.UNKNOWN ->
-          throw IllegalStateException(
-            "Something is wrong with the tasks defined in the Firebase emulator"
-          )
-        Task.Type.TEXT -> textTask()
-        Task.Type.MULTIPLE_CHOICE -> {
-          if (task.isConditional) {
-            multipleChoiceTask(MultipleChoiceType.Conditional)
-          } else {
-            multipleChoiceTask(MultipleChoiceType.Regular(task.selectIndexes!!))
-          }
-        }
-        Task.Type.PHOTO -> cameraTask()
-        Task.Type.NUMBER -> numberTask()
-        Task.Type.DATE -> dateTask()
-        Task.Type.TIME -> timeTask()
-        Task.Type.DROP_PIN -> dropPinTask()
-        Task.Type.DRAW_AREA -> drawAreaTask()
-        Task.Type.CAPTURE_LOCATION -> captureLocationTask()
-        Task.Type.INSTRUCTIONS -> {
-          /* Nothing to do, just read */
-        }
-      }
-
-      if (task == taskList.last()) {
-        testDriver.click(TestDriver.Target.Text(testDriver.getStringResource(R.string.done)))
-      } else {
-        testDriver.click(TestDriver.Target.Text(testDriver.getStringResource(R.string.next)))
-      }
-
+      executeTask(task = task)
+      clickToNextStep(isLast = task == taskList.last())
       if (task.taskType == Task.Type.DRAW_AREA || task.taskType == Task.Type.DROP_PIN) {
         nameLocation()
       }
@@ -80,14 +51,52 @@ class DataCollectionRobot(override val testDriver: TestDriver) : Robot<DataColle
     testDriver.click(TestDriver.Target.Text(testDriver.getStringResource(R.string.close)))
   }
 
+  private fun executeTask(task: TestTask) {
+    when (task.taskType) {
+      Task.Type.UNKNOWN ->
+        error(
+          IllegalStateException(
+            "Something is wrong with the tasks defined in the Firebase emulator"
+          )
+        )
+      Task.Type.TEXT -> textTask()
+      Task.Type.MULTIPLE_CHOICE ->
+        if (task.isConditional) {
+          multipleChoiceTask(MultipleChoiceType.Conditional)
+        } else {
+          multipleChoiceTask(MultipleChoiceType.Regular(task.selectIndexes!!))
+        }
+      Task.Type.PHOTO -> cameraTask()
+      Task.Type.NUMBER -> numberTask()
+      Task.Type.DATE -> dateTask()
+      Task.Type.TIME -> timeTask()
+      Task.Type.DROP_PIN -> dropPinTask()
+      Task.Type.DRAW_AREA -> drawAreaTask()
+      Task.Type.CAPTURE_LOCATION -> captureLocationTask()
+      Task.Type.INSTRUCTIONS -> {
+        /* Nothing to do, just read */
+      }
+    }
+  }
+
+  private fun clickToNextStep(isLast: Boolean) {
+    if (isLast) {
+      testDriver.click(TestDriver.Target.Text(testDriver.getStringResource(R.string.done)))
+    } else {
+      testDriver.click(TestDriver.Target.Text(testDriver.getStringResource(R.string.next)))
+    }
+  }
+
   private fun drawAreaTask(): DataCollectionRobot {
-    val points = listOf((0 to 0), (-500 to 0), (0 to -500), (500 to 0), (0 to 500))
+    val points = listOf(0 to 0, -500 to 0, 0 to -500, 500 to 0, 0 to 500)
     val nextButton = TestDriver.Target.Text(testDriver.getStringResource(R.string.add_point))
     val completeButton =
       TestDriver.Target.Text(testDriver.getStringResource(R.string.complete_polygon))
     points.forEachIndexed { index, point ->
       when (index) {
-        0 -> testDriver.click(nextButton)
+        0 -> {
+          testDriver.click(nextButton)
+        }
         points.lastIndex -> {
           testDriver.dragMapBy(point.first, point.second)
           testDriver.click(completeButton)
@@ -140,8 +149,9 @@ class DataCollectionRobot(override val testDriver: TestDriver) : Robot<DataColle
           testDriver.insertText("Other", TestDriver.Target.TestTag(OTHER_INPUT_TEXT_TEST_TAG))
         }
       }
-      MultipleChoiceType.Conditional ->
+      MultipleChoiceType.Conditional -> {
         conditionalTask(TestDriver.Target.TestTag(SELECT_MULTIPLE_RADIO_TEST_TAG))
+      }
     }
   }
 
