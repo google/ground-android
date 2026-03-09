@@ -42,7 +42,7 @@ import org.groundplatform.android.ui.home.mapcontainer.jobs.AdHocDataCollectionB
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponent
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentAction
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentState
-import org.groundplatform.android.ui.theme.AppTheme
+import org.groundplatform.ui.theme.AppTheme
 
 @Composable
 fun HomeScreenMapContainerScreen(

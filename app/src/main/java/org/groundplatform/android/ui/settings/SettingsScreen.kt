@@ -41,7 +41,7 @@ import org.groundplatform.android.ui.settings.components.SettingsCategory
 import org.groundplatform.android.ui.settings.components.SettingsItem
 import org.groundplatform.android.ui.settings.components.SettingsSelectItem
 import org.groundplatform.android.ui.settings.components.SettingsSwitchItem
-import org.groundplatform.android.ui.theme.AppTheme
+import org.groundplatform.ui.theme.AppTheme
 
 /**
  * Stateful composable for the settings screen.
