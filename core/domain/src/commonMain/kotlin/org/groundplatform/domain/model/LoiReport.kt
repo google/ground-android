@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Google LLC
+ * Copyright 2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,19 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.groundplatform.domain.model
 
-pluginManagement {
-    repositories {
-        gradlePluginPortal()
-        google()
-        mavenCentral()
-    }
-}
+import kotlinx.serialization.json.JsonObject
 
-plugins {
-    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
-}
-
-include ':app', ':e2eTest'
-include ':core:ui'
-include ':core:domain'
+/** Represents the data collected for a specific LOI which can be downloaded and shared */
+data class LoiReport(val geoJson: JsonObject)
