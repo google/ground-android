@@ -21,7 +21,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import org.groundplatform.domain.model.geometry.Coordinates
 
-class UiFormatUtilTest {
+class PolygonUtilTest {
 
   @Test
   fun `segments intersect at a point`() {
