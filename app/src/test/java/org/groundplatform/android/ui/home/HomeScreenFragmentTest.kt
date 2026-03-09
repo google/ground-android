@@ -166,7 +166,6 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
   }
 
   @Test
-  //  @Ignore("Flaky in Robolectric - Click on NavigationDrawerItem not registering reliably")
   fun `sign out dialog is displayed`() = runWithTestDispatcher {
     openDrawer(composeTestRule)
     composeTestRule.waitForIdle()

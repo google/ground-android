@@ -261,7 +261,7 @@ private sealed interface IconSource {
 
 @Preview(showBackground = true)
 @Composable
-fun HomeDrawerPreview() {
+private fun HomeDrawerPreview() {
   val mockUser =
     User(id = "1", email = "test@example.com", displayName = "Jane Doe", photoUrl = null)
   val mockSurvey =
