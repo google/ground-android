@@ -226,6 +226,7 @@ private fun AppInfoHeader(user: User, onAction: (HomeDrawerAction) -> Unit) {
   }
 }
 
+@Suppress("LongMethod")
 @Composable
 private fun SurveySelector(survey: Survey?, onSwitchSurvey: () -> Unit) {
   Column(
