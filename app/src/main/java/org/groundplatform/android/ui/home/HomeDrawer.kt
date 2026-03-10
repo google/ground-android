@@ -127,10 +127,11 @@ private fun DrawerNavigationItem(item: DrawerItem, onAction: (HomeDrawerAction) 
       Text(
         text = label,
         fontSize = 14.sp,
-        fontWeight = FontWeight.Medium,
+        fontWeight = FontWeight.SemiBold,
         fontFamily =
           androidx.compose.ui.text.font.FontFamily(
-            androidx.compose.ui.text.font.Font(R.font.manrope_medium, FontWeight.Medium)
+            androidx.compose.ui.text.font.Font(R.font.manrope_bold, FontWeight.SemiBold),
+            androidx.compose.ui.text.font.Font(R.font.manrope_medium, FontWeight.Medium),
           ),
         lineHeight = 20.sp,
       )
@@ -167,10 +168,11 @@ private fun DrawerVersionFooter(versionText: String) {
     Text(
       text = versionText,
       fontSize = 14.sp,
-      fontWeight = FontWeight.Medium,
+      fontWeight = FontWeight.SemiBold,
       fontFamily =
         androidx.compose.ui.text.font.FontFamily(
-          androidx.compose.ui.text.font.Font(R.font.manrope_medium, FontWeight.Medium)
+          androidx.compose.ui.text.font.Font(R.font.manrope_bold, FontWeight.SemiBold),
+          androidx.compose.ui.text.font.Font(R.font.manrope_medium, FontWeight.Medium),
         ),
       lineHeight = 20.sp,
       color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -242,7 +244,7 @@ private fun SurveySelector(survey: Survey?, onSwitchSurvey: () -> Unit) {
       Text(
         text = stringResource(R.string.current_survey),
         fontSize = 12.sp,
-        fontWeight = FontWeight.Medium,
+        fontWeight = FontWeight.SemiBold,
         fontFamily =
           androidx.compose.ui.text.font.FontFamily(
             androidx.compose.ui.text.font.Font(R.font.google_sans)
@@ -259,7 +261,7 @@ private fun SurveySelector(survey: Survey?, onSwitchSurvey: () -> Unit) {
       Text(
         text = survey.title,
         fontSize = 16.sp,
-        fontWeight = FontWeight.Medium,
+        fontWeight = FontWeight.Bold,
         fontFamily =
           androidx.compose.ui.text.font.FontFamily(
             androidx.compose.ui.text.font.Font(R.font.google_sans)
@@ -273,7 +275,7 @@ private fun SurveySelector(survey: Survey?, onSwitchSurvey: () -> Unit) {
         Text(
           text = survey.description,
           fontSize = 14.sp,
-          fontWeight = FontWeight.Normal,
+          fontWeight = FontWeight.Medium,
           fontFamily =
             androidx.compose.ui.text.font.FontFamily(
               androidx.compose.ui.text.font.Font(R.font.google_sans)
