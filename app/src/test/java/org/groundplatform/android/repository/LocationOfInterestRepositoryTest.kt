@@ -29,7 +29,11 @@ import org.groundplatform.android.FakeData
 import org.groundplatform.android.data.local.stores.LocalLocationOfInterestStore
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.data.sync.MutationSyncWorkManager
+import org.groundplatform.android.model.locationofinterest.LocationOfInterest
 import org.groundplatform.android.model.map.Bounds
+import org.groundplatform.android.model.mutation.LocationOfInterestMutation
+import org.groundplatform.android.model.mutation.Mutation
+import org.groundplatform.android.model.mutation.Mutation.SyncStatus
 import org.groundplatform.android.model.mutation.Mutation.Type.CREATE
 import org.groundplatform.android.proto.Survey.DataVisibility
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
@@ -278,6 +282,23 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
         geometry = Polygon(LinearRing(coordinates)),
         surveyId = TEST_SURVEY.id,
         customId = "",
+      )
+
+    fun LocationOfInterest.toMutation(type: Mutation.Type, userId: String): LocationOfInterestMutation =
+      LocationOfInterestMutation(
+        jobId = job.id,
+        type = type,
+        syncStatus = SyncStatus.PENDING,
+        surveyId = surveyId,
+        locationOfInterestId = id,
+        userId = userId,
+        customId = customId,
+        clientTimestamp = lastModified.clientTimestamp,
+        geometry = geometry,
+        submissionCount = submissionCount,
+        properties = properties,
+        isPredefined = isPredefined,
+        collectionId = "",
       )
   }
 }
