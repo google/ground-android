@@ -20,11 +20,6 @@ import org.groundplatform.android.model.AuditInfo
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.TermsOfService
 import org.groundplatform.android.model.User
-import org.groundplatform.android.model.geometry.Coordinates
-import org.groundplatform.android.model.geometry.LinearRing
-import org.groundplatform.android.model.geometry.MultiPolygon
-import org.groundplatform.android.model.geometry.Point
-import org.groundplatform.android.model.geometry.Polygon
 import org.groundplatform.android.model.imagery.OfflineArea
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.Style
@@ -42,6 +37,11 @@ import org.groundplatform.android.proto.SurveyKt.dataSharingTerms
 import org.groundplatform.android.proto.copy
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.gms.features.FeatureClusterItem
+import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.geometry.LinearRing
+import org.groundplatform.domain.model.geometry.MultiPolygon
+import org.groundplatform.domain.model.geometry.Point
+import org.groundplatform.domain.model.geometry.Polygon
 
 /**
  * Shared test data constants. Tests are expected to override existing or set missing values when

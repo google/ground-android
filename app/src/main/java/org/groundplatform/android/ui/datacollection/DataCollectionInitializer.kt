@@ -27,6 +27,7 @@ import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.ui.common.LocationOfInterestHelper
+import org.groundplatform.android.ui.datacollection.DataCollectionInitializer.Companion.TASK_POSITION_ID
 
 /**
  * DataCollectionInitializer

@@ -16,7 +16,6 @@
 package org.groundplatform.android.ui.datacollection.tasks.instruction
 
 import android.view.LayoutInflater
-import android.view.View
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -35,7 +34,6 @@ import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.datacollection.components.TaskView
 import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
-import org.groundplatform.android.util.createComposeView
 
 @AndroidEntryPoint
 class InstructionTaskFragment : AbstractTaskFragment<InstructionTaskViewModel>() {
@@ -43,7 +41,8 @@ class InstructionTaskFragment : AbstractTaskFragment<InstructionTaskViewModel>()
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithoutHeader(inflater)
 
-  override fun onCreateTaskBody(inflater: LayoutInflater): View = createComposeView {
+  @Composable
+  override fun TaskBody() {
     ShowTextField(viewModel.task.label)
   }
 

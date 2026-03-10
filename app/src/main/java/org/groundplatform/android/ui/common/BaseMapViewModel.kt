@@ -46,7 +46,6 @@ import kotlinx.coroutines.flow.withIndex
 import kotlinx.coroutines.launch
 import org.groundplatform.android.common.Constants.DEFAULT_LOI_ZOOM_LEVEL
 import org.groundplatform.android.model.Survey
-import org.groundplatform.android.model.geometry.Coordinates
 import org.groundplatform.android.model.imagery.TileSource
 import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.model.map.MapType
@@ -65,6 +64,7 @@ import org.groundplatform.android.ui.map.NewCameraPositionViaCoordinates
 import org.groundplatform.android.ui.map.NewCameraPositionViaCoordinatesAndZoomLevel
 import org.groundplatform.android.ui.map.gms.GmsExt.toBounds
 import org.groundplatform.android.ui.map.gms.toCoordinates
+import org.groundplatform.domain.model.geometry.Coordinates
 import timber.log.Timber
 
 open class BaseMapViewModel

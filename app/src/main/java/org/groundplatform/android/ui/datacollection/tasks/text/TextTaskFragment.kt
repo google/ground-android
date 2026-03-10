@@ -16,7 +16,6 @@
 package org.groundplatform.android.ui.datacollection.tasks.text
 
 import android.view.LayoutInflater
-import android.view.View
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -28,7 +27,6 @@ import org.groundplatform.android.ui.datacollection.components.TaskView
 import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
 import org.groundplatform.android.ui.datacollection.components.TextTaskInput
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
-import org.groundplatform.android.util.createComposeView
 
 const val INPUT_TEXT_TEST_TAG: String = "text task input test tag"
 
@@ -39,12 +37,8 @@ class TextTaskFragment : AbstractTaskFragment<TextTaskViewModel>() {
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithHeader(inflater)
 
-  override fun onCreateTaskBody(inflater: LayoutInflater): View = createComposeView {
-    ShowTextInputField()
-  }
-
   @Composable
-  private fun ShowTextInputField() {
+  override fun TaskBody() {
     val userResponse by viewModel.responseText.observeAsState("")
     TextTaskInput(userResponse, modifier = Modifier.testTag(INPUT_TEXT_TEST_TAG)) { newText ->
       viewModel.setValue(fromString(newText))
