@@ -13,9 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.domain.model.locationofinterest
+package org.groundplatform.android.repository
 
-import kotlinx.serialization.json.JsonObject
+import javax.inject.Inject
+import org.groundplatform.domain.usecases.LoiDataProviderInterface
 
-/** Represents the data collected for a specific LOI which can be downloaded and shared. */
-data class LoiReport(val geoJson: JsonObject)
+class LoiDataProvider
+@Inject
+constructor(private val locationOfInterestRepository: LocationOfInterestRepository) :
+  LoiDataProviderInterface {
+  override suspend fun get(surveyId: String, loiId: String): LoiDataProviderInterface.LoiData? {
+    val loi = locationOfInterestRepository.getOfflineLoi(surveyId, loiId)
+    return loi?.let {
+      LoiDataProviderInterface.LoiData(geometry = it.geometry, properties = it.properties)
+    }
+  }
+}
