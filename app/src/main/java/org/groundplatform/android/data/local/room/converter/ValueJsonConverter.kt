@@ -20,9 +20,6 @@ import kotlinx.collections.immutable.toPersistentList
 import org.groundplatform.android.data.remote.DataStoreException
 import org.groundplatform.android.data.remote.firebase.schema.CaptureLocationResultConverter.toCaptureLocationTaskData
 import org.groundplatform.android.data.remote.firebase.schema.CaptureLocationResultConverter.toJSONObject
-import org.groundplatform.android.model.geometry.LineString
-import org.groundplatform.android.model.geometry.Point
-import org.groundplatform.android.model.geometry.Polygon
 import org.groundplatform.android.model.submission.CaptureLocationTaskData
 import org.groundplatform.android.model.submission.DateTimeTaskData
 import org.groundplatform.android.model.submission.DrawAreaTaskData
@@ -35,6 +32,9 @@ import org.groundplatform.android.model.submission.SkippedTaskData
 import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.submission.TextTaskData
 import org.groundplatform.android.model.task.Task
+import org.groundplatform.domain.model.geometry.LineString
+import org.groundplatform.domain.model.geometry.Point
+import org.groundplatform.domain.model.geometry.Polygon
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
