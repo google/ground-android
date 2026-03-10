@@ -178,10 +178,7 @@ private data class DrawerItem(
 @Composable
 private fun AppInfoHeader(user: User, onAction: (HomeDrawerAction) -> Unit) {
   Column(
-    modifier =
-      Modifier.fillMaxWidth()
-        .background(MaterialTheme.colorScheme.surfaceVariant)
-        .padding(vertical = 24.dp, horizontal = 16.dp)
+    modifier = Modifier.fillMaxWidth().padding(start = 16.dp, top = 8.dp, bottom = 8.dp, end = 8.dp)
   ) {
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
       Image(
@@ -199,6 +196,7 @@ private fun AppInfoHeader(user: User, onAction: (HomeDrawerAction) -> Unit) {
               androidx.compose.ui.text.font.Font(R.font.google_sans)
             ),
           fontWeight = FontWeight.Normal,
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
       }
       if (user.photoUrl != null) {
@@ -206,7 +204,7 @@ private fun AppInfoHeader(user: User, onAction: (HomeDrawerAction) -> Unit) {
           model = user.photoUrl,
           contentDescription = null,
           modifier =
-            Modifier.size(32.dp).clip(CircleShape).clickable {
+            Modifier.size(27.dp).clip(CircleShape).clickable {
               onAction(HomeDrawerAction.OnUserDetails)
             },
           contentScale = androidx.compose.ui.layout.ContentScale.Crop,
@@ -218,22 +216,27 @@ private fun AppInfoHeader(user: User, onAction: (HomeDrawerAction) -> Unit) {
 
 @Composable
 private fun SurveySelector(survey: Survey?, onSwitchSurvey: () -> Unit) {
-  Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+  Column(
+    modifier =
+      Modifier.fillMaxWidth()
+        .padding(horizontal = 12.dp)
+        .padding(start = 16.dp, end = 16.dp, bottom = 4.dp)
+  ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
       Icon(
         painter = painterResource(R.drawable.ic_content_paste),
         contentDescription = stringResource(R.string.current_survey),
-        modifier = Modifier.size(14.dp),
+        modifier = Modifier.size(16.dp),
         tint = MaterialTheme.colorScheme.onSurfaceVariant,
       )
       Spacer(Modifier.width(4.dp))
       Text(
         text = stringResource(R.string.current_survey),
-        style = MaterialTheme.typography.labelSmall,
+        style = MaterialTheme.typography.labelMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
       )
     }
-    Spacer(Modifier.height(8.dp))
+    Spacer(Modifier.height(16.dp))
 
     if (survey == null) {
       Text(stringResource(R.string.no_survey_selected))
@@ -262,8 +265,8 @@ private fun SurveySelector(survey: Survey?, onSwitchSurvey: () -> Unit) {
       text = stringResource(R.string.switch_survey),
       style = MaterialTheme.typography.labelLarge,
       color = MaterialTheme.colorScheme.primary,
-      fontWeight = FontWeight.Bold,
-      modifier = Modifier.padding(vertical = 8.dp).clickable(onClick = onSwitchSurvey),
+      modifier =
+        Modifier.clip(CircleShape).clickable(onClick = onSwitchSurvey).padding(vertical = 10.dp),
     )
   }
 }
