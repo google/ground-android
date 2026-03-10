@@ -16,7 +16,6 @@
 package org.groundplatform.android.ui.datacollection.tasks.multiplechoice
 
 import android.view.LayoutInflater
-import android.view.View
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -30,7 +29,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.groundplatform.android.ui.datacollection.components.TaskView
 import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
-import org.groundplatform.android.util.createComposeView
 
 const val MULTIPLE_CHOICE_LIST_TEST_TAG = "multiple choice items test tag"
 
@@ -44,12 +42,8 @@ class MultipleChoiceTaskFragment : AbstractTaskFragment<MultipleChoiceTaskViewMo
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithHeader(inflater)
 
-  override fun onCreateTaskBody(inflater: LayoutInflater): View = createComposeView {
-    MultipleChoiceContent()
-  }
-
   @Composable
-  private fun MultipleChoiceContent() {
+  override fun RenderTaskBody() {
     val list by viewModel.items.collectAsStateWithLifecycle()
     val scrollState = rememberLazyListState()
 

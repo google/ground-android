@@ -18,6 +18,7 @@ package org.groundplatform.android.ui.datacollection.tasks.point
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.os.bundleOf
 import dagger.hilt.android.AndroidEntryPoint
@@ -29,7 +30,6 @@ import org.groundplatform.android.ui.datacollection.components.TaskView
 import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment.Companion.TASK_ID_FRAGMENT_ARG_KEY
-import org.groundplatform.android.util.createComposeView
 import org.groundplatform.android.util.renderComposableDialog
 
 @AndroidEntryPoint
@@ -39,7 +39,8 @@ class DropPinTaskFragment @Inject constructor() : AbstractTaskFragment<DropPinTa
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithCombinedHeader(inflater, R.drawable.outline_pin_drop)
 
-  override fun onCreateTaskBody(inflater: LayoutInflater): View = createComposeView {
+  @Composable
+  override fun RenderTaskBody() {
     AndroidView(
       factory = { context ->
         // NOTE(#2493): Multiplying by a random prime to allow for some mathematical "uniqueness".

@@ -46,7 +46,6 @@ import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment.Companion.TASK_ID_FRAGMENT_ARG_KEY
 import org.groundplatform.android.ui.datacollection.tasks.LocationLockEnabledState
-import org.groundplatform.android.util.createComposeView
 import org.groundplatform.android.util.renderComposableDialog
 
 @AndroidEntryPoint
@@ -58,7 +57,8 @@ class CaptureLocationTaskFragment @Inject constructor() :
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithCombinedHeader(inflater, R.drawable.outline_pin_drop)
 
-  override fun onCreateTaskBody(inflater: LayoutInflater): View = createComposeView {
+  @Composable
+  override fun RenderTaskBody() {
     AndroidView(
       factory = { context ->
         // NOTE(#2493): Multiplying by a random prime to allow for some mathematical uniqueness.

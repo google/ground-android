@@ -16,8 +16,8 @@
 package org.groundplatform.android.ui.datacollection.tasks.polygon
 
 import android.view.LayoutInflater
-import android.view.View
 import android.widget.Toast
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.os.bundleOf
 import androidx.lifecycle.lifecycleScope
@@ -35,7 +35,6 @@ import org.groundplatform.android.ui.datacollection.components.TaskView
 import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment.Companion.TASK_ID_FRAGMENT_ARG_KEY
-import org.groundplatform.android.util.createComposeView
 import org.groundplatform.android.util.renderComposableDialog
 
 @AndroidEntryPoint
@@ -46,7 +45,8 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithCombinedHeader(inflater, R.drawable.outline_draw)
 
-  override fun onCreateTaskBody(inflater: LayoutInflater): View = createComposeView {
+  @Composable
+  override fun RenderTaskBody() {
     AndroidView(
       factory = { context ->
         // XML layout is used to provide a static view ID which does not collide with Google Maps

@@ -19,7 +19,7 @@ import android.app.DatePickerDialog
 import android.content.DialogInterface
 import android.text.format.DateFormat
 import android.view.LayoutInflater
-import android.view.View
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
@@ -33,7 +33,6 @@ import org.groundplatform.android.model.submission.DateTimeTaskData
 import org.groundplatform.android.ui.datacollection.components.TaskView
 import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
-import org.groundplatform.android.util.createComposeView
 import org.jetbrains.annotations.TestOnly
 
 @AndroidEntryPoint
@@ -44,7 +43,8 @@ class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithHeader(inflater)
 
-  override fun onCreateTaskBody(inflater: LayoutInflater): View = createComposeView {
+  @Composable
+  override fun RenderTaskBody() {
     val taskData by viewModel.taskTaskData.collectAsStateWithLifecycle()
     val context = LocalContext.current
 

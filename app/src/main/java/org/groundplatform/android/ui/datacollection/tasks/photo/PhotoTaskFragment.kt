@@ -20,9 +20,9 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.View
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -44,7 +44,6 @@ import org.groundplatform.android.ui.datacollection.components.TaskView
 import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.ui.home.HomeScreenViewModel
-import org.groundplatform.android.util.createComposeView
 import org.groundplatform.android.util.renderComposableDialog
 import timber.log.Timber
 
@@ -76,12 +75,12 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithHeader(inflater)
 
-  override fun onCreateTaskBody(inflater: LayoutInflater): View {
+  @Composable
+  override fun RenderTaskBody() {
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
-    return createComposeView {
-      val uri by viewModel.uri.collectAsStateWithLifecycle(Uri.EMPTY)
-      PhotoTaskScreen(uri = uri, onTakePhoto = { onTakePhoto() })
-    }
+
+    val uri by viewModel.uri.collectAsStateWithLifecycle(Uri.EMPTY)
+    PhotoTaskScreen(uri = uri, onTakePhoto = { onTakePhoto() })
   }
 
   override fun onTaskViewAttached() {
