@@ -17,5 +17,5 @@ package org.groundplatform.domain.model
 
 import kotlinx.serialization.json.JsonObject
 
-/** Represents the data collected for a specific LOI which can be downloaded and shared */
+/** Represents the data collected for a specific LOI which can be downloaded and shared. */
 data class LoiReport(val geoJson: JsonObject)
