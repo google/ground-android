@@ -56,7 +56,10 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   @Inject lateinit var permissionsManager: PermissionsManager
   @Inject lateinit var popups: EphemeralPopups
   @Inject @IoDispatcher lateinit var ioDispatcher: CoroutineDispatcher
-  lateinit var homeScreenViewModel: HomeScreenViewModel
+
+  private val homeScreenViewModel: HomeScreenViewModel by lazy {
+    getViewModel(HomeScreenViewModel::class.java)
+  }
 
   // Registers a callback to execute after a user captures a photo from the on-device camera.
   private lateinit var capturePhotoLauncher: ActivityResultLauncher<Uri>
@@ -77,8 +80,6 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
 
   @Composable
   override fun RenderTaskBody() {
-    homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
-
     val uri by viewModel.uri.collectAsStateWithLifecycle(Uri.EMPTY)
     PhotoTaskScreen(uri = uri, onTakePhoto = { onTakePhoto() })
   }
