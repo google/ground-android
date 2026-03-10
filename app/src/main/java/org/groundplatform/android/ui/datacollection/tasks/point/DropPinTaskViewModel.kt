@@ -21,7 +21,6 @@ import javax.inject.Inject
 import kotlinx.coroutines.launch
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
-import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.getDefaultColor
 import org.groundplatform.android.model.submission.DropPinTaskData
@@ -33,6 +32,7 @@ import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.AbstractMapTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 import org.groundplatform.android.ui.map.Feature
+import org.groundplatform.domain.model.geometry.Point
 
 class DropPinTaskViewModel
 @Inject

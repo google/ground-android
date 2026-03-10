@@ -25,6 +25,7 @@ import androidx.core.graphics.createBitmap
 import com.google.android.gms.maps.model.Tile
 import com.google.android.gms.maps.model.TileProvider
 import java.io.ByteArrayOutputStream
+import org.groundplatform.android.ui.map.gms.CachingUpscalingTileProvider.Companion.DEFAULT_TILE_SIZE
 import timber.log.Timber
 
 /**

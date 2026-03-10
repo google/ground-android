@@ -23,8 +23,6 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import org.groundplatform.android.FlakyTest
 import org.groundplatform.android.R
-import org.groundplatform.android.model.geometry.Coordinates
-import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.submission.CaptureLocationTaskData
 import org.groundplatform.android.model.task.Task
@@ -36,6 +34,8 @@ import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.BaseTaskFragmentTest
+import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.geometry.Point
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock

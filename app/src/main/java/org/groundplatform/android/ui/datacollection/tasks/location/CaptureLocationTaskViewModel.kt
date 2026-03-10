@@ -19,7 +19,6 @@ import android.location.Location
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
-import kotlin.lazy
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
@@ -31,7 +30,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import org.groundplatform.android.common.Constants.ACCURACY_THRESHOLD_IN_M
-import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.model.submission.CaptureLocationTaskData
 import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.submission.isNullOrEmpty
@@ -42,6 +40,7 @@ import org.groundplatform.android.ui.datacollection.tasks.LocationLockEnabledSta
 import org.groundplatform.android.ui.map.gms.getAccuracyOrNull
 import org.groundplatform.android.ui.map.gms.getAltitudeOrNull
 import org.groundplatform.android.ui.map.gms.toCoordinates
+import org.groundplatform.domain.model.geometry.Point
 
 class CaptureLocationTaskViewModel @Inject constructor() : AbstractMapTaskViewModel() {
 
