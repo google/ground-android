@@ -18,7 +18,6 @@ package org.groundplatform.android.ui.datacollection.tasks.time
 import android.app.TimePickerDialog
 import android.content.DialogInterface
 import android.text.format.DateFormat
-import android.view.LayoutInflater
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -30,8 +29,6 @@ import java.util.Calendar
 import java.util.Date
 import org.groundplatform.android.R
 import org.groundplatform.android.model.submission.DateTimeTaskData
-import org.groundplatform.android.ui.datacollection.components.TaskView
-import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.jetbrains.annotations.TestOnly
 
@@ -39,9 +36,6 @@ import org.jetbrains.annotations.TestOnly
 class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
 
   private var timePickerDialog: TimePickerDialog? = null
-
-  override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
-    TaskViewFactory.createWithHeader(inflater)
 
   @Composable
   override fun TaskBody() {

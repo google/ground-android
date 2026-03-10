@@ -30,9 +30,8 @@ import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.databinding.FragmentDrawAreaTaskBinding
 import org.groundplatform.android.ui.components.ConfirmationDialog
+import org.groundplatform.android.ui.datacollection.components.Header
 import org.groundplatform.android.ui.datacollection.components.InstructionsDialog
-import org.groundplatform.android.ui.datacollection.components.TaskView
-import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment.Companion.TASK_ID_FRAGMENT_ARG_KEY
 import org.groundplatform.android.util.renderComposableDialog
@@ -42,8 +41,8 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
   @Inject lateinit var drawAreaTaskMapFragmentProvider: Provider<DrawAreaTaskMapFragment>
   private lateinit var drawAreaTaskMapFragment: DrawAreaTaskMapFragment
 
-  override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
-    TaskViewFactory.createWithCombinedHeader(inflater, R.drawable.outline_draw)
+  override val taskHeader: Header
+    get() = Header(viewModel.task.label, R.drawable.outline_draw)
 
   @Composable
   override fun TaskBody() {

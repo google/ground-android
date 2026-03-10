@@ -1,0 +1,114 @@
+/*
+ * Copyright 2026 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.groundplatform.android.ui.datacollection.components
+
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import org.groundplatform.android.R
+import org.groundplatform.ui.theme.AppTheme
+
+data class Header(
+  val label: String,
+  @DrawableRes val iconResId: Int? = R.drawable.ic_question_answer,
+)
+
+@Composable
+fun TaskViewLayout(
+  modifier: Modifier = Modifier,
+  header: Header? = null,
+  footer: @Composable () -> Unit,
+  content: @Composable () -> Unit,
+) {
+  Column(modifier = Modifier.fillMaxSize()) {
+    if (header != null) {
+      TaskViewHeader(header)
+    }
+
+    Box(modifier = modifier.weight(1f).fillMaxWidth().padding(horizontal = 20.dp)) { content() }
+
+    Box(modifier = Modifier.fillMaxWidth()) { footer() }
+  }
+}
+
+@Composable
+private fun TaskViewHeader(header: Header) {
+  Row(
+    modifier = Modifier.fillMaxWidth().padding(20.dp),
+    verticalAlignment = Alignment.CenterVertically,
+  ) {
+    if (header.iconResId != null) {
+      Icon(
+        painter = painterResource(id = header.iconResId),
+        modifier = Modifier.padding(end = 12.dp),
+        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        contentDescription = null,
+      )
+    }
+    Text(
+      text = header.label,
+      color = MaterialTheme.colorScheme.onSurface,
+      style = MaterialTheme.typography.titleMedium,
+    )
+  }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TaskViewLayoutPreviewWithIcon() {
+  AppTheme {
+    TaskViewLayout(
+      header = Header("Sample label", iconResId = R.drawable.ic_question_answer),
+      footer = { Text("Sample Buttons") },
+    ) {
+      Text("Sample Content")
+    }
+  }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TaskViewLayoutPreviewWithoutIcon() {
+  AppTheme {
+    TaskViewLayout(
+      header = Header(label = "Sample label", iconResId = null),
+      footer = { Text("Sample Buttons") },
+    ) {
+      Text("Sample Content")
+    }
+  }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TaskViewLayoutPreviewWithoutHeader() {
+  AppTheme {
+    TaskViewLayout(header = null, footer = { Text("Sample Buttons") }) { Text("Sample Content") }
+  }
+}

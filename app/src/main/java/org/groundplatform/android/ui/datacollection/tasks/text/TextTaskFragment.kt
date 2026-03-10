@@ -15,7 +15,6 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.text
 
-import android.view.LayoutInflater
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -23,8 +22,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import dagger.hilt.android.AndroidEntryPoint
 import org.groundplatform.android.model.submission.TextTaskData.Companion.fromString
-import org.groundplatform.android.ui.datacollection.components.TaskView
-import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
 import org.groundplatform.android.ui.datacollection.components.TextTaskInput
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 
@@ -33,9 +30,6 @@ const val INPUT_TEXT_TEST_TAG: String = "text task input test tag"
 /** Fragment allowing the user to answer questions to complete a task. */
 @AndroidEntryPoint
 class TextTaskFragment : AbstractTaskFragment<TextTaskViewModel>() {
-
-  override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
-    TaskViewFactory.createWithHeader(inflater)
 
   @Composable
   override fun TaskBody() {

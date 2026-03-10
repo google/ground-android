@@ -15,7 +15,6 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.point
 
-import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import androidx.compose.runtime.Composable
@@ -25,9 +24,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import javax.inject.Provider
 import org.groundplatform.android.R
+import org.groundplatform.android.ui.datacollection.components.Header
 import org.groundplatform.android.ui.datacollection.components.InstructionsDialog
-import org.groundplatform.android.ui.datacollection.components.TaskView
-import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment.Companion.TASK_ID_FRAGMENT_ARG_KEY
 import org.groundplatform.android.util.renderComposableDialog
@@ -36,8 +34,8 @@ import org.groundplatform.android.util.renderComposableDialog
 class DropPinTaskFragment @Inject constructor() : AbstractTaskFragment<DropPinTaskViewModel>() {
   @Inject lateinit var dropPinTaskMapFragmentProvider: Provider<DropPinTaskMapFragment>
 
-  override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
-    TaskViewFactory.createWithCombinedHeader(inflater, R.drawable.outline_pin_drop)
+  override val taskHeader: Header
+    get() = Header(viewModel.task.label, R.drawable.outline_pin_drop)
 
   @Composable
   override fun TaskBody() {

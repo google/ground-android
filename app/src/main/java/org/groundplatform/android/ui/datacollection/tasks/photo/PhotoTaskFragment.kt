@@ -19,7 +19,6 @@ import android.Manifest
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.view.LayoutInflater
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
@@ -40,8 +39,6 @@ import org.groundplatform.android.system.PermissionDeniedException
 import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.ui.common.EphemeralPopups
 import org.groundplatform.android.ui.components.ConfirmationDialog
-import org.groundplatform.android.ui.datacollection.components.TaskView
-import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.ui.home.HomeScreenViewModel
 import org.groundplatform.android.util.renderComposableDialog
@@ -74,9 +71,6 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
         externalScope.launch(ioDispatcher) { viewModel.onCaptureResult(result) }
       }
   }
-
-  override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
-    TaskViewFactory.createWithHeader(inflater)
 
   @Composable
   override fun TaskBody() {

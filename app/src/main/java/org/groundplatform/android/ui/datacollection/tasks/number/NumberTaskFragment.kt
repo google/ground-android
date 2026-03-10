@@ -15,7 +15,6 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.number
 
-import android.view.LayoutInflater
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -24,8 +23,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.KeyboardType
 import dagger.hilt.android.AndroidEntryPoint
 import org.groundplatform.android.model.submission.NumberTaskData.Companion.fromNumber
-import org.groundplatform.android.ui.datacollection.components.TaskView
-import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
 import org.groundplatform.android.ui.datacollection.components.TextTaskInput
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 
@@ -34,9 +31,6 @@ const val INPUT_NUMBER_TEST_TAG: String = "number task input test tag"
 /** Fragment allowing the user to answer questions to complete a task. */
 @AndroidEntryPoint
 class NumberTaskFragment : AbstractTaskFragment<NumberTaskViewModel>() {
-
-  override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
-    TaskViewFactory.createWithHeader(layoutInflater)
 
   @Composable
   override fun TaskBody() {

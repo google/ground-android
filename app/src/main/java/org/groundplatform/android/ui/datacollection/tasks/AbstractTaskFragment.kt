@@ -24,7 +24,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.view.doOnAttach
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -35,19 +34,17 @@ import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.datacollection.DataCollectionUiState
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
+import org.groundplatform.android.ui.datacollection.components.Header
 import org.groundplatform.android.ui.datacollection.components.LoiNameDialog
 import org.groundplatform.android.ui.datacollection.components.TaskFooter
-import org.groundplatform.android.ui.datacollection.components.TaskView
+import org.groundplatform.android.ui.datacollection.components.TaskViewLayout
 import org.groundplatform.android.util.createComposeView
 import org.groundplatform.android.util.renderComposableDialog
-import org.groundplatform.android.util.setComposableContent
 
 abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragment() {
 
   protected val dataCollectionViewModel: DataCollectionViewModel by
     hiltNavGraphViewModels(R.id.data_collection)
-
-  private lateinit var taskView: TaskView
 
   /** ID of the associated task in the Job. Used for instantiating the [viewModel]. */
   var taskId by Delegates.notNull<String>()
@@ -74,23 +71,13 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     inflater: LayoutInflater,
     container: ViewGroup?,
     savedInstanceState: Bundle?,
-  ): View? {
-    super.onCreateView(inflater, container, savedInstanceState)
-    taskView = onCreateTaskView(inflater)
-    return taskView.root
+  ): View = createComposeView {
+    TaskViewLayout(header = taskHeader, footer = { TaskFooter() }, content = { TaskBody() })
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    view.doOnAttach {
-      taskView.bind(this, viewModel)
-      taskView.addTaskView(createComposeView { TaskBody() })
-
-      // Add actions buttons after the view model is bound to the view.
-      setupTaskFooter()
-
-      onTaskViewAttached()
-    }
+    view.doOnAttach { onTaskViewAttached() }
   }
 
   override fun onResume() {
@@ -98,8 +85,8 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     onTaskResume()
   }
 
-  /** Creates the view for common task template with/without header. */
-  abstract fun onCreateTaskView(inflater: LayoutInflater): TaskView
+  /** Represents the content to be shown in the task header, if any. */
+  open val taskHeader: Header? = Header(viewModel.task.label)
 
   /** Renders the body of the task. */
   @Composable abstract fun TaskBody()
@@ -140,24 +127,19 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   }
 
   /** Adds the action buttons to the UI. */
-  private fun setupTaskFooter() {
-    with(taskView.actionButtonsContainer) {
-      setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-      setComposableContent {
-        val taskActionButtonsStates by
-          viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
-        TaskFooter(
-          headerCard =
-            if (shouldShowHeader()) {
-              { HeaderCard() }
-            } else {
-              null
-            },
-          buttonActionStates = taskActionButtonsStates,
-          onButtonClicked = { handleButtonClick(it) },
-        )
-      }
-    }
+  @Composable
+  internal fun TaskFooter() {
+    val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
+    TaskFooter(
+      headerCard =
+        if (shouldShowHeader()) {
+          { HeaderCard() }
+        } else {
+          null
+        },
+      buttonActionStates = taskActionButtonsStates,
+      onButtonClicked = { handleButtonClick(it) },
+    )
   }
 
   private fun handleButtonClick(action: ButtonAction) {
