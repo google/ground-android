@@ -126,10 +126,14 @@ private fun DrawerNavigationItem(item: DrawerItem, onAction: (HomeDrawerAction) 
     label = {
       Text(
         text = label,
-        fontWeight = MaterialTheme.typography.titleSmall.fontWeight,
-        fontFamily = MaterialTheme.typography.titleSmall.fontFamily,
-        fontSize = MaterialTheme.typography.titleSmall.fontSize,
-        lineHeight = MaterialTheme.typography.titleSmall.lineHeight,
+        fontSize = 14.sp,
+        fontWeight = FontWeight.SemiBold,
+        fontFamily =
+          androidx.compose.ui.text.font.FontFamily(
+            androidx.compose.ui.text.font.Font(R.font.manrope_bold, FontWeight.SemiBold),
+            androidx.compose.ui.text.font.Font(R.font.manrope_medium, FontWeight.Medium),
+          ),
+        lineHeight = 20.sp,
       )
     },
     selected = false,
@@ -163,7 +167,14 @@ private fun DrawerVersionFooter(versionText: String) {
     Spacer(Modifier.width(12.dp))
     Text(
       text = versionText,
-      style = MaterialTheme.typography.labelLarge,
+      fontSize = 14.sp,
+      fontWeight = FontWeight.SemiBold,
+      fontFamily =
+        androidx.compose.ui.text.font.FontFamily(
+          androidx.compose.ui.text.font.Font(R.font.manrope_bold, FontWeight.SemiBold),
+          androidx.compose.ui.text.font.Font(R.font.manrope_medium, FontWeight.Medium),
+        ),
+      lineHeight = 20.sp,
       color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
   }
@@ -196,6 +207,7 @@ private fun AppInfoHeader(user: User, onAction: (HomeDrawerAction) -> Unit) {
               androidx.compose.ui.text.font.Font(R.font.google_sans)
             ),
           fontWeight = FontWeight.Normal,
+          lineHeight = 24.sp,
           color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
       }
@@ -232,7 +244,13 @@ private fun SurveySelector(survey: Survey?, onSwitchSurvey: () -> Unit) {
       Spacer(Modifier.width(4.dp))
       Text(
         text = stringResource(R.string.current_survey),
-        style = MaterialTheme.typography.labelMedium,
+        fontSize = 12.sp,
+        fontWeight = FontWeight.Medium,
+        fontFamily =
+          androidx.compose.ui.text.font.FontFamily(
+            androidx.compose.ui.text.font.Font(R.font.google_sans)
+          ),
+        lineHeight = 16.sp,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
       )
     }
@@ -243,15 +261,28 @@ private fun SurveySelector(survey: Survey?, onSwitchSurvey: () -> Unit) {
     } else {
       Text(
         text = survey.title,
-        style = MaterialTheme.typography.titleMedium,
-        fontWeight = FontWeight.Bold,
+        fontSize = 16.sp,
+        fontWeight = FontWeight.Medium,
+        fontFamily =
+          androidx.compose.ui.text.font.FontFamily(
+            androidx.compose.ui.text.font.Font(R.font.google_sans)
+          ),
+        lineHeight = 24.sp,
+        color = MaterialTheme.colorScheme.onSurface,
         maxLines = 3,
         overflow = TextOverflow.Ellipsis,
       )
       if (survey.description.isNotEmpty()) {
         Text(
           text = survey.description,
-          style = MaterialTheme.typography.bodyMedium,
+          fontSize = 14.sp,
+          fontWeight = FontWeight.Normal,
+          fontFamily =
+            androidx.compose.ui.text.font.FontFamily(
+              androidx.compose.ui.text.font.Font(R.font.google_sans)
+            ),
+          lineHeight = 20.sp,
+          color = MaterialTheme.colorScheme.onSurface,
           maxLines = 4,
           overflow = TextOverflow.Ellipsis,
           modifier = Modifier.padding(top = 8.dp),
@@ -263,7 +294,14 @@ private fun SurveySelector(survey: Survey?, onSwitchSurvey: () -> Unit) {
 
     Text(
       text = stringResource(R.string.switch_survey),
-      style = MaterialTheme.typography.labelLarge,
+      fontSize = 14.sp,
+      fontWeight = FontWeight.SemiBold,
+      fontFamily =
+        androidx.compose.ui.text.font.FontFamily(
+          androidx.compose.ui.text.font.Font(R.font.manrope_bold, FontWeight.SemiBold),
+          androidx.compose.ui.text.font.Font(R.font.manrope_medium, FontWeight.Medium),
+        ),
+      lineHeight = 20.sp,
       color = MaterialTheme.colorScheme.primary,
       modifier =
         Modifier.clip(CircleShape).clickable(onClick = onSwitchSurvey).padding(vertical = 10.dp),
