@@ -64,15 +64,6 @@
     <item name="colorPrimaryInverse">@color/md_theme_inversePrimary</item>
   </style>
 
-
-
-
-  <style name="TextAppearance.App.TitleSmall" parent="TextAppearance.Material3.TitleSmall" tools:ignore="UnusedResources">
-    <item name="fontFamily">@font/text_700</item>
-  </style>
-
-
-
   <style name="TextAppearance.App.TitleMedium" parent="TextAppearance.Material3.TitleMedium">
     <item name="fontFamily">@font/text_700</item>
     <item name="android:textColor">?attr/colorOnSurface</item>
