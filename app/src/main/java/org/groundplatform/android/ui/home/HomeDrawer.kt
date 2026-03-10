@@ -127,11 +127,10 @@ private fun DrawerNavigationItem(item: DrawerItem, onAction: (HomeDrawerAction) 
       Text(
         text = label,
         fontSize = 14.sp,
-        fontWeight = FontWeight.SemiBold,
+        fontWeight = FontWeight.Medium,
         fontFamily =
           androidx.compose.ui.text.font.FontFamily(
-            androidx.compose.ui.text.font.Font(R.font.manrope_bold, FontWeight.SemiBold),
-            androidx.compose.ui.text.font.Font(R.font.manrope_medium, FontWeight.Medium),
+            androidx.compose.ui.text.font.Font(R.font.manrope_medium, FontWeight.Medium)
           ),
         lineHeight = 20.sp,
       )
@@ -168,11 +167,10 @@ private fun DrawerVersionFooter(versionText: String) {
     Text(
       text = versionText,
       fontSize = 14.sp,
-      fontWeight = FontWeight.SemiBold,
+      fontWeight = FontWeight.Medium,
       fontFamily =
         androidx.compose.ui.text.font.FontFamily(
-          androidx.compose.ui.text.font.Font(R.font.manrope_bold, FontWeight.SemiBold),
-          androidx.compose.ui.text.font.Font(R.font.manrope_medium, FontWeight.Medium),
+          androidx.compose.ui.text.font.Font(R.font.manrope_medium, FontWeight.Medium)
         ),
       lineHeight = 20.sp,
       color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -189,7 +187,10 @@ private data class DrawerItem(
 @Composable
 private fun AppInfoHeader(user: User, onAction: (HomeDrawerAction) -> Unit) {
   Column(
-    modifier = Modifier.fillMaxWidth().padding(start = 16.dp, top = 8.dp, bottom = 8.dp, end = 8.dp)
+    modifier =
+      Modifier.fillMaxWidth()
+        .background(MaterialTheme.colorScheme.surfaceVariant)
+        .padding(vertical = 24.dp, horizontal = 16.dp)
   ) {
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
       Image(
@@ -216,7 +217,7 @@ private fun AppInfoHeader(user: User, onAction: (HomeDrawerAction) -> Unit) {
           model = user.photoUrl,
           contentDescription = null,
           modifier =
-            Modifier.size(27.dp).clip(CircleShape).clickable {
+            Modifier.size(32.dp).clip(CircleShape).clickable {
               onAction(HomeDrawerAction.OnUserDetails)
             },
           contentScale = androidx.compose.ui.layout.ContentScale.Crop,
@@ -229,12 +230,7 @@ private fun AppInfoHeader(user: User, onAction: (HomeDrawerAction) -> Unit) {
 @Suppress("LongMethod")
 @Composable
 private fun SurveySelector(survey: Survey?, onSwitchSurvey: () -> Unit) {
-  Column(
-    modifier =
-      Modifier.fillMaxWidth()
-        .padding(horizontal = 12.dp)
-        .padding(start = 16.dp, end = 16.dp, bottom = 4.dp)
-  ) {
+  Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
     Row(verticalAlignment = Alignment.CenterVertically) {
       Icon(
         painter = painterResource(R.drawable.ic_content_paste),
