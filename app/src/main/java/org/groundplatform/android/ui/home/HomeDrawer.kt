@@ -55,7 +55,7 @@ import androidx.compose.ui.unit.sp
 import org.groundplatform.android.R
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.User
-import org.groundplatform.android.ui.theme.AppTheme
+import org.groundplatform.ui.theme.AppTheme
 
 @Composable
 fun HomeDrawer(
@@ -81,14 +81,14 @@ fun HomeDrawer(
 private val NAV_ITEMS =
   listOf(
     DrawerItem(
-      labelId = R.string.offline_map_imagery,
-      icon = IconSource.Drawable(R.drawable.ic_offline_pin),
-      action = HomeDrawerAction.OnNavigateToOfflineAreas,
+      labelId = R.string.sync_status,
+      icon = IconSource.Drawable(R.drawable.ic_history),
+      action = HomeDrawerAction.OnNavigateToSyncStatus,
     ),
     DrawerItem(
-      labelId = R.string.sync_status,
-      icon = IconSource.Drawable(R.drawable.ic_sync),
-      action = HomeDrawerAction.OnNavigateToSyncStatus,
+      labelId = R.string.offline_map_imagery,
+      icon = IconSource.Drawable(R.drawable.cloud_off),
+      action = HomeDrawerAction.OnNavigateToOfflineAreas,
     ),
     DrawerItem(
       labelId = R.string.settings,
@@ -123,7 +123,13 @@ private fun DrawerItems(onAction: (HomeDrawerAction) -> Unit, versionText: Strin
 private fun DrawerNavigationItem(item: DrawerItem, onAction: (HomeDrawerAction) -> Unit) {
   val label = stringResource(item.labelId)
   NavigationDrawerItem(
-    label = { Text(label) },
+    label = {
+      Text(
+        text = label,
+        fontWeight = FontWeight.Medium,
+        fontFamily = androidx.compose.ui.text.font.FontFamily.Default,
+      )
+    },
     selected = false,
     onClick = { onAction(item.action) },
     icon = {
@@ -186,7 +192,11 @@ private fun AppInfoHeader(user: User, onAction: (HomeDrawerAction) -> Unit) {
         Text(
           text = stringResource(R.string.app_name),
           fontSize = 18.sp,
-          fontWeight = FontWeight.Medium,
+          fontFamily =
+            androidx.compose.ui.text.font.FontFamily(
+              androidx.compose.ui.text.font.Font(R.font.google_sans)
+            ),
+          fontWeight = FontWeight.Normal,
         )
       }
       if (user.photoUrl != null) {
