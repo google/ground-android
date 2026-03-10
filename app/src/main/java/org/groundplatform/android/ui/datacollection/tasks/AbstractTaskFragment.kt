@@ -84,7 +84,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     super.onViewCreated(view, savedInstanceState)
     view.doOnAttach {
       taskView.bind(this, viewModel)
-      taskView.addTaskView(createComposeView { RenderTaskBody() })
+      taskView.addTaskView(createComposeView { TaskBody() })
 
       // Add actions buttons after the view model is bound to the view.
       setupTaskFooter()
@@ -102,7 +102,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   abstract fun onCreateTaskView(inflater: LayoutInflater): TaskView
 
   /** Renders the body of the task. */
-  @Composable abstract fun RenderTaskBody()
+  @Composable abstract fun TaskBody()
 
   /** Invoked after the task view gets attached to the fragment. */
   open fun onTaskViewAttached() {}

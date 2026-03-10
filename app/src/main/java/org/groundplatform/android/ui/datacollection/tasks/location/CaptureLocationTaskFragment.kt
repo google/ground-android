@@ -58,7 +58,7 @@ class CaptureLocationTaskFragment @Inject constructor() :
     TaskViewFactory.createWithCombinedHeader(inflater, R.drawable.outline_pin_drop)
 
   @Composable
-  override fun RenderTaskBody() {
+  override fun TaskBody() {
     AndroidView(
       factory = { context ->
         // NOTE(#2493): Multiplying by a random prime to allow for some mathematical uniqueness.

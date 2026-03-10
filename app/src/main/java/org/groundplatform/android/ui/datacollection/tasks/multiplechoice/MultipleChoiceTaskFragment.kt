@@ -43,7 +43,7 @@ class MultipleChoiceTaskFragment : AbstractTaskFragment<MultipleChoiceTaskViewMo
     TaskViewFactory.createWithHeader(inflater)
 
   @Composable
-  override fun RenderTaskBody() {
+  override fun TaskBody() {
     val list by viewModel.items.collectAsStateWithLifecycle()
     val scrollState = rememberLazyListState()
 

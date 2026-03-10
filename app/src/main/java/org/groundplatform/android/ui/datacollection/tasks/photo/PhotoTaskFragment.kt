@@ -79,7 +79,7 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
     TaskViewFactory.createWithHeader(inflater)
 
   @Composable
-  override fun RenderTaskBody() {
+  override fun TaskBody() {
     val uri by viewModel.uri.collectAsStateWithLifecycle(Uri.EMPTY)
     PhotoTaskScreen(uri = uri, onTakePhoto = { onTakePhoto() })
   }

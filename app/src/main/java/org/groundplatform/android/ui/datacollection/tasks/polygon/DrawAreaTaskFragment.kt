@@ -46,7 +46,7 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
     TaskViewFactory.createWithCombinedHeader(inflater, R.drawable.outline_draw)
 
   @Composable
-  override fun RenderTaskBody() {
+  override fun TaskBody() {
     AndroidView(
       factory = { context ->
         // XML layout is used to provide a static view ID which does not collide with Google Maps

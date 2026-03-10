@@ -39,7 +39,7 @@ class NumberTaskFragment : AbstractTaskFragment<NumberTaskViewModel>() {
     TaskViewFactory.createWithHeader(layoutInflater)
 
   @Composable
-  override fun RenderTaskBody() {
+  override fun TaskBody() {
     val userResponse by viewModel.responseText.observeAsState("")
     TextTaskInput(
       userResponse,

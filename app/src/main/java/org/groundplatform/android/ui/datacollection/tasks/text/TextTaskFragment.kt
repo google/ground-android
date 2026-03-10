@@ -38,7 +38,7 @@ class TextTaskFragment : AbstractTaskFragment<TextTaskViewModel>() {
     TaskViewFactory.createWithHeader(inflater)
 
   @Composable
-  override fun RenderTaskBody() {
+  override fun TaskBody() {
     val userResponse by viewModel.responseText.observeAsState("")
     TextTaskInput(userResponse, modifier = Modifier.testTag(INPUT_TEXT_TEST_TAG)) { newText ->
       viewModel.setValue(fromString(newText))

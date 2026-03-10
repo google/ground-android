@@ -44,7 +44,7 @@ class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
     TaskViewFactory.createWithHeader(inflater)
 
   @Composable
-  override fun RenderTaskBody() {
+  override fun TaskBody() {
     val taskData by viewModel.taskTaskData.collectAsStateWithLifecycle()
     val context = LocalContext.current
 

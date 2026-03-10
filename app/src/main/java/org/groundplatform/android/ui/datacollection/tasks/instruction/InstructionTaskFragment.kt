@@ -42,7 +42,7 @@ class InstructionTaskFragment : AbstractTaskFragment<InstructionTaskViewModel>()
     TaskViewFactory.createWithoutHeader(inflater)
 
   @Composable
-  override fun RenderTaskBody() {
+  override fun TaskBody() {
     ShowTextField(viewModel.task.label)
   }
 
