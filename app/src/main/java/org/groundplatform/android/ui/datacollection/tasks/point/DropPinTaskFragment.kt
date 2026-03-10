@@ -15,10 +15,11 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.point
 
-import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.os.bundleOf
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import javax.inject.Provider
@@ -28,6 +29,7 @@ import org.groundplatform.android.ui.datacollection.components.TaskView
 import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment.Companion.TASK_ID_FRAGMENT_ARG_KEY
+import org.groundplatform.android.util.createComposeView
 import org.groundplatform.android.util.renderComposableDialog
 
 @AndroidEntryPoint
@@ -37,19 +39,20 @@ class DropPinTaskFragment @Inject constructor() : AbstractTaskFragment<DropPinTa
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithCombinedHeader(inflater, R.drawable.outline_pin_drop)
 
-  override fun onCreateTaskBody(inflater: LayoutInflater): View {
-    // NOTE(#2493): Multiplying by a random prime to allow for some mathematical "uniqueness".
-    // Otherwise, the sequentially generated ID might conflict with an ID produced by Google Maps.
-    val rowLayout = LinearLayout(requireContext()).apply { id = View.generateViewId() * 11617 }
-    val fragment = dropPinTaskMapFragmentProvider.get()
-    val args = Bundle()
-    args.putString(TASK_ID_FRAGMENT_ARG_KEY, taskId)
-    fragment.arguments = args
-    childFragmentManager
-      .beginTransaction()
-      .add(rowLayout.id, fragment, "Drop a pin fragment")
-      .commit()
-    return rowLayout
+  override fun onCreateTaskBody(inflater: LayoutInflater): View = createComposeView {
+    AndroidView(
+      factory = { context ->
+        // NOTE(#2493): Multiplying by a random prime to allow for some mathematical "uniqueness".
+        // Otherwise, the sequentially generated ID might conflict with an ID produced by Google
+        // Maps.
+        LinearLayout(context).apply {
+          id = View.generateViewId() * 11617
+          val fragment = dropPinTaskMapFragmentProvider.get()
+          fragment.arguments = bundleOf(Pair(TASK_ID_FRAGMENT_ARG_KEY, taskId))
+          childFragmentManager.beginTransaction().add(id, fragment, "Drop a pin fragment").commit()
+        }
+      }
+    )
   }
 
   override fun onTaskResume() {
