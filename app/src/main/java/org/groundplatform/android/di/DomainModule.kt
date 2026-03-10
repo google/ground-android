@@ -27,8 +27,7 @@ import org.groundplatform.domain.usecases.LoiDataProviderInterface
 @InstallIn(SingletonComponent::class)
 @Module
 internal abstract class DomainModule {
-  @Binds
-  abstract fun bindLoiGeometryProvider(impl: LoiDataProvider): LoiDataProviderInterface
+  @Binds abstract fun bindLoiGeometryProvider(impl: LoiDataProvider): LoiDataProviderInterface
 
   companion object {
     @Provides

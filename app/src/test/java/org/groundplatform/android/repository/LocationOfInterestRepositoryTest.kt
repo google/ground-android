@@ -284,7 +284,10 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
         customId = "",
       )
 
-    fun LocationOfInterest.toMutation(type: Mutation.Type, userId: String): LocationOfInterestMutation =
+    fun LocationOfInterest.toMutation(
+      type: Mutation.Type,
+      userId: String,
+    ): LocationOfInterestMutation =
       LocationOfInterestMutation(
         jobId = job.id,
         type = type,

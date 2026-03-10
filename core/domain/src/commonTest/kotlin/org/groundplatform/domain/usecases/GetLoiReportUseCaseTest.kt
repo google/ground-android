@@ -27,6 +27,7 @@ import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.geometry.Polygon
 import org.groundplatform.domain.model.locationofinterest.generateProperties
 
+@Suppress("MultilineRawStringIndentation")
 class GetLoiReportUseCaseTest {
   private val loiDataProvider = FakeLoiDataProvider()
   private val getLoiReportUseCase = GetLoiReportUseCase(loiDataProvider)
@@ -51,6 +52,7 @@ class GetLoiReportUseCaseTest {
         }
       }
       """
+        .trimIndent()
     assertEquals(Json.parseToJsonElement(expectedGeoJson), loiReport.geoJson)
   }
 
@@ -86,6 +88,7 @@ class GetLoiReportUseCaseTest {
         }
       }
       """
+        .trimIndent()
     assertEquals(Json.parseToJsonElement(expectedGeoJson), loiReport.geoJson)
   }
 
@@ -130,6 +133,7 @@ class GetLoiReportUseCaseTest {
         }
       }
       """
+        .trimIndent()
     assertEquals(Json.parseToJsonElement(expectedGeoJson), loiReport.geoJson)
   }
 
@@ -174,6 +178,7 @@ class GetLoiReportUseCaseTest {
         }
       }
       """
+        .trimIndent()
     assertEquals(Json.parseToJsonElement(expectedGeoJson), loiReport.geoJson)
   }
 
@@ -199,6 +204,7 @@ class GetLoiReportUseCaseTest {
         }
       }
       """
+        .trimIndent()
     assertEquals(Json.parseToJsonElement(expectedGeoJson), loiReport.geoJson)
   }
 
@@ -222,6 +228,7 @@ class GetLoiReportUseCaseTest {
         }
       }
       """
+        .trimIndent()
     assertEquals(Json.parseToJsonElement(expectedGeoJson), loiReport.geoJson)
   }
 
