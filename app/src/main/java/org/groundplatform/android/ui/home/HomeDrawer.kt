@@ -73,7 +73,7 @@ fun HomeDrawer(
   ) {
     AppInfoHeader(user = user, onAction = onAction)
     SurveySelector(survey = survey, onSwitchSurvey = { onAction(HomeDrawerAction.OnSwitchSurvey) })
-    HorizontalDivider(modifier = Modifier.padding(end = 24.dp))
+    HorizontalDivider(modifier = Modifier.padding(horizontal = 24.dp))
     DrawerItems(onAction, versionText)
   }
 }
@@ -126,8 +126,10 @@ private fun DrawerNavigationItem(item: DrawerItem, onAction: (HomeDrawerAction) 
     label = {
       Text(
         text = label,
-        fontWeight = FontWeight.Medium,
-        fontFamily = androidx.compose.ui.text.font.FontFamily.Default,
+        fontWeight = MaterialTheme.typography.titleSmall.fontWeight,
+        fontFamily = MaterialTheme.typography.titleSmall.fontFamily,
+        fontSize = MaterialTheme.typography.titleSmall.fontSize,
+        lineHeight = MaterialTheme.typography.titleSmall.lineHeight,
       )
     },
     selected = false,
