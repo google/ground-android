@@ -73,7 +73,7 @@ fun HomeDrawer(
   ) {
     AppInfoHeader(user = user, onAction = onAction)
     SurveySelector(survey = survey, onSwitchSurvey = { onAction(HomeDrawerAction.OnSwitchSurvey) })
-    HorizontalDivider()
+    HorizontalDivider(modifier = Modifier.padding(end = 24.dp))
     DrawerItems(onAction, versionText)
   }
 }
