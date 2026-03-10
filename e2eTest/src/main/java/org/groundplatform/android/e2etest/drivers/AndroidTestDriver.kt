@@ -57,20 +57,22 @@ class AndroidTestDriver(
 ) : TestDriver {
   private fun wait(target: TestDriver.Target, timeout: Long = DEFAULT_TIMEOUT) {
     when (target) {
-      is TestDriver.Target.ContentDescription ->
+      is TestDriver.Target.ContentDescription -> {
         composeRule.waitUntilAtLeastOneExists(
           hasContentDescription(target.text) and isEnabled(),
           timeout,
         )
+      }
 
-      is TestDriver.Target.TestTag ->
+      is TestDriver.Target.TestTag -> {
         composeRule.waitUntilAtLeastOneExists(hasTestTag(target.tag) and isEnabled(), timeout)
-
-      is TestDriver.Target.Text ->
+      }
+      is TestDriver.Target.Text -> {
         composeRule.waitUntilAtLeastOneExists(
           hasText(target.text, target.substring) and isEnabled(),
           timeout,
         )
+      }
 
       is TestDriver.Target.ViewId -> {
         val resName = composeRule.activity.resources.getResourceEntryName(target.resId)

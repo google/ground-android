@@ -58,6 +58,7 @@ private fun urbanistFontFamily() =
     ),
   )
 
+@Suppress("LongMethod")
 @Composable
 fun appTypography() =
   Typography(
