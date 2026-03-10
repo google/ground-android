@@ -38,6 +38,7 @@ import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.LoiNameDialog
 import org.groundplatform.android.ui.datacollection.components.TaskFooter
 import org.groundplatform.android.ui.datacollection.components.TaskView
+import org.groundplatform.android.util.createComposeView
 import org.groundplatform.android.util.renderComposableDialog
 import org.groundplatform.android.util.setComposableContent
 
@@ -83,7 +84,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     super.onViewCreated(view, savedInstanceState)
     view.doOnAttach {
       taskView.bind(this, viewModel)
-      taskView.addTaskView(onCreateTaskBody(layoutInflater))
+      taskView.addTaskView(createComposeView { TaskBody() })
 
       // Add actions buttons after the view model is bound to the view.
       setupTaskFooter()
@@ -100,8 +101,8 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   /** Creates the view for common task template with/without header. */
   abstract fun onCreateTaskView(inflater: LayoutInflater): TaskView
 
-  /** Creates the view for body of the task. */
-  abstract fun onCreateTaskBody(inflater: LayoutInflater): View
+  /** Renders the body of the task. */
+  @Composable abstract fun TaskBody()
 
   /** Invoked after the task view gets attached to the fragment. */
   open fun onTaskViewAttached() {}
