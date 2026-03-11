@@ -27,11 +27,11 @@ import org.groundplatform.domain.usecases.LoiDataProviderInterface
 @InstallIn(SingletonComponent::class)
 @Module
 internal abstract class DomainModule {
-  @Binds abstract fun bindLoiGeometryProvider(impl: LoiDataProvider): LoiDataProviderInterface
+  @Binds abstract fun bindLoiDataProvider(impl: LoiDataProvider): LoiDataProviderInterface
 
   companion object {
     @Provides
-    fun provideGetLoiGeometryUseCase(loiGeometryProvider: LoiDataProviderInterface) =
-      GetLoiReportUseCase(loiGeometryProvider)
+    fun provideGetLoiReportUseCase(loiDataProvider: LoiDataProviderInterface) =
+      GetLoiReportUseCase(loiDataProvider)
   }
 }
