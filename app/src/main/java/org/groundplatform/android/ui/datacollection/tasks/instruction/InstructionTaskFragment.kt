@@ -36,8 +36,7 @@ import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 @AndroidEntryPoint
 class InstructionTaskFragment : AbstractTaskFragment<InstructionTaskViewModel>() {
 
-  override val taskHeader: Header?
-    get() = null
+  override val taskHeader: Header? = null
 
   @Composable
   override fun TaskBody() {

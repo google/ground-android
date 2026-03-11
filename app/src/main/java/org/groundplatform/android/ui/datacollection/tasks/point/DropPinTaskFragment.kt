@@ -34,8 +34,9 @@ import org.groundplatform.android.util.renderComposableDialog
 class DropPinTaskFragment @Inject constructor() : AbstractTaskFragment<DropPinTaskViewModel>() {
   @Inject lateinit var dropPinTaskMapFragmentProvider: Provider<DropPinTaskMapFragment>
 
-  override val taskHeader: Header
-    get() = Header(viewModel.task.label, R.drawable.outline_pin_drop)
+  override val taskHeader: Header by lazy {
+    Header(viewModel.task.label, R.drawable.outline_pin_drop)
+  }
 
   @Composable
   override fun TaskBody() {

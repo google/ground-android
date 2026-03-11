@@ -41,8 +41,7 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
   @Inject lateinit var drawAreaTaskMapFragmentProvider: Provider<DrawAreaTaskMapFragment>
   private lateinit var drawAreaTaskMapFragment: DrawAreaTaskMapFragment
 
-  override val taskHeader: Header
-    get() = Header(viewModel.task.label, R.drawable.outline_draw)
+  override val taskHeader: Header by lazy { Header(viewModel.task.label, R.drawable.outline_draw) }
 
   @Composable
   override fun TaskBody() {

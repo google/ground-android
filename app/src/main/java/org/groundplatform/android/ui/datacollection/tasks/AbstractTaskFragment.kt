@@ -86,7 +86,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   }
 
   /** Represents the content to be shown in the task header, if any. */
-  open val taskHeader: Header? = Header(viewModel.task.label)
+  open val taskHeader: Header? by lazy { Header(viewModel.task.label) }
 
   /** Renders the body of the task. */
   @Composable abstract fun TaskBody()
