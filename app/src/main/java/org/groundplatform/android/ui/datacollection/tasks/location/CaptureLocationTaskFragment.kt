@@ -27,6 +27,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -44,7 +45,6 @@ import org.groundplatform.android.ui.datacollection.components.Header
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment.Companion.TASK_ID_FRAGMENT_ARG_KEY
 import org.groundplatform.android.ui.datacollection.tasks.LocationLockEnabledState
-import org.groundplatform.android.util.renderComposableDialog
 
 @AndroidEntryPoint
 class CaptureLocationTaskFragment @Inject constructor() :
@@ -58,6 +58,8 @@ class CaptureLocationTaskFragment @Inject constructor() :
 
   @Composable
   override fun TaskBody() {
+    var showPermissionDeniedDialog by rememberSaveable { viewModel.showPermissionDeniedDialog }
+
     AndroidView(
       factory = { context ->
         // NOTE(#2493): Multiplying by a random prime to allow for some mathematical uniqueness.
@@ -74,6 +76,22 @@ class CaptureLocationTaskFragment @Inject constructor() :
         }
       }
     )
+
+    if (showPermissionDeniedDialog) {
+      ConfirmationDialog(
+        title = R.string.allow_location_title,
+        description = R.string.allow_location_description,
+        confirmButtonText = R.string.allow_location_confirmation,
+        onConfirmClicked = {
+          showPermissionDeniedDialog = false
+
+          // Open the app settings
+          val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+          intent.data = Uri.fromParts("package", context?.packageName, null)
+          context?.startActivity(intent)
+        },
+      )
+    }
   }
 
   override fun onTaskResume() {
@@ -83,26 +101,10 @@ class CaptureLocationTaskFragment @Inject constructor() :
       lifecycleScope.launch {
         viewModel.enableLocationLockFlow.collect {
           if (it == LocationLockEnabledState.NEEDS_ENABLE) {
-            showLocationPermissionDialog()
+            viewModel.showPermissionDeniedDialog.value = true
           }
         }
       }
-    }
-  }
-
-  private fun showLocationPermissionDialog() {
-    renderComposableDialog {
-      ConfirmationDialog(
-        title = R.string.allow_location_title,
-        description = R.string.allow_location_description,
-        confirmButtonText = R.string.allow_location_confirmation,
-        onConfirmClicked = {
-          // Open the app settings
-          val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-          intent.data = Uri.fromParts("package", context?.packageName, null)
-          context?.startActivity(intent)
-        },
-      )
     }
   }
 
