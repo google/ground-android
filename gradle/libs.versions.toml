@@ -16,7 +16,7 @@
 androidCompileSdk = "36"
 androidMinSdk = "24"
 androidTargetSdk = "36"
-androidMapsUtilsVersion = "4.1.0"
+androidMapsUtilsVersion = "4.1.1"
 androidXLifecycleVersion = "2.9.6"
 appcompatVersion = "1.7.1"
 autoValueVersion = "1.11.1"
