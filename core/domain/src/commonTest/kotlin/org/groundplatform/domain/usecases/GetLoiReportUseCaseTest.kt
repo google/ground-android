@@ -17,14 +17,18 @@ package org.groundplatform.domain.usecases
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.geometry.Geometry
 import org.groundplatform.domain.model.geometry.LineString
 import org.groundplatform.domain.model.geometry.LinearRing
 import org.groundplatform.domain.model.geometry.MultiPolygon
 import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.geometry.Polygon
+import org.groundplatform.domain.model.locationofinterest.LoiProperties
+import org.groundplatform.domain.model.locationofinterest.LoiReport
 import org.groundplatform.domain.model.locationofinterest.generateProperties
 
 @Suppress("MultilineRawStringIndentation")
@@ -34,12 +38,11 @@ class GetLoiReportUseCaseTest {
 
   @Test
   fun `Should get a report with the correct geoJson for a Point`() = runTest {
-    loiDataProvider.result =
-      LoiDataProviderInterface.LoiData(
+    val loiReport =
+      invokeUseCase(
         geometry = Point(Coordinates(lat = 41.0, lng = -89.0)),
         properties = generateProperties("Point test"),
       )
-    val loiReport = getLoiReportUseCase.invoke("loiId", "surveyId")!!
 
     val expectedGeoJson =
       """
@@ -67,13 +70,8 @@ class GetLoiReportUseCaseTest {
           Coordinates(0.0, 0.0),
         )
       )
-    loiDataProvider.result =
-      LoiDataProviderInterface.LoiData(
-        geometry = Polygon(shell),
-        properties = generateProperties("Polygon test"),
-      )
-
-    val loiReport = getLoiReportUseCase.invoke("loiId", "surveyId")!!
+    val loiReport =
+      invokeUseCase(geometry = Polygon(shell), properties = generateProperties("Polygon test"))
 
     val expectedGeoJson =
       """
@@ -112,12 +110,11 @@ class GetLoiReportUseCaseTest {
           Coordinates(2.0, 2.0),
         )
       )
-    loiDataProvider.result =
-      LoiDataProviderInterface.LoiData(
+    val loiReport =
+      invokeUseCase(
         geometry = Polygon(shell, listOf(hole)),
         properties = generateProperties("Polygon with holes test"),
       )
-    val loiReport = getLoiReportUseCase.invoke("loiId", "surveyId")!!
 
     val expectedGeoJson =
       """
@@ -157,12 +154,11 @@ class GetLoiReportUseCaseTest {
           Coordinates(5.0, 5.0),
         )
       )
-    loiDataProvider.result =
-      LoiDataProviderInterface.LoiData(
+    val loiReport =
+      invokeUseCase(
         geometry = MultiPolygon(listOf(Polygon(shell1), Polygon(shell2))),
         properties = generateProperties("MultiPolygon test"),
       )
-    val loiReport = getLoiReportUseCase.invoke("loiId", "surveyId")!!
 
     val expectedGeoJson =
       """
@@ -186,12 +182,8 @@ class GetLoiReportUseCaseTest {
   fun `Should get a report with the correct geoJson for a LineString`() = runTest {
     val lineString =
       LineString(listOf(Coordinates(10.0, 20.0), Coordinates(30.0, 40.0), Coordinates(50.0, 60.0)))
-    loiDataProvider.result =
-      LoiDataProviderInterface.LoiData(
-        geometry = lineString,
-        properties = generateProperties("LineString test"),
-      )
-    val loiReport = getLoiReportUseCase.invoke("loiId", "surveyId")!!
+    val loiReport =
+      invokeUseCase(geometry = lineString, properties = generateProperties("LineString test"))
 
     val expectedGeoJson =
       """
@@ -210,12 +202,11 @@ class GetLoiReportUseCaseTest {
 
   @Test
   fun `Should get a report with empty properties when no name is provided`() = runTest {
-    loiDataProvider.result =
-      LoiDataProviderInterface.LoiData(
+    val loiReport =
+      invokeUseCase(
         geometry = Point(Coordinates(lat = 0.0, lng = 0.0)),
         properties = generateProperties(),
       )
-    val loiReport = getLoiReportUseCase.invoke("loiId", "surveyId")!!
 
     val expectedGeoJson =
       """
@@ -230,6 +221,29 @@ class GetLoiReportUseCaseTest {
       """
         .trimIndent()
     assertEquals(Json.parseToJsonElement(expectedGeoJson), loiReport.geoJson)
+  }
+
+  @Test
+  fun `Should throw error when geometry is a bare LinearRing`() = runTest {
+    assertFailsWith<IllegalStateException> {
+      invokeUseCase(
+        geometry =
+          LinearRing(
+            listOf(
+              Coordinates(lat = 0.0, lng = 0.0),
+              Coordinates(lat = 1.0, lng = 0.0),
+              Coordinates(lat = 1.0, lng = 1.0),
+              Coordinates(lat = 0.0, lng = 0.0),
+            )
+          ),
+        properties = generateProperties(),
+      )
+    }
+  }
+
+  private suspend fun invokeUseCase(geometry: Geometry, properties: LoiProperties): LoiReport {
+    loiDataProvider.result = LoiDataProviderInterface.LoiData(geometry, properties)
+    return getLoiReportUseCase.invoke("loiId", "surveyId")!!
   }
 
   private class FakeLoiDataProvider : LoiDataProviderInterface {

@@ -42,26 +42,37 @@ class GetLoiReportUseCase(private val loiGeometryProvider: LoiDataProviderInterf
   private fun Geometry.toGeoJson(loiProperties: LoiProperties): JsonObject {
     val geometryJson =
       when (this) {
-        is Point -> geoJsonObject("Point", coordinatesToPosition(coordinates))
-        is LineString -> geoJsonObject("LineString", coordinatesToPositions(coordinates))
-        is LinearRing -> geoJsonObject("LineString", coordinatesToPositions(coordinates))
-        is Polygon -> geoJsonObject("Polygon", polygonToCoordinates(this))
+        is Point -> geoJsonObject(TYPE_POINT, coordinatesToPosition(coordinates))
+        is LineString -> geoJsonObject(TYPE_LINE_STRING, coordinatesToPositions(coordinates))
+        is LinearRing ->
+          error(
+            "LinearRing cannot be exported as GeoJSON. They are only used inside Polygon coordinates."
+          )
+        is Polygon -> geoJsonObject(TYPE_POLYGON, polygonToCoordinates(this))
         is MultiPolygon ->
-          geoJsonObject("MultiPolygon", JsonArray(polygons.map { polygonToCoordinates(it) }))
+          geoJsonObject(TYPE_MULTI_POLYGON, JsonArray(polygons.map { polygonToCoordinates(it) }))
       }
     return JsonObject(
       mapOf(
-        "type" to JsonPrimitive("Feature"),
-        "properties" to JsonObject(loiProperties.mapValues { JsonPrimitive(it.value.toString()) }),
-        "geometry" to geometryJson,
+        KEY_TYPE to JsonPrimitive(TYPE_FEATURE),
+        KEY_PROPERTIES to JsonObject(loiProperties.mapValues { it.value.toJsonPrimitive() }),
+        KEY_GEOMETRY to geometryJson,
       )
     )
   }
 
-  private fun geoJsonObject(type: String, coordinates: JsonElement): JsonObject =
-    JsonObject(mapOf("type" to JsonPrimitive(type), "coordinates" to coordinates))
+  private fun Any.toJsonPrimitive(): JsonPrimitive =
+    when (this) {
+      is String -> JsonPrimitive(this)
+      is Number -> JsonPrimitive(this)
+      is Boolean -> JsonPrimitive(this)
+      else -> JsonPrimitive(this.toString())
+    }
 
-  /** Converts a single [Coordinates] to a GeoJSON position: `[lng, lat]`. */
+  private fun geoJsonObject(type: String, coordinates: JsonElement): JsonObject =
+    JsonObject(mapOf(KEY_TYPE to JsonPrimitive(type), KEY_COORDINATES to coordinates))
+
+  /** Converts a single [Coordinates] to a GeoJSON position: [lng, lat]. */
   private fun coordinatesToPosition(coordinates: Coordinates): JsonArray =
     JsonArray(listOf(JsonPrimitive(coordinates.lng), JsonPrimitive(coordinates.lat)))
 
@@ -74,5 +85,17 @@ class GetLoiReportUseCase(private val loiGeometryProvider: LoiDataProviderInterf
     val rings = mutableListOf(coordinatesToPositions(polygon.shell.coordinates))
     polygon.holes.forEach { rings.add(coordinatesToPositions(it.coordinates)) }
     return JsonArray(rings)
+  }
+
+  private companion object {
+    const val KEY_TYPE = "type"
+    const val TYPE_FEATURE = "Feature"
+    const val KEY_PROPERTIES = "properties"
+    const val KEY_GEOMETRY = "geometry"
+    const val KEY_COORDINATES = "coordinates"
+    const val TYPE_POINT = "Point"
+    const val TYPE_LINE_STRING = "LineString"
+    const val TYPE_POLYGON = "Polygon"
+    const val TYPE_MULTI_POLYGON = "MultiPolygon"
   }
 }
