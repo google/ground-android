@@ -55,13 +55,22 @@ fun GroundQrCode(
     }
 
   Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-    Text(text = title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Medium)
+    Text(
+      text = title,
+      style = MaterialTheme.typography.titleMedium,
+      color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
     Image(
       modifier = Modifier.padding(top = 16.dp, bottom = 8.dp).size(142.dp),
       painter = qrcodePainter,
       contentDescription = contentDescription,
     )
-    Text(text = footer, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Normal)
+    Text(
+      text = footer,
+      style = MaterialTheme.typography.bodySmall,
+      fontWeight = FontWeight.Normal,
+      color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
   }
 }
 

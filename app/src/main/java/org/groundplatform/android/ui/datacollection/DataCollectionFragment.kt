@@ -76,7 +76,6 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    binding.lifecycleOwner = viewLifecycleOwner
 
     viewPager.isUserInputEnabled = false
     viewPager.offscreenPageLimit = 1
@@ -119,8 +118,8 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     when (uiState) {
       // Ensure adapter has the task list; then jump to the current position.
       is DataCollectionUiState.Ready -> {
-        binding.jobName = uiState.job.name
-        binding.loiName = uiState.loiName
+        binding.dataCollectionToolbar.title = uiState.job.name
+        binding.dataCollectionToolbar.subtitle = uiState.loiName
         loadTasks(uiState.tasks, uiState.position)
       }
 
@@ -129,6 +128,8 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
       }
 
       is DataCollectionUiState.TaskSubmitted -> {
+        binding.dataCollectionToolbar.title = getString(R.string.data_collection_complete)
+        binding.dataCollectionToolbar.subtitle = null
         onTaskSubmitted()
       }
 
