@@ -18,6 +18,9 @@ package org.groundplatform.android.ui.datacollection.tasks.polygon
 import android.view.LayoutInflater
 import android.widget.Toast
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.os.bundleOf
 import androidx.lifecycle.lifecycleScope
@@ -26,7 +29,6 @@ import javax.inject.Inject
 import javax.inject.Provider
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.databinding.FragmentDrawAreaTaskBinding
 import org.groundplatform.android.ui.components.ConfirmationDialog
@@ -34,7 +36,6 @@ import org.groundplatform.android.ui.datacollection.components.Header
 import org.groundplatform.android.ui.datacollection.components.InstructionData
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment.Companion.TASK_ID_FRAGMENT_ARG_KEY
-import org.groundplatform.android.util.renderComposableDialog
 
 @AndroidEntryPoint
 class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawAreaTaskViewModel>() {
@@ -51,6 +52,8 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
 
   @Composable
   override fun TaskBody() {
+    var showSelfIntersectionDialog by rememberSaveable { viewModel.showSelfIntersectionDialog }
+
     AndroidView(
       factory = { context ->
         // XML layout is used to provide a static view ID which does not collide with Google Maps
@@ -75,6 +78,16 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
         rootView.root
       }
     )
+
+    if (showSelfIntersectionDialog) {
+      ConfirmationDialog(
+        title = R.string.polygon_vertex_add_dialog_title,
+        description = R.string.polygon_vertex_add_dialog_message,
+        confirmButtonText = R.string.polygon_vertex_add_dialog_positive_button,
+        dismissButtonText = null,
+        onConfirmClicked = { showSelfIntersectionDialog = false },
+      )
+    }
   }
 
   override fun onTaskViewAttached() {
@@ -91,19 +104,6 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
     viewModel.polygonArea.observe(viewLifecycleOwner) { area ->
       Toast.makeText(requireContext(), getString(R.string.area_message, area), Toast.LENGTH_LONG)
         .show()
-    }
-    viewLifecycleOwner.lifecycleScope.launch {
-      viewModel.showSelfIntersectionDialog.collect {
-        renderComposableDialog {
-          ConfirmationDialog(
-            title = R.string.polygon_vertex_add_dialog_title,
-            description = R.string.polygon_vertex_add_dialog_message,
-            confirmButtonText = R.string.polygon_vertex_add_dialog_positive_button,
-            dismissButtonText = null,
-            onConfirmClicked = {},
-          )
-        }
-      }
     }
   }
 
