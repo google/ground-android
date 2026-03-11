@@ -50,10 +50,12 @@ jobs:
         run: ./gradlew jacocoLocalDebugUnitTestReport
 
       - name: Upload coverage to Codecov
-        run: |
-          curl -Os https://uploader.codecov.io/latest/linux/codecov
-          chmod +x codecov
-          ./codecov --verbose upload-process --fail-on-error -t ${{ secrets.CODECOV_TOKEN }} -n 'service'-${{ github.run_id }} -F service -f "*/build/reports/jacoco/**/*.xml"
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: "**/build/reports/jacoco/**/*.xml"
+          flags: service
+          fail_ci_if_error: true
 
   instrumentation-tests:
     needs: build
