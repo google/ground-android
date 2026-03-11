@@ -18,11 +18,13 @@ package org.groundplatform.domain.usecases
 import org.groundplatform.domain.model.geometry.Geometry
 import org.groundplatform.domain.model.locationofinterest.LoiProperties
 
-// TODO: Extract LocationOfInterestRepositoryInterface to domain module
-// This is a temporary abstraction while the repository interface is still not fully decoupled from
-// Android-specific types
+/**
+ * Provides access to the data of a location of interest.
+ *
+ * This is a temporary abstraction while the repository interface is still not fully decoupled from
+ * Android-specific types.
+ */
 interface LoiDataProviderInterface {
-  /** Returns the Geometry for an existing LOI, or null if not found. */
   suspend fun get(surveyId: String, loiId: String): LoiData?
 
   data class LoiData(val geometry: Geometry, val properties: LoiProperties)
