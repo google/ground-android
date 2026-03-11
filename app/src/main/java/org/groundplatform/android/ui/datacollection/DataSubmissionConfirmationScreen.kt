@@ -100,8 +100,15 @@ private fun BodyContent(onDismiss: () -> Unit) {
 }
 
 @Composable
+@Preview
+@ExcludeFromJacocoGeneratedReport
+private fun DataSubmissionConfirmationScreenPortraitPreview() {
+  AppTheme { DataSubmissionConfirmationScreen {} }
+}
+
+@Composable
 @Preview(heightDp = 320, widthDp = 800)
 @ExcludeFromJacocoGeneratedReport
-private fun DataSubmissionConfirmationScreenPreview() {
+private fun DataSubmissionConfirmationScreenLandscapePreview() {
   AppTheme { DataSubmissionConfirmationScreen {} }
 }

@@ -16,18 +16,24 @@
 package org.groundplatform.ui.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.alexzhirkevich.qrose.rememberQrCodePainter
+import org.groundplatform.ui.theme.AppTheme
 
 /**
- * Displays a QR code generated from the given [content] string.
+ * Displays a QR code generated from the given [qrContent] string.
  *
  * The composable is intentionally generic, it accepts any string payload, making it reusable for
  * GeoJSON, URLs, or any other data that fits within QR code capacity limits.
@@ -35,29 +41,41 @@ import io.github.alexzhirkevich.qrose.rememberQrCodePainter
 @Composable
 fun GroundQrCode(
   modifier: Modifier = Modifier,
-  content: String,
+  title: String,
+  qrContent: String,
   contentDescription: String,
   centerLogoPainter: Painter?,
+  footer: String,
 ) {
   val qrcodePainter =
-    rememberQrCodePainter(data = content) {
+    rememberQrCodePainter(data = qrContent) {
       if (centerLogoPainter != null) {
         logo { painter = centerLogoPainter }
       }
     }
 
-  Image(painter = qrcodePainter, contentDescription = contentDescription, modifier = modifier)
+  Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+    Text(text = title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Medium)
+    Image(
+      modifier = Modifier.padding(top = 16.dp, bottom = 8.dp).size(142.dp),
+      painter = qrcodePainter,
+      contentDescription = contentDescription,
+    )
+    Text(text = footer, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Normal)
+  }
 }
 
 @Preview
 @Composable
 private fun GroundQrCodePreview() {
-  MaterialTheme {
+  AppTheme {
     Surface {
       GroundQrCode(
         modifier = Modifier.padding(16.dp),
-        content = "https://www.google.com",
+        title = "Test QR Code",
+        qrContent = "https://www.google.com",
         contentDescription = "Google",
+        footer = "Scan this QR",
         centerLogoPainter = null,
       )
     }
