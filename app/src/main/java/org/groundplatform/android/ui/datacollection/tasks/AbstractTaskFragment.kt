@@ -73,22 +73,13 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     container: ViewGroup?,
     savedInstanceState: Bundle?,
   ): View = createComposeView {
-    var showInstructionsDialog by rememberSaveable { viewModel.showInstructionsDialog }
-
     TaskViewLayout(header = taskHeader, footer = { TaskFooter() }, content = { TaskBody() })
 
     if (getTask().isAddLoiTask) {
       LoiNameDialog()
     }
 
-    if (showInstructionsDialog && instructionData != null) {
-      instructionData?.let {
-        InstructionsDialog(iconId = it.iconId, stringId = it.stringId) {
-          showInstructionsDialog = false
-          onInstructionDialogDismissed()
-        }
-      }
-    }
+    instructionData?.let { InstructionsDialog(it) }
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -184,7 +175,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   private fun getTask(): Task = viewModel.task
 
   @Composable
-  fun LoiNameDialog() {
+  private fun LoiNameDialog() {
     var openAlertDialog by rememberSaveable { dataCollectionViewModel.loiNameDialogOpen }
 
     if (openAlertDialog) {
@@ -206,6 +197,18 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
         },
         onTextFieldChange = { name = it },
       )
+    }
+  }
+
+  @Composable
+  private fun InstructionsDialog(instructionData: InstructionData) {
+    var showInstructionsDialog by rememberSaveable { viewModel.showInstructionsDialog }
+
+    if (showInstructionsDialog) {
+      InstructionsDialog(iconId = instructionData.iconId, stringId = instructionData.stringId) {
+        showInstructionsDialog = false
+        onInstructionDialogDismissed()
+      }
     }
   }
 
