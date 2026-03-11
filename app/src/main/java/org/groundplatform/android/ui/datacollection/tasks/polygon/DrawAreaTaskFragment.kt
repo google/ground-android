@@ -15,10 +15,11 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.polygon
 
-import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.View
 import android.widget.Toast
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.os.bundleOf
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -44,29 +45,32 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
   override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
     TaskViewFactory.createWithCombinedHeader(inflater, R.drawable.outline_draw)
 
-  override fun onCreateTaskBody(inflater: LayoutInflater): View {
-    // XML layout is used to provide a static view ID which does not collide with Google Maps view
-    // ID (https://github.com/google/ground-android/issues/2493).
-    // The ID is needed when restoring the view on config change since the view is dynamically
-    // created.
-    // TODO: Remove this workaround once this UI is migrated to Compose.
-    // Issue URL: https://github.com/google/ground-android/issues/1795
-    val rootView = FragmentDrawAreaTaskBinding.inflate(inflater)
+  @Composable
+  override fun TaskBody() {
+    AndroidView(
+      factory = { context ->
+        // XML layout is used to provide a static view ID which does not collide with Google Maps
+        // view ID (https://github.com/google/ground-android/issues/2493).
+        // The ID is needed when restoring the view on config change since the view is dynamically
+        // created.
+        // TODO: Remove this workaround once this UI is migrated to Compose.
+        // Issue URL: https://github.com/google/ground-android/issues/1795
+        val rootView = FragmentDrawAreaTaskBinding.inflate(LayoutInflater.from(context))
 
-    drawAreaTaskMapFragment = drawAreaTaskMapFragmentProvider.get()
-    val args = Bundle()
-    args.putString(TASK_ID_FRAGMENT_ARG_KEY, taskId)
-    drawAreaTaskMapFragment.arguments = args
-    childFragmentManager
-      .beginTransaction()
-      .add(
-        R.id.container_draw_area_task_map,
-        drawAreaTaskMapFragment,
-        DrawAreaTaskMapFragment::class.java.simpleName,
-      )
-      .commit()
+        drawAreaTaskMapFragment = drawAreaTaskMapFragmentProvider.get()
+        drawAreaTaskMapFragment.arguments = bundleOf(Pair(TASK_ID_FRAGMENT_ARG_KEY, taskId))
+        childFragmentManager
+          .beginTransaction()
+          .add(
+            R.id.container_draw_area_task_map,
+            drawAreaTaskMapFragment,
+            DrawAreaTaskMapFragment::class.java.simpleName,
+          )
+          .commit()
 
-    return rootView.root
+        rootView.root
+      }
+    )
   }
 
   override fun onTaskViewAttached() {
