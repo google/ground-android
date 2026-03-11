@@ -16,6 +16,7 @@
 package org.groundplatform.android.ui.datacollection.tasks.photo
 
 import android.net.Uri
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import java.io.IOException
 import javax.inject.Inject
@@ -46,6 +47,8 @@ class PhotoTaskViewModel @Inject constructor(private val userMediaRepository: Us
 
   var hasLaunchedCamera: Boolean = false
   var capturedUri: Uri? = null
+
+  val showPermissionDeniedDialog = mutableStateOf(false)
 
   val uri: Flow<Uri> =
     taskTaskData.map { taskData ->

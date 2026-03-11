@@ -23,6 +23,8 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
@@ -41,7 +43,6 @@ import org.groundplatform.android.ui.common.EphemeralPopups
 import org.groundplatform.android.ui.components.ConfirmationDialog
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.ui.home.HomeScreenViewModel
-import org.groundplatform.android.util.renderComposableDialog
 import timber.log.Timber
 
 /** Fragment allowing the user to capture a photo to complete a task. */
@@ -74,8 +75,19 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
 
   @Composable
   override fun TaskBody() {
+    var showPermissionDeniedDialog by rememberSaveable { viewModel.showPermissionDeniedDialog }
     val uri by viewModel.uri.collectAsStateWithLifecycle(Uri.EMPTY)
+
     PhotoTaskScreen(uri = uri, onTakePhoto = { onTakePhoto() })
+
+    if (showPermissionDeniedDialog) {
+      ConfirmationDialog(
+        title = R.string.permission_denied,
+        description = R.string.camera_permissions_needed,
+        confirmButtonText = R.string.ok,
+        onConfirmClicked = { showPermissionDeniedDialog = false },
+      )
+    }
   }
 
   override fun onTaskViewAttached() {
@@ -110,19 +122,8 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
 
         onPermissionsGranted()
       } catch (_: PermissionDeniedException) {
-        mainScope.launch { showPermissionDeniedDialog() }
+        viewModel.showPermissionDeniedDialog.value = true
       }
-    }
-  }
-
-  private fun showPermissionDeniedDialog() {
-    renderComposableDialog {
-      ConfirmationDialog(
-        title = R.string.permission_denied,
-        description = R.string.camera_permissions_needed,
-        confirmButtonText = R.string.ok,
-        onConfirmClicked = {},
-      )
     }
   }
 
