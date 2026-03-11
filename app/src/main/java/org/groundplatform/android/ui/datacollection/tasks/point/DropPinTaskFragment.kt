@@ -25,10 +25,9 @@ import javax.inject.Inject
 import javax.inject.Provider
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.datacollection.components.Header
-import org.groundplatform.android.ui.datacollection.components.InstructionsDialog
+import org.groundplatform.android.ui.datacollection.components.InstructionData
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment.Companion.TASK_ID_FRAGMENT_ARG_KEY
-import org.groundplatform.android.util.renderComposableDialog
 
 @AndroidEntryPoint
 class DropPinTaskFragment @Inject constructor() : AbstractTaskFragment<DropPinTaskViewModel>() {
@@ -37,6 +36,9 @@ class DropPinTaskFragment @Inject constructor() : AbstractTaskFragment<DropPinTa
   override val taskHeader: Header by lazy {
     Header(viewModel.task.label, R.drawable.outline_pin_drop)
   }
+
+  override val instructionData =
+    InstructionData(iconId = R.drawable.swipe_24, stringId = R.string.drop_a_pin_tooltip_text)
 
   @Composable
   override fun TaskBody() {
@@ -57,14 +59,11 @@ class DropPinTaskFragment @Inject constructor() : AbstractTaskFragment<DropPinTa
 
   override fun onTaskResume() {
     if (isVisible && viewModel.shouldShowInstructionsDialog()) {
-      showInstructionsDialog()
+      viewModel.showInstructionsDialog.value = true
     }
   }
 
-  private fun showInstructionsDialog() {
+  override fun onInstructionDialogDismissed() {
     viewModel.instructionsDialogShown = true
-    renderComposableDialog {
-      InstructionsDialog(iconId = R.drawable.swipe_24, stringId = R.string.drop_a_pin_tooltip_text)
-    }
   }
 }

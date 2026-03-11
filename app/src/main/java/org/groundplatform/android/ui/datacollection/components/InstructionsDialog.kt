@@ -35,8 +35,16 @@ import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.ui.theme.AppTheme
 
+/**
+ * Data class representing the visual elements of an instruction dialog.
+ *
+ * @property iconId The resource ID of the drawable icon to display.
+ * @property stringId The resource ID of the string message to display.
+ */
+data class InstructionData(val iconId: Int, val stringId: Int)
+
 @Composable
-fun InstructionsDialog(iconId: Int, stringId: Int) {
+fun InstructionsDialog(iconId: Int, stringId: Int, onDismissed: () -> Unit) {
   val showDialog = remember { mutableStateOf(true) }
   if (showDialog.value) {
     AlertDialog(
@@ -51,7 +59,12 @@ fun InstructionsDialog(iconId: Int, stringId: Int) {
       onDismissRequest = {}, // Prevent dismissing the dialog by clicking outside
       confirmButton = {}, // Hide confirm button
       dismissButton = {
-        OutlinedButton(onClick = { showDialog.value = false }) {
+        OutlinedButton(
+          onClick = {
+            showDialog.value = false
+            onDismissed()
+          }
+        ) {
           Text(text = stringResource(R.string.close))
         }
       },
@@ -67,6 +80,6 @@ private fun PreviewInstructionsDialog() {
     InstructionsDialog(
       iconId = R.drawable.touch_app_24,
       stringId = R.string.draw_area_task_instruction,
-    )
+    ) {}
   }
 }

@@ -31,7 +31,7 @@ import org.groundplatform.android.R
 import org.groundplatform.android.databinding.FragmentDrawAreaTaskBinding
 import org.groundplatform.android.ui.components.ConfirmationDialog
 import org.groundplatform.android.ui.datacollection.components.Header
-import org.groundplatform.android.ui.datacollection.components.InstructionsDialog
+import org.groundplatform.android.ui.datacollection.components.InstructionData
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment.Companion.TASK_ID_FRAGMENT_ARG_KEY
 import org.groundplatform.android.util.renderComposableDialog
@@ -42,6 +42,12 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
   private lateinit var drawAreaTaskMapFragment: DrawAreaTaskMapFragment
 
   override val taskHeader: Header by lazy { Header(viewModel.task.label, R.drawable.outline_draw) }
+
+  override val instructionData =
+    InstructionData(
+      iconId = R.drawable.touch_app_24,
+      stringId = R.string.draw_area_task_instruction,
+    )
 
   @Composable
   override fun TaskBody() {
@@ -80,7 +86,7 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
 
   override fun onTaskResume() {
     if (isVisible && !viewModel.instructionsDialogShown) {
-      showInstructionsDialog()
+      viewModel.showInstructionsDialog.value = true
     }
     viewModel.polygonArea.observe(viewLifecycleOwner) { area ->
       Toast.makeText(requireContext(), getString(R.string.area_message, area), Toast.LENGTH_LONG)
@@ -101,13 +107,7 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
     }
   }
 
-  private fun showInstructionsDialog() {
+  override fun onInstructionDialogDismissed() {
     viewModel.instructionsDialogShown = true
-    renderComposableDialog {
-      InstructionsDialog(
-        iconId = R.drawable.touch_app_24,
-        stringId = R.string.draw_area_task_instruction,
-      )
-    }
   }
 }

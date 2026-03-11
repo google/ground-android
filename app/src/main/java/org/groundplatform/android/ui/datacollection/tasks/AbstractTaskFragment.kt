@@ -27,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.core.view.doOnAttach
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlin.properties.Delegates
 import org.groundplatform.android.R
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.common.AbstractFragment
@@ -34,11 +35,12 @@ import org.groundplatform.android.ui.datacollection.DataCollectionUiState
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.Header
+import org.groundplatform.android.ui.datacollection.components.InstructionData
+import org.groundplatform.android.ui.datacollection.components.InstructionsDialog
 import org.groundplatform.android.ui.datacollection.components.LoiNameDialog
 import org.groundplatform.android.ui.datacollection.components.TaskFooter
 import org.groundplatform.android.ui.datacollection.components.TaskViewLayout
 import org.groundplatform.android.util.createComposeView
-import kotlin.properties.Delegates
 
 abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragment() {
 
@@ -71,10 +73,21 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     container: ViewGroup?,
     savedInstanceState: Bundle?,
   ): View = createComposeView {
+    var showInstructionsDialog by rememberSaveable { viewModel.showInstructionsDialog }
+
     TaskViewLayout(header = taskHeader, footer = { TaskFooter() }, content = { TaskBody() })
 
     if (getTask().isAddLoiTask) {
       LoiNameDialog()
+    }
+
+    if (showInstructionsDialog && instructionData != null) {
+      instructionData?.let {
+        InstructionsDialog(iconId = it.iconId, stringId = it.stringId) {
+          showInstructionsDialog = false
+          onInstructionDialogDismissed()
+        }
+      }
     }
   }
 
@@ -91,8 +104,14 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   /** Represents the content to be shown in the task header, if any. */
   open val taskHeader: Header? by lazy { Header(viewModel.task.label) }
 
+  /** Represents the content to be shown in the task instructions, if any. */
+  open val instructionData: InstructionData? = null
+
   /** Renders the body of the task. */
   @Composable abstract fun TaskBody()
+
+  /** Invoked when the instruction dialog is dismissed. */
+  open fun onInstructionDialogDismissed() {}
 
   /** Invoked after the task view gets attached to the fragment. */
   open fun onTaskViewAttached() {}
