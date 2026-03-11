@@ -21,14 +21,7 @@ import org.groundplatform.android.model.mutation.LocationOfInterestMutation
 import org.groundplatform.android.model.mutation.Mutation
 import org.groundplatform.android.model.mutation.Mutation.SyncStatus
 import org.groundplatform.domain.model.geometry.Geometry
-
-/** Alias for a map of properties with string names. */
-typealias LoiProperties = Map<String, Any>
-
-const val LOI_NAME_PROPERTY = "name"
-
-fun generateProperties(loiName: String? = null): LoiProperties =
-  loiName?.let { mapOf(LOI_NAME_PROPERTY to it) } ?: mapOf()
+import org.groundplatform.domain.model.locationofinterest.LoiProperties
 
 /** User-defined locations of interest (LOI) shown on the map. */
 data class LocationOfInterest(

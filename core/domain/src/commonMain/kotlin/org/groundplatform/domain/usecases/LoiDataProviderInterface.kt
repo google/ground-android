@@ -13,9 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.domain.model
+package org.groundplatform.domain.usecases
 
-import kotlinx.serialization.json.JsonObject
+import org.groundplatform.domain.model.geometry.Geometry
+import org.groundplatform.domain.model.locationofinterest.LoiProperties
 
-/** Represents the data collected for a specific LOI which can be downloaded and shared. */
-data class LoiReport(val geoJson: JsonObject)
+/**
+ * Provides access to the data of a location of interest.
+ *
+ * This is a temporary abstraction while the repository interface is still not fully decoupled from
+ * Android-specific types.
+ */
+interface LoiDataProviderInterface {
+  suspend fun get(surveyId: String, loiId: String): LoiData?
+
+  data class LoiData(val geometry: Geometry, val properties: LoiProperties)
+}
