@@ -321,7 +321,7 @@ internal constructor(
   private fun checkVertexIntersection(): Boolean {
     hasSelfIntersection = isSelfIntersecting(vertices)
     if (hasSelfIntersection) {
-      vertices = vertices.dropLast(1)
+      updateVertices(vertices.dropLast(1))
       onSelfIntersectionDetected()
     }
     return hasSelfIntersection
@@ -349,6 +349,7 @@ internal constructor(
 
   private fun updateVertices(newVertices: List<Coordinates>) {
     this.vertices = newVertices
+    hasSelfIntersection = false
     refreshMap()
   }
 
