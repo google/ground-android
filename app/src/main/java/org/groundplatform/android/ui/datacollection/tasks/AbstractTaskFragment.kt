@@ -27,7 +27,6 @@ import androidx.compose.runtime.setValue
 import androidx.core.view.doOnAttach
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlin.properties.Delegates
 import org.groundplatform.android.R
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.common.AbstractFragment
@@ -39,7 +38,7 @@ import org.groundplatform.android.ui.datacollection.components.LoiNameDialog
 import org.groundplatform.android.ui.datacollection.components.TaskFooter
 import org.groundplatform.android.ui.datacollection.components.TaskViewLayout
 import org.groundplatform.android.util.createComposeView
-import org.groundplatform.android.util.renderComposableDialog
+import kotlin.properties.Delegates
 
 abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragment() {
 
@@ -73,6 +72,10 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     savedInstanceState: Bundle?,
   ): View = createComposeView {
     TaskViewLayout(header = taskHeader, footer = { TaskFooter() }, content = { TaskBody() })
+
+    if (getTask().isAddLoiTask) {
+      LoiNameDialog()
+    }
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -113,7 +116,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   private fun handleNext() {
     if (getTask().isAddLoiTask) {
-      launchLoiNameDialog()
+      dataCollectionViewModel.loiNameDialogOpen.value = true
     } else {
       moveToNext()
     }
@@ -161,29 +164,22 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   private fun getTask(): Task = viewModel.task
 
-  private fun launchLoiNameDialog() {
-    dataCollectionViewModel.loiNameDialogOpen.value = true
-    renderComposableDialog {
+  @Composable
+  fun LoiNameDialog() {
+    var openAlertDialog by rememberSaveable { dataCollectionViewModel.loiNameDialogOpen }
+
+    if (openAlertDialog) {
       val uiState by dataCollectionViewModel.uiState.collectAsStateWithLifecycle()
-      val loiName =
+      val initialNameValue =
         (uiState as? DataCollectionUiState.Ready)?.loiName
           ?: dataCollectionViewModel.getTypedLoiNameOrEmpty()
+      var name by rememberSaveable { mutableStateOf(initialNameValue) }
 
-      // The LOI NameDialog should call `handleLoiNameSet()` to continue to the next task.
-      ShowLoiNameDialog(loiName) { handleLoiNameSet(it) }
-    }
-  }
-
-  @Composable
-  fun ShowLoiNameDialog(initialNameValue: String, onNameSet: (String) -> Unit) {
-    var openAlertDialog by rememberSaveable { dataCollectionViewModel.loiNameDialogOpen }
-    var name by rememberSaveable { mutableStateOf(initialNameValue) }
-    if (openAlertDialog) {
       LoiNameDialog(
         textFieldValue = name,
         onConfirmRequest = {
           openAlertDialog = false
-          onNameSet(name)
+          handleLoiNameSet(name)
         },
         onDismissRequest = {
           name = initialNameValue
