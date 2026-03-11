@@ -15,7 +15,6 @@
  */
 package org.groundplatform.android.ui.datacollection.components
 
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -50,10 +49,7 @@ fun TaskViewLayout(
   }
 }
 
-data class Header(
-  val label: String,
-  val iconResId: Int? = R.drawable.ic_question_answer,
-)
+data class Header(val label: String, val iconResId: Int? = R.drawable.ic_question_answer)
 
 @Composable
 private fun TaskViewHeader(header: Header) {
