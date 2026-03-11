@@ -21,10 +21,13 @@ import android.os.Build
 import android.os.Bundle
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
@@ -43,6 +46,7 @@ import org.groundplatform.android.ui.common.EphemeralPopups
 import org.groundplatform.android.ui.components.ConfirmationDialog
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.ui.home.HomeScreenViewModel
+import org.groundplatform.ui.theme.sizes
 import timber.log.Timber
 
 /** Fragment allowing the user to capture a photo to complete a task. */
@@ -78,7 +82,11 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
     var showPermissionDeniedDialog by rememberSaveable { viewModel.showPermissionDeniedDialog }
     val uri by viewModel.uri.collectAsStateWithLifecycle(Uri.EMPTY)
 
-    PhotoTaskScreen(uri = uri, onTakePhoto = { onTakePhoto() })
+    PhotoTaskScreen(
+      modifier = Modifier.padding(horizontal = MaterialTheme.sizes.taskViewPadding),
+      uri = uri,
+      onTakePhoto = { onTakePhoto() },
+    )
 
     if (showPermissionDeniedDialog) {
       ConfirmationDialog(

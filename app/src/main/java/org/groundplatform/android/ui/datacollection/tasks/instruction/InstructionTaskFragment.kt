@@ -32,6 +32,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.datacollection.components.Header
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
+import org.groundplatform.ui.theme.sizes
 
 @AndroidEntryPoint
 class InstructionTaskFragment : AbstractTaskFragment<InstructionTaskViewModel>() {
@@ -50,7 +51,7 @@ class InstructionTaskFragment : AbstractTaskFragment<InstructionTaskViewModel>()
         Modifier.fillMaxSize()
           .background(color = Color.White)
           .border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(2.dp))
-          .padding(16.dp)
+          .padding(MaterialTheme.sizes.taskViewPadding)
     ) {
       Text(text = text, style = MaterialTheme.typography.headlineSmall)
     }

@@ -30,13 +30,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import org.groundplatform.android.R
 import org.groundplatform.ui.theme.AppTheme
+import org.groundplatform.ui.theme.sizes
 
 data class Header(
   val label: String,
-  @DrawableRes val iconResId: Int? = R.drawable.ic_question_answer,
+  @param:DrawableRes val iconResId: Int? = R.drawable.ic_question_answer,
 )
 
 @Composable
@@ -50,9 +50,7 @@ fun TaskViewLayout(
     if (header != null) {
       TaskViewHeader(header)
     }
-
-    Box(modifier = modifier.weight(1f).fillMaxWidth().padding(horizontal = 20.dp)) { content() }
-
+    Box(modifier = modifier.weight(1f).fillMaxWidth()) { content() }
     Box(modifier = Modifier.fillMaxWidth()) { footer() }
   }
 }
@@ -60,13 +58,13 @@ fun TaskViewLayout(
 @Composable
 private fun TaskViewHeader(header: Header) {
   Row(
-    modifier = Modifier.fillMaxWidth().padding(20.dp),
+    modifier = Modifier.fillMaxWidth().padding(MaterialTheme.sizes.taskViewPadding),
     verticalAlignment = Alignment.CenterVertically,
   ) {
     if (header.iconResId != null) {
       Icon(
         painter = painterResource(id = header.iconResId),
-        modifier = Modifier.padding(end = 12.dp),
+        modifier = Modifier.padding(end = MaterialTheme.sizes.taskViewPadding),
         tint = MaterialTheme.colorScheme.onSurfaceVariant,
         contentDescription = null,
       )
@@ -74,7 +72,7 @@ private fun TaskViewHeader(header: Header) {
     Text(
       text = header.label,
       color = MaterialTheme.colorScheme.onSurface,
-      style = MaterialTheme.typography.titleMedium,
+      style = MaterialTheme.typography.bodyLarge,
     )
   }
 }
