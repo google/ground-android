@@ -56,6 +56,12 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
       ?: error("ViewModel for taskId:$taskId not found.")
   }
 
+  /** Represents the content to be shown in the task header, if any. */
+  open val taskHeader: Header? by lazy { Header(viewModel.task.label) }
+
+  /** Represents the content to be shown in the task instructions, if any. */
+  open val instructionData: InstructionData? = null
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     if (savedInstanceState != null) {
@@ -91,12 +97,6 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     super.onResume()
     onTaskResume()
   }
-
-  /** Represents the content to be shown in the task header, if any. */
-  open val taskHeader: Header? by lazy { Header(viewModel.task.label) }
-
-  /** Represents the content to be shown in the task instructions, if any. */
-  open val instructionData: InstructionData? = null
 
   /** Renders the body of the task. */
   @Composable abstract fun TaskBody()

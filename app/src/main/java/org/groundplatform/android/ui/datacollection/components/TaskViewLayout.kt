@@ -34,11 +34,6 @@ import org.groundplatform.android.R
 import org.groundplatform.ui.theme.AppTheme
 import org.groundplatform.ui.theme.sizes
 
-data class Header(
-  val label: String,
-  @param:DrawableRes val iconResId: Int? = R.drawable.ic_question_answer,
-)
-
 @Composable
 fun TaskViewLayout(
   modifier: Modifier = Modifier,
@@ -54,6 +49,11 @@ fun TaskViewLayout(
     Box(modifier = Modifier.fillMaxWidth()) { footer() }
   }
 }
+
+data class Header(
+  val label: String,
+  val iconResId: Int? = R.drawable.ic_question_answer,
+)
 
 @Composable
 private fun TaskViewHeader(header: Header) {
@@ -82,10 +82,10 @@ private fun TaskViewHeader(header: Header) {
 fun TaskViewLayoutPreviewWithIcon() {
   AppTheme {
     TaskViewLayout(
-      header = Header("Sample label", iconResId = R.drawable.ic_question_answer),
-      footer = { Text("Sample Buttons") },
+      header = Header("Label 1", iconResId = R.drawable.ic_question_answer),
+      footer = { Text("Footer 1") },
     ) {
-      Text("Sample Content")
+      Text("Content 1")
     }
   }
 }
@@ -95,10 +95,10 @@ fun TaskViewLayoutPreviewWithIcon() {
 fun TaskViewLayoutPreviewWithoutIcon() {
   AppTheme {
     TaskViewLayout(
-      header = Header(label = "Sample label", iconResId = null),
-      footer = { Text("Sample Buttons") },
+      header = Header(label = "Label 2", iconResId = null),
+      footer = { Text("Footer 2") },
     ) {
-      Text("Sample Content")
+      Text("Content 2")
     }
   }
 }
@@ -106,7 +106,5 @@ fun TaskViewLayoutPreviewWithoutIcon() {
 @Preview(showBackground = true)
 @Composable
 fun TaskViewLayoutPreviewWithoutHeader() {
-  AppTheme {
-    TaskViewLayout(header = null, footer = { Text("Sample Buttons") }) { Text("Sample Content") }
-  }
+  AppTheme { TaskViewLayout(header = null, footer = { Text("Footer 3") }) { Text("Content 3") } }
 }
