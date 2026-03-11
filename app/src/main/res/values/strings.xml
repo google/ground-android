@@ -238,4 +238,6 @@
   <string name="location_not_accurate_description">Try standing still or waiting for a more accurate position</string>
 
   <string name="recenter">Re-center</string>
+  <string name="share_location">Share location and answers</string>
+  <string name="scan_this_qr_to_download_geojson">Scan this QR code to download the GeoJson</string>
 </resources>

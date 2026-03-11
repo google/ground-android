@@ -45,9 +45,9 @@ class GetLoiReportUseCase(
    * @param surveyId the identifier of the survey the LOI belongs to.
    * @throws IllegalStateException if the LOI geometry is a bare [LinearRing].
    */
-  suspend operator fun invoke(loiId: String, surveyId: String): LoiReport? {
+  suspend operator fun invoke(loiName: String, loiId: String, surveyId: String): LoiReport? {
     val loi = locationOfInterestRepository.getOfflineLoi(surveyId, loiId)
-    return loi?.let { LoiReport(it.geometry.toGeoJson(it.properties)) }
+    return loi?.let { LoiReport(loiName, it.geometry.toGeoJson(it.properties)) }
   }
 
   /**

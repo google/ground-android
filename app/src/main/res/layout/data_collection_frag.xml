@@ -16,57 +16,43 @@
   ~ limitations under the License.
   -->
 
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto">
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:fitsSystemWindows="true">
 
-  <data>
-    <variable
-      name="jobName"
-      type="String" />
-    <variable
-      name="loiName"
-      type="String" />
-  </data>
-
-  <androidx.constraintlayout.widget.ConstraintLayout
+  <com.google.android.material.appbar.MaterialToolbar
+    android:id="@+id/data_collection_toolbar"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
+    android:layout_height="wrap_content"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    app:navigationIcon="@drawable/baseline_close_24"
+    app:subtitleCentered="true" />
 
-    <com.google.android.material.appbar.MaterialToolbar
-      android:id="@+id/data_collection_toolbar"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent"
-      app:navigationIcon="@drawable/baseline_close_24"
-      app:subtitle="@{loiName}"
-      app:subtitleCentered="true"
-      app:title="@{jobName}" />
+  <androidx.viewpager2.widget.ViewPager2
+    android:id="@+id/pager"
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/data_collection_toolbar" />
 
-    <androidx.viewpager2.widget.ViewPager2
-      android:id="@+id/pager"
-      android:layout_width="match_parent"
-      android:layout_height="0dp"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toBottomOf="@+id/data_collection_toolbar" />
+  <androidx.constraintlayout.widget.Guideline
+    android:id="@+id/progress_bar_guideline"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal" />
 
-    <androidx.constraintlayout.widget.Guideline
-      android:id="@+id/progress_bar_guideline"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:orientation="horizontal" />
+  <com.google.android.material.progressindicator.LinearProgressIndicator
+    android:id="@+id/progress_bar"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="@id/progress_bar_guideline" />
 
-    <com.google.android.material.progressindicator.LinearProgressIndicator
-      android:id="@+id/progress_bar"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="@id/progress_bar_guideline" />
-
-  </androidx.constraintlayout.widget.ConstraintLayout>
-</layout>
+</androidx.constraintlayout.widget.ConstraintLayout>
