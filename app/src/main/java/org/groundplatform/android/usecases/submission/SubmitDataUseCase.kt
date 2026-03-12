@@ -48,12 +48,13 @@ constructor(
     deltas: List<ValueDelta>,
     loiName: String?,
     collectionId: String,
-  ) {
+  ): String {
     Timber.v("Submitting data for LOI: $selectedLoiId")
     val deltasToSubmit = deltas.toMutableList()
     val submissionLoiId =
       selectedLoiId ?: addLocationOfInterest(surveyId, job, deltasToSubmit, loiName, collectionId)
     submissionRepository.saveSubmission(surveyId, submissionLoiId, deltasToSubmit, collectionId)
+    return submissionLoiId
   }
 
   /**

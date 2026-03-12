@@ -27,8 +27,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -54,12 +57,20 @@ import org.groundplatform.domain.model.locationofinterest.LoiReport
 import org.groundplatform.ui.components.GroundQrCode
 import org.groundplatform.ui.theme.AppTheme
 
+private val DEFAULT_TOOLBAR_HEIGHT = 56.dp
+
 @Composable
 fun DataSubmissionConfirmationScreen(loiReport: LoiReport? = null, onDismissed: () -> Unit) {
-  val baseModifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)
+  val baseModifier =
+    Modifier.fillMaxSize()
+      .background(MaterialTheme.colorScheme.surface)
+      .padding(top = DEFAULT_TOOLBAR_HEIGHT)
+      .padding(horizontal = 48.dp)
+      .systemBarsPadding()
+      .verticalScroll(rememberScrollState())
   if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE) {
     Row(
-      modifier = baseModifier.padding(vertical = 16.dp, horizontal = 48.dp),
+      modifier = baseModifier,
       horizontalArrangement = Arrangement.SpaceEvenly,
       verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -76,11 +87,7 @@ fun DataSubmissionConfirmationScreen(loiReport: LoiReport? = null, onDismissed: 
       ShareableContent(modifier = Modifier.weight(1f), loiReport = loiReport)
     }
   } else {
-    Column(
-      modifier = baseModifier.padding(horizontal = 48.dp),
-      horizontalAlignment = Alignment.CenterHorizontally,
-      verticalArrangement = Arrangement.SpaceEvenly,
-    ) {
+    Column(modifier = baseModifier, horizontalAlignment = Alignment.CenterHorizontally) {
       HeaderContent(modifier = Modifier.padding(vertical = 16.dp))
       ShareableContent(loiReport = loiReport)
       OutlinedButton(modifier = Modifier.padding(top = 24.dp), onClick = { onDismissed() }) {
@@ -93,26 +100,6 @@ fun DataSubmissionConfirmationScreen(loiReport: LoiReport? = null, onDismissed: 
     }
   }
 }
-
-// if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-//  Row(
-//    modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
-//    horizontalArrangement = Arrangement.SpaceEvenly,
-//    verticalAlignment = Alignment.CenterVertically,
-//  ) {
-//    DataSubmittedImage()
-//    BodyContent { onDismissed() }
-//  }
-// } else {
-//  Column(
-//    modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
-//    verticalArrangement = Arrangement.SpaceEvenly,
-//    horizontalAlignment = Alignment.CenterHorizontally,
-//  ) {
-//    DataSubmittedImage()
-//    BodyContent { onDismissed() }
-//  }
-// }
 
 @Composable
 private fun DataSubmittedIcon(modifier: Modifier = Modifier) {
@@ -196,7 +183,7 @@ private val testLoiReport =
   )
 
 @Composable
-@Preview
+@Preview(showSystemUi = true)
 @ExcludeFromJacocoGeneratedReport
 private fun DataSubmissionConfirmationScreenPortraitPreview() {
   AppTheme { DataSubmissionConfirmationScreen(loiReport = testLoiReport) {} }
