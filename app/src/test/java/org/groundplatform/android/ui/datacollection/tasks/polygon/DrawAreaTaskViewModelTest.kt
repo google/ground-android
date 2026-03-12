@@ -620,6 +620,45 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     assertThat(viewModel.isMarkedComplete()).isTrue()
   }
 
+  @Test
+  fun `onButtonClick ADD_POINT removes last vertex and resets hasSelfIntersection if it causes self-intersection`() =
+    runWithTestDispatcher {
+      setupViewModel()
+      // Create a non-intersecting path: (0,0) -> (10,10) -> (0,10)
+      updateLastVertexAndAdd(COORDINATE_1)
+      updateLastVertexAndAdd(COORDINATE_2)
+      updateLastVertexAndAdd(COORDINATE_6)
+
+      // Move cursor to a point that crosses the first segment: (10,0)
+      updateLastVertex(COORDINATE_5)
+
+      viewModel.onButtonClick(ButtonAction.ADD_POINT)
+      advanceUntilIdle()
+
+      // The intersecting vertex (10,0) should be dropped.
+      // Result: 3 fixed vertices + 1 temp cursor vertex = 4 total in geometry
+      assertGeometry(4, isLineString = true)
+      assertThat(viewModel.hasSelfIntersection).isFalse()
+    }
+
+  @Test
+  fun `onButtonClick COMPLETE does not mark complete if it causes self-intersection`() =
+    runWithTestDispatcher {
+      setupViewModel()
+      // Create a path that will intersect when closed: (0,0) -> (10,0) -> (0,10) -> (10,10)
+      updateLastVertexAndAdd(COORDINATE_1)
+      updateLastVertexAndAdd(COORDINATE_5)
+      updateLastVertexAndAdd(COORDINATE_6)
+      updateLastVertex(COORDINATE_2)
+
+      viewModel.onButtonClick(ButtonAction.COMPLETE)
+      advanceUntilIdle()
+
+      // Completion should fail and flag should be true
+      assertThat(viewModel.isMarkedComplete()).isFalse()
+      assertThat(viewModel.hasSelfIntersection).isTrue()
+    }
+
   private fun assertGeometry(
     expectedVerticesCount: Int,
     isLineString: Boolean = false,
@@ -679,6 +718,8 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     private val COORDINATE_2 = Coordinates(10.0, 10.0)
     private val COORDINATE_3 = Coordinates(20.0, 20.0)
     private val COORDINATE_4 = Coordinates(30.0, 30.0)
+    private val COORDINATE_5 = Coordinates(10.0, 0.0)
+    private val COORDINATE_6 = Coordinates(0.0, 10.0)
 
     private val TASK =
       Task(
