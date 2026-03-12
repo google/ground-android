@@ -49,7 +49,13 @@ fun TaskViewLayout(
   }
 }
 
-data class Header(val label: String, val iconResId: Int? = R.drawable.ic_question_answer)
+/**
+ * Data class representing the header section of a task view.
+ *
+ * @property label The text to be displayed in the header.
+ * @property iconResId The optional resource ID of the icon to be displayed alongside the label.
+ */
+data class Header(val label: String, val iconResId: Int? = null)
 
 @Composable
 private fun TaskViewHeader(header: Header) {

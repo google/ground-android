@@ -60,7 +60,9 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   }
 
   /** Represents the content to be shown in the task header, if any. */
-  open val taskHeader: Header? by lazy { Header(viewModel.task.label) }
+  open val taskHeader: Header? by lazy {
+    Header(label = viewModel.task.label, iconResId = R.drawable.ic_question_answer)
+  }
 
   /** Represents the content to be shown in the task instructions, if any. */
   open val instructionData: InstructionData? = null
