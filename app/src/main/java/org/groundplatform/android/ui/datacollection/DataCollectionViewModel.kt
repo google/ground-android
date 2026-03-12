@@ -74,6 +74,9 @@ internal constructor(
   private val dataCollectionInitializer: DataCollectionInitializer,
 ) : AbstractViewModel() {
 
+  /** The current vertical position of the task view footer. */
+  var footerVerticalPosition = MutableStateFlow(0.0f)
+
   private val _uiState = MutableStateFlow<DataCollectionUiState>(DataCollectionUiState.Loading)
   val uiState: StateFlow<DataCollectionUiState> = _uiState
 

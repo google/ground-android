@@ -24,6 +24,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
 import androidx.core.view.doOnAttach
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -144,6 +147,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   internal fun TaskFooter() {
     val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
     TaskFooter(
+      modifier = Modifier.onGloballyPositioned { saveFooterPosition(it.positionInWindow().y) },
       headerCard =
         if (shouldShowHeader()) {
           { HeaderCard() }
@@ -153,6 +157,10 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
       buttonActionStates = taskActionButtonsStates,
       onButtonClicked = { handleButtonClick(it) },
     )
+  }
+
+  private fun saveFooterPosition(top: Float) {
+    dataCollectionViewModel.footerVerticalPosition.value = top
   }
 
   private fun handleButtonClick(action: ButtonAction) {
