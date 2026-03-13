@@ -17,6 +17,7 @@ package org.groundplatform.android.ui.datacollection
 
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.task.Task
+import org.groundplatform.domain.model.locationofinterest.LoiReport
 
 /**
  * Top-level UI state for the Data Collection flow.
@@ -85,7 +86,7 @@ sealed interface DataCollectionUiState {
    * affordance or navigate away (e.g., back to the home screen) and must not attempt to read or
    * save further draft data for this session.
    */
-  data object TaskSubmitted : DataCollectionUiState
+  data class TaskSubmitted(val loiReport: LoiReport?) : DataCollectionUiState
 }
 
 /** Stable, UI-mappable error codes for data collection bootstrapping and flow. */

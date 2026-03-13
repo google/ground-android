@@ -43,6 +43,7 @@ import org.groundplatform.android.ui.common.BackPressListener
 import org.groundplatform.android.ui.components.ConfirmationDialog
 import org.groundplatform.android.ui.home.HomeScreenFragmentDirections
 import org.groundplatform.android.util.renderComposableDialog
+import org.groundplatform.domain.model.locationofinterest.LoiReport
 
 /** Fragment allowing the user to collect data to complete a task. */
 @AndroidEntryPoint
@@ -69,14 +70,19 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     guideline = binding.progressBarGuideline
     getAbstractActivity().setSupportActionBar(binding.dataCollectionToolbar)
 
-    binding.dataCollectionToolbar.setNavigationOnClickListener { showExitWarningDialog() }
+    binding.dataCollectionToolbar.setNavigationOnClickListener {
+      if (viewModel.uiState.value is DataCollectionUiState.TaskSubmitted) {
+        navigateBack()
+      } else {
+        showExitWarningDialog()
+      }
+    }
 
     return binding.root
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    binding.lifecycleOwner = viewLifecycleOwner
 
     viewPager.isUserInputEnabled = false
     viewPager.offscreenPageLimit = 1
@@ -119,8 +125,8 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     when (uiState) {
       // Ensure adapter has the task list; then jump to the current position.
       is DataCollectionUiState.Ready -> {
-        binding.jobName = uiState.job.name
-        binding.loiName = uiState.loiName
+        binding.dataCollectionToolbar.title = uiState.job.name
+        binding.dataCollectionToolbar.subtitle = uiState.loiName
         loadTasks(uiState.tasks, uiState.position)
       }
 
@@ -129,7 +135,9 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
       }
 
       is DataCollectionUiState.TaskSubmitted -> {
-        onTaskSubmitted()
+        binding.dataCollectionToolbar.title = getString(R.string.data_collection_complete)
+        binding.dataCollectionToolbar.subtitle = null
+        onTaskSubmitted(uiState.loiReport)
       }
 
       is DataCollectionUiState.Loading,
@@ -171,14 +179,12 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     updateProgressBar(taskPosition, true)
   }
 
-  private fun onTaskSubmitted() {
-    // Hide close button
-    binding.dataCollectionToolbar.navigationIcon = null
+  private fun onTaskSubmitted(loiReport: LoiReport?) {
     viewPager.adapter = null
 
     // Display a confirmation dialog and move to home screen after that.
     renderComposableDialog {
-      DataSubmissionConfirmationScreen {
+      DataSubmissionConfirmationScreen(loiReport) {
         findNavController().navigate(HomeScreenFragmentDirections.showHomeScreen())
       }
     }
@@ -204,7 +210,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   }
 
   override fun onBack(): Boolean {
-    if (viewModel.uiState.value == DataCollectionUiState.TaskSubmitted) {
+    if (viewModel.uiState.value is DataCollectionUiState.TaskSubmitted) {
       // Pressing back button after submitting task should navigate back to home screen.
       navigateBack()
       return true
