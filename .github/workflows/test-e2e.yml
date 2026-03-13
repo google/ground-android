@@ -40,7 +40,7 @@ jobs:
         uses: google/ground-platform/.github/actions/start-emulator@master
 
       - name: Run Android tests on e2eTest module
-        uses: google/ground-android/.github/actions/submit-test@master
+        uses: ./.github/actions/submit-test
         with:
           android-repository: ${{ github.repository }}
           upload-artifacts: true
