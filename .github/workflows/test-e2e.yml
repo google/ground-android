@@ -43,5 +43,6 @@ jobs:
         uses: google/ground-android/.github/actions/submit-test@master
         with:
           android-repository: ${{ github.repository }}
+          android-branch: ${{ github.head_ref || github.ref_name }}
           upload-artifacts: true
           google-maps-key: ${{ secrets.MAPS_API_KEY }}

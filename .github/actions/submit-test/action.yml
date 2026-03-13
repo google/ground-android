@@ -18,6 +18,10 @@ inputs:
     description: 'ground-android repository under test'
     default: google/ground-android
 
+  android-branch:
+    description: 'Git ref (branch/tag/SHA) to checkout for testing'
+    default: 'master'
+
   upload-artifacts:
     description: 'Whether to upload the final emulator data artifacts'
     default: 'false'
@@ -32,6 +36,7 @@ runs:
       uses: actions/checkout@v6
       with:
         repository: ${{ inputs.android-repository }}
+        ref: ${{ inputs.android-branch }}
         clean: false
 
     - name: Check Firebase emulator connection
@@ -107,10 +112,20 @@ runs:
 
     - name: Export Firebase emulator data
       if: always()
+      continue-on-error: true
       shell: bash
       run: |
         echo "Exporting emulator data..."
         npx -y -p firebase-tools firebase emulators:export ${{ github.workspace }}/test-android-result --project demo-local --force
+
+    - name: Upload Firebase emulator logs
+      if: always()
+      uses: actions/upload-artifact@v6
+      with:
+        name: firebase-emulator-logs
+        path: ${{ github.workspace }}/firebase-emulator.log
+        retention-days: 7
+        if-no-files-found: warn
 
     - name: Upload Firebase emulator data
       if: always() && inputs.upload-artifacts == 'true'
