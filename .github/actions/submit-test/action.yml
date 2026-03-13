@@ -112,6 +112,15 @@ runs:
         echo "Exporting emulator data..."
         npx -y -p firebase-tools firebase emulators:export ${{ github.workspace }}/test-android-result --project demo-local --force
 
+    - name: Upload Firebase emulator logs
+      if: always()
+      uses: actions/upload-artifact@v6
+      with:
+        name: emulator-logs
+        path: ${{ github.workspace }}/firebase-emulator.log
+        retention-days: 7
+        if-no-files-found: ignore
+
     - name: Upload Firebase emulator data
       if: always() && inputs.upload-artifacts == 'true'
       uses: actions/upload-artifact@v6
