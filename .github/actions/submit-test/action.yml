@@ -18,6 +18,10 @@ inputs:
     description: 'ground-android repository under test'
     default: google/ground-android
 
+  android-branch:
+    description: 'Git ref (branch/tag/SHA) to checkout for testing'
+    default: 'master'
+
   upload-artifacts:
     description: 'Whether to upload the final emulator data artifacts'
     default: 'false'
@@ -32,6 +36,7 @@ runs:
       uses: actions/checkout@v6
       with:
         repository: ${{ inputs.android-repository }}
+        ref: ${{ inputs.android-branch }}
         clean: false
 
     - name: Check Firebase emulator connection
