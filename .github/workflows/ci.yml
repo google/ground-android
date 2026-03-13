@@ -50,12 +50,13 @@ jobs:
         run: ./gradlew jacocoLocalDebugUnitTestReport
 
       - name: Upload coverage to Codecov
+        if: github.actor != 'dependabot[bot]'
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: "**/build/reports/jacoco/**/*.xml"
           flags: service
-          fail_ci_if_error: true
+          fail_ci_if_error: false
 
   instrumentation-tests:
     needs: build
