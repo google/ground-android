@@ -117,7 +117,7 @@ runs:
       if: always()
       uses: actions/upload-artifact@v6
       with:
-        name: emulator-logs
+        name: firebase-emulator-logs
         path: ${{ github.workspace }}/firebase-emulator.log
         retention-days: 7
         if-no-files-found: warn
