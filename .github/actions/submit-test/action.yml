@@ -14,14 +14,6 @@
 name: Run all tests in the e2eTest module
 
 inputs:
-  android-repository:
-    description: 'ground-android repository under test'
-    default: google/ground-android
-
-  android-branch:
-    description: 'Git ref (branch/tag/SHA) to checkout for testing'
-    default: 'master'
-
   upload-artifacts:
     description: 'Whether to upload the final emulator data artifacts'
     default: 'false'
@@ -36,8 +28,7 @@ runs:
       uses: actions/checkout@v6
       with:
         repository: ${{ inputs.android-repository }}
-        ref: ${{ inputs.android-branch }}
-        clean: false
+        path: android
 
     - name: Check Firebase emulator connection
       shell: bash
@@ -51,6 +42,7 @@ runs:
         fi
 
     - name: Validate and setup MAPS_API_KEY
+      working-directory: android
       env:
         MAPS_API_KEY: ${{ inputs.google-maps-key }}
       shell: bash
@@ -60,7 +52,7 @@ runs:
           exit 1
         fi
         echo "MAPS_API_KEY is set"
-        echo "MAPS_API_KEY=${{ secrets.MAPS_API_KEY }}" > secrets.properties
+        echo "MAPS_API_KEY=${MAPS_API_KEY}" > secrets.properties
 
     - name: Enable KVM group perms
       shell: bash
@@ -80,6 +72,7 @@ runs:
 
     - name: Run tests
       uses: reactivecircus/android-emulator-runner@v2
+      working-directory: android
       with:
         api-level: 30
         target: google_apis
@@ -116,16 +109,7 @@ runs:
       shell: bash
       run: |
         echo "Exporting emulator data..."
-        npx -y -p firebase-tools firebase emulators:export ${{ github.workspace }}/test-android-result --project demo-local --force
-
-    - name: Upload Firebase emulator logs
-      if: always()
-      uses: actions/upload-artifact@v6
-      with:
-        name: firebase-emulator-logs
-        path: ${{ github.workspace }}/firebase-emulator.log
-        retention-days: 7
-        if-no-files-found: warn
+        npx firebase-tools emulators:export ${{ github.workspace }}/test-android-result --project demo-local --force
 
     - name: Upload Firebase emulator data
       if: always() && inputs.upload-artifacts == 'true'
