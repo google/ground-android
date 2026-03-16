@@ -73,7 +73,7 @@ fun JobSelectionRow(job: Job, onClick: () -> Unit) {
       Text(
         job.name ?: stringResource(R.string.unnamed_job),
         modifier = Modifier.padding(16.dp),
-        fontSize = 20.sp,
+        style = MaterialTheme.typography.titleLarge,
       )
     }
   }

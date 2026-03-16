@@ -126,14 +126,7 @@ private fun DrawerNavigationItem(item: DrawerItem, onAction: (HomeDrawerAction) 
     label = {
       Text(
         text = label,
-        fontSize = 14.sp,
-        fontWeight = FontWeight.SemiBold,
-        fontFamily =
-          androidx.compose.ui.text.font.FontFamily(
-            androidx.compose.ui.text.font.Font(R.font.manrope_bold, FontWeight.SemiBold),
-            androidx.compose.ui.text.font.Font(R.font.manrope_medium, FontWeight.Medium),
-          ),
-        lineHeight = 20.sp,
+        style = MaterialTheme.typography.titleSmall,
       )
     },
     selected = false,
@@ -167,14 +160,7 @@ private fun DrawerVersionFooter(versionText: String) {
     Spacer(Modifier.width(12.dp))
     Text(
       text = versionText,
-      fontSize = 14.sp,
-      fontWeight = FontWeight.SemiBold,
-      fontFamily =
-        androidx.compose.ui.text.font.FontFamily(
-          androidx.compose.ui.text.font.Font(R.font.manrope_bold, FontWeight.SemiBold),
-          androidx.compose.ui.text.font.Font(R.font.manrope_medium, FontWeight.Medium),
-        ),
-      lineHeight = 20.sp,
+      style = MaterialTheme.typography.titleSmall,
       color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
   }

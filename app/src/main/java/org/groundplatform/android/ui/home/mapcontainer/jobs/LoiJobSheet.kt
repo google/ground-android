@@ -130,7 +130,7 @@ private fun ModalContents(
 @Composable
 private fun JobName(loiHelper: LocationOfInterestHelper, loi: LocationOfInterest) {
   loiHelper.getJobName(loi)?.let {
-    Text(it, color = MaterialTheme.colorScheme.onSurface, fontSize = 18.sp)
+    Text(it, color = MaterialTheme.colorScheme.onSurface, style = MaterialTheme.typography.titleMedium)
   }
 }
 
@@ -171,14 +171,14 @@ private fun SubmissionRow(
       if (submissionCount <= 0) stringResource(R.string.no_submissions)
       else pluralStringResource(R.plurals.submission_count, submissionCount, submissionCount),
       color = MaterialTheme.colorScheme.onSurface,
-      fontSize = 16.sp,
+      style = MaterialTheme.typography.bodyLarge,
     )
 
     // NOTE(#2539): Avoid crash when there are no non-LOI tasks.
     val showAddData = canUserSubmitData && loi.job.hasNonLoiTasks() && loi.isPredefined == true
     if (showAddData) {
       Button(onClick = onCollectClicked) {
-        Text(stringResource(R.string.add_data), modifier = Modifier.padding(4.dp), fontSize = 18.sp)
+        Text(stringResource(R.string.add_data), modifier = Modifier.padding(4.dp))
       }
     }
   }
