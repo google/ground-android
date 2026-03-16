@@ -19,6 +19,8 @@ plugins {
   alias(libs.plugins.kotlin.serialization)
 }
 
+apply(from = "../../config/jacoco/jacoco.gradle")
+
 kotlin {
   // We do not add an Android target here because this is a pure domain module.
   // Adding an Android target would require the Android Gradle Plugin (AGP) and SDK configuration,
@@ -39,6 +41,11 @@ kotlin {
       }
     }
 
-    commonTest { dependencies { implementation(libs.kotlin.test) } }
+    commonTest {
+      dependencies {
+        implementation(libs.kotlin.test)
+        implementation(libs.kotlinx.coroutines.test)
+      }
+    }
   }
 }
