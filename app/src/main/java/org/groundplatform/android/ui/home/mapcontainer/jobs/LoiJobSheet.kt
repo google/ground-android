@@ -45,7 +45,6 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.model.AuditInfo
@@ -130,7 +129,11 @@ private fun ModalContents(
 @Composable
 private fun JobName(loiHelper: LocationOfInterestHelper, loi: LocationOfInterest) {
   loiHelper.getJobName(loi)?.let {
-    Text(it, color = MaterialTheme.colorScheme.onSurface, style = MaterialTheme.typography.titleMedium)
+    Text(
+      it,
+      color = MaterialTheme.colorScheme.onSurface,
+      style = MaterialTheme.typography.titleMedium,
+    )
   }
 }
 

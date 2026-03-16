@@ -123,12 +123,7 @@ private fun DrawerItems(onAction: (HomeDrawerAction) -> Unit, versionText: Strin
 private fun DrawerNavigationItem(item: DrawerItem, onAction: (HomeDrawerAction) -> Unit) {
   val label = stringResource(item.labelId)
   NavigationDrawerItem(
-    label = {
-      Text(
-        text = label,
-        style = MaterialTheme.typography.titleSmall,
-      )
-    },
+    label = { Text(text = label, style = MaterialTheme.typography.titleSmall) },
     selected = false,
     onClick = { onAction(item.action) },
     icon = {
