@@ -24,12 +24,6 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Checkout
-      uses: actions/checkout@v6
-      with:
-        repository: ${{ inputs.android-repository }}
-        path: android
-
     - name: Check Firebase emulator connection
       shell: bash
       run: |
@@ -42,7 +36,6 @@ runs:
         fi
 
     - name: Validate and setup MAPS_API_KEY
-      working-directory: android
       env:
         MAPS_API_KEY: ${{ inputs.google-maps-key }}
       shell: bash
@@ -72,7 +65,6 @@ runs:
 
     - name: Run tests
       uses: reactivecircus/android-emulator-runner@v2
-      working-directory: android
       with:
         api-level: 30
         target: google_apis
