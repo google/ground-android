@@ -33,7 +33,6 @@ import org.groundplatform.android.model.Role
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.locationofinterest.LocationOfInterest
-import org.groundplatform.android.model.locationofinterest.generateProperties
 import org.groundplatform.android.model.map.Bounds
 import org.groundplatform.android.model.mutation.LocationOfInterestMutation
 import org.groundplatform.android.model.mutation.Mutation
@@ -42,6 +41,7 @@ import org.groundplatform.android.proto.Survey.DataVisibility
 import org.groundplatform.android.system.auth.AuthenticationManager
 import org.groundplatform.android.ui.map.gms.GmsExt.contains
 import org.groundplatform.domain.model.geometry.Geometry
+import org.groundplatform.domain.model.locationofinterest.generateProperties
 import timber.log.Timber
 
 /**

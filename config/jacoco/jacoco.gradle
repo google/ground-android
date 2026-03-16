@@ -25,8 +25,44 @@ tasks.withType(Test).configureEach {
     jacoco.excludes = ['jdk.internal.*']
 }
 
+def isAndroidModule = plugins.hasPlugin('com.android.application') || plugins.hasPlugin('com.android.library')
+def isKmpModule = plugins.hasPlugin('org.jetbrains.kotlin.multiplatform')
+def excludesList = [
+    '**/databinding/*',
+    '**/proto/*',
+    '**/migration/*',
+    '**/local/room/dao/*',
+    '**/*_Factory*',
+    '**/*Hilt*',
+    '**/*Args*',
+    '**/*Directions*',
+    '**/LocalDatabase_Impl*',
+    '**/*Module*',
+    '**/data/remote/firebase/base/*',
+    '**/data/remote/firebase/schema/*Reference*',
+    '**/data/remote/firebase/FirebaseStorageManager*',
+    '**/data/remote/firebase/FirestoreDataStore*',
+    '**/system/channel/LocationSharedFlowCallback*',
+]
+def testTaskName
+def classDirs
+def sourceDirs
+def execData
+
+if (isAndroidModule) {
+    testTaskName = 'testLocalDebugUnitTest'
+    classDirs = 'build/intermediates/classes/localDebug/transformLocalDebugClassesWithAsm/dirs/org/groundplatform/android'
+    sourceDirs = ['src/main/java/org/groundplatform/android']
+    execData = 'build/jacoco/testLocalDebugUnitTest.exec'
+} else if (isKmpModule) {
+    testTaskName = 'jvmTest'
+    classDirs = 'build/classes/kotlin/jvm/main'
+    sourceDirs = ['src/commonMain/kotlin']
+    execData = 'build/jacoco/jvmTest.exec'
+}
+
 tasks.register('jacocoLocalDebugUnitTestReport', JacocoReport) {
-    dependsOn 'testLocalDebugUnitTest'
+    dependsOn tasks.named(testTaskName)
     group = "Reporting"
     description = "Run tests and generate coverage reports"
     reports {
@@ -34,26 +70,7 @@ tasks.register('jacocoLocalDebugUnitTestReport', JacocoReport) {
         xml.required = true
         html.required = true
     }
-    classDirectories.from = fileTree(
-        dir: 'build/intermediates/classes/localDebug/transformLocalDebugClassesWithAsm/dirs/org/groundplatform/android',
-        excludes: [
-            '**/databinding/*',
-            '**/proto/*',
-            '**/migration/*',
-            '**/local/room/dao/*',
-            '**/*_Factory*',
-            '**/*Hilt*',
-            '**/*Args*',
-            '**/*Directions*',
-            '**/LocalDatabase_Impl*',
-            '**/*Module*',
-            '**/data/remote/firebase/base/*',
-            '**/data/remote/firebase/schema/*Reference*',
-            '**/data/remote/firebase/FirebaseStorageManager*',
-            '**/data/remote/firebase/FirestoreDataStore*',
-            '**/system/channel/LocationSharedFlowCallback*',
-        ]
-    )
-    sourceDirectories.from = files('src/main/java/org/groundplatform/android')
-    executionData.from = files('build/jacoco/testLocalDebugUnitTest.exec')
+    classDirectories.from = fileTree(dir: classDirs, excludes: excludesList)
+    sourceDirectories.from = files(sourceDirs)
+    executionData.from = files(execData)
 }

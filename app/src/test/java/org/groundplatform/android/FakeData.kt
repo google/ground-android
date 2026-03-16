@@ -23,7 +23,6 @@ import org.groundplatform.android.model.User
 import org.groundplatform.android.model.imagery.OfflineArea
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.Style
-import org.groundplatform.android.model.locationofinterest.LOI_NAME_PROPERTY
 import org.groundplatform.android.model.locationofinterest.LocationOfInterest
 import org.groundplatform.android.model.map.Bounds
 import org.groundplatform.android.model.mutation.LocationOfInterestMutation
@@ -42,6 +41,7 @@ import org.groundplatform.domain.model.geometry.LinearRing
 import org.groundplatform.domain.model.geometry.MultiPolygon
 import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.geometry.Polygon
+import org.groundplatform.domain.model.locationofinterest.LOI_NAME_PROPERTY
 
 /**
  * Shared test data constants. Tests are expected to override existing or set missing values when
