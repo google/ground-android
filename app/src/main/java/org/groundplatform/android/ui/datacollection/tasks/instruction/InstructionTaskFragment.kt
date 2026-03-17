@@ -46,7 +46,7 @@ class InstructionTaskFragment : AbstractTaskFragment<InstructionTaskViewModel>()
 
   @Composable
   private fun ShowTextField(text: String) {
-     Box(modifier = Modifier.padding(MaterialTheme.sizes.taskViewPadding)) {
+    Box(modifier = Modifier.padding(MaterialTheme.sizes.taskViewPadding)) {
       Box(
         modifier =
           Modifier.fillMaxSize()
