@@ -15,53 +15,46 @@
  */
 package org.groundplatform.android.ui.datacollection.components
 
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.ui.theme.AppTheme
 
 @Composable
-fun InstructionsDialog(iconId: Int, stringId: Int, onDismissed: () -> Unit) {
-  val showDialog = remember { mutableStateOf(true) }
-  if (showDialog.value) {
-    AlertDialog(
-      icon = {
-        Icon(
-          imageVector = ImageVector.vectorResource(id = iconId),
-          contentDescription = "",
-          modifier = Modifier.width(48.dp).height(48.dp),
-        )
-      },
-      title = { Text(text = stringResource(stringId), fontSize = 18.sp) },
-      onDismissRequest = {}, // Prevent dismissing the dialog by clicking outside
-      confirmButton = {}, // Hide confirm button
-      dismissButton = {
-        OutlinedButton(
-          onClick = {
-            showDialog.value = false
-            onDismissed()
-          }
-        ) {
-          Text(text = stringResource(R.string.close))
-        }
-      },
-    )
-  }
+fun InstructionsDialog(
+  @DrawableRes iconId: Int,
+  @StringRes stringId: Int,
+  onDismissed: () -> Unit,
+) {
+  AlertDialog(
+    icon = {
+      Icon(
+        imageVector = ImageVector.vectorResource(id = iconId),
+        contentDescription = null,
+        modifier = Modifier.size(48.dp),
+      )
+    },
+    title = { Text(text = stringResource(stringId), style = MaterialTheme.typography.titleLarge) },
+    onDismissRequest = {}, // Prevent dismissing the dialog by clicking outside
+    confirmButton = {}, // Hide confirm button
+    dismissButton = {
+      OutlinedButton(onClick = onDismissed) { Text(text = stringResource(R.string.close)) }
+    },
+  )
 }
 
 /**
