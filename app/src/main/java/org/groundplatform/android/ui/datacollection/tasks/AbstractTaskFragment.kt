@@ -162,7 +162,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   }
 
   private fun saveFooterPosition(top: Float) {
-    dataCollectionViewModel.footerVerticalPosition.value = top
+    dataCollectionViewModel.updateFooterPosition(top)
   }
 
   private fun handleButtonClick(action: ButtonAction) {

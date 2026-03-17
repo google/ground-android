@@ -370,6 +370,10 @@ internal constructor(
       .map { (it as? DataCollectionUiState.Ready)?.currentTaskId == taskId }
       .distinctUntilChanged()
 
+  fun updateFooterPosition(top: Float) {
+    footerVerticalPosition.value = top
+  }
+
   companion object {
     private const val TASK_JOB_ID_KEY = "jobId"
     private const val TASK_LOI_ID_KEY = "locationOfInterestId"
