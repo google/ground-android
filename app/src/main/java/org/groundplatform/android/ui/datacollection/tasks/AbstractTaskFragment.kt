@@ -22,7 +22,7 @@ import android.view.ViewGroup
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -186,14 +186,14 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   @Composable
   private fun LoiNameDialog() {
-    var openAlertDialog by rememberSaveable { dataCollectionViewModel.loiNameDialogOpen }
+    var openAlertDialog by dataCollectionViewModel.loiNameDialogOpen
 
     if (openAlertDialog) {
       val uiState by dataCollectionViewModel.uiState.collectAsStateWithLifecycle()
       val initialNameValue =
         (uiState as? DataCollectionUiState.Ready)?.loiName
           ?: dataCollectionViewModel.getTypedLoiNameOrEmpty()
-      var name by rememberSaveable { mutableStateOf(initialNameValue) }
+      var name by remember(initialNameValue) { mutableStateOf(initialNameValue) }
 
       LoiNameDialog(
         textFieldValue = name,
@@ -212,7 +212,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   @Composable
   private fun InstructionsDialog(instructionData: InstructionData) {
-    var showInstructionsDialog by rememberSaveable { viewModel.showInstructionsDialog }
+    var showInstructionsDialog by viewModel.showInstructionsDialog
 
     if (showInstructionsDialog) {
       InstructionsDialog(iconId = instructionData.iconId, stringId = instructionData.stringId) {
