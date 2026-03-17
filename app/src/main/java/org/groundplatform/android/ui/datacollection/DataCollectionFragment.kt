@@ -131,7 +131,8 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   }
 
   private fun setProgressBarPosition(topPosition: Float) {
-    val windowInsets = WindowInsetsCompat.toWindowInsetsCompat(requireView().rootWindowInsets)
+    val insets = requireView().rootWindowInsets ?: return
+    val windowInsets = WindowInsetsCompat.toWindowInsetsCompat(insets)
     val systemBarsInsets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
 
     val guidelineTop = topPosition.toInt() - systemBarsInsets.top
