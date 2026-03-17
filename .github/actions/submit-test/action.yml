@@ -14,6 +14,10 @@
 name: Run all tests in the e2eTest module
 
 inputs:
+  android-repository:
+    description: 'ground-android repository under test'
+    default: google/ground-android
+
   upload-artifacts:
     description: 'Whether to upload the final emulator data artifacts'
     default: 'false'
@@ -24,6 +28,12 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Checkout
+      uses: actions/checkout@v6
+      with:
+        repository: ${{ inputs.android-repository }}
+        clean: false
+
     - name: Check Firebase emulator connection
       shell: bash
       run: |
@@ -95,13 +105,30 @@ runs:
         retention-days: 7
         if-no-files-found: ignore
 
-    - name: Export Firebase emulator data
+    - name: Stop Firebase emulator
+      shell: bash
       if: always()
       continue-on-error: true
-      shell: bash
       run: |
-        echo "Exporting emulator data..."
-        npx firebase-tools emulators:export ${{ github.workspace }}/test-android-result --project demo-local --force
+        EMULATOR_PID_FILE="/tmp/firebase-emulator.pid"
+        if [ -f "$EMULATOR_PID_FILE" ]; then
+          EMULATOR_PID=$(cat "$EMULATOR_PID_FILE")
+          echo "Stopping Firebase emulator with PID $EMULATOR_PID"
+          kill $EMULATOR_PID
+          tail --pid=$EMULATOR_PID -f /dev/null 2>/dev/null
+        else
+          echo "Emulator PID file not found, skipping stop"
+        fi
+
+    - name: Upload Firebase emulator log
+      if: always()
+      continue-on-error: true
+      uses: actions/upload-artifact@v6
+      with:
+        name: firebase-emulator-log
+        path: /tmp/firebase-emulator.log
+        retention-days: 7
+        if-no-files-found: warn
 
     - name: Upload Firebase emulator data
       if: always() && inputs.upload-artifacts == 'true'

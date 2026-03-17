@@ -35,6 +35,8 @@ jobs:
     steps:
       - name: Start Firebase emulator
         uses: google/ground-platform/.github/actions/start-emulator@master
+        with:
+          platform-repository: google/ground-platform
 
       - name: Restore workflow repository
         uses: actions/checkout@v6
@@ -42,5 +44,6 @@ jobs:
       - name: Run Android tests on e2eTest module
         uses: ./.github/actions/submit-test
         with:
+          android-repository: google/ground-android
           upload-artifacts: true
           google-maps-key: ${{ secrets.MAPS_API_KEY }}
