@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android.ui.datacollection.components
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,7 +36,6 @@ import org.groundplatform.ui.theme.sizes
 
 @Composable
 fun TaskViewLayout(
-  modifier: Modifier = Modifier,
   header: Header? = null,
   footer: @Composable () -> Unit,
   content: @Composable () -> Unit,
@@ -44,7 +44,7 @@ fun TaskViewLayout(
     if (header != null) {
       TaskViewHeader(header)
     }
-    Box(modifier = modifier.weight(1f).fillMaxWidth()) { content() }
+    Box(modifier = Modifier.weight(1f).fillMaxWidth()) { content() }
     Box(modifier = Modifier.fillMaxWidth()) { footer() }
   }
 }
@@ -55,7 +55,7 @@ fun TaskViewLayout(
  * @property label The text to be displayed in the header.
  * @property iconResId The optional resource ID of the icon to be displayed alongside the label.
  */
-data class Header(val label: String, val iconResId: Int? = null)
+data class Header(val label: String, @param:DrawableRes val iconResId: Int? = null)
 
 @Composable
 private fun TaskViewHeader(header: Header) {
@@ -81,7 +81,7 @@ private fun TaskViewHeader(header: Header) {
 
 @Preview(showBackground = true)
 @Composable
-fun TaskViewLayoutPreviewWithIcon() {
+private fun TaskViewLayoutPreviewWithIcon() {
   AppTheme {
     TaskViewLayout(
       header = Header("Label 1", iconResId = R.drawable.ic_question_answer),
@@ -94,7 +94,7 @@ fun TaskViewLayoutPreviewWithIcon() {
 
 @Preview(showBackground = true)
 @Composable
-fun TaskViewLayoutPreviewWithoutIcon() {
+private fun TaskViewLayoutPreviewWithoutIcon() {
   AppTheme {
     TaskViewLayout(
       header = Header(label = "Label 2", iconResId = null),
@@ -107,6 +107,6 @@ fun TaskViewLayoutPreviewWithoutIcon() {
 
 @Preview(showBackground = true)
 @Composable
-fun TaskViewLayoutPreviewWithoutHeader() {
+private fun TaskViewLayoutPreviewWithoutHeader() {
   AppTheme { TaskViewLayout(header = null, footer = { Text("Footer 3") }) { Text("Content 3") } }
 }
