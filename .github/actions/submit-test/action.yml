@@ -105,20 +105,13 @@ runs:
         retention-days: 7
         if-no-files-found: ignore
 
-    - name: Stop Firebase emulator
+    - name: Export Firebase emulator data
       shell: bash
       if: always()
       continue-on-error: true
       run: |
-        EMULATOR_PID_FILE="/tmp/firebase-emulator.pid"
-        if [ -f "$EMULATOR_PID_FILE" ]; then
-          EMULATOR_PID=$(cat "$EMULATOR_PID_FILE")
-          echo "Stopping Firebase emulator with PID $EMULATOR_PID"
-          kill $EMULATOR_PID
-          tail --pid=$EMULATOR_PID -f /dev/null 2>/dev/null
-        else
-          echo "Emulator PID file not found, skipping stop"
-        fi
+        echo "Exporting emulator data..."
+        npx -y -p firebase-tools firebase emulators:export ${{ github.workspace }}/test-android-result --project demo-local --force
 
     - name: Upload Firebase emulator log
       if: always()
