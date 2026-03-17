@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -193,7 +194,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
       val initialNameValue =
         (uiState as? DataCollectionUiState.Ready)?.loiName
           ?: dataCollectionViewModel.getTypedLoiNameOrEmpty()
-      var name by remember(initialNameValue) { mutableStateOf(initialNameValue) }
+      var name by rememberSaveable(initialNameValue) { mutableStateOf(initialNameValue) }
 
       LoiNameDialog(
         textFieldValue = name,

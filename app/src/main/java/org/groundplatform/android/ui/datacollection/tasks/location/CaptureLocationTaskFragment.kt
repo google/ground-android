@@ -58,7 +58,7 @@ class CaptureLocationTaskFragment @Inject constructor() :
 
   @Composable
   override fun TaskBody() {
-    var showPermissionDeniedDialog by rememberSaveable { viewModel.showPermissionDeniedDialog }
+    var showPermissionDeniedDialog by viewModel.showPermissionDeniedDialog
 
     AndroidView(
       factory = { context ->

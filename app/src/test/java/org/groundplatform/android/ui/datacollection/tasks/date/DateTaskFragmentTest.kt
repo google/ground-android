@@ -20,7 +20,8 @@ import android.content.Context
 import android.text.format.DateFormat
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
-import androidx.compose.ui.test.isDisplayed
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.isNotDisplayed
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -122,7 +123,7 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
 
     datePickerDialog?.getButton(DatePickerDialog.BUTTON_POSITIVE)?.performClick()
 
-    composeTestRule.onNodeWithText("10/10/24").isDisplayed()
+    composeTestRule.onNodeWithText("10/10/24").assertIsDisplayed()
     runner().assertButtonIsEnabled("Next")
   }
 
@@ -141,17 +142,17 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
     datePickerDialog?.datePicker?.updateDate(hardcodedYear, hardcodedMonth, hardcodedDay)
 
     datePickerDialog?.getButton(DatePickerDialog.BUTTON_POSITIVE)?.performClick()
-    composeTestRule.onNodeWithText("10/10/24").isDisplayed()
+    composeTestRule.onNodeWithText("10/10/24").assertIsDisplayed()
 
     datePickerDialog?.getButton(DatePickerDialog.BUTTON_NEUTRAL)?.performClick()
-    composeTestRule.onNodeWithText("10/10/24").isNotDisplayed()
+    composeTestRule.onNodeWithText("10/10/24").assertIsNotDisplayed()
   }
 
   @Test
   fun `hint text is visible`() {
     setupTaskFragment<DateTaskFragment>(job, task)
 
-    composeTestRule.onNodeWithText(getExpectedDateHint()).isDisplayed()
+    composeTestRule.onNodeWithText(getExpectedDateHint()).assertIsDisplayed()
   }
 
   private fun getExpectedDateHint(): String {

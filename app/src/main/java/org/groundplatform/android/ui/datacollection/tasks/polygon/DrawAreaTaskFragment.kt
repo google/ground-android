@@ -52,7 +52,7 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
 
   @Composable
   override fun TaskBody() {
-    var showSelfIntersectionDialog by rememberSaveable { viewModel.showSelfIntersectionDialog }
+    var showSelfIntersectionDialog by viewModel.showSelfIntersectionDialog
 
     AndroidView(
       factory = { context ->

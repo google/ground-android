@@ -20,7 +20,8 @@ import android.text.format.DateFormat
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertTextContains
-import androidx.compose.ui.test.isDisplayed
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -113,7 +114,7 @@ class TimeTaskFragmentTest : BaseTaskFragmentTest<TimeTaskFragment, TimeTaskView
   fun `hint text is visible`() {
     setupTaskFragment<TimeTaskFragment>(job, task)
 
-    composeTestRule.onNodeWithText(getExpectedTimeHint()).isDisplayed()
+    composeTestRule.onNodeWithText(getExpectedTimeHint()).assertIsDisplayed()
   }
 
   private fun getExpectedTimeHint(): String {

@@ -15,7 +15,8 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.polygon
 
-import androidx.compose.ui.test.isDisplayed
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.isNotDisplayed
 import androidx.compose.ui.test.onNodeWithText
 import com.google.common.truth.Truth.assertThat
@@ -216,7 +217,7 @@ class DrawAreaTaskFragmentTest :
   fun `Instructions dialog is shown`() = runWithTestDispatcher {
     setupTaskFragment<DrawAreaTaskFragment>(job, task)
 
-    composeTestRule.onNodeWithText(getString(R.string.draw_area_task_instruction)).isDisplayed()
+    composeTestRule.onNodeWithText(getString(R.string.draw_area_task_instruction)).assertIsDisplayed()
   }
 
   @Test
@@ -226,7 +227,7 @@ class DrawAreaTaskFragmentTest :
 
     setupTaskFragment<DrawAreaTaskFragment>(job, task)
 
-    composeTestRule.onNodeWithText(getString(R.string.draw_area_task_instruction)).isNotDisplayed()
+    composeTestRule.onNodeWithText(getString(R.string.draw_area_task_instruction)).assertIsNotDisplayed()
   }
 
   /** Overwrites the last vertex and also adds a new one. */

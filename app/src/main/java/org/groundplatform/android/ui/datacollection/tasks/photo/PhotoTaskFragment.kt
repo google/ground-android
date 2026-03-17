@@ -79,7 +79,7 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
 
   @Composable
   override fun TaskBody() {
-    var showPermissionDeniedDialog by rememberSaveable { viewModel.showPermissionDeniedDialog }
+    var showPermissionDeniedDialog by viewModel.showPermissionDeniedDialog
     val uri by viewModel.uri.collectAsStateWithLifecycle(Uri.EMPTY)
 
     PhotoTaskScreen(
