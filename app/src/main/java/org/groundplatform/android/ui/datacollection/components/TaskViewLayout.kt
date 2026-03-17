@@ -15,7 +15,6 @@
  */
 package org.groundplatform.android.ui.datacollection.components
 
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -55,7 +54,7 @@ fun TaskViewLayout(
  * @property label The text to be displayed in the header.
  * @property iconResId The optional resource ID of the icon to be displayed alongside the label.
  */
-data class Header(val label: String, @param:DrawableRes val iconResId: Int? = null)
+data class Header(val label: String, val iconResId: Int? = null)
 
 @Composable
 private fun TaskViewHeader(header: Header) {
