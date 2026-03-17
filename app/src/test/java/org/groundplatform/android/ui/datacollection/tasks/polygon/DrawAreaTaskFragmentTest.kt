@@ -17,12 +17,14 @@ package org.groundplatform.android.ui.datacollection.tasks.polygon
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
-import androidx.compose.ui.test.isNotDisplayed
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.R
 import org.groundplatform.android.getString
 import org.groundplatform.android.model.job.Job
@@ -44,6 +46,7 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.robolectric.RobolectricTestRunner
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class DrawAreaTaskFragmentTest :
@@ -217,17 +220,22 @@ class DrawAreaTaskFragmentTest :
   fun `Instructions dialog is shown`() = runWithTestDispatcher {
     setupTaskFragment<DrawAreaTaskFragment>(job, task)
 
-    composeTestRule.onNodeWithText(getString(R.string.draw_area_task_instruction)).assertIsDisplayed()
+    composeTestRule
+      .onNodeWithText(getString(R.string.draw_area_task_instruction))
+      .assertIsDisplayed()
   }
 
   @Test
   fun `Instructions dialog is not shown if shown previously`() = runWithTestDispatcher {
     setupTaskFragment<DrawAreaTaskFragment>(job, task)
-    viewModel.instructionsDialogShown = true
+    composeTestRule.onNodeWithText("Close").performClick()
+    advanceUntilIdle()
 
     setupTaskFragment<DrawAreaTaskFragment>(job, task)
 
-    composeTestRule.onNodeWithText(getString(R.string.draw_area_task_instruction)).assertIsNotDisplayed()
+    composeTestRule
+      .onNodeWithText(getString(R.string.draw_area_task_instruction))
+      .assertIsNotDisplayed()
   }
 
   /** Overwrites the last vertex and also adds a new one. */
