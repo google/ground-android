@@ -46,14 +46,16 @@ class InstructionTaskFragment : AbstractTaskFragment<InstructionTaskViewModel>()
 
   @Composable
   private fun ShowTextField(text: String) {
-    Box(
-      modifier =
-        Modifier.fillMaxSize()
-          .background(color = Color.White)
-          .border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(2.dp))
-          .padding(MaterialTheme.sizes.taskViewPadding)
-    ) {
-      Text(text = text, style = MaterialTheme.typography.headlineSmall)
+     Box(modifier = Modifier.padding(MaterialTheme.sizes.taskViewPadding)) {
+      Box(
+        modifier =
+          Modifier.fillMaxSize()
+            .background(color = Color.White)
+            .border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(2.dp))
+            .padding(MaterialTheme.sizes.taskViewPadding)
+      ) {
+        Text(text = text, style = MaterialTheme.typography.headlineSmall)
+      }
     }
   }
 
