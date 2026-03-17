@@ -107,6 +107,7 @@ runs:
 
     - name: Export Firebase emulator data
       shell: bash
+      if: always()
       continue-on-error: true
       run: |
         echo "Exporting emulator data..."
