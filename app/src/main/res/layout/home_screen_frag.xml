@@ -53,17 +53,12 @@
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <!-- Application side drawer -->
-    <com.google.android.material.navigation.NavigationView
-      android:id="@+id/nav_view"
+    <androidx.compose.ui.platform.ComposeView
+      android:id="@+id/drawer_view"
       android:layout_width="wrap_content"
       android:layout_height="match_parent"
       android:layout_gravity="start"
-      app:headerLayout="@layout/nav_drawer_header"
-      app:itemBackground="@android:color/transparent"
-      app:itemIconTint="@color/nav_drawer_item"
-      app:itemTextAppearance="@style/TextAppearance.App.TitleSmall.OnSurfaceContainer"
-      app:itemTextColor="@color/nav_drawer_item"
-      app:menu="@menu/nav_drawer_menu" />
+      android:fitsSystemWindows="true" />
 
   </androidx.drawerlayout.widget.DrawerLayout>
 </layout>
