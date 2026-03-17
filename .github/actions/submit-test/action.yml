@@ -107,14 +107,13 @@ runs:
 
     - name: Export Firebase emulator data
       shell: bash
-      if: always()
       continue-on-error: true
       run: |
         echo "Exporting emulator data..."
         npx -y -p firebase-tools firebase emulators:export ${{ github.workspace }}/test-android-result --project demo-local --force
 
     - name: Upload Firebase emulator log
-      if: always()
+      if: always() && inputs.upload-artifacts == 'true'
       continue-on-error: true
       uses: actions/upload-artifact@v6
       with:
