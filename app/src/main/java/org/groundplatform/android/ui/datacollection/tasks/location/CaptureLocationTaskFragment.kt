@@ -98,9 +98,11 @@ class CaptureLocationTaskFragment @Inject constructor() :
     if (isVisible) {
       viewModel.enableLocationLock()
       lifecycleScope.launch {
-        viewModel.enableLocationLockFlow.collect {
-          if (it == LocationLockEnabledState.NEEDS_ENABLE) {
-            viewModel.showPermissionDeniedDialog.value = true
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+          viewModel.enableLocationLockFlow.collect {
+            if (it == LocationLockEnabledState.NEEDS_ENABLE) {
+              viewModel.showPermissionDeniedDialog.value = true
+            }
           }
         }
       }
