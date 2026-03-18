@@ -24,15 +24,20 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.groundplatform.android.data.sync.MediaUploadWorkManager
 import org.groundplatform.android.data.sync.MutationSyncWorkManager
+import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.User
 import org.groundplatform.android.model.submission.DraftSubmission
 import org.groundplatform.android.repository.MutationRepository
@@ -44,6 +49,8 @@ import org.groundplatform.android.system.auth.SignInState
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.common.SharedViewModel
 import timber.log.Timber
+
+data class HomeDrawerState(val user: User, val survey: Survey?, val appVersion: String)
 
 private const val AWAITING_PHOTO_CAPTURE_KEY = "awaiting_photo_capture"
 
@@ -93,6 +100,17 @@ internal constructor(
     viewModelScope.launch { kickLocalMutationSyncWorkers() }
   }
 
+  val drawerState: StateFlow<HomeDrawerState?> =
+    flow { emit(userRepository.getAuthenticatedUser()) }
+      .combine(surveyRepository.activeSurveyFlow) { user, survey ->
+        HomeDrawerState(
+          user = user,
+          survey = survey,
+          appVersion = org.groundplatform.android.BuildConfig.VERSION_NAME,
+        )
+      }
+      .stateIn(viewModelScope, SharingStarted.Lazily, null)
+
   /**
    * Enqueue data and photo upload workers for all pending mutations when home screen is first
    * opened as a workaround the get stuck mutations (i.e., PENDING or FAILED mutations with no
@@ -108,7 +126,7 @@ internal constructor(
     }
   }
 
-  /** Attempts to return draft submission for the currently active survey. */
+  /** Attempts to return draft submission for the currently active active survey. */
   suspend fun getDraftSubmission(): DraftSubmission? {
     val draftId = submissionRepository.getDraftSubmissionsId()
     val survey = surveyRepository.activeSurveyFlow.first()
