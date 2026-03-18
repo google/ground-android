@@ -34,7 +34,7 @@ jobs:
     # See docs/e2e-testing-doc.md for details on how this is setup
     steps:
       - name: Start Firebase emulator
-        uses: google/ground-platform/.github/actions/start-emulator@f0277d1a80968b0555ea7dcefa9da064310adb2d
+        uses: google/ground-platform/.github/actions/start-emulator@master
         with:
           platform-repository: google/ground-platform
 
