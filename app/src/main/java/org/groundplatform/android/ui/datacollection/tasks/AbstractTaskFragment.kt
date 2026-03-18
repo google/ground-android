@@ -19,12 +19,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.core.view.doOnAttach
@@ -145,11 +151,20 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   }
 
   /** Adds the action buttons to the UI. */
+  @OptIn(ExperimentalLayoutApi::class)
   @Composable
   internal fun TaskFooter() {
+    val isKeyboardOpen = WindowInsets.isImeVisible
+    var layoutCoordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
     val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
+
+    // Update footer position whenever layout changes or keyboard is toggled.
+    LaunchedEffect(isKeyboardOpen, layoutCoordinates) {
+      layoutCoordinates?.let { saveFooterPosition(it.positionInWindow().y) }
+    }
+
     TaskFooter(
-      modifier = Modifier.onGloballyPositioned { saveFooterPosition(it.positionInWindow().y) },
+      modifier = Modifier.onGloballyPositioned { layoutCoordinates = it },
       headerCard =
         if (shouldShowHeader()) {
           { HeaderCard() }
