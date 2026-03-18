@@ -31,8 +31,8 @@ import kotlinx.coroutines.flow.onEach
 import org.groundplatform.android.R
 import org.groundplatform.android.databinding.FragmentDrawAreaTaskBinding
 import org.groundplatform.android.ui.components.ConfirmationDialog
-import org.groundplatform.android.ui.datacollection.components.Header
 import org.groundplatform.android.ui.datacollection.components.InstructionData
+import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment.Companion.TASK_ID_FRAGMENT_ARG_KEY
 
@@ -41,7 +41,9 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
   @Inject lateinit var drawAreaTaskMapFragmentProvider: Provider<DrawAreaTaskMapFragment>
   private lateinit var drawAreaTaskMapFragment: DrawAreaTaskMapFragment
 
-  override val taskHeader: Header by lazy { Header(viewModel.task.label, R.drawable.outline_draw) }
+  override val taskHeader: TaskHeader by lazy {
+    TaskHeader(viewModel.task.label, R.drawable.outline_draw)
+  }
 
   override val instructionData =
     InstructionData(

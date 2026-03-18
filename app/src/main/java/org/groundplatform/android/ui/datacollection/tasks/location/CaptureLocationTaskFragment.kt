@@ -40,7 +40,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.components.ConfirmationDialog
-import org.groundplatform.android.ui.datacollection.components.Header
+import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment.Companion.TASK_ID_FRAGMENT_ARG_KEY
 import org.groundplatform.android.ui.datacollection.tasks.LocationLockEnabledState
@@ -51,8 +51,8 @@ class CaptureLocationTaskFragment @Inject constructor() :
   @Inject
   lateinit var captureLocationTaskMapFragmentProvider: Provider<CaptureLocationTaskMapFragment>
 
-  override val taskHeader: Header by lazy {
-    Header(viewModel.task.label, R.drawable.outline_pin_drop)
+  override val taskHeader: TaskHeader by lazy {
+    TaskHeader(viewModel.task.label, R.drawable.outline_pin_drop)
   }
 
   @Composable

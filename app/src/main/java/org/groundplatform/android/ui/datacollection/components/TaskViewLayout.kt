@@ -35,7 +35,7 @@ import org.groundplatform.ui.theme.sizes
 
 @Composable
 fun TaskViewLayout(
-  header: Header? = null,
+  header: TaskHeader? = null,
   footer: @Composable () -> Unit,
   content: @Composable () -> Unit,
 ) {
@@ -54,10 +54,10 @@ fun TaskViewLayout(
  * @property label The text to be displayed in the header.
  * @property iconResId The optional resource ID of the icon to be displayed alongside the label.
  */
-data class Header(val label: String, val iconResId: Int? = null)
+data class TaskHeader(val label: String, val iconResId: Int? = null)
 
 @Composable
-private fun TaskViewHeader(header: Header) {
+private fun TaskViewHeader(header: TaskHeader) {
   Row(
     modifier = Modifier.fillMaxWidth().padding(MaterialTheme.sizes.taskViewPadding),
     verticalAlignment = Alignment.CenterVertically,
@@ -83,7 +83,7 @@ private fun TaskViewHeader(header: Header) {
 private fun TaskViewLayoutPreviewWithIcon() {
   AppTheme {
     TaskViewLayout(
-      header = Header("Label 1", iconResId = R.drawable.ic_question_answer),
+      header = TaskHeader("Label 1", iconResId = R.drawable.ic_question_answer),
       footer = { Text("Footer 1") },
     ) {
       Text("Content 1")
@@ -96,7 +96,7 @@ private fun TaskViewLayoutPreviewWithIcon() {
 private fun TaskViewLayoutPreviewWithoutIcon() {
   AppTheme {
     TaskViewLayout(
-      header = Header(label = "Label 2", iconResId = null),
+      header = TaskHeader(label = "Label 2", iconResId = null),
       footer = { Text("Footer 2") },
     ) {
       Text("Content 2")

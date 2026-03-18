@@ -24,8 +24,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import javax.inject.Provider
 import org.groundplatform.android.R
-import org.groundplatform.android.ui.datacollection.components.Header
 import org.groundplatform.android.ui.datacollection.components.InstructionData
+import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment.Companion.TASK_ID_FRAGMENT_ARG_KEY
 
@@ -33,8 +33,8 @@ import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragmen
 class DropPinTaskFragment @Inject constructor() : AbstractTaskFragment<DropPinTaskViewModel>() {
   @Inject lateinit var dropPinTaskMapFragmentProvider: Provider<DropPinTaskMapFragment>
 
-  override val taskHeader: Header by lazy {
-    Header(viewModel.task.label, R.drawable.outline_pin_drop)
+  override val taskHeader: TaskHeader by lazy {
+    TaskHeader(viewModel.task.label, R.drawable.outline_pin_drop)
   }
 
   override val instructionData =

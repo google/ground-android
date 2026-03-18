@@ -37,11 +37,11 @@ import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.datacollection.DataCollectionUiState
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
-import org.groundplatform.android.ui.datacollection.components.Header
 import org.groundplatform.android.ui.datacollection.components.InstructionData
 import org.groundplatform.android.ui.datacollection.components.InstructionsDialog
 import org.groundplatform.android.ui.datacollection.components.LoiNameDialog
 import org.groundplatform.android.ui.datacollection.components.TaskFooter
+import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.groundplatform.android.ui.datacollection.components.TaskViewLayout
 import org.groundplatform.android.util.createComposeView
 
@@ -60,8 +60,8 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   }
 
   /** Represents the content to be shown in the task header, if any. */
-  open val taskHeader: Header? by lazy {
-    Header(label = viewModel.task.label, iconResId = R.drawable.ic_question_answer)
+  open val taskHeader: TaskHeader? by lazy {
+    TaskHeader(label = viewModel.task.label, iconResId = R.drawable.ic_question_answer)
   }
 
   /** Represents the content to be shown in the task instructions, if any. */

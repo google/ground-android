@@ -30,14 +30,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dagger.hilt.android.AndroidEntryPoint
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
-import org.groundplatform.android.ui.datacollection.components.Header
+import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.ui.theme.sizes
 
 @AndroidEntryPoint
 class InstructionTaskFragment : AbstractTaskFragment<InstructionTaskViewModel>() {
 
-  override val taskHeader: Header? = null
+  override val taskHeader: TaskHeader? = null
 
   @Composable
   override fun TaskBody() {
