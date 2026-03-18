@@ -75,7 +75,8 @@ internal constructor(
 ) : AbstractViewModel() {
 
   /** The current vertical position of the task view footer. */
-  val footerVerticalPosition = MutableStateFlow(0.0f)
+  private val _footerVerticalPosition = MutableStateFlow(0.0f)
+  val footerVerticalPosition: StateFlow<Float> = _footerVerticalPosition
 
   private val _uiState = MutableStateFlow<DataCollectionUiState>(DataCollectionUiState.Loading)
   val uiState: StateFlow<DataCollectionUiState> = _uiState
@@ -371,7 +372,7 @@ internal constructor(
       .distinctUntilChanged()
 
   fun updateFooterPosition(top: Float) {
-    footerVerticalPosition.value = top
+    _footerVerticalPosition.value = top
   }
 
   companion object {
