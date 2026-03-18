@@ -215,10 +215,13 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     var showInstructionsDialog by viewModel.showInstructionsDialog
 
     if (showInstructionsDialog) {
-      InstructionsDialog(iconId = instructionData.iconId, stringId = instructionData.stringId) {
-        showInstructionsDialog = false
-        onInstructionDialogDismissed()
-      }
+      InstructionsDialog(
+        data = instructionData,
+        onDismissed = {
+          showInstructionsDialog = false
+          onInstructionDialogDismissed()
+        },
+      )
     }
   }
 

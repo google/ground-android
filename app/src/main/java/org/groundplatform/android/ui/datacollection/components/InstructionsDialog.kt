@@ -15,8 +15,6 @@
  */
 package org.groundplatform.android.ui.datacollection.components
 
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
@@ -35,20 +33,18 @@ import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.ui.theme.AppTheme
 
 @Composable
-fun InstructionsDialog(
-  @DrawableRes iconId: Int,
-  @StringRes stringId: Int,
-  onDismissed: () -> Unit,
-) {
+fun InstructionsDialog(data: InstructionData, onDismissed: () -> Unit) {
   AlertDialog(
     icon = {
       Icon(
-        imageVector = ImageVector.vectorResource(id = iconId),
+        imageVector = ImageVector.vectorResource(id = data.iconId),
         contentDescription = null,
         modifier = Modifier.size(48.dp),
       )
     },
-    title = { Text(text = stringResource(stringId), style = MaterialTheme.typography.titleLarge) },
+    title = {
+      Text(text = stringResource(data.stringId), style = MaterialTheme.typography.titleLarge)
+    },
     onDismissRequest = {}, // Prevent dismissing the dialog by clicking outside
     confirmButton = {}, // Hide confirm button
     dismissButton = {
@@ -71,8 +67,11 @@ data class InstructionData(val iconId: Int, val stringId: Int)
 private fun PreviewInstructionsDialog() {
   AppTheme {
     InstructionsDialog(
-      iconId = R.drawable.touch_app_24,
-      stringId = R.string.draw_area_task_instruction,
+      data =
+        InstructionData(
+          iconId = R.drawable.touch_app_24,
+          stringId = R.string.draw_area_task_instruction,
+        )
     ) {}
   }
 }
