@@ -19,12 +19,20 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
 import androidx.core.view.doOnAttach
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -35,19 +43,18 @@ import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.datacollection.DataCollectionUiState
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
+import org.groundplatform.android.ui.datacollection.components.InstructionData
+import org.groundplatform.android.ui.datacollection.components.InstructionsDialog
 import org.groundplatform.android.ui.datacollection.components.LoiNameDialog
 import org.groundplatform.android.ui.datacollection.components.TaskFooter
-import org.groundplatform.android.ui.datacollection.components.TaskView
+import org.groundplatform.android.ui.datacollection.components.TaskHeader
+import org.groundplatform.android.ui.datacollection.components.TaskViewLayout
 import org.groundplatform.android.util.createComposeView
-import org.groundplatform.android.util.renderComposableDialog
-import org.groundplatform.android.util.setComposableContent
 
 abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragment() {
 
   protected val dataCollectionViewModel: DataCollectionViewModel by
     hiltNavGraphViewModels(R.id.data_collection)
-
-  private lateinit var taskView: TaskView
 
   /** ID of the associated task in the Job. Used for instantiating the [viewModel]. */
   var taskId by Delegates.notNull<String>()
@@ -57,6 +64,14 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     dataCollectionViewModel.getTaskViewModel(taskId) as? T
       ?: error("ViewModel for taskId:$taskId not found.")
   }
+
+  /** Represents the content to be shown in the task header, if any. */
+  open val taskHeader: TaskHeader? by lazy {
+    TaskHeader(label = viewModel.task.label, iconResId = R.drawable.ic_question_answer)
+  }
+
+  /** Represents the content to be shown in the task instructions, if any. */
+  open val instructionData: InstructionData? = null
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -74,23 +89,19 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     inflater: LayoutInflater,
     container: ViewGroup?,
     savedInstanceState: Bundle?,
-  ): View? {
-    super.onCreateView(inflater, container, savedInstanceState)
-    taskView = onCreateTaskView(inflater)
-    return taskView.root
+  ): View = createComposeView {
+    TaskViewLayout(header = taskHeader, footer = { TaskFooter() }, content = { TaskBody() })
+
+    if (getTask().isAddLoiTask) {
+      LoiNameDialog()
+    }
+
+    instructionData?.let { InstructionsDialog(it) }
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    view.doOnAttach {
-      taskView.bind(this, viewModel)
-      taskView.addTaskView(createComposeView { TaskBody() })
-
-      // Add actions buttons after the view model is bound to the view.
-      setupTaskFooter()
-
-      onTaskViewAttached()
-    }
+    view.doOnAttach { onTaskViewAttached() }
   }
 
   override fun onResume() {
@@ -98,11 +109,11 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     onTaskResume()
   }
 
-  /** Creates the view for common task template with/without header. */
-  abstract fun onCreateTaskView(inflater: LayoutInflater): TaskView
-
   /** Renders the body of the task. */
   @Composable abstract fun TaskBody()
+
+  /** Invoked when the instruction dialog is dismissed. */
+  open fun onInstructionDialogDismissed() {}
 
   /** Invoked after the task view gets attached to the fragment. */
   open fun onTaskViewAttached() {}
@@ -126,7 +137,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   private fun handleNext() {
     if (getTask().isAddLoiTask) {
-      launchLoiNameDialog()
+      dataCollectionViewModel.loiNameDialogOpen.value = true
     } else {
       moveToNext()
     }
@@ -140,24 +151,33 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   }
 
   /** Adds the action buttons to the UI. */
-  private fun setupTaskFooter() {
-    with(taskView.actionButtonsContainer) {
-      setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-      setComposableContent {
-        val taskActionButtonsStates by
-          viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
-        TaskFooter(
-          headerCard =
-            if (shouldShowHeader()) {
-              { HeaderCard() }
-            } else {
-              null
-            },
-          buttonActionStates = taskActionButtonsStates,
-          onButtonClicked = { handleButtonClick(it) },
-        )
-      }
+  @OptIn(ExperimentalLayoutApi::class)
+  @Composable
+  internal fun TaskFooter() {
+    val isKeyboardOpen = WindowInsets.isImeVisible
+    var layoutCoordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
+    val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
+
+    // Update footer position whenever layout changes or keyboard is toggled.
+    LaunchedEffect(isKeyboardOpen, layoutCoordinates) {
+      layoutCoordinates?.let { saveFooterPosition(it.positionInWindow().y) }
     }
+
+    TaskFooter(
+      modifier = Modifier.onGloballyPositioned { layoutCoordinates = it },
+      headerCard =
+        if (shouldShowHeader()) {
+          { HeaderCard() }
+        } else {
+          null
+        },
+      buttonActionStates = taskActionButtonsStates,
+      onButtonClicked = { handleButtonClick(it) },
+    )
+  }
+
+  private fun saveFooterPosition(top: Float) {
+    dataCollectionViewModel.updateFooterPosition(top)
   }
 
   private fun handleButtonClick(action: ButtonAction) {
@@ -179,35 +199,43 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   private fun getTask(): Task = viewModel.task
 
-  private fun launchLoiNameDialog() {
-    dataCollectionViewModel.loiNameDialogOpen.value = true
-    renderComposableDialog {
+  @Composable
+  private fun LoiNameDialog() {
+    var openAlertDialog by dataCollectionViewModel.loiNameDialogOpen
+
+    if (openAlertDialog) {
       val uiState by dataCollectionViewModel.uiState.collectAsStateWithLifecycle()
-      val loiName =
+      val initialNameValue =
         (uiState as? DataCollectionUiState.Ready)?.loiName
           ?: dataCollectionViewModel.getTypedLoiNameOrEmpty()
+      var name by rememberSaveable(initialNameValue) { mutableStateOf(initialNameValue) }
 
-      // The LOI NameDialog should call `handleLoiNameSet()` to continue to the next task.
-      ShowLoiNameDialog(loiName) { handleLoiNameSet(it) }
-    }
-  }
-
-  @Composable
-  fun ShowLoiNameDialog(initialNameValue: String, onNameSet: (String) -> Unit) {
-    var openAlertDialog by rememberSaveable { dataCollectionViewModel.loiNameDialogOpen }
-    var name by rememberSaveable { mutableStateOf(initialNameValue) }
-    if (openAlertDialog) {
       LoiNameDialog(
         textFieldValue = name,
         onConfirmRequest = {
           openAlertDialog = false
-          onNameSet(name)
+          handleLoiNameSet(name)
         },
         onDismissRequest = {
           name = initialNameValue
           openAlertDialog = false
         },
         onTextFieldChange = { name = it },
+      )
+    }
+  }
+
+  @Composable
+  private fun InstructionsDialog(instructionData: InstructionData) {
+    var showInstructionsDialog by viewModel.showInstructionsDialog
+
+    if (showInstructionsDialog) {
+      InstructionsDialog(
+        data = instructionData,
+        onDismissed = {
+          showInstructionsDialog = false
+          onInstructionDialogDismissed()
+        },
       )
     }
   }

@@ -18,7 +18,6 @@ package org.groundplatform.android.ui.datacollection.tasks.location
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
-import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import androidx.compose.foundation.layout.padding
@@ -33,7 +32,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.os.bundleOf
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import javax.inject.Provider
@@ -41,12 +42,10 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.components.ConfirmationDialog
-import org.groundplatform.android.ui.datacollection.components.TaskView
-import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
+import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment.Companion.TASK_ID_FRAGMENT_ARG_KEY
 import org.groundplatform.android.ui.datacollection.tasks.LocationLockEnabledState
-import org.groundplatform.android.util.renderComposableDialog
 
 @AndroidEntryPoint
 class CaptureLocationTaskFragment @Inject constructor() :
@@ -54,11 +53,14 @@ class CaptureLocationTaskFragment @Inject constructor() :
   @Inject
   lateinit var captureLocationTaskMapFragmentProvider: Provider<CaptureLocationTaskMapFragment>
 
-  override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
-    TaskViewFactory.createWithCombinedHeader(inflater, R.drawable.outline_pin_drop)
+  override val taskHeader: TaskHeader by lazy {
+    TaskHeader(viewModel.task.label, R.drawable.outline_pin_drop)
+  }
 
   @Composable
   override fun TaskBody() {
+    var showPermissionDeniedDialog by viewModel.showPermissionDeniedDialog
+
     AndroidView(
       factory = { context ->
         // NOTE(#2493): Multiplying by a random prime to allow for some mathematical uniqueness.
@@ -75,6 +77,22 @@ class CaptureLocationTaskFragment @Inject constructor() :
         }
       }
     )
+
+    if (showPermissionDeniedDialog) {
+      ConfirmationDialog(
+        title = R.string.allow_location_title,
+        description = R.string.allow_location_description,
+        confirmButtonText = R.string.allow_location_confirmation,
+        onConfirmClicked = {
+          showPermissionDeniedDialog = false
+
+          // Open the app settings
+          val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+          intent.data = Uri.fromParts("package", context?.packageName, null)
+          context?.startActivity(intent)
+        },
+      )
+    }
   }
 
   override fun onTaskResume() {
@@ -82,28 +100,14 @@ class CaptureLocationTaskFragment @Inject constructor() :
     if (isVisible) {
       viewModel.enableLocationLock()
       lifecycleScope.launch {
-        viewModel.enableLocationLockFlow.collect {
-          if (it == LocationLockEnabledState.NEEDS_ENABLE) {
-            showLocationPermissionDialog()
+        lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+          viewModel.enableLocationLockFlow.collect {
+            if (it == LocationLockEnabledState.NEEDS_ENABLE) {
+              viewModel.showPermissionDeniedDialog.value = true
+            }
           }
         }
       }
-    }
-  }
-
-  private fun showLocationPermissionDialog() {
-    renderComposableDialog {
-      ConfirmationDialog(
-        title = R.string.allow_location_title,
-        description = R.string.allow_location_description,
-        confirmButtonText = R.string.allow_location_confirmation,
-        onConfirmClicked = {
-          // Open the app settings
-          val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-          intent.data = Uri.fromParts("package", context?.packageName, null)
-          context?.startActivity(intent)
-        },
-      )
     }
   }
 
