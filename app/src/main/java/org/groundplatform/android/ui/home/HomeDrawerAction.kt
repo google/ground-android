@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.ui.common
+package org.groundplatform.android.ui.home
 
-import android.view.View
-import androidx.databinding.BindingAdapter
+sealed interface HomeDrawerAction {
+  data object OnSwitchSurvey : HomeDrawerAction
 
-/**
- * Container for adapter methods defining custom data binding behavior. This class cannot be made
- * injectable, since binding adapters must be static.
- */
-object BindingAdapters {
+  data object OnNavigateToOfflineAreas : HomeDrawerAction
 
-  @JvmStatic
-  @BindingAdapter("visible")
-  fun bindVisible(view: View, visible: Boolean) {
-    view.visibility = if (visible) View.VISIBLE else View.GONE
-  }
+  data object OnNavigateToSyncStatus : HomeDrawerAction
+
+  data object OnNavigateToSettings : HomeDrawerAction
+
+  data object OnNavigateToAbout : HomeDrawerAction
+
+  data object OnNavigateToTerms : HomeDrawerAction
+
+  data object OnSignOut : HomeDrawerAction
+
+  data object OnUserDetails : HomeDrawerAction
 }
