@@ -33,15 +33,17 @@ jobs:
 
     # See docs/e2e-testing-doc.md for details on how this is setup
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
       - name: Start Firebase emulator
         uses: google/ground-platform/.github/actions/start-emulator@master
+        with:
+          platform-repository: google/ground-platform
+
+      - name: Restore workflow repository
+        uses: actions/checkout@v6
 
       - name: Run Android tests on e2eTest module
-        uses: google/ground-android/.github/actions/submit-test@master
+        uses: ./.github/actions/submit-test
         with:
-          android-repository: ${{ github.repository }}
+          android-repository: google/ground-android
           upload-artifacts: true
           google-maps-key: ${{ secrets.MAPS_API_KEY }}

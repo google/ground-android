@@ -55,7 +55,7 @@ runs:
           exit 1
         fi
         echo "MAPS_API_KEY is set"
-        echo "MAPS_API_KEY=${{ secrets.MAPS_API_KEY }}" > secrets.properties
+        echo "MAPS_API_KEY=${MAPS_API_KEY}" > secrets.properties
 
     - name: Enable KVM group perms
       shell: bash
@@ -106,11 +106,22 @@ runs:
         if-no-files-found: ignore
 
     - name: Export Firebase emulator data
-      if: always()
       shell: bash
+      if: always()
+      continue-on-error: true
       run: |
         echo "Exporting emulator data..."
         npx -y -p firebase-tools firebase emulators:export ${{ github.workspace }}/test-android-result --project demo-local --force
+
+    - name: Upload Firebase emulator log
+      if: always() && inputs.upload-artifacts == 'true'
+      continue-on-error: true
+      uses: actions/upload-artifact@v6
+      with:
+        name: firebase-emulator-log
+        path: /tmp/firebase-emulator.log
+        retention-days: 7
+        if-no-files-found: warn
 
     - name: Upload Firebase emulator data
       if: always() && inputs.upload-artifacts == 'true'
