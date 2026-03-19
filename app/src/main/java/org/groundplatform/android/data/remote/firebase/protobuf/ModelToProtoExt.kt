@@ -16,7 +16,6 @@
 package org.groundplatform.android.data.remote.firebase.protobuf
 
 import com.google.protobuf.timestamp
-import kotlin.time.Instant
 import kotlinx.collections.immutable.toImmutableMap
 import org.groundplatform.android.model.User
 import org.groundplatform.android.model.mutation.LocationOfInterestMutation

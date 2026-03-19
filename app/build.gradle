@@ -327,8 +327,6 @@ dependencies {
 
     // Pulls protodefs from the specified commit in the ground-platform repo.
     groundProtoJar libs.ground.platform
-
-    implementation(libs.kotlinx.datetime)
 }
 
 protobuf {
