@@ -145,8 +145,6 @@ internal constructor(
 
   private val _hasSelfIntersection = MutableStateFlow(false)
   val hasSelfIntersection: StateFlow<Boolean> = _hasSelfIntersection.asStateFlow()
-  //  var hasSelfIntersection: Boolean = false
-  //    private set
 
   private lateinit var featureStyle: Feature.Style
   lateinit var measurementUnits: MeasurementUnits
@@ -208,7 +206,7 @@ internal constructor(
 
   @VisibleForTesting fun getLastVertex() = vertices.lastOrNull()
 
-  private fun onSelfIntersectionDetected() {
+  private fun showSelfIntersectionDialog() {
     _showSelfIntersectionDialog.value = true
   }
 
@@ -333,7 +331,7 @@ internal constructor(
     _hasSelfIntersection.value = isSelfIntersecting(vertices)
     if (_hasSelfIntersection.value) {
       updateVertices(vertices.dropLast(1))
-      onSelfIntersectionDetected()
+      showSelfIntersectionDialog()
     }
     return _hasSelfIntersection.value
   }
@@ -352,7 +350,7 @@ internal constructor(
 
     _hasSelfIntersection.value = isSelfIntersecting(ring)
     if (_hasSelfIntersection.value) {
-      onSelfIntersectionDetected()
+      showSelfIntersectionDialog()
       return false
     }
     return true
