@@ -34,6 +34,7 @@ import org.groundplatform.android.R
 import org.groundplatform.android.ui.datacollection.DataCollectionUiState
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
+import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.components.InstructionData
 import org.groundplatform.android.ui.datacollection.components.InstructionsDialog
 import org.groundplatform.android.ui.datacollection.components.LoiNameDialog
@@ -41,7 +42,6 @@ import org.groundplatform.android.ui.datacollection.components.TaskFooter
 import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.groundplatform.android.ui.datacollection.components.TaskViewLayout
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun TaskContainer(
   viewModel: AbstractTaskViewModel,
@@ -54,16 +54,14 @@ fun TaskContainer(
   onInstructionDialogDismissed: () -> Unit = {},
   content: @Composable () -> Unit,
 ) {
-  val isKeyboardOpen = WindowInsets.isImeVisible
-  var layoutCoordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
   val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
+  val uiState by dataCollectionViewModel.uiState.collectAsStateWithLifecycle()
 
-  // Update footer position whenever layout changes or keyboard is toggled.
-  LaunchedEffect(isKeyboardOpen, layoutCoordinates) {
-    layoutCoordinates?.let { dataCollectionViewModel.updateFooterPosition(it.positionInWindow().y) }
-  }
+  val initialNameValue =
+    (uiState as? DataCollectionUiState.Ready)?.loiName
+      ?: dataCollectionViewModel.getTypedLoiNameOrEmpty()
 
-  val handleNext = {
+  fun handleNext() {
     if (viewModel.task.isAddLoiTask) {
       dataCollectionViewModel.loiNameDialogOpen.value = true
     } else {
@@ -71,7 +69,7 @@ fun TaskContainer(
     }
   }
 
-  val handleButtonClick = { action: ButtonAction ->
+  fun handleButtonClick(action: ButtonAction) {
     when (action) {
       ButtonAction.PREVIOUS -> dataCollectionViewModel.onPreviousClicked(viewModel)
       ButtonAction.NEXT,
@@ -85,56 +83,93 @@ fun TaskContainer(
     }
   }
 
+  fun handleLoiNameConfirm(name: String) {
+    dataCollectionViewModel.loiNameDialogOpen.value = false
+    if (name.isNotBlank()) {
+      dataCollectionViewModel.setLoiName(name)
+      dataCollectionViewModel.onNextClicked(viewModel)
+    }
+  }
+
+  fun handleInstructionsDismiss() {
+    viewModel.showInstructionsDialog.value = false
+    onInstructionDialogDismissed()
+  }
+
+  TaskContainerUi(
+    taskHeader = taskHeader,
+    instructionData = instructionData,
+    shouldShowHeader = shouldShowHeader,
+    headerCard = headerCard,
+    taskActionButtonsStates = taskActionButtonsStates,
+    isAddLoiTask = viewModel.task.isAddLoiTask,
+    loiNameDialogOpen = dataCollectionViewModel.loiNameDialogOpen.value,
+    initialNameValue = initialNameValue,
+    showInstructionsDialog = viewModel.showInstructionsDialog.value,
+    onFooterPositionUpdated = { dataCollectionViewModel.updateFooterPosition(it) },
+    onButtonClicked = ::handleButtonClick,
+    onLoiNameConfirm = ::handleLoiNameConfirm,
+    onLoiNameDismiss = { dataCollectionViewModel.loiNameDialogOpen.value = false },
+    onInstructionsDismiss = ::handleInstructionsDismiss,
+    content = content,
+  )
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun TaskContainerUi(
+  taskHeader: TaskHeader?,
+  instructionData: InstructionData?,
+  shouldShowHeader: Boolean,
+  headerCard: @Composable (() -> Unit)?,
+  taskActionButtonsStates: List<ButtonActionState>,
+  isAddLoiTask: Boolean,
+  loiNameDialogOpen: Boolean,
+  initialNameValue: String,
+  showInstructionsDialog: Boolean,
+  onFooterPositionUpdated: (Float) -> Unit,
+  onButtonClicked: (ButtonAction) -> Unit,
+  onLoiNameConfirm: (String) -> Unit,
+  onLoiNameDismiss: () -> Unit,
+  onInstructionsDismiss: () -> Unit,
+  content: @Composable () -> Unit,
+) {
+  val isKeyboardOpen = WindowInsets.isImeVisible
+  var layoutCoordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
+
+  // Update footer position whenever layout changes or keyboard is toggled.
+  LaunchedEffect(isKeyboardOpen, layoutCoordinates) {
+    layoutCoordinates?.let { onFooterPositionUpdated(it.positionInWindow().y) }
+  }
+
   TaskViewLayout(
     header = taskHeader,
     footer = {
       TaskFooter(
         modifier = Modifier.onGloballyPositioned { layoutCoordinates = it },
-        headerCard = if (shouldShowHeader && headerCard != null) headerCard else null,
+        headerCard = headerCard.takeIf { shouldShowHeader },
         buttonActionStates = taskActionButtonsStates,
-        onButtonClicked = handleButtonClick,
+        onButtonClicked = onButtonClicked,
       )
     },
     content = content,
   )
 
-  if (viewModel.task.isAddLoiTask) {
-    var openAlertDialog by dataCollectionViewModel.loiNameDialogOpen
-    if (openAlertDialog) {
-      val uiState by dataCollectionViewModel.uiState.collectAsStateWithLifecycle()
-      val initialNameValue =
-        (uiState as? DataCollectionUiState.Ready)?.loiName
-          ?: dataCollectionViewModel.getTypedLoiNameOrEmpty()
-      var name by rememberSaveable(initialNameValue) { mutableStateOf(initialNameValue) }
+  if (isAddLoiTask && loiNameDialogOpen) {
+    val nameState = rememberSaveable { mutableStateOf(initialNameValue) }
 
-      LoiNameDialog(
-        textFieldValue = name,
-        onConfirmRequest = {
-          openAlertDialog = false
-          if (name != "") {
-            dataCollectionViewModel.setLoiName(name)
-            dataCollectionViewModel.onNextClicked(viewModel)
-          }
-        },
-        onDismissRequest = {
-          name = initialNameValue
-          openAlertDialog = false
-        },
-        onTextFieldChange = { name = it },
-      )
-    }
+    LoiNameDialog(
+      textFieldValue = nameState.value,
+      onConfirmRequest = { onLoiNameConfirm(nameState.value) },
+      onDismissRequest = {
+        nameState.value = initialNameValue
+        onLoiNameDismiss()
+      },
+      onTextFieldChange = { nameState.value = it },
+    )
   }
 
-  instructionData?.let {
-    var showInstructionsDialog by viewModel.showInstructionsDialog
-    if (showInstructionsDialog) {
-      InstructionsDialog(
-        data = it,
-        onDismissed = {
-          showInstructionsDialog = false
-          onInstructionDialogDismissed()
-        },
-      )
-    }
-  }
+  instructionData
+    ?.takeIf { showInstructionsDialog }
+    ?.let { InstructionsDialog(data = it, onDismissed = onInstructionsDismiss) }
 }
