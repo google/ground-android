@@ -37,6 +37,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.groundplatform.android.BaseHiltTest
@@ -57,6 +58,7 @@ import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.LineString
 import org.groundplatform.domain.model.geometry.LinearRing
 import org.groundplatform.domain.model.geometry.Polygon
+import org.junit.After
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -785,5 +787,10 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
         isRequired = false,
       )
     private val JOB = Job("job", Style("#112233"))
+  }
+
+  @After
+  fun tearDown() {
+    Dispatchers.resetMain()
   }
 }
