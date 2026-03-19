@@ -16,8 +16,7 @@
 package org.groundplatform.android.data.remote.firebase.schema
 
 import com.google.common.truth.Truth.assertThat
-import java.time.Instant
-import java.util.Date
+import kotlin.time.Instant
 import kotlinx.collections.immutable.persistentListOf
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.data.remote.firebase.protobuf.createSubmissionMessage
@@ -85,7 +84,7 @@ class SubmissionMutationConverterTest {
   private val user = FakeData.USER.copy(id = "user_id_1")
   private val job = FakeData.JOB
   private val loiId = "loi_id_1"
-  private val clientTimestamp = Date.from(Instant.ofEpochSecond(987654321))
+  private val clientTimestamp = Instant.fromEpochSeconds(987654321).toEpochMilliseconds()
 
   private val textTaskData = TextTaskData.fromString("some data")
 
