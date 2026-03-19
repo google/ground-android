@@ -139,17 +139,22 @@ internal constructor(
   private val _isTooClose = MutableStateFlow(false)
   val isTooClose: StateFlow<Boolean> = _isTooClose.asStateFlow()
 
-  private val _showSelfIntersectionDialog = MutableSharedFlow<Unit>()
-  val showSelfIntersectionDialog = _showSelfIntersectionDialog.asSharedFlow()
+  private val _showSelfIntersectionDialog = MutableStateFlow(false)
+  val showSelfIntersectionDialog: StateFlow<Boolean> = _showSelfIntersectionDialog.asStateFlow()
 
-  var hasSelfIntersection: Boolean = false
-    private set
+  private val _hasSelfIntersection = MutableStateFlow(false)
+  val hasSelfIntersection: StateFlow<Boolean> = _hasSelfIntersection.asStateFlow()
+  //  var hasSelfIntersection: Boolean = false
+  //    private set
 
   private lateinit var featureStyle: Feature.Style
   lateinit var measurementUnits: MeasurementUnits
 
   override val taskActionButtonStates: StateFlow<List<ButtonActionState>> by lazy {
-    combine(taskTaskData, merge(draftArea, draftUpdates)) { taskData, currentFeature ->
+    combine(taskTaskData, merge(draftArea, draftUpdates), hasSelfIntersection) {
+        taskData,
+        currentFeature,
+        intersected ->
         val isClosed = (currentFeature?.geometry as? LineString)?.isClosed() ?: false
         listOfNotNull(
           getPreviousButton(),
@@ -157,7 +162,7 @@ internal constructor(
           getUndoButton(taskData, true),
           getRedoButton(taskData),
           getAddPointButton(isClosed, isTooClose.value),
-          getCompleteButton(isClosed, isMarkedComplete.value, hasSelfIntersection),
+          getCompleteButton(isClosed, isMarkedComplete.value, intersected),
           getNextButton(taskData).takeIf { isMarkedComplete() },
         )
       }
@@ -203,7 +208,12 @@ internal constructor(
   @VisibleForTesting fun getLastVertex() = vertices.lastOrNull()
 
   private fun onSelfIntersectionDetected() {
-    viewModelScope.launch { _showSelfIntersectionDialog.emit(Unit) }
+    _showSelfIntersectionDialog.value = true
+  }
+
+  fun dismissSelfIntersectionDialog() {
+    _showSelfIntersectionDialog.value = false
+    resetHasSelfIntersection()
   }
 
   /**
@@ -319,12 +329,12 @@ internal constructor(
   }
 
   private fun checkVertexIntersection(): Boolean {
-    hasSelfIntersection = isSelfIntersecting(vertices)
-    if (hasSelfIntersection) {
+    _hasSelfIntersection.value = isSelfIntersecting(vertices)
+    if (_hasSelfIntersection.value) {
       updateVertices(vertices.dropLast(1))
       onSelfIntersectionDetected()
     }
-    return hasSelfIntersection
+    return _hasSelfIntersection.value
   }
 
   private fun validatePolygonCompletion(): Boolean {
@@ -339,8 +349,8 @@ internal constructor(
         vertices
       }
 
-    hasSelfIntersection = isSelfIntersecting(ring)
-    if (hasSelfIntersection) {
+    _hasSelfIntersection.value = isSelfIntersecting(ring)
+    if (_hasSelfIntersection.value) {
       onSelfIntersectionDetected()
       return false
     }
@@ -349,8 +359,11 @@ internal constructor(
 
   private fun updateVertices(newVertices: List<Coordinates>) {
     this.vertices = newVertices
-    hasSelfIntersection = false
     refreshMap()
+  }
+
+  fun resetHasSelfIntersection() {
+    _hasSelfIntersection.value = false
   }
 
   @VisibleForTesting

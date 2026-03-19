@@ -89,15 +89,18 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
         .show()
     }
     viewLifecycleOwner.lifecycleScope.launch {
-      viewModel.showSelfIntersectionDialog.collect {
-        renderComposableDialog {
-          ConfirmationDialog(
-            title = R.string.polygon_vertex_add_dialog_title,
-            description = R.string.polygon_vertex_add_dialog_message,
-            confirmButtonText = R.string.polygon_vertex_add_dialog_positive_button,
-            dismissButtonText = null,
-            onConfirmClicked = {},
-          )
+      viewModel.showSelfIntersectionDialog.collect { isVisible ->
+        if (isVisible) {
+          renderComposableDialog {
+            ConfirmationDialog(
+              title = R.string.polygon_vertex_add_dialog_title,
+              description = R.string.polygon_vertex_add_dialog_message,
+              confirmButtonText = R.string.polygon_vertex_add_dialog_positive_button,
+              dismissButtonText = null,
+              onConfirmClicked = { viewModel.dismissSelfIntersectionDialog() },
+              onDismiss = { viewModel.dismissSelfIntersectionDialog() },
+            )
+          }
         }
       }
     }
