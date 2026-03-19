@@ -29,18 +29,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
-import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.tasks.TaskContainer
+import org.groundplatform.android.ui.datacollection.tasks.TaskScreenEnvironment
 import org.groundplatform.ui.theme.sizes
 
 @Composable
-fun InstructionTaskScreen(
-  viewModel: InstructionTaskViewModel,
-  dataCollectionViewModel: DataCollectionViewModel,
-) {
+fun InstructionTaskScreen(viewModel: InstructionTaskViewModel, env: TaskScreenEnvironment) {
   TaskContainer(
     viewModel = viewModel,
-    dataCollectionViewModel = dataCollectionViewModel,
+    dataCollectionViewModel = env.dataCollectionViewModel,
     taskHeader = null,
   ) {
     ShowTextField(viewModel.task.label)

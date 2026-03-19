@@ -24,21 +24,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.KeyboardType
 import org.groundplatform.android.model.submission.NumberTaskData.Companion.fromNumber
-import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.TextTaskInput
 import org.groundplatform.android.ui.datacollection.tasks.TaskContainer
+import org.groundplatform.android.ui.datacollection.tasks.TaskScreenEnvironment
 import org.groundplatform.ui.theme.sizes
 
 const val INPUT_NUMBER_TEST_TAG: String = "number task input test tag"
 
 @Composable
-fun NumberTaskScreen(
-  viewModel: NumberTaskViewModel,
-  dataCollectionViewModel: DataCollectionViewModel,
-) {
+fun NumberTaskScreen(viewModel: NumberTaskViewModel, env: TaskScreenEnvironment) {
   val userResponse by viewModel.responseText.observeAsState("")
 
-  TaskContainer(viewModel = viewModel, dataCollectionViewModel = dataCollectionViewModel) {
+  TaskContainer(viewModel = viewModel, dataCollectionViewModel = env.dataCollectionViewModel) {
     TextTaskInput(
       userResponse,
       keyboardType = KeyboardType.Decimal,

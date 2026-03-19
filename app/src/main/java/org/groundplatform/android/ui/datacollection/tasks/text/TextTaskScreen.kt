@@ -23,18 +23,18 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import org.groundplatform.android.model.submission.TextTaskData.Companion.fromString
-import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.TextTaskInput
 import org.groundplatform.android.ui.datacollection.tasks.TaskContainer
+import org.groundplatform.android.ui.datacollection.tasks.TaskScreenEnvironment
 import org.groundplatform.ui.theme.sizes
 
 const val INPUT_TEXT_TEST_TAG: String = "text task input test tag"
 
 @Composable
-fun TextTaskScreen(viewModel: TextTaskViewModel, dataCollectionViewModel: DataCollectionViewModel) {
+fun TextTaskScreen(viewModel: TextTaskViewModel, env: TaskScreenEnvironment) {
   val userResponse by viewModel.responseText.observeAsState("")
 
-  TaskContainer(viewModel = viewModel, dataCollectionViewModel = dataCollectionViewModel) {
+  TaskContainer(viewModel = viewModel, dataCollectionViewModel = env.dataCollectionViewModel) {
     TextTaskInput(
       userResponse,
       modifier =

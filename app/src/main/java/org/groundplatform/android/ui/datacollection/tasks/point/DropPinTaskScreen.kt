@@ -21,22 +21,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.os.bundleOf
-import androidx.fragment.app.FragmentManager
-import javax.inject.Provider
 import org.groundplatform.android.R
-import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.InstructionData
 import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment.Companion.TASK_ID_FRAGMENT_ARG_KEY
 import org.groundplatform.android.ui.datacollection.tasks.TaskContainer
+import org.groundplatform.android.ui.datacollection.tasks.TaskScreenEnvironment
 
 @Composable
-fun DropPinTaskScreen(
-  viewModel: DropPinTaskViewModel,
-  dataCollectionViewModel: DataCollectionViewModel,
-  dropPinTaskMapFragmentProvider: Provider<DropPinTaskMapFragment>,
-  fragmentManager: FragmentManager,
-) {
+fun DropPinTaskScreen(viewModel: DropPinTaskViewModel, env: TaskScreenEnvironment) {
   val taskHeader = TaskHeader(viewModel.task.label, R.drawable.outline_pin_drop)
   val instructionData =
     InstructionData(iconId = R.drawable.swipe_24, stringId = R.string.drop_a_pin_tooltip_text)
@@ -49,7 +42,7 @@ fun DropPinTaskScreen(
 
   TaskContainer(
     viewModel = viewModel,
-    dataCollectionViewModel = dataCollectionViewModel,
+    dataCollectionViewModel = env.dataCollectionViewModel,
     taskHeader = taskHeader,
     instructionData = instructionData,
     onInstructionDialogDismissed = { viewModel.instructionsDialogShown = true },
@@ -58,9 +51,9 @@ fun DropPinTaskScreen(
       factory = { context ->
         LinearLayout(context).apply {
           id = View.generateViewId() * 11617
-          val fragment = dropPinTaskMapFragmentProvider.get()
+          val fragment = env.dropPinTaskMapFragmentProvider.get()
           fragment.arguments = bundleOf(Pair(TASK_ID_FRAGMENT_ARG_KEY, viewModel.task.id))
-          fragmentManager.beginTransaction().add(id, fragment, "Drop a pin fragment").commit()
+          env.fragmentManager.beginTransaction().add(id, fragment, "Drop a pin fragment").commit()
         }
       }
     )

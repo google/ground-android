@@ -28,24 +28,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.os.bundleOf
-import androidx.fragment.app.FragmentManager
-import javax.inject.Provider
 import org.groundplatform.android.R
 import org.groundplatform.android.databinding.FragmentDrawAreaTaskBinding
 import org.groundplatform.android.ui.components.ConfirmationDialog
-import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.InstructionData
 import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment.Companion.TASK_ID_FRAGMENT_ARG_KEY
 import org.groundplatform.android.ui.datacollection.tasks.TaskContainer
+import org.groundplatform.android.ui.datacollection.tasks.TaskScreenEnvironment
 
 @Composable
-fun DrawAreaTaskScreen(
-  viewModel: DrawAreaTaskViewModel,
-  dataCollectionViewModel: DataCollectionViewModel,
-  drawAreaTaskMapFragmentProvider: Provider<DrawAreaTaskMapFragment>,
-  fragmentManager: FragmentManager,
-) {
+fun DrawAreaTaskScreen(viewModel: DrawAreaTaskViewModel, env: TaskScreenEnvironment) {
   val context = LocalContext.current
   var drawAreaTaskMapFragment by remember { mutableStateOf<DrawAreaTaskMapFragment?>(null) }
   var showSelfIntersectionDialog by viewModel.showSelfIntersectionDialog
@@ -77,7 +70,7 @@ fun DrawAreaTaskScreen(
 
   TaskContainer(
     viewModel = viewModel,
-    dataCollectionViewModel = dataCollectionViewModel,
+    dataCollectionViewModel = env.dataCollectionViewModel,
     taskHeader = taskHeader,
     instructionData = instructionData,
     onInstructionDialogDismissed = { viewModel.instructionsDialogShown = true },
@@ -85,9 +78,9 @@ fun DrawAreaTaskScreen(
     AndroidView(
       factory = { ctx ->
         val rootView = FragmentDrawAreaTaskBinding.inflate(LayoutInflater.from(ctx))
-        val fragment = drawAreaTaskMapFragmentProvider.get()
+        val fragment = env.drawAreaTaskMapFragmentProvider.get()
         fragment.arguments = bundleOf(Pair(TASK_ID_FRAGMENT_ARG_KEY, viewModel.task.id))
-        fragmentManager
+        env.fragmentManager
           .beginTransaction()
           .add(
             R.id.container_draw_area_task_map,

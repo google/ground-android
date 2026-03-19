@@ -34,27 +34,23 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.system.PermissionDeniedException
-import org.groundplatform.android.system.PermissionsManager
-import org.groundplatform.android.ui.common.EphemeralPopups
+import org.groundplatform.android.ui.common.LocalEphemeralPopups
+import org.groundplatform.android.ui.common.LocalPermissionsManager
 import org.groundplatform.android.ui.components.ConfirmationDialog
-import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.tasks.TaskContainer
-import org.groundplatform.android.ui.home.HomeScreenViewModel
+import org.groundplatform.android.ui.datacollection.tasks.TaskScreenEnvironment
 import org.groundplatform.ui.theme.sizes
 import timber.log.Timber
 
 @Composable
-fun PhotoTaskScreen(
-  viewModel: PhotoTaskViewModel,
-  dataCollectionViewModel: DataCollectionViewModel,
-  homeScreenViewModel: HomeScreenViewModel,
-  permissionsManager: PermissionsManager,
-  popups: EphemeralPopups,
-) {
+fun PhotoTaskScreen(viewModel: PhotoTaskViewModel, env: TaskScreenEnvironment) {
   var showPermissionDeniedDialog by viewModel.showPermissionDeniedDialog
   val uri by viewModel.uri.collectAsStateWithLifecycle(Uri.EMPTY)
   val scope = rememberCoroutineScope()
   var hasRequestedPermissionsOnResume by remember { mutableStateOf(false) }
+
+  val popups = LocalEphemeralPopups.current
+  val permissionsManager = LocalPermissionsManager.current
 
   val capturePhotoLauncher =
     rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
@@ -71,7 +67,7 @@ fun PhotoTaskScreen(
         capturePhotoLauncher.launch(imageUri)
         Timber.d("Capture photo intent sent")
       } catch (e: IllegalArgumentException) {
-        homeScreenViewModel.awaitingPhotoCapture = false
+        env.homeScreenViewModel.awaitingPhotoCapture = false
         popups.ErrorPopup().unknownError()
         Timber.e(e)
       }
@@ -94,20 +90,20 @@ fun PhotoTaskScreen(
 
   val onTakePhoto = {
     if (!viewModel.hasLaunchedCamera) {
-      homeScreenViewModel.awaitingPhotoCapture = true
+      env.homeScreenViewModel.awaitingPhotoCapture = true
       obtainCapturePhotoPermissions { launchPhotoCapture() }
     }
   }
 
   LaunchedEffect(Unit) {
-    viewModel.surveyId = dataCollectionViewModel.requireSurveyId()
+    viewModel.surveyId = env.dataCollectionViewModel.requireSurveyId()
     if (!hasRequestedPermissionsOnResume) {
       obtainCapturePhotoPermissions {}
       hasRequestedPermissionsOnResume = true
     }
   }
 
-  TaskContainer(viewModel = viewModel, dataCollectionViewModel = dataCollectionViewModel) {
+  TaskContainer(viewModel = viewModel, dataCollectionViewModel = env.dataCollectionViewModel) {
     PhotoTaskContent(
       modifier = Modifier.padding(horizontal = MaterialTheme.sizes.taskViewPadding),
       uri = uri,

@@ -21,6 +21,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.constraintlayout.widget.Guideline
 import androidx.core.view.WindowInsetsCompat
@@ -41,7 +42,10 @@ import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.common.BackPressListener
 import org.groundplatform.android.ui.common.EphemeralPopups
+import org.groundplatform.android.ui.common.LocalEphemeralPopups
+import org.groundplatform.android.ui.common.LocalPermissionsManager
 import org.groundplatform.android.ui.components.ConfirmationDialog
+import org.groundplatform.android.ui.datacollection.tasks.TaskScreenEnvironment
 import org.groundplatform.android.ui.datacollection.tasks.location.CaptureLocationTaskMapFragment
 import org.groundplatform.android.ui.datacollection.tasks.point.DropPinTaskMapFragment
 import org.groundplatform.android.ui.datacollection.tasks.polygon.DrawAreaTaskMapFragment
@@ -119,18 +123,24 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
       val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
       if (uiState is DataCollectionUiState.Ready) {
-        TaskPager(
-          captureLocationTaskMapFragmentProvider = captureLocationTaskMapFragmentProvider,
-          dataCollectionViewModel = viewModel,
-          drawAreaTaskMapFragmentProvider = drawAreaTaskMapFragmentProvider,
-          dropPinTaskMapFragmentProvider = dropPinTaskMapFragmentProvider,
-          fragmentManager = childFragmentManager,
-          homeScreenViewModel = homeScreenViewModel,
-          permissionsManager = permissionsManager,
-          popups = popups,
-          taskPosition = (uiState as DataCollectionUiState.Ready).position,
-          tasks = (uiState as DataCollectionUiState.Ready).tasks,
-        )
+        CompositionLocalProvider(
+          LocalPermissionsManager provides permissionsManager,
+          LocalEphemeralPopups provides popups,
+        ) {
+          TaskPager(
+            env =
+              TaskScreenEnvironment(
+                captureLocationTaskMapFragmentProvider = captureLocationTaskMapFragmentProvider,
+                dataCollectionViewModel = viewModel,
+                drawAreaTaskMapFragmentProvider = drawAreaTaskMapFragmentProvider,
+                dropPinTaskMapFragmentProvider = dropPinTaskMapFragmentProvider,
+                fragmentManager = childFragmentManager,
+                homeScreenViewModel = homeScreenViewModel,
+              ),
+            taskPosition = (uiState as DataCollectionUiState.Ready).position,
+            tasks = (uiState as DataCollectionUiState.Ready).tasks,
+          )
+        }
       }
     }
   }

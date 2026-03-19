@@ -32,12 +32,12 @@ import java.util.Calendar
 import java.util.Date
 import org.groundplatform.android.R
 import org.groundplatform.android.model.submission.DateTimeTaskData
-import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.tasks.TaskContainer
+import org.groundplatform.android.ui.datacollection.tasks.TaskScreenEnvironment
 import org.groundplatform.ui.theme.sizes
 
 @Composable
-fun TimeTaskScreen(viewModel: TimeTaskViewModel, dataCollectionViewModel: DataCollectionViewModel) {
+fun TimeTaskScreen(viewModel: TimeTaskViewModel, env: TaskScreenEnvironment) {
   val taskData by viewModel.taskTaskData.collectAsStateWithLifecycle()
   val context = LocalContext.current
 
@@ -57,7 +57,7 @@ fun TimeTaskScreen(viewModel: TimeTaskViewModel, dataCollectionViewModel: DataCo
     }
   }
 
-  TaskContainer(viewModel = viewModel, dataCollectionViewModel = dataCollectionViewModel) {
+  TaskContainer(viewModel = viewModel, dataCollectionViewModel = env.dataCollectionViewModel) {
     TimeTaskField(
       modifier = Modifier.padding(horizontal = MaterialTheme.sizes.taskViewPadding),
       timeText = timeText,

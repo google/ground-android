@@ -33,24 +33,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.os.bundleOf
-import androidx.fragment.app.FragmentManager
-import javax.inject.Provider
 import kotlinx.coroutines.flow.first
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.components.ConfirmationDialog
-import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment.Companion.TASK_ID_FRAGMENT_ARG_KEY
 import org.groundplatform.android.ui.datacollection.tasks.LocationLockEnabledState
 import org.groundplatform.android.ui.datacollection.tasks.TaskContainer
+import org.groundplatform.android.ui.datacollection.tasks.TaskScreenEnvironment
 
 @Composable
-fun CaptureLocationTaskScreen(
-  viewModel: CaptureLocationTaskViewModel,
-  dataCollectionViewModel: DataCollectionViewModel,
-  captureLocationTaskMapFragmentProvider: Provider<CaptureLocationTaskMapFragment>,
-  fragmentManager: FragmentManager,
-) {
+fun CaptureLocationTaskScreen(viewModel: CaptureLocationTaskViewModel, env: TaskScreenEnvironment) {
   val context = LocalContext.current
   var showPermissionDeniedDialog by viewModel.showPermissionDeniedDialog
 
@@ -67,7 +60,7 @@ fun CaptureLocationTaskScreen(
 
   TaskContainer(
     viewModel = viewModel,
-    dataCollectionViewModel = dataCollectionViewModel,
+    dataCollectionViewModel = env.dataCollectionViewModel,
     taskHeader = taskHeader,
     shouldShowHeader = true,
     headerCard = {
@@ -90,9 +83,9 @@ fun CaptureLocationTaskScreen(
       factory = { ctx ->
         LinearLayout(ctx).apply {
           id = View.generateViewId() * 11149
-          val fragment = captureLocationTaskMapFragmentProvider.get()
+          val fragment = env.captureLocationTaskMapFragmentProvider.get()
           fragment.arguments = bundleOf(Pair(TASK_ID_FRAGMENT_ARG_KEY, viewModel.task.id))
-          fragmentManager
+          env.fragmentManager
             .beginTransaction()
             .add(id, fragment, CaptureLocationTaskMapFragment::class.java.simpleName)
             .commit()

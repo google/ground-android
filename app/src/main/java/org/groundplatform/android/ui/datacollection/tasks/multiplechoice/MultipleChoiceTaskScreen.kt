@@ -26,21 +26,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.tasks.TaskContainer
+import org.groundplatform.android.ui.datacollection.tasks.TaskScreenEnvironment
 import org.groundplatform.ui.theme.sizes
 
 const val MULTIPLE_CHOICE_LIST_TEST_TAG = "multiple choice items test tag"
 
 @Composable
-fun MultipleChoiceTaskScreen(
-  viewModel: MultipleChoiceTaskViewModel,
-  dataCollectionViewModel: DataCollectionViewModel,
-) {
+fun MultipleChoiceTaskScreen(viewModel: MultipleChoiceTaskViewModel, env: TaskScreenEnvironment) {
   val list by viewModel.items.collectAsStateWithLifecycle()
   val scrollState = rememberLazyListState()
 
-  TaskContainer(viewModel = viewModel, dataCollectionViewModel = dataCollectionViewModel) {
+  TaskContainer(viewModel = viewModel, dataCollectionViewModel = env.dataCollectionViewModel) {
     Box(modifier = Modifier.padding(horizontal = MaterialTheme.sizes.taskViewPadding)) {
       LazyColumn(Modifier.testTag(MULTIPLE_CHOICE_LIST_TEST_TAG), state = scrollState) {
         items(list, key = { it.option.id }) { item ->
