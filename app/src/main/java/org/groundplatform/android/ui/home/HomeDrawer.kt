@@ -15,6 +15,8 @@
  */
 package org.groundplatform.android.ui.home
 
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -44,17 +46,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import org.groundplatform.android.R
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.User
+import org.groundplatform.android.proto.Survey.GeneralAccess
 import org.groundplatform.ui.theme.AppTheme
 
 @Composable
@@ -162,7 +165,7 @@ private fun DrawerVersionFooter(versionText: String) {
 }
 
 private data class DrawerItem(
-  @androidx.annotation.StringRes val labelId: Int,
+  @StringRes val labelId: Int,
   val icon: IconSource,
   val action: HomeDrawerAction,
 )
@@ -185,13 +188,7 @@ private fun AppInfoHeader(user: User, onAction: (HomeDrawerAction) -> Unit) {
       Column(modifier = Modifier.weight(1f)) {
         Text(
           text = stringResource(R.string.app_name),
-          fontSize = 18.sp,
-          fontFamily =
-            androidx.compose.ui.text.font.FontFamily(
-              androidx.compose.ui.text.font.Font(R.font.google_sans)
-            ),
-          fontWeight = FontWeight.Normal,
-          lineHeight = 24.sp,
+          style = MaterialTheme.typography.titleMedium,
           color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
       }
@@ -203,7 +200,7 @@ private fun AppInfoHeader(user: User, onAction: (HomeDrawerAction) -> Unit) {
             Modifier.size(32.dp).clip(CircleShape).clickable {
               onAction(HomeDrawerAction.OnUserDetails)
             },
-          contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+          contentScale = ContentScale.Crop,
         )
       }
     }
@@ -224,13 +221,7 @@ private fun SurveySelector(survey: Survey?, onSwitchSurvey: () -> Unit) {
       Spacer(Modifier.width(4.dp))
       Text(
         text = stringResource(R.string.current_survey),
-        fontSize = 12.sp,
-        fontWeight = FontWeight.SemiBold,
-        fontFamily =
-          androidx.compose.ui.text.font.FontFamily(
-            androidx.compose.ui.text.font.Font(R.font.google_sans)
-          ),
-        lineHeight = 16.sp,
+        style = MaterialTheme.typography.labelMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
       )
     }
@@ -241,13 +232,7 @@ private fun SurveySelector(survey: Survey?, onSwitchSurvey: () -> Unit) {
     } else {
       Text(
         text = survey.title,
-        fontSize = 16.sp,
-        fontWeight = FontWeight.Bold,
-        fontFamily =
-          androidx.compose.ui.text.font.FontFamily(
-            androidx.compose.ui.text.font.Font(R.font.google_sans)
-          ),
-        lineHeight = 24.sp,
+        style = MaterialTheme.typography.titleMedium,
         color = MaterialTheme.colorScheme.onSurface,
         maxLines = 3,
         overflow = TextOverflow.Ellipsis,
@@ -255,13 +240,7 @@ private fun SurveySelector(survey: Survey?, onSwitchSurvey: () -> Unit) {
       if (survey.description.isNotEmpty()) {
         Text(
           text = survey.description,
-          fontSize = 14.sp,
-          fontWeight = FontWeight.Medium,
-          fontFamily =
-            androidx.compose.ui.text.font.FontFamily(
-              androidx.compose.ui.text.font.Font(R.font.google_sans)
-            ),
-          lineHeight = 20.sp,
+          style = MaterialTheme.typography.bodyMedium,
           color = MaterialTheme.colorScheme.onSurface,
           maxLines = 4,
           overflow = TextOverflow.Ellipsis,
@@ -274,14 +253,7 @@ private fun SurveySelector(survey: Survey?, onSwitchSurvey: () -> Unit) {
 
     Text(
       text = stringResource(R.string.switch_survey),
-      fontSize = 14.sp,
-      fontWeight = FontWeight.SemiBold,
-      fontFamily =
-        androidx.compose.ui.text.font.FontFamily(
-          androidx.compose.ui.text.font.Font(R.font.manrope_bold, FontWeight.SemiBold),
-          androidx.compose.ui.text.font.Font(R.font.manrope_medium, FontWeight.Medium),
-        ),
-      lineHeight = 20.sp,
+      style = MaterialTheme.typography.labelLarge,
       color = MaterialTheme.colorScheme.primary,
       modifier =
         Modifier.clip(CircleShape).clickable(onClick = onSwitchSurvey).padding(vertical = 10.dp),
@@ -290,9 +262,9 @@ private fun SurveySelector(survey: Survey?, onSwitchSurvey: () -> Unit) {
 }
 
 private sealed interface IconSource {
-  data class Vector(val imageVector: androidx.compose.ui.graphics.vector.ImageVector) : IconSource
+  data class Vector(val imageVector: ImageVector) : IconSource
 
-  data class Drawable(@androidx.annotation.DrawableRes val id: Int) : IconSource
+  data class Drawable(@DrawableRes val id: Int) : IconSource
 }
 
 @Preview(showBackground = true)
@@ -306,7 +278,7 @@ private fun HomeDrawerPreview() {
       title = "Tree Survey",
       description = "A comprehensive survey for mapping urban tree canopy and assessing health.",
       jobMap = emptyMap(),
-      generalAccess = org.groundplatform.android.proto.Survey.GeneralAccess.PUBLIC,
+      generalAccess = GeneralAccess.PUBLIC,
     )
   AppTheme {
     HomeDrawer(user = mockUser, survey = mockSurvey, versionText = "1.0.0-preview", onAction = {})
