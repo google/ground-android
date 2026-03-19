@@ -53,7 +53,7 @@ fun DateTaskScreen(viewModel: DateTaskViewModel, dataCollectionViewModel: DataCo
   }
 
   TaskContainer(viewModel = viewModel, dataCollectionViewModel = dataCollectionViewModel) {
-    DateTaskScreen(
+    DateTaskField(
       modifier = Modifier.padding(horizontal = MaterialTheme.sizes.taskViewPadding),
       dateText = dateText,
       hintText = hintText,

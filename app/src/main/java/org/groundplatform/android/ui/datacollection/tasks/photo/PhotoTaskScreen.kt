@@ -1,5 +1,5 @@
 /*
- * Copyright 2026 Google LLC
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,68 +15,112 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.photo
 
+import android.Manifest
 import android.net.Uri
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.launch
 import org.groundplatform.android.R
-import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
-import org.groundplatform.android.ui.datacollection.components.UriImage
-import org.groundplatform.ui.theme.AppTheme
+import org.groundplatform.android.system.PermissionDeniedException
+import org.groundplatform.android.system.PermissionsManager
+import org.groundplatform.android.ui.common.EphemeralPopups
+import org.groundplatform.android.ui.components.ConfirmationDialog
+import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
+import org.groundplatform.android.ui.datacollection.tasks.TaskContainer
+import org.groundplatform.android.ui.home.HomeScreenViewModel
+import org.groundplatform.ui.theme.sizes
+import timber.log.Timber
 
 @Composable
-fun PhotoTaskScreen(uri: Uri, onTakePhoto: () -> Unit, modifier: Modifier = Modifier) {
-  Box(modifier = modifier.fillMaxWidth().padding(horizontal = 8.dp)) {
-    if (uri == Uri.EMPTY) {
-      CaptureButton(onTakePhoto)
-    } else {
-      UriImage(uri = uri, modifier = Modifier.fillMaxWidth().padding(top = 4.dp))
+fun PhotoTaskScreen(
+  viewModel: PhotoTaskViewModel,
+  dataCollectionViewModel: DataCollectionViewModel,
+  homeScreenViewModel: HomeScreenViewModel,
+  permissionsManager: PermissionsManager,
+  popups: EphemeralPopups,
+) {
+  var showPermissionDeniedDialog by viewModel.showPermissionDeniedDialog
+  val uri by viewModel.uri.collectAsStateWithLifecycle(Uri.EMPTY)
+  val scope = rememberCoroutineScope()
+  var hasRequestedPermissionsOnResume by remember { mutableStateOf(false) }
+
+  val capturePhotoLauncher =
+    rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
+      viewModel.onCaptureResult(result)
+    }
+
+  val launchPhotoCapture = {
+    scope.launch {
+      try {
+        viewModel.waitForPhotoCapture(viewModel.task.id)
+        val imageUri = viewModel.createImageFileUri()
+        viewModel.capturedUri = imageUri
+        viewModel.hasLaunchedCamera = true
+        capturePhotoLauncher.launch(imageUri)
+        Timber.d("Capture photo intent sent")
+      } catch (e: IllegalArgumentException) {
+        homeScreenViewModel.awaitingPhotoCapture = false
+        popups.ErrorPopup().unknownError()
+        Timber.e(e)
+      }
     }
   }
-}
 
-@Composable
-private fun CaptureButton(onTakePhoto: () -> Unit) {
-  FilledTonalButton(
-    onClick = onTakePhoto,
-    contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
-  ) {
-    Icon(
-      imageVector = ImageVector.vectorResource(id = R.drawable.outline_photo_camera),
-      contentDescription = stringResource(id = R.string.camera),
-      modifier = Modifier.size(ButtonDefaults.IconSize),
-    )
-    Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-    Text(text = stringResource(id = R.string.camera))
+  val obtainCapturePhotoPermissions = { onPermissionsGranted: () -> Unit ->
+    scope.launch {
+      try {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+          permissionsManager.obtainPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        }
+        permissionsManager.obtainPermission(Manifest.permission.CAMERA)
+        onPermissionsGranted()
+      } catch (_: PermissionDeniedException) {
+        viewModel.showPermissionDeniedDialog.value = true
+      }
+    }
   }
-}
 
-@Preview(showBackground = true)
-@Composable
-@ExcludeFromJacocoGeneratedReport
-private fun PhotoTaskScreenPreviewEmpty() {
-  AppTheme { PhotoTaskScreen(uri = Uri.EMPTY, onTakePhoto = {}) }
-}
+  val onTakePhoto = {
+    if (!viewModel.hasLaunchedCamera) {
+      homeScreenViewModel.awaitingPhotoCapture = true
+      obtainCapturePhotoPermissions { launchPhotoCapture() }
+    }
+  }
 
-@Preview(showBackground = true)
-@Composable
-@ExcludeFromJacocoGeneratedReport
-private fun PhotoTaskScreenPreviewWithPhoto() {
-  AppTheme {
-    PhotoTaskScreen(uri = "content://media/external/images/media/1".toUri(), onTakePhoto = {})
+  LaunchedEffect(Unit) {
+    viewModel.surveyId = dataCollectionViewModel.requireSurveyId()
+    if (!hasRequestedPermissionsOnResume) {
+      obtainCapturePhotoPermissions {}
+      hasRequestedPermissionsOnResume = true
+    }
+  }
+
+  TaskContainer(viewModel = viewModel, dataCollectionViewModel = dataCollectionViewModel) {
+    PhotoTaskContent(
+      modifier = Modifier.padding(horizontal = MaterialTheme.sizes.taskViewPadding),
+      uri = uri,
+      onTakePhoto = onTakePhoto,
+    )
+
+    if (showPermissionDeniedDialog) {
+      ConfirmationDialog(
+        title = R.string.permission_denied,
+        description = R.string.camera_permissions_needed,
+        confirmButtonText = R.string.ok,
+        onConfirmClicked = { showPermissionDeniedDialog = false },
+      )
+    }
   }
 }
