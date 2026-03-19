@@ -74,6 +74,10 @@ internal constructor(
   private val dataCollectionInitializer: DataCollectionInitializer,
 ) : AbstractViewModel() {
 
+  /** The current vertical position of the task view footer. */
+  private val _footerVerticalPosition = MutableStateFlow(0.0f)
+  val footerVerticalPosition: StateFlow<Float> = _footerVerticalPosition
+
   private val _uiState = MutableStateFlow<DataCollectionUiState>(DataCollectionUiState.Loading)
   val uiState: StateFlow<DataCollectionUiState> = _uiState
 
@@ -366,6 +370,10 @@ internal constructor(
     uiState
       .map { (it as? DataCollectionUiState.Ready)?.currentTaskId == taskId }
       .distinctUntilChanged()
+
+  fun updateFooterPosition(top: Float) {
+    _footerVerticalPosition.value = top
+  }
 
   companion object {
     private const val TASK_JOB_ID_KEY = "jobId"
