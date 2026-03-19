@@ -28,39 +28,41 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import dagger.hilt.android.AndroidEntryPoint
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
-import org.groundplatform.android.ui.datacollection.components.TaskHeader
-import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
+import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
+import org.groundplatform.android.ui.datacollection.tasks.TaskContainer
 import org.groundplatform.ui.theme.sizes
 
-@AndroidEntryPoint
-class InstructionTaskFragment : AbstractTaskFragment<InstructionTaskViewModel>() {
-
-  override val taskHeader: TaskHeader? = null
-
-  @Composable
-  override fun TaskBody() {
+@Composable
+fun InstructionTaskScreen(
+  viewModel: InstructionTaskViewModel,
+  dataCollectionViewModel: DataCollectionViewModel,
+) {
+  TaskContainer(
+    viewModel = viewModel,
+    dataCollectionViewModel = dataCollectionViewModel,
+    taskHeader = null,
+  ) {
     ShowTextField(viewModel.task.label)
   }
+}
 
-  @Composable
-  private fun ShowTextField(text: String) {
-    Box(modifier = Modifier.padding(MaterialTheme.sizes.taskViewPadding)) {
-      Box(
-        modifier =
-          Modifier.fillMaxSize()
-            .background(color = Color.White)
-            .border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(2.dp))
-            .padding(MaterialTheme.sizes.taskViewPadding)
-      ) {
-        Text(text = text, style = MaterialTheme.typography.headlineSmall)
-      }
+@Composable
+private fun ShowTextField(text: String) {
+  Box(modifier = Modifier.padding(MaterialTheme.sizes.taskViewPadding)) {
+    Box(
+      modifier =
+        Modifier.fillMaxSize()
+          .background(color = Color.White)
+          .border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(2.dp))
+          .padding(MaterialTheme.sizes.taskViewPadding)
+    ) {
+      Text(text = text, style = MaterialTheme.typography.headlineSmall)
     }
   }
-
-  @Composable
-  @Preview(showBackground = true)
-  @ExcludeFromJacocoGeneratedReport
-  private fun PreviewTextField() = ShowTextField("Sample instruction text")
 }
+
+@Composable
+@Preview(showBackground = true)
+@ExcludeFromJacocoGeneratedReport
+private fun PreviewTextField() = ShowTextField("Sample instruction text")

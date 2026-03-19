@@ -23,22 +23,22 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.KeyboardType
-import dagger.hilt.android.AndroidEntryPoint
 import org.groundplatform.android.model.submission.NumberTaskData.Companion.fromNumber
+import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.TextTaskInput
-import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
+import org.groundplatform.android.ui.datacollection.tasks.TaskContainer
 import org.groundplatform.ui.theme.sizes
 
 const val INPUT_NUMBER_TEST_TAG: String = "number task input test tag"
 
-/** Fragment allowing the user to answer questions to complete a task. */
-@AndroidEntryPoint
-class NumberTaskFragment : AbstractTaskFragment<NumberTaskViewModel>() {
+@Composable
+fun NumberTaskScreen(
+  viewModel: NumberTaskViewModel,
+  dataCollectionViewModel: DataCollectionViewModel,
+) {
+  val userResponse by viewModel.responseText.observeAsState("")
 
-  @Composable
-  override fun TaskBody() {
-    val userResponse by viewModel.responseText.observeAsState("")
-
+  TaskContainer(viewModel = viewModel, dataCollectionViewModel = dataCollectionViewModel) {
     TextTaskInput(
       userResponse,
       keyboardType = KeyboardType.Decimal,

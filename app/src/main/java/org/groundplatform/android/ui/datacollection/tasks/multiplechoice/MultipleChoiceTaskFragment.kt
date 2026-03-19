@@ -26,24 +26,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import dagger.hilt.android.AndroidEntryPoint
-import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
+import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
+import org.groundplatform.android.ui.datacollection.tasks.TaskContainer
 import org.groundplatform.ui.theme.sizes
 
 const val MULTIPLE_CHOICE_LIST_TEST_TAG = "multiple choice items test tag"
 
-/**
- * Fragment allowing the user to answer single selection multiple choice questions to complete a
- * task.
- */
-@AndroidEntryPoint
-class MultipleChoiceTaskFragment : AbstractTaskFragment<MultipleChoiceTaskViewModel>() {
+@Composable
+fun MultipleChoiceTaskScreen(
+  viewModel: MultipleChoiceTaskViewModel,
+  dataCollectionViewModel: DataCollectionViewModel,
+) {
+  val list by viewModel.items.collectAsStateWithLifecycle()
+  val scrollState = rememberLazyListState()
 
-  @Composable
-  override fun TaskBody() {
-    val list by viewModel.items.collectAsStateWithLifecycle()
-    val scrollState = rememberLazyListState()
-
+  TaskContainer(viewModel = viewModel, dataCollectionViewModel = dataCollectionViewModel) {
     Box(modifier = Modifier.padding(horizontal = MaterialTheme.sizes.taskViewPadding)) {
       LazyColumn(Modifier.testTag(MULTIPLE_CHOICE_LIST_TEST_TAG), state = scrollState) {
         items(list, key = { it.option.id }) { item ->

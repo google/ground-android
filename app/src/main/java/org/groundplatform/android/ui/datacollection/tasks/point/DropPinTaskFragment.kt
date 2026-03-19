@@ -18,52 +18,51 @@ package org.groundplatform.android.ui.datacollection.tasks.point
 import android.view.View
 import android.widget.LinearLayout
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.os.bundleOf
-import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
+import androidx.fragment.app.FragmentManager
 import javax.inject.Provider
 import org.groundplatform.android.R
+import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.InstructionData
 import org.groundplatform.android.ui.datacollection.components.TaskHeader
-import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment.Companion.TASK_ID_FRAGMENT_ARG_KEY
+import org.groundplatform.android.ui.datacollection.tasks.TaskContainer
 
-@AndroidEntryPoint
-class DropPinTaskFragment @Inject constructor() : AbstractTaskFragment<DropPinTaskViewModel>() {
-  @Inject lateinit var dropPinTaskMapFragmentProvider: Provider<DropPinTaskMapFragment>
-
-  override val taskHeader: TaskHeader by lazy {
-    TaskHeader(viewModel.task.label, R.drawable.outline_pin_drop)
-  }
-
-  override val instructionData =
+@Composable
+fun DropPinTaskScreen(
+  viewModel: DropPinTaskViewModel,
+  dataCollectionViewModel: DataCollectionViewModel,
+  dropPinTaskMapFragmentProvider: Provider<DropPinTaskMapFragment>,
+  fragmentManager: FragmentManager,
+) {
+  val taskHeader = TaskHeader(viewModel.task.label, R.drawable.outline_pin_drop)
+  val instructionData =
     InstructionData(iconId = R.drawable.swipe_24, stringId = R.string.drop_a_pin_tooltip_text)
 
-  @Composable
-  override fun TaskBody() {
-    AndroidView(
-      factory = { context ->
-        // NOTE(#2493): Multiplying by a random prime to allow for some mathematical "uniqueness".
-        // Otherwise, the sequentially generated ID might conflict with an ID produced by Google
-        // Maps.
-        LinearLayout(context).apply {
-          id = View.generateViewId() * 11617
-          val fragment = dropPinTaskMapFragmentProvider.get()
-          fragment.arguments = bundleOf(Pair(TASK_ID_FRAGMENT_ARG_KEY, taskId))
-          childFragmentManager.beginTransaction().add(id, fragment, "Drop a pin fragment").commit()
-        }
-      }
-    )
-  }
-
-  override fun onTaskResume() {
-    if (isVisible && viewModel.shouldShowInstructionsDialog()) {
+  LaunchedEffect(Unit) {
+    if (viewModel.shouldShowInstructionsDialog()) {
       viewModel.showInstructionsDialog.value = true
     }
   }
 
-  override fun onInstructionDialogDismissed() {
-    viewModel.instructionsDialogShown = true
+  TaskContainer(
+    viewModel = viewModel,
+    dataCollectionViewModel = dataCollectionViewModel,
+    taskHeader = taskHeader,
+    instructionData = instructionData,
+    onInstructionDialogDismissed = { viewModel.instructionsDialogShown = true },
+  ) {
+    AndroidView(
+      factory = { context ->
+        LinearLayout(context).apply {
+          id = View.generateViewId() * 11617
+          val fragment = dropPinTaskMapFragmentProvider.get()
+          fragment.arguments = bundleOf(Pair(TASK_ID_FRAGMENT_ARG_KEY, viewModel.task.id))
+          fragmentManager.beginTransaction().add(id, fragment, "Drop a pin fragment").commit()
+        }
+      }
+    )
   }
 }

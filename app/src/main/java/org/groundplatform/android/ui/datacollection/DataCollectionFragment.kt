@@ -33,22 +33,39 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import javax.inject.Provider
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.databinding.DataCollectionFragBinding
+import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.common.BackPressListener
+import org.groundplatform.android.ui.common.EphemeralPopups
 import org.groundplatform.android.ui.components.ConfirmationDialog
+import org.groundplatform.android.ui.datacollection.tasks.location.CaptureLocationTaskMapFragment
+import org.groundplatform.android.ui.datacollection.tasks.point.DropPinTaskMapFragment
+import org.groundplatform.android.ui.datacollection.tasks.polygon.DrawAreaTaskMapFragment
 import org.groundplatform.android.ui.home.HomeScreenFragmentDirections
+import org.groundplatform.android.ui.home.HomeScreenViewModel
 import org.groundplatform.android.util.renderComposableDialog
+import org.groundplatform.android.util.setComposableContent
 
 /** Fragment allowing the user to collect data to complete a task. */
 @AndroidEntryPoint
 class DataCollectionFragment : AbstractFragment(), BackPressListener {
 
-  @Inject lateinit var taskFragmentProvider: TaskFragmentProvider
+  @Inject
+  lateinit var captureLocationTaskMapFragmentProvider: Provider<CaptureLocationTaskMapFragment>
+  @Inject lateinit var drawAreaTaskMapFragmentProvider: Provider<DrawAreaTaskMapFragment>
+  @Inject lateinit var dropPinTaskMapFragmentProvider: Provider<DropPinTaskMapFragment>
+  @Inject lateinit var permissionsManager: PermissionsManager
+  @Inject lateinit var popups: EphemeralPopups
 
   val viewModel: DataCollectionViewModel by hiltNavGraphViewModels(R.id.data_collection)
+
+  private val homeScreenViewModel: HomeScreenViewModel by lazy {
+    getViewModel(HomeScreenViewModel::class.java)
+  }
 
   private lateinit var binding: DataCollectionFragBinding
   private lateinit var progressBar: ProgressBar
@@ -98,15 +115,21 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
       }
     }
 
-    binding.composeView.setContent {
+    binding.composeView.setComposableContent {
       val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
       if (uiState is DataCollectionUiState.Ready) {
         TaskPager(
           tasks = (uiState as DataCollectionUiState.Ready).tasks,
           taskPosition = (uiState as DataCollectionUiState.Ready).position,
+          dataCollectionViewModel = viewModel,
+          homeScreenViewModel = homeScreenViewModel,
+          permissionsManager = permissionsManager,
+          popups = popups,
           fragmentManager = childFragmentManager,
-          taskFragmentProvider = taskFragmentProvider,
+          captureLocationTaskMapFragmentProvider = captureLocationTaskMapFragmentProvider,
+          drawAreaTaskMapFragmentProvider = drawAreaTaskMapFragmentProvider,
+          dropPinTaskMapFragmentProvider = dropPinTaskMapFragmentProvider,
         )
       }
     }

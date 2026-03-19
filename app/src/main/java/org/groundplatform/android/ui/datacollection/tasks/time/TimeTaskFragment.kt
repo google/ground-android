@@ -16,6 +16,7 @@
 package org.groundplatform.android.ui.datacollection.tasks.time
 
 import android.app.TimePickerDialog
+import android.content.Context
 import android.content.DialogInterface
 import android.text.format.DateFormat
 import androidx.compose.foundation.layout.padding
@@ -26,72 +27,67 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import org.groundplatform.android.R
 import org.groundplatform.android.model.submission.DateTimeTaskData
-import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
+import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
+import org.groundplatform.android.ui.datacollection.tasks.TaskContainer
 import org.groundplatform.ui.theme.sizes
-import org.jetbrains.annotations.TestOnly
 
-@AndroidEntryPoint
-class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
+@Composable
+fun TimeTaskScreen(viewModel: TimeTaskViewModel, dataCollectionViewModel: DataCollectionViewModel) {
+  val taskData by viewModel.taskTaskData.collectAsStateWithLifecycle()
+  val context = LocalContext.current
 
-  private var timePickerDialog: TimePickerDialog? = null
-
-  @Composable
-  override fun TaskBody() {
-    val taskData by viewModel.taskTaskData.collectAsStateWithLifecycle()
-    val context = LocalContext.current
-
-    val timeText =
-      remember(taskData) {
-        (taskData as? DateTimeTaskData)?.let {
-          DateFormat.getTimeFormat(context).format(Date(it.timeInMillis))
-        } ?: ""
-      }
-
-    val hintText = remember {
-      val timeFormat = DateFormat.getTimeFormat(context)
-      if (timeFormat is SimpleDateFormat) {
-        timeFormat.toPattern().uppercase()
-      } else {
-        "HH:MM AM/PM" // Fallback hint if DateFormat is not SimpleDateFormat
-      }
+  val timeText =
+    remember(taskData) {
+      (taskData as? DateTimeTaskData)?.let {
+        DateFormat.getTimeFormat(context).format(Date(it.timeInMillis))
+      } ?: ""
     }
 
+  val hintText = remember {
+    val timeFormat = DateFormat.getTimeFormat(context)
+    if (timeFormat is SimpleDateFormat) {
+      timeFormat.toPattern().uppercase()
+    } else {
+      "HH:MM AM/PM" // Fallback hint if DateFormat is not SimpleDateFormat
+    }
+  }
+
+  TaskContainer(viewModel = viewModel, dataCollectionViewModel = dataCollectionViewModel) {
     TimeTaskScreen(
       modifier = Modifier.padding(horizontal = MaterialTheme.sizes.taskViewPadding),
       timeText = timeText,
       hintText = hintText,
-      onTimeClick = { showTimeDialog() },
+      onTimeClick = { showTimeDialog(context, viewModel) },
     )
   }
+}
 
-  fun showTimeDialog() {
-    val calendar = Calendar.getInstance()
-    val hour = calendar[Calendar.HOUR]
-    val minute = calendar[Calendar.MINUTE]
-    timePickerDialog =
-      TimePickerDialog(
-        requireContext(),
-        { _, updatedHourOfDay, updatedMinute ->
-          val c = Calendar.getInstance()
-          c[Calendar.HOUR_OF_DAY] = updatedHourOfDay
-          c[Calendar.MINUTE] = updatedMinute
-          viewModel.updateResponse(c.time)
-        },
-        hour,
-        minute,
-        DateFormat.is24HourFormat(requireContext()),
-      )
-    timePickerDialog?.setButton(DialogInterface.BUTTON_NEUTRAL, getString(R.string.clear)) { _, _ ->
-      viewModel.clearResponse()
-    }
-    timePickerDialog?.show()
+fun showTimeDialog(context: Context, viewModel: TimeTaskViewModel) {
+  val calendar = Calendar.getInstance()
+  val hour = calendar[Calendar.HOUR]
+  val minute = calendar[Calendar.MINUTE]
+  val timePickerDialog =
+    TimePickerDialog(
+      context,
+      { _, updatedHourOfDay, updatedMinute ->
+        val c = Calendar.getInstance()
+        c[Calendar.HOUR_OF_DAY] = updatedHourOfDay
+        c[Calendar.MINUTE] = updatedMinute
+        viewModel.updateResponse(c.time)
+      },
+      hour,
+      minute,
+      DateFormat.is24HourFormat(context),
+    )
+  timePickerDialog.setButton(DialogInterface.BUTTON_NEUTRAL, context.getString(R.string.clear)) {
+    _,
+    _ ->
+    viewModel.clearResponse()
   }
-
-  @TestOnly fun getTimePickerDialog(): TimePickerDialog? = timePickerDialog
+  timePickerDialog.show()
 }
