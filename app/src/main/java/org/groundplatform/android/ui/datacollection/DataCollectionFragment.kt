@@ -21,22 +21,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
+import androidx.compose.runtime.getValue
 import androidx.constraintlayout.widget.Guideline
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.doOnLayout
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
-import androidx.viewpager2.widget.ViewPager2
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.databinding.DataCollectionFragBinding
-import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.common.BackPressListener
 import org.groundplatform.android.ui.components.ConfirmationDialog
@@ -46,15 +45,25 @@ import org.groundplatform.android.util.renderComposableDialog
 /** Fragment allowing the user to collect data to complete a task. */
 @AndroidEntryPoint
 class DataCollectionFragment : AbstractFragment(), BackPressListener {
-  @Inject lateinit var viewPagerAdapterFactory: DataCollectionViewPagerAdapterFactory
+
+  @Inject lateinit var taskFragmentProvider: TaskFragmentProvider
 
   val viewModel: DataCollectionViewModel by hiltNavGraphViewModels(R.id.data_collection)
 
   private lateinit var binding: DataCollectionFragBinding
   private lateinit var progressBar: ProgressBar
   private lateinit var guideline: Guideline
-  private lateinit var viewPager: ViewPager2
   private var isNavigatingUp = false
+
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    if (savedInstanceState != null) {
+      // Clean up child fragments to prevent "No view found for id" exception on rotation
+      childFragmentManager.fragments.forEach {
+        childFragmentManager.beginTransaction().remove(it).commitNowAllowingStateLoss()
+      }
+    }
+  }
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -63,7 +72,6 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
     binding = DataCollectionFragBinding.inflate(inflater, container, false)
-    viewPager = binding.pager
     progressBar = binding.progressBar
     guideline = binding.progressBarGuideline
     getAbstractActivity().setSupportActionBar(binding.dataCollectionToolbar)
@@ -77,9 +85,6 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     super.onViewCreated(view, savedInstanceState)
     binding.lifecycleOwner = viewLifecycleOwner
 
-    viewPager.isUserInputEnabled = false
-    viewPager.offscreenPageLimit = 1
-
     viewLifecycleOwner.lifecycleScope.launch {
       viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
         viewModel.footerVerticalPosition.collect { setProgressBarPosition(it) }
@@ -90,6 +95,19 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     viewLifecycleOwner.lifecycleScope.launch {
       viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
         viewModel.uiState.collect { ui -> updateUI(ui) }
+      }
+    }
+
+    binding.composeView.setContent {
+      val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+      if (uiState is DataCollectionUiState.Ready) {
+        TaskPager(
+          tasks = (uiState as DataCollectionUiState.Ready).tasks,
+          taskPosition = (uiState as DataCollectionUiState.Ready).position,
+          fragmentManager = childFragmentManager,
+          taskFragmentProvider = taskFragmentProvider,
+        )
       }
     }
   }
@@ -108,15 +126,14 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
 
   private fun updateUI(uiState: DataCollectionUiState) {
     when (uiState) {
-      // Ensure adapter has the task list; then jump to the current position.
       is DataCollectionUiState.Ready -> {
         binding.jobName = uiState.job.name
         binding.loiName = uiState.loiName
-        loadTasks(uiState.tasks, uiState.position)
+        updateProgressBar(uiState.position)
       }
 
       is DataCollectionUiState.TaskUpdated -> {
-        onTaskChanged(uiState.position)
+        updateProgressBar(uiState.position)
       }
 
       is DataCollectionUiState.TaskSubmitted -> {
@@ -142,24 +159,9 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     }
   }
 
-  private fun loadTasks(tasks: List<Task>, taskPosition: TaskPosition) {
-    val currentAdapter = viewPager.adapter as? DataCollectionViewPagerAdapter
-    if (currentAdapter == null || currentAdapter.tasks != tasks) {
-      viewPager.adapter = viewPagerAdapterFactory.create(this, tasks)
-    }
-    viewPager.doOnLayout { onTaskChanged(taskPosition) }
-  }
-
-  private fun onTaskChanged(taskPosition: TaskPosition) {
-    // Pass false to parameter smoothScroll to avoid smooth scrolling animation.
-    viewPager.setCurrentItem(taskPosition.absoluteIndex, false)
-    updateProgressBar(taskPosition, true)
-  }
-
   private fun onTaskSubmitted() {
     // Hide close button
     binding.dataCollectionToolbar.navigationIcon = null
-    viewPager.adapter = null
 
     // Display a confirmation dialog and move to home screen after that.
     renderComposableDialog {
@@ -169,23 +171,19 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     }
   }
 
-  private fun updateProgressBar(taskPosition: TaskPosition, shouldAnimate: Boolean) {
+  private fun updateProgressBar(taskPosition: TaskPosition) {
     // Reset progress bar
     progressBar.max = (taskPosition.sequenceSize - 1) * PROGRESS_SCALE
 
     val target = taskPosition.relativeIndex * PROGRESS_SCALE
-    if (shouldAnimate) {
-      progressBar.clearAnimation()
-      ValueAnimator.ofInt(progressBar.progress, target)
-        .apply {
-          duration = 400L
-          interpolator = FastOutSlowInInterpolator()
-          addUpdateListener { progressBar.progress = it.animatedValue as Int }
-        }
-        .start()
-    } else {
-      progressBar.progress = target
-    }
+    progressBar.clearAnimation()
+    ValueAnimator.ofInt(progressBar.progress, target)
+      .apply {
+        duration = 400L
+        interpolator = FastOutSlowInInterpolator()
+        addUpdateListener { progressBar.progress = it.animatedValue as Int }
+      }
+      .start()
   }
 
   override fun onBack(): Boolean {
