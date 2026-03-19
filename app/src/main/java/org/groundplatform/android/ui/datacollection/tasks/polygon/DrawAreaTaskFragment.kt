@@ -106,6 +106,22 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
       Toast.makeText(requireContext(), getString(R.string.area_message, area), Toast.LENGTH_LONG)
         .show()
     }
+    viewLifecycleOwner.lifecycleScope.launch {
+      viewModel.showSelfIntersectionDialog.collect { isVisible ->
+        if (isVisible) {
+          renderComposableDialog {
+            ConfirmationDialog(
+              title = R.string.polygon_vertex_add_dialog_title,
+              description = R.string.polygon_vertex_add_dialog_message,
+              confirmButtonText = R.string.polygon_vertex_add_dialog_positive_button,
+              dismissButtonText = null,
+              onConfirmClicked = { viewModel.dismissSelfIntersectionDialog() },
+              onDismiss = { viewModel.dismissSelfIntersectionDialog() },
+            )
+          }
+        }
+      }
+    }
   }
 
   override fun onInstructionDialogDismissed() {
