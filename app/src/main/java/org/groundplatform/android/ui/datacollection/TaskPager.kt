@@ -40,23 +40,23 @@ import org.groundplatform.android.ui.home.HomeScreenViewModel
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TaskPager(
-  tasks: List<Task>,
-  taskPosition: TaskPosition,
+  captureLocationTaskMapFragmentProvider: Provider<CaptureLocationTaskMapFragment>,
   dataCollectionViewModel: DataCollectionViewModel,
+  drawAreaTaskMapFragmentProvider: Provider<DrawAreaTaskMapFragment>,
+  dropPinTaskMapFragmentProvider: Provider<DropPinTaskMapFragment>,
+  fragmentManager: FragmentManager,
   homeScreenViewModel: HomeScreenViewModel,
   permissionsManager: PermissionsManager,
   popups: EphemeralPopups,
-  fragmentManager: FragmentManager,
-  captureLocationTaskMapFragmentProvider: Provider<CaptureLocationTaskMapFragment>,
-  drawAreaTaskMapFragmentProvider: Provider<DrawAreaTaskMapFragment>,
-  dropPinTaskMapFragmentProvider: Provider<DropPinTaskMapFragment>,
+  taskPosition: TaskPosition,
+  tasks: List<Task>,
 ) {
   val pagerState =
     rememberPagerState(initialPage = taskPosition.absoluteIndex, pageCount = { tasks.size })
 
   LaunchedEffect(taskPosition.absoluteIndex) {
     if (pagerState.currentPage != taskPosition.absoluteIndex) {
-      pagerState.scrollToPage(taskPosition.absoluteIndex)
+      pagerState.animateScrollToPage(taskPosition.absoluteIndex)
     }
   }
 
@@ -69,52 +69,44 @@ fun TaskPager(
     val taskViewModel = dataCollectionViewModel.getTaskViewModel(task.id)
 
     if (taskViewModel != null) {
-      when (task.type) {
-        Task.Type.TEXT ->
-          TextTaskScreen(taskViewModel as TextTaskViewModel, dataCollectionViewModel)
-        Task.Type.MULTIPLE_CHOICE ->
-          MultipleChoiceTaskScreen(
-            taskViewModel as MultipleChoiceTaskViewModel,
+      when (taskViewModel) {
+        is CaptureLocationTaskViewModel ->
+          CaptureLocationTaskScreen(
+            taskViewModel,
             dataCollectionViewModel,
+            captureLocationTaskMapFragmentProvider,
+            fragmentManager,
           )
-        Task.Type.PHOTO ->
+        is DateTaskViewModel -> DateTaskScreen(taskViewModel, dataCollectionViewModel)
+        is DrawAreaTaskViewModel ->
+          DrawAreaTaskScreen(
+            taskViewModel,
+            dataCollectionViewModel,
+            drawAreaTaskMapFragmentProvider,
+            fragmentManager,
+          )
+        is DropPinTaskViewModel ->
+          DropPinTaskScreen(
+            taskViewModel,
+            dataCollectionViewModel,
+            dropPinTaskMapFragmentProvider,
+            fragmentManager,
+          )
+        is InstructionTaskViewModel -> InstructionTaskScreen(taskViewModel, dataCollectionViewModel)
+        is MultipleChoiceTaskViewModel ->
+          MultipleChoiceTaskScreen(taskViewModel, dataCollectionViewModel)
+        is NumberTaskViewModel -> NumberTaskScreen(taskViewModel, dataCollectionViewModel)
+        is PhotoTaskViewModel ->
           PhotoTaskScreen(
-            taskViewModel as PhotoTaskViewModel,
+            taskViewModel,
             dataCollectionViewModel,
             homeScreenViewModel,
             permissionsManager,
             popups,
           )
-        Task.Type.DROP_PIN ->
-          DropPinTaskScreen(
-            taskViewModel as DropPinTaskViewModel,
-            dataCollectionViewModel,
-            dropPinTaskMapFragmentProvider,
-            fragmentManager,
-          )
-        Task.Type.DRAW_AREA ->
-          DrawAreaTaskScreen(
-            taskViewModel as DrawAreaTaskViewModel,
-            dataCollectionViewModel,
-            drawAreaTaskMapFragmentProvider,
-            fragmentManager,
-          )
-        Task.Type.NUMBER ->
-          NumberTaskScreen(taskViewModel as NumberTaskViewModel, dataCollectionViewModel)
-        Task.Type.DATE ->
-          DateTaskScreen(taskViewModel as DateTaskViewModel, dataCollectionViewModel)
-        Task.Type.TIME ->
-          TimeTaskScreen(taskViewModel as TimeTaskViewModel, dataCollectionViewModel)
-        Task.Type.CAPTURE_LOCATION ->
-          CaptureLocationTaskScreen(
-            taskViewModel as CaptureLocationTaskViewModel,
-            dataCollectionViewModel,
-            captureLocationTaskMapFragmentProvider,
-            fragmentManager,
-          )
-        Task.Type.INSTRUCTIONS ->
-          InstructionTaskScreen(taskViewModel as InstructionTaskViewModel, dataCollectionViewModel)
-        Task.Type.UNKNOWN -> error("Unhandled task type: ${task.type}")
+        is TextTaskViewModel -> TextTaskScreen(taskViewModel, dataCollectionViewModel)
+        is TimeTaskViewModel -> TimeTaskScreen(taskViewModel, dataCollectionViewModel)
+        else -> error("Unhandled task ViewModel type: ${taskViewModel.javaClass.name}")
       }
     }
   }

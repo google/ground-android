@@ -120,16 +120,16 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
 
       if (uiState is DataCollectionUiState.Ready) {
         TaskPager(
-          tasks = (uiState as DataCollectionUiState.Ready).tasks,
-          taskPosition = (uiState as DataCollectionUiState.Ready).position,
+          captureLocationTaskMapFragmentProvider = captureLocationTaskMapFragmentProvider,
           dataCollectionViewModel = viewModel,
+          drawAreaTaskMapFragmentProvider = drawAreaTaskMapFragmentProvider,
+          dropPinTaskMapFragmentProvider = dropPinTaskMapFragmentProvider,
+          fragmentManager = childFragmentManager,
           homeScreenViewModel = homeScreenViewModel,
           permissionsManager = permissionsManager,
           popups = popups,
-          fragmentManager = childFragmentManager,
-          captureLocationTaskMapFragmentProvider = captureLocationTaskMapFragmentProvider,
-          drawAreaTaskMapFragmentProvider = drawAreaTaskMapFragmentProvider,
-          dropPinTaskMapFragmentProvider = dropPinTaskMapFragmentProvider,
+          taskPosition = (uiState as DataCollectionUiState.Ready).position,
+          tasks = (uiState as DataCollectionUiState.Ready).tasks,
         )
       }
     }
