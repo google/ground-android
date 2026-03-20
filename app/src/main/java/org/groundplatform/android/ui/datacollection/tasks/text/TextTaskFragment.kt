@@ -15,7 +15,8 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.text
 
-import android.view.LayoutInflater
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -23,10 +24,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import dagger.hilt.android.AndroidEntryPoint
 import org.groundplatform.android.model.submission.TextTaskData.Companion.fromString
-import org.groundplatform.android.ui.datacollection.components.TaskView
-import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
 import org.groundplatform.android.ui.datacollection.components.TextTaskInput
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
+import org.groundplatform.ui.theme.sizes
 
 const val INPUT_TEXT_TEST_TAG: String = "text task input test tag"
 
@@ -34,13 +34,16 @@ const val INPUT_TEXT_TEST_TAG: String = "text task input test tag"
 @AndroidEntryPoint
 class TextTaskFragment : AbstractTaskFragment<TextTaskViewModel>() {
 
-  override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
-    TaskViewFactory.createWithHeader(inflater)
-
   @Composable
   override fun TaskBody() {
     val userResponse by viewModel.responseText.observeAsState("")
-    TextTaskInput(userResponse, modifier = Modifier.testTag(INPUT_TEXT_TEST_TAG)) { newText ->
+
+    TextTaskInput(
+      userResponse,
+      modifier =
+        Modifier.padding(horizontal = MaterialTheme.sizes.taskViewPadding)
+          .testTag(INPUT_TEXT_TEST_TAG),
+    ) { newText ->
       viewModel.setValue(fromString(newText))
     }
   }

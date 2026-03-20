@@ -15,20 +15,20 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.multiplechoice
 
-import android.view.LayoutInflater
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
-import org.groundplatform.android.ui.datacollection.components.TaskView
-import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
+import org.groundplatform.ui.theme.sizes
 
 const val MULTIPLE_CHOICE_LIST_TEST_TAG = "multiple choice items test tag"
 
@@ -39,15 +39,12 @@ const val MULTIPLE_CHOICE_LIST_TEST_TAG = "multiple choice items test tag"
 @AndroidEntryPoint
 class MultipleChoiceTaskFragment : AbstractTaskFragment<MultipleChoiceTaskViewModel>() {
 
-  override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
-    TaskViewFactory.createWithHeader(inflater)
-
   @Composable
   override fun TaskBody() {
     val list by viewModel.items.collectAsStateWithLifecycle()
     val scrollState = rememberLazyListState()
 
-    Box {
+    Box(modifier = Modifier.padding(horizontal = MaterialTheme.sizes.taskViewPadding)) {
       LazyColumn(Modifier.testTag(MULTIPLE_CHOICE_LIST_TEST_TAG), state = scrollState) {
         items(list, key = { it.option.id }) { item ->
           MultipleChoiceItemView(

@@ -18,10 +18,12 @@ package org.groundplatform.android.ui.datacollection.tasks.date
 import android.app.DatePickerDialog
 import android.content.DialogInterface
 import android.text.format.DateFormat
-import android.view.LayoutInflater
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
@@ -30,18 +32,14 @@ import java.util.Calendar
 import java.util.Date
 import org.groundplatform.android.R
 import org.groundplatform.android.model.submission.DateTimeTaskData
-import org.groundplatform.android.ui.datacollection.components.TaskView
-import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
+import org.groundplatform.ui.theme.sizes
 import org.jetbrains.annotations.TestOnly
 
 @AndroidEntryPoint
 class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
 
   private var datePickerDialog: DatePickerDialog? = null
-
-  override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
-    TaskViewFactory.createWithHeader(inflater)
 
   @Composable
   override fun TaskBody() {
@@ -59,7 +57,12 @@ class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
       (DateFormat.getDateFormat(context) as SimpleDateFormat).toPattern().uppercase()
     }
 
-    DateTaskScreen(dateText = dateText, hintText = hintText, onDateClick = { showDateDialog() })
+    DateTaskScreen(
+      modifier = Modifier.padding(horizontal = MaterialTheme.sizes.taskViewPadding),
+      dateText = dateText,
+      hintText = hintText,
+      onDateClick = { showDateDialog() },
+    )
   }
 
   // TODO: Replace with bottom modal date picker.
