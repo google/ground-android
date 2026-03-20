@@ -18,8 +18,6 @@ package org.groundplatform.android.ui.datacollection.tasks.location
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
-import android.view.View
-import android.widget.LinearLayout
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -31,13 +29,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.os.bundleOf
 import kotlinx.coroutines.flow.first
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.components.ConfirmationDialog
+import org.groundplatform.android.ui.datacollection.components.FragmentContainer
 import org.groundplatform.android.ui.datacollection.components.TaskHeader
-import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment.Companion.TASK_ID_FRAGMENT_ARG_KEY
 import org.groundplatform.android.ui.datacollection.tasks.LocationLockEnabledState
 import org.groundplatform.android.ui.datacollection.tasks.TaskContainer
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreenEnvironment
@@ -79,18 +75,10 @@ fun CaptureLocationTaskScreen(viewModel: CaptureLocationTaskViewModel, env: Task
       }
     },
   ) {
-    AndroidView(
-      factory = { ctx ->
-        LinearLayout(ctx).apply {
-          id = View.generateViewId() * 11149
-          val fragment = env.captureLocationTaskMapFragmentProvider.get()
-          fragment.arguments = bundleOf(Pair(TASK_ID_FRAGMENT_ARG_KEY, viewModel.task.id))
-          env.fragmentManager
-            .beginTransaction()
-            .add(id, fragment, CaptureLocationTaskMapFragment::class.java.simpleName)
-            .commit()
-        }
-      }
+    FragmentContainer(
+      env = env,
+      taskId = viewModel.task.id,
+      fragmentProvider = env.captureLocationTaskMapFragmentProvider,
     )
 
     if (showPermissionDeniedDialog) {

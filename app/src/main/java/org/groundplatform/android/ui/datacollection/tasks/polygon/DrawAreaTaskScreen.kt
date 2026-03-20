@@ -15,7 +15,6 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.polygon
 
-import android.view.LayoutInflater
 import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -26,14 +25,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.os.bundleOf
 import org.groundplatform.android.R
-import org.groundplatform.android.databinding.FragmentDrawAreaTaskBinding
 import org.groundplatform.android.ui.components.ConfirmationDialog
+import org.groundplatform.android.ui.datacollection.components.FragmentContainer
 import org.groundplatform.android.ui.datacollection.components.InstructionData
 import org.groundplatform.android.ui.datacollection.components.TaskHeader
-import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment.Companion.TASK_ID_FRAGMENT_ARG_KEY
 import org.groundplatform.android.ui.datacollection.tasks.TaskContainer
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreenEnvironment
 
@@ -75,23 +71,10 @@ fun DrawAreaTaskScreen(viewModel: DrawAreaTaskViewModel, env: TaskScreenEnvironm
     instructionData = instructionData,
     onInstructionDialogDismissed = { viewModel.instructionsDialogShown = true },
   ) {
-    AndroidView(
-      factory = { ctx ->
-        val rootView = FragmentDrawAreaTaskBinding.inflate(LayoutInflater.from(ctx))
-        val fragment = env.drawAreaTaskMapFragmentProvider.get()
-        fragment.arguments = bundleOf(Pair(TASK_ID_FRAGMENT_ARG_KEY, viewModel.task.id))
-        env.fragmentManager
-          .beginTransaction()
-          .add(
-            R.id.container_draw_area_task_map,
-            fragment,
-            DrawAreaTaskMapFragment::class.java.simpleName,
-          )
-          .commit()
-
-        drawAreaTaskMapFragment = fragment
-        rootView.root
-      }
+    FragmentContainer(
+      env = env,
+      taskId = viewModel.task.id,
+      fragmentProvider = env.drawAreaTaskMapFragmentProvider,
     )
 
     if (showSelfIntersectionDialog) {

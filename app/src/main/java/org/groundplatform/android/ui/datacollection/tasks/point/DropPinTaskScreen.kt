@@ -15,16 +15,12 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.point
 
-import android.view.View
-import android.widget.LinearLayout
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.os.bundleOf
 import org.groundplatform.android.R
+import org.groundplatform.android.ui.datacollection.components.FragmentContainer
 import org.groundplatform.android.ui.datacollection.components.InstructionData
 import org.groundplatform.android.ui.datacollection.components.TaskHeader
-import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment.Companion.TASK_ID_FRAGMENT_ARG_KEY
 import org.groundplatform.android.ui.datacollection.tasks.TaskContainer
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreenEnvironment
 
@@ -47,15 +43,10 @@ fun DropPinTaskScreen(viewModel: DropPinTaskViewModel, env: TaskScreenEnvironmen
     instructionData = instructionData,
     onInstructionDialogDismissed = { viewModel.instructionsDialogShown = true },
   ) {
-    AndroidView(
-      factory = { context ->
-        LinearLayout(context).apply {
-          id = View.generateViewId() * 11617
-          val fragment = env.dropPinTaskMapFragmentProvider.get()
-          fragment.arguments = bundleOf(Pair(TASK_ID_FRAGMENT_ARG_KEY, viewModel.task.id))
-          env.fragmentManager.beginTransaction().add(id, fragment, "Drop a pin fragment").commit()
-        }
-      }
+    FragmentContainer(
+      env = env,
+      taskId = viewModel.task.id,
+      fragmentProvider = env.dropPinTaskMapFragmentProvider,
     )
   }
 }
