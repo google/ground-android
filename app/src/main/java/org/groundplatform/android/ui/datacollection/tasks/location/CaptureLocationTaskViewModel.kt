@@ -17,6 +17,7 @@ package org.groundplatform.android.ui.datacollection.tasks.location
 
 import android.location.Location
 import androidx.annotation.VisibleForTesting
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
@@ -43,6 +44,8 @@ import org.groundplatform.android.ui.map.gms.toCoordinates
 import org.groundplatform.domain.model.geometry.Point
 
 class CaptureLocationTaskViewModel @Inject constructor() : AbstractMapTaskViewModel() {
+
+  val showPermissionDeniedDialog = mutableStateOf(false)
 
   private val _lastLocation = MutableStateFlow<Location?>(null)
   val lastLocation = _lastLocation.asStateFlow()

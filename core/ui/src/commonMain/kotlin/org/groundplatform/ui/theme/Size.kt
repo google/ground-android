@@ -29,6 +29,7 @@ data class Size(
   val jobActionIconSize: Dp = 36.dp,
   val progressIndicatorSize: Dp = 24.dp,
   val progressIndicatorStrokeWidth: Dp = 2.dp,
+  val taskViewPadding: Dp = 16.dp,
 )
 
 internal val LocalSizes = compositionLocalOf { Size() }
