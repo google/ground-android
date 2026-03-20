@@ -36,6 +36,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import org.groundplatform.android.common.Constants.CLUSTERING_ZOOM_THRESHOLD
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.model.Survey
@@ -256,9 +257,11 @@ internal constructor(
   /**
    * Deletes the given LOI and all associated data. This should only be called for free-form jobs.
    */
-  suspend fun deleteLoi(loi: LocationOfInterest) {
-    loiRepository.deleteLoi(loi)
-    selectLocationOfInterest(null)
+  fun deleteLoi(loi: LocationOfInterest) {
+    viewModelScope.launch {
+      loiRepository.deleteLoi(loi)
+      selectLocationOfInterest(null)
+    }
   }
 
   private fun getLocationOfInterestFeatures(survey: Survey): Flow<Set<Feature>> =
