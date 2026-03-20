@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.polygon
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -139,8 +140,7 @@ internal constructor(
   private val _isTooClose = MutableStateFlow(false)
   val isTooClose: StateFlow<Boolean> = _isTooClose.asStateFlow()
 
-  private val _showSelfIntersectionDialog = MutableSharedFlow<Unit>()
-  val showSelfIntersectionDialog = _showSelfIntersectionDialog.asSharedFlow()
+  val showSelfIntersectionDialog = mutableStateOf(false)
 
   var hasSelfIntersection: Boolean = false
     private set
@@ -203,7 +203,7 @@ internal constructor(
   @VisibleForTesting fun getLastVertex() = vertices.lastOrNull()
 
   private fun onSelfIntersectionDetected() {
-    viewModelScope.launch { _showSelfIntersectionDialog.emit(Unit) }
+    showSelfIntersectionDialog.value = true
   }
 
   /**

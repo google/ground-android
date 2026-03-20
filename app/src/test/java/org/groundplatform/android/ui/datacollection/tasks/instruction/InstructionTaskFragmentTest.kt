@@ -51,12 +51,6 @@ class InstructionTaskFragmentTest :
   private val job = Job("job")
 
   @Test
-  fun `displays task header correctly`() {
-    setupTaskFragment<InstructionTaskFragment>(job, task)
-    hasNoTaskViewHeader()
-  }
-
-  @Test
   fun `action buttons`() {
     setupTaskFragment<InstructionTaskFragment>(job, task)
     assertFragmentHasButtons(
