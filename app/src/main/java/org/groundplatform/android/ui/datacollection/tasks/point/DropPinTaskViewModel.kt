@@ -43,8 +43,9 @@ constructor(
 
   private var pinColor: Int = 0
   val features: MutableLiveData<Set<Feature>> = MutableLiveData()
+
   /** Whether the instructions dialog has been shown or not. */
-  var instructionsDialogShown: Boolean by localValueStore::dropPinInstructionsShown
+  override var instructionsDialogShown: Boolean by localValueStore::dropPinInstructionsShown
   var captureLocation: Boolean = false
 
   override fun initialize(

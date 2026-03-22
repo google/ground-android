@@ -51,50 +51,21 @@ fun TaskContainer(
   instructionData: InstructionData? = null,
   shouldShowHeader: Boolean = false,
   headerCard: @Composable (() -> Unit)? = null,
-  onInstructionDialogDismissed: () -> Unit = {},
+  showInstructionDialog: Boolean = false,
   content: @Composable () -> Unit,
 ) {
   val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
   val uiState by dataCollectionViewModel.uiState.collectAsStateWithLifecycle()
 
+  LaunchedEffect(Unit) {
+    if (showInstructionDialog) {
+      viewModel.showInstructionsDialog()
+    }
+  }
+
   val initialNameValue =
     (uiState as? DataCollectionUiState.Ready)?.loiName
       ?: dataCollectionViewModel.getTypedLoiNameOrEmpty()
-
-  fun handleNext() {
-    if (viewModel.task.isAddLoiTask) {
-      dataCollectionViewModel.loiNameDialogOpen.value = true
-    } else {
-      dataCollectionViewModel.onNextClicked(viewModel)
-    }
-  }
-
-  fun handleButtonClick(action: ButtonAction) {
-    when (action) {
-      ButtonAction.PREVIOUS -> dataCollectionViewModel.onPreviousClicked(viewModel)
-      ButtonAction.NEXT,
-      ButtonAction.DONE -> handleNext()
-      ButtonAction.SKIP -> {
-        check(viewModel.hasNoData()) { "User should not be able to skip a task with data." }
-        viewModel.setSkipped()
-        dataCollectionViewModel.onNextClicked(viewModel)
-      }
-      else -> viewModel.onButtonClick(action)
-    }
-  }
-
-  fun handleLoiNameConfirm(name: String) {
-    dataCollectionViewModel.loiNameDialogOpen.value = false
-    if (name.isNotBlank()) {
-      dataCollectionViewModel.setLoiName(name)
-      dataCollectionViewModel.onNextClicked(viewModel)
-    }
-  }
-
-  fun handleInstructionsDismiss() {
-    viewModel.showInstructionsDialog.value = false
-    onInstructionDialogDismissed()
-  }
 
   TaskContainerUi(
     taskHeader = taskHeader,
@@ -105,12 +76,12 @@ fun TaskContainer(
     isAddLoiTask = viewModel.task.isAddLoiTask,
     loiNameDialogOpen = dataCollectionViewModel.loiNameDialogOpen.value,
     initialNameValue = initialNameValue,
-    showInstructionsDialog = viewModel.showInstructionsDialog.value,
+    showInstructionsDialog = viewModel.instructionsDialogState.value,
     onFooterPositionUpdated = { dataCollectionViewModel.updateFooterPosition(it) },
-    onButtonClicked = ::handleButtonClick,
-    onLoiNameConfirm = ::handleLoiNameConfirm,
-    onLoiNameDismiss = { dataCollectionViewModel.loiNameDialogOpen.value = false },
-    onInstructionsDismiss = ::handleInstructionsDismiss,
+    onButtonClicked = { dataCollectionViewModel.onAction(it, viewModel) },
+    onLoiNameConfirm = { dataCollectionViewModel.onLoiNameDialogConfirm(it, viewModel) },
+    onLoiNameDismiss = { dataCollectionViewModel.onLoiNameDialogDismiss() },
+    onInstructionsDismiss = { viewModel.dismissInstructionsDialog() },
     content = content,
   )
 }

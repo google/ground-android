@@ -58,18 +58,12 @@ fun DrawAreaTaskScreen(viewModel: DrawAreaTaskViewModel, env: TaskScreenEnvironm
     LaunchedEffect(area) { Toast.makeText(context, message, Toast.LENGTH_LONG).show() }
   }
 
-  LaunchedEffect(Unit) {
-    if (!viewModel.instructionsDialogShown) {
-      viewModel.showInstructionsDialog.value = true
-    }
-  }
-
   TaskContainer(
     viewModel = viewModel,
     dataCollectionViewModel = env.dataCollectionViewModel,
     taskHeader = taskHeader,
     instructionData = instructionData,
-    onInstructionDialogDismissed = { viewModel.instructionsDialogShown = true },
+    showInstructionDialog = !viewModel.instructionsDialogShown,
   ) {
     FragmentContainer(
       env = env,

@@ -43,8 +43,6 @@ import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.datacollection.DataCollectionUiState
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
-import org.groundplatform.android.ui.datacollection.components.InstructionData
-import org.groundplatform.android.ui.datacollection.components.InstructionsDialog
 import org.groundplatform.android.ui.datacollection.components.LoiNameDialog
 import org.groundplatform.android.ui.datacollection.components.TaskFooter
 import org.groundplatform.android.ui.datacollection.components.TaskHeader
@@ -70,9 +68,6 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     TaskHeader(label = viewModel.task.label, iconResId = R.drawable.ic_question_answer)
   }
 
-  /** Represents the content to be shown in the task instructions, if any. */
-  open val instructionData: InstructionData? = null
-
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     if (savedInstanceState != null) {
@@ -95,8 +90,6 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     if (getTask().isAddLoiTask) {
       LoiNameDialog()
     }
-
-    instructionData?.let { InstructionsDialog(it) }
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -111,9 +104,6 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   /** Renders the body of the task. */
   @Composable abstract fun TaskBody()
-
-  /** Invoked when the instruction dialog is dismissed. */
-  open fun onInstructionDialogDismissed() {}
 
   /** Invoked after the task view gets attached to the fragment. */
   open fun onTaskViewAttached() {}
@@ -221,21 +211,6 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
           openAlertDialog = false
         },
         onTextFieldChange = { name = it },
-      )
-    }
-  }
-
-  @Composable
-  private fun InstructionsDialog(instructionData: InstructionData) {
-    var showInstructionsDialog by viewModel.showInstructionsDialog
-
-    if (showInstructionsDialog) {
-      InstructionsDialog(
-        data = instructionData,
-        onDismissed = {
-          showInstructionsDialog = false
-          onInstructionDialogDismissed()
-        },
       )
     }
   }

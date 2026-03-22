@@ -115,7 +115,7 @@ internal constructor(
   val cameraMoveEvents = _cameraMoveEvents.receiveAsFlow()
 
   /** Whether the instructions dialog has been shown or not. */
-  var instructionsDialogShown: Boolean by localValueStore::drawAreaInstructionsShown
+  override var instructionsDialogShown: Boolean by localValueStore::drawAreaInstructionsShown
 
   private val _polygonArea = MutableLiveData<String>()
   val polygonArea: LiveData<String> = _polygonArea

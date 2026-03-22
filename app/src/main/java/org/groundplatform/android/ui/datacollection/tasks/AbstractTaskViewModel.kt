@@ -43,7 +43,23 @@ abstract class AbstractTaskViewModel internal constructor() : AbstractViewModel(
   private val _taskDataFlow: MutableStateFlow<TaskData?> = MutableStateFlow(null)
   val taskTaskData: StateFlow<TaskData?> = _taskDataFlow.asStateFlow()
 
-  val showInstructionsDialog = mutableStateOf(false)
+  val instructionsDialogState = mutableStateOf(false)
+
+  /**
+   * Manages the persistent shown/hidden state of the instructions' dialog.
+   *
+   * Overriding implementations should provide a way to persist this state.
+   */
+  open var instructionsDialogShown: Boolean = false
+
+  fun showInstructionsDialog() {
+    instructionsDialogState.value = true
+  }
+
+  fun dismissInstructionsDialog() {
+    instructionsDialogState.value = false
+    instructionsDialogShown = true
+  }
 
   open val taskActionButtonStates: StateFlow<List<ButtonActionState>> by lazy {
     taskTaskData

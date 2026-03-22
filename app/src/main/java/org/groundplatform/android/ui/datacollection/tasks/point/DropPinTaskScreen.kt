@@ -16,7 +16,6 @@
 package org.groundplatform.android.ui.datacollection.tasks.point
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.datacollection.components.FragmentContainer
 import org.groundplatform.android.ui.datacollection.components.InstructionData
@@ -30,18 +29,12 @@ fun DropPinTaskScreen(viewModel: DropPinTaskViewModel, env: TaskScreenEnvironmen
   val instructionData =
     InstructionData(iconId = R.drawable.swipe_24, stringId = R.string.drop_a_pin_tooltip_text)
 
-  LaunchedEffect(Unit) {
-    if (viewModel.shouldShowInstructionsDialog()) {
-      viewModel.showInstructionsDialog.value = true
-    }
-  }
-
   TaskContainer(
     viewModel = viewModel,
     dataCollectionViewModel = env.dataCollectionViewModel,
     taskHeader = taskHeader,
     instructionData = instructionData,
-    onInstructionDialogDismissed = { viewModel.instructionsDialogShown = true },
+    showInstructionDialog = viewModel.shouldShowInstructionsDialog(),
   ) {
     FragmentContainer(
       env = env,

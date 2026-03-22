@@ -43,6 +43,7 @@ import org.groundplatform.android.repository.SubmissionRepository
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.common.EphemeralPopups
 import org.groundplatform.android.ui.common.ViewModelFactory
+import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 import org.groundplatform.android.ui.datacollection.tasks.date.DateTaskViewModel
@@ -186,6 +187,38 @@ internal constructor(
       updateDataAndInvalidateTasks(task, taskValue)
       moveToPreviousTask()
     }
+  }
+
+  fun onAction(action: ButtonAction, taskViewModel: AbstractTaskViewModel) {
+    when (action) {
+      ButtonAction.PREVIOUS -> onPreviousClicked(taskViewModel)
+      ButtonAction.NEXT,
+      ButtonAction.DONE -> {
+        if (taskViewModel.task.isAddLoiTask) {
+          loiNameDialogOpen.value = true
+        } else {
+          onNextClicked(taskViewModel)
+        }
+      }
+      ButtonAction.SKIP -> {
+        check(taskViewModel.hasNoData()) { "User should not be able to skip a task with data." }
+        taskViewModel.setSkipped()
+        onNextClicked(taskViewModel)
+      }
+      else -> taskViewModel.onButtonClick(action)
+    }
+  }
+
+  fun onLoiNameDialogConfirm(name: String, taskViewModel: AbstractTaskViewModel) {
+    loiNameDialogOpen.value = false
+    if (name.isNotBlank()) {
+      setLoiName(name)
+      onNextClicked(taskViewModel)
+    }
+  }
+
+  fun onLoiNameDialogDismiss() {
+    loiNameDialogOpen.value = false
   }
 
   fun getTaskViewModel(taskId: String): AbstractTaskViewModel? = withReady { state ->
