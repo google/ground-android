@@ -188,8 +188,9 @@ class GeometryTest {
 
   private fun multiPolygon(vararg polygons: Polygon) = MultiPolygon(polygons.asList())
 
-  private fun toCoordinateList(path: Path): List<Coordinates> =
-    path.map { Coordinates(it.first, it.second) }
+  private fun toCoordinateList(path: Path): List<Coordinates> = path.map {
+    Coordinates(it.first, it.second)
+  }
 
   companion object {
     private val COORDINATE_1 = Coordinates(10.0, 10.0)
