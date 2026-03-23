@@ -18,7 +18,6 @@ package org.groundplatform.android.data.remote.firebase.schema
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.protobuf.timestamp
-import java.util.Date
 import kotlinx.collections.immutable.persistentListOf
 import org.groundplatform.android.FakeData.FAKE_GENERAL_ACCESS
 import org.groundplatform.android.FakeData.USER
@@ -110,8 +109,8 @@ class LoiConverterTest {
         surveyId = "",
         job = survey.getJob(JOB_ID)!!,
         customId = "a custom loi",
-        created = AuditInfo(user = USER, Date(987654321L * 1000), Date(9876543210L * 1000)),
-        lastModified = AuditInfo(user = USER, Date(987654321L * 1000), Date(9876543210L * 1000)),
+        created = AuditInfo(user = USER, 987654321L * 1000, 9876543210L * 1000),
+        lastModified = AuditInfo(user = USER, 987654321L * 1000, 9876543210L * 1000),
         geometry = Point(coordinates = Coordinates(1.0, 2.0)),
         submissionCount = 1,
         properties = mapOf("property1" to "value1", "property2" to 123.0),

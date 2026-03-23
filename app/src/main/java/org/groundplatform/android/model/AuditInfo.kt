@@ -15,7 +15,7 @@
  */
 package org.groundplatform.android.model
 
-import java.util.Date
+import kotlin.time.Clock
 
 /**
  * User details and timestamp for creation or modification of a model object.
@@ -29,6 +29,6 @@ import java.util.Date
  */
 data class AuditInfo(
   val user: User,
-  val clientTimestamp: Date = Date(),
-  val serverTimestamp: Date? = null,
+  val clientTimestamp: Long = Clock.System.now().toEpochMilliseconds(),
+  val serverTimestamp: Long? = null,
 )

@@ -16,7 +16,6 @@
 
 package org.groundplatform.android.model.submission
 
-import java.util.Date
 import org.groundplatform.android.model.mutation.LocationOfInterestMutation
 import org.groundplatform.android.model.mutation.Mutation
 import org.groundplatform.android.model.mutation.SubmissionMutation
@@ -27,7 +26,7 @@ import org.groundplatform.android.model.mutation.SubmissionMutation
  */
 data class UploadQueueEntry(
   val userId: String,
-  val clientTimestamp: Date,
+  val clientTimestamp: Long,
   val uploadStatus: Mutation.SyncStatus,
   val loiMutation: LocationOfInterestMutation?,
   val submissionMutation: SubmissionMutation?,

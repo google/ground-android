@@ -17,8 +17,7 @@
 package org.groundplatform.android.data.remote.firebase.protobuf
 
 import com.google.common.truth.Truth.assertThat
-import java.time.Instant
-import java.util.Date
+import kotlin.time.Instant
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST_NAME
 import org.groundplatform.android.model.mutation.LocationOfInterestMutation
@@ -217,7 +216,7 @@ class LoiMutationConverterTest {
         syncStatus = syncStatus,
         userId = TEST_USER.id,
         surveyId = "surveyId",
-        clientTimestamp = Date.from(Instant.ofEpochSecond(987654321)),
+        clientTimestamp = Instant.fromEpochSeconds(987654321).toEpochMilliseconds(),
         submissionCount = 10,
         properties = mapOf(LOI_NAME_PROPERTY to LOCATION_OF_INTEREST_NAME),
         customId = "a custom loi",
@@ -238,7 +237,7 @@ class LoiMutationConverterTest {
         syncStatus = syncStatus,
         userId = TEST_USER.id,
         surveyId = "surveyId",
-        clientTimestamp = Date.from(Instant.ofEpochSecond(987654321)),
+        clientTimestamp = Instant.fromEpochSeconds(987654321).toEpochMilliseconds(),
         properties = mapOf(LOI_NAME_PROPERTY to LOCATION_OF_INTEREST_NAME),
         customId = "a custom loi",
         collectionId = "collectionId",
