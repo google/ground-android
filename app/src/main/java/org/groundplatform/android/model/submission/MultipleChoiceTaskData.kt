@@ -27,8 +27,9 @@ data class MultipleChoiceTaskData(
   val selectedOptionIds: List<String>,
 ) : TaskData {
 
-  fun getSelectedOptionsIdsExceptOther(): List<String> =
-    selectedOptionIds.filterNot { it.isOtherText() }
+  fun getSelectedOptionsIdsExceptOther(): List<String> = selectedOptionIds.filterNot {
+    it.isOtherText()
+  }
 
   fun isOtherTextSelected(): Boolean = selectedOptionIds.any { it.isOtherText() }
 

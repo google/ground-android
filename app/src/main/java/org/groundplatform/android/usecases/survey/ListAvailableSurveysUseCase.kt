@@ -57,10 +57,12 @@ constructor(
     val remoteSurveyFlow = surveyRepository.getRemoteSurveys(user)
 
     return combine(remoteSurveyFlow, getLocalSurveyList()) { remoteSurveys, localSurveys ->
-      val remoteSurveysWithOfflineStatus =
-        remoteSurveys.map { remoteSurvey -> addOfflineStatus(remoteSurvey, localSurveys) }
-      val localOnlySurveys =
-        localSurveys.filter { local -> remoteSurveys.none { it.id == local.id } }
+      val remoteSurveysWithOfflineStatus = remoteSurveys.map { remoteSurvey ->
+        addOfflineStatus(remoteSurvey, localSurveys)
+      }
+      val localOnlySurveys = localSurveys.filter { local ->
+        remoteSurveys.none { it.id == local.id }
+      }
       remoteSurveysWithOfflineStatus + localOnlySurveys
     }
   }

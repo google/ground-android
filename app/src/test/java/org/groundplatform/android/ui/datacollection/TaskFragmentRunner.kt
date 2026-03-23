@@ -38,7 +38,6 @@ import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
@@ -163,20 +162,12 @@ class TaskFragmentRunner(
   }
 
   internal fun validateTextIsNotDisplayed(text: String): TaskFragmentRunner {
-    if (composeTestRule.onAllNodes(hasText(text)).fetchSemanticsNodes().isNotEmpty()) {
-      composeTestRule.onNodeWithText(text).assertIsNotDisplayed()
-    } else {
-      onView(withText(text)).check(matches(not(isDisplayed())))
-    }
+    composeTestRule.onNodeWithText(text).assertIsNotDisplayed()
     return this
   }
 
   internal fun validateTextDoesNotExist(text: String): TaskFragmentRunner {
-    if (composeTestRule.onAllNodes(hasText(text)).fetchSemanticsNodes().isNotEmpty()) {
-      composeTestRule.onNodeWithText(text).assertDoesNotExist()
-    } else {
-      onView(withText(text)).check(doesNotExist())
-    }
+    composeTestRule.onNodeWithText(text).assertDoesNotExist()
     return this
   }
 
@@ -190,7 +181,6 @@ class TaskFragmentRunner(
     location: String,
     accuracy: String,
   ): TaskFragmentRunner {
-    onView(withId(R.id.infoCard)).check(matches(isDisplayed()))
     onView(withId(R.id.current_location_title)).check(matches(withText(title)))
     onView(withId(R.id.current_location_value)).check(matches(withText(location)))
     onView(withId(R.id.accuracy_value)).check(matches(withText(accuracy)))

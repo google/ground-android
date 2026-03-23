@@ -79,11 +79,10 @@ constructor(
     dropMarker(point)
   }
 
-  private fun dropMarker(point: Point) =
-    viewModelScope.launch {
-      val feature = createFeature(point)
-      features.postValue(setOf(feature))
-    }
+  private fun dropMarker(point: Point) = viewModelScope.launch {
+    val feature = createFeature(point)
+    features.postValue(setOf(feature))
+  }
 
   /** Creates a new map [Feature] representing the point placed by the user. */
   private suspend fun createFeature(point: Point): Feature =

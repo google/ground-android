@@ -36,6 +36,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import org.groundplatform.android.common.Constants.CLUSTERING_ZOOM_THRESHOLD
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.model.Survey
@@ -138,17 +139,16 @@ internal constructor(
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
 
     @OptIn(FlowPreview::class)
-    mapLoiFeatures =
-      activeSurvey.flatMapLatest {
-        if (it == null) flowOf(setOf())
-        else
-          getLocationOfInterestFeatures(it)
-            .debounce(1000.milliseconds)
-            .distinctUntilChanged()
-            .combine(selectedLoiIdFlow) { loiFeatures, selectedLoiId ->
-              updatedLoiSelectedStates(loiFeatures, selectedLoiId)
-            }
-      }
+    mapLoiFeatures = activeSurvey.flatMapLatest {
+      if (it == null) flowOf(setOf())
+      else
+        getLocationOfInterestFeatures(it)
+          .debounce(1000.milliseconds)
+          .distinctUntilChanged()
+          .combine(selectedLoiIdFlow) { loiFeatures, selectedLoiId ->
+            updatedLoiSelectedStates(loiFeatures, selectedLoiId)
+          }
+    }
 
     isZoomedInFlow =
       getCurrentCameraPosition().mapNotNull { it.zoomLevel }.map { it >= CLUSTERING_ZOOM_THRESHOLD }
@@ -221,8 +221,9 @@ internal constructor(
         // The feature is not in view anymore.
         featureClicked.value = null
       }
-      val jobCard =
-        jobs.map { AdHocDataCollectionButtonData(canCollectData = canUserSubmitData, job = it) }
+      val jobCard = jobs.map {
+        AdHocDataCollectionButtonData(canCollectData = canUserSubmitData, job = it)
+      }
       Pair(loiCard, jobCard)
     }
 
@@ -256,9 +257,11 @@ internal constructor(
   /**
    * Deletes the given LOI and all associated data. This should only be called for free-form jobs.
    */
-  suspend fun deleteLoi(loi: LocationOfInterest) {
-    loiRepository.deleteLoi(loi)
-    selectLocationOfInterest(null)
+  fun deleteLoi(loi: LocationOfInterest) {
+    viewModelScope.launch {
+      loiRepository.deleteLoi(loi)
+      selectLocationOfInterest(null)
+    }
   }
 
   private fun getLocationOfInterestFeatures(survey: Survey): Flow<Set<Feature>> =
