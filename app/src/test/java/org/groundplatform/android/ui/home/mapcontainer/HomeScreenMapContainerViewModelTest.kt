@@ -45,9 +45,11 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
+import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.robolectric.RobolectricTestRunner
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
@@ -59,7 +61,6 @@ class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
   @Inject lateinit var activateSurvey: ActivateSurveyUseCase
   @BindValue @Mock lateinit var loiRepository: LocationOfInterestRepository
 
-  @OptIn(ExperimentalCoroutinesApi::class)
   @Before
   override fun setUp() {
     super.setUp()
@@ -88,6 +89,18 @@ class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
       .isEqualTo(SelectedLoiSheetData(canCollectData = true, LOCATION_OF_INTEREST, 0, true))
     assertThat(pair.second)
       .isEqualTo(listOf(AdHocDataCollectionButtonData(canCollectData = true, ADHOC_JOB)))
+  }
+
+  @Test
+  fun `deleteLoi deletes the loi and deselects it`() = runWithTestDispatcher {
+    viewModel.onFeatureClicked(setOf(LOCATION_OF_INTEREST_FEATURE))
+    assertThat(viewModel.featureClicked.value).isNotNull()
+
+    viewModel.deleteLoi(LOCATION_OF_INTEREST)
+    advanceUntilIdle()
+
+    verify(loiRepository).deleteLoi(LOCATION_OF_INTEREST)
+    assertThat(viewModel.featureClicked.value).isNull()
   }
 
   companion object {

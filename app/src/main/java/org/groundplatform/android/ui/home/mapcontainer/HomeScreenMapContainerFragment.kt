@@ -124,7 +124,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
   /** Invoked when user clicks delete on a site. */
   private fun onDeleteSite(loiData: SelectedLoiSheetData) {
-    launchWhenStarted { mapContainerViewModel.deleteLoi(loiData.loi) }
+    mapContainerViewModel.deleteLoi(loiData.loi)
   }
 
   override fun onCreateView(
