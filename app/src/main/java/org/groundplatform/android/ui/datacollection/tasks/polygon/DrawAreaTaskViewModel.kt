@@ -15,7 +15,6 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.polygon
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
