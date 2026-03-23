@@ -37,7 +37,6 @@ import org.groundplatform.android.model.map.Bounds
 import org.groundplatform.android.model.mutation.LocationOfInterestMutation
 import org.groundplatform.android.model.mutation.Mutation
 import org.groundplatform.android.model.mutation.Mutation.SyncStatus
-import org.groundplatform.android.proto.Survey.DataVisibility
 import org.groundplatform.android.system.auth.AuthenticationManager
 import org.groundplatform.android.ui.map.gms.GmsExt.contains
 import org.groundplatform.domain.model.geometry.Geometry
