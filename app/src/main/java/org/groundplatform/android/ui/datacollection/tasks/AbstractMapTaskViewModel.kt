@@ -30,8 +30,9 @@ abstract class AbstractMapTaskViewModel internal constructor() : AbstractTaskVie
 
   private var lastCameraPosition: CameraPosition? = null
 
-  fun updateLocationLock(newState: LocationLockEnabledState) =
-    _enableLocationLockFlow.update { newState }
+  fun updateLocationLock(newState: LocationLockEnabledState) = _enableLocationLockFlow.update {
+    newState
+  }
 
   fun enableLocationLock() {
     if (_enableLocationLockFlow.value == LocationLockEnabledState.NEEDS_ENABLE) {

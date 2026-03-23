@@ -192,7 +192,9 @@ private fun MessageBuilder.putAll(fieldName: MessageFieldName, value: MessageMap
 }
 
 fun <T : Message> KClass<T>.getFieldProperties(): List<KProperty<*>> =
-  declaredMemberProperties.filter { it.isMessageFieldProperty() }
+  declaredMemberProperties.filter {
+    it.isMessageFieldProperty()
+  }
 
 private fun KProperty<*>.isMessageFieldProperty(): Boolean =
   name.endsWith("_") &&

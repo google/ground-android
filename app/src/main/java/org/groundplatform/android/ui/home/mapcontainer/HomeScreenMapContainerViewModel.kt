@@ -139,17 +139,16 @@ internal constructor(
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
 
     @OptIn(FlowPreview::class)
-    mapLoiFeatures =
-      activeSurvey.flatMapLatest {
-        if (it == null) flowOf(setOf())
-        else
-          getLocationOfInterestFeatures(it)
-            .debounce(1000.milliseconds)
-            .distinctUntilChanged()
-            .combine(selectedLoiIdFlow) { loiFeatures, selectedLoiId ->
-              updatedLoiSelectedStates(loiFeatures, selectedLoiId)
-            }
-      }
+    mapLoiFeatures = activeSurvey.flatMapLatest {
+      if (it == null) flowOf(setOf())
+      else
+        getLocationOfInterestFeatures(it)
+          .debounce(1000.milliseconds)
+          .distinctUntilChanged()
+          .combine(selectedLoiIdFlow) { loiFeatures, selectedLoiId ->
+            updatedLoiSelectedStates(loiFeatures, selectedLoiId)
+          }
+    }
 
     isZoomedInFlow =
       getCurrentCameraPosition().mapNotNull { it.zoomLevel }.map { it >= CLUSTERING_ZOOM_THRESHOLD }
@@ -222,8 +221,9 @@ internal constructor(
         // The feature is not in view anymore.
         featureClicked.value = null
       }
-      val jobCard =
-        jobs.map { AdHocDataCollectionButtonData(canCollectData = canUserSubmitData, job = it) }
+      val jobCard = jobs.map {
+        AdHocDataCollectionButtonData(canCollectData = canUserSubmitData, job = it)
+      }
       Pair(loiCard, jobCard)
     }
 

@@ -67,15 +67,14 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
    * Attempts to update persisted data associated with a [Survey] in the local database. If the
    * provided survey does not exist, inserts the given survey into the database.
    */
-  override suspend fun insertOrUpdateSurvey(survey: Survey) =
-    localDatabase.withTransaction {
-      // Update survey.
-      surveyDao.insertOrUpdate(survey.toLocalDataStoreObject())
-      // Add or update jobs and tasks.
-      insertOrUpdateJobs(survey.id, survey.jobs)
-      // Delete removed jobs.
-      jobDao.deleteNotIn(survey.id, survey.jobs.map { it.id })
-    }
+  override suspend fun insertOrUpdateSurvey(survey: Survey) = localDatabase.withTransaction {
+    // Update survey.
+    surveyDao.insertOrUpdate(survey.toLocalDataStoreObject())
+    // Add or update jobs and tasks.
+    insertOrUpdateJobs(survey.id, survey.jobs)
+    // Delete removed jobs.
+    jobDao.deleteNotIn(survey.id, survey.jobs.map { it.id })
+  }
 
   /**
    * Returns the [Survey] with the given ID from the local database. Returns `null` if retrieval
@@ -138,6 +137,7 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
     insertOrUpdateTasks(job.id, job.tasks.values)
   }
 
-  private suspend fun insertOrUpdateJobs(surveyId: String, jobs: Collection<Job>) =
-    jobs.forEach { insertOrUpdateJob(surveyId, it) }
+  private suspend fun insertOrUpdateJobs(surveyId: String, jobs: Collection<Job>) = jobs.forEach {
+    insertOrUpdateJob(surveyId, it)
+  }
 }

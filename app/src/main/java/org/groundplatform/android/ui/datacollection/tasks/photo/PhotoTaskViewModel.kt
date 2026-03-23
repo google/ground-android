@@ -58,6 +58,7 @@ class PhotoTaskViewModel @Inject constructor(private val userMediaRepository: Us
         Uri.EMPTY
       }
     }
+  }
 
   override fun getButtonStates(taskData: TaskData?): List<ButtonActionState> =
     listOf(

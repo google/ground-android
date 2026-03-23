@@ -16,7 +16,6 @@
 package org.groundplatform.android.data.remote.firebase.protobuf
 
 import com.google.protobuf.timestamp
-import java.util.Date
 import kotlinx.collections.immutable.toImmutableMap
 import org.groundplatform.android.model.User
 import org.groundplatform.android.model.mutation.LocationOfInterestMutation
@@ -155,7 +154,7 @@ private fun toTaskData(id: String, newTaskData: TaskData) = taskData {
   }
 }
 
-private fun createAuditInfoMessage(user: User, timestamp: Date) = auditInfo {
+private fun createAuditInfoMessage(user: User, timestamp: Long) = auditInfo {
   userId = user.id
   displayName = user.displayName
   emailAddress = user.email
@@ -164,7 +163,7 @@ private fun createAuditInfoMessage(user: User, timestamp: Date) = auditInfo {
   serverTimestamp = timestamp.toMessage()
 }
 
-private fun Date.toMessage() = timestamp { seconds = time / 1000 }
+private fun Long.toMessage() = timestamp { seconds = this@toMessage / 1000 }
 
 private fun Geometry.toMessage() =
   when (this) {

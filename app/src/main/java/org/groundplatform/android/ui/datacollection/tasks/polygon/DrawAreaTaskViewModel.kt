@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.polygon
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -392,22 +393,21 @@ internal constructor(
    *
    * This coroutine runs on [viewModelScope] to ensure lifecycle safety.
    */
-  private fun refreshMap() =
-    viewModelScope.launch {
-      if (vertices.isEmpty()) {
-        _draftArea.emit(null)
-        draftTag = null
+  private fun refreshMap() = viewModelScope.launch {
+    if (vertices.isEmpty()) {
+      _draftArea.emit(null)
+      draftTag = null
+    } else {
+      if (draftTag == null) {
+        val feature = buildPolygonFeature()
+        draftTag = feature.tag
+        _draftArea.emit(feature)
       } else {
-        if (draftTag == null) {
-          val feature = buildPolygonFeature()
-          draftTag = feature.tag
-          _draftArea.emit(feature)
-        } else {
-          val feature = buildPolygonFeature(id = draftTag!!.id)
-          _draftUpdates.tryEmit(feature)
-        }
+        val feature = buildPolygonFeature(id = draftTag!!.id)
+        _draftUpdates.tryEmit(feature)
       }
     }
+  }
 
   private suspend fun buildPolygonFeature(id: String? = null) =
     Feature(
