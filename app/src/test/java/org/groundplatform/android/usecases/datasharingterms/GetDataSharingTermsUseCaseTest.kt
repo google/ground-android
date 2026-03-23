@@ -54,14 +54,7 @@ class GetDataSharingTermsUseCaseTest : BaseHiltTest() {
 
   @Test
   fun `Fails with custom exception if custom data sharing terms are invalid`() {
-    val survey =
-      SURVEY.copy(
-        dataSharingTerms =
-          dataSharingTerms {
-            type = DataSharingTerms.Type.CUSTOM
-            customText = ""
-          }
-      )
+    val survey = SURVEY.copy(dataSharingTerms = Survey.DataSharingTerms.Custom(""))
     activateSurvey(survey)
 
     val result = getDataSharingTermsUseCase()

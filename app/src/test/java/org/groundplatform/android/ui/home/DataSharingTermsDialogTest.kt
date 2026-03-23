@@ -25,7 +25,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlin.test.Test
 import org.groundplatform.android.R
 import org.groundplatform.android.getString
-import org.groundplatform.android.proto.Survey
+import org.groundplatform.android.model.Survey
 import org.junit.Rule
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -38,10 +38,7 @@ class DataSharingTermsDialogTest {
   @Test
   fun `title is displayed`() {
     composeTestRule.setContent {
-      DataSharingTermsDialog(
-        dataSharingTerms =
-          Survey.DataSharingTerms.newBuilder().setType(Survey.DataSharingTerms.Type.PRIVATE).build()
-      )
+      DataSharingTermsDialog(dataSharingTerms = Survey.DataSharingTerms.Private)
     }
 
     assertDialogVisible(true)
@@ -50,10 +47,7 @@ class DataSharingTermsDialogTest {
   @Test
   fun `verify private data sharing terms`() {
     composeTestRule.setContent {
-      DataSharingTermsDialog(
-        dataSharingTerms =
-          Survey.DataSharingTerms.newBuilder().setType(Survey.DataSharingTerms.Type.PRIVATE).build()
-      )
+      DataSharingTermsDialog(dataSharingTerms = Survey.DataSharingTerms.Private)
     }
 
     val expectedHtml =
@@ -65,12 +59,7 @@ class DataSharingTermsDialogTest {
   @Test
   fun `verify public data sharing terms`() {
     composeTestRule.setContent {
-      DataSharingTermsDialog(
-        dataSharingTerms =
-          Survey.DataSharingTerms.newBuilder()
-            .setType(Survey.DataSharingTerms.Type.PUBLIC_CC0)
-            .build()
-      )
+      DataSharingTermsDialog(dataSharingTerms = Survey.DataSharingTerms.Public)
     }
 
     val expectedHtml =
@@ -82,13 +71,7 @@ class DataSharingTermsDialogTest {
   @Test
   fun `verify custom data sharing terms`() {
     composeTestRule.setContent {
-      DataSharingTermsDialog(
-        dataSharingTerms =
-          Survey.DataSharingTerms.newBuilder()
-            .setType(Survey.DataSharingTerms.Type.CUSTOM)
-            .setCustomText("Custom text")
-            .build()
-      )
+      DataSharingTermsDialog(dataSharingTerms = Survey.DataSharingTerms.Custom("Custom text"))
     }
 
     val expectedHtml = "<body><p>Custom text</p></body>"
@@ -98,7 +81,7 @@ class DataSharingTermsDialogTest {
   @Test
   fun `verify message for no terms`() {
     composeTestRule.setContent {
-      DataSharingTermsDialog(dataSharingTerms = Survey.DataSharingTerms.getDefaultInstance())
+      DataSharingTermsDialog(dataSharingTerms = Survey.DataSharingTerms.Unspecified)
     }
 
     val expectedHtml = "<body><p><em>No terms to display.</em></p></body>"
@@ -108,10 +91,7 @@ class DataSharingTermsDialogTest {
   @Test
   fun `cancel button click dismisses the dialog`() {
     composeTestRule.setContent {
-      DataSharingTermsDialog(
-        dataSharingTerms =
-          Survey.DataSharingTerms.newBuilder().setType(Survey.DataSharingTerms.Type.PRIVATE).build()
-      )
+      DataSharingTermsDialog(dataSharingTerms = Survey.DataSharingTerms.Private)
     }
 
     composeTestRule.onNodeWithText(getString(R.string.cancel)).performClick()
@@ -125,10 +105,7 @@ class DataSharingTermsDialogTest {
 
     composeTestRule.setContent {
       DataSharingTermsDialog(
-        dataSharingTerms =
-          Survey.DataSharingTerms.newBuilder()
-            .setType(Survey.DataSharingTerms.Type.PRIVATE)
-            .build(),
+        dataSharingTerms = Survey.DataSharingTerms.Private,
         consentGivenCallback = { callbackCalled = true },
       )
     }
