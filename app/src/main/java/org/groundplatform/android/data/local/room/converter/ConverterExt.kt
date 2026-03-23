@@ -50,6 +50,8 @@ import org.groundplatform.android.data.local.room.relations.ConditionEntityAndRe
 import org.groundplatform.android.data.local.room.relations.JobEntityAndRelations
 import org.groundplatform.android.data.local.room.relations.SurveyEntityAndRelations
 import org.groundplatform.android.data.local.room.relations.TaskEntityAndRelations
+import org.groundplatform.android.data.remote.firebase.protobuf.toModel
+import org.groundplatform.android.data.remote.firebase.protobuf.toProto
 import org.groundplatform.android.model.AuditInfo
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.User
@@ -70,6 +72,7 @@ import org.groundplatform.android.model.task.MultipleChoice
 import org.groundplatform.android.model.task.Option
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.model.task.TaskId
+import org.groundplatform.android.proto.Survey as SurveyProto
 import org.groundplatform.android.proto.Survey.DataSharingTerms
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.Geometry
@@ -407,16 +410,16 @@ fun SurveyEntityAndRelations.toModelObject(): Survey {
     surveyEntity.description!!,
     jobMap.toPersistentMap(),
     surveyEntity.acl?.toStringMap()!!,
-    surveyEntity.dataSharingTerms?.let {
-      DataSharingTerms.parseFrom(surveyEntity.dataSharingTerms)
-    },
+    surveyEntity.dataSharingTerms
+      ?.let { DataSharingTerms.parseFrom(surveyEntity.dataSharingTerms) }
+      ?.toModel(),
     surveyEntity.generalAccess.toGeneralAccess(),
   )
 }
 
-fun Int.toGeneralAccess(): org.groundplatform.android.proto.Survey.GeneralAccess =
-  org.groundplatform.android.proto.Survey.GeneralAccess.entries.find { it.number == this }
-    ?: org.groundplatform.android.proto.Survey.GeneralAccess.UNRECOGNIZED
+fun Int.toGeneralAccess(): Survey.GeneralAccess =
+  SurveyProto.GeneralAccess.entries.find { it.number == this }?.toModel()
+    ?: Survey.GeneralAccess.UNRECOGNIZED
 
 private fun JSONObject.toStringMap(): Map<String, String> {
   val builder = mutableMapOf<String, String>()
@@ -430,9 +433,9 @@ fun Survey.toLocalDataStoreObject() =
     title = title,
     description = description,
     acl = JSONObject(acl as Map<*, *>),
-    dataSharingTerms = dataSharingTerms?.toByteArray(),
-    generalAccess = generalAccess.ordinal,
-    dataVisibility = dataVisibility?.ordinal,
+    dataSharingTerms = dataSharingTerms?.toProto()?.toByteArray(),
+    generalAccess = generalAccess.toProto().ordinal,
+    dataVisibility = dataVisibility?.toProto()?.ordinal,
   )
 
 fun Task.toLocalDataStoreObject(jobId: String?) =

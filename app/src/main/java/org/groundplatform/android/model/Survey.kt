@@ -16,7 +16,6 @@
 package org.groundplatform.android.model
 
 import org.groundplatform.android.model.job.Job
-import org.groundplatform.android.proto.Survey
 
 /**
  * Configuration, schema, and Access Control Lists (ACLs) for a single survey.
@@ -37,9 +36,9 @@ data class Survey(
   val description: String,
   val jobMap: Map<String, Job>,
   val acl: Map<String, String> = mapOf(),
-  val dataSharingTerms: Survey.DataSharingTerms? = null,
-  val generalAccess: Survey.GeneralAccess,
-  val dataVisibility: Survey.DataVisibility? = null,
+  val dataSharingTerms: DataSharingTerms? = null,
+  val generalAccess: GeneralAccess,
+  val dataVisibility: DataVisibility? = null,
 ) {
   val jobs: Collection<Job>
     get() = jobMap.values
@@ -53,5 +52,26 @@ data class Survey(
   fun getRole(email: String): Role {
     val roleString = acl[email] ?: error("ACL not found for email $email in survey $title")
     return Role.valueOf(roleString.uppercase())
+  }
+
+  enum class GeneralAccess {
+    RESTRICTED,
+    PUBLIC,
+    UNLISTED,
+    GENERAL_ACCESS_UNSPECIFIED,
+    UNRECOGNIZED,
+  }
+
+  enum class DataVisibility {
+    ALL_SURVEY_PARTICIPANTS,
+    CONTRIBUTOR_AND_ORGANIZERS,
+    UNSPECIFIED
+  }
+
+  sealed class DataSharingTerms {
+    data object Private : DataSharingTerms()
+    data object Public : DataSharingTerms()
+    data object Unspecified : DataSharingTerms()
+    data class Custom(val text: String) : DataSharingTerms()
   }
 }

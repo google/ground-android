@@ -43,7 +43,6 @@ import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.job.getDefaultColor
 import org.groundplatform.android.model.locationofinterest.LocationOfInterest
-import org.groundplatform.android.proto.Survey.DataSharingTerms
 import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.MapStateRepository
 import org.groundplatform.android.repository.OfflineAreaRepository
@@ -194,7 +193,7 @@ internal constructor(
     }
   }
 
-  fun getDataSharingTerms(): Result<DataSharingTerms?> = getDataSharingTermsUseCase()
+  fun getDataSharingTerms(): Result<Survey.DataSharingTerms?> = getDataSharingTermsUseCase()
 
   /**
    * Returns a flow of [DataCollectionEntryPointData] associated with the active survey's LOIs and
