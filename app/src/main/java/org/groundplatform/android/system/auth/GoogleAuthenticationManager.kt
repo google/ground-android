@@ -85,11 +85,10 @@ constructor(
     showSignInDialog()
   }
 
-  private fun showSignInDialog() =
-    activityStreams.withActivity {
-      val signInIntent = getGoogleSignInClient(it).signInIntent
-      it.startActivityForResult(signInIntent, signInRequestCode)
-    }
+  private fun showSignInDialog() = activityStreams.withActivity {
+    val signInIntent = getGoogleSignInClient(it).signInIntent
+    it.startActivityForResult(signInIntent, signInRequestCode)
+  }
 
   override fun signOut() {
     firebaseAuth.signOut()
