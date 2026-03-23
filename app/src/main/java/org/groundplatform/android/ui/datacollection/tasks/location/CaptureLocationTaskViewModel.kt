@@ -50,11 +50,10 @@ class CaptureLocationTaskViewModel @Inject constructor() : AbstractMapTaskViewMo
   private val _lastLocation = MutableStateFlow<Location?>(null)
   val lastLocation = _lastLocation.asStateFlow()
 
-  val isCaptureEnabled: Flow<Boolean> =
-    _lastLocation.map { location ->
-      val accuracy: Float = location?.getAccuracyOrNull()?.toFloat() ?: Float.MAX_VALUE
-      location != null && accuracy <= ACCURACY_THRESHOLD_IN_M
-    }
+  val isCaptureEnabled: Flow<Boolean> = _lastLocation.map { location ->
+    val accuracy: Float = location?.getAccuracyOrNull()?.toFloat() ?: Float.MAX_VALUE
+    location != null && accuracy <= ACCURACY_THRESHOLD_IN_M
+  }
 
   override val taskActionButtonStates: StateFlow<List<ButtonActionState>> by lazy {
     combine(isCaptureEnabled, taskTaskData) { captureEnabled, taskData ->
