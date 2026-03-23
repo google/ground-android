@@ -52,16 +52,19 @@ fun SurveyModel.DataSharingTerms.toProto(): SurveyProto.DataSharingTerms =
   SurveyProto.DataSharingTerms.newBuilder()
     .apply {
       when (this@toProto) {
-        is SurveyModel.DataSharingTerms.Private -> type = SurveyProto.DataSharingTerms.Type.PRIVATE
-        is SurveyModel.DataSharingTerms.Public ->
+        is SurveyModel.DataSharingTerms.Private -> {
+          type = SurveyProto.DataSharingTerms.Type.PRIVATE
+        }
+        is SurveyModel.DataSharingTerms.Public -> {
           type = SurveyProto.DataSharingTerms.Type.PUBLIC_CC0
-
+        }
         is SurveyModel.DataSharingTerms.Custom -> {
           type = SurveyProto.DataSharingTerms.Type.CUSTOM
           customText = this@toProto.text
         }
-        SurveyModel.DataSharingTerms.Unspecified ->
+        SurveyModel.DataSharingTerms.Unspecified -> {
           type = SurveyProto.DataSharingTerms.Type.TYPE_UNSPECIFIED
+        }
       }
     }
     .build()

@@ -221,7 +221,8 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   @Test
   fun `should not load shared LOIs when visibility is not ALL_SURVEY_PARTICIPANTS`() =
     runWithTestDispatcher {
-      val survey = TEST_SURVEY.copy(dataVisibility = Survey.DataVisibility.CONTRIBUTOR_AND_ORGANIZERS)
+      val survey =
+        TEST_SURVEY.copy(dataVisibility = Survey.DataVisibility.CONTRIBUTOR_AND_ORGANIZERS)
       fakeRemoteDataStore.surveys = listOf(survey)
 
       val predefinedLoi = FakeData.LOCATION_OF_INTEREST.copy(id = "predefined_id")

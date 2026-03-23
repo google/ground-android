@@ -24,7 +24,6 @@ import org.groundplatform.android.data.remote.firebase.protobuf.toModel
 import org.groundplatform.android.model.Survey as SurveyModel
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.proto.Survey as SurveyProto
-import org.groundplatform.android.proto.Survey
 import org.groundplatform.android.proto.Survey.DataVisibility
 
 /** Converts between Firestore documents and [SurveyModel] instances. */
@@ -56,17 +55,6 @@ internal object SurveyConverter {
 
   /** Convert a list of jobs into a map for easy lookup. */
   private fun convertJobsToMap(jobs: List<Job>): Map<String, Job> = jobs.associateBy { it.id }
-
-  /** Extract dataSharingTerms from survey. */
-  private fun getDataSharingTerms(surveyProto: SurveyProto): Survey.DataSharingTerms? =
-    if (surveyProto.dataSharingTerms.type == Survey.DataSharingTerms.Type.TYPE_UNSPECIFIED) {
-      null
-    } else {
-      surveyProto.dataSharingTerms
-    }
-
-  private fun getGeneralAccess(surveyProto: SurveyProto): SurveyProto.GeneralAccess =
-    surveyProto.generalAccess
 
   /** Build SurveyModel from parsed data. */
   private fun createSurveyModel(

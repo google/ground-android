@@ -65,13 +65,16 @@ data class Survey(
   enum class DataVisibility {
     ALL_SURVEY_PARTICIPANTS,
     CONTRIBUTOR_AND_ORGANIZERS,
-    UNSPECIFIED
+    UNSPECIFIED,
   }
 
   sealed class DataSharingTerms {
     data object Private : DataSharingTerms()
+
     data object Public : DataSharingTerms()
+
     data object Unspecified : DataSharingTerms()
+
     data class Custom(val text: String) : DataSharingTerms()
   }
 }
