@@ -29,6 +29,7 @@ import org.groundplatform.android.FakeData
 import org.groundplatform.android.data.local.stores.LocalLocationOfInterestStore
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.data.sync.MutationSyncWorkManager
+import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.map.Bounds
 import org.groundplatform.android.model.mutation.Mutation.Type.CREATE
 import org.groundplatform.android.proto.Survey.DataVisibility
@@ -198,7 +199,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   @Test
   fun `should load all types of LOIs when visibility is ALL_SURVEY_PARTICIPANTS`() =
     runWithTestDispatcher {
-      val survey = TEST_SURVEY.copy(dataVisibility = DataVisibility.ALL_SURVEY_PARTICIPANTS)
+      val survey = TEST_SURVEY.copy(dataVisibility = Survey.DataVisibility.ALL_SURVEY_PARTICIPANTS)
       fakeRemoteDataStore.surveys = listOf(survey)
 
       val predefinedLoi = FakeData.LOCATION_OF_INTEREST.copy(id = "predefined_id")
@@ -220,7 +221,8 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   @Test
   fun `should not load shared LOIs when visibility is not ALL_SURVEY_PARTICIPANTS`() =
     runWithTestDispatcher {
-      val survey = TEST_SURVEY.copy(dataVisibility = DataVisibility.CONTRIBUTOR_AND_ORGANIZERS)
+      val survey =
+        TEST_SURVEY.copy(dataVisibility = Survey.DataVisibility.CONTRIBUTOR_AND_ORGANIZERS)
       fakeRemoteDataStore.surveys = listOf(survey)
 
       val predefinedLoi = FakeData.LOCATION_OF_INTEREST.copy(id = "predefined_id")

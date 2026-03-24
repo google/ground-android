@@ -29,7 +29,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.groundplatform.android.R
-import org.groundplatform.android.proto.Survey
+import org.groundplatform.android.model.Survey
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.components.HtmlText
 import org.groundplatform.ui.theme.AppTheme
@@ -42,15 +42,15 @@ private fun getResourceAsText(path: String): String =
 
 @Composable
 private fun getDataSharingTermsText(dataSharingTerms: Survey.DataSharingTerms): String =
-  when (dataSharingTerms.type) {
-    Survey.DataSharingTerms.Type.PRIVATE -> stringResource(R.string.data_sharing_private_message)
-    Survey.DataSharingTerms.Type.PUBLIC_CC0 ->
+  when (dataSharingTerms) {
+    Survey.DataSharingTerms.Private -> stringResource(R.string.data_sharing_private_message)
+    Survey.DataSharingTerms.Public ->
       buildString {
         append(stringResource(R.string.data_sharing_public_message))
         append("\n")
         append(getResourceAsText("/assets/licenses/cc0_license.txt"))
       }
-    Survey.DataSharingTerms.Type.CUSTOM -> dataSharingTerms.customText
+    is Survey.DataSharingTerms.Custom -> dataSharingTerms.text
     else -> stringResource(R.string.data_sharing_no_terms)
   }
 
@@ -109,26 +109,14 @@ fun DataSharingTermsDialog(
 @Preview
 @ExcludeFromJacocoGeneratedReport
 private fun DataSharingTermsDialogPreviewWithPrivateType() {
-  AppTheme {
-    DataSharingTermsDialog(
-      dataSharingTerms =
-        Survey.DataSharingTerms.newBuilder().setType(Survey.DataSharingTerms.Type.PRIVATE).build()
-    )
-  }
+  AppTheme { DataSharingTermsDialog(dataSharingTerms = Survey.DataSharingTerms.Private) }
 }
 
 @Composable
 @Preview
 @ExcludeFromJacocoGeneratedReport
 private fun DataSharingTermsDialogPreviewWithPublicType() {
-  AppTheme {
-    DataSharingTermsDialog(
-      dataSharingTerms =
-        Survey.DataSharingTerms.newBuilder()
-          .setType(Survey.DataSharingTerms.Type.PUBLIC_CC0)
-          .build()
-    )
-  }
+  AppTheme { DataSharingTermsDialog(dataSharingTerms = Survey.DataSharingTerms.Public) }
 }
 
 @Composable
@@ -136,13 +124,7 @@ private fun DataSharingTermsDialogPreviewWithPublicType() {
 @ExcludeFromJacocoGeneratedReport
 private fun DataSharingTermsDialogPreviewWithCustomType() {
   AppTheme {
-    DataSharingTermsDialog(
-      dataSharingTerms =
-        Survey.DataSharingTerms.newBuilder()
-          .setType(Survey.DataSharingTerms.Type.CUSTOM)
-          .setCustomText("Custom text")
-          .build()
-    )
+    DataSharingTermsDialog(dataSharingTerms = Survey.DataSharingTerms.Custom("Custom text"))
   }
 }
 
@@ -150,7 +132,5 @@ private fun DataSharingTermsDialogPreviewWithCustomType() {
 @Preview
 @ExcludeFromJacocoGeneratedReport
 private fun DataSharingTermsDialogPreviewWithNoType() {
-  AppTheme {
-    DataSharingTermsDialog(dataSharingTerms = Survey.DataSharingTerms.getDefaultInstance())
-  }
+  AppTheme { DataSharingTermsDialog(dataSharingTerms = Survey.DataSharingTerms.Unspecified) }
 }

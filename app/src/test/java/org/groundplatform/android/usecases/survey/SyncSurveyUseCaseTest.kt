@@ -28,6 +28,7 @@ import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST
 import org.groundplatform.android.FakeData.SURVEY
 import org.groundplatform.android.data.local.stores.LocalSurveyStore
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
+import org.groundplatform.android.model.Survey
 import org.groundplatform.android.proto.Survey.DataVisibility
 import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.junit.Assert.assertThrows
@@ -74,7 +75,7 @@ class SyncSurveyUseCaseTest : BaseHiltTest() {
   @Test
   fun `should load all types of LOIs when visibility is ALL_SURVEY_PARTICIPANTS`() =
     runWithTestDispatcher {
-      val survey = SURVEY.copy(dataVisibility = DataVisibility.ALL_SURVEY_PARTICIPANTS)
+      val survey = SURVEY.copy(dataVisibility = Survey.DataVisibility.ALL_SURVEY_PARTICIPANTS)
       fakeRemoteDataStore.surveys = listOf(survey)
 
       val predefinedLoi = LOCATION_OF_INTEREST.copy(id = "predefined_id")

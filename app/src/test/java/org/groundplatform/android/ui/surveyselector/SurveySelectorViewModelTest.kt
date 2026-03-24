@@ -25,8 +25,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.TestScope
 import org.groundplatform.android.BaseHiltTest
+import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.SurveyListItem
-import org.groundplatform.android.proto.Survey
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
 import org.groundplatform.android.usecases.survey.ListAvailableSurveysUseCase

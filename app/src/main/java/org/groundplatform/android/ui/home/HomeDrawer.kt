@@ -278,7 +278,7 @@ private fun HomeDrawerPreview() {
       title = "Tree Survey",
       description = "A comprehensive survey for mapping urban tree canopy and assessing health.",
       jobMap = emptyMap(),
-      generalAccess = GeneralAccess.PUBLIC,
+      generalAccess = Survey.GeneralAccess.PUBLIC,
     )
   AppTheme {
     HomeDrawer(user = mockUser, survey = mockSurvey, versionText = "1.0.0-preview", onAction = {})

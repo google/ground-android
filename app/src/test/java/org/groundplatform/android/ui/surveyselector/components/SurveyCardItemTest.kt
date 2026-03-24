@@ -22,8 +22,8 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import org.groundplatform.android.R
 import org.groundplatform.android.getString
+import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.SurveyListItem
-import org.groundplatform.android.proto.Survey
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

@@ -49,9 +49,9 @@ class SurveysCollectionReference internal constructor(ref: CollectionReference) 
       snapshot.documents
         .mapNotNull { SurveyConverter.toSurvey(it) }
         .filter { survey ->
-          survey.generalAccess == SurveyProto.GeneralAccess.GENERAL_ACCESS_UNSPECIFIED ||
-            survey.generalAccess == SurveyProto.GeneralAccess.RESTRICTED ||
-            survey.generalAccess == SurveyProto.GeneralAccess.UNLISTED
+          survey.generalAccess == Survey.GeneralAccess.GENERAL_ACCESS_UNSPECIFIED ||
+            survey.generalAccess == Survey.GeneralAccess.RESTRICTED ||
+            survey.generalAccess == Survey.GeneralAccess.UNLISTED
         }
     }
   }

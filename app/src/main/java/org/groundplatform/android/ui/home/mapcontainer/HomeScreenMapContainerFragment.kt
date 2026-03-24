@@ -27,7 +27,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import org.groundplatform.android.R
 import org.groundplatform.android.databinding.BasemapLayoutBinding
-import org.groundplatform.android.proto.Survey.DataSharingTerms
+import org.groundplatform.android.model.Survey
 import org.groundplatform.android.ui.common.AbstractMapContainerFragment
 import org.groundplatform.android.ui.common.BaseMapViewModel
 import org.groundplatform.android.ui.common.EphemeralPopups
@@ -73,7 +73,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
   private fun showDataSharingTermsDialog(
     cardUiData: DataCollectionEntryPointData,
-    dataSharingTerms: DataSharingTerms,
+    dataSharingTerms: Survey.DataSharingTerms,
   ) {
     renderComposableDialog {
       DataSharingTermsDialog(dataSharingTerms) {

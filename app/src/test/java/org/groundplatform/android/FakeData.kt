@@ -32,7 +32,6 @@ import org.groundplatform.android.model.task.Condition
 import org.groundplatform.android.model.task.MultipleChoice
 import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.proto.Survey.DataSharingTerms
-import org.groundplatform.android.proto.SurveyKt.dataSharingTerms
 import org.groundplatform.android.proto.copy
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.gms.features.FeatureClusterItem
@@ -81,12 +80,12 @@ object FakeData {
 
   val USER = User(USER_ID, "", "User")
 
-  val DATA_SHARING_TERMS = dataSharingTerms {
-    type = DataSharingTerms.Type.CUSTOM
-    customText = "## Introduction\n\nOnly one rule: **BE EXCELLENT TO ONE ANOTHER!**"
-  }
+  val DATA_SHARING_TERMS =
+    Survey.DataSharingTerms.Custom(
+      "## Introduction\n\nOnly one rule: **BE EXCELLENT TO ONE ANOTHER!**"
+    )
 
-  val FAKE_GENERAL_ACCESS = org.groundplatform.android.proto.Survey.GeneralAccess.RESTRICTED
+  val FAKE_GENERAL_ACCESS = Survey.GeneralAccess.RESTRICTED
 
   val SURVEY: Survey =
     Survey(
@@ -95,7 +94,7 @@ object FakeData {
       "Test survey description",
       mapOf(JOB.id to JOB, ADHOC_JOB.id to ADHOC_JOB),
       mapOf(USER.email to "DATA_COLLECTOR"),
-      DATA_SHARING_TERMS.copy {},
+      DATA_SHARING_TERMS,
       FAKE_GENERAL_ACCESS,
     )
 
