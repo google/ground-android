@@ -94,7 +94,7 @@ object FakeData {
       "Test survey description",
       mapOf(JOB.id to JOB, ADHOC_JOB.id to ADHOC_JOB),
       mapOf(USER.email to "DATA_COLLECTOR"),
-      DATA_SHARING_TERMS.copy(),
+      DATA_SHARING_TERMS,
       FAKE_GENERAL_ACCESS,
     )
 
