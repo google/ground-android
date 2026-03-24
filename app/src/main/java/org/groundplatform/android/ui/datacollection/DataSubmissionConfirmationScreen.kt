@@ -65,9 +65,9 @@ fun DataSubmissionConfirmationScreen(loiReport: LoiReport? = null, onDismissed: 
     Modifier.fillMaxSize()
       .background(MaterialTheme.colorScheme.surface)
       .padding(top = DEFAULT_TOOLBAR_HEIGHT)
-      .padding(horizontal = 48.dp)
       .systemBarsPadding()
       .verticalScroll(rememberScrollState())
+      .padding(horizontal = 48.dp)
   if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE) {
     Row(
       modifier = baseModifier,
@@ -90,7 +90,7 @@ fun DataSubmissionConfirmationScreen(loiReport: LoiReport? = null, onDismissed: 
     Column(modifier = baseModifier, horizontalAlignment = Alignment.CenterHorizontally) {
       HeaderContent(modifier = Modifier.padding(vertical = 16.dp))
       ShareableContent(loiReport = loiReport)
-      OutlinedButton(modifier = Modifier.padding(top = 24.dp), onClick = { onDismissed() }) {
+      OutlinedButton(modifier = Modifier.padding(vertical = 24.dp), onClick = { onDismissed() }) {
         Text(
           modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
           text = stringResource(id = R.string.close),
