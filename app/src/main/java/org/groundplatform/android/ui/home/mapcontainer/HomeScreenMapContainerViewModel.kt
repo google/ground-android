@@ -47,6 +47,7 @@ import org.groundplatform.android.system.LocationManager
 import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.system.SettingsManager
 import org.groundplatform.android.ui.common.BaseMapViewModel
+import org.groundplatform.android.ui.common.LocationOfInterestHelper
 import org.groundplatform.android.ui.common.SharedViewModel
 import org.groundplatform.android.ui.home.mapcontainer.jobs.AdHocDataCollectionButtonData
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentState
@@ -59,6 +60,7 @@ import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
+import org.groundplatform.domain.usecases.GetLoiReportUseCase
 import org.groundplatform.domain.repository.UserRepositoryInterface
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -77,6 +79,8 @@ internal constructor(
   private val surveyRepository: SurveyRepository,
   private val userRepository: UserRepositoryInterface,
   private val localValueStore: LocalValueStore,
+  private val locationOfInterestHelper: LocationOfInterestHelper,
+  private val getLoiReportUseCase: GetLoiReportUseCase,
 ) :
   BaseMapViewModel(
     locationManager,
@@ -212,11 +216,19 @@ internal constructor(
           .firstOrNull { it.geometry == feature?.geometry }
           ?.let { loi ->
             val canDelete = userRepository.canDeleteLoi(loi)
+            val loiReport =
+              getLoiReportUseCase.invoke(
+                loiName = locationOfInterestHelper.getDisplayLoiName(loi),
+                loiId = loi.id,
+                surveyId = activeSurvey.filterNotNull().first().id,
+              )
+
             SelectedLoiSheetData(
               canCollectData = canUserSubmitData,
               loi = loi,
               submissionCount = submissionRepository.getTotalSubmissionCount(loi),
               showDeleteLoiButton = canDelete,
+              loiReport = loiReport,
             )
           }
 

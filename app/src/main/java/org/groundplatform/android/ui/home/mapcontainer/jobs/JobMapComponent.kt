@@ -26,6 +26,10 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -42,16 +46,19 @@ import org.groundplatform.ui.theme.AppTheme
 
 @Composable
 fun JobMapComponent(state: JobMapComponentState, onAction: (JobMapComponentAction) -> Unit) {
+  var showShareLoiModal by rememberSaveable { mutableStateOf(false) }
   when (state) {
     is JobMapComponentState.LoiSelected -> {
+      if (showShareLoiModal && state.loi.loiReport != null) {
+        ShareLocationModal(state.loi.loiReport) { showShareLoiModal = false }
+      }
+
       LoiJobSheet(
-        loi = state.loi.loi,
+        state = state.loi,
         onCollectClicked = { onAction(OnAddDataClicked(state.loi)) },
         onDeleteClicked = { onAction(OnDeleteSiteClicked(state.loi)) },
         onDismiss = { onAction(JobMapComponentAction.OnJobCardDismissed) },
-        canUserSubmitData = state.loi.canCollectData,
-        submissionCount = state.loi.submissionCount,
-        showDeleteLoiButton = state.loi.showDeleteLoiButton,
+        onShareClicked = { showShareLoiModal = true },
       )
     }
     is JobMapComponentState.AddLoiButton -> {
