@@ -20,6 +20,9 @@ import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import kotlin.test.Test
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.FakeData.USER
 import org.groundplatform.android.R
@@ -30,6 +33,7 @@ import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.job.Style
 import org.groundplatform.domain.model.locationofinterest.AuditInfo
 import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
+import org.groundplatform.domain.model.locationofinterest.LoiReport
 import org.groundplatform.domain.model.task.Task
 import org.junit.Rule
 import org.junit.runner.RunWith
@@ -84,13 +88,39 @@ class LoiJobSheetTest {
   private fun setContent(loi: LocationOfInterest, showDeleteLoiButton: Boolean = false) {
     composeTestRule.setContent {
       LoiJobSheet(
-        loi = loi,
-        canUserSubmitData = true,
-        submissionCount = 0,
-        showDeleteLoiButton = showDeleteLoiButton,
+        state =
+          SelectedLoiSheetData(
+            canCollectData = true,
+            submissionCount = 0,
+            loi = loi,
+            showDeleteLoiButton = showDeleteLoiButton,
+            loiReport = getLoiReport(loi.id),
+          ),
         onCollectClicked = {},
-      ) {}
+        onDismiss = {},
+        onShareClicked = {},
+      )
     }
+  }
+
+  private fun getLoiReport(name: String): LoiReport {
+    return LoiReport(
+      loiName = name,
+      geoJson =
+        JsonObject(
+          mapOf(
+            "type" to JsonPrimitive("Feature"),
+            "properties" to JsonObject(mapOf("name" to JsonPrimitive(name))),
+            "geometry" to
+              JsonObject(
+                mapOf(
+                  "type" to JsonPrimitive("Point"),
+                  "coordinates" to JsonArray(listOf(JsonPrimitive(20.0), JsonPrimitive(20.0))),
+                )
+              ),
+          )
+        ),
+    )
   }
 
   companion object {

@@ -26,6 +26,7 @@ import org.groundplatform.domain.model.geometry.LinearRing
 import org.groundplatform.domain.model.geometry.MultiPolygon
 import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.geometry.Polygon
+import org.groundplatform.domain.model.locationofinterest.LOI_NAME_PROPERTY
 import org.groundplatform.domain.model.locationofinterest.LoiProperties
 import org.groundplatform.domain.model.locationofinterest.LoiReport
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
@@ -47,7 +48,12 @@ class GetLoiReportUseCase(
    */
   suspend operator fun invoke(loiName: String, loiId: String, surveyId: String): LoiReport? {
     val loi = locationOfInterestRepository.getOfflineLoi(surveyId, loiId)
-    return loi?.let { LoiReport(loiName, it.geometry.toGeoJson(it.properties)) }
+    return loi?.let {
+      LoiReport(
+        loiName,
+        it.geometry.toGeoJson(it.properties.filter { property -> property.key == LOI_NAME_PROPERTY }),
+      )
+    }
   }
 
   /**

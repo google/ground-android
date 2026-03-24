@@ -29,6 +29,7 @@ import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.ADHOC_JOB
 import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST
 import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST_FEATURE
+import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST_LOI_REPORT
 import org.groundplatform.android.FakeData.SURVEY
 import org.groundplatform.android.FakeData.USER
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
@@ -48,7 +49,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito.verify
-import org.mockito.Mockito.`when`
+import org.mockito.kotlin.any
+import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -76,8 +78,9 @@ class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
       remoteDataStore.predefinedLois = listOf(LOCATION_OF_INTEREST)
       activateSurvey(SURVEY.id)
       advanceUntilIdle()
-      `when`(loiRepository.getWithinBounds(SURVEY, BOUNDS))
+      whenever(loiRepository.getWithinBounds(SURVEY, BOUNDS))
         .thenReturn(flowOf(listOf(LOCATION_OF_INTEREST)))
+      whenever(loiRepository.getOfflineLoi(any(), any())).thenReturn(LOCATION_OF_INTEREST)
       viewModel.onMapCameraMoved(CAMERA_POSITION)
       advanceUntilIdle()
     }
@@ -87,10 +90,17 @@ class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
   fun `renders the job card when zoomed into LOI and clicked on`() = runWithTestDispatcher {
     viewModel.onFeatureClicked(features = setOf(LOCATION_OF_INTEREST_FEATURE))
     val state = viewModel.processJobMapComponentState().first()
+    advanceUntilIdle()
     assertThat(state)
       .isEqualTo(
         JobMapComponentState.LoiSelected(
-          SelectedLoiSheetData(canCollectData = true, LOCATION_OF_INTEREST, 0, true)
+          SelectedLoiSheetData(
+            canCollectData = true,
+            loi = LOCATION_OF_INTEREST,
+            submissionCount = 0,
+            showDeleteLoiButton = true,
+            loiReport = LOCATION_OF_INTEREST_LOI_REPORT,
+          )
         )
       )
   }

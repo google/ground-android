@@ -23,7 +23,6 @@ import javax.inject.Inject
 import javax.inject.Provider
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -31,7 +30,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.groundplatform.android.data.local.room.converter.SubmissionDeltasConverter
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.android.di.coroutines.ApplicationScope
@@ -184,9 +182,7 @@ internal constructor(
               loiId = submittedLoiId,
               surveyId = st.surveyId,
             )
-          withContext(Dispatchers.Main) {
-            _uiState.value = DataCollectionUiState.TaskSubmitted(loiReport)
-          }
+          _uiState.value = DataCollectionUiState.TaskSubmitted(loiReport)
         }
       }
     }

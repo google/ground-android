@@ -74,7 +74,7 @@ fun LoiJobSheet(
   onShareClicked: () -> Unit,
 ) {
   val scope = rememberCoroutineScope()
-  val sheetState = rememberModalBottomSheetState()
+  val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
   ModalBottomSheet(
     onDismissRequest = onDismiss,

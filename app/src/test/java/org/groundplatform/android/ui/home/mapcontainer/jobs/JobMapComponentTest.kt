@@ -27,6 +27,7 @@ import kotlin.test.assertTrue
 import org.groundplatform.android.FakeData.ADHOC_JOB
 import org.groundplatform.android.FakeData.JOB
 import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST
+import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST_LOI_REPORT
 import org.groundplatform.android.FakeData.newTask
 import org.groundplatform.android.R
 import org.groundplatform.android.getString
@@ -148,7 +149,7 @@ class JobMapComponentTest {
   @Test
   fun `LoiJobSheet should be shown when there is a selected LOI`() {
     val selectedLoiSheetData =
-      SelectedLoiSheetData(canCollectData = true, LOCATION_OF_INTEREST, 0, true)
+      SelectedLoiSheetData(canCollectData = true, LOCATION_OF_INTEREST, 0, true, LOCATION_OF_INTEREST_LOI_REPORT)
     setContent(JobMapComponentState.LoiSelected(selectedLoiSheetData))
 
     composeTestRule
@@ -161,7 +162,7 @@ class JobMapComponentTest {
   fun `Clicking to delete site in the LoiJobSheet should dispatch the OnDeleteSiteClicked action`() {
     val performedActions = mutableListOf<JobMapComponentAction>()
     val selectedLoiSheetData =
-      SelectedLoiSheetData(canCollectData = true, LOCATION_OF_INTEREST, 0, true)
+      SelectedLoiSheetData(canCollectData = true, LOCATION_OF_INTEREST, 0, true, LOCATION_OF_INTEREST_LOI_REPORT)
     setContent(
       state = JobMapComponentState.LoiSelected(selectedLoiSheetData),
       onAction = { performedActions += it },
@@ -191,6 +192,7 @@ class JobMapComponentTest {
           ),
         submissionCount = 20,
         showDeleteLoiButton = false,
+        loiReport = LOCATION_OF_INTEREST_LOI_REPORT
       )
     setContent(
       state = JobMapComponentState.LoiSelected(selectedLoiSheetData),
