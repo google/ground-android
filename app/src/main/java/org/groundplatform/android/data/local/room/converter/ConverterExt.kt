@@ -17,7 +17,6 @@ package org.groundplatform.android.data.local.room.converter
 
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
-import java.util.Date
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.collections.immutable.toPersistentMap
 import org.groundplatform.android.data.local.LocalDataConsistencyException
@@ -81,12 +80,12 @@ import timber.log.Timber
 fun AuditInfo.toLocalDataStoreObject(): AuditInfoEntity =
   AuditInfoEntity(
     user = UserDetails.fromUser(user),
-    clientTimestamp = clientTimestamp.time,
-    serverTimestamp = serverTimestamp?.time,
+    clientTimestamp = clientTimestamp,
+    serverTimestamp = serverTimestamp,
   )
 
 fun AuditInfoEntity.toModelObject() =
-  AuditInfo(UserDetails.toUser(user), Date(clientTimestamp), serverTimestamp?.let { Date(it) })
+  AuditInfo(UserDetails.toUser(user), clientTimestamp, serverTimestamp)
 
 fun Geometry.toLocalDataStoreObject() = GeometryWrapper.fromGeometry(this)
 
@@ -220,7 +219,7 @@ fun LocationOfInterestMutation.toLocalDataStoreObject() =
     userId = userId,
     locationOfInterestId = locationOfInterestId,
     syncStatus = MutationEntitySyncStatus.fromMutationSyncStatus(syncStatus),
-    clientTimestamp = clientTimestamp.time,
+    clientTimestamp = clientTimestamp,
     lastError = lastError,
     retryCount = retryCount,
     newProperties = properties,
@@ -239,7 +238,7 @@ fun LocationOfInterestMutationEntity.toModelObject() =
     userId = userId,
     locationOfInterestId = locationOfInterestId,
     syncStatus = syncStatus.toMutationSyncStatus(),
-    clientTimestamp = Date(clientTimestamp),
+    clientTimestamp = clientTimestamp,
     lastError = lastError,
     retryCount = retryCount,
     properties = newProperties,
@@ -377,7 +376,7 @@ fun SubmissionMutationEntity.toModelObject(survey: Survey): SubmissionMutation {
     retryCount = retryCount,
     lastError = lastError,
     userId = userId,
-    clientTimestamp = Date(clientTimestamp),
+    clientTimestamp = clientTimestamp,
     collectionId = collectionId,
   )
 }
@@ -395,7 +394,7 @@ fun SubmissionMutation.toLocalDataStoreObject() =
     retryCount = retryCount,
     lastError = lastError,
     userId = userId,
-    clientTimestamp = clientTimestamp.time,
+    clientTimestamp = clientTimestamp,
     collectionId = collectionId,
   )
 

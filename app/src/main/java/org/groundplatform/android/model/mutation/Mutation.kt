@@ -15,8 +15,6 @@
  */
 package org.groundplatform.android.model.mutation
 
-import java.util.Date
-
 /**
  * Represents a mutation that can be applied to local data and queued for sync with the remote data
  * store.
@@ -38,7 +36,7 @@ sealed class Mutation {
   /** The ID of the user who initiated this mutation. */
   abstract val userId: String
   /** The time at which this mutation was issued on the client. */
-  abstract val clientTimestamp: Date
+  abstract val clientTimestamp: Long
   /** The number of times the system has attempted to apply this mutation to remote storage. */
   abstract val retryCount: Long
   /** The error last encountered when attempting to apply this mutation to the remote storage. */

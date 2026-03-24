@@ -15,7 +15,7 @@
  */
 package org.groundplatform.android
 
-import java.util.Date
+import kotlin.time.Clock
 import org.groundplatform.android.model.AuditInfo
 import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.TermsOfService
@@ -190,7 +190,7 @@ object FakeData {
       syncStatus = syncStatus,
       userId = USER_ID,
       surveyId = SURVEY_ID,
-      clientTimestamp = Date(),
+      clientTimestamp = Clock.System.now().toEpochMilliseconds(),
       properties = mapOf(LOI_NAME_PROPERTY to LOCATION_OF_INTEREST_NAME),
       collectionId = "",
     )
@@ -209,7 +209,7 @@ object FakeData {
       syncStatus = syncStatus,
       userId = USER_ID,
       surveyId = SURVEY_ID,
-      clientTimestamp = Date(),
+      clientTimestamp = Clock.System.now().toEpochMilliseconds(),
       properties = mapOf(LOI_NAME_PROPERTY to LOCATION_OF_INTEREST_NAME),
       collectionId = "",
     )
