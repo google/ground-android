@@ -15,7 +15,7 @@
  */
 package org.groundplatform.android.model.mutation
 
-import java.util.Date
+import kotlin.time.Clock
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.submission.PhotoTaskData
 import org.groundplatform.android.model.submission.ValueDelta
@@ -27,7 +27,7 @@ data class SubmissionMutation(
   override val surveyId: String = "",
   override val locationOfInterestId: String = "",
   override val userId: String = "",
-  override val clientTimestamp: Date = Date(),
+  override val clientTimestamp: Long = Clock.System.now().toEpochMilliseconds(),
   override val retryCount: Long = 0,
   override val lastError: String = "",
   override val collectionId: String,

@@ -23,8 +23,8 @@ import androidx.compose.ui.test.performClick
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
-import java.util.Date
 import javax.inject.Inject
+import kotlin.time.Clock
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
@@ -728,7 +728,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     // Exactly 1 submission should be saved.
     assertThat(submissionRepository.getPendingCreateCount(loiId)).isEqualTo(1)
 
-    val testDate = Date()
+    val testDate = Clock.System.now().toEpochMilliseconds()
     val mutation =
       mutationRepository
         .getIncompleteUploads()[0]

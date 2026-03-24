@@ -17,8 +17,7 @@ package org.groundplatform.android.data.remote.firebase.protobuf
 
 import com.google.common.truth.Truth.assertThat
 import com.google.protobuf.timestamp
-import java.time.Instant
-import java.util.Date
+import kotlin.time.Instant
 import org.groundplatform.android.model.User
 import org.groundplatform.android.model.mutation.LocationOfInterestMutation
 import org.groundplatform.android.model.mutation.Mutation
@@ -49,7 +48,7 @@ class ModelToProtoExtKtTest {
         userId = "userId",
         jobId = "jobId",
         customId = "customId",
-        clientTimestamp = Date.from(Instant.ofEpochSecond(987654321)),
+        clientTimestamp = Instant.fromEpochSeconds(987654321).toEpochMilliseconds(),
         geometry = null,
         submissionCount = 1,
         properties = generateProperties("loiName"),
@@ -101,7 +100,7 @@ class ModelToProtoExtKtTest {
         userId = "userId",
         jobId = "jobId",
         customId = "customId",
-        clientTimestamp = Date.from(Instant.ofEpochSecond(987654321)),
+        clientTimestamp = Instant.fromEpochSeconds(987654321).toEpochMilliseconds(),
         geometry = Point(Coordinates(10.0, 20.0)),
         submissionCount = 1,
         properties = generateProperties("loiName"),
@@ -160,7 +159,7 @@ class ModelToProtoExtKtTest {
         userId = "userId",
         jobId = "jobId",
         customId = "customId",
-        clientTimestamp = Date.from(Instant.ofEpochSecond(987654321)),
+        clientTimestamp = Instant.fromEpochSeconds(987654321).toEpochMilliseconds(),
         geometry = Point(Coordinates(10.0, 20.0)),
         submissionCount = 1,
         properties = generateProperties("loiName"),
@@ -220,7 +219,7 @@ class ModelToProtoExtKtTest {
         userId = "userId",
         jobId = "jobId",
         customId = "customId",
-        clientTimestamp = Date.from(Instant.ofEpochSecond(987654321)),
+        clientTimestamp = Instant.fromEpochSeconds(987654321).toEpochMilliseconds(),
         geometry = Point(Coordinates(10.0, 20.0)),
         submissionCount = 1,
         properties = generateProperties("loiName"),
@@ -280,7 +279,7 @@ class ModelToProtoExtKtTest {
         userId = "userId",
         jobId = "jobId",
         customId = "customId",
-        clientTimestamp = Date.from(Instant.ofEpochSecond(987654321)),
+        clientTimestamp = Instant.fromEpochSeconds(987654321).toEpochMilliseconds(),
         geometry = Point(Coordinates(10.0, 20.0)),
         submissionCount = 1,
         properties = generateProperties("loiName"),
@@ -331,7 +330,7 @@ class ModelToProtoExtKtTest {
         userId = "userId",
         jobId = "jobId",
         customId = "customId",
-        clientTimestamp = Date.from(Instant.ofEpochSecond(987654321)),
+        clientTimestamp = Instant.fromEpochSeconds(987654321).toEpochMilliseconds(),
         geometry = Point(Coordinates(10.0, 20.0)),
         submissionCount = 1,
         properties = generateProperties("loiName"),
@@ -354,7 +353,7 @@ class ModelToProtoExtKtTest {
         userId = "userId",
         jobId = "jobId",
         customId = "customId",
-        clientTimestamp = Date.from(Instant.ofEpochSecond(987654321)),
+        clientTimestamp = Instant.fromEpochSeconds(987654321).toEpochMilliseconds(),
         geometry = Point(Coordinates(10.0, 20.0)),
         submissionCount = 1,
         properties = generateProperties("loiName"),
