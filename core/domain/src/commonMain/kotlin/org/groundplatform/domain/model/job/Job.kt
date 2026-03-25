@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.model.job
+package org.groundplatform.domain.model.job
 
-import android.graphics.Color
-import org.groundplatform.android.model.task.Task
-import timber.log.Timber
+import org.groundplatform.domain.model.task.Task
 
 data class Job(
   val id: String,
@@ -55,11 +53,3 @@ data class Job(
   /** Returns whether the job has non-LOI tasks. */
   fun hasNonLoiTasks() = tasks.values.count { !it.isAddLoiTask } > 0
 }
-
-fun Job.getDefaultColor(): Int =
-  try {
-    Color.parseColor(style?.color ?: "")
-  } catch (t: Throwable) {
-    Timber.w(t, "Invalid or missing color ${style?.color} in job $id")
-    Color.BLACK
-  }
