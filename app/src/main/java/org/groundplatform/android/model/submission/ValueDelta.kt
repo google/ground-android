@@ -15,7 +15,8 @@
  */
 package org.groundplatform.android.model.submission
 
-import org.groundplatform.android.model.task.Task
+import org.groundplatform.domain.model.submission.TaskData
+import org.groundplatform.domain.model.task.Task
 
 /**
  * Represents a change to an individual value in a submission.

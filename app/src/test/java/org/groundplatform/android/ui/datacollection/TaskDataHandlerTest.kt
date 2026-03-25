@@ -25,9 +25,9 @@ import kotlinx.coroutines.test.runTest
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.FlakyTest
 import org.groundplatform.android.FlakyTestRule
-import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.submission.TextTaskData
-import org.groundplatform.android.model.task.Task
+import org.groundplatform.domain.model.submission.TaskData
+import org.groundplatform.domain.model.task.Task
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

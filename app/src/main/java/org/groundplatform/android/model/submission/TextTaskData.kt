@@ -16,6 +16,7 @@
 package org.groundplatform.android.model.submission
 
 import kotlinx.serialization.Serializable
+import org.groundplatform.domain.model.submission.TaskData
 
 /** A user-provided value to a text question task. */
 @Serializable

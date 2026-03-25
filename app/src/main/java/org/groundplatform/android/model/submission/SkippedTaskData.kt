@@ -16,6 +16,7 @@
 package org.groundplatform.android.model.submission
 
 import kotlinx.serialization.Serializable
+import org.groundplatform.domain.model.submission.TaskData
 
 /** User skipped the response for the given task. */
 @Serializable

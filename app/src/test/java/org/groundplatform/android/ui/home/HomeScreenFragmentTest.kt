@@ -50,10 +50,10 @@ import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.R
 import org.groundplatform.android.data.local.stores.LocalSurveyStore
-import org.groundplatform.android.model.Survey
 import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.testrules.FragmentScenarioRule
 import org.groundplatform.android.ui.components.MapFloatingActionButtonType
+import org.groundplatform.domain.model.Survey
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test

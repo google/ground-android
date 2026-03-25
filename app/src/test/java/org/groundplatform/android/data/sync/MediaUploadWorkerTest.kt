@@ -48,10 +48,10 @@ import org.groundplatform.android.model.mutation.Mutation.SyncStatus.UNKNOWN
 import org.groundplatform.android.model.mutation.SubmissionMutation
 import org.groundplatform.android.model.submission.PhotoTaskData
 import org.groundplatform.android.model.submission.ValueDelta
-import org.groundplatform.android.model.task.Task
-import org.groundplatform.android.model.task.Task.Type.PHOTO
 import org.groundplatform.android.repository.MutationRepository
 import org.groundplatform.android.repository.UserMediaRepository
+import org.groundplatform.domain.model.task.Task
+import org.groundplatform.domain.model.task.Task.Type.PHOTO
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

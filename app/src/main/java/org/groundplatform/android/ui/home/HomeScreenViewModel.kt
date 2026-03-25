@@ -37,7 +37,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.groundplatform.android.data.sync.MediaUploadWorkManager
 import org.groundplatform.android.data.sync.MutationSyncWorkManager
-import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.User
 import org.groundplatform.android.model.submission.DraftSubmission
 import org.groundplatform.android.repository.MutationRepository
@@ -48,6 +47,7 @@ import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.auth.SignInState
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.common.SharedViewModel
+import org.groundplatform.domain.model.Survey
 import timber.log.Timber
 
 data class HomeDrawerState(val user: User, val survey: Survey?, val appVersion: String)

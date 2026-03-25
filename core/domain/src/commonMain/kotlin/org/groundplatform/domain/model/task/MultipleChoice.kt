@@ -13,13 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.model.submission
+package org.groundplatform.domain.model.task
 
-/** User-provided value for a single data collection [Task]. */
-interface TaskData {
-  fun isEmpty(): Boolean
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.serialization.Serializable
+
+/** A question task with pre-defined options for the user to choose from. */
+@Serializable
+data class MultipleChoice
+constructor(
+  val options: PersistentList<Option> = persistentListOf(),
+  val cardinality: Cardinality,
+  val hasOtherOption: Boolean = false,
+) {
+  enum class Cardinality {
+    SELECT_ONE,
+    SELECT_MULTIPLE,
+  }
 }
-
-fun TaskData?.isNullOrEmpty(): Boolean = this?.isEmpty() ?: true
-
-fun TaskData?.isNotNullOrEmpty(): Boolean = !this.isNullOrEmpty()

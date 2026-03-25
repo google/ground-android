@@ -21,11 +21,11 @@ import com.google.firebase.firestore.DocumentSnapshot
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.data.remote.firebase.protobuf.toFirestoreMap
 import org.groundplatform.android.data.remote.firebase.protobuf.toProto
-import org.groundplatform.android.model.Survey
 import org.groundplatform.android.proto.Role
 import org.groundplatform.android.proto.Survey as SurveyProto
 import org.groundplatform.android.proto.Survey.DataVisibility.DATA_VISIBILITY_UNSPECIFIED
 import org.groundplatform.android.proto.survey
+import org.groundplatform.domain.model.Survey
 import org.junit.Test
 import org.mockito.Mockito.mock
 import org.mockito.kotlin.whenever

@@ -17,8 +17,8 @@ package org.groundplatform.android.usecases.datasharingterms
 
 import javax.inject.Inject
 import org.groundplatform.android.data.local.LocalValueStore
-import org.groundplatform.android.model.Survey
 import org.groundplatform.android.repository.SurveyRepository
+import org.groundplatform.domain.model.Survey
 
 class GetDataSharingTermsUseCase
 @Inject

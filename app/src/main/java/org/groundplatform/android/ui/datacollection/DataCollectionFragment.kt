@@ -36,12 +36,12 @@ import javax.inject.Inject
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.databinding.DataCollectionFragBinding
-import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.common.BackPressListener
 import org.groundplatform.android.ui.components.ConfirmationDialog
 import org.groundplatform.android.ui.home.HomeScreenFragmentDirections
 import org.groundplatform.android.util.renderComposableDialog
+import org.groundplatform.domain.model.task.Task
 
 /** Fragment allowing the user to collect data to complete a task. */
 @AndroidEntryPoint

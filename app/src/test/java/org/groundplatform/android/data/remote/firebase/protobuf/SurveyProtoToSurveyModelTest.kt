@@ -16,9 +16,9 @@
 package org.groundplatform.android.data.remote.firebase.protobuf
 
 import com.google.common.truth.Truth.assertThat
-import org.groundplatform.android.model.Survey as SurveyModel
 import org.groundplatform.android.proto.Survey as SurveyProto
 import org.groundplatform.android.proto.SurveyKt.dataSharingTerms
+import org.groundplatform.domain.model.Survey as SurveyModel
 import org.junit.Test
 
 class SurveyProtoToSurveyModelTest {

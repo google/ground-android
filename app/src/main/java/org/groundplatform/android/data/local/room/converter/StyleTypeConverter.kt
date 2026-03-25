@@ -17,7 +17,7 @@
 package org.groundplatform.android.data.local.room.converter
 
 import androidx.room.TypeConverter
-import org.groundplatform.android.model.job.Style
+import org.groundplatform.domain.model.job.Style
 
 object StyleTypeConverter {
 

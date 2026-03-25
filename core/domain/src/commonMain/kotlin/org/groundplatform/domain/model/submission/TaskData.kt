@@ -13,9 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.model.task
+package org.groundplatform.domain.model.submission
 
-import kotlinx.serialization.Serializable
+/** User-provided value for a single data collection [Task]. */
+interface TaskData {
+  fun isEmpty(): Boolean
+}
 
-/** Describes a single valid option to a multiple choice question. */
-@Serializable data class Option(val id: String, val code: String, val label: String)
+fun TaskData?.isNullOrEmpty(): Boolean = this?.isEmpty() ?: true
+
+fun TaskData?.isNotNullOrEmpty(): Boolean = !this.isNullOrEmpty()

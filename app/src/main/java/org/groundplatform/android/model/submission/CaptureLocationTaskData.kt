@@ -17,6 +17,7 @@ package org.groundplatform.android.model.submission
 
 import org.groundplatform.android.proto.Task
 import org.groundplatform.domain.model.geometry.Point
+import org.groundplatform.domain.model.submission.TaskData
 
 /** User-provided response to a "capture location" data collection [Task]. */
 data class CaptureLocationTaskData(
