@@ -15,7 +15,7 @@
  */
 package org.groundplatform.android.e2etest
 
-import org.groundplatform.android.model.task.Task
+import org.groundplatform.domain.model.task.Task
 
 data class TestTask(
   val taskType: Task.Type,
