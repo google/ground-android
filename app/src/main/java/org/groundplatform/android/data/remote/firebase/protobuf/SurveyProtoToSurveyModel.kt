@@ -15,8 +15,8 @@
  */
 package org.groundplatform.android.data.remote.firebase.protobuf
 
-import org.groundplatform.android.model.Survey as SurveyModel
 import org.groundplatform.android.proto.Survey as SurveyProto
+import org.groundplatform.domain.model.Survey as SurveyModel
 
 fun SurveyProto.DataSharingTerms.toModel(): SurveyModel.DataSharingTerms? =
   when (type) {

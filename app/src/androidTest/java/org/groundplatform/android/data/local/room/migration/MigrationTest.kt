@@ -31,7 +31,7 @@ import org.groundplatform.android.data.local.room.migration.MigrationTestDataGen
 import org.groundplatform.android.data.local.room.migration.MigrationTestDataGenerator.getJobContentValues
 import org.groundplatform.android.data.local.room.migration.MigrationTestDataGenerator.getSurveyContentValues
 import org.groundplatform.android.data.local.room.migration.MigrationTestDataGenerator.getTaskContentValues
-import org.groundplatform.android.model.Survey
+import org.groundplatform.domain.model.Survey
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test

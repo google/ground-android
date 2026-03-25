@@ -16,11 +16,11 @@
 package org.groundplatform.android.model.locationofinterest
 
 import org.groundplatform.android.model.AuditInfo
-import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.mutation.LocationOfInterestMutation
 import org.groundplatform.android.model.mutation.Mutation
 import org.groundplatform.android.model.mutation.Mutation.SyncStatus
 import org.groundplatform.domain.model.geometry.Geometry
+import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.locationofinterest.LoiProperties
 
 /** User-defined locations of interest (LOI) shown on the map. */

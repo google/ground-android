@@ -16,8 +16,9 @@
 package org.groundplatform.android.model.submission
 
 import kotlinx.serialization.Serializable
-import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.locationofinterest.LocationOfInterest
+import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.submission.TaskData
 
 /** Represents a single photo associated with a given [LocationOfInterest] and [Job]. */
 @Serializable

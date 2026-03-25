@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google LLC
+ * Copyright 2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.model.submission
+package org.groundplatform.android.ui.util
 
-/** User-provided value for a single data collection [Task]. */
-interface TaskData {
-  fun isEmpty(): Boolean
-}
+import android.graphics.Color
+import org.groundplatform.domain.model.job.Job
+import timber.log.Timber
 
-fun TaskData?.isNullOrEmpty(): Boolean = this?.isEmpty() ?: true
-
-fun TaskData?.isNotNullOrEmpty(): Boolean = !this.isNullOrEmpty()
+fun Job.getDefaultColor(): Int =
+  try {
+    Color.parseColor(style?.color ?: "")
+  } catch (t: Throwable) {
+    Timber.w(t, "Invalid or missing color ${style?.color} in job $id")
+    Color.BLACK
+  }

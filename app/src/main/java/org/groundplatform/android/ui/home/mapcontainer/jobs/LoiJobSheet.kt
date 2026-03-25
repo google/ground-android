@@ -49,16 +49,16 @@ import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.model.AuditInfo
 import org.groundplatform.android.model.User
-import org.groundplatform.android.model.job.Job
-import org.groundplatform.android.model.job.Style
-import org.groundplatform.android.model.job.getDefaultColor
 import org.groundplatform.android.model.locationofinterest.LocationOfInterest
-import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.common.LocationOfInterestHelper
 import org.groundplatform.android.ui.components.ConfirmationDialog
+import org.groundplatform.android.ui.util.getDefaultColor
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.Point
+import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.job.Style
+import org.groundplatform.domain.model.task.Task
 import org.groundplatform.ui.theme.AppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)

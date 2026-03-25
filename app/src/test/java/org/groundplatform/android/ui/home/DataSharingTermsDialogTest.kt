@@ -25,7 +25,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlin.test.Test
 import org.groundplatform.android.R
 import org.groundplatform.android.getString
-import org.groundplatform.android.model.Survey
+import org.groundplatform.domain.model.Survey
 import org.junit.Rule
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner

@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.model
+package org.groundplatform.domain.model
 
-import org.groundplatform.android.model.job.Job
+import org.groundplatform.domain.model.job.Job
 
 /**
  * Configuration, schema, and Access Control Lists (ACLs) for a single survey.

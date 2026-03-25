@@ -37,14 +37,9 @@ import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
-import org.groundplatform.android.model.job.Job
-import org.groundplatform.android.model.job.getDefaultColor
 import org.groundplatform.android.model.settings.MeasurementUnits
 import org.groundplatform.android.model.submission.DrawAreaTaskData
 import org.groundplatform.android.model.submission.DrawAreaTaskIncompleteData
-import org.groundplatform.android.model.submission.TaskData
-import org.groundplatform.android.model.submission.isNotNullOrEmpty
-import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.common.SharedViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
@@ -53,6 +48,7 @@ import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.util.LocaleAwareMeasureFormatter
 import org.groundplatform.android.ui.util.VibrationHelper
+import org.groundplatform.android.ui.util.getDefaultColor
 import org.groundplatform.android.ui.util.getFormattedArea
 import org.groundplatform.android.usecases.user.GetUserSettingsUseCase
 import org.groundplatform.android.util.distanceTo
@@ -61,6 +57,10 @@ import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.LineString
 import org.groundplatform.domain.model.geometry.LinearRing
 import org.groundplatform.domain.model.geometry.Polygon
+import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.submission.TaskData
+import org.groundplatform.domain.model.submission.isNotNullOrEmpty
+import org.groundplatform.domain.model.task.Task
 import org.groundplatform.domain.util.calculateShoelacePolygonArea
 import org.groundplatform.domain.util.isSelfIntersecting
 import org.jetbrains.annotations.VisibleForTesting

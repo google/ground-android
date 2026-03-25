@@ -27,7 +27,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import org.groundplatform.android.R
 import org.groundplatform.android.databinding.BasemapLayoutBinding
-import org.groundplatform.android.model.Survey
 import org.groundplatform.android.ui.common.AbstractMapContainerFragment
 import org.groundplatform.android.ui.common.BaseMapViewModel
 import org.groundplatform.android.ui.common.EphemeralPopups
@@ -43,6 +42,7 @@ import org.groundplatform.android.ui.map.MapFragment
 import org.groundplatform.android.usecases.datasharingterms.GetDataSharingTermsUseCase
 import org.groundplatform.android.util.renderComposableDialog
 import org.groundplatform.android.util.setComposableContent
+import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.locationofinterest.LOI_NAME_PROPERTY
 import timber.log.Timber
 

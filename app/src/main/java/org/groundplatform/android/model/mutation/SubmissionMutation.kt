@@ -16,9 +16,9 @@
 package org.groundplatform.android.model.mutation
 
 import kotlin.time.Clock
-import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.submission.PhotoTaskData
 import org.groundplatform.android.model.submission.ValueDelta
+import org.groundplatform.domain.model.job.Job
 
 data class SubmissionMutation(
   override val id: Long? = null,

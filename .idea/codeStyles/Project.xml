@@ -74,7 +74,6 @@
       <option name="FUNCTION_CALL_ARGUMENTS_WRAP" value="5" />
       <option name="TEMPLATE_CALL_ARGUMENTS_WRAP" value="5" />
       <option name="TEMPLATE_CALL_ARGUMENTS_ALIGN_MULTILINE" value="true" />
-      <option name="ALIGN_INIT_LIST_IN_COLUMNS" value="false" />
       <option name="SPACE_BEFORE_SUPERCLASS_COLON" value="false" />
     </Objective-C>
     <Python>
@@ -187,7 +186,6 @@
       <option name="BLANK_LINES_AROUND_CLASS" value="0" />
       <option name="BLANK_LINES_AROUND_METHOD" value="0" />
       <option name="BLANK_LINES_AROUND_METHOD_IN_INTERFACE" value="0" />
-      <option name="ALIGN_MULTILINE_BINARY_OPERATION" value="false" />
       <option name="BINARY_OPERATION_SIGN_ON_NEXT_LINE" value="true" />
       <option name="FOR_STATEMENT_WRAP" value="1" />
       <option name="ASSIGNMENT_WRAP" value="1" />

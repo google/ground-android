@@ -15,9 +15,9 @@
  */
 package org.groundplatform.android.ui.datacollection
 
-import org.groundplatform.android.model.submission.TaskData
-import org.groundplatform.android.model.task.Task
-import org.groundplatform.android.model.task.TaskSelections
+import org.groundplatform.domain.model.submission.TaskData
+import org.groundplatform.domain.model.task.Task
+import org.groundplatform.domain.model.task.TaskSelections
 
 /**
  * Manages state and operations related to a sequence of tasks.
@@ -71,7 +71,7 @@ class TaskSequenceHandler(
 
   /** Determines if a task's conditions are fulfilled using the given [taskSelections]. */
   private fun Task.isConditionFulfilled(taskSelections: TaskSelections): Boolean =
-    condition == null || condition.fulfilledBy(taskSelections)
+    condition?.fulfilledBy(taskSelections) ?: true
 
   /** Returns the pre-computed list of valid tasks or generates/caches it first. */
   fun getValidTasks(): List<Task> {

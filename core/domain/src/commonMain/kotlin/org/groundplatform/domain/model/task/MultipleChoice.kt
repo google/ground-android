@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.model.task
+package org.groundplatform.domain.model.task
 
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
@@ -22,7 +22,6 @@ import kotlinx.serialization.Serializable
 /** A question task with pre-defined options for the user to choose from. */
 @Serializable
 data class MultipleChoice
-@JvmOverloads
 constructor(
   val options: PersistentList<Option> = persistentListOf(),
   val cardinality: Cardinality,

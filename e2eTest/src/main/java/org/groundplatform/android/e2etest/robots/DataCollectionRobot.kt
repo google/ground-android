@@ -26,13 +26,13 @@ import org.groundplatform.android.e2etest.TestConfig.PALM_TEST_OPTION
 import org.groundplatform.android.e2etest.TestConfig.PREVIOUS_NAVIGATION_TEST_OPTION
 import org.groundplatform.android.e2etest.TestTask
 import org.groundplatform.android.e2etest.drivers.TestDriver
-import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.datacollection.components.LOI_NAME_TEXT_FIELD_TEST_TAG
 import org.groundplatform.android.ui.datacollection.tasks.multiplechoice.OTHER_INPUT_TEXT_TEST_TAG
 import org.groundplatform.android.ui.datacollection.tasks.multiplechoice.SELECT_MULTIPLE_CHECKBOX_TEST_TAG
 import org.groundplatform.android.ui.datacollection.tasks.multiplechoice.SELECT_MULTIPLE_RADIO_TEST_TAG
 import org.groundplatform.android.ui.datacollection.tasks.number.INPUT_NUMBER_TEST_TAG
 import org.groundplatform.android.ui.datacollection.tasks.text.INPUT_TEXT_TEST_TAG
+import org.groundplatform.domain.model.task.Task
 
 class DataCollectionRobot(override val testDriver: TestDriver) : Robot<DataCollectionRobot>() {
   fun dismissInstructions() {

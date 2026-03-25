@@ -28,9 +28,9 @@ import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST
 import org.groundplatform.android.FakeData.SURVEY
 import org.groundplatform.android.data.local.stores.LocalSurveyStore
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
-import org.groundplatform.android.model.Survey
 import org.groundplatform.android.proto.Survey.DataVisibility
 import org.groundplatform.android.repository.LocationOfInterestRepository
+import org.groundplatform.domain.model.Survey
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith

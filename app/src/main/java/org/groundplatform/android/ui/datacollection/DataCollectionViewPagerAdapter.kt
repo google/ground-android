@@ -20,7 +20,6 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import javax.inject.Provider
-import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.datacollection.tasks.date.DateTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.instruction.InstructionTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.location.CaptureLocationTaskFragment
@@ -31,6 +30,7 @@ import org.groundplatform.android.ui.datacollection.tasks.point.DropPinTaskFragm
 import org.groundplatform.android.ui.datacollection.tasks.polygon.DrawAreaTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.text.TextTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.time.TimeTaskFragment
+import org.groundplatform.domain.model.task.Task
 
 /**
  * A simple pager adapter that presents the [Task]s associated with a given Submission, in sequence.

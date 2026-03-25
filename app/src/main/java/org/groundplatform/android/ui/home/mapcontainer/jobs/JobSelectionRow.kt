@@ -38,10 +38,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.groundplatform.android.R
-import org.groundplatform.android.model.job.Job
-import org.groundplatform.android.model.job.Style
-import org.groundplatform.android.model.job.getDefaultColor
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
+import org.groundplatform.android.ui.util.getDefaultColor
+import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.job.Style
 import org.groundplatform.ui.theme.AppTheme
 
 @Composable

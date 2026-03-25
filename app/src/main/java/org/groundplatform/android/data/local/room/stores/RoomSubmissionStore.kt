@@ -39,9 +39,7 @@ import org.groundplatform.android.data.local.room.fields.MutationEntityType
 import org.groundplatform.android.data.local.room.fields.UserDetails
 import org.groundplatform.android.data.local.stores.LocalSubmissionStore
 import org.groundplatform.android.model.AuditInfo
-import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.User
-import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.locationofinterest.LocationOfInterest
 import org.groundplatform.android.model.mutation.Mutation
 import org.groundplatform.android.model.mutation.SubmissionMutation
@@ -50,6 +48,8 @@ import org.groundplatform.android.model.submission.Submission
 import org.groundplatform.android.model.submission.SubmissionData
 import org.groundplatform.android.model.submission.ValueDelta
 import org.groundplatform.android.util.Debug.logOnFailure
+import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.job.Job
 import timber.log.Timber
 
 /** Manages access to [Submission] objects persisted in local storage. */

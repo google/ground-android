@@ -55,9 +55,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.groundplatform.android.R
-import org.groundplatform.android.model.Survey
 import org.groundplatform.android.model.User
 import org.groundplatform.android.proto.Survey.GeneralAccess
+import org.groundplatform.domain.model.Survey
 import org.groundplatform.ui.theme.AppTheme
 
 @Composable

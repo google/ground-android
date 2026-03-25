@@ -22,10 +22,10 @@ import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.SURVEY
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
-import org.groundplatform.android.model.Survey
 import org.groundplatform.android.proto.Survey.DataSharingTerms
 import org.groundplatform.android.proto.SurveyKt.dataSharingTerms
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
+import org.groundplatform.domain.model.Survey
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner

@@ -16,8 +16,8 @@
 package org.groundplatform.android.model.submission
 
 import org.groundplatform.android.model.AuditInfo
-import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.locationofinterest.LocationOfInterest
+import org.groundplatform.domain.model.job.Job
 
 /**
  * Represents a single instance of data collected about a specific [LocationOfInterest].

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.model.task
+package org.groundplatform.domain.model.task
 
 /**
  * Describes a user-defined task.
@@ -21,9 +21,7 @@ package org.groundplatform.android.model.task
  * This contains the task definition only. Data collected for tasks in job are stored in
  * [org.groundplatform.android.model.submission.Submission].
  */
-data class Task
-@JvmOverloads
-constructor(
+data class Task(
   val id: String,
   /** Returns the sequential index of the task, used by UIs to sort prompts and results. */
   val index: Int,

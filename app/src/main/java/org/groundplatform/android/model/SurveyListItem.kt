@@ -16,6 +16,8 @@
 
 package org.groundplatform.android.model
 
+import org.groundplatform.domain.model.Survey
+
 data class SurveyListItem(
   val id: String,
   val title: String,

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google LLC
+ * Copyright 2018 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.model.task
+package org.groundplatform.domain.model.job
 
-import kotlinx.serialization.Serializable
-
-/** Describes a single valid option to a multiple choice question. */
-@Serializable data class Option(val id: String, val code: String, val label: String)
+data class Style(val color: String)

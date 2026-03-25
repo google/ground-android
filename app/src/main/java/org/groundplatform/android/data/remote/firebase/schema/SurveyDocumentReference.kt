@@ -20,7 +20,7 @@ import com.google.firebase.firestore.DocumentReference
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.tasks.await
 import org.groundplatform.android.data.remote.firebase.base.FluentDocumentReference
-import org.groundplatform.android.model.Survey
+import org.groundplatform.domain.model.Survey
 import timber.log.Timber
 
 private const val LOIS = "lois"

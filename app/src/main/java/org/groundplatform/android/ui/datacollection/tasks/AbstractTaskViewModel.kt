@@ -26,15 +26,15 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import org.groundplatform.android.R
-import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.submission.SkippedTaskData
-import org.groundplatform.android.model.submission.TaskData
-import org.groundplatform.android.model.submission.isNotNullOrEmpty
-import org.groundplatform.android.model.submission.isNullOrEmpty
-import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
+import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.submission.TaskData
+import org.groundplatform.domain.model.submission.isNotNullOrEmpty
+import org.groundplatform.domain.model.submission.isNullOrEmpty
+import org.groundplatform.domain.model.task.Task
 
 /** Defines the state of an inflated [Task] and controls its UI. */
 abstract class AbstractTaskViewModel internal constructor() : AbstractViewModel() {
