@@ -50,11 +50,13 @@ class PhotoTaskViewModel @Inject constructor(private val userMediaRepository: Us
 
   val showPermissionDeniedDialog = mutableStateOf(false)
 
-  val uri: Flow<Uri> = taskTaskData.map { taskData ->
-    if (taskData is PhotoTaskData && taskData.isNotNullOrEmpty()) {
-      userMediaRepository.getDownloadUrl(taskData.remoteFilename)
-    } else {
-      Uri.EMPTY
+  val uri: Flow<Uri> =
+    taskTaskData.map { taskData ->
+      if (taskData is PhotoTaskData && taskData.isNotNullOrEmpty()) {
+        userMediaRepository.getDownloadUrl(taskData.remoteFilename)
+      } else {
+        Uri.EMPTY
+      }
     }
   }
 

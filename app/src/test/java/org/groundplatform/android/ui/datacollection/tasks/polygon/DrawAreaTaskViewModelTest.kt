@@ -29,12 +29,17 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.model.job.Job
@@ -53,6 +58,7 @@ import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.LineString
 import org.groundplatform.domain.model.geometry.LinearRing
 import org.groundplatform.domain.model.geometry.Polygon
+import org.junit.After
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -72,6 +78,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
 
   override fun setUp() {
     super.setUp()
+    Dispatchers.setMain(UnconfinedTestDispatcher())
     mergedFeatureFlow = merge(viewModel.draftArea.filterNotNull(), viewModel.draftUpdates)
 
     mergedFeatureLiveData = mergedFeatureFlow.asLiveData()
@@ -620,6 +627,95 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     assertThat(viewModel.isMarkedComplete()).isTrue()
   }
 
+  @Test
+  fun `checkVertexIntersection sets hasSelfIntersection and showSelfIntersectionDialog to true`() =
+    runWithTestDispatcher {
+      setupViewModel()
+
+      // Create a path: (0,0) -> (10,10) -> (0,10)
+      updateLastVertexAndAdd(COORDINATE_1)
+      updateLastVertexAndAdd(COORDINATE_2)
+      updateLastVertexAndAdd(COORDINATE_6)
+
+      // Move cursor to a point that crosses the first segment: (10,0)
+      updateLastVertex(COORDINATE_5)
+
+      // Trigger ADD_POINT which calls checkVertexIntersection
+      viewModel.onButtonClick(ButtonAction.ADD_POINT)
+      advanceUntilIdle()
+
+      assertThat(viewModel.hasSelfIntersection.value).isTrue()
+      assertThat(viewModel.showSelfIntersectionDialog.value).isTrue()
+      // offending vertex should be dropped
+      assertGeometry(4, isLineString = true)
+    }
+
+  @Test
+  fun `dismissSelfIntersectionDialog resets both flag and dialog visibility`() =
+    runWithTestDispatcher {
+      setupViewModel()
+
+      // Force an intersection state
+      updateLastVertexAndAdd(COORDINATE_1)
+      updateLastVertexAndAdd(COORDINATE_2)
+      updateLastVertexAndAdd(COORDINATE_6)
+      updateLastVertex(COORDINATE_5)
+      viewModel.onButtonClick(ButtonAction.ADD_POINT)
+      advanceUntilIdle()
+
+      viewModel.dismissSelfIntersectionDialog()
+      assertThat(viewModel.hasSelfIntersection.value).isFalse()
+      assertThat(viewModel.showSelfIntersectionDialog.value).isFalse()
+    }
+
+  @Test
+  fun `taskActionButtonStates re-enables COMPLETE button after intersection is dismissed`() =
+    runTest(UnconfinedTestDispatcher()) { // Use Unconfined to trigger emissions immediately
+      setupViewModel()
+
+      viewModel.taskActionButtonStates.test {
+        // 1. Initial State: Create a closed non-intersecting square
+        updateLastVertexAndAdd(COORDINATE_1)
+        updateLastVertexAndAdd(COORDINATE_2)
+        updateLastVertexAndAdd(COORDINATE_3)
+        // Set state to be near first vertex to enable COMPLETE
+        updateLastVertex(COORDINATE_1, isNearFirstVertex = true)
+
+        // 2. Trigger Intersection Logic
+        // Clear state (Simulated)
+        while (viewModel.getLastVertex() != null) {
+          viewModel.removeLastVertex()
+        }
+
+        updateLastVertexAndAdd(COORDINATE_1)
+        updateLastVertexAndAdd(COORDINATE_2)
+        updateLastVertexAndAdd(COORDINATE_6)
+        updateLastVertexAndAdd(COORDINATE_5)
+        updateLastVertex(COORDINATE_1, isNearFirstVertex = true)
+
+        // Trigger validation
+        viewModel.onButtonClick(ButtonAction.COMPLETE)
+
+        // 3. Assert: Button should eventually become disabled due to intersection
+        // We look for the emission where COMPLETE is disabled
+        expectMostRecentItem().let { latestStates ->
+          val completeAction = latestStates.find { it.action == ButtonAction.COMPLETE }
+          assertThat(completeAction?.isEnabled).isFalse()
+        }
+
+        // 4. Act: Dismiss and Verify
+        viewModel.dismissSelfIntersectionDialog()
+
+        // 5. Assert: Button is enabled again
+        expectMostRecentItem().let { latestStates ->
+          val completeAction = latestStates.find { it.action == ButtonAction.COMPLETE }
+          assertThat(completeAction?.isEnabled).isTrue()
+        }
+
+        cancelAndIgnoreRemainingEvents()
+      }
+    }
+
   private fun assertGeometry(
     expectedVerticesCount: Int,
     isLineString: Boolean = false,
@@ -679,6 +775,8 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     private val COORDINATE_2 = Coordinates(10.0, 10.0)
     private val COORDINATE_3 = Coordinates(20.0, 20.0)
     private val COORDINATE_4 = Coordinates(30.0, 30.0)
+    private val COORDINATE_5 = Coordinates(10.0, 0.0)
+    private val COORDINATE_6 = Coordinates(0.0, 10.0)
 
     private val TASK =
       Task(
@@ -689,5 +787,10 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
         isRequired = false,
       )
     private val JOB = Job("job", Style("#112233"))
+  }
+
+  @After
+  fun tearDown() {
+    Dispatchers.resetMain()
   }
 }

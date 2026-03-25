@@ -19,9 +19,9 @@ import android.view.LayoutInflater
 import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.os.bundleOf
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -53,7 +53,8 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
 
   @Composable
   override fun TaskBody() {
-    var showSelfIntersectionDialog by viewModel.showSelfIntersectionDialog
+    val showSelfIntersectionDialog by
+      viewModel.showSelfIntersectionDialog.collectAsStateWithLifecycle()
 
     AndroidView(
       factory = { context ->
@@ -86,7 +87,8 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
         description = R.string.polygon_vertex_add_dialog_message,
         confirmButtonText = R.string.polygon_vertex_add_dialog_positive_button,
         dismissButtonText = null,
-        onConfirmClicked = { showSelfIntersectionDialog = false },
+        onConfirmClicked = { viewModel.dismissSelfIntersectionDialog() },
+        onDismiss = { viewModel.dismissSelfIntersectionDialog() },
       )
     }
   }
