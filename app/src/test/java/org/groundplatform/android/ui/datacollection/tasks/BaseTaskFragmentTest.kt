@@ -16,23 +16,20 @@
 
 package org.groundplatform.android.ui.datacollection.tasks
 
-import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
-import androidx.fragment.app.Fragment
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.flowOf
 import org.groundplatform.android.BaseHiltTest
-import org.groundplatform.android.R
+import org.groundplatform.android.getString
 import org.groundplatform.android.model.job.Job
 import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.model.task.Task
-import org.groundplatform.android.testrules.FragmentScenarioRule
 import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.TaskFragmentRunner
@@ -40,15 +37,13 @@ import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.junit.Rule
 import org.mockito.kotlin.whenever
 
-abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractTaskViewModel> :
-  BaseHiltTest() {
-  @get:Rule val composeTestRule = createAndroidComposeRule<ComponentActivity>()
-  @get:Rule val fragmentScenario = FragmentScenarioRule()
+abstract class BaseTaskFragmentTest<VM : AbstractTaskViewModel> : BaseHiltTest() {
+
+  @get:Rule val composeTestRule = createComposeRule()
 
   abstract val dataCollectionViewModel: DataCollectionViewModel
   abstract val viewModelFactory: ViewModelFactory
 
-  lateinit var fragment: F
   lateinit var viewModel: VM
 
   protected fun runner() = TaskFragmentRunner(this, composeTestRule)
@@ -69,11 +64,8 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
     buttonStates.forEach { state ->
       val node =
         state.action.contentDescription?.let {
-          composeTestRule.onNodeWithContentDescription(fragment.context!!.resources.getString(it))
-        }
-          ?: composeTestRule.onNodeWithText(
-            fragment.context!!.resources.getString(state.action.textId!!)
-          )
+          composeTestRule.onNodeWithContentDescription(getString(it))
+        } ?: composeTestRule.onNodeWithText(getString(state.action.textId!!))
 
       if (state.isVisible) {
         node.assertExists()
@@ -88,7 +80,7 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
     }
   }
 
-  protected inline fun <reified T : Fragment> setupTaskFragment(
+  protected fun setupTaskFragment(
     job: Job,
     task: Task,
     isFistPosition: Boolean = false,
@@ -110,13 +102,5 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
     whenever(dataCollectionViewModel.getTaskViewModel(task.id)).thenReturn(viewModel)
     whenever(dataCollectionViewModel.isCurrentActiveTaskFlow(task.id))
       .thenReturn(flowOf(isTaskActive))
-
-    fragmentScenario.launchFragmentWithNavController<T>(
-      destId = R.id.data_collection_fragment,
-      preTransactionAction = {
-        fragment = this as F
-        fragment.taskId = task.id
-      },
-    )
   }
 }

@@ -375,8 +375,9 @@ internal constructor(
     synchronized(draftLock) {
       if (draftCache == null) {
         draftCache = parsed
-        draftMapCache =
-          parsed.associate { (taskId, taskType, value) -> (taskId to taskType) to value }
+        draftMapCache = parsed.associate { (taskId, taskType, value) ->
+          (taskId to taskType) to value
+        }
       }
     }
   }
