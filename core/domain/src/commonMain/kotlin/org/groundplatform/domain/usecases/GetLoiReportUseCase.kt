@@ -15,6 +15,7 @@
  */
 package org.groundplatform.domain.usecases
 
+import kotlin.math.round
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
@@ -51,7 +52,9 @@ class GetLoiReportUseCase(
     return loi?.let {
       LoiReport(
         loiName,
-        it.geometry.toGeoJson(it.properties.filter { property -> property.key == LOI_NAME_PROPERTY }),
+        it.geometry.toGeoJson(
+          it.properties.filter { property -> property.key == LOI_NAME_PROPERTY }
+        ),
       )
     }
   }
@@ -94,8 +97,14 @@ class GetLoiReportUseCase(
     JsonObject(mapOf(KEY_TYPE to JsonPrimitive(type), KEY_COORDINATES to coordinates))
 
   /** Converts a single [Coordinates] to a GeoJSON position: [lng, lat]. */
-  private fun coordinatesToPosition(coordinates: Coordinates): JsonArray =
-    JsonArray(listOf(JsonPrimitive(coordinates.lng), JsonPrimitive(coordinates.lat)))
+  private fun coordinatesToPosition(coordinates: Coordinates): JsonArray {
+    return JsonArray(
+      listOf(
+        JsonPrimitive(coordinates.lng.roundTo6Decimals()),
+        JsonPrimitive(coordinates.lat.roundTo6Decimals()),
+      )
+    )
+  }
 
   /** Converts a list of [Coordinates] to a GeoJSON array of positions. */
   private fun coordinatesToPositions(coordinates: List<Coordinates>): JsonArray =
@@ -107,6 +116,8 @@ class GetLoiReportUseCase(
     polygon.holes.forEach { rings.add(coordinatesToPositions(it.coordinates)) }
     return JsonArray(rings)
   }
+
+  private fun Double.roundTo6Decimals(): Double = round(this * 1e6) / 1e6
 
   private companion object {
     const val KEY_TYPE = "type"
