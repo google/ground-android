@@ -23,9 +23,9 @@ import javax.inject.Singleton
 import org.groundplatform.android.common.Constants.DEFAULT_MAP_TYPE
 import org.groundplatform.android.common.PrefKeys
 import org.groundplatform.android.model.map.CameraPosition
-import org.groundplatform.android.model.settings.MeasurementUnits
 import org.groundplatform.android.util.allowThreadDiskReads
 import org.groundplatform.android.util.allowThreadDiskWrites
+import org.groundplatform.domain.model.settings.MeasurementUnits
 import timber.log.Timber
 
 /**

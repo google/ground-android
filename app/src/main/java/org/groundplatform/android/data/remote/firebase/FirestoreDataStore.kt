@@ -34,9 +34,9 @@ import org.groundplatform.android.data.remote.RemoteDataStore
 import org.groundplatform.android.data.remote.firebase.schema.GroundFirestore
 import org.groundplatform.android.di.coroutines.IoDispatcher
 import org.groundplatform.android.model.SurveyListItem
-import org.groundplatform.android.model.TermsOfService
 import org.groundplatform.android.model.toListItem
 import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.TermsOfService
 import org.groundplatform.domain.model.User
 import org.groundplatform.domain.model.mutation.LocationOfInterestMutation
 import org.groundplatform.domain.model.mutation.Mutation

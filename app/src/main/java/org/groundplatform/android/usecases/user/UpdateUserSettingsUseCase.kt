@@ -16,8 +16,8 @@
 package org.groundplatform.android.usecases.user
 
 import javax.inject.Inject
-import org.groundplatform.android.model.settings.UserSettings
 import org.groundplatform.android.repository.UserRepository
+import org.groundplatform.domain.model.settings.UserSettings
 
 class UpdateUserSettingsUseCase @Inject constructor(private val userRepository: UserRepository) {
 

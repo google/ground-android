@@ -16,12 +16,12 @@
 package org.groundplatform.android
 
 import kotlin.time.Clock
-import org.groundplatform.android.model.TermsOfService
 import org.groundplatform.android.model.imagery.OfflineArea
 import org.groundplatform.android.model.map.Bounds
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.gms.features.FeatureClusterItem
 import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.TermsOfService
 import org.groundplatform.domain.model.User
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.LinearRing
