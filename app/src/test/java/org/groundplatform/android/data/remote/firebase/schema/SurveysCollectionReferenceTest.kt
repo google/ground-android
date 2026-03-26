@@ -31,11 +31,11 @@ import kotlinx.coroutines.test.runTest
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.data.remote.firebase.protobuf.toFirestoreMap
 import org.groundplatform.android.data.remote.firebase.protobuf.toProto
-import org.groundplatform.android.model.User
 import org.groundplatform.android.proto.Role
 import org.groundplatform.android.proto.Survey as SurveyProto
 import org.groundplatform.android.proto.Survey.DataVisibility.DATA_VISIBILITY_UNSPECIFIED
 import org.groundplatform.android.proto.survey
+import org.groundplatform.domain.model.User
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

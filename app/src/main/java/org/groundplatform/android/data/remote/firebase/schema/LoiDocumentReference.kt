@@ -20,9 +20,9 @@ import com.google.firebase.firestore.WriteBatch
 import org.groundplatform.android.data.remote.firebase.base.FluentDocumentReference
 import org.groundplatform.android.data.remote.firebase.protobuf.createLoiMessage
 import org.groundplatform.android.data.remote.firebase.protobuf.toFirestoreMap
-import org.groundplatform.android.model.User
-import org.groundplatform.android.model.mutation.LocationOfInterestMutation
-import org.groundplatform.android.model.mutation.Mutation
+import org.groundplatform.domain.model.User
+import org.groundplatform.domain.model.mutation.LocationOfInterestMutation
+import org.groundplatform.domain.model.mutation.Mutation
 
 class LoiDocumentReference internal constructor(ref: DocumentReference) :
   FluentDocumentReference(ref) {

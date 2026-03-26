@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.model
+package org.groundplatform.domain.model.locationofinterest
 
 import kotlin.time.Clock
+import org.groundplatform.domain.model.User
 
 /**
  * User details and timestamp for creation or modification of a model object.

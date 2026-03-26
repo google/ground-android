@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.model.submission
+package org.groundplatform.domain.model.task
 
 import kotlinx.serialization.Serializable
-import org.groundplatform.android.model.locationofinterest.LocationOfInterest
-import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.submission.TaskData
 
-/** Represents a single photo associated with a given [LocationOfInterest] and [Job]. */
+/**
+ * Represents a single photo associated with a given
+ * [org.groundplatform.domain.model.locationofinterest.LocationOfInterest] and
+ * [org.groundplatform.domain.model.job.Job].
+ */
 @Serializable
 class PhotoTaskData(val remoteFilename: String) : TaskData {
 

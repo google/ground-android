@@ -35,12 +35,12 @@ import org.groundplatform.android.data.remote.firebase.schema.GroundFirestore
 import org.groundplatform.android.di.coroutines.IoDispatcher
 import org.groundplatform.android.model.SurveyListItem
 import org.groundplatform.android.model.TermsOfService
-import org.groundplatform.android.model.User
-import org.groundplatform.android.model.mutation.LocationOfInterestMutation
-import org.groundplatform.android.model.mutation.Mutation
-import org.groundplatform.android.model.mutation.SubmissionMutation
 import org.groundplatform.android.model.toListItem
 import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.User
+import org.groundplatform.domain.model.mutation.LocationOfInterestMutation
+import org.groundplatform.domain.model.mutation.Mutation
+import org.groundplatform.domain.model.mutation.SubmissionMutation
 import timber.log.Timber
 
 private const val PROFILE_REFRESH_CLOUD_FUNCTION_NAME = "profile-refresh"

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.model.submission
+package org.groundplatform.domain.model
 
-import org.groundplatform.domain.model.submission.TaskData
-import org.groundplatform.domain.model.task.Task
-
-/**
- * Represents a change to an individual value in a submission.
- *
- * @property taskId the id of the task task being updated.
- * @property taskType the type of task being updated.
- * @property newTaskData the new value of the value, or empty if removed.
- */
-data class ValueDelta(val taskId: String, val taskType: Task.Type, val newTaskData: TaskData?)
+/** Represents a single application user. */
+data class User(
+  val id: String,
+  val email: String,
+  val displayName: String,
+  val photoUrl: String? = null,
+  val isAnonymous: Boolean = false,
+)

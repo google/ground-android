@@ -21,9 +21,9 @@ import com.google.firebase.firestore.WriteBatch
 import org.groundplatform.android.data.remote.firebase.base.FluentDocumentReference
 import org.groundplatform.android.data.remote.firebase.protobuf.createSubmissionMessage
 import org.groundplatform.android.data.remote.firebase.protobuf.toFirestoreMap
-import org.groundplatform.android.model.User
-import org.groundplatform.android.model.mutation.Mutation
-import org.groundplatform.android.model.mutation.SubmissionMutation
+import org.groundplatform.domain.model.User
+import org.groundplatform.domain.model.mutation.Mutation
+import org.groundplatform.domain.model.mutation.SubmissionMutation
 
 class SubmissionDocumentReference internal constructor(ref: DocumentReference) :
   FluentDocumentReference(ref) {

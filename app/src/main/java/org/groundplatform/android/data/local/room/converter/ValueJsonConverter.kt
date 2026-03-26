@@ -26,7 +26,6 @@ import org.groundplatform.android.model.submission.DrawAreaTaskData
 import org.groundplatform.android.model.submission.DrawAreaTaskIncompleteData
 import org.groundplatform.android.model.submission.DropPinTaskData
 import org.groundplatform.android.model.submission.NumberTaskData
-import org.groundplatform.android.model.submission.PhotoTaskData
 import org.groundplatform.android.model.submission.SkippedTaskData
 import org.groundplatform.android.model.submission.TextTaskData
 import org.groundplatform.domain.model.geometry.LineString
@@ -34,6 +33,7 @@ import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.geometry.Polygon
 import org.groundplatform.domain.model.submission.MultipleChoiceTaskData
 import org.groundplatform.domain.model.submission.TaskData
+import org.groundplatform.domain.model.task.PhotoTaskData
 import org.groundplatform.domain.model.task.Task
 import org.json.JSONArray
 import org.json.JSONException

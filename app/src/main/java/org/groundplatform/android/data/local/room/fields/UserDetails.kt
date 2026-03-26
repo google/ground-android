@@ -16,7 +16,7 @@
 package org.groundplatform.android.data.local.room.fields
 
 import androidx.room.ColumnInfo
-import org.groundplatform.android.model.User
+import org.groundplatform.domain.model.User
 
 /** Component representing cached user details in local db entities. */
 data class UserDetails(

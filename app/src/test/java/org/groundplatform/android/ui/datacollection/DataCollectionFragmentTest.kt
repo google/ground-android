@@ -39,12 +39,9 @@ import org.groundplatform.android.data.local.room.converter.SubmissionDeltasConv
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.data.sync.MutationSyncWorkManager
 import org.groundplatform.android.model.map.CameraPosition
-import org.groundplatform.android.model.mutation.Mutation
-import org.groundplatform.android.model.mutation.SubmissionMutation
 import org.groundplatform.android.model.submission.DraftSubmission
 import org.groundplatform.android.model.submission.DropPinTaskData
 import org.groundplatform.android.model.submission.TextTaskData
-import org.groundplatform.android.model.submission.ValueDelta
 import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.MutationRepository
 import org.groundplatform.android.repository.SubmissionRepository
@@ -54,7 +51,10 @@ import org.groundplatform.android.ui.datacollection.tasks.point.DropPinTaskViewM
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.Point
+import org.groundplatform.domain.model.mutation.Mutation
+import org.groundplatform.domain.model.mutation.SubmissionMutation
 import org.groundplatform.domain.model.submission.MultipleChoiceTaskData
+import org.groundplatform.domain.model.submission.ValueDelta
 import org.groundplatform.domain.model.task.Condition
 import org.groundplatform.domain.model.task.Expression
 import org.groundplatform.domain.model.task.MultipleChoice

@@ -22,10 +22,10 @@ import com.google.firebase.firestore.snapshots
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.groundplatform.android.data.remote.firebase.base.FluentCollectionReference
-import org.groundplatform.android.model.User
 import org.groundplatform.android.proto.Role
 import org.groundplatform.android.proto.Survey as SurveyProto
 import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.User
 
 private const val ACL_FIELD = SurveyProto.ACL_FIELD_NUMBER.toString()
 private const val GENERAL_ACCESS_FIELD = SurveyProto.GENERAL_ACCESS_FIELD_NUMBER.toString()

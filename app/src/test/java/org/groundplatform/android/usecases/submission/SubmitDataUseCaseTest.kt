@@ -25,12 +25,12 @@ import org.groundplatform.android.FakeData.newTask
 import org.groundplatform.android.data.sync.MutationSyncWorkManager
 import org.groundplatform.android.model.submission.CaptureLocationTaskData
 import org.groundplatform.android.model.submission.DropPinTaskData
-import org.groundplatform.android.model.submission.ValueDelta
 import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.SubmissionRepository
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.submission.ValueDelta
 import org.groundplatform.domain.model.task.Task
 import org.junit.Before
 import org.junit.Test

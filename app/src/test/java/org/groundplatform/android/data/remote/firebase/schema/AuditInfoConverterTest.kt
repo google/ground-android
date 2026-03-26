@@ -19,8 +19,8 @@ package org.groundplatform.android.data.remote.firebase.schema
 import com.google.common.truth.Truth.assertThat
 import com.google.protobuf.timestamp
 import org.groundplatform.android.FakeData.USER
-import org.groundplatform.android.model.AuditInfo as AuditInfoModel
 import org.groundplatform.android.proto.auditInfo
+import org.groundplatform.domain.model.locationofinterest.AuditInfo as AuditInfoModel
 import org.junit.Test
 
 class AuditInfoConverterTest {

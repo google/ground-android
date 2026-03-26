@@ -21,11 +21,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import org.groundplatform.android.model.SurveyListItem
 import org.groundplatform.android.model.TermsOfService
-import org.groundplatform.android.model.User
-import org.groundplatform.android.model.locationofinterest.LocationOfInterest
-import org.groundplatform.android.model.mutation.Mutation
 import org.groundplatform.android.model.toListItem
 import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.User
+import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
+import org.groundplatform.domain.model.mutation.Mutation
 
 @Singleton
 class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {

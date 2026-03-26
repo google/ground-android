@@ -20,11 +20,11 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
-import org.groundplatform.android.model.User
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.NetworkStatus
 import org.groundplatform.android.system.auth.SignInState
+import org.groundplatform.domain.model.User
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

@@ -16,6 +16,7 @@
 package org.groundplatform.android.model.submission
 
 import org.groundplatform.domain.model.submission.TaskData
+import org.groundplatform.domain.model.submission.ValueDelta
 import org.groundplatform.domain.model.submission.isNotNullOrEmpty
 
 /**

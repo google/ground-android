@@ -15,6 +15,8 @@
  */
 package org.groundplatform.android.model.submission
 
+import org.groundplatform.domain.model.submission.ValueDelta
+
 /** Represents a single instance of data being collected by the user. */
 data class DraftSubmission(
   val id: String,
