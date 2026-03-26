@@ -54,7 +54,7 @@ import kotlinx.serialization.json.JsonPrimitive
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.domain.model.locationofinterest.LoiReport
-import org.groundplatform.ui.components.GroundQrCode
+import org.groundplatform.ui.components.qrcode.GroundQrCode
 import org.groundplatform.ui.theme.AppTheme
 
 private val DEFAULT_TOOLBAR_HEIGHT = 56.dp
@@ -154,7 +154,7 @@ private fun ShareableContent(modifier: Modifier = Modifier, loiReport: LoiReport
           modifier = Modifier.align(Alignment.Center),
           title = loiReport.loiName,
           footer = stringResource(R.string.scan_this_qr_to_download_geojson),
-          qrContent = loiReport.geoJson.toString(),
+          content = loiReport.geoJson.toString(),
           contentDescription = "QR code with LOI Geometry",
           centerLogoPainter = painterResource(R.drawable.ground_logo),
         )

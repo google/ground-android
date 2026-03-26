@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -43,7 +44,7 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import org.groundplatform.android.R
 import org.groundplatform.domain.model.locationofinterest.LoiReport
-import org.groundplatform.ui.components.GroundQrCode
+import org.groundplatform.ui.components.qrcode.GroundQrCode
 import org.groundplatform.ui.theme.AppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -75,7 +76,7 @@ fun ShareLocationModal(loiReport: LoiReport, onDismiss: () -> Unit) {
             modifier = Modifier.align(Alignment.Center),
             title = loiReport.loiName,
             footer = stringResource(R.string.scan_this_qr_to_download_geojson),
-            qrContent = loiReport.geoJson.toString(),
+            content = loiReport.geoJson.toString(),
             contentDescription = "QR code with LOI Geometry",
             centerLogoPainter = painterResource(R.drawable.ground_logo),
           )
