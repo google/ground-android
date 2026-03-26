@@ -34,7 +34,6 @@ import org.groundplatform.android.data.local.stores.LocalLocationOfInterestStore
 import org.groundplatform.android.data.local.stores.LocalSubmissionStore
 import org.groundplatform.android.data.local.stores.LocalSurveyStore
 import org.groundplatform.android.data.local.stores.LocalUserStore
-import org.groundplatform.android.model.submission.TextTaskData
 import org.groundplatform.android.ui.map.gms.GmsExt.getShellCoordinates
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.User
@@ -47,6 +46,7 @@ import org.groundplatform.domain.model.job.Style
 import org.groundplatform.domain.model.mutation.Mutation
 import org.groundplatform.domain.model.mutation.Mutation.SyncStatus
 import org.groundplatform.domain.model.mutation.SubmissionMutation
+import org.groundplatform.domain.model.submission.TextTaskData
 import org.groundplatform.domain.model.submission.ValueDelta
 import org.groundplatform.domain.model.task.Task
 import org.junit.Test

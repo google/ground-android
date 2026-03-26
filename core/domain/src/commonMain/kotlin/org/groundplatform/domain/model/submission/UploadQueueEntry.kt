@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.groundplatform.android.model.submission
+package org.groundplatform.domain.model.submission
 
 import org.groundplatform.domain.model.mutation.LocationOfInterestMutation
 import org.groundplatform.domain.model.mutation.Mutation

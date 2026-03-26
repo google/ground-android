@@ -22,12 +22,6 @@ import org.groundplatform.android.FakeData
 import org.groundplatform.android.data.remote.firebase.protobuf.createSubmissionMessage
 import org.groundplatform.android.data.remote.firebase.protobuf.toFirestoreMap
 import org.groundplatform.android.model.submission.CaptureLocationTaskData
-import org.groundplatform.android.model.submission.DateTimeTaskData
-import org.groundplatform.android.model.submission.DrawAreaTaskData
-import org.groundplatform.android.model.submission.DropPinTaskData
-import org.groundplatform.android.model.submission.NumberTaskData
-import org.groundplatform.android.model.submission.SkippedTaskData
-import org.groundplatform.android.model.submission.TextTaskData
 import org.groundplatform.android.proto.AuditInfo.CLIENT_TIMESTAMP_FIELD_NUMBER
 import org.groundplatform.android.proto.AuditInfo.DISPLAY_NAME_FIELD_NUMBER
 import org.groundplatform.android.proto.AuditInfo.SERVER_TIMESTAMP_FIELD_NUMBER
@@ -68,7 +62,13 @@ import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.geometry.Polygon
 import org.groundplatform.domain.model.mutation.Mutation
 import org.groundplatform.domain.model.mutation.SubmissionMutation
+import org.groundplatform.domain.model.submission.DateTimeTaskData
+import org.groundplatform.domain.model.submission.DrawAreaTaskData
+import org.groundplatform.domain.model.submission.DropPinTaskData
 import org.groundplatform.domain.model.submission.MultipleChoiceTaskData
+import org.groundplatform.domain.model.submission.NumberTaskData
+import org.groundplatform.domain.model.submission.SkippedTaskData
+import org.groundplatform.domain.model.submission.TextTaskData
 import org.groundplatform.domain.model.submission.ValueDelta
 import org.groundplatform.domain.model.task.MultipleChoice
 import org.groundplatform.domain.model.task.Option

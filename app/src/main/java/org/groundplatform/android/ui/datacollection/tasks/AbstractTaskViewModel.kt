@@ -26,11 +26,11 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import org.groundplatform.android.R
-import org.groundplatform.android.model.submission.SkippedTaskData
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.submission.SkippedTaskData
 import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.submission.isNotNullOrEmpty
 import org.groundplatform.domain.model.submission.isNullOrEmpty

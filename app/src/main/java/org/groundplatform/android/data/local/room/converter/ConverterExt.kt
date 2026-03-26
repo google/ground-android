@@ -54,9 +54,6 @@ import org.groundplatform.android.data.remote.firebase.protobuf.toModel
 import org.groundplatform.android.data.remote.firebase.protobuf.toProto
 import org.groundplatform.android.model.imagery.OfflineArea
 import org.groundplatform.android.model.map.Bounds
-import org.groundplatform.android.model.submission.DraftSubmission
-import org.groundplatform.android.model.submission.Submission
-import org.groundplatform.android.model.submission.SubmissionData
 import org.groundplatform.android.proto.Survey as SurveyProto
 import org.groundplatform.android.proto.Survey.DataSharingTerms
 import org.groundplatform.domain.model.Survey
@@ -71,6 +68,9 @@ import org.groundplatform.domain.model.locationofinterest.AuditInfo
 import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
 import org.groundplatform.domain.model.mutation.LocationOfInterestMutation
 import org.groundplatform.domain.model.mutation.SubmissionMutation
+import org.groundplatform.domain.model.submission.DraftSubmission
+import org.groundplatform.domain.model.submission.Submission
+import org.groundplatform.domain.model.submission.SubmissionData
 import org.groundplatform.domain.model.task.Condition
 import org.groundplatform.domain.model.task.Expression
 import org.groundplatform.domain.model.task.MultipleChoice

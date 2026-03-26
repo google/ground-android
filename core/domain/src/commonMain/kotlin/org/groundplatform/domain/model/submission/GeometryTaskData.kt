@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.model.submission
+package org.groundplatform.domain.model.submission
 
 import org.groundplatform.domain.model.geometry.Geometry
 import org.groundplatform.domain.model.geometry.LineString
 import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.geometry.Polygon
-import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.task.Task
 
 /** A user-provided response to a geometry-based task ("drop a pin" or "draw an area"). */

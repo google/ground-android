@@ -17,12 +17,6 @@ package org.groundplatform.android.data.remote.firebase.protobuf
 
 import com.google.protobuf.timestamp
 import kotlinx.collections.immutable.toImmutableMap
-import org.groundplatform.android.model.submission.CaptureLocationTaskData
-import org.groundplatform.android.model.submission.DateTimeTaskData
-import org.groundplatform.android.model.submission.GeometryTaskData
-import org.groundplatform.android.model.submission.NumberTaskData
-import org.groundplatform.android.model.submission.SkippedTaskData
-import org.groundplatform.android.model.submission.TextTaskData
 import org.groundplatform.android.proto.LinearRing as LinearRingProto
 import org.groundplatform.android.proto.LocationOfInterest.Property
 import org.groundplatform.android.proto.LocationOfInterest.Source
@@ -55,8 +49,14 @@ import org.groundplatform.domain.model.locationofinterest.LoiProperties
 import org.groundplatform.domain.model.mutation.LocationOfInterestMutation
 import org.groundplatform.domain.model.mutation.Mutation
 import org.groundplatform.domain.model.mutation.SubmissionMutation
+import org.groundplatform.domain.model.submission.CaptureLocationTaskData
+import org.groundplatform.domain.model.submission.DateTimeTaskData
+import org.groundplatform.domain.model.submission.GeometryTaskData
 import org.groundplatform.domain.model.submission.MultipleChoiceTaskData
+import org.groundplatform.domain.model.submission.NumberTaskData
+import org.groundplatform.domain.model.submission.SkippedTaskData
 import org.groundplatform.domain.model.submission.TaskData
+import org.groundplatform.domain.model.submission.TextTaskData
 import org.groundplatform.domain.model.task.PhotoTaskData
 
 fun SubmissionMutation.createSubmissionMessage(user: User) = submission {

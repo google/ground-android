@@ -38,9 +38,6 @@ import org.groundplatform.android.data.local.room.fields.MutationEntitySyncStatu
 import org.groundplatform.android.data.local.room.fields.MutationEntityType
 import org.groundplatform.android.data.local.room.fields.UserDetails
 import org.groundplatform.android.data.local.stores.LocalSubmissionStore
-import org.groundplatform.android.model.submission.DraftSubmission
-import org.groundplatform.android.model.submission.Submission
-import org.groundplatform.android.model.submission.SubmissionData
 import org.groundplatform.android.util.Debug.logOnFailure
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.User
@@ -49,6 +46,9 @@ import org.groundplatform.domain.model.locationofinterest.AuditInfo
 import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
 import org.groundplatform.domain.model.mutation.Mutation
 import org.groundplatform.domain.model.mutation.SubmissionMutation
+import org.groundplatform.domain.model.submission.DraftSubmission
+import org.groundplatform.domain.model.submission.Submission
+import org.groundplatform.domain.model.submission.SubmissionData
 import org.groundplatform.domain.model.submission.ValueDelta
 import timber.log.Timber
 

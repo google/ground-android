@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.model.submission
+package org.groundplatform.domain.model.submission
 
-import org.groundplatform.domain.model.submission.ValueDelta
+import kotlinx.serialization.Serializable
 
-/** Represents a single instance of data being collected by the user. */
-data class DraftSubmission(
-  val id: String,
-  val jobId: String,
-  val loiId: String?,
-  val loiName: String?,
-  val surveyId: String,
-  val deltas: List<ValueDelta>,
-  val currentTaskId: String?,
-)
+/** A user-provided response to a date and time question task. */
+@Serializable
+data class DateTimeTaskData(val timeInMillis: Long) : TaskData {
+
+  override fun isEmpty(): Boolean = timeInMillis == 0L
+
+  companion object {
+    fun fromMillis(timeInMillis: Long): TaskData = DateTimeTaskData(timeInMillis)
+  }
+}

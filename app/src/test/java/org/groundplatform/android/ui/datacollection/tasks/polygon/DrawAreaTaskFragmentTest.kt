@@ -27,8 +27,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.R
 import org.groundplatform.android.getString
-import org.groundplatform.android.model.submission.DrawAreaTaskData
-import org.groundplatform.android.model.submission.DrawAreaTaskIncompleteData
 import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
@@ -40,6 +38,8 @@ import org.groundplatform.domain.model.geometry.LinearRing
 import org.groundplatform.domain.model.geometry.Polygon
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.job.Style
+import org.groundplatform.domain.model.submission.DrawAreaTaskData
+import org.groundplatform.domain.model.submission.DrawAreaTaskIncompleteData
 import org.groundplatform.domain.model.task.Task
 import org.junit.Test
 import org.junit.runner.RunWith

@@ -24,7 +24,6 @@ import kotlinx.coroutines.flow.first
 import org.groundplatform.android.data.local.stores.LocalLocationOfInterestStore
 import org.groundplatform.android.data.local.stores.LocalSubmissionStore
 import org.groundplatform.android.data.remote.RemoteDataStore
-import org.groundplatform.android.model.submission.UploadQueueEntry
 import org.groundplatform.android.system.auth.AuthenticationManager
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.User
@@ -40,6 +39,7 @@ import org.groundplatform.domain.model.mutation.Mutation.SyncStatus.MEDIA_UPLOAD
 import org.groundplatform.domain.model.mutation.Mutation.SyncStatus.PENDING
 import org.groundplatform.domain.model.mutation.Mutation.SyncStatus.UNKNOWN
 import org.groundplatform.domain.model.mutation.SubmissionMutation
+import org.groundplatform.domain.model.submission.UploadQueueEntry
 import timber.log.Timber
 
 /**

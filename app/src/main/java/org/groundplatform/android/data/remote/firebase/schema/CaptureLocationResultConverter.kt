@@ -16,11 +16,14 @@
 package org.groundplatform.android.data.remote.firebase.schema
 
 import org.groundplatform.android.data.local.room.converter.GeometryWrapperTypeConverter
-import org.groundplatform.android.model.submission.CaptureLocationTaskData
 import org.groundplatform.domain.model.geometry.Point
+import org.groundplatform.domain.model.submission.CaptureLocationTaskData
 import org.json.JSONObject
 
-/** Converts between [CaptureLocationTaskData] and its equivalent [JSONObject] representation. */
+/**
+ * Converts between [org.groundplatform.domain.model.submission.CaptureLocationTaskData] and its
+ * equivalent [JSONObject] representation.
+ */
 object CaptureLocationResultConverter {
   private const val ACCURACY_KEY = "accuracy"
   private const val ALTITUDE_KEY = "altitude"

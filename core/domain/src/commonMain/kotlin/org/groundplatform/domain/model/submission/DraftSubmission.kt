@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.model.submission
+package org.groundplatform.domain.model.submission
 
-import kotlinx.serialization.Serializable
-import org.groundplatform.domain.model.submission.TaskData
-
-/** A user-provided value to a text question task. */
-@Serializable
-data class TextTaskData(val text: String) : TaskData {
-  override fun isEmpty(): Boolean = text.trim { it <= ' ' }.isEmpty()
-
-  companion object {
-    fun fromString(text: String): TaskData? = if (text.isEmpty()) null else TextTaskData(text)
-  }
-}
+/** Represents a single instance of data being collected by the user. */
+data class DraftSubmission(
+  val id: String,
+  val jobId: String,
+  val loiId: String?,
+  val loiName: String?,
+  val surveyId: String,
+  val deltas: List<ValueDelta>,
+  val currentTaskId: String?,
+)

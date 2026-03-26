@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.model.submission
+package org.groundplatform.domain.model.submission
 
-import org.groundplatform.android.proto.Task
-import org.groundplatform.domain.model.geometry.Point
-import org.groundplatform.domain.model.submission.TaskData
+import kotlinx.serialization.Serializable
 
-/** User-provided response to a "capture location" data collection [Task]. */
-data class CaptureLocationTaskData(
-  val location: Point,
-  val altitude: Double?, // in metres
-  val accuracy: Double?, // in metres
-) : TaskData {
+/** User skipped the response for the given task. */
+@Serializable
+class SkippedTaskData : TaskData {
 
-  override fun isEmpty(): Boolean = false
+  override fun isEmpty(): Boolean = true
 }

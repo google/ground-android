@@ -13,11 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.model.submission
-
-import org.groundplatform.domain.model.submission.TaskData
-import org.groundplatform.domain.model.submission.ValueDelta
-import org.groundplatform.domain.model.submission.isNotNullOrEmpty
+package org.groundplatform.domain.model.submission
 
 /**
  * An immutable map of task ids to submitted data values.
