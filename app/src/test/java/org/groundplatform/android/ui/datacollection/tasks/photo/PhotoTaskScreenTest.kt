@@ -35,7 +35,7 @@ class PhotoTaskScreenTest {
 
   @Test
   fun `shows capture button when photo is not present`() {
-    composeTestRule.setContent { PhotoTaskScreen(uri = Uri.EMPTY, onTakePhoto = {}) }
+    composeTestRule.setContent { PhotoTaskContent(uri = Uri.EMPTY, onTakePhoto = {}) }
 
     composeTestRule.onNodeWithText("Camera").assertIsDisplayed()
     composeTestRule.onNodeWithContentDescription("Preview").assertIsNotDisplayed()
@@ -44,7 +44,7 @@ class PhotoTaskScreenTest {
   @Test
   fun `shows photo preview when photo is present`() {
     composeTestRule.setContent {
-      PhotoTaskScreen(uri = "content://media/external/images/media/1".toUri(), onTakePhoto = {})
+      PhotoTaskContent(uri = "content://media/external/images/media/1".toUri(), onTakePhoto = {})
     }
 
     composeTestRule.onNodeWithText("Camera").assertIsNotDisplayed()
@@ -56,7 +56,7 @@ class PhotoTaskScreenTest {
     var onTakePhotoCalled = false
 
     composeTestRule.setContent {
-      PhotoTaskScreen(uri = Uri.EMPTY, onTakePhoto = { onTakePhotoCalled = true })
+      PhotoTaskContent(uri = Uri.EMPTY, onTakePhoto = { onTakePhotoCalled = true })
     }
 
     composeTestRule.onNodeWithText("Camera").performClick()

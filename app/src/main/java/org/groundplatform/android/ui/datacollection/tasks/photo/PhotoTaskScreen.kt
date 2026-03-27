@@ -39,7 +39,7 @@ import org.groundplatform.android.ui.datacollection.components.UriImage
 import org.groundplatform.ui.theme.AppTheme
 
 @Composable
-fun PhotoTaskScreen(uri: Uri, onTakePhoto: () -> Unit, modifier: Modifier = Modifier) {
+fun PhotoTaskContent(uri: Uri, onTakePhoto: () -> Unit, modifier: Modifier = Modifier) {
   Box(modifier = modifier.fillMaxWidth().padding(horizontal = 8.dp)) {
     if (uri == Uri.EMPTY) {
       CaptureButton(onTakePhoto)
@@ -68,8 +68,8 @@ private fun CaptureButton(onTakePhoto: () -> Unit) {
 @Preview(showBackground = true)
 @Composable
 @ExcludeFromJacocoGeneratedReport
-private fun PhotoTaskScreenPreviewEmpty() {
-  AppTheme { PhotoTaskScreen(uri = Uri.EMPTY, onTakePhoto = {}) }
+private fun PhotoTaskContentPreviewEmpty() {
+  AppTheme { PhotoTaskContent(uri = Uri.EMPTY, onTakePhoto = {}) }
 }
 
 @Preview(showBackground = true)
@@ -77,6 +77,6 @@ private fun PhotoTaskScreenPreviewEmpty() {
 @ExcludeFromJacocoGeneratedReport
 private fun PhotoTaskScreenPreviewWithPhoto() {
   AppTheme {
-    PhotoTaskScreen(uri = "content://media/external/images/media/1".toUri(), onTakePhoto = {})
+    PhotoTaskContent(uri = "content://media/external/images/media/1".toUri(), onTakePhoto = {})
   }
 }
