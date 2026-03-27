@@ -41,7 +41,7 @@ const val TIME_TEXT_TEST_TAG: String = "time task input test tag"
 // TODO: Add trailing icon (close logo) for clearing selected time.
 
 @Composable
-fun TimeTaskScreen(
+fun TimeTaskField(
   timeText: String,
   hintText: String,
   onTimeClick: () -> Unit,
@@ -72,16 +72,16 @@ fun TimeTaskScreen(
 @Preview(showBackground = true)
 @Composable
 @ExcludeFromJacocoGeneratedReport
-private fun TimeTaskScreenPreview() {
+private fun TimeTaskFieldPreview() {
   AppTheme {
     Column(
       modifier = Modifier.padding(16.dp),
       verticalArrangement = Arrangement.spacedBy(8.dp),
       horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-      TimeTaskScreen(timeText = "", hintText = "HH:MM AM", onTimeClick = {})
+      TimeTaskField(timeText = "", hintText = "HH:MM AM", onTimeClick = {})
       Spacer(modifier = Modifier.height(10.dp))
-      TimeTaskScreen(timeText = "10:30 AM", hintText = "HH:MM AM", onTimeClick = {})
+      TimeTaskField(timeText = "10:30 AM", hintText = "HH:MM AM", onTimeClick = {})
     }
   }
 }
