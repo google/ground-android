@@ -1,3 +1,18 @@
+/*
+ * Copyright 2026 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.groundplatform.android.ui.datacollection.tasks
 
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -5,13 +20,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
@@ -42,20 +51,20 @@ fun TaskScreen(
   onInstructionsDismiss: () -> Unit,
   headerCard: @Composable (() -> Unit)?,
   taskBody: @Composable () -> Unit,
+  state: TaskScreenState = rememberTaskScreenState(initialLoiName = initialNameValue)
 ) {
   val isKeyboardOpen = WindowInsets.isImeVisible
-  var layoutCoordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
 
   // Update footer position whenever layout changes or keyboard is toggled.
-  LaunchedEffect(isKeyboardOpen, layoutCoordinates) {
-    layoutCoordinates?.let { onFooterPositionUpdated(it.positionInWindow().y) }
+  LaunchedEffect(isKeyboardOpen, state.layoutCoordinates) {
+    state.layoutCoordinates?.let { onFooterPositionUpdated(it.positionInWindow().y) }
   }
 
   TaskViewLayout(
     header = taskHeader,
     footer = {
       TaskFooter(
-        modifier = Modifier.onGloballyPositioned { layoutCoordinates = it },
+        modifier = Modifier.onGloballyPositioned { state.layoutCoordinates = it },
         headerCard = headerCard.takeIf { shouldShowHeader },
         buttonActionStates = taskActionButtonsStates,
         onButtonClicked = onButtonClicked,
@@ -65,16 +74,14 @@ fun TaskScreen(
   )
 
   if (task.isAddLoiTask && loiNameDialogOpen) {
-    val nameState = rememberSaveable { mutableStateOf(initialNameValue) }
-
     LoiNameDialog(
-      textFieldValue = nameState.value,
-      onConfirmRequest = { onLoiNameConfirm(nameState.value) },
+      textFieldValue = state.loiName,
+      onConfirmRequest = { onLoiNameConfirm(state.loiName) },
       onDismissRequest = {
-        nameState.value = initialNameValue
+        state.setLoiName(initialNameValue)
         onLoiNameDismiss()
       },
-      onTextFieldChange = { nameState.value = it },
+      onTextFieldChange = { state.loiName = it },
     )
   }
 
