@@ -15,19 +15,15 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.point
 
-import android.view.View
-import android.widget.LinearLayout
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.os.bundleOf
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import javax.inject.Provider
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.datacollection.components.InstructionData
 import org.groundplatform.android.ui.datacollection.components.TaskHeader
+import org.groundplatform.android.ui.datacollection.components.TaskMapFragmentContainer
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
-import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment.Companion.TASK_ID_FRAGMENT_ARG_KEY
 
 @AndroidEntryPoint
 class DropPinTaskFragment @Inject constructor() : AbstractTaskFragment<DropPinTaskViewModel>() {
@@ -42,18 +38,10 @@ class DropPinTaskFragment @Inject constructor() : AbstractTaskFragment<DropPinTa
 
   @Composable
   override fun TaskBody() {
-    AndroidView(
-      factory = { context ->
-        // NOTE(#2493): Multiplying by a random prime to allow for some mathematical "uniqueness".
-        // Otherwise, the sequentially generated ID might conflict with an ID produced by Google
-        // Maps.
-        LinearLayout(context).apply {
-          id = View.generateViewId() * 11617
-          val fragment = dropPinTaskMapFragmentProvider.get()
-          fragment.arguments = bundleOf(Pair(TASK_ID_FRAGMENT_ARG_KEY, taskId))
-          childFragmentManager.beginTransaction().add(id, fragment, "Drop a pin fragment").commit()
-        }
-      }
+    TaskMapFragmentContainer(
+      taskId = viewModel.task.id,
+      fragmentManager = childFragmentManager,
+      fragmentProvider = dropPinTaskMapFragmentProvider,
     )
   }
 
