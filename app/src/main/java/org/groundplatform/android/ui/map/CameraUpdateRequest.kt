@@ -16,8 +16,8 @@
 package org.groundplatform.android.ui.map
 
 import kotlin.math.max
-import org.groundplatform.android.model.map.Bounds
 import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.map.Bounds
 
 sealed class CameraUpdateRequest
 

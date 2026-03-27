@@ -28,13 +28,16 @@ import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.geometry.Polygon
 import org.groundplatform.domain.model.locationofinterest.LoiProperties
 import org.groundplatform.domain.model.locationofinterest.LoiReport
+import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 
 /**
  * Use case that generates a [LoiReport] containing the LOI geometry and properties as a GeoJSON.
  *
  * Supported geometry types: [Point], [LineString], [Polygon], [MultiPolygon].
  */
-class GetLoiReportUseCase(private val loiGeometryProvider: LoiDataProviderInterface) {
+class GetLoiReportUseCase(
+  private val locationOfInterestRepository: LocationOfInterestRepositoryInterface
+) {
   /**
    * Returns a [LoiReport] for the given LOI, or `null` if it does not exist.
    *
@@ -43,8 +46,8 @@ class GetLoiReportUseCase(private val loiGeometryProvider: LoiDataProviderInterf
    * @throws IllegalStateException if the LOI geometry is a bare [LinearRing].
    */
   suspend operator fun invoke(loiId: String, surveyId: String): LoiReport? {
-    val loiData = loiGeometryProvider.get(surveyId, loiId)
-    return loiData?.let { LoiReport(it.geometry.toGeoJson(it.properties)) }
+    val loi = locationOfInterestRepository.getOfflineLoi(surveyId, loiId)
+    return loi?.let { LoiReport(it.geometry.toGeoJson(it.properties)) }
   }
 
   /**

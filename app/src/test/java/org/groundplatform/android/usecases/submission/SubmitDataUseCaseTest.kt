@@ -18,12 +18,13 @@ package org.groundplatform.android.usecases.submission
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
+import dagger.hilt.android.testing.UninstallModules
 import javax.inject.Inject
 import kotlin.test.assertFailsWith
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.newTask
 import org.groundplatform.android.data.sync.MutationSyncWorkManager
-import org.groundplatform.android.repository.LocationOfInterestRepository
+import org.groundplatform.android.di.RepositoryModule
 import org.groundplatform.android.repository.SubmissionRepository
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.Point
@@ -32,6 +33,7 @@ import org.groundplatform.domain.model.submission.CaptureLocationTaskData
 import org.groundplatform.domain.model.submission.DropPinTaskData
 import org.groundplatform.domain.model.submission.ValueDelta
 import org.groundplatform.domain.model.task.Task
+import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -42,12 +44,13 @@ import org.mockito.kotlin.anyOrNull
 import org.robolectric.RobolectricTestRunner
 
 @HiltAndroidTest
+@UninstallModules(RepositoryModule::class)
 @RunWith(RobolectricTestRunner::class)
 class SubmitDataUseCaseTest : BaseHiltTest() {
 
   @Inject lateinit var submitDataUseCase: SubmitDataUseCase
   @BindValue @Mock lateinit var mutationSyncWorkManager: MutationSyncWorkManager
-  @BindValue @Mock lateinit var locationOfInterestRepository: LocationOfInterestRepository
+  @BindValue @Mock lateinit var locationOfInterestRepository: LocationOfInterestRepositoryInterface
   @BindValue @Mock lateinit var submissionRepository: SubmissionRepository
 
   @Before

@@ -17,7 +17,6 @@ package org.groundplatform.android.ui.map.gms
 
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.SphericalUtil.computeArea
-import org.groundplatform.android.model.map.Bounds
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.Geometry
 import org.groundplatform.domain.model.geometry.LineString
@@ -25,6 +24,7 @@ import org.groundplatform.domain.model.geometry.LinearRing
 import org.groundplatform.domain.model.geometry.MultiPolygon
 import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.geometry.Polygon
+import org.groundplatform.domain.model.map.Bounds
 
 /** Extensions for indirectly using GMS functions in map-provider agnostic codebase. */
 object GmsExt {

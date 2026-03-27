@@ -15,7 +15,7 @@
  */
 package org.groundplatform.android.model.imagery
 
-import org.groundplatform.android.model.map.Bounds
+import org.groundplatform.domain.model.map.Bounds
 
 /**
  * Represents a single source of tiled map imagery used for displaying maps in the application.

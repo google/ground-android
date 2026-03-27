@@ -17,7 +17,6 @@ package org.groundplatform.android.usecases.submission
 
 import androidx.room.Transaction
 import javax.inject.Inject
-import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.SubmissionRepository
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.submission.CaptureLocationTaskData
@@ -25,12 +24,13 @@ import org.groundplatform.domain.model.submission.DrawAreaTaskData
 import org.groundplatform.domain.model.submission.DropPinTaskData
 import org.groundplatform.domain.model.submission.ValueDelta
 import org.groundplatform.domain.model.task.Task
+import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import timber.log.Timber
 
 class SubmitDataUseCase
 @Inject
 constructor(
-  private val locationOfInterestRepository: LocationOfInterestRepository,
+  private val locationOfInterestRepository: LocationOfInterestRepositoryInterface,
   private val submissionRepository: SubmissionRepository,
 ) {
 

@@ -39,7 +39,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.groundplatform.android.common.Constants.CLUSTERING_ZOOM_THRESHOLD
 import org.groundplatform.android.data.local.LocalValueStore
-import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.MapStateRepository
 import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.android.repository.SubmissionRepository
@@ -61,6 +60,7 @@ import org.groundplatform.android.usecases.datasharingterms.GetDataSharingTermsU
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
+import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @SharedViewModel
@@ -68,7 +68,7 @@ class HomeScreenMapContainerViewModel
 @Inject
 internal constructor(
   private val getDataSharingTermsUseCase: GetDataSharingTermsUseCase,
-  private val loiRepository: LocationOfInterestRepository,
+  private val loiRepository: LocationOfInterestRepositoryInterface,
   private val mapStateRepository: MapStateRepository,
   private val submissionRepository: SubmissionRepository,
   locationManager: LocationManager,

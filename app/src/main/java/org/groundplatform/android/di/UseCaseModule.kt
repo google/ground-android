@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.domain.usecases
+package org.groundplatform.android.di
 
-import org.groundplatform.domain.model.geometry.Geometry
-import org.groundplatform.domain.model.locationofinterest.LoiProperties
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
+import org.groundplatform.domain.usecases.GetLoiReportUseCase
 
-/**
- * Provides access to the data of a location of interest.
- *
- * This is a temporary abstraction while the repository interface is still not fully decoupled from
- * Android-specific types.
- */
-interface LoiDataProviderInterface {
-  suspend fun get(surveyId: String, loiId: String): LoiData?
-
-  data class LoiData(val geometry: Geometry, val properties: LoiProperties)
+@InstallIn(SingletonComponent::class)
+@Module
+object UseCaseModule {
+  @Provides
+  fun provideGetLoiReportUseCase(
+    locationOfInterestRepository: LocationOfInterestRepositoryInterface
+  ) = GetLoiReportUseCase(locationOfInterestRepository)
 }
