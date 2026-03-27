@@ -1,0 +1,57 @@
+/*
+ * Copyright 2026 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.groundplatform.domain.helpers
+
+import org.groundplatform.domain.model.User
+import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.geometry.Geometry
+import org.groundplatform.domain.model.geometry.Point
+import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.job.Style
+import org.groundplatform.domain.model.locationofinterest.AuditInfo
+import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
+import org.groundplatform.domain.model.task.Task
+
+object FakeData {
+  fun newUser(): User = User("user id", "", "User")
+
+  fun newJob(
+    id: String = "job id",
+    style: Style = Style("#000"),
+    name: String = "job",
+    tasks: Map<String, Task> = emptyMap(),
+    strategy: Job.DataCollectionStrategy = Job.DataCollectionStrategy.PREDEFINED,
+  ): Job = Job(id = id, style = style, name = name, tasks = tasks, strategy = strategy)
+
+  fun newLocationOfInterest(
+    id: String = "loi id",
+    surveyId: String = "survey id",
+    job: Job = newJob(),
+    customId: String = "",
+    created: AuditInfo = AuditInfo(newUser()),
+    lastModified: AuditInfo = AuditInfo(newUser()),
+    geometry: Geometry = Point(Coordinates(0.0, 0.0)),
+  ): LocationOfInterest =
+    LocationOfInterest(
+      id = id,
+      surveyId = surveyId,
+      job = job,
+      customId = customId,
+      created = created,
+      lastModified = lastModified,
+      geometry = geometry,
+    )
+}
