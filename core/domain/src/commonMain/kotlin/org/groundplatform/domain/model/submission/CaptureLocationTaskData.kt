@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.model.submission
+package org.groundplatform.domain.model.submission
 
-import org.groundplatform.android.proto.Task
 import org.groundplatform.domain.model.geometry.Point
-import org.groundplatform.domain.model.submission.TaskData
 
-/** User-provided response to a "capture location" data collection [Task]. */
+/**
+ * User-provided response to a "capture location" data collection
+ * [org.groundplatform.android.proto.Task].
+ */
 data class CaptureLocationTaskData(
   val location: Point,
   val altitude: Double?, // in metres

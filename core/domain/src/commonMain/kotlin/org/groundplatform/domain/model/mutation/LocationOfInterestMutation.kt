@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.model.mutation
+package org.groundplatform.domain.model.mutation
 
 import kotlin.time.Clock
-import org.groundplatform.android.model.submission.PhotoTaskData
-import org.groundplatform.android.model.submission.ValueDelta
-import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.geometry.Geometry
+import org.groundplatform.domain.model.locationofinterest.LoiProperties
 
-data class SubmissionMutation(
+data class LocationOfInterestMutation(
   override val id: Long? = null,
   override val type: Type = Type.UNKNOWN,
   override val syncStatus: SyncStatus = SyncStatus.UNKNOWN,
@@ -31,13 +30,10 @@ data class SubmissionMutation(
   override val retryCount: Long = 0,
   override val lastError: String = "",
   override val collectionId: String,
-  val job: Job,
-  val submissionId: String = "",
-  val deltas: List<ValueDelta> = listOf(),
-) : Mutation() {
-
-  override fun toString(): String = super.toString() + "deltas= $deltas"
-
-  fun getPhotoData(): List<PhotoTaskData> =
-    deltas.map { it.newTaskData }.filterIsInstance<PhotoTaskData>().filter { !it.isEmpty() }
-}
+  val jobId: String = "",
+  val customId: String = "",
+  val geometry: Geometry? = null,
+  val submissionCount: Int = 0,
+  val properties: LoiProperties = mapOf(),
+  val isPredefined: Boolean? = null,
+) : Mutation()

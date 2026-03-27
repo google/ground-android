@@ -34,7 +34,6 @@ import org.groundplatform.android.data.local.room.converter.SubmissionDeltasConv
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.android.di.coroutines.ApplicationScope
 import org.groundplatform.android.di.coroutines.IoDispatcher
-import org.groundplatform.android.model.submission.ValueDelta
 import org.groundplatform.android.repository.SubmissionRepository
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.common.EphemeralPopups
@@ -54,6 +53,7 @@ import org.groundplatform.android.ui.datacollection.tasks.time.TimeTaskViewModel
 import org.groundplatform.android.usecases.submission.SubmitDataUseCase
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.submission.TaskData
+import org.groundplatform.domain.model.submission.ValueDelta
 import org.groundplatform.domain.model.submission.isNotNullOrEmpty
 import org.groundplatform.domain.model.task.Task
 import timber.log.Timber

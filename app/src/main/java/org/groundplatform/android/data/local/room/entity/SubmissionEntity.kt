@@ -22,7 +22,7 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import org.groundplatform.android.data.local.room.fields.EntityDeletionState
-import org.groundplatform.android.model.submission.Submission
+import org.groundplatform.domain.model.submission.Submission
 
 /** Representation of a [Submission] in local db. */
 @Entity(

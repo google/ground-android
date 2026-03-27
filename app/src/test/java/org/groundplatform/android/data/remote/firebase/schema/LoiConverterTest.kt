@@ -26,8 +26,6 @@ import org.groundplatform.android.FakeData.newTask
 import org.groundplatform.android.assertIsSuccessWith
 import org.groundplatform.android.data.remote.firebase.protobuf.toFirestoreMap
 import org.groundplatform.android.data.remote.firebase.schema.LoiConverter.toLoi
-import org.groundplatform.android.model.AuditInfo
-import org.groundplatform.android.model.locationofinterest.LocationOfInterest
 import org.groundplatform.android.proto.LocationOfInterest as LocationOfInterestProto
 import org.groundplatform.android.proto.LocationOfInterest.Source
 import org.groundplatform.android.proto.LocationOfInterestKt.property
@@ -41,6 +39,8 @@ import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.job.Style
+import org.groundplatform.domain.model.locationofinterest.AuditInfo
+import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
 import org.groundplatform.domain.model.task.MultipleChoice
 import org.groundplatform.domain.model.task.Task
 import org.junit.Test

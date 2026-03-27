@@ -18,11 +18,11 @@ package org.groundplatform.android.util
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import java.util.Locale
 import kotlin.test.Test
-import org.groundplatform.android.model.settings.MeasurementUnits
 import org.groundplatform.android.ui.util.SQUARE_FEET_PER_SQUARE_METER
 import org.groundplatform.android.ui.util.SQUARE_METERS_PER_ACRE
 import org.groundplatform.android.ui.util.SQUARE_METERS_PER_HECTARE
 import org.groundplatform.android.ui.util.getFormattedArea
+import org.groundplatform.domain.model.settings.MeasurementUnits
 import org.junit.Assert.assertEquals
 import org.junit.runner.RunWith
 

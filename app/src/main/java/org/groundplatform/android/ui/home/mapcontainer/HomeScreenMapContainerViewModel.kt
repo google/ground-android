@@ -39,7 +39,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.groundplatform.android.common.Constants.CLUSTERING_ZOOM_THRESHOLD
 import org.groundplatform.android.data.local.LocalValueStore
-import org.groundplatform.android.model.locationofinterest.LocationOfInterest
 import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.MapStateRepository
 import org.groundplatform.android.repository.OfflineAreaRepository
@@ -61,6 +60,7 @@ import org.groundplatform.android.ui.util.getDefaultColor
 import org.groundplatform.android.usecases.datasharingterms.GetDataSharingTermsUseCase
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @SharedViewModel

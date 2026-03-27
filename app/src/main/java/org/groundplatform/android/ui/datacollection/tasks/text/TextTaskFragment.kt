@@ -23,9 +23,9 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import dagger.hilt.android.AndroidEntryPoint
-import org.groundplatform.android.model.submission.TextTaskData.Companion.fromString
 import org.groundplatform.android.ui.datacollection.components.TextTaskInput
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
+import org.groundplatform.domain.model.submission.TextTaskData.Companion.fromString
 import org.groundplatform.ui.theme.sizes
 
 const val INPUT_TEXT_TEST_TAG: String = "text task input test tag"

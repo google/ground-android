@@ -22,8 +22,8 @@ import kotlinx.coroutines.withTimeout
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.remote.DataStoreException
 import org.groundplatform.android.data.remote.RemoteDataStore
-import org.groundplatform.android.model.TermsOfService
 import org.groundplatform.android.system.NetworkManager
+import org.groundplatform.domain.model.TermsOfService
 import timber.log.Timber
 
 private const val LOAD_REMOTE_SURVEY_TERMS_OF_SERVICE_TIMEOUT_MILLIS: Long = 30 * 1000

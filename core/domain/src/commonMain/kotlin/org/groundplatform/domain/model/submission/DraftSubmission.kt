@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.model.submission
+package org.groundplatform.domain.model.submission
 
 /** Represents a single instance of data being collected by the user. */
 data class DraftSubmission(

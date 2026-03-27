@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.model.submission
+package org.groundplatform.domain.model.submission
 
 import kotlinx.serialization.Serializable
-import org.groundplatform.android.model.locationofinterest.LocationOfInterest
-import org.groundplatform.domain.model.job.Job
-import org.groundplatform.domain.model.submission.TaskData
 
-/** Represents a single photo associated with a given [LocationOfInterest] and [Job]. */
+/** A user provided response to a number question task. */
 @Serializable
-class PhotoTaskData(val remoteFilename: String) : TaskData {
+data class NumberTaskData(val number: String) : TaskData {
+  val value: Double
+    get() = number.toDouble()
 
-  override fun isEmpty(): Boolean = remoteFilename.isEmpty()
+  override fun isEmpty(): Boolean = number.isEmpty()
 
-  override fun toString(): String = remoteFilename
+  companion object {
+    fun fromNumber(number: String): TaskData? =
+      if (number.isEmpty() || number.toDoubleOrNull() == null) null else NumberTaskData(number)
+  }
 }

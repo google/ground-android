@@ -13,22 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.model.submission
+package org.groundplatform.domain.model.submission
 
-import org.groundplatform.android.model.AuditInfo
-import org.groundplatform.android.model.locationofinterest.LocationOfInterest
 import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.locationofinterest.AuditInfo
+import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
 
 /**
- * Represents a single instance of data collected about a specific [LocationOfInterest].
+ * Represents a single instance of data collected about a specific
+ * [org.groundplatform.domain.model.locationofinterest.LocationOfInterest].
  *
  * @property created the user and time audit info pertaining to the creation of this submission.
  * @property lastModified the user and time audit info pertaining to the last modification of this
  *   submission.
  */
-data class Submission
-@JvmOverloads
-constructor(
+data class Submission(
   val id: String,
   val surveyId: String,
   val locationOfInterest: LocationOfInterest,

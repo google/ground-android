@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.model.submission
+package org.groundplatform.domain.model.submission
 
 import kotlinx.serialization.Serializable
-import org.groundplatform.domain.model.submission.TaskData
 
 /** A user-provided value to a text question task. */
 @Serializable

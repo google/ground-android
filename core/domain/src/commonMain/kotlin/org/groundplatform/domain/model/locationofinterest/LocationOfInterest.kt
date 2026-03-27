@@ -15,6 +15,11 @@
  */
 package org.groundplatform.domain.model.locationofinterest
 
+import org.groundplatform.domain.model.geometry.Geometry
+import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.mutation.LocationOfInterestMutation
+import org.groundplatform.domain.model.mutation.Mutation
+
 /** Alias for a map of properties with string names. */
 typealias LoiProperties = Map<String, Any>
 
@@ -22,3 +27,53 @@ const val LOI_NAME_PROPERTY = "name"
 
 fun generateProperties(loiName: String? = null): LoiProperties =
   loiName?.let { mapOf(LOI_NAME_PROPERTY to it) } ?: mapOf()
+
+/** User-defined locations of interest (LOI) shown on the map. */
+data class LocationOfInterest(
+  /** A system-defined ID for this LOI. */
+  val id: String,
+  /** The survey ID associated with this LOI. */
+  val surveyId: String,
+  /** The job associated with this LOI. */
+  val job: Job,
+  /** A user-specified ID for this location of interest. */
+  val customId: String = "",
+  /** User and time audit info pertaining to the creation of this LOI. */
+  val created: AuditInfo,
+  /** User and time audit info pertaining to the last modification of this LOI. */
+  val lastModified: AuditInfo,
+  /** Geometry associated with this LOI. */
+  val geometry: Geometry,
+  /** The number of submissions that have been made for this LOI. */
+  val submissionCount: Int = 0,
+  /** Custom map of properties for this LOI. Corresponds to the properties field in GeoJSON */
+  val properties: LoiProperties = mapOf(),
+  /** Whether the LOI was predefined in the survey or not (i.e. added ad hoc). */
+  val isPredefined: Boolean? = null,
+) {
+
+  /**
+   * Converts this LOI to a mutation that can be used to update this LOI in the remote and local
+   * database.
+   */
+  // TODO: Remove this test-only method
+  // Issue URL: https://github.com/google/ground-android/issues/2903
+  fun toMutation(type: Mutation.Type, userId: String): LocationOfInterestMutation =
+    LocationOfInterestMutation(
+      jobId = job.id,
+      type = type,
+      syncStatus = Mutation.SyncStatus.PENDING,
+      surveyId = surveyId,
+      locationOfInterestId = id,
+      userId = userId,
+      customId = customId,
+      clientTimestamp = lastModified.clientTimestamp,
+      geometry = geometry,
+      submissionCount = submissionCount,
+      properties = properties,
+      isPredefined = isPredefined,
+      collectionId = "",
+    )
+
+  fun getProperty(key: String): String = properties[key]?.toString() ?: ""
+}

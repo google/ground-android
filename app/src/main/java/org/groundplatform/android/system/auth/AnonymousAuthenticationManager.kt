@@ -26,7 +26,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import org.groundplatform.android.di.coroutines.ApplicationScope
-import org.groundplatform.android.model.User
+import org.groundplatform.domain.model.User
 
 private val anonymousUser = User("nobody", "nobody", "Anonymous user ", null, true)
 

@@ -20,8 +20,6 @@ import com.google.common.truth.Truth.assertThat
 import kotlin.time.Instant
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST_NAME
-import org.groundplatform.android.model.mutation.LocationOfInterestMutation
-import org.groundplatform.android.model.mutation.Mutation
 import org.groundplatform.android.proto.AuditInfo.CLIENT_TIMESTAMP_FIELD_NUMBER
 import org.groundplatform.android.proto.AuditInfo.DISPLAY_NAME_FIELD_NUMBER
 import org.groundplatform.android.proto.AuditInfo.SERVER_TIMESTAMP_FIELD_NUMBER
@@ -46,6 +44,8 @@ import org.groundplatform.domain.model.geometry.LinearRing
 import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.geometry.Polygon
 import org.groundplatform.domain.model.locationofinterest.LOI_NAME_PROPERTY
+import org.groundplatform.domain.model.mutation.LocationOfInterestMutation
+import org.groundplatform.domain.model.mutation.Mutation
 import org.junit.Assert.assertThrows
 import org.junit.Test
 

@@ -13,7 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.model
+package org.groundplatform.domain.model.submission
 
-/** If present in remote db, terms of service must be accepted by user after sign in. */
-data class TermsOfService(val id: String, val text: String?)
+import kotlinx.serialization.Serializable
+
+/** A user-provided response to a date and time question task. */
+@Serializable
+data class DateTimeTaskData(val timeInMillis: Long) : TaskData {
+
+  override fun isEmpty(): Boolean = timeInMillis == 0L
+
+  companion object {
+    fun fromMillis(timeInMillis: Long): TaskData = DateTimeTaskData(timeInMillis)
+  }
+}

@@ -28,13 +28,13 @@ import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.local.stores.LocalSurveyStore
 import org.groundplatform.android.data.local.stores.LocalUserStore
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
-import org.groundplatform.android.model.settings.MeasurementUnits
-import org.groundplatform.android.model.settings.UserSettings
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
 import org.groundplatform.android.system.auth.SignInState
 import org.groundplatform.domain.model.Role
 import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.settings.MeasurementUnits
+import org.groundplatform.domain.model.settings.UserSettings
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock

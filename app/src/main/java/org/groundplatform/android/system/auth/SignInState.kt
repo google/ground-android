@@ -15,7 +15,7 @@
  */
 package org.groundplatform.android.system.auth
 
-import org.groundplatform.android.model.User
+import org.groundplatform.domain.model.User
 
 sealed class SignInState {
 

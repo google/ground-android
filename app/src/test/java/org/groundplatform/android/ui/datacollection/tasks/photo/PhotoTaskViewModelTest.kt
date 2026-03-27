@@ -29,13 +29,13 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
-import org.groundplatform.android.model.submission.PhotoTaskData
 import org.groundplatform.android.repository.UserMediaRepository
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.job.Style
 import org.groundplatform.domain.model.submission.TaskData
+import org.groundplatform.domain.model.task.PhotoTaskData
 import org.groundplatform.domain.model.task.Task
 import org.junit.Test
 import org.junit.runner.RunWith

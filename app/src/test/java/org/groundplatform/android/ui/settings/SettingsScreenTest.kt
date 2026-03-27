@@ -22,8 +22,8 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import org.groundplatform.android.R
 import org.groundplatform.android.getString
-import org.groundplatform.android.model.settings.MeasurementUnits
-import org.groundplatform.android.model.settings.UserSettings
+import org.groundplatform.domain.model.settings.MeasurementUnits
+import org.groundplatform.domain.model.settings.UserSettings
 import org.groundplatform.ui.theme.AppTheme
 import org.junit.Rule
 import org.junit.Test

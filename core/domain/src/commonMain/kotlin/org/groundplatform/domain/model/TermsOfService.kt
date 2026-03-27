@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.model.submission
+package org.groundplatform.domain.model
 
-import kotlinx.serialization.Serializable
-import org.groundplatform.domain.model.submission.TaskData
-
-/** User skipped the response for the given task. */
-@Serializable
-class SkippedTaskData : TaskData {
-
-  override fun isEmpty(): Boolean = true
-}
+/** If present in remote db, terms of service must be accepted by user after sign in. */
+data class TermsOfService(val id: String, val text: String?)

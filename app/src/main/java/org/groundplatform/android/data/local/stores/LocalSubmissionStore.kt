@@ -18,11 +18,11 @@ package org.groundplatform.android.data.local.stores
 import kotlinx.coroutines.flow.Flow
 import org.groundplatform.android.data.local.room.entity.SubmissionMutationEntity
 import org.groundplatform.android.data.local.room.fields.MutationEntitySyncStatus
-import org.groundplatform.android.model.locationofinterest.LocationOfInterest
-import org.groundplatform.android.model.mutation.SubmissionMutation
-import org.groundplatform.android.model.submission.DraftSubmission
-import org.groundplatform.android.model.submission.Submission
 import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
+import org.groundplatform.domain.model.mutation.SubmissionMutation
+import org.groundplatform.domain.model.submission.DraftSubmission
+import org.groundplatform.domain.model.submission.Submission
 
 interface LocalSubmissionStore : LocalMutationStore<SubmissionMutation, Submission> {
   /**

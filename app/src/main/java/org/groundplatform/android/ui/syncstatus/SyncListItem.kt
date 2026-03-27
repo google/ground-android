@@ -41,8 +41,8 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import kotlin.time.Clock
 import org.groundplatform.android.R
-import org.groundplatform.android.model.mutation.Mutation
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
+import org.groundplatform.domain.model.mutation.Mutation
 import org.groundplatform.ui.theme.AppTheme
 
 @Composable

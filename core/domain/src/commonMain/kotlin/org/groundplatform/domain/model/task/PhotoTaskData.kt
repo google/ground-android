@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.model.submission
+package org.groundplatform.domain.model.task
 
 import kotlinx.serialization.Serializable
 import org.groundplatform.domain.model.submission.TaskData
 
-/** A user provided response to a number question task. */
+/**
+ * Represents a single photo associated with a given
+ * [org.groundplatform.domain.model.locationofinterest.LocationOfInterest] and
+ * [org.groundplatform.domain.model.job.Job].
+ */
 @Serializable
-data class NumberTaskData(val number: String) : TaskData {
-  val value: Double
-    get() = number.toDouble()
+class PhotoTaskData(val remoteFilename: String) : TaskData {
 
-  override fun isEmpty(): Boolean = number.isEmpty()
+  override fun isEmpty(): Boolean = remoteFilename.isEmpty()
 
-  companion object {
-    fun fromNumber(number: String): TaskData? =
-      if (number.isEmpty() || number.toDoubleOrNull() == null) null else NumberTaskData(number)
-  }
+  override fun toString(): String = remoteFilename
 }

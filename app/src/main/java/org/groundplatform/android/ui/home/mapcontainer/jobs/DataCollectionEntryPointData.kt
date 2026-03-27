@@ -16,8 +16,8 @@
 
 package org.groundplatform.android.ui.home.mapcontainer.jobs
 
-import org.groundplatform.android.model.locationofinterest.LocationOfInterest
 import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
 
 /** Data classes used to populate the data collection entry UI, like the LOI bottom sheet. */
 sealed interface DataCollectionEntryPointData {

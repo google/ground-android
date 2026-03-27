@@ -31,8 +31,8 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import org.groundplatform.android.R
-import org.groundplatform.android.model.submission.DateTimeTaskData
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
+import org.groundplatform.domain.model.submission.DateTimeTaskData
 import org.groundplatform.ui.theme.sizes
 import org.jetbrains.annotations.TestOnly
 

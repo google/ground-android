@@ -17,13 +17,13 @@ package org.groundplatform.android.usecases.submission
 
 import androidx.room.Transaction
 import javax.inject.Inject
-import org.groundplatform.android.model.submission.CaptureLocationTaskData
-import org.groundplatform.android.model.submission.DrawAreaTaskData
-import org.groundplatform.android.model.submission.DropPinTaskData
-import org.groundplatform.android.model.submission.ValueDelta
 import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.SubmissionRepository
 import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.submission.CaptureLocationTaskData
+import org.groundplatform.domain.model.submission.DrawAreaTaskData
+import org.groundplatform.domain.model.submission.DropPinTaskData
+import org.groundplatform.domain.model.submission.ValueDelta
 import org.groundplatform.domain.model.task.Task
 import timber.log.Timber
 

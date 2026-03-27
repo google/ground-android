@@ -18,9 +18,6 @@ package org.groundplatform.android.data.remote.firebase.protobuf
 import com.google.common.truth.Truth.assertThat
 import com.google.protobuf.timestamp
 import kotlin.time.Instant
-import org.groundplatform.android.model.User
-import org.groundplatform.android.model.mutation.LocationOfInterestMutation
-import org.groundplatform.android.model.mutation.Mutation
 import org.groundplatform.android.proto.LocationOfInterest
 import org.groundplatform.android.proto.LocationOfInterestKt.property
 import org.groundplatform.android.proto.auditInfo
@@ -28,9 +25,12 @@ import org.groundplatform.android.proto.coordinates
 import org.groundplatform.android.proto.geometry
 import org.groundplatform.android.proto.locationOfInterest
 import org.groundplatform.android.proto.point
+import org.groundplatform.domain.model.User
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.locationofinterest.generateProperties
+import org.groundplatform.domain.model.mutation.LocationOfInterestMutation
+import org.groundplatform.domain.model.mutation.Mutation
 import org.junit.Assert.assertThrows
 import org.junit.Test
 

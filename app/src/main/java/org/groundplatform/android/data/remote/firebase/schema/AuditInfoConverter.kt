@@ -16,9 +16,9 @@
 
 package org.groundplatform.android.data.remote.firebase.schema
 
-import org.groundplatform.android.model.AuditInfo
-import org.groundplatform.android.model.User
 import org.groundplatform.android.proto.AuditInfo as AuditInfoProto
+import org.groundplatform.domain.model.User
+import org.groundplatform.domain.model.locationofinterest.AuditInfo
 
 /** Converts between Firestore nested objects and [AuditInfo] instances. */
 internal object AuditInfoConverter {
