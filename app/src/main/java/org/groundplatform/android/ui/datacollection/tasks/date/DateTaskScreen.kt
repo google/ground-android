@@ -41,7 +41,7 @@ const val DATE_TEXT_TEST_TAG: String = "date task input test tag"
 // TODO: Add trailing icon (close logo) for clearing selected date.
 
 @Composable
-fun DateTaskScreen(
+fun DateInputField(
   dateText: String,
   hintText: String,
   onDateClick: () -> Unit,
@@ -72,16 +72,16 @@ fun DateTaskScreen(
 @Preview(showBackground = true)
 @Composable
 @ExcludeFromJacocoGeneratedReport
-private fun DateTaskScreenPreview() {
+private fun DateInputFieldPreview() {
   AppTheme {
     Column(
       modifier = Modifier.padding(16.dp),
       verticalArrangement = Arrangement.spacedBy(8.dp),
       horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-      DateTaskScreen(dateText = "", hintText = "DD/MM/YYYY", onDateClick = {})
+      DateInputField(dateText = "", hintText = "DD/MM/YYYY", onDateClick = {})
       Spacer(modifier = Modifier.height(10.dp))
-      DateTaskScreen(dateText = "14/02/2026", hintText = "DD/MM/YYYY", onDateClick = {})
+      DateInputField(dateText = "14/02/2026", hintText = "DD/MM/YYYY", onDateClick = {})
     }
   }
 }
