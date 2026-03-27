@@ -31,10 +31,6 @@ class TaskScreenState(initialLoiName: String) {
 
   var loiName by mutableStateOf(initialLoiName)
 
-  fun setLoiName(newName: String) {
-    loiName = newName
-  }
-
   companion object {
     fun saver(): Saver<TaskScreenState, String> =
       Saver(save = { it.loiName }, restore = { TaskScreenState(it) })
