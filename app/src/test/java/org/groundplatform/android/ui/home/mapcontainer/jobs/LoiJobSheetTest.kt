@@ -24,12 +24,12 @@ import org.groundplatform.android.FakeData
 import org.groundplatform.android.FakeData.USER
 import org.groundplatform.android.R
 import org.groundplatform.android.getString
-import org.groundplatform.android.model.AuditInfo
-import org.groundplatform.android.model.locationofinterest.LocationOfInterest
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.job.Style
+import org.groundplatform.domain.model.locationofinterest.AuditInfo
+import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
 import org.groundplatform.domain.model.task.Task
 import org.junit.Rule
 import org.junit.runner.RunWith

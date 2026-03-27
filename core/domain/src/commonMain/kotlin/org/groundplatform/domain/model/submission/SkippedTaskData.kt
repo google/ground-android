@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.model.settings
+package org.groundplatform.domain.model.submission
 
-data class UserSettings(
-  val language: String,
-  val measurementUnits: MeasurementUnits,
-  val shouldUploadPhotosOnWifiOnly: Boolean,
-)
+import kotlinx.serialization.Serializable
+
+/** User skipped the response for the given task. */
+@Serializable
+class SkippedTaskData : TaskData {
+
+  override fun isEmpty(): Boolean = true
+}

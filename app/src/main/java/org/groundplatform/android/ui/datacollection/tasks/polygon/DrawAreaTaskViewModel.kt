@@ -37,9 +37,6 @@ import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
-import org.groundplatform.android.model.settings.MeasurementUnits
-import org.groundplatform.android.model.submission.DrawAreaTaskData
-import org.groundplatform.android.model.submission.DrawAreaTaskIncompleteData
 import org.groundplatform.android.ui.common.SharedViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
@@ -58,6 +55,9 @@ import org.groundplatform.domain.model.geometry.LineString
 import org.groundplatform.domain.model.geometry.LinearRing
 import org.groundplatform.domain.model.geometry.Polygon
 import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.settings.MeasurementUnits
+import org.groundplatform.domain.model.submission.DrawAreaTaskData
+import org.groundplatform.domain.model.submission.DrawAreaTaskIncompleteData
 import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.submission.isNotNullOrEmpty
 import org.groundplatform.domain.model.task.Task

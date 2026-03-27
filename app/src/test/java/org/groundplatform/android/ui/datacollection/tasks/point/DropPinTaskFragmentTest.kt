@@ -20,7 +20,6 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.model.map.CameraPosition
-import org.groundplatform.android.model.submission.DropPinTaskData
 import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
@@ -30,6 +29,7 @@ import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.job.Style
+import org.groundplatform.domain.model.submission.DropPinTaskData
 import org.groundplatform.domain.model.task.Task
 import org.junit.Before
 import org.junit.Test

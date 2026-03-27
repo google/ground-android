@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.model.settings
+package org.groundplatform.domain.model
 
-enum class MeasurementUnits {
-  METRIC,
-  IMPERIAL,
-}
+/** Represents a single application user. */
+data class User(
+  val id: String,
+  val email: String,
+  val displayName: String,
+  val photoUrl: String? = null,
+  val isAnonymous: Boolean = false,
+)

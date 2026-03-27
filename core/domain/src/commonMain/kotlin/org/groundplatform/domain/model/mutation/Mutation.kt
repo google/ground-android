@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.model.mutation
+package org.groundplatform.domain.model.mutation
 
 /**
  * Represents a mutation that can be applied to local data and queued for sync with the remote data
@@ -94,7 +94,6 @@ sealed class Mutation {
   override fun toString(): String = "$syncStatus $type $clientTimestamp"
 
   companion object {
-    @JvmStatic
     fun byDescendingClientTimestamp(): Comparator<Mutation> =
       Comparator { m1: Mutation, m2: Mutation ->
         m2.clientTimestamp.compareTo(m1.clientTimestamp)

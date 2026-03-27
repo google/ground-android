@@ -15,9 +15,9 @@
  */
 package org.groundplatform.android.usecases.user
 
-import org.groundplatform.android.model.settings.MeasurementUnits
-import org.groundplatform.android.model.settings.UserSettings
 import org.groundplatform.android.repository.UserRepository
+import org.groundplatform.domain.model.settings.MeasurementUnits
+import org.groundplatform.domain.model.settings.UserSettings
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test

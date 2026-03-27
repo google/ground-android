@@ -37,9 +37,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.di.coroutines.ApplicationScope
-import org.groundplatform.android.model.User
 import org.groundplatform.android.system.ActivityResult
 import org.groundplatform.android.system.ActivityStreams
+import org.groundplatform.domain.model.User
 import timber.log.Timber
 
 private val signInRequestCode = AuthenticationManager::class.java.hashCode() and 0xffff

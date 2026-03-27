@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.model.submission
+package org.groundplatform.domain.model.settings
 
-import kotlinx.serialization.Serializable
-import org.groundplatform.domain.model.submission.TaskData
-
-/** A user-provided response to a date and time question task. */
-@Serializable
-data class DateTimeTaskData(val timeInMillis: Long) : TaskData {
-
-  override fun isEmpty(): Boolean = timeInMillis == 0L
-
-  companion object {
-    fun fromMillis(timeInMillis: Long): TaskData = DateTimeTaskData(timeInMillis)
-  }
+enum class MeasurementUnits {
+  METRIC,
+  IMPERIAL,
 }

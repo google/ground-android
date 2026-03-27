@@ -17,7 +17,7 @@ package org.groundplatform.android.ui.util
 
 import androidx.annotation.VisibleForTesting
 import java.util.Locale
-import org.groundplatform.android.model.settings.MeasurementUnits
+import org.groundplatform.domain.model.settings.MeasurementUnits
 
 @VisibleForTesting const val SQUARE_METERS_PER_ACRE = 4046.86
 @VisibleForTesting const val SQUARE_METERS_PER_HECTARE = 10_000

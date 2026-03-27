@@ -29,18 +29,18 @@ import org.groundplatform.android.data.local.stores.LocalSurveyStore
 import org.groundplatform.android.data.remote.RemoteDataStore
 import org.groundplatform.android.data.sync.MutationSyncWorkManager
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
-import org.groundplatform.android.model.locationofinterest.LocationOfInterest
 import org.groundplatform.android.model.map.Bounds
-import org.groundplatform.android.model.mutation.LocationOfInterestMutation
-import org.groundplatform.android.model.mutation.Mutation
-import org.groundplatform.android.model.mutation.Mutation.SyncStatus
 import org.groundplatform.android.system.auth.AuthenticationManager
 import org.groundplatform.android.ui.map.gms.GmsExt.contains
 import org.groundplatform.domain.model.Role
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.geometry.Geometry
 import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
 import org.groundplatform.domain.model.locationofinterest.generateProperties
+import org.groundplatform.domain.model.mutation.LocationOfInterestMutation
+import org.groundplatform.domain.model.mutation.Mutation
+import org.groundplatform.domain.model.mutation.Mutation.SyncStatus
 import timber.log.Timber
 
 /**

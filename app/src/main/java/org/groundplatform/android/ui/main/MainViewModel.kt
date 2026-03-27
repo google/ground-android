@@ -31,7 +31,6 @@ import kotlinx.coroutines.withContext
 import org.groundplatform.android.BuildConfig
 import org.groundplatform.android.common.Constants.SURVEY_PATH_SEGMENT
 import org.groundplatform.android.di.coroutines.IoDispatcher
-import org.groundplatform.android.model.User
 import org.groundplatform.android.repository.TermsOfServiceRepository
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.auth.AuthenticationManager
@@ -40,6 +39,7 @@ import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.common.SharedViewModel
 import org.groundplatform.android.usecases.session.ClearUserSessionUseCase
 import org.groundplatform.android.usecases.survey.ReactivateLastSurveyUseCase
+import org.groundplatform.domain.model.User
 import timber.log.Timber
 
 /** Top-level view model representing state of the [MainActivity] shared by all fragments. */
