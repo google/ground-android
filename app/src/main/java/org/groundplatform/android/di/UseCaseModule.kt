@@ -15,23 +15,18 @@
  */
 package org.groundplatform.android.di
 
-import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import org.groundplatform.android.repository.LoiDataProvider
+import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import org.groundplatform.domain.usecases.GetLoiReportUseCase
-import org.groundplatform.domain.usecases.LoiDataProviderInterface
 
 @InstallIn(SingletonComponent::class)
 @Module
-internal abstract class DomainModule {
-  @Binds abstract fun bindLoiDataProvider(impl: LoiDataProvider): LoiDataProviderInterface
-
-  companion object {
-    @Provides
-    fun provideGetLoiReportUseCase(loiDataProvider: LoiDataProviderInterface) =
-      GetLoiReportUseCase(loiDataProvider)
-  }
+object UseCaseModule {
+  @Provides
+  fun provideGetLoiReportUseCase(
+    locationOfInterestRepository: LocationOfInterestRepositoryInterface
+  ) = GetLoiReportUseCase(locationOfInterestRepository)
 }

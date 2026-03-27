@@ -13,19 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.repository
+package org.groundplatform.android.di
 
-import javax.inject.Inject
-import org.groundplatform.domain.usecases.LoiDataProviderInterface
+import dagger.Binds
+import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import jakarta.inject.Singleton
+import org.groundplatform.android.repository.LocationOfInterestRepository
+import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 
-class LoiDataProvider
-@Inject
-constructor(private val locationOfInterestRepository: LocationOfInterestRepository) :
-  LoiDataProviderInterface {
-  override suspend fun get(surveyId: String, loiId: String): LoiDataProviderInterface.LoiData? {
-    val loi = locationOfInterestRepository.getOfflineLoi(surveyId, loiId)
-    return loi?.let {
-      LoiDataProviderInterface.LoiData(geometry = it.geometry, properties = it.properties)
-    }
-  }
+@InstallIn(SingletonComponent::class)
+@Module
+internal abstract class RepositoryModule {
+  @Binds
+  @Singleton
+  abstract fun bindLocationOfInterestRepository(
+    impl: LocationOfInterestRepository
+  ): LocationOfInterestRepositoryInterface
 }
