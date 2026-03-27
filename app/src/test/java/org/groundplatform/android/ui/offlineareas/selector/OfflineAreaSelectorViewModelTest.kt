@@ -27,6 +27,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.model.map.CameraPosition
+import org.groundplatform.android.repository.MapStateRepository
 import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.system.LocationManager

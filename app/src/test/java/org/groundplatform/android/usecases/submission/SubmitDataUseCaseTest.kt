@@ -25,6 +25,7 @@ import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.newTask
 import org.groundplatform.android.data.sync.MutationSyncWorkManager
 import org.groundplatform.android.di.RepositoryModule
+import org.groundplatform.android.repository.SubmissionRepository
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.job.Job
