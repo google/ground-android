@@ -78,7 +78,7 @@ fun TaskScreen(
       textFieldValue = state.loiName,
       onConfirmRequest = { onLoiNameConfirm(state.loiName) },
       onDismissRequest = {
-        state.setLoiName(initialNameValue)
+        state.loiName = initialNameValue
         onLoiNameDismiss()
       },
       onTextFieldChange = { state.loiName = it },
