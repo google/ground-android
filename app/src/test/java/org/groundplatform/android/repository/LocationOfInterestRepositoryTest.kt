@@ -29,8 +29,6 @@ import org.groundplatform.android.FakeData
 import org.groundplatform.android.data.local.stores.LocalLocationOfInterestStore
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.data.sync.MutationSyncWorkManager
-import org.groundplatform.android.model.map.Bounds
-import org.groundplatform.android.proto.Survey.DataVisibility
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
 import org.groundplatform.android.usecases.survey.SyncSurveyUseCase
@@ -39,7 +37,9 @@ import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.LinearRing
 import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.geometry.Polygon
+import org.groundplatform.domain.model.map.Bounds
 import org.groundplatform.domain.model.mutation.Mutation.Type.CREATE
+import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -57,7 +57,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
 
   @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
-  @Inject lateinit var locationOfInterestRepository: LocationOfInterestRepository
+  @Inject lateinit var locationOfInterestRepository: LocationOfInterestRepositoryInterface
   @Inject lateinit var localLoiStore: LocalLocationOfInterestStore
   @Inject lateinit var mutationRepository: MutationRepository
   @Inject lateinit var userRepository: UserRepository

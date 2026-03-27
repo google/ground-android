@@ -17,6 +17,7 @@ package org.groundplatform.android.model.map
 
 import com.google.common.truth.Truth.assertThat
 import org.groundplatform.android.FakeData
+import org.groundplatform.domain.model.map.Bounds
 import org.junit.Test
 
 class CameraPositionTest {
