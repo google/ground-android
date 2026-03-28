@@ -19,8 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.layout.LayoutCoordinates
 
@@ -30,14 +29,9 @@ class TaskScreenState(initialLoiName: String) {
   var layoutCoordinates by mutableStateOf<LayoutCoordinates?>(null)
 
   var loiName by mutableStateOf(initialLoiName)
-
-  companion object {
-    fun saver(): Saver<TaskScreenState, String> =
-      Saver(save = { it.loiName }, restore = { TaskScreenState(it) })
-  }
 }
 
 @Composable
-fun rememberTaskScreenState(initialLoiName: String): TaskScreenState {
-  return rememberSaveable(saver = TaskScreenState.saver()) { TaskScreenState(initialLoiName) }
+fun rememberTaskScreenState(initialLoiName: String): TaskScreenState = remember {
+  TaskScreenState(initialLoiName)
 }

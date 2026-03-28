@@ -51,7 +51,7 @@ fun TaskScreen(
   onInstructionsDismiss: () -> Unit,
   headerCard: @Composable (() -> Unit)?,
   taskBody: @Composable () -> Unit,
-  state: TaskScreenState = rememberTaskScreenState(initialLoiName = initialNameValue)
+  state: TaskScreenState = rememberTaskScreenState(initialLoiName = initialNameValue),
 ) {
   val isKeyboardOpen = WindowInsets.isImeVisible
 
