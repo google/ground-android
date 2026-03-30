@@ -20,7 +20,12 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
@@ -31,61 +36,70 @@ import org.groundplatform.android.ui.datacollection.components.LoiNameDialog
 import org.groundplatform.android.ui.datacollection.components.TaskFooter
 import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.groundplatform.android.ui.datacollection.components.TaskViewLayout
-import org.groundplatform.domain.model.task.Task
+
+sealed interface TaskScreenAction {
+  data class OnButtonClicked(val action: ButtonAction) : TaskScreenAction
+
+  data class OnLoiNameConfirm(val name: String) : TaskScreenAction
+
+  data object OnLoiNameDismiss : TaskScreenAction
+
+  data class OnLoiNameChanged(val name: String) : TaskScreenAction
+
+  data object OnInstructionsDismiss : TaskScreenAction
+}
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun TaskScreen(
-  task: Task,
   taskHeader: TaskHeader?,
   instructionData: InstructionData?,
   taskActionButtonsStates: List<ButtonActionState>,
-  loiNameDialogOpen: Boolean,
+  shouldShowLoiNameDialog: Boolean,
   shouldShowHeader: Boolean,
   showInstructionsDialog: Boolean,
-  initialNameValue: String,
+  loiName: String,
   onFooterPositionUpdated: (Float) -> Unit,
-  onButtonClicked: (ButtonAction) -> Unit,
-  onLoiNameConfirm: (String) -> Unit,
-  onLoiNameDismiss: () -> Unit,
-  onInstructionsDismiss: () -> Unit,
+  onAction: (TaskScreenAction) -> Unit,
   headerCard: @Composable (() -> Unit)?,
   taskBody: @Composable () -> Unit,
-  state: TaskScreenState = rememberTaskScreenState(initialLoiName = initialNameValue),
 ) {
   val isKeyboardOpen = WindowInsets.isImeVisible
+  var layoutCoordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
 
   // Update footer position whenever layout changes or keyboard is toggled.
-  LaunchedEffect(isKeyboardOpen, state.layoutCoordinates) {
-    state.layoutCoordinates?.let { onFooterPositionUpdated(it.positionInWindow().y) }
+  LaunchedEffect(isKeyboardOpen, layoutCoordinates) {
+    layoutCoordinates?.let { onFooterPositionUpdated(it.positionInWindow().y) }
   }
 
   TaskViewLayout(
     header = taskHeader,
     footer = {
       TaskFooter(
-        modifier = Modifier.onGloballyPositioned { state.layoutCoordinates = it },
+        modifier = Modifier.onGloballyPositioned { layoutCoordinates = it },
         headerCard = headerCard.takeIf { shouldShowHeader },
         buttonActionStates = taskActionButtonsStates,
-        onButtonClicked = onButtonClicked,
+        onButtonClicked = { onAction(TaskScreenAction.OnButtonClicked(it)) },
       )
     },
     content = { taskBody() },
   )
 
-  if (task.isAddLoiTask && loiNameDialogOpen) {
+  if (shouldShowLoiNameDialog) {
     LoiNameDialog(
-      textFieldValue = state.loiName,
-      onConfirmRequest = { onLoiNameConfirm(state.loiName) },
-      onDismissRequest = {
-        state.loiName = initialNameValue
-        onLoiNameDismiss()
-      },
-      onTextFieldChange = { state.loiName = it },
+      textFieldValue = loiName,
+      onConfirmRequest = { onAction(TaskScreenAction.OnLoiNameConfirm(loiName)) },
+      onDismissRequest = { onAction(TaskScreenAction.OnLoiNameDismiss) },
+      onTextFieldChange = { onAction(TaskScreenAction.OnLoiNameChanged(it)) },
     )
   }
 
   instructionData
     ?.takeIf { showInstructionsDialog }
-    ?.let { InstructionsDialog(data = it, onDismissed = onInstructionsDismiss) }
+    ?.let {
+      InstructionsDialog(
+        data = it,
+        onDismissed = { onAction(TaskScreenAction.OnInstructionsDismiss) },
+      )
+    }
 }
