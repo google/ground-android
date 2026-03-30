@@ -15,21 +15,33 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.date
 
-import android.app.DatePickerDialog
-import android.content.Context
-import android.content.DialogInterface
 import android.text.format.DateFormat
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Date
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreen
@@ -37,6 +49,8 @@ import org.groundplatform.android.ui.datacollection.tasks.TaskScreenAction
 import org.groundplatform.domain.model.submission.DateTimeTaskData
 import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.ui.theme.sizes
+import java.text.SimpleDateFormat
+import java.util.Date
 
 @Composable
 fun DateTaskScreen(
@@ -63,6 +77,7 @@ fun DateTaskScreen(
   )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun DateTaskContent(
   taskData: TaskData?,
@@ -70,6 +85,7 @@ internal fun DateTaskContent(
   onResponseCleared: () -> Unit,
 ) {
   val context = LocalContext.current
+  var showSheet by remember { mutableStateOf(false) }
 
   val dateText =
     remember(taskData) {
@@ -86,42 +102,50 @@ internal fun DateTaskContent(
     modifier = Modifier.padding(horizontal = MaterialTheme.sizes.taskViewPadding),
     dateText = dateText,
     hintText = hintText,
-    onDateClick = {
-      showDateDialog(
-        context,
-        onDateSelected = onDateSelected,
-        onResponseCleared = onResponseCleared,
-      )
-    },
+    onDateClick = { showSheet = true },
   )
+
+  if (showSheet) {
+    DateSelectionBottomSheet(
+      initialDate = (taskData as? DateTimeTaskData)?.timeInMillis,
+      onDateSelected = onDateSelected,
+      onClear = {
+        onResponseCleared()
+        showSheet = false
+      },
+      onDismiss = { showSheet = false },
+    )
+  }
 }
 
-// TODO: Replace with compose-based bottom modal date picker.
-private fun showDateDialog(
-  context: Context,
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DateSelectionBottomSheet(
+  initialDate: Long?,
   onDateSelected: (Date) -> Unit,
-  onResponseCleared: () -> Unit,
+  onClear: () -> Unit,
+  onDismiss: () -> Unit,
 ) {
-  val calendar = Calendar.getInstance()
-  val year = calendar[Calendar.YEAR]
-  val month = calendar[Calendar.MONTH]
-  val day = calendar[Calendar.DAY_OF_MONTH]
-  val dialog =
-    DatePickerDialog(
-      context,
-      { _, updatedYear, updatedMonth, updatedDayOfMonth ->
-        val c = Calendar.getInstance()
-        c[Calendar.DAY_OF_MONTH] = updatedDayOfMonth
-        c[Calendar.MONTH] = updatedMonth
-        c[Calendar.YEAR] = updatedYear
-        onDateSelected(c.time)
-      },
-      year,
-      month,
-      day,
-    )
-  dialog.setButton(DialogInterface.BUTTON_NEUTRAL, context.getString(R.string.clear)) { _, _ ->
-    onResponseCleared()
+  ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState()) {
+    val datePickerState = rememberDatePickerState(initialSelectedDateMillis = initialDate)
+
+    Column(
+      modifier = Modifier.fillMaxWidth().padding(16.dp),
+      horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+      DatePicker(state = datePickerState)
+      Spacer(modifier = Modifier.height(16.dp))
+      Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+        TextButton(onClick = onClear) { Text(stringResource(R.string.clear)) }
+        TextButton(
+          onClick = {
+            datePickerState.selectedDateMillis?.let { onDateSelected(Date(it)) }
+            onDismiss()
+          }
+        ) {
+          Text(stringResource(android.R.string.ok))
+        }
+      }
+    }
   }
-  dialog.show()
 }
