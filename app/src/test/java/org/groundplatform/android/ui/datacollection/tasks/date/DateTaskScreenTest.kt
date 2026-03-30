@@ -17,23 +17,15 @@ package org.groundplatform.android.ui.datacollection.tasks.date
 
 import android.content.Context
 import android.text.format.DateFormat
-import androidx.activity.ComponentActivity
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
-import dagger.hilt.android.testing.BindValue
-import dagger.hilt.android.testing.HiltAndroidTest
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flowOf
-import org.groundplatform.android.BaseHiltTest
-import org.groundplatform.android.ui.common.ViewModelFactory
-import org.groundplatform.android.ui.datacollection.DataCollectionUiState
-import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
+import java.text.SimpleDateFormat
+import java.util.Date
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.ButtonActionStateChecker
@@ -46,46 +38,20 @@ import org.groundplatform.domain.model.task.Task
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mock
-import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
-import java.text.SimpleDateFormat
-import java.util.Date
-import javax.inject.Inject
 
-@HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-class DateTaskScreenTest : BaseHiltTest() {
+class DateTaskScreenTest {
 
-  @get:Rule val composeTestRule = createAndroidComposeRule<ComponentActivity>()
-
-  @BindValue @Mock lateinit var dataCollectionViewModel: DataCollectionViewModel
-  @Inject lateinit var viewModelFactory: ViewModelFactory
+  @get:Rule val composeTestRule = createComposeRule()
 
   private lateinit var viewModel: DateTaskViewModel
-
-  companion object {
-    private val JOB = Job(id = "job1")
-    private val TASK =
-      Task(
-        id = "task_1",
-        index = 0,
-        type = Task.Type.DATE,
-        label = "Date label",
-        isRequired = false,
-      )
-    private const val FIXED_TIMESTAMP = 1704067200000L // 2024-01-01
-  }
-
   private var lastButtonAction: ButtonAction? = null
-
   private val buttonActionStateChecker = ButtonActionStateChecker(composeTestRule)
 
   private fun setupTaskScreen(task: Task, taskData: TaskData? = null) {
     lastButtonAction = null
-    viewModel =
-      viewModelFactory.create(DataCollectionViewModel.getViewModelClass(task.type))
-        as DateTaskViewModel
+    viewModel = DateTaskViewModel()
     viewModel.initialize(
       job = JOB,
       task = task,
@@ -97,11 +63,6 @@ class DateTaskScreenTest : BaseHiltTest() {
           override fun isLastWithValue(taskData: TaskData?) = false
         },
     )
-    whenever(dataCollectionViewModel.getTaskViewModel(task.id)).thenReturn(viewModel)
-    whenever(dataCollectionViewModel.isCurrentActiveTaskFlow(task.id)).thenReturn(flowOf(true))
-    whenever(dataCollectionViewModel.uiState)
-      .thenReturn(MutableStateFlow(DataCollectionUiState.Loading))
-    whenever(dataCollectionViewModel.loiNameDialogOpen).thenReturn(mutableStateOf(false))
 
     composeTestRule.setContent {
       DateTaskScreen(
@@ -231,5 +192,20 @@ class DateTaskScreenTest : BaseHiltTest() {
     buttonActionStateChecker.getNode(ButtonAction.PREVIOUS).performClick()
 
     assertThat(lastButtonAction).isEqualTo(ButtonAction.PREVIOUS)
+  }
+
+  companion object {
+    private val JOB = Job(id = "job1")
+
+    private val TASK =
+      Task(
+        id = "task_1",
+        index = 0,
+        type = Task.Type.DATE,
+        label = "Date label",
+        isRequired = false,
+      )
+
+    private const val FIXED_TIMESTAMP = 1704067200000L // 2024-01-01
   }
 }

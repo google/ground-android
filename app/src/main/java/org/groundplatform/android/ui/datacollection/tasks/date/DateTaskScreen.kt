@@ -42,6 +42,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import java.text.SimpleDateFormat
+import java.util.Date
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreen
@@ -49,8 +51,6 @@ import org.groundplatform.android.ui.datacollection.tasks.TaskScreenAction
 import org.groundplatform.domain.model.submission.DateTimeTaskData
 import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.ui.theme.sizes
-import java.text.SimpleDateFormat
-import java.util.Date
 
 @Composable
 fun DateTaskScreen(
