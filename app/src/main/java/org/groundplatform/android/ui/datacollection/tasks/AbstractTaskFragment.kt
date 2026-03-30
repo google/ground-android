@@ -189,9 +189,11 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   /** Handles actions triggered from the task screen UI. */
   fun handleTaskScreenAction(screenAction: TaskScreenAction) {
-    when (screenAction) {
-      is TaskScreenAction.OnButtonClicked -> handleButtonClick(screenAction.action)
-      else -> TODO("Not yet implemented")
+    if (screenAction is TaskScreenAction.OnButtonClicked) {
+      handleButtonClick(screenAction.action)
+    } else {
+      // TODO: Handle other actions
+      // https://github.com/google/ground-android/issues/3630
     }
   }
 

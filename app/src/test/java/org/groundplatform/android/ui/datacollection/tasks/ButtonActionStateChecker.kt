@@ -63,6 +63,8 @@ class ButtonActionStateChecker(private val composeTestRule: ComposeTestRule) {
       buttonAction.textId != null -> {
         composeTestRule.onNodeWithText(getString(buttonAction.textId))
       }
-      else -> error("Invalid button action: $buttonAction")
+      else -> {
+        error("Invalid button action: $buttonAction")
+      }
     }
 }
