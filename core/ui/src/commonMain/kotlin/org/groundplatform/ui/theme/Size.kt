@@ -30,7 +30,6 @@ data class Size(
   val progressIndicatorSize: Dp = 24.dp,
   val progressIndicatorStrokeWidth: Dp = 2.dp,
   val taskViewPadding: Dp = 16.dp,
-  val qrCodeGroundLogoSize: Dp = 48.dp
 )
 
 internal val LocalSizes = compositionLocalOf { Size() }
