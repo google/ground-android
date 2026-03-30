@@ -212,4 +212,88 @@ class TaskScreenTest {
     // Asserts that the callback was fired and a layout coordinate window position was provided.
     assertThat(footerPosition).isAtLeast(0f)
   }
+
+  @Test
+  fun `does not render header card when shouldShowHeader is false`() {
+    composeTestRule.setContent {
+      TaskScreen(
+        taskHeader = TaskHeader("Test Header"),
+        instructionData = null,
+        taskActionButtonsStates = emptyList(),
+        shouldShowLoiNameDialog = false,
+        shouldShowHeader = false,
+        showInstructionsDialog = false,
+        loiName = "",
+        onFooterPositionUpdated = {},
+        onAction = {},
+        headerCard = { Text("Header Card Content") },
+        taskBody = {},
+      )
+    }
+
+    composeTestRule.onNodeWithText("Header Card Content").assertDoesNotExist()
+  }
+
+  @Test
+  fun `does not render LoiNameDialog when shouldShowLoiNameDialog is false`() {
+    composeTestRule.setContent {
+      TaskScreen(
+        taskHeader = null,
+        instructionData = null,
+        taskActionButtonsStates = emptyList(),
+        shouldShowLoiNameDialog = false,
+        shouldShowHeader = false,
+        showInstructionsDialog = false,
+        loiName = "My Custom LOI",
+        onFooterPositionUpdated = {},
+        onAction = {},
+        headerCard = null,
+        taskBody = {},
+      )
+    }
+
+    composeTestRule.onNodeWithText("My Custom LOI").assertDoesNotExist()
+  }
+
+  @Test
+  fun `does not render InstructionsDialog when showInstructionsDialog is false`() {
+    composeTestRule.setContent {
+      TaskScreen(
+        taskHeader = null,
+        instructionData = InstructionData(R.drawable.ic_question_answer, R.string.add_point),
+        taskActionButtonsStates = emptyList(),
+        shouldShowLoiNameDialog = false,
+        shouldShowHeader = false,
+        showInstructionsDialog = false,
+        loiName = "",
+        onFooterPositionUpdated = {},
+        onAction = {},
+        headerCard = null,
+        taskBody = {},
+      )
+    }
+
+    composeTestRule.onNodeWithText(getString(R.string.add_point)).assertDoesNotExist()
+  }
+
+  @Test
+  fun `does not render InstructionsDialog when instructionData is null`() {
+    composeTestRule.setContent {
+      TaskScreen(
+        taskHeader = null,
+        instructionData = null,
+        taskActionButtonsStates = emptyList(),
+        shouldShowLoiNameDialog = false,
+        shouldShowHeader = false,
+        showInstructionsDialog = true, // Expected to show, but data is null
+        loiName = "",
+        onFooterPositionUpdated = {},
+        onAction = {},
+        headerCard = null,
+        taskBody = {},
+      )
+    }
+
+    composeTestRule.onNodeWithText(getString(R.string.add_point)).assertDoesNotExist()
+  }
 }
