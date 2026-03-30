@@ -18,11 +18,16 @@ package org.groundplatform.android.ui.datacollection.tasks
 import androidx.compose.material3.Text
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
 import com.google.common.truth.Truth.assertThat
+import org.groundplatform.android.R
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
+import org.groundplatform.android.ui.datacollection.components.InstructionData
+import org.groundplatform.android.ui.datacollection.components.LOI_NAME_TEXT_FIELD_TEST_TAG
 import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.junit.Rule
 import org.junit.Test
@@ -120,5 +125,60 @@ class TaskScreenTest {
     }
 
     composeTestRule.onNodeWithText("My Custom LOI").assertIsDisplayed()
+  }
+
+  @Test
+  fun `triggers LoiNameDialog callbacks`() {
+    var actionFired: TaskScreenAction? = null
+
+    composeTestRule.setContent {
+      TaskScreen(
+        taskHeader = null,
+        instructionData = null,
+        taskActionButtonsStates = emptyList(),
+        shouldShowLoiNameDialog = true,
+        shouldShowHeader = false,
+        showInstructionsDialog = false,
+        loiName = "My Custom LOI",
+        onFooterPositionUpdated = {},
+        onAction = { actionFired = it },
+        headerCard = null,
+        taskBody = {},
+      )
+    }
+
+    // Trigger explicit callbacks
+    composeTestRule.onNodeWithText("Save").performClick()
+    assertThat(actionFired).isEqualTo(TaskScreenAction.OnLoiNameConfirm("My Custom LOI"))
+
+    composeTestRule.onNodeWithText("Cancel").performClick()
+    assertThat(actionFired).isEqualTo(TaskScreenAction.OnLoiNameDismiss)
+
+    composeTestRule.onNodeWithTag(LOI_NAME_TEXT_FIELD_TEST_TAG).performTextInput(" appended")
+    assertThat(actionFired).isEqualTo(TaskScreenAction.OnLoiNameChanged("My Custom LOI appended"))
+  }
+
+  @Test
+  fun `renders InstructionsDialog and triggers callback`() {
+    var actionFired: TaskScreenAction? = null
+
+    composeTestRule.setContent {
+      TaskScreen(
+        taskHeader = null,
+        instructionData = InstructionData(R.drawable.ic_question_answer, R.string.add_point),
+        taskActionButtonsStates = emptyList(),
+        shouldShowLoiNameDialog = false,
+        shouldShowHeader = false,
+        showInstructionsDialog = true,
+        loiName = "",
+        onFooterPositionUpdated = {},
+        onAction = { actionFired = it },
+        headerCard = null,
+        taskBody = {},
+      )
+    }
+
+    composeTestRule.onNodeWithText("Close").performClick()
+    assertThat(actionFired).isEqualTo(TaskScreenAction.OnInstructionsDismiss)
   }
 }
