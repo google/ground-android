@@ -153,6 +153,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   ) {
     containerFragment.replaceFragment(containerId, this)
     getMapAsync { googleMap: GoogleMap ->
+      if (view == null) return@getMapAsync
       onMapReady(googleMap)
       onMapReadyCallback(this)
     }
@@ -227,7 +228,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   private fun onMapClick(latLng: LatLng) {
     val clickedPolygonsOrEmpty = featureManager.getIntersectingPolygons(latLng)
-    viewLifecycleOwner.lifecycleScope.launch { featureClicks.emit(clickedPolygonsOrEmpty) }
+    lifecycleScope.launch { featureClicks.emit(clickedPolygonsOrEmpty) }
   }
 
   @SuppressLint("MissingPermission")
@@ -267,7 +268,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   private fun onCameraMoveStarted(reason: Int) {
     if (reason == OnCameraMoveStartedListener.REASON_GESTURE) {
-      viewLifecycleOwner.lifecycleScope.launch { startDragEvents.emit(Unit) }
+      lifecycleScope.launch { startDragEvents.emit(Unit) }
     }
   }
 
