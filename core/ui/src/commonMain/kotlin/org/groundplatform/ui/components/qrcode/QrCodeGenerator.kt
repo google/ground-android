@@ -17,5 +17,5 @@ package org.groundplatform.ui.components.qrcode
 
 import androidx.compose.ui.graphics.ImageBitmap
 
-internal const val QR_SIZE_PX = 1024
+internal const val QR_SIZE_PX = 512
 expect fun generateQrBitmap(content: String, useHighEcc: Boolean): ImageBitmap
