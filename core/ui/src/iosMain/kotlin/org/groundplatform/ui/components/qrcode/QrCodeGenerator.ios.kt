@@ -19,17 +19,14 @@ package org.groundplatform.ui.components.qrcode
 
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
-import kotlin.math.floor
 import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.addressOf
-import kotlinx.cinterop.useContents
 import kotlinx.cinterop.usePinned
 import org.jetbrains.skia.ColorAlphaType
 import org.jetbrains.skia.ColorType
 import org.jetbrains.skia.Image
 import org.jetbrains.skia.ImageInfo
-import platform.CoreGraphics.CGAffineTransformMakeScale
 import platform.CoreGraphics.CGBitmapContextCreate
 import platform.CoreGraphics.CGColorSpaceCreateDeviceRGB
 import platform.CoreGraphics.CGContextDrawImage
@@ -57,25 +54,17 @@ private const val INPUT_CORRECTION_LEVEL_KEY = "inputCorrectionLevel"
 private val ciContext: CIContext = CIContext.contextWithOptions(null)
 
 actual fun generateQrBitmap(content: String, useHighEcc: Boolean): ImageBitmap {
-  val ciImage = createQrCIImage(content, useHighEcc)
-  val scaled = scaleToTargetSize(ciImage)
-  return scaled.toComposeImageBitmap()
-}
-
-/** Configures and runs the CIQRCodeGenerator filter, returning the raw (unscaled) QR CIImage. */
-private fun createQrCIImage(content: String, useHighEcc: Boolean): CIImage {
   val filter = CIFilter.filterWithName(FILTER_NAME) ?: error("$FILTER_NAME filter not available")
   filter.setValue(content.encodeToNSData(), forKey = INPUT_MESSAGE_KEY)
   filter.setValue(if (useHighEcc) "H" else "L", forKey = INPUT_CORRECTION_LEVEL_KEY)
-  return filter.outputImage ?: error("$FILTER_NAME produced no output")
+  val ciImage = filter.outputImage ?: error("$FILTER_NAME produced no output")
+  return ciImage.toComposeImageBitmap()
 }
 
-/** Scales [ciImage] so that both dimensions match [QR_SIZE_PX]. */
-private fun scaleToTargetSize(ciImage: CIImage): CIImage {
-  val scale = ciImage.extent.useContents { floor(QR_SIZE_PX / size.width) }
-  return ciImage.imageByApplyingTransform(CGAffineTransformMakeScale(scale, scale))
-}
-
+/**
+ * Renders this [CIImage] into a Compose [ImageBitmap] by drawing the CGImage into a raw RGBA pixel
+ * buffer and wrapping it as a Skia raster image.
+ */
 private fun CIImage.toComposeImageBitmap(): ImageBitmap {
   val cgImage =
     ciContext.createCGImage(this, fromRect = extent)

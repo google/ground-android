@@ -17,6 +17,7 @@ package org.groundplatform.ui.components.qrcode
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
@@ -29,6 +30,7 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
@@ -38,6 +40,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.groundplatform.ui.theme.sizes
 
+/**
+ * Maximum content size (in UTF-8 bytes) for which a center logo is displayed.
+ *
+ * Adding a logo in the center of a QR code covers part of the data pattern, so the QR must rely on
+ * error correction to remain scannable. A limit of 1,000 bytes is used as a conservative threshold
+ * to ensure the QR code remains reliably scannable even with a logo applied.
+ */
 private const val MAX_QR_BYTES_WITH_LOGO = 1000
 
 /**
@@ -64,10 +73,11 @@ fun GroundQrCode(
   Box(modifier = modifier.sizeIn(minWidth = 142.dp, minHeight = 142.dp)) {
     qrBitmap?.let {
       Image(
-        modifier = Modifier.align(Alignment.Center),
+        modifier = Modifier.align(Alignment.Center).fillMaxSize(),
         bitmap = it,
         contentDescription = contentDescription,
         contentScale = ContentScale.Fit,
+        filterQuality = FilterQuality.None,
       )
       if (showLogo) {
         Image(
