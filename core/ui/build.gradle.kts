@@ -48,13 +48,12 @@ kotlin {
         implementation(libs.compose.ui.tooling.preview)
         implementation(libs.compose.components.resources)
         implementation(libs.androidx.lifecycle.runtime.compose)
-        implementation(libs.qrose)
       }
     }
 
     commonTest { dependencies { implementation(libs.kotlin.test) } }
 
-    androidMain { dependencies {} }
+      androidMain { dependencies { implementation(libs.google.zxing) } }
 
     iosMain { dependencies {} }
   }
