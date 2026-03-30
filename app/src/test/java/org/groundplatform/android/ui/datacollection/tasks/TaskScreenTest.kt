@@ -184,4 +184,32 @@ class TaskScreenTest {
 
     assertThat(actionFired).isEqualTo(TaskScreenAction.OnInstructionsDismiss)
   }
+
+  @Test
+  fun `triggers onFooterPositionUpdated when layout coordinates change`() {
+    var footerPosition = -1f
+
+    composeTestRule.setContent {
+      TaskScreen(
+        taskHeader = null,
+        instructionData = null,
+        taskActionButtonsStates = emptyList(),
+        shouldShowLoiNameDialog = false,
+        shouldShowHeader = false,
+        showInstructionsDialog = false,
+        loiName = "",
+        onFooterPositionUpdated = { footerPosition = it },
+        onAction = {},
+        headerCard = null,
+        taskBody = {},
+      )
+    }
+
+    // Compose will do a layout pass and call onGloballyPositioned,
+    // which in turn updates the layoutCoordinates state and triggers LaunchedEffect.
+    composeTestRule.waitForIdle()
+
+    // Asserts that the callback was fired and a layout coordinate window position was provided.
+    assertThat(footerPosition).isAtLeast(0f)
+  }
 }
