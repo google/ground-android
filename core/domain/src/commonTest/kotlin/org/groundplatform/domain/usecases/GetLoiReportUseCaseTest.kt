@@ -20,6 +20,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
+import org.groundplatform.domain.helpers.FakeLocationOfInterestRepository
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.Geometry
 import org.groundplatform.domain.model.geometry.LineString
@@ -33,8 +34,8 @@ import org.groundplatform.domain.model.locationofinterest.generateProperties
 
 @Suppress("MultilineRawStringIndentation")
 class GetLoiReportUseCaseTest {
-  private val loiDataProvider = FakeLoiDataProvider()
-  private val getLoiReportUseCase = GetLoiReportUseCase(loiDataProvider)
+  private val loiRepository = FakeLocationOfInterestRepository()
+  private val getLoiReportUseCase = GetLoiReportUseCase(loiRepository)
 
   @Test
   fun `Should get a report with the correct geoJson for a Point`() = runTest {
@@ -242,14 +243,8 @@ class GetLoiReportUseCaseTest {
   }
 
   private suspend fun invokeUseCase(geometry: Geometry, properties: LoiProperties): LoiReport {
-    loiDataProvider.result = LoiDataProviderInterface.LoiData(geometry, properties)
+    loiRepository.offlineLoi =
+      loiRepository.offlineLoi.copy(geometry = geometry, properties = properties)
     return getLoiReportUseCase.invoke("loiId", "surveyId")!!
-  }
-
-  private class FakeLoiDataProvider : LoiDataProviderInterface {
-    var result: LoiDataProviderInterface.LoiData? = null
-
-    override suspend fun get(surveyId: String, loiId: String): LoiDataProviderInterface.LoiData? =
-      result
   }
 }

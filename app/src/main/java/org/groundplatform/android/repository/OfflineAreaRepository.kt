@@ -28,7 +28,6 @@ import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.android.model.imagery.LocalTileSource
 import org.groundplatform.android.model.imagery.OfflineArea
 import org.groundplatform.android.model.imagery.TileSource
-import org.groundplatform.android.model.map.Bounds
 import org.groundplatform.android.system.GeocodingManager
 import org.groundplatform.android.ui.map.gms.mog.MogClient
 import org.groundplatform.android.ui.map.gms.mog.MogTileDownloader
@@ -38,6 +37,7 @@ import org.groundplatform.android.ui.util.FileUtil
 import org.groundplatform.android.util.ByteCount
 import org.groundplatform.android.util.deleteIfEmpty
 import org.groundplatform.android.util.rangeOf
+import org.groundplatform.domain.model.map.Bounds
 import timber.log.Timber
 
 /**

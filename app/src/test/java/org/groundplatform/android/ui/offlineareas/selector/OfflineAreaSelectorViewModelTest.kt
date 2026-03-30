@@ -26,9 +26,7 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.groundplatform.android.BaseHiltTest
-import org.groundplatform.android.model.map.Bounds
 import org.groundplatform.android.model.map.CameraPosition
-import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.MapStateRepository
 import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.android.repository.SurveyRepository
@@ -39,6 +37,8 @@ import org.groundplatform.android.system.SettingsManager
 import org.groundplatform.android.ui.offlineareas.selector.model.BottomTextState
 import org.groundplatform.android.util.toMbString
 import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.map.Bounds
+import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -60,7 +60,7 @@ class OfflineAreaSelectorViewModelTest : BaseHiltTest() {
   @Mock private lateinit var mapStateRepository: MapStateRepository
   @Mock private lateinit var settingsManager: SettingsManager
   @Mock private lateinit var permissionsManager: PermissionsManager
-  @Mock private lateinit var locationOfInterestRepository: LocationOfInterestRepository
+  @Mock private lateinit var locationOfInterestRepository: LocationOfInterestRepositoryInterface
   @Mock private lateinit var networkManager: NetworkManager
 
   private lateinit var viewModel: OfflineAreaSelectorViewModel

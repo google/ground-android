@@ -48,7 +48,6 @@ import org.groundplatform.android.common.Constants.DEFAULT_LOI_ZOOM_LEVEL
 import org.groundplatform.android.model.imagery.TileSource
 import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.model.map.MapType
-import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.MapStateRepository
 import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.android.repository.SurveyRepository
@@ -65,6 +64,7 @@ import org.groundplatform.android.ui.map.gms.GmsExt.toBounds
 import org.groundplatform.android.ui.map.gms.toCoordinates
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import timber.log.Timber
 
 open class BaseMapViewModel
@@ -76,7 +76,7 @@ constructor(
   private val offlineAreaRepository: OfflineAreaRepository,
   private val permissionsManager: PermissionsManager,
   private val surveyRepository: SurveyRepository,
-  private val locationOfInterestRepository: LocationOfInterestRepository,
+  private val locationOfInterestRepository: LocationOfInterestRepositoryInterface,
 ) : AbstractViewModel() {
 
   private val _locationLock: MutableStateFlow<Result<Boolean>> =

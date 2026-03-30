@@ -31,7 +31,7 @@ coreVersion = "1.7.0"
 coroutinesVersion = "1.10.2"
 detektVersion = "1.23.8"
 espressoContribVersion = "3.7.0"
-firebaseBomVersion = "34.10.0"
+firebaseBomVersion = "34.11.0"
 firebaseCrashlyticsGradleVersion = "3.0.6"
 fragmentVersion = "1.8.9"
 googleServicesVersion = "4.4.4"
@@ -76,7 +76,7 @@ timberVersion = "5.0.1"
 truthVersion = "1.4.5"
 turbineVersion = "1.2.1"
 uiautomatorVersion = "2.3.0"
-workVersion = "2.11.1"
+workVersion = "2.11.2"
 
 [libraries]
 android-maps-utils = { module = "com.google.maps.android:android-maps-utils", version.ref = "androidMapsUtilsVersion" }
@@ -154,7 +154,7 @@ kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotl
 kotlinx-collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlinxCollectionsImmutable" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android" }
 kotlinx-coroutines-bom = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-bom", version.ref = "coroutinesVersion" }
-kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutinesVersion" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutinesVersion" }
 kotlinx-serialization-bom = { module = "org.jetbrains.kotlinx:kotlinx-serialization-bom", version.ref = "kotlinxBom" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxBom" }

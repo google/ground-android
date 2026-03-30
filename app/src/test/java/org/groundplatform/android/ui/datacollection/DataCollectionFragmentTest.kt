@@ -39,7 +39,6 @@ import org.groundplatform.android.data.local.room.converter.SubmissionDeltasConv
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.data.sync.MutationSyncWorkManager
 import org.groundplatform.android.model.map.CameraPosition
-import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.MutationRepository
 import org.groundplatform.android.repository.SubmissionRepository
 import org.groundplatform.android.repository.UserRepository
@@ -60,6 +59,7 @@ import org.groundplatform.domain.model.task.Expression
 import org.groundplatform.domain.model.task.MultipleChoice
 import org.groundplatform.domain.model.task.Option
 import org.groundplatform.domain.model.task.Task
+import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -76,7 +76,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
   @Inject lateinit var activateSurvey: ActivateSurveyUseCase
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
-  @Inject lateinit var loiRepository: LocationOfInterestRepository
+  @Inject lateinit var loiRepository: LocationOfInterestRepositoryInterface
   @Inject lateinit var mutationRepository: MutationRepository
   @Inject lateinit var submissionRepository: SubmissionRepository
   @Inject lateinit var userRepository: UserRepository

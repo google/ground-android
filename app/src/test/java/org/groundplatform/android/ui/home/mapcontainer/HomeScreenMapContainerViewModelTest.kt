@@ -19,6 +19,7 @@ package org.groundplatform.android.ui.home.mapcontainer
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
+import dagger.hilt.android.testing.UninstallModules
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -31,9 +32,8 @@ import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST_FEATURE
 import org.groundplatform.android.FakeData.SURVEY
 import org.groundplatform.android.FakeData.USER
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
-import org.groundplatform.android.model.map.Bounds
+import org.groundplatform.android.di.RepositoryModule
 import org.groundplatform.android.model.map.CameraPosition
-import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
@@ -41,6 +41,8 @@ import org.groundplatform.android.ui.home.mapcontainer.jobs.AdHocDataCollectionB
 import org.groundplatform.android.ui.home.mapcontainer.jobs.SelectedLoiSheetData
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
 import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.map.Bounds
+import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -51,6 +53,7 @@ import org.robolectric.RobolectricTestRunner
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
+@UninstallModules(RepositoryModule::class)
 @RunWith(RobolectricTestRunner::class)
 class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
   @Inject lateinit var viewModel: HomeScreenMapContainerViewModel
@@ -59,7 +62,7 @@ class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
   @Inject lateinit var remoteDataStore: FakeRemoteDataStore
   @Inject lateinit var userRepository: UserRepository
   @Inject lateinit var activateSurvey: ActivateSurveyUseCase
-  @BindValue @Mock lateinit var loiRepository: LocationOfInterestRepository
+  @BindValue @Mock lateinit var loiRepository: LocationOfInterestRepositoryInterface
 
   @Before
   override fun setUp() {
