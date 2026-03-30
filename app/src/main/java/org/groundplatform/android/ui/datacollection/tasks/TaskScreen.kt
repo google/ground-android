@@ -40,15 +40,15 @@ import org.groundplatform.android.ui.datacollection.components.TaskViewLayout
 @Composable
 fun TaskScreen(
   taskHeader: TaskHeader?,
-  instructionData: InstructionData?,
+  instructionData: InstructionData? = null,
   taskActionButtonsStates: List<ButtonActionState>,
-  shouldShowLoiNameDialog: Boolean,
-  shouldShowHeader: Boolean,
-  showInstructionsDialog: Boolean,
-  loiName: String,
+  shouldShowLoiNameDialog: Boolean = false,
+  shouldShowHeader: Boolean = false,
+  showInstructionsDialog: Boolean = false,
+  loiName: String = "",
   onFooterPositionUpdated: (Float) -> Unit,
   onAction: (TaskScreenAction) -> Unit,
-  headerCard: @Composable (() -> Unit)?,
+  headerCard: @Composable (() -> Unit)? = null,
   taskBody: @Composable () -> Unit,
 ) {
   val isKeyboardOpen = WindowInsets.isImeVisible

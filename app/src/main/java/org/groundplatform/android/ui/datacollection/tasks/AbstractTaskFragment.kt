@@ -110,7 +110,11 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   }
 
   /** Renders the body of the task. */
-  @Composable abstract fun TaskBody()
+  @Composable
+  open fun TaskBody() {
+    // This method should be moved within the respective compose screen. Remove once all tasks have
+    // been migrated to compose layout using [TaskScreen].
+  }
 
   /** Invoked when the instruction dialog is dismissed. */
   open fun onInstructionDialogDismissed() {}
@@ -176,8 +180,19 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     )
   }
 
-  private fun saveFooterPosition(top: Float) {
+  /**
+   * Updates the [DataCollectionViewModel] with the current vertical position of the task footer.
+   */
+  fun saveFooterPosition(top: Float) {
     dataCollectionViewModel.updateFooterPosition(top)
+  }
+
+  /** Handles actions triggered from the task screen UI. */
+  fun handleTaskScreenAction(screenAction: TaskScreenAction) {
+    when (screenAction) {
+      is TaskScreenAction.OnButtonClicked -> handleButtonClick(screenAction.action)
+      else -> TODO("Not yet implemented")
+    }
   }
 
   private fun handleButtonClick(action: ButtonAction) {
