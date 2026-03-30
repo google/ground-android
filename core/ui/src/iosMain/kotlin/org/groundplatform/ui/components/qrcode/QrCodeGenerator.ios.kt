@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
+
 package org.groundplatform.ui.components.qrcode
 
 import androidx.compose.ui.graphics.ImageBitmap
@@ -22,10 +24,22 @@ import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.useContents
 import kotlinx.cinterop.usePinned
+import org.jetbrains.skia.ColorAlphaType
+import org.jetbrains.skia.ColorType
 import org.jetbrains.skia.Image
+import org.jetbrains.skia.ImageInfo
 import platform.CoreGraphics.CGAffineTransformMakeScale
+import platform.CoreGraphics.CGBitmapContextCreate
+import platform.CoreGraphics.CGColorSpaceCreateDeviceRGB
+import platform.CoreGraphics.CGContextDrawImage
+import platform.CoreGraphics.CGImageAlphaInfo
+import platform.CoreGraphics.CGImageGetHeight
+import platform.CoreGraphics.CGImageGetWidth
+import platform.CoreGraphics.CGRectMake
+import platform.CoreGraphics.kCGBitmapByteOrder32Big
 import platform.CoreImage.CIContext
 import platform.CoreImage.CIFilter
+import platform.CoreImage.CIImage
 import platform.CoreImage.createCGImage
 import platform.CoreImage.filterWithName
 import platform.Foundation.NSData
@@ -34,46 +48,65 @@ import platform.Foundation.NSUTF8StringEncoding
 import platform.Foundation.create
 import platform.Foundation.dataUsingEncoding
 import platform.Foundation.setValue
-import platform.UIKit.UIImage
-import platform.UIKit.UIImagePNGRepresentation
-import platform.posix.memcpy
 
-@OptIn(ExperimentalForeignApi::class)
+private const val FILTER_NAME = "CIQRCodeGenerator"
+private const val INPUT_MESSAGE_KEY = "inputMessage"
+private const val INPUT_CORRECTION_LEVEL_KEY = "inputCorrectionLevel"
+
+private val ciContext: CIContext = CIContext.contextWithOptions(null)
+
 actual fun generateQrBitmap(content: String, useHighEcc: Boolean): ImageBitmap {
-  val filter =
-    CIFilter.filterWithName("CIQRCodeGenerator") ?: error("CIQRCodeGenerator filter not available")
-  val data: NSData = content.encodeToNSData()
-  filter.setValue(data, forKey = "inputMessage")
-  filter.setValue(if (useHighEcc) "H" else "L", forKey = "inputCorrectionLevel")
+  val ciImage = createQrCIImage(content, useHighEcc)
+  val scaled = scaleToTargetSize(ciImage)
+  return scaled.toComposeImageBitmap()
+}
 
-  val ciImage = filter.outputImage ?: error("CIQRCodeGenerator produced no output")
+/** Configures and runs the CIQRCodeGenerator filter, returning the raw (unscaled) QR CIImage. */
+private fun createQrCIImage(content: String, useHighEcc: Boolean): CIImage {
+  val filter = CIFilter.filterWithName(FILTER_NAME) ?: error("$FILTER_NAME filter not available")
+  filter.setValue(content.encodeToNSData(), forKey = INPUT_MESSAGE_KEY)
+  filter.setValue(if (useHighEcc) "H" else "L", forKey = INPUT_CORRECTION_LEVEL_KEY)
+  return filter.outputImage ?: error("$FILTER_NAME produced no output")
+}
 
-  val scaleX = ciImage.extent.useContents { QR_SIZE_PX.toDouble() / size.width }
-  val scaleY = ciImage.extent.useContents { QR_SIZE_PX.toDouble() / size.height }
-  val scaledImage = ciImage.imageByApplyingTransform(CGAffineTransformMakeScale(scaleX, scaleY))
+/** Scales [ciImage] so that both dimensions match [QR_SIZE_PX]. */
+private fun scaleToTargetSize(ciImage: CIImage): CIImage {
+  val (scaleX, scaleY) =
+    ciImage.extent.useContents {
+      QR_SIZE_PX.toDouble() / size.width to QR_SIZE_PX.toDouble() / size.height
+    }
+  return ciImage.imageByApplyingTransform(CGAffineTransformMakeScale(scaleX, scaleY))
+}
 
-  val context = CIContext.contextWithOptions(null)
+private fun CIImage.toComposeImageBitmap(): ImageBitmap {
   val cgImage =
-    context.createCGImage(scaledImage, fromRect = scaledImage.extent)
-      ?: error("Failed to create CGImage from scaled CIImage")
+    ciContext.createCGImage(this, fromRect = extent)
+      ?: error("Failed to create CGImage from CIImage")
 
-  val uiImage = UIImage.imageWithCGImage(cgImage)
-  val pngData = UIImagePNGRepresentation(uiImage) ?: error("Failed to encode UIImage as PNG")
+  val width = CGImageGetWidth(cgImage).toInt()
+  val height = CGImageGetHeight(cgImage).toInt()
+  val bytesPerRow = width * 4
+  val data = ByteArray(bytesPerRow * height)
 
-  val bytes = pngData.toByteArray()
-  return Image.makeFromEncoded(bytes).toComposeImageBitmap()
-}
-
-@OptIn(ExperimentalForeignApi::class)
-private fun NSData.toByteArray(): ByteArray {
-  val length = length.toInt()
-  if (length == 0) return byteArrayOf()
-  return ByteArray(length).also { byteArray ->
-    byteArray.usePinned { pinned -> memcpy(pinned.addressOf(0), bytes, this.length) }
+  data.usePinned { pinned ->
+    val colorSpace = CGColorSpaceCreateDeviceRGB()
+    val context =
+      CGBitmapContextCreate(
+        pinned.addressOf(0),
+        width.toULong(),
+        height.toULong(),
+        8u,
+        bytesPerRow.toULong(),
+        colorSpace,
+        CGImageAlphaInfo.kCGImageAlphaPremultipliedLast.value or kCGBitmapByteOrder32Big,
+      ) ?: error("Failed to create CGBitmapContext")
+    CGContextDrawImage(context, CGRectMake(0.0, 0.0, width.toDouble(), height.toDouble()), cgImage)
   }
+
+  val imageInfo = ImageInfo(width, height, ColorType.RGBA_8888, ColorAlphaType.PREMUL)
+  return Image.makeRaster(imageInfo, data, bytesPerRow).toComposeImageBitmap()
 }
 
-@OptIn(BetaInteropApi::class)
 private fun String.encodeToNSData(): NSData =
   NSString.create(string = this).dataUsingEncoding(NSUTF8StringEncoding)
     ?: error("Failed to encode string as UTF-8 NSData")

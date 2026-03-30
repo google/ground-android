@@ -53,7 +53,7 @@ kotlin {
 
     commonTest { dependencies { implementation(libs.kotlin.test) } }
 
-      androidMain { dependencies { implementation(libs.google.zxing) } }
+    androidMain { dependencies { implementation(libs.google.zxing) } }
 
     iosMain { dependencies {} }
   }
