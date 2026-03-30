@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.ui.datacollection.tasks.date
+package org.groundplatform.android.ui.datacollection.tasks.time
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
@@ -36,22 +36,22 @@ import androidx.compose.ui.unit.dp
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.ui.theme.AppTheme
 
-const val DATE_TEXT_TEST_TAG: String = "date task input test tag"
+const val TIME_TEXT_TEST_TAG: String = "time task input test tag"
 
-// TODO: Add trailing icon (close logo) for clearing selected date.
+// TODO: Add trailing icon (close logo) for clearing selected time.
 
 @Composable
-fun DateTaskScreen(
-  dateText: String,
+fun TimeTaskField(
+  timeText: String,
   hintText: String,
-  onDateClick: () -> Unit,
+  onTimeClick: () -> Unit,
   modifier: Modifier = Modifier,
 ) {
   val interactionSource = remember { MutableInteractionSource() }
   LaunchedEffect(interactionSource) {
     interactionSource.interactions.collect { interaction ->
       if (interaction is PressInteraction.Release) {
-        onDateClick()
+        onTimeClick()
       }
     }
   }
@@ -59,11 +59,11 @@ fun DateTaskScreen(
   Column(modifier = modifier) {
     // TODO: Replace with simple text field.
     OutlinedTextField(
-      value = dateText,
+      value = timeText,
       onValueChange = {},
       readOnly = true,
       placeholder = { Text(hintText) },
-      modifier = Modifier.width(200.dp).testTag(DATE_TEXT_TEST_TAG),
+      modifier = Modifier.width(200.dp).testTag(TIME_TEXT_TEST_TAG),
       interactionSource = interactionSource,
     )
   }
@@ -72,16 +72,16 @@ fun DateTaskScreen(
 @Preview(showBackground = true)
 @Composable
 @ExcludeFromJacocoGeneratedReport
-private fun DateTaskScreenPreview() {
+private fun TimeTaskFieldPreview() {
   AppTheme {
     Column(
       modifier = Modifier.padding(16.dp),
       verticalArrangement = Arrangement.spacedBy(8.dp),
       horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-      DateTaskScreen(dateText = "", hintText = "DD/MM/YYYY", onDateClick = {})
+      TimeTaskField(timeText = "", hintText = "HH:MM AM", onTimeClick = {})
       Spacer(modifier = Modifier.height(10.dp))
-      DateTaskScreen(dateText = "14/02/2026", hintText = "DD/MM/YYYY", onDateClick = {})
+      TimeTaskField(timeText = "10:30 AM", hintText = "HH:MM AM", onTimeClick = {})
     }
   }
 }

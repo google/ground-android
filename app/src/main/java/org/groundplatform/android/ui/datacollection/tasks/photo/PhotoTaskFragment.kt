@@ -81,7 +81,7 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
     var showPermissionDeniedDialog by viewModel.showPermissionDeniedDialog
     val uri by viewModel.uri.collectAsStateWithLifecycle(Uri.EMPTY)
 
-    PhotoTaskScreen(
+    PhotoTaskContent(
       modifier = Modifier.padding(horizontal = MaterialTheme.sizes.taskViewPadding),
       uri = uri,
       onTakePhoto = { onTakePhoto() },

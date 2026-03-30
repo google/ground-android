@@ -57,7 +57,7 @@ class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
       (DateFormat.getDateFormat(context) as SimpleDateFormat).toPattern().uppercase()
     }
 
-    DateTaskScreen(
+    DateInputField(
       modifier = Modifier.padding(horizontal = MaterialTheme.sizes.taskViewPadding),
       dateText = dateText,
       hintText = hintText,

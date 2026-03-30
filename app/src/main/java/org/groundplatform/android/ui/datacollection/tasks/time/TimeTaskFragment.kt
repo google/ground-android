@@ -62,7 +62,7 @@ class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
       }
     }
 
-    TimeTaskScreen(
+    TimeTaskField(
       modifier = Modifier.padding(horizontal = MaterialTheme.sizes.taskViewPadding),
       timeText = timeText,
       hintText = hintText,

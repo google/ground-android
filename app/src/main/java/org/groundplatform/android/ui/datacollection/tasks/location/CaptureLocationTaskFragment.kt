@@ -18,8 +18,6 @@ package org.groundplatform.android.ui.datacollection.tasks.location
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
-import android.view.View
-import android.widget.LinearLayout
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,8 +28,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.os.bundleOf
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -43,8 +39,8 @@ import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.components.ConfirmationDialog
 import org.groundplatform.android.ui.datacollection.components.TaskHeader
+import org.groundplatform.android.ui.datacollection.components.TaskMapFragmentContainer
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
-import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment.Companion.TASK_ID_FRAGMENT_ARG_KEY
 import org.groundplatform.android.ui.datacollection.tasks.LocationLockEnabledState
 
 @AndroidEntryPoint
@@ -61,21 +57,10 @@ class CaptureLocationTaskFragment @Inject constructor() :
   override fun TaskBody() {
     var showPermissionDeniedDialog by viewModel.showPermissionDeniedDialog
 
-    AndroidView(
-      factory = { context ->
-        // NOTE(#2493): Multiplying by a random prime to allow for some mathematical uniqueness.
-        // Otherwise, the sequentially generated ID might conflict with an ID produced by Google
-        // Maps.
-        LinearLayout(context).apply {
-          id = View.generateViewId() * 11149
-          val fragment = captureLocationTaskMapFragmentProvider.get()
-          fragment.arguments = bundleOf(Pair(TASK_ID_FRAGMENT_ARG_KEY, taskId))
-          childFragmentManager
-            .beginTransaction()
-            .add(id, fragment, CaptureLocationTaskMapFragment::class.java.simpleName)
-            .commit()
-        }
-      }
+    TaskMapFragmentContainer(
+      taskId = viewModel.task.id,
+      fragmentManager = childFragmentManager,
+      fragmentProvider = captureLocationTaskMapFragmentProvider,
     )
 
     if (showPermissionDeniedDialog) {

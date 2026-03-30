@@ -15,13 +15,10 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.polygon
 
-import android.view.LayoutInflater
 import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.os.bundleOf
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -29,12 +26,11 @@ import javax.inject.Provider
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import org.groundplatform.android.R
-import org.groundplatform.android.databinding.FragmentDrawAreaTaskBinding
 import org.groundplatform.android.ui.components.ConfirmationDialog
 import org.groundplatform.android.ui.datacollection.components.InstructionData
 import org.groundplatform.android.ui.datacollection.components.TaskHeader
+import org.groundplatform.android.ui.datacollection.components.TaskMapFragmentContainer
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
-import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment.Companion.TASK_ID_FRAGMENT_ARG_KEY
 
 @AndroidEntryPoint
 class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawAreaTaskViewModel>() {
@@ -55,29 +51,10 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
   override fun TaskBody() {
     var showSelfIntersectionDialog by viewModel.showSelfIntersectionDialog
 
-    AndroidView(
-      factory = { context ->
-        // XML layout is used to provide a static view ID which does not collide with Google Maps
-        // view ID (https://github.com/google/ground-android/issues/2493).
-        // The ID is needed when restoring the view on config change since the view is dynamically
-        // created.
-        // TODO: Remove this workaround once this UI is migrated to Compose.
-        // Issue URL: https://github.com/google/ground-android/issues/1795
-        val rootView = FragmentDrawAreaTaskBinding.inflate(LayoutInflater.from(context))
-
-        drawAreaTaskMapFragment = drawAreaTaskMapFragmentProvider.get()
-        drawAreaTaskMapFragment.arguments = bundleOf(Pair(TASK_ID_FRAGMENT_ARG_KEY, taskId))
-        childFragmentManager
-          .beginTransaction()
-          .add(
-            R.id.container_draw_area_task_map,
-            drawAreaTaskMapFragment,
-            DrawAreaTaskMapFragment::class.java.simpleName,
-          )
-          .commit()
-
-        rootView.root
-      }
+    TaskMapFragmentContainer(
+      taskId = viewModel.task.id,
+      fragmentManager = childFragmentManager,
+      fragmentProvider = drawAreaTaskMapFragmentProvider,
     )
 
     if (showSelfIntersectionDialog) {
