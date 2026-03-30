@@ -24,6 +24,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import com.google.common.truth.Truth.assertThat
 import org.groundplatform.android.R
+import org.groundplatform.android.getString
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.components.InstructionData
@@ -154,8 +155,8 @@ class TaskScreenTest {
     composeTestRule.onNodeWithText("Cancel").performClick()
     assertThat(actionFired).isEqualTo(TaskScreenAction.OnLoiNameDismiss)
 
-    composeTestRule.onNodeWithTag(LOI_NAME_TEXT_FIELD_TEST_TAG).performTextInput(" appended")
-    assertThat(actionFired).isEqualTo(TaskScreenAction.OnLoiNameChanged("My Custom LOI appended"))
+    composeTestRule.onNodeWithTag(LOI_NAME_TEXT_FIELD_TEST_TAG).performTextInput("appended ")
+    assertThat(actionFired).isEqualTo(TaskScreenAction.OnLoiNameChanged("appended My Custom LOI"))
   }
 
   @Test
@@ -178,7 +179,9 @@ class TaskScreenTest {
       )
     }
 
+    composeTestRule.onNodeWithText(getString(R.string.add_point)).assertIsDisplayed()
     composeTestRule.onNodeWithText("Close").performClick()
+
     assertThat(actionFired).isEqualTo(TaskScreenAction.OnInstructionsDismiss)
   }
 }
