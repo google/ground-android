@@ -28,7 +28,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
-import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.components.InstructionData
 import org.groundplatform.android.ui.datacollection.components.InstructionsDialog
@@ -36,18 +35,6 @@ import org.groundplatform.android.ui.datacollection.components.LoiNameDialog
 import org.groundplatform.android.ui.datacollection.components.TaskFooter
 import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.groundplatform.android.ui.datacollection.components.TaskViewLayout
-
-sealed interface TaskScreenAction {
-  data class OnButtonClicked(val action: ButtonAction) : TaskScreenAction
-
-  data class OnLoiNameConfirm(val name: String) : TaskScreenAction
-
-  data object OnLoiNameDismiss : TaskScreenAction
-
-  data class OnLoiNameChanged(val name: String) : TaskScreenAction
-
-  data object OnInstructionsDismiss : TaskScreenAction
-}
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
