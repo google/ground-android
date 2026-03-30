@@ -39,10 +39,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import java.text.SimpleDateFormat
 import java.util.Date
+import kotlin.time.Clock
 import org.groundplatform.android.R
-import org.groundplatform.android.model.mutation.Mutation
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
-import org.groundplatform.android.ui.theme.AppTheme
+import org.groundplatform.domain.model.mutation.Mutation
+import org.groundplatform.ui.theme.AppTheme
 
 @Composable
 fun SyncListItem(modifier: Modifier, detail: SyncStatusDetail) {
@@ -107,15 +108,15 @@ private fun StatusIcon(status: Mutation.SyncStatus, modifier: Modifier = Modifie
 }
 
 @Composable
-private fun Date.toFormattedDate(): String {
+private fun Long.toFormattedDate(): String {
   val locale = LocalConfiguration.current.locales[0]
   val dateFormat = SimpleDateFormat("MMM d, yyyy", locale)
-  return dateFormat.format(this)
+  return dateFormat.format(Date(this))
 }
 
 @Composable
-private fun Date.toFormattedTime(): String =
-  DateFormat.getTimeFormat(LocalContext.current).format(this)
+private fun Long.toFormattedTime(): String =
+  DateFormat.getTimeFormat(LocalContext.current).format(Date(this))
 
 private fun Mutation.SyncStatus.toLabel(): Int =
   when (this) {
@@ -148,7 +149,7 @@ private fun PreviewSyncListItem(
   detail: SyncStatusDetail =
     SyncStatusDetail(
       user = "Jane Doe",
-      timestamp = Date(),
+      timestamp = Clock.System.now().toEpochMilliseconds(),
       label = "Map the farms",
       subtitle = "IDX21311",
       status = Mutation.SyncStatus.PENDING,

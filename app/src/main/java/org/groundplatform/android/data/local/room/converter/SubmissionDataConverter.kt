@@ -18,9 +18,9 @@ package org.groundplatform.android.data.local.room.converter
 
 import kotlinx.collections.immutable.toPersistentMap
 import org.groundplatform.android.data.local.LocalDataConsistencyException
-import org.groundplatform.android.model.job.Job
-import org.groundplatform.android.model.submission.SubmissionData
-import org.groundplatform.android.model.submission.TaskData
+import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.submission.SubmissionData
+import org.groundplatform.domain.model.submission.TaskData
 import org.json.JSONException
 import org.json.JSONObject
 import timber.log.Timber

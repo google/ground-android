@@ -16,21 +16,21 @@
 
 package org.groundplatform.android.model
 
-import org.groundplatform.android.proto.Survey.GeneralAccess
+import org.groundplatform.domain.model.Survey
 
 data class SurveyListItem(
   val id: String,
   val title: String,
   val description: String,
   val availableOffline: Boolean,
-  val generalAccess: GeneralAccess,
+  val generalAccess: Survey.GeneralAccess,
 ) {
 
   fun isOnDevice(): Boolean = availableOffline
 
-  fun isPublic(): Boolean = !availableOffline && generalAccess == GeneralAccess.PUBLIC
+  fun isPublic(): Boolean = !availableOffline && generalAccess == Survey.GeneralAccess.PUBLIC
 
-  fun isShared(): Boolean = !availableOffline && generalAccess != GeneralAccess.PUBLIC
+  fun isShared(): Boolean = !availableOffline && generalAccess != Survey.GeneralAccess.PUBLIC
 }
 
 fun Survey.toListItem(availableOffline: Boolean): SurveyListItem =

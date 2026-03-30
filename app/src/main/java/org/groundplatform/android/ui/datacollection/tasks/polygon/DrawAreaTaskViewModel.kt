@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.polygon
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -36,18 +37,6 @@ import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
-import org.groundplatform.android.model.geometry.Coordinates
-import org.groundplatform.android.model.geometry.LineString
-import org.groundplatform.android.model.geometry.LinearRing
-import org.groundplatform.android.model.geometry.Polygon
-import org.groundplatform.android.model.job.Job
-import org.groundplatform.android.model.job.getDefaultColor
-import org.groundplatform.android.model.settings.MeasurementUnits
-import org.groundplatform.android.model.submission.DrawAreaTaskData
-import org.groundplatform.android.model.submission.DrawAreaTaskIncompleteData
-import org.groundplatform.android.model.submission.TaskData
-import org.groundplatform.android.model.submission.isNotNullOrEmpty
-import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.common.SharedViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
@@ -56,12 +45,24 @@ import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.util.LocaleAwareMeasureFormatter
 import org.groundplatform.android.ui.util.VibrationHelper
-import org.groundplatform.android.ui.util.calculateShoelacePolygonArea
+import org.groundplatform.android.ui.util.getDefaultColor
 import org.groundplatform.android.ui.util.getFormattedArea
-import org.groundplatform.android.ui.util.isSelfIntersecting
 import org.groundplatform.android.usecases.user.GetUserSettingsUseCase
 import org.groundplatform.android.util.distanceTo
 import org.groundplatform.android.util.penult
+import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.geometry.LineString
+import org.groundplatform.domain.model.geometry.LinearRing
+import org.groundplatform.domain.model.geometry.Polygon
+import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.settings.MeasurementUnits
+import org.groundplatform.domain.model.submission.DrawAreaTaskData
+import org.groundplatform.domain.model.submission.DrawAreaTaskIncompleteData
+import org.groundplatform.domain.model.submission.TaskData
+import org.groundplatform.domain.model.submission.isNotNullOrEmpty
+import org.groundplatform.domain.model.task.Task
+import org.groundplatform.domain.util.calculateShoelacePolygonArea
+import org.groundplatform.domain.util.isSelfIntersecting
 import org.jetbrains.annotations.VisibleForTesting
 import timber.log.Timber
 
@@ -139,8 +140,7 @@ internal constructor(
   private val _isTooClose = MutableStateFlow(false)
   val isTooClose: StateFlow<Boolean> = _isTooClose.asStateFlow()
 
-  private val _showSelfIntersectionDialog = MutableSharedFlow<Unit>()
-  val showSelfIntersectionDialog = _showSelfIntersectionDialog.asSharedFlow()
+  val showSelfIntersectionDialog = mutableStateOf(false)
 
   var hasSelfIntersection: Boolean = false
     private set
@@ -203,7 +203,7 @@ internal constructor(
   @VisibleForTesting fun getLastVertex() = vertices.lastOrNull()
 
   private fun onSelfIntersectionDetected() {
-    viewModelScope.launch { _showSelfIntersectionDialog.emit(Unit) }
+    showSelfIntersectionDialog.value = true
   }
 
   /**
@@ -380,22 +380,21 @@ internal constructor(
    *
    * This coroutine runs on [viewModelScope] to ensure lifecycle safety.
    */
-  private fun refreshMap() =
-    viewModelScope.launch {
-      if (vertices.isEmpty()) {
-        _draftArea.emit(null)
-        draftTag = null
+  private fun refreshMap() = viewModelScope.launch {
+    if (vertices.isEmpty()) {
+      _draftArea.emit(null)
+      draftTag = null
+    } else {
+      if (draftTag == null) {
+        val feature = buildPolygonFeature()
+        draftTag = feature.tag
+        _draftArea.emit(feature)
       } else {
-        if (draftTag == null) {
-          val feature = buildPolygonFeature()
-          draftTag = feature.tag
-          _draftArea.emit(feature)
-        } else {
-          val feature = buildPolygonFeature(id = draftTag!!.id)
-          _draftUpdates.tryEmit(feature)
-        }
+        val feature = buildPolygonFeature(id = draftTag!!.id)
+        _draftUpdates.tryEmit(feature)
       }
     }
+  }
 
   private suspend fun buildPolygonFeature(id: String? = null) =
     Feature(

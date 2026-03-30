@@ -20,7 +20,6 @@ import android.text.format.DateFormat
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertTextContains
-import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -30,13 +29,13 @@ import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import java.text.SimpleDateFormat
 import javax.inject.Inject
-import org.groundplatform.android.model.job.Job
-import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.BaseTaskFragmentTest
+import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.task.Task
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -113,7 +112,7 @@ class TimeTaskFragmentTest : BaseTaskFragmentTest<TimeTaskFragment, TimeTaskView
   fun `hint text is visible`() {
     setupTaskFragment<TimeTaskFragment>(job, task)
 
-    composeTestRule.onNodeWithText(getExpectedTimeHint()).isDisplayed()
+    composeTestRule.onNodeWithText(getExpectedTimeHint()).assertIsDisplayed()
   }
 
   private fun getExpectedTimeHint(): String {

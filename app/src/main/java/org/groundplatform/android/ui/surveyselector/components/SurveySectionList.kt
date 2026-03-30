@@ -39,10 +39,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.groundplatform.android.R
 import org.groundplatform.android.model.SurveyListItem
-import org.groundplatform.android.proto.Survey
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.components.ConfirmationDialog
 import org.groundplatform.android.ui.surveyselector.SurveySection
+import org.groundplatform.domain.model.Survey
 
 @VisibleForTesting const val SURVEY_LIST_TEST_TAG = "survey_list"
 

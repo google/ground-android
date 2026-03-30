@@ -21,18 +21,18 @@ import javax.inject.Inject
 import kotlinx.coroutines.launch
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
-import org.groundplatform.android.model.geometry.Point
-import org.groundplatform.android.model.job.Job
-import org.groundplatform.android.model.job.getDefaultColor
-import org.groundplatform.android.model.submission.DropPinTaskData
-import org.groundplatform.android.model.submission.TaskData
-import org.groundplatform.android.model.submission.isNullOrEmpty
-import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.AbstractMapTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 import org.groundplatform.android.ui.map.Feature
+import org.groundplatform.android.ui.util.getDefaultColor
+import org.groundplatform.domain.model.geometry.Point
+import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.submission.DropPinTaskData
+import org.groundplatform.domain.model.submission.TaskData
+import org.groundplatform.domain.model.submission.isNullOrEmpty
+import org.groundplatform.domain.model.task.Task
 
 class DropPinTaskViewModel
 @Inject
@@ -79,11 +79,10 @@ constructor(
     dropMarker(point)
   }
 
-  private fun dropMarker(point: Point) =
-    viewModelScope.launch {
-      val feature = createFeature(point)
-      features.postValue(setOf(feature))
-    }
+  private fun dropMarker(point: Point) = viewModelScope.launch {
+    val feature = createFeature(point)
+    features.postValue(setOf(feature))
+  }
 
   /** Creates a new map [Feature] representing the point placed by the user. */
   private suspend fun createFeature(point: Point): Feature =

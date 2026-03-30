@@ -213,6 +213,8 @@
   <string name="lang_portuguese">Português</string>
 
   <string name="lang_vietnamese">Vietnamita</string>
+  <string name="lang_thai">Tailandês</string>
+  <string name="lang_lao">Lao</string>
   <string name="access_restricted">Restrito</string>
   <string name="access_unlisted">Não listado</string>
   <string name="access_public">Público</string>

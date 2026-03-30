@@ -20,6 +20,7 @@ import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
+import dagger.hilt.android.testing.UninstallModules
 import javax.inject.Inject
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -28,8 +29,9 @@ import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST
 import org.groundplatform.android.FakeData.SURVEY
 import org.groundplatform.android.data.local.stores.LocalSurveyStore
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
-import org.groundplatform.android.proto.Survey.DataVisibility
-import org.groundplatform.android.repository.LocationOfInterestRepository
+import org.groundplatform.android.di.RepositoryModule
+import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -39,9 +41,10 @@ import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
 @HiltAndroidTest
+@UninstallModules(RepositoryModule::class)
 @RunWith(RobolectricTestRunner::class)
 class SyncSurveyUseCaseTest : BaseHiltTest() {
-  @BindValue @Mock lateinit var loiRepository: LocationOfInterestRepository
+  @BindValue @Mock lateinit var loiRepository: LocationOfInterestRepositoryInterface
 
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
   @Inject lateinit var localSurveyStore: LocalSurveyStore
@@ -74,7 +77,7 @@ class SyncSurveyUseCaseTest : BaseHiltTest() {
   @Test
   fun `should load all types of LOIs when visibility is ALL_SURVEY_PARTICIPANTS`() =
     runWithTestDispatcher {
-      val survey = SURVEY.copy(dataVisibility = DataVisibility.ALL_SURVEY_PARTICIPANTS)
+      val survey = SURVEY.copy(dataVisibility = Survey.DataVisibility.ALL_SURVEY_PARTICIPANTS)
       fakeRemoteDataStore.surveys = listOf(survey)
 
       val predefinedLoi = LOCATION_OF_INTEREST.copy(id = "predefined_id")

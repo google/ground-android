@@ -24,12 +24,13 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.TimeoutCancellationException
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.common.BackPressListener
 import org.groundplatform.android.ui.common.EphemeralPopups
 import org.groundplatform.android.ui.home.HomeScreenFragmentDirections
-import org.groundplatform.android.ui.theme.AppTheme
+import org.groundplatform.ui.theme.AppTheme
 
 /** User interface implementation of survey selector screen. */
 @AndroidEntryPoint
@@ -52,7 +53,7 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
               findNavController().navigate(HomeScreenFragmentDirections.showHomeScreen())
             },
             onError = { error ->
-              if (error is kotlinx.coroutines.TimeoutCancellationException) {
+              if (error is TimeoutCancellationException) {
                 ephemeralPopups.ErrorPopup().show(R.string.survey_load_timeout_error)
               } else {
                 ephemeralPopups.ErrorPopup().unknownError()

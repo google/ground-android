@@ -39,7 +39,6 @@ import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.R
 import org.groundplatform.android.model.SurveyListItem
-import org.groundplatform.android.proto.Survey
 import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
@@ -49,6 +48,7 @@ import org.groundplatform.android.ui.surveyselector.components.formatSectionTitl
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
 import org.groundplatform.android.usecases.survey.ListAvailableSurveysUseCase
 import org.groundplatform.android.usecases.survey.RemoveOfflineSurveyUseCase
+import org.groundplatform.domain.model.Survey
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test

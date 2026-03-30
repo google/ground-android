@@ -23,8 +23,8 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.runBlocking
 import org.groundplatform.android.data.remote.RemoteStorageManager
-import org.groundplatform.android.model.geometry.Coordinates
-import org.groundplatform.android.model.map.Bounds
+import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.map.Bounds
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull

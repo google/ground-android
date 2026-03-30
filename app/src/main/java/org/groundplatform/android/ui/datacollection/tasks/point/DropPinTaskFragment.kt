@@ -15,53 +15,55 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.point
 
-import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.os.bundleOf
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import javax.inject.Provider
 import org.groundplatform.android.R
-import org.groundplatform.android.ui.datacollection.components.InstructionsDialog
-import org.groundplatform.android.ui.datacollection.components.TaskView
-import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
+import org.groundplatform.android.ui.datacollection.components.InstructionData
+import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment.Companion.TASK_ID_FRAGMENT_ARG_KEY
-import org.groundplatform.android.util.renderComposableDialog
 
 @AndroidEntryPoint
 class DropPinTaskFragment @Inject constructor() : AbstractTaskFragment<DropPinTaskViewModel>() {
   @Inject lateinit var dropPinTaskMapFragmentProvider: Provider<DropPinTaskMapFragment>
 
-  override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
-    TaskViewFactory.createWithCombinedHeader(inflater, R.drawable.outline_pin_drop)
+  override val taskHeader: TaskHeader by lazy {
+    TaskHeader(viewModel.task.label, R.drawable.outline_pin_drop)
+  }
 
-  override fun onCreateTaskBody(inflater: LayoutInflater): View {
-    // NOTE(#2493): Multiplying by a random prime to allow for some mathematical "uniqueness".
-    // Otherwise, the sequentially generated ID might conflict with an ID produced by Google Maps.
-    val rowLayout = LinearLayout(requireContext()).apply { id = View.generateViewId() * 11617 }
-    val fragment = dropPinTaskMapFragmentProvider.get()
-    val args = Bundle()
-    args.putString(TASK_ID_FRAGMENT_ARG_KEY, taskId)
-    fragment.arguments = args
-    childFragmentManager
-      .beginTransaction()
-      .add(rowLayout.id, fragment, "Drop a pin fragment")
-      .commit()
-    return rowLayout
+  override val instructionData =
+    InstructionData(iconId = R.drawable.swipe_24, stringId = R.string.drop_a_pin_tooltip_text)
+
+  @Composable
+  override fun TaskBody() {
+    AndroidView(
+      factory = { context ->
+        // NOTE(#2493): Multiplying by a random prime to allow for some mathematical "uniqueness".
+        // Otherwise, the sequentially generated ID might conflict with an ID produced by Google
+        // Maps.
+        LinearLayout(context).apply {
+          id = View.generateViewId() * 11617
+          val fragment = dropPinTaskMapFragmentProvider.get()
+          fragment.arguments = bundleOf(Pair(TASK_ID_FRAGMENT_ARG_KEY, taskId))
+          childFragmentManager.beginTransaction().add(id, fragment, "Drop a pin fragment").commit()
+        }
+      }
+    )
   }
 
   override fun onTaskResume() {
     if (isVisible && viewModel.shouldShowInstructionsDialog()) {
-      showInstructionsDialog()
+      viewModel.showInstructionsDialog.value = true
     }
   }
 
-  private fun showInstructionsDialog() {
+  override fun onInstructionDialogDismissed() {
     viewModel.instructionsDialogShown = true
-    renderComposableDialog {
-      InstructionsDialog(iconId = R.drawable.swipe_24, stringId = R.string.drop_a_pin_tooltip_text)
-    }
   }
 }

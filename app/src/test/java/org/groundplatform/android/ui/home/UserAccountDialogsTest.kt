@@ -23,9 +23,9 @@ import androidx.test.espresso.matcher.ViewMatchers.assertThat
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.R
 import org.groundplatform.android.getString
-import org.groundplatform.android.model.User
 import org.groundplatform.android.ui.home.HomeScreenViewModel.AccountDialogState
 import org.groundplatform.android.ui.home.HomeScreenViewModel.AccountDialogState.USER_DETAILS
+import org.groundplatform.domain.model.User
 import org.hamcrest.Matchers.`is`
 import org.junit.Before
 import org.junit.Rule

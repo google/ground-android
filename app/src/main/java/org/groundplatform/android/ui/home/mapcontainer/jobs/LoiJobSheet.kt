@@ -45,22 +45,21 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
-import org.groundplatform.android.model.AuditInfo
-import org.groundplatform.android.model.User
-import org.groundplatform.android.model.geometry.Coordinates
-import org.groundplatform.android.model.geometry.Point
-import org.groundplatform.android.model.job.Job
-import org.groundplatform.android.model.job.Style
-import org.groundplatform.android.model.job.getDefaultColor
-import org.groundplatform.android.model.locationofinterest.LocationOfInterest
-import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.common.LocationOfInterestHelper
 import org.groundplatform.android.ui.components.ConfirmationDialog
-import org.groundplatform.android.ui.theme.AppTheme
+import org.groundplatform.android.ui.util.getDefaultColor
+import org.groundplatform.domain.model.User
+import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.geometry.Point
+import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.job.Style
+import org.groundplatform.domain.model.locationofinterest.AuditInfo
+import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
+import org.groundplatform.domain.model.task.Task
+import org.groundplatform.ui.theme.AppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -130,7 +129,11 @@ private fun ModalContents(
 @Composable
 private fun JobName(loiHelper: LocationOfInterestHelper, loi: LocationOfInterest) {
   loiHelper.getJobName(loi)?.let {
-    Text(it, color = MaterialTheme.colorScheme.onSurface, fontSize = 18.sp)
+    Text(
+      it,
+      color = MaterialTheme.colorScheme.onSurface,
+      style = MaterialTheme.typography.titleMedium,
+    )
   }
 }
 
@@ -171,14 +174,14 @@ private fun SubmissionRow(
       if (submissionCount <= 0) stringResource(R.string.no_submissions)
       else pluralStringResource(R.plurals.submission_count, submissionCount, submissionCount),
       color = MaterialTheme.colorScheme.onSurface,
-      fontSize = 16.sp,
+      style = MaterialTheme.typography.bodyLarge,
     )
 
     // NOTE(#2539): Avoid crash when there are no non-LOI tasks.
     val showAddData = canUserSubmitData && loi.job.hasNonLoiTasks() && loi.isPredefined == true
     if (showAddData) {
       Button(onClick = onCollectClicked) {
-        Text(stringResource(R.string.add_data), modifier = Modifier.padding(4.dp), fontSize = 18.sp)
+        Text(stringResource(R.string.add_data), modifier = Modifier.padding(4.dp))
       }
     }
   }

@@ -18,7 +18,6 @@ package org.groundplatform.android.data.remote.firebase.schema
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.protobuf.timestamp
-import java.util.Date
 import kotlinx.collections.immutable.persistentListOf
 import org.groundplatform.android.FakeData.FAKE_GENERAL_ACCESS
 import org.groundplatform.android.FakeData.USER
@@ -27,15 +26,6 @@ import org.groundplatform.android.FakeData.newTask
 import org.groundplatform.android.assertIsSuccessWith
 import org.groundplatform.android.data.remote.firebase.protobuf.toFirestoreMap
 import org.groundplatform.android.data.remote.firebase.schema.LoiConverter.toLoi
-import org.groundplatform.android.model.AuditInfo
-import org.groundplatform.android.model.Survey
-import org.groundplatform.android.model.geometry.Coordinates
-import org.groundplatform.android.model.geometry.Point
-import org.groundplatform.android.model.job.Job
-import org.groundplatform.android.model.job.Style
-import org.groundplatform.android.model.locationofinterest.LocationOfInterest
-import org.groundplatform.android.model.task.MultipleChoice
-import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.proto.LocationOfInterest as LocationOfInterestProto
 import org.groundplatform.android.proto.LocationOfInterest.Source
 import org.groundplatform.android.proto.LocationOfInterestKt.property
@@ -44,6 +34,15 @@ import org.groundplatform.android.proto.coordinates
 import org.groundplatform.android.proto.geometry
 import org.groundplatform.android.proto.locationOfInterest
 import org.groundplatform.android.proto.point
+import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.geometry.Point
+import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.job.Style
+import org.groundplatform.domain.model.locationofinterest.AuditInfo
+import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
+import org.groundplatform.domain.model.task.MultipleChoice
+import org.groundplatform.domain.model.task.Task
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -110,8 +109,8 @@ class LoiConverterTest {
         surveyId = "",
         job = survey.getJob(JOB_ID)!!,
         customId = "a custom loi",
-        created = AuditInfo(user = USER, Date(987654321L * 1000), Date(9876543210L * 1000)),
-        lastModified = AuditInfo(user = USER, Date(987654321L * 1000), Date(9876543210L * 1000)),
+        created = AuditInfo(user = USER, 987654321L * 1000, 9876543210L * 1000),
+        lastModified = AuditInfo(user = USER, 987654321L * 1000, 9876543210L * 1000),
         geometry = Point(coordinates = Coordinates(1.0, 2.0)),
         submissionCount = 1,
         properties = mapOf("property1" to "value1", "property2" to 123.0),

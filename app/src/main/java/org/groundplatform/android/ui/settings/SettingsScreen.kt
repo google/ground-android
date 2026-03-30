@@ -33,15 +33,15 @@ import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.groundplatform.android.R
-import org.groundplatform.android.model.settings.MeasurementUnits
-import org.groundplatform.android.model.settings.UserSettings
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.components.Toolbar
 import org.groundplatform.android.ui.settings.components.SettingsCategory
 import org.groundplatform.android.ui.settings.components.SettingsItem
 import org.groundplatform.android.ui.settings.components.SettingsSelectItem
 import org.groundplatform.android.ui.settings.components.SettingsSwitchItem
-import org.groundplatform.android.ui.theme.AppTheme
+import org.groundplatform.domain.model.settings.MeasurementUnits
+import org.groundplatform.domain.model.settings.UserSettings
+import org.groundplatform.ui.theme.AppTheme
 
 /**
  * Stateful composable for the settings screen.

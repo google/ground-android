@@ -28,11 +28,11 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import org.groundplatform.android.data.remote.RemoteStorageManager
 import org.groundplatform.android.di.coroutines.IoDispatcher
-import org.groundplatform.android.model.mutation.SubmissionMutation
-import org.groundplatform.android.model.submission.PhotoTaskData
 import org.groundplatform.android.repository.MutationRepository
 import org.groundplatform.android.repository.UserMediaRepository
 import org.groundplatform.android.util.priority
+import org.groundplatform.domain.model.mutation.SubmissionMutation
+import org.groundplatform.domain.model.task.PhotoTaskData
 import timber.log.Timber
 
 /**

@@ -22,10 +22,10 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import org.groundplatform.android.R
 import org.groundplatform.android.common.Constants
-import org.groundplatform.android.model.submission.TaskData
-import org.groundplatform.android.model.submission.TextTaskData
-import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
+import org.groundplatform.domain.model.submission.TaskData
+import org.groundplatform.domain.model.submission.TextTaskData
+import org.groundplatform.domain.model.task.Task
 
 class TextTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
 

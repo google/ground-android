@@ -23,7 +23,7 @@ import org.groundplatform.android.data.local.room.converter.toModelObject
 import org.groundplatform.android.data.local.room.dao.UserDao
 import org.groundplatform.android.data.local.room.dao.insertOrUpdate
 import org.groundplatform.android.data.local.stores.LocalUserStore
-import org.groundplatform.android.model.User
+import org.groundplatform.domain.model.User
 
 /** Manages access to [User] objects persisted in local storage. */
 @Singleton

@@ -15,44 +15,14 @@
  */
 package org.groundplatform.android.ui.common
 
-import android.graphics.BitmapFactory
 import android.view.View
-import android.widget.ImageView
 import androidx.databinding.BindingAdapter
-import java.net.HttpURLConnection
-import java.net.URL
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import org.groundplatform.android.R
 
 /**
  * Container for adapter methods defining custom data binding behavior. This class cannot be made
  * injectable, since binding adapters must be static.
  */
 object BindingAdapters {
-
-  @JvmStatic
-  @BindingAdapter("imageUrl")
-  fun bindUri(view: ImageView?, url: String?) {
-    if (view == null || url.isNullOrEmpty()) return
-
-    CoroutineScope(Dispatchers.IO).launch {
-      try {
-        val connection = URL(url).openConnection() as HttpURLConnection
-        connection.doInput = true
-        connection.connect()
-        val inputStream = connection.inputStream
-        val bitmap = BitmapFactory.decodeStream(inputStream)
-
-        withContext(Dispatchers.Main) { view.setImageBitmap(bitmap) }
-      } catch (e: Exception) {
-        e.printStackTrace()
-        withContext(Dispatchers.Main) { view.setImageResource(R.drawable.outline_error_outline_24) }
-      }
-    }
-  }
 
   @JvmStatic
   @BindingAdapter("visible")

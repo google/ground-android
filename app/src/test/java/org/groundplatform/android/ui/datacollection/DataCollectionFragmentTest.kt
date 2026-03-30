@@ -23,8 +23,8 @@ import androidx.compose.ui.test.performClick
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
-import java.util.Date
 import javax.inject.Inject
+import kotlin.time.Clock
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
@@ -38,28 +38,28 @@ import org.groundplatform.android.R
 import org.groundplatform.android.data.local.room.converter.SubmissionDeltasConverter
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.data.sync.MutationSyncWorkManager
-import org.groundplatform.android.model.geometry.Coordinates
-import org.groundplatform.android.model.geometry.Point
 import org.groundplatform.android.model.map.CameraPosition
-import org.groundplatform.android.model.mutation.Mutation
-import org.groundplatform.android.model.mutation.SubmissionMutation
-import org.groundplatform.android.model.submission.DraftSubmission
-import org.groundplatform.android.model.submission.DropPinTaskData
-import org.groundplatform.android.model.submission.MultipleChoiceTaskData
-import org.groundplatform.android.model.submission.TextTaskData
-import org.groundplatform.android.model.submission.ValueDelta
-import org.groundplatform.android.model.task.Condition
-import org.groundplatform.android.model.task.Expression
-import org.groundplatform.android.model.task.MultipleChoice
-import org.groundplatform.android.model.task.Option
-import org.groundplatform.android.model.task.Task
-import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.MutationRepository
 import org.groundplatform.android.repository.SubmissionRepository
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.testrules.FragmentScenarioRule
 import org.groundplatform.android.ui.datacollection.tasks.point.DropPinTaskViewModel
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
+import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.geometry.Point
+import org.groundplatform.domain.model.mutation.Mutation
+import org.groundplatform.domain.model.mutation.SubmissionMutation
+import org.groundplatform.domain.model.submission.DraftSubmission
+import org.groundplatform.domain.model.submission.DropPinTaskData
+import org.groundplatform.domain.model.submission.MultipleChoiceTaskData
+import org.groundplatform.domain.model.submission.TextTaskData
+import org.groundplatform.domain.model.submission.ValueDelta
+import org.groundplatform.domain.model.task.Condition
+import org.groundplatform.domain.model.task.Expression
+import org.groundplatform.domain.model.task.MultipleChoice
+import org.groundplatform.domain.model.task.Option
+import org.groundplatform.domain.model.task.Task
+import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -76,7 +76,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
   @Inject lateinit var activateSurvey: ActivateSurveyUseCase
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
-  @Inject lateinit var loiRepository: LocationOfInterestRepository
+  @Inject lateinit var loiRepository: LocationOfInterestRepositoryInterface
   @Inject lateinit var mutationRepository: MutationRepository
   @Inject lateinit var submissionRepository: SubmissionRepository
   @Inject lateinit var userRepository: UserRepository
@@ -728,7 +728,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     // Exactly 1 submission should be saved.
     assertThat(submissionRepository.getPendingCreateCount(loiId)).isEqualTo(1)
 
-    val testDate = Date()
+    val testDate = Clock.System.now().toEpochMilliseconds()
     val mutation =
       mutationRepository
         .getIncompleteUploads()[0]

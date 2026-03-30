@@ -29,9 +29,7 @@ import kotlinx.coroutines.launch
 import org.groundplatform.android.di.coroutines.IoDispatcher
 import org.groundplatform.android.model.imagery.RemoteMogTileSource
 import org.groundplatform.android.model.imagery.TileSource
-import org.groundplatform.android.model.map.Bounds
 import org.groundplatform.android.model.map.CameraPosition
-import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.MapStateRepository
 import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.android.repository.SurveyRepository
@@ -45,6 +43,8 @@ import org.groundplatform.android.ui.offlineareas.selector.model.BottomTextState
 import org.groundplatform.android.ui.offlineareas.selector.model.UiState
 import org.groundplatform.android.util.toMb
 import org.groundplatform.android.util.toMbString
+import org.groundplatform.domain.model.map.Bounds
+import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import timber.log.Timber
 
 private const val MIN_DOWNLOAD_ZOOM_LEVEL = 9
@@ -62,7 +62,7 @@ internal constructor(
   mapStateRepository: MapStateRepository,
   settingsManager: SettingsManager,
   permissionsManager: PermissionsManager,
-  locationOfInterestRepository: LocationOfInterestRepository,
+  locationOfInterestRepository: LocationOfInterestRepositoryInterface,
   private val networkManager: NetworkManager,
 ) :
   BaseMapViewModel(

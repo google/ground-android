@@ -18,10 +18,12 @@ package org.groundplatform.android.ui.datacollection.tasks.time
 import android.app.TimePickerDialog
 import android.content.DialogInterface
 import android.text.format.DateFormat
-import android.view.LayoutInflater
-import android.view.View
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
@@ -29,11 +31,9 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import org.groundplatform.android.R
-import org.groundplatform.android.model.submission.DateTimeTaskData
-import org.groundplatform.android.ui.datacollection.components.TaskView
-import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
-import org.groundplatform.android.util.createComposeView
+import org.groundplatform.domain.model.submission.DateTimeTaskData
+import org.groundplatform.ui.theme.sizes
 import org.jetbrains.annotations.TestOnly
 
 @AndroidEntryPoint
@@ -41,10 +41,8 @@ class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
 
   private var timePickerDialog: TimePickerDialog? = null
 
-  override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
-    TaskViewFactory.createWithHeader(inflater)
-
-  override fun onCreateTaskBody(inflater: LayoutInflater): View = createComposeView {
+  @Composable
+  override fun TaskBody() {
     val taskData by viewModel.taskTaskData.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
@@ -64,7 +62,12 @@ class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
       }
     }
 
-    TimeTaskScreen(timeText = timeText, hintText = hintText, onTimeClick = { showTimeDialog() })
+    TimeTaskScreen(
+      modifier = Modifier.padding(horizontal = MaterialTheme.sizes.taskViewPadding),
+      timeText = timeText,
+      hintText = hintText,
+      onTimeClick = { showTimeDialog() },
+    )
   }
 
   fun showTimeDialog() {

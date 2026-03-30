@@ -15,33 +15,30 @@
  */
 package org.groundplatform.android
 
-import java.util.Date
-import org.groundplatform.android.model.AuditInfo
-import org.groundplatform.android.model.Survey
-import org.groundplatform.android.model.TermsOfService
-import org.groundplatform.android.model.User
-import org.groundplatform.android.model.geometry.Coordinates
-import org.groundplatform.android.model.geometry.LinearRing
-import org.groundplatform.android.model.geometry.MultiPolygon
-import org.groundplatform.android.model.geometry.Point
-import org.groundplatform.android.model.geometry.Polygon
+import kotlin.time.Clock
 import org.groundplatform.android.model.imagery.OfflineArea
-import org.groundplatform.android.model.job.Job
-import org.groundplatform.android.model.job.Style
-import org.groundplatform.android.model.locationofinterest.LOI_NAME_PROPERTY
-import org.groundplatform.android.model.locationofinterest.LocationOfInterest
-import org.groundplatform.android.model.map.Bounds
-import org.groundplatform.android.model.mutation.LocationOfInterestMutation
-import org.groundplatform.android.model.mutation.Mutation
-import org.groundplatform.android.model.mutation.SubmissionMutation
-import org.groundplatform.android.model.task.Condition
-import org.groundplatform.android.model.task.MultipleChoice
-import org.groundplatform.android.model.task.Task
-import org.groundplatform.android.proto.Survey.DataSharingTerms
-import org.groundplatform.android.proto.SurveyKt.dataSharingTerms
-import org.groundplatform.android.proto.copy
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.gms.features.FeatureClusterItem
+import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.TermsOfService
+import org.groundplatform.domain.model.User
+import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.geometry.LinearRing
+import org.groundplatform.domain.model.geometry.MultiPolygon
+import org.groundplatform.domain.model.geometry.Point
+import org.groundplatform.domain.model.geometry.Polygon
+import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.job.Style
+import org.groundplatform.domain.model.locationofinterest.AuditInfo
+import org.groundplatform.domain.model.locationofinterest.LOI_NAME_PROPERTY
+import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
+import org.groundplatform.domain.model.map.Bounds
+import org.groundplatform.domain.model.mutation.LocationOfInterestMutation
+import org.groundplatform.domain.model.mutation.Mutation
+import org.groundplatform.domain.model.mutation.SubmissionMutation
+import org.groundplatform.domain.model.task.Condition
+import org.groundplatform.domain.model.task.MultipleChoice
+import org.groundplatform.domain.model.task.Task
 
 /**
  * Shared test data constants. Tests are expected to override existing or set missing values when
@@ -81,12 +78,12 @@ object FakeData {
 
   val USER = User(USER_ID, "", "User")
 
-  val DATA_SHARING_TERMS = dataSharingTerms {
-    type = DataSharingTerms.Type.CUSTOM
-    customText = "## Introduction\n\nOnly one rule: **BE EXCELLENT TO ONE ANOTHER!**"
-  }
+  val DATA_SHARING_TERMS =
+    Survey.DataSharingTerms.Custom(
+      "## Introduction\n\nOnly one rule: **BE EXCELLENT TO ONE ANOTHER!**"
+    )
 
-  val FAKE_GENERAL_ACCESS = org.groundplatform.android.proto.Survey.GeneralAccess.RESTRICTED
+  val FAKE_GENERAL_ACCESS = Survey.GeneralAccess.RESTRICTED
 
   val SURVEY: Survey =
     Survey(
@@ -95,7 +92,7 @@ object FakeData {
       "Test survey description",
       mapOf(JOB.id to JOB, ADHOC_JOB.id to ADHOC_JOB),
       mapOf(USER.email to "DATA_COLLECTOR"),
-      DATA_SHARING_TERMS.copy {},
+      DATA_SHARING_TERMS,
       FAKE_GENERAL_ACCESS,
     )
 
@@ -190,7 +187,7 @@ object FakeData {
       syncStatus = syncStatus,
       userId = USER_ID,
       surveyId = SURVEY_ID,
-      clientTimestamp = Date(),
+      clientTimestamp = Clock.System.now().toEpochMilliseconds(),
       properties = mapOf(LOI_NAME_PROPERTY to LOCATION_OF_INTEREST_NAME),
       collectionId = "",
     )
@@ -209,7 +206,7 @@ object FakeData {
       syncStatus = syncStatus,
       userId = USER_ID,
       surveyId = SURVEY_ID,
-      clientTimestamp = Date(),
+      clientTimestamp = Clock.System.now().toEpochMilliseconds(),
       properties = mapOf(LOI_NAME_PROPERTY to LOCATION_OF_INTEREST_NAME),
       collectionId = "",
     )

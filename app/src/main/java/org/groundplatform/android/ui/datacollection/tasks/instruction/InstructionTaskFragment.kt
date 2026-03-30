@@ -15,8 +15,6 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.instruction
 
-import android.view.LayoutInflater
-import android.view.View
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -32,31 +30,32 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dagger.hilt.android.AndroidEntryPoint
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
-import org.groundplatform.android.ui.datacollection.components.TaskView
-import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
+import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
-import org.groundplatform.android.util.createComposeView
+import org.groundplatform.ui.theme.sizes
 
 @AndroidEntryPoint
 class InstructionTaskFragment : AbstractTaskFragment<InstructionTaskViewModel>() {
 
-  override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
-    TaskViewFactory.createWithoutHeader(inflater)
+  override val taskHeader: TaskHeader? = null
 
-  override fun onCreateTaskBody(inflater: LayoutInflater): View = createComposeView {
+  @Composable
+  override fun TaskBody() {
     ShowTextField(viewModel.task.label)
   }
 
   @Composable
   private fun ShowTextField(text: String) {
-    Box(
-      modifier =
-        Modifier.fillMaxSize()
-          .background(color = Color.White)
-          .border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(2.dp))
-          .padding(16.dp)
-    ) {
-      Text(text = text, style = MaterialTheme.typography.headlineSmall)
+    Box(modifier = Modifier.padding(MaterialTheme.sizes.taskViewPadding)) {
+      Box(
+        modifier =
+          Modifier.fillMaxSize()
+            .background(color = Color.White)
+            .border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(2.dp))
+            .padding(MaterialTheme.sizes.taskViewPadding)
+      ) {
+        Text(text = text, style = MaterialTheme.typography.headlineSmall)
+      }
     }
   }
 

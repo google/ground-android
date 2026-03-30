@@ -34,7 +34,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.groundplatform.android.R
 import org.groundplatform.android.model.SurveyListItem
-import org.groundplatform.android.proto.Survey
+import org.groundplatform.domain.model.Survey
 import timber.log.Timber
 
 @Composable

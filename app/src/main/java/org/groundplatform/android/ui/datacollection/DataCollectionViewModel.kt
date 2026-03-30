@@ -34,11 +34,6 @@ import org.groundplatform.android.data.local.room.converter.SubmissionDeltasConv
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.android.di.coroutines.ApplicationScope
 import org.groundplatform.android.di.coroutines.IoDispatcher
-import org.groundplatform.android.model.job.Job
-import org.groundplatform.android.model.submission.TaskData
-import org.groundplatform.android.model.submission.ValueDelta
-import org.groundplatform.android.model.submission.isNotNullOrEmpty
-import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.repository.SubmissionRepository
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.common.EphemeralPopups
@@ -56,6 +51,11 @@ import org.groundplatform.android.ui.datacollection.tasks.polygon.DrawAreaTaskVi
 import org.groundplatform.android.ui.datacollection.tasks.text.TextTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.time.TimeTaskViewModel
 import org.groundplatform.android.usecases.submission.SubmitDataUseCase
+import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.submission.TaskData
+import org.groundplatform.domain.model.submission.ValueDelta
+import org.groundplatform.domain.model.submission.isNotNullOrEmpty
+import org.groundplatform.domain.model.task.Task
 import timber.log.Timber
 
 /** View model for the Data Collection fragment. */
@@ -73,6 +73,10 @@ internal constructor(
   private val viewModelFactory: ViewModelFactory,
   private val dataCollectionInitializer: DataCollectionInitializer,
 ) : AbstractViewModel() {
+
+  /** The current vertical position of the task view footer. */
+  private val _footerVerticalPosition = MutableStateFlow(0.0f)
+  val footerVerticalPosition: StateFlow<Float> = _footerVerticalPosition
 
   private val _uiState = MutableStateFlow<DataCollectionUiState>(DataCollectionUiState.Loading)
   val uiState: StateFlow<DataCollectionUiState> = _uiState
@@ -338,8 +342,9 @@ internal constructor(
     synchronized(draftLock) {
       if (draftCache == null) {
         draftCache = parsed
-        draftMapCache =
-          parsed.associate { (taskId, taskType, value) -> (taskId to taskType) to value }
+        draftMapCache = parsed.associate { (taskId, taskType, value) ->
+          (taskId to taskType) to value
+        }
       }
     }
   }
@@ -366,6 +371,10 @@ internal constructor(
     uiState
       .map { (it as? DataCollectionUiState.Ready)?.currentTaskId == taskId }
       .distinctUntilChanged()
+
+  fun updateFooterPosition(top: Float) {
+    _footerVerticalPosition.value = top
+  }
 
   companion object {
     private const val TASK_JOB_ID_KEY = "jobId"

@@ -17,8 +17,8 @@ package org.groundplatform.android.ui.home
 
 import androidx.compose.runtime.Composable
 import org.groundplatform.android.R
-import org.groundplatform.android.model.User
 import org.groundplatform.android.ui.components.ConfirmationDialog
+import org.groundplatform.domain.model.User
 
 @Composable
 fun UserAccountDialogs(

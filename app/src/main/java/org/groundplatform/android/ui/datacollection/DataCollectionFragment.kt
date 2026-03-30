@@ -33,16 +33,15 @@ import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.databinding.DataCollectionFragBinding
-import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.common.BackPressListener
 import org.groundplatform.android.ui.components.ConfirmationDialog
 import org.groundplatform.android.ui.home.HomeScreenFragmentDirections
 import org.groundplatform.android.util.renderComposableDialog
+import org.groundplatform.domain.model.task.Task
 
 /** Fragment allowing the user to collect data to complete a task. */
 @AndroidEntryPoint
@@ -81,19 +80,11 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     viewPager.isUserInputEnabled = false
     viewPager.offscreenPageLimit = 1
 
-    viewPager.registerOnPageChangeCallback(
-      object : ViewPager2.OnPageChangeCallback() {
-        override fun onPageScrollStateChanged(state: Int) {
-          super.onPageScrollStateChanged(state)
-          if (state == ViewPager2.SCROLL_STATE_IDLE) {
-            viewLifecycleOwner.lifecycleScope.launch {
-              delay(100) // Wait for the keyboard to close
-              setProgressBarPosition(view)
-            }
-          }
-        }
+    viewLifecycleOwner.lifecycleScope.launch {
+      viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        viewModel.footerVerticalPosition.collect { setProgressBarPosition(it) }
       }
-    )
+    }
 
     // Collect UI state safely across the Fragment view lifecycle.
     viewLifecycleOwner.lifecycleScope.launch {
@@ -139,21 +130,15 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     }
   }
 
-  private fun setProgressBarPosition(view: View) {
-    val buttonContainer = view.findViewById<View>(R.id.action_buttons) ?: return
+  private fun setProgressBarPosition(topPosition: Float) {
+    val insets = requireView().rootWindowInsets ?: return
+    val windowInsets = WindowInsetsCompat.toWindowInsetsCompat(insets)
+    val systemBarsInsets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
 
-    buttonContainer.doOnLayout {
-      val anchorLocation = IntArray(2)
-      it.getLocationInWindow(anchorLocation)
+    val guidelineTop = topPosition.toInt() - systemBarsInsets.top
 
-      val windowInsets = WindowInsetsCompat.toWindowInsetsCompat(buttonContainer.rootWindowInsets)
-      val systemBarsInsets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-
-      val guidelineTop = anchorLocation[1] - systemBarsInsets.top
-
-      if (guidelineTop > 0) {
-        guideline.setGuidelineBegin(guidelineTop)
-      }
+    if (guidelineTop > 0) {
+      guideline.setGuidelineBegin(guidelineTop)
     }
   }
 

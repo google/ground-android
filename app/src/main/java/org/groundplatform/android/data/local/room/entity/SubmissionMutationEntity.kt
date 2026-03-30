@@ -22,7 +22,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import org.groundplatform.android.data.local.room.fields.MutationEntitySyncStatus
 import org.groundplatform.android.data.local.room.fields.MutationEntityType
-import org.groundplatform.android.model.mutation.SubmissionMutation
+import org.groundplatform.domain.model.mutation.SubmissionMutation
 
 /** Representation of a [SubmissionMutation] in local data store. */
 @Entity(

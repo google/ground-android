@@ -19,10 +19,10 @@ package org.groundplatform.android.data.remote.firebase.schema
 import com.google.common.truth.Truth.assertThat
 import com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode
 import kotlin.test.assertNull
-import org.groundplatform.android.model.task.Condition
-import org.groundplatform.android.model.task.Expression
 import org.groundplatform.android.proto.TaskKt.condition
 import org.groundplatform.android.proto.TaskKt.multipleChoiceSelection
+import org.groundplatform.domain.model.task.Condition
+import org.groundplatform.domain.model.task.Expression
 import org.junit.Test
 
 const val TASK_ID = "task-id-123"

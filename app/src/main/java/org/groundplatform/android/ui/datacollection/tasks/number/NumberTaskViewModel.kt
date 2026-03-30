@@ -20,9 +20,9 @@ import androidx.lifecycle.asLiveData
 import javax.inject.Inject
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
-import org.groundplatform.android.model.submission.NumberTaskData
-import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
+import org.groundplatform.domain.model.submission.NumberTaskData
+import org.groundplatform.domain.model.submission.TaskData
 
 class NumberTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
 

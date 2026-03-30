@@ -29,19 +29,19 @@ import org.groundplatform.android.data.local.stores.LocalSurveyStore
 import org.groundplatform.android.data.remote.RemoteDataStore
 import org.groundplatform.android.data.sync.MutationSyncWorkManager
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
-import org.groundplatform.android.model.Role
-import org.groundplatform.android.model.Survey
-import org.groundplatform.android.model.geometry.Geometry
-import org.groundplatform.android.model.job.Job
-import org.groundplatform.android.model.locationofinterest.LocationOfInterest
-import org.groundplatform.android.model.locationofinterest.generateProperties
-import org.groundplatform.android.model.map.Bounds
-import org.groundplatform.android.model.mutation.LocationOfInterestMutation
-import org.groundplatform.android.model.mutation.Mutation
-import org.groundplatform.android.model.mutation.Mutation.SyncStatus
-import org.groundplatform.android.proto.Survey.DataVisibility
 import org.groundplatform.android.system.auth.AuthenticationManager
 import org.groundplatform.android.ui.map.gms.GmsExt.contains
+import org.groundplatform.domain.model.Role
+import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.geometry.Geometry
+import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
+import org.groundplatform.domain.model.locationofinterest.generateProperties
+import org.groundplatform.domain.model.map.Bounds
+import org.groundplatform.domain.model.mutation.LocationOfInterestMutation
+import org.groundplatform.domain.model.mutation.Mutation
+import org.groundplatform.domain.model.mutation.Mutation.SyncStatus
+import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import timber.log.Timber
 
 /**
@@ -60,15 +60,14 @@ constructor(
   private val userRepository: UserRepository,
   private val uuidGenerator: OfflineUuidGenerator,
   private val authenticationManager: AuthenticationManager,
-) {
-  /** Mirrors locations of interest in the specified survey from the remote db into the local db. */
-  suspend fun syncLocationsOfInterest(survey: Survey) = coroutineScope {
+) : LocationOfInterestRepositoryInterface {
+  override suspend fun syncLocationsOfInterest(survey: Survey) = coroutineScope {
     val ownerUserId = authenticationManager.getAuthenticatedUser().id
 
     val predefinedDeferred = async { remoteDataStore.loadPredefinedLois(survey) }
     val userDeferred = async { remoteDataStore.loadUserLois(survey, ownerUserId) }
     val sharedDeferred = async {
-      if (survey.dataVisibility == DataVisibility.ALL_SURVEY_PARTICIPANTS) {
+      if (survey.dataVisibility == Survey.DataVisibility.ALL_SURVEY_PARTICIPANTS) {
         remoteDataStore.loadSharedLois(survey)
       } else {
         emptyList()
@@ -117,8 +116,7 @@ constructor(
     localLoiStore.insertOrUpdate(loi)
   }
 
-  /** This only works if the survey and location of interests are already cached to local db. */
-  suspend fun getOfflineLoi(surveyId: String, loiId: String): LocationOfInterest? {
+  override suspend fun getOfflineLoi(surveyId: String, loiId: String): LocationOfInterest? {
     val survey = localSurveyStore.getSurveyById(surveyId)
     val locationOfInterest = survey?.let { localLoiStore.getLocationOfInterest(it, loiId) }
 
@@ -130,8 +128,7 @@ constructor(
     return locationOfInterest
   }
 
-  /** Saves a new LOI in the local db and enqueues a sync worker. */
-  suspend fun saveLoi(
+  override suspend fun saveLoi(
     geometry: Geometry,
     job: Job,
     surveyId: String,
@@ -157,14 +154,7 @@ constructor(
     return newId
   }
 
-  /**
-   * Creates a mutation entry for the given parameters, applies it to the local db and schedules a
-   * task for remote sync if the local transaction is successful.
-   *
-   * @param mutation Input [LocationOfInterestMutation]
-   * @return If successful, returns the provided locations of interest wrapped as `Loadable`
-   */
-  suspend fun applyAndEnqueue(mutation: LocationOfInterestMutation) {
+  override suspend fun applyAndEnqueue(mutation: LocationOfInterestMutation) {
     when (mutation.type) {
       Mutation.Type.CREATE -> {
         val geometry =
@@ -194,14 +184,10 @@ constructor(
     mutationSyncWorkManager.enqueueSyncWorker()
   }
 
-  /**
-   * Returns true if [Survey] for the given [surveyId] has at least one valid [LocationOfInterest]
-   * in the local storage.
-   */
-  suspend fun hasValidLois(surveyId: String): Boolean = localLoiStore.getLoiCount(surveyId) > 0
+  override suspend fun hasValidLois(surveyId: String): Boolean =
+    localLoiStore.getLoiCount(surveyId) > 0
 
-  /** Returns a flow of all valid (not deleted) [LocationOfInterest] in the given [Survey]. */
-  fun getValidLois(survey: Survey): Flow<Set<LocationOfInterest>> =
+  override fun getValidLois(survey: Survey): Flow<Set<LocationOfInterest>> =
     localLoiStore.getValidLois(survey).map { lois ->
       // Filter out LOIs with invalid/empty geometries to prevent crashes
       lois
@@ -215,21 +201,12 @@ constructor(
         .toSet()
     }
 
-  /** Returns a flow of all [LocationOfInterest] within the map bounds (viewport). */
-  fun getWithinBounds(survey: Survey, bounds: Bounds): Flow<List<LocationOfInterest>> =
+  override fun getWithinBounds(survey: Survey, bounds: Bounds): Flow<List<LocationOfInterest>> =
     getValidLois(survey)
       .map { lois -> lois.filter { bounds.contains(it.geometry) } }
       .distinctUntilChanged()
 
-  /**
-   * Deletes a LOI by creating a DELETE mutation, applying it to the local db, and scheduling a task
-   * for remote sync. In free-form jobs, this will also delete associated submissions.
-   *
-   * @param loi The LocationOfInterest to delete
-   * @throws IllegalStateException if the LOI is predefined or the user doesn't have permission to
-   *   delete it
-   */
-  suspend fun deleteLoi(loi: LocationOfInterest) {
+  override suspend fun deleteLoi(loi: LocationOfInterest) {
     if (loi.isPredefined == true) {
       error("Cannot delete predefined LOI: ${loi.id}")
     }

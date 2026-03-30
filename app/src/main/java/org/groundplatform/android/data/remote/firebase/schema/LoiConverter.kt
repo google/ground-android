@@ -19,10 +19,10 @@ import com.google.firebase.firestore.DocumentSnapshot
 import org.groundplatform.android.data.remote.DataStoreException
 import org.groundplatform.android.data.remote.firebase.protobuf.parseFrom
 import org.groundplatform.android.data.remote.firebase.schema.GeometryConverter.toGeometry
-import org.groundplatform.android.model.Survey
-import org.groundplatform.android.model.locationofinterest.LocationOfInterest
 import org.groundplatform.android.proto.LocationOfInterest as LocationOfInterestProto
 import org.groundplatform.android.proto.LocationOfInterest.Source
+import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
 
 /** Converts between Firestore documents and [LocationOfInterest] instances. */
 object LoiConverter {

@@ -15,30 +15,38 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.polygon
 
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
-import org.groundplatform.android.model.geometry.Coordinates
-import org.groundplatform.android.model.geometry.LineString
-import org.groundplatform.android.model.geometry.LinearRing
-import org.groundplatform.android.model.geometry.Polygon
-import org.groundplatform.android.model.job.Job
-import org.groundplatform.android.model.job.Style
-import org.groundplatform.android.model.submission.DrawAreaTaskData
-import org.groundplatform.android.model.submission.DrawAreaTaskIncompleteData
-import org.groundplatform.android.model.task.Task
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.advanceUntilIdle
+import org.groundplatform.android.R
+import org.groundplatform.android.getString
 import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.BaseTaskFragmentTest
+import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.geometry.LineString
+import org.groundplatform.domain.model.geometry.LinearRing
+import org.groundplatform.domain.model.geometry.Polygon
+import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.job.Style
+import org.groundplatform.domain.model.submission.DrawAreaTaskData
+import org.groundplatform.domain.model.submission.DrawAreaTaskIncompleteData
+import org.groundplatform.domain.model.task.Task
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.shadows.ShadowDialog
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class DrawAreaTaskFragmentTest :
@@ -104,8 +112,6 @@ class DrawAreaTaskFragmentTest :
   @Test
   fun `draw area when incomplete when task is optional`() = runWithTestDispatcher {
     setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = false))
-    // Dismiss the instructions dialog
-    ShadowDialog.getLatestDialog().dismiss()
 
     updateLastVertexAndAddPoint(COORDINATE_1)
     updateLastVertexAndAddPoint(COORDINATE_2)
@@ -136,8 +142,6 @@ class DrawAreaTaskFragmentTest :
   @Test
   fun `draw area`() = runWithTestDispatcher {
     setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = false))
-    // Dismiss the instructions dialog
-    ShadowDialog.getLatestDialog().dismiss()
 
     updateLastVertexAndAddPoint(COORDINATE_1)
     updateLastVertexAndAddPoint(COORDINATE_2)
@@ -171,7 +175,6 @@ class DrawAreaTaskFragmentTest :
   @Test
   fun `draw area when add point button disabled when too close`() = runWithTestDispatcher {
     setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = false))
-    ShadowDialog.getLatestDialog().dismiss()
 
     runner().assertButtonIsEnabled(ADD_POINT_BUTTON_TEXT)
 
@@ -184,7 +187,6 @@ class DrawAreaTaskFragmentTest :
   @Test
   fun `redo button when is visible`() = runWithTestDispatcher {
     setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = false))
-    ShadowDialog.getLatestDialog().dismiss()
 
     runner().assertButtonIsDisabled(REDO_POINT_BUTTON_TEXT, true)
 
@@ -199,7 +201,6 @@ class DrawAreaTaskFragmentTest :
   @Test
   fun `redo button when is disabled empty redo vertex stack`() = runWithTestDispatcher {
     setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = false))
-    ShadowDialog.getLatestDialog().dismiss()
 
     runner().assertButtonIsDisabled(REDO_POINT_BUTTON_TEXT, true)
 
@@ -218,19 +219,23 @@ class DrawAreaTaskFragmentTest :
   @Test
   fun `Instructions dialog is shown`() = runWithTestDispatcher {
     setupTaskFragment<DrawAreaTaskFragment>(job, task)
-    assertThat(ShadowDialog.getLatestDialog()).isNotNull()
+
+    composeTestRule
+      .onNodeWithText(getString(R.string.draw_area_task_instruction))
+      .assertIsDisplayed()
   }
 
   @Test
   fun `Instructions dialog is not shown if shown previously`() = runWithTestDispatcher {
     setupTaskFragment<DrawAreaTaskFragment>(job, task)
-
-    viewModel.instructionsDialogShown = true
-    ShadowDialog.reset()
+    composeTestRule.onNodeWithText("Close").performClick()
+    advanceUntilIdle()
 
     setupTaskFragment<DrawAreaTaskFragment>(job, task)
 
-    assertThat(ShadowDialog.getLatestDialog()).isNull()
+    composeTestRule
+      .onNodeWithText(getString(R.string.draw_area_task_instruction))
+      .assertIsNotDisplayed()
   }
 
   /** Overwrites the last vertex and also adds a new one. */

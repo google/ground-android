@@ -17,17 +17,9 @@
 package org.groundplatform.android.data.remote.firebase.protobuf
 
 import com.google.common.truth.Truth.assertThat
-import java.time.Instant
-import java.util.Date
+import kotlin.time.Instant
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST_NAME
-import org.groundplatform.android.model.geometry.Coordinates
-import org.groundplatform.android.model.geometry.LinearRing
-import org.groundplatform.android.model.geometry.Point
-import org.groundplatform.android.model.geometry.Polygon
-import org.groundplatform.android.model.locationofinterest.LOI_NAME_PROPERTY
-import org.groundplatform.android.model.mutation.LocationOfInterestMutation
-import org.groundplatform.android.model.mutation.Mutation
 import org.groundplatform.android.proto.AuditInfo.CLIENT_TIMESTAMP_FIELD_NUMBER
 import org.groundplatform.android.proto.AuditInfo.DISPLAY_NAME_FIELD_NUMBER
 import org.groundplatform.android.proto.AuditInfo.SERVER_TIMESTAMP_FIELD_NUMBER
@@ -47,6 +39,13 @@ import org.groundplatform.android.proto.LocationOfInterest.SOURCE_FIELD_NUMBER
 import org.groundplatform.android.proto.LocationOfInterest.SUBMISSION_COUNT_FIELD_NUMBER
 import org.groundplatform.android.proto.Point.COORDINATES_FIELD_NUMBER
 import org.groundplatform.android.proto.Polygon.SHELL_FIELD_NUMBER
+import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.geometry.LinearRing
+import org.groundplatform.domain.model.geometry.Point
+import org.groundplatform.domain.model.geometry.Polygon
+import org.groundplatform.domain.model.locationofinterest.LOI_NAME_PROPERTY
+import org.groundplatform.domain.model.mutation.LocationOfInterestMutation
+import org.groundplatform.domain.model.mutation.Mutation
 import org.junit.Assert.assertThrows
 import org.junit.Test
 
@@ -217,7 +216,7 @@ class LoiMutationConverterTest {
         syncStatus = syncStatus,
         userId = TEST_USER.id,
         surveyId = "surveyId",
-        clientTimestamp = Date.from(Instant.ofEpochSecond(987654321)),
+        clientTimestamp = Instant.fromEpochSeconds(987654321).toEpochMilliseconds(),
         submissionCount = 10,
         properties = mapOf(LOI_NAME_PROPERTY to LOCATION_OF_INTEREST_NAME),
         customId = "a custom loi",
@@ -238,7 +237,7 @@ class LoiMutationConverterTest {
         syncStatus = syncStatus,
         userId = TEST_USER.id,
         surveyId = "surveyId",
-        clientTimestamp = Date.from(Instant.ofEpochSecond(987654321)),
+        clientTimestamp = Instant.fromEpochSeconds(987654321).toEpochMilliseconds(),
         properties = mapOf(LOI_NAME_PROPERTY to LOCATION_OF_INTEREST_NAME),
         customId = "a custom loi",
         collectionId = "collectionId",

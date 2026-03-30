@@ -17,7 +17,6 @@ package org.groundplatform.android.data.local.room.converter
 
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
-import java.util.*
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.collections.immutable.toPersistentMap
 import org.groundplatform.android.data.local.LocalDataConsistencyException
@@ -51,42 +50,45 @@ import org.groundplatform.android.data.local.room.relations.ConditionEntityAndRe
 import org.groundplatform.android.data.local.room.relations.JobEntityAndRelations
 import org.groundplatform.android.data.local.room.relations.SurveyEntityAndRelations
 import org.groundplatform.android.data.local.room.relations.TaskEntityAndRelations
-import org.groundplatform.android.model.AuditInfo
-import org.groundplatform.android.model.Survey
-import org.groundplatform.android.model.User
-import org.groundplatform.android.model.geometry.Coordinates
-import org.groundplatform.android.model.geometry.Geometry
-import org.groundplatform.android.model.geometry.Point
+import org.groundplatform.android.data.remote.firebase.protobuf.toModel
+import org.groundplatform.android.data.remote.firebase.protobuf.toProto
 import org.groundplatform.android.model.imagery.OfflineArea
-import org.groundplatform.android.model.job.Job
-import org.groundplatform.android.model.job.Job.DataCollectionStrategy
-import org.groundplatform.android.model.job.Style
-import org.groundplatform.android.model.locationofinterest.LocationOfInterest
-import org.groundplatform.android.model.map.Bounds
-import org.groundplatform.android.model.mutation.LocationOfInterestMutation
-import org.groundplatform.android.model.mutation.SubmissionMutation
-import org.groundplatform.android.model.submission.DraftSubmission
-import org.groundplatform.android.model.submission.Submission
-import org.groundplatform.android.model.submission.SubmissionData
-import org.groundplatform.android.model.task.Condition
-import org.groundplatform.android.model.task.Expression
-import org.groundplatform.android.model.task.MultipleChoice
-import org.groundplatform.android.model.task.Option
-import org.groundplatform.android.model.task.Task
-import org.groundplatform.android.model.task.TaskId
+import org.groundplatform.android.proto.Survey as SurveyProto
 import org.groundplatform.android.proto.Survey.DataSharingTerms
+import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.User
+import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.geometry.Geometry
+import org.groundplatform.domain.model.geometry.Point
+import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.job.Job.DataCollectionStrategy
+import org.groundplatform.domain.model.job.Style
+import org.groundplatform.domain.model.locationofinterest.AuditInfo
+import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
+import org.groundplatform.domain.model.map.Bounds
+import org.groundplatform.domain.model.mutation.LocationOfInterestMutation
+import org.groundplatform.domain.model.mutation.SubmissionMutation
+import org.groundplatform.domain.model.submission.DraftSubmission
+import org.groundplatform.domain.model.submission.Submission
+import org.groundplatform.domain.model.submission.SubmissionData
+import org.groundplatform.domain.model.task.Condition
+import org.groundplatform.domain.model.task.Expression
+import org.groundplatform.domain.model.task.MultipleChoice
+import org.groundplatform.domain.model.task.Option
+import org.groundplatform.domain.model.task.Task
+import org.groundplatform.domain.model.task.TaskId
 import org.json.JSONObject
 import timber.log.Timber
 
 fun AuditInfo.toLocalDataStoreObject(): AuditInfoEntity =
   AuditInfoEntity(
     user = UserDetails.fromUser(user),
-    clientTimestamp = clientTimestamp.time,
-    serverTimestamp = serverTimestamp?.time,
+    clientTimestamp = clientTimestamp,
+    serverTimestamp = serverTimestamp,
   )
 
 fun AuditInfoEntity.toModelObject() =
-  AuditInfo(UserDetails.toUser(user), Date(clientTimestamp), serverTimestamp?.let { Date(it) })
+  AuditInfo(UserDetails.toUser(user), clientTimestamp, serverTimestamp)
 
 fun Geometry.toLocalDataStoreObject() = GeometryWrapper.fromGeometry(this)
 
@@ -220,7 +222,7 @@ fun LocationOfInterestMutation.toLocalDataStoreObject() =
     userId = userId,
     locationOfInterestId = locationOfInterestId,
     syncStatus = MutationEntitySyncStatus.fromMutationSyncStatus(syncStatus),
-    clientTimestamp = clientTimestamp.time,
+    clientTimestamp = clientTimestamp,
     lastError = lastError,
     retryCount = retryCount,
     newProperties = properties,
@@ -239,7 +241,7 @@ fun LocationOfInterestMutationEntity.toModelObject() =
     userId = userId,
     locationOfInterestId = locationOfInterestId,
     syncStatus = syncStatus.toMutationSyncStatus(),
-    clientTimestamp = Date(clientTimestamp),
+    clientTimestamp = clientTimestamp,
     lastError = lastError,
     retryCount = retryCount,
     properties = newProperties,
@@ -377,7 +379,7 @@ fun SubmissionMutationEntity.toModelObject(survey: Survey): SubmissionMutation {
     retryCount = retryCount,
     lastError = lastError,
     userId = userId,
-    clientTimestamp = Date(clientTimestamp),
+    clientTimestamp = clientTimestamp,
     collectionId = collectionId,
   )
 }
@@ -395,7 +397,7 @@ fun SubmissionMutation.toLocalDataStoreObject() =
     retryCount = retryCount,
     lastError = lastError,
     userId = userId,
-    clientTimestamp = clientTimestamp.time,
+    clientTimestamp = clientTimestamp,
     collectionId = collectionId,
   )
 
@@ -408,16 +410,16 @@ fun SurveyEntityAndRelations.toModelObject(): Survey {
     surveyEntity.description!!,
     jobMap.toPersistentMap(),
     surveyEntity.acl?.toStringMap()!!,
-    surveyEntity.dataSharingTerms?.let {
-      DataSharingTerms.parseFrom(surveyEntity.dataSharingTerms)
-    },
+    surveyEntity.dataSharingTerms
+      ?.let { DataSharingTerms.parseFrom(surveyEntity.dataSharingTerms) }
+      ?.toModel(),
     surveyEntity.generalAccess.toGeneralAccess(),
   )
 }
 
-fun Int.toGeneralAccess(): org.groundplatform.android.proto.Survey.GeneralAccess =
-  org.groundplatform.android.proto.Survey.GeneralAccess.entries.find { it.number == this }
-    ?: org.groundplatform.android.proto.Survey.GeneralAccess.UNRECOGNIZED
+fun Int.toGeneralAccess(): Survey.GeneralAccess =
+  SurveyProto.GeneralAccess.entries.find { it.number == this }?.toModel()
+    ?: Survey.GeneralAccess.UNRECOGNIZED
 
 private fun JSONObject.toStringMap(): Map<String, String> {
   val builder = mutableMapOf<String, String>()
@@ -431,9 +433,9 @@ fun Survey.toLocalDataStoreObject() =
     title = title,
     description = description,
     acl = JSONObject(acl as Map<*, *>),
-    dataSharingTerms = dataSharingTerms?.toByteArray(),
-    generalAccess = generalAccess.ordinal,
-    dataVisibility = dataVisibility?.ordinal,
+    dataSharingTerms = dataSharingTerms?.toProto()?.toByteArray(),
+    generalAccess = generalAccess.toProto().ordinal,
+    dataVisibility = dataVisibility?.toProto()?.ordinal,
   )
 
 fun Task.toLocalDataStoreObject(jobId: String?) =

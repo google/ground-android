@@ -24,7 +24,7 @@ import androidx.core.os.LocaleListCompat
 import dagger.hilt.android.AndroidEntryPoint
 import org.groundplatform.android.ui.common.AbstractActivity
 import org.groundplatform.android.ui.main.MainActivity
-import org.groundplatform.android.ui.theme.AppTheme
+import org.groundplatform.ui.theme.AppTheme
 
 @AndroidEntryPoint
 class SettingsActivity : AbstractActivity() {

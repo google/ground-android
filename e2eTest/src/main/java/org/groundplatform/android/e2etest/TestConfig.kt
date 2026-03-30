@@ -15,7 +15,7 @@
  */
 package org.groundplatform.android.e2etest
 
-import org.groundplatform.android.model.task.Task
+import org.groundplatform.domain.model.task.Task
 
 /**
  * This file contains configuration constants and test data for the E2E tests. All surveys, jobs,

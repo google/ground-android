@@ -18,10 +18,9 @@ package org.groundplatform.android.data.remote.firebase.schema
 
 import com.google.common.truth.Truth.assertThat
 import com.google.protobuf.timestamp
-import java.util.Date
 import org.groundplatform.android.FakeData.USER
-import org.groundplatform.android.model.AuditInfo as AuditInfoModel
 import org.groundplatform.android.proto.auditInfo
+import org.groundplatform.domain.model.locationofinterest.AuditInfo as AuditInfoModel
 import org.junit.Test
 
 class AuditInfoConverterTest {
@@ -36,7 +35,7 @@ class AuditInfoConverterTest {
       serverTimestamp = timestamp { seconds = 9876543210 }
     }
     assertThat(AuditInfoConverter.toAuditInfo(taskProto))
-      .isEqualTo(AuditInfoModel(user = USER, Date(987654321L * 1000), Date(9876543210L * 1000)))
+      .isEqualTo(AuditInfoModel(user = USER, 987654321L * 1000, 9876543210L * 1000))
   }
 
   @Test

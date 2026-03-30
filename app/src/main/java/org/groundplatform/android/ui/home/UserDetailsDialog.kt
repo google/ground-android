@@ -23,9 +23,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import org.groundplatform.android.R
-import org.groundplatform.android.model.User
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
-import org.groundplatform.android.ui.theme.AppTheme
+import org.groundplatform.domain.model.User
+import org.groundplatform.ui.theme.AppTheme
 
 @Composable
 fun UserDetailsDialog(user: User, signOutCallback: () -> Unit, dismissCallback: () -> Unit) {

@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
@@ -25,15 +26,15 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import org.groundplatform.android.R
-import org.groundplatform.android.model.job.Job
-import org.groundplatform.android.model.submission.SkippedTaskData
-import org.groundplatform.android.model.submission.TaskData
-import org.groundplatform.android.model.submission.isNotNullOrEmpty
-import org.groundplatform.android.model.submission.isNullOrEmpty
-import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
+import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.submission.SkippedTaskData
+import org.groundplatform.domain.model.submission.TaskData
+import org.groundplatform.domain.model.submission.isNotNullOrEmpty
+import org.groundplatform.domain.model.submission.isNullOrEmpty
+import org.groundplatform.domain.model.task.Task
 
 /** Defines the state of an inflated [Task] and controls its UI. */
 abstract class AbstractTaskViewModel internal constructor() : AbstractViewModel() {
@@ -41,6 +42,8 @@ abstract class AbstractTaskViewModel internal constructor() : AbstractViewModel(
   /** Current value. */
   private val _taskDataFlow: MutableStateFlow<TaskData?> = MutableStateFlow(null)
   val taskTaskData: StateFlow<TaskData?> = _taskDataFlow.asStateFlow()
+
+  val showInstructionsDialog = mutableStateOf(false)
 
   open val taskActionButtonStates: StateFlow<List<ButtonActionState>> by lazy {
     taskTaskData

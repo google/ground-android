@@ -32,8 +32,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import org.groundplatform.android.model.job.Job
-import org.groundplatform.android.model.job.Style
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.components.MapFloatingActionButton
 import org.groundplatform.android.ui.components.MapFloatingActionButtonType
@@ -42,7 +40,9 @@ import org.groundplatform.android.ui.home.mapcontainer.jobs.AdHocDataCollectionB
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponent
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentAction
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentState
-import org.groundplatform.android.ui.theme.AppTheme
+import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.job.Style
+import org.groundplatform.ui.theme.AppTheme
 
 @Composable
 fun HomeScreenMapContainerScreen(

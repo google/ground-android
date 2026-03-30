@@ -17,31 +17,26 @@
 package org.groundplatform.android.ui.datacollection.tasks
 
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.fragment.app.Fragment
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.flowOf
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.R
-import org.groundplatform.android.model.job.Job
-import org.groundplatform.android.model.submission.TaskData
-import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.testrules.FragmentScenarioRule
 import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.TaskFragmentRunner
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
-import org.groundplatform.android.util.view.isGone
+import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.submission.TaskData
+import org.groundplatform.domain.model.task.Task
 import org.junit.Rule
 import org.mockito.kotlin.whenever
 
@@ -59,18 +54,11 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
   protected fun runner() = TaskFragmentRunner(this, composeTestRule)
 
   protected fun hasTaskViewWithHeader(task: Task) {
-    onView(withId(R.id.data_collection_header))
-      .check(matches(withText(task.label)))
-      .check(matches(isDisplayed()))
+    composeTestRule.onNodeWithText(task.label).assertIsDisplayed()
   }
 
   protected fun hasTaskViewWithoutHeader(label: String) {
-    onView(withId(R.id.header_label)).check(matches(withText(label))).check(matches(isDisplayed()))
-    onView(withId(R.id.header_icon)).check(matches(isDisplayed()))
-  }
-
-  protected fun hasNoTaskViewHeader() {
-    onView(withId(R.id.data_collection_header)).check(matches(isGone()))
+    composeTestRule.onNodeWithText(label).assertIsDisplayed()
   }
 
   protected suspend fun hasValue(taskData: TaskData?) {

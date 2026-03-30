@@ -18,13 +18,9 @@ package org.groundplatform.android.ui.datacollection.tasks.date
 import android.app.DatePickerDialog
 import android.content.Context
 import android.text.format.DateFormat
-import android.view.View
-import android.view.ViewGroup
-import android.widget.LinearLayout
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertTextContains
-import androidx.compose.ui.test.isDisplayed
-import androidx.compose.ui.test.isNotDisplayed
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -34,14 +30,13 @@ import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import java.text.SimpleDateFormat
 import javax.inject.Inject
-import org.groundplatform.android.R
-import org.groundplatform.android.model.job.Job
-import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.BaseTaskFragmentTest
+import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.task.Task
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -103,15 +98,9 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
   @Test
   fun `response when on user input`() {
     setupTaskFragment<DateTaskFragment>(job, task)
-    // NOTE: The task container layout is given 0dp height to allow Android's constraint system to
-    // determine the appropriate height. Unfortunately, Espresso does not perform actions on views
-    // with height zero, and it doesn't seem to repro constraint calculations. Force the view to
-    // have a height of 1 to ensure the action performed below actually takes place.
-    val view: View? = fragment.view?.findViewById(R.id.task_container)
-    view?.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1)
 
-    assertThat(fragment.getDatePickerDialog()).isNull()
     composeTestRule.onNodeWithTag(DATE_TEXT_TEST_TAG).performClick()
+
     assertThat(fragment.getDatePickerDialog()).isNotNull()
     assertThat(fragment.getDatePickerDialog()?.isShowing).isTrue()
   }
@@ -120,8 +109,6 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
   fun `selected date is visible on user input`() {
     setupTaskFragment<DateTaskFragment>(job, task)
 
-    val view: View? = fragment.view?.findViewById(R.id.task_container)
-    view?.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1)
     composeTestRule.onNodeWithTag(DATE_TEXT_TEST_TAG).performClick()
     assertThat(fragment.getDatePickerDialog()?.isShowing).isTrue()
 
@@ -134,7 +121,7 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
 
     datePickerDialog?.getButton(DatePickerDialog.BUTTON_POSITIVE)?.performClick()
 
-    composeTestRule.onNodeWithText("10/10/24").isDisplayed()
+    composeTestRule.onNodeWithText("10/10/24").assertIsDisplayed()
     runner().assertButtonIsEnabled("Next")
   }
 
@@ -142,8 +129,6 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
   fun `Clear button resets the response`() {
     setupTaskFragment<DateTaskFragment>(job, task)
 
-    val view: View? = fragment.view?.findViewById(R.id.task_container)
-    view?.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1)
     composeTestRule.onNodeWithTag(DATE_TEXT_TEST_TAG).performClick()
     assertThat(fragment.getDatePickerDialog()?.isShowing).isTrue()
 
@@ -155,17 +140,17 @@ class DateTaskFragmentTest : BaseTaskFragmentTest<DateTaskFragment, DateTaskView
     datePickerDialog?.datePicker?.updateDate(hardcodedYear, hardcodedMonth, hardcodedDay)
 
     datePickerDialog?.getButton(DatePickerDialog.BUTTON_POSITIVE)?.performClick()
-    composeTestRule.onNodeWithText("10/10/24").isDisplayed()
+    composeTestRule.onNodeWithText("10/10/24").assertIsDisplayed()
 
     datePickerDialog?.getButton(DatePickerDialog.BUTTON_NEUTRAL)?.performClick()
-    composeTestRule.onNodeWithText("10/10/24").isNotDisplayed()
+    composeTestRule.onNodeWithText("10/10/24").assertIsNotDisplayed()
   }
 
   @Test
   fun `hint text is visible`() {
     setupTaskFragment<DateTaskFragment>(job, task)
 
-    composeTestRule.onNodeWithText(getExpectedDateHint()).isDisplayed()
+    composeTestRule.onNodeWithText(getExpectedDateHint()).assertIsDisplayed()
   }
 
   private fun getExpectedDateHint(): String {

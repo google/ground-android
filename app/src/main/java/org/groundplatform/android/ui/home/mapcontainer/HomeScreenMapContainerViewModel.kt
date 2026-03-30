@@ -36,14 +36,9 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import org.groundplatform.android.common.Constants.CLUSTERING_ZOOM_THRESHOLD
 import org.groundplatform.android.data.local.LocalValueStore
-import org.groundplatform.android.model.Survey
-import org.groundplatform.android.model.job.Job
-import org.groundplatform.android.model.job.getDefaultColor
-import org.groundplatform.android.model.locationofinterest.LocationOfInterest
-import org.groundplatform.android.proto.Survey.DataSharingTerms
-import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.MapStateRepository
 import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.android.repository.SubmissionRepository
@@ -59,7 +54,13 @@ import org.groundplatform.android.ui.home.mapcontainer.jobs.DataCollectionEntryP
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentState
 import org.groundplatform.android.ui.home.mapcontainer.jobs.SelectedLoiSheetData
 import org.groundplatform.android.ui.map.Feature
+import org.groundplatform.android.ui.map.gms.GmsExt.area
+import org.groundplatform.android.ui.util.getDefaultColor
 import org.groundplatform.android.usecases.datasharingterms.GetDataSharingTermsUseCase
+import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
+import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @SharedViewModel
@@ -67,7 +68,7 @@ class HomeScreenMapContainerViewModel
 @Inject
 internal constructor(
   private val getDataSharingTermsUseCase: GetDataSharingTermsUseCase,
-  private val loiRepository: LocationOfInterestRepository,
+  private val loiRepository: LocationOfInterestRepositoryInterface,
   private val mapStateRepository: MapStateRepository,
   private val submissionRepository: SubmissionRepository,
   locationManager: LocationManager,
@@ -137,17 +138,16 @@ internal constructor(
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
 
     @OptIn(FlowPreview::class)
-    mapLoiFeatures =
-      activeSurvey.flatMapLatest {
-        if (it == null) flowOf(setOf())
-        else
-          getLocationOfInterestFeatures(it)
-            .debounce(1000.milliseconds)
-            .distinctUntilChanged()
-            .combine(selectedLoiIdFlow) { loiFeatures, selectedLoiId ->
-              updatedLoiSelectedStates(loiFeatures, selectedLoiId)
-            }
-      }
+    mapLoiFeatures = activeSurvey.flatMapLatest {
+      if (it == null) flowOf(setOf())
+      else
+        getLocationOfInterestFeatures(it)
+          .debounce(1000.milliseconds)
+          .distinctUntilChanged()
+          .combine(selectedLoiIdFlow) { loiFeatures, selectedLoiId ->
+            updatedLoiSelectedStates(loiFeatures, selectedLoiId)
+          }
+    }
 
     isZoomedInFlow =
       getCurrentCameraPosition().mapNotNull { it.zoomLevel }.map { it >= CLUSTERING_ZOOM_THRESHOLD }
@@ -193,7 +193,7 @@ internal constructor(
     }
   }
 
-  fun getDataSharingTerms(): Result<DataSharingTerms?> = getDataSharingTermsUseCase()
+  fun getDataSharingTerms(): Result<Survey.DataSharingTerms?> = getDataSharingTermsUseCase()
 
   /**
    * Returns a flow of [DataCollectionEntryPointData] associated with the active survey's LOIs and
@@ -220,8 +220,9 @@ internal constructor(
         // The feature is not in view anymore.
         featureClicked.value = null
       }
-      val jobCard =
-        jobs.map { AdHocDataCollectionButtonData(canCollectData = canUserSubmitData, job = it) }
+      val jobCard = jobs.map {
+        AdHocDataCollectionButtonData(canCollectData = canUserSubmitData, job = it)
+      }
       Pair(loiCard, jobCard)
     }
 
@@ -244,7 +245,7 @@ internal constructor(
    * list of provided features is empty.
    */
   fun onFeatureClicked(features: Set<Feature>) {
-    featureClicked.value = features.minByOrNull { it.geometry.area }
+    featureClicked.value = features.minByOrNull { it.geometry.area() }
   }
 
   fun grantDataSharingConsent() {
@@ -255,9 +256,11 @@ internal constructor(
   /**
    * Deletes the given LOI and all associated data. This should only be called for free-form jobs.
    */
-  suspend fun deleteLoi(loi: LocationOfInterest) {
-    loiRepository.deleteLoi(loi)
-    selectLocationOfInterest(null)
+  fun deleteLoi(loi: LocationOfInterest) {
+    viewModelScope.launch {
+      loiRepository.deleteLoi(loi)
+      selectLocationOfInterest(null)
+    }
   }
 
   private fun getLocationOfInterestFeatures(survey: Survey): Flow<Set<Feature>> =

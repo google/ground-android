@@ -22,9 +22,9 @@ import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.tasks.await
 import org.groundplatform.android.data.remote.firebase.base.FluentCollectionReference
 import org.groundplatform.android.data.remote.firebase.schema.LoiConverter.toLoi
-import org.groundplatform.android.model.Survey
-import org.groundplatform.android.model.locationofinterest.LocationOfInterest
 import org.groundplatform.android.proto.LocationOfInterest as LocationOfInterestProto
+import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
 import timber.log.Timber
 
 /**

@@ -22,10 +22,10 @@ import com.google.firebase.firestore.snapshots
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.groundplatform.android.data.remote.firebase.base.FluentCollectionReference
-import org.groundplatform.android.model.Survey
-import org.groundplatform.android.model.User
 import org.groundplatform.android.proto.Role
 import org.groundplatform.android.proto.Survey as SurveyProto
+import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.User
 
 private const val ACL_FIELD = SurveyProto.ACL_FIELD_NUMBER.toString()
 private const val GENERAL_ACCESS_FIELD = SurveyProto.GENERAL_ACCESS_FIELD_NUMBER.toString()
@@ -49,9 +49,9 @@ class SurveysCollectionReference internal constructor(ref: CollectionReference) 
       snapshot.documents
         .mapNotNull { SurveyConverter.toSurvey(it) }
         .filter { survey ->
-          survey.generalAccess == SurveyProto.GeneralAccess.GENERAL_ACCESS_UNSPECIFIED ||
-            survey.generalAccess == SurveyProto.GeneralAccess.RESTRICTED ||
-            survey.generalAccess == SurveyProto.GeneralAccess.UNLISTED
+          survey.generalAccess == Survey.GeneralAccess.GENERAL_ACCESS_UNSPECIFIED ||
+            survey.generalAccess == Survey.GeneralAccess.RESTRICTED ||
+            survey.generalAccess == Survey.GeneralAccess.UNLISTED
         }
     }
   }

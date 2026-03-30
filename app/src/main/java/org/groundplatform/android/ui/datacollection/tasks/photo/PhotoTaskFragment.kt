@@ -19,11 +19,14 @@ import android.Manifest
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
@@ -40,12 +43,9 @@ import org.groundplatform.android.system.PermissionDeniedException
 import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.ui.common.EphemeralPopups
 import org.groundplatform.android.ui.components.ConfirmationDialog
-import org.groundplatform.android.ui.datacollection.components.TaskView
-import org.groundplatform.android.ui.datacollection.components.TaskViewFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.ui.home.HomeScreenViewModel
-import org.groundplatform.android.util.createComposeView
-import org.groundplatform.android.util.renderComposableDialog
+import org.groundplatform.ui.theme.sizes
 import timber.log.Timber
 
 /** Fragment allowing the user to capture a photo to complete a task. */
@@ -57,7 +57,10 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   @Inject lateinit var permissionsManager: PermissionsManager
   @Inject lateinit var popups: EphemeralPopups
   @Inject @IoDispatcher lateinit var ioDispatcher: CoroutineDispatcher
-  lateinit var homeScreenViewModel: HomeScreenViewModel
+
+  private val homeScreenViewModel: HomeScreenViewModel by lazy {
+    getViewModel(HomeScreenViewModel::class.java)
+  }
 
   // Registers a callback to execute after a user captures a photo from the on-device camera.
   private lateinit var capturePhotoLauncher: ActivityResultLauncher<Uri>
@@ -73,14 +76,24 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
       }
   }
 
-  override fun onCreateTaskView(inflater: LayoutInflater): TaskView =
-    TaskViewFactory.createWithHeader(inflater)
+  @Composable
+  override fun TaskBody() {
+    var showPermissionDeniedDialog by viewModel.showPermissionDeniedDialog
+    val uri by viewModel.uri.collectAsStateWithLifecycle(Uri.EMPTY)
 
-  override fun onCreateTaskBody(inflater: LayoutInflater): View {
-    homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
-    return createComposeView {
-      val uri by viewModel.uri.collectAsStateWithLifecycle(Uri.EMPTY)
-      PhotoTaskScreen(uri = uri, onTakePhoto = { onTakePhoto() })
+    PhotoTaskScreen(
+      modifier = Modifier.padding(horizontal = MaterialTheme.sizes.taskViewPadding),
+      uri = uri,
+      onTakePhoto = { onTakePhoto() },
+    )
+
+    if (showPermissionDeniedDialog) {
+      ConfirmationDialog(
+        title = R.string.permission_denied,
+        description = R.string.camera_permissions_needed,
+        confirmButtonText = R.string.ok,
+        onConfirmClicked = { showPermissionDeniedDialog = false },
+      )
     }
   }
 
@@ -116,19 +129,8 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
 
         onPermissionsGranted()
       } catch (_: PermissionDeniedException) {
-        mainScope.launch { showPermissionDeniedDialog() }
+        viewModel.showPermissionDeniedDialog.value = true
       }
-    }
-  }
-
-  private fun showPermissionDeniedDialog() {
-    renderComposableDialog {
-      ConfirmationDialog(
-        title = R.string.permission_denied,
-        description = R.string.camera_permissions_needed,
-        confirmButtonText = R.string.ok,
-        onConfirmClicked = {},
-      )
     }
   }
 

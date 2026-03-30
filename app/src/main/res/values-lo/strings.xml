@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright 2026 Google LLC
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources>
+  <!--
+    LOI DATA FORMS
+  -->
+  <!-- Shown below fields that are required but left empty (TBD). -->
+  <string name="required_task">ຈຳເປັນຕ້ອງກອກຂໍ້ມູນນີ້</string>
+  <!--
+    LOCATION (GPS/CELL/WIFI) UPDATE ERROR MESSAGES
+  -->
+  <!-- Shown when user has refused to grant app fine grained location permission. -->
+  <string name="no_fine_location_permissions">ບໍ່ສາມາດສະແດງຕຳແໜ່ງປັດຈຸບັນໄດ້ ໂດຍບໍ່ມີການອະນຸຍາດ</string>
+  <!-- Shown when an unknown error occurs obtaining fine grained location permission. -->
+  <string name="location_updates_unknown_error">ບໍ່ສາມາດເປີດການອັບເດດຕຳແໜ່ງໄດ້</string>
+  <!-- Shown when user has refused to enable location services in settings.-->
+  <string name="location_disabled_in_settings">ກະລຸນາເປີດການລະບຸຕຳແໜ່ງໃນການຕັ້ງຄ່າລະບົບ</string>
+  <string name="map_view">ມຸມມອງແຜນທີ່</string>
+  <string name="unexpected_error">ເກີດຂໍ້ຜິດພາດທີ່ບໍ່ຄາດຄິດ</string>
+  <string name="survey_load_timeout_error">ໂຫຼດແບບສຳຫຼວດບໍ່ທັນເວລາ ກະລຸນາກວດເບິ່ງການເຊື່ອມຕໍ່ ແລະ ລອງໃໝ່</string>
+  <string name="google_api_install_failed">ການຕິດຕັ້ງ Google Play Services ລົ້ມເຫຼວ</string>
+  <string name="sign_out">ອອກຈາກລະບົບ</string>
+  <string name="ok">ຕົກລົງ</string>
+  <string name="add_data">ເພີ່ມຂໍ້ມູນ</string>
+  <!-- Untranslated strings -->
+  <string name="offline_area_selector">ເລືອກພື້ນທີ່ເພື່ອດາວໂຫຼດ</string>
+  <string name="offline_area_selector_prompt">ເລືອກແຜນທີ່ພື້ນຖານສຳລັບໃຊ້ອອບລາຍ</string>
+  <string name="offline_area_selector_download">ດາວໂຫຼດ</string>
+  <string name="camera">ກ້ອງຖ່າຍຮູບ</string>
+  <string name="photo_preview">ສະແດງຕົວຢ່າງ</string>
+  <string name="settings">ການຕັ້ງຄ່າ</string>
+  <string name="offline_area_viewer_title">ພື້ນທີ່ທີ່ດາວໂຫຼດແລ້ວ</string>
+  <string name="offline_area_viewer_remove_button">ລຶບອອກຈາກອຸປະກອນ</string>
+  <string name="offline_area_download_error">ການດາວໂຫຼດລົ້ມເຫຼວ ກະລຸນາລອງໃໝ່</string>
+  <!-- Label of button used enter the offline area selector. -->
+  <string name="offline_area_selector_select">ເລືອກພື້ນທີ່</string>
+  <string name="no_basemaps_downloaded">ບໍ່ມີຮູບແຜນທີ່ທີ່ດາວໂຫຼດໄວ້ສຳລັບໃຊ້ອອບລາຍ</string>
+  <string name="connect_to_download_message">ທ່ານກຳລັງອອບລາຍ ກະລຸນາເຊື່ອມຕໍ່ເພື່ອດາວໂຫຼດຮູບແຜນທີ່ອອບລາຍ</string>
+  <string name="signing_in">ກຳລັງເຂົ້າລະບົບ</string>
+  <string name="sign_in_with_google">ເຂົ້າລະບົບດ້ວຍ Google</string>
+  <!-- Precedes the build number shown in the side menu of debug builds. -->
+  <string name="build">ເວີຊັນ %s</string>
+  <string name="tos_title">ເງື່ອນໄຂການໃຊ້ບໍລິການ</string>
+  <string name="agree_terms">ຍອມຮັບ</string>
+  <string name="agree_checkbox">ຂ້ອຍຍອມຮັບ</string>
+  <!-- Other strings (to be organized) -->
+  <string name="sync_status">ສະຖານະການຊິງຂໍ້ມູນ</string>
+  <string name="add_point">ເພີ່ມຈຸດ</string>
+  <string name="complete_polygon">ສຳເລັດ</string>
+  <string name="road_map">ແຜນທີ່ຖະໜົນ</string>
+  <string name="satellite">ດາວທຽມ</string>
+  <string name="terrain">ພູມສັນຖານ</string>
+  <string name="next">ຕໍ່ໄປ</string>
+  <string name="done">ແລ້ວເສັດ</string>
+  <string name="skip">ຂ້າມ</string>
+  <string name="drop_pin">ປັກໝຸດ</string>
+  <string name="add_site">ເພີ່ມຈຸດສຳຫຼວດ</string>
+  <string name="job_site_icon">ໄອຄອນຈຸດພາລະກິດ</string>
+  <string name="drop_a_pin_tooltip_text">ລາກແຜນທີ່ຈົນກວ່າໝຸດກາງຈະຢູ່ໃນຕຳແໜ່ງທີ່ຕ້ອງການ</string>
+  <string name="current_location">ຕຳແໜ່ງປັດຈຸບັນ:</string>
+  <string name="loading">ກຳລັງໂຫຼດ…</string>
+  <string name="no_tasks_error">ພາລະກິດນີ້ບໍ່ມີໜ້າວຽກໃຫ້ເຮັດຕໍ່ແລ້ວ</string>
+  <string name="invalid_data_sharing_terms">ແບບສຳຫຼວດນີ້ຖືກຕັ້ງຄ່າຜິດ (ບໍ່ມີເງື່ອນໄຂການແບ່ງປັນຂໍ້ມູນ) ກະລຸນາຕິດຕໍ່ຜູ້ຈັດການແບບສຳຫຼວດ</string>
+  <string name="collect_data_viewer_error">ບໍ່ສາມາດເກັບຂໍ້ມູນໄດ້ ເນື່ອງຈາກຜູ້ໃຊ້ມີສະຖານະເປັນ ຜູ້ເບິ່ງຢ່າງດຽວ</string>
+  <string name="offline_map_imagery">ຮູບແຜນທີ່ອອບລາຍ</string>
+  <string name="offline_map_imagery_no_areas_downloaded_image">ບໍ່ມີຮູບແຜນທີ່ທີ່ດາວໂຫຼດ</string>
+  <string name="offline_map_imagery_pref_description">ເຊື່ອງ ຫຼື ສະແດງ ຮູບແຜນທີ່ທີ່ດາວໂຫຼດແລ້ວ</string>
+  <string name="layers">ຊັ້ນຂໍ້ມູນ</string>
+  <string name="base_map">ແຜນທີ່ພື້ນຖານ</string>
+  <string name="offline_map_imagery_download_progress_dialog_title">ກຳລັງດາວໂຫຼດ - %d%%</string>
+  <string name="offline_map_imagery_download_progress_dialog_message">ເວລາໃນການດາວໂຫຼດອາດແຕກຕ່າງກັນ ຂຶ້ນກັບຂະໜາດຂອງພື້ນທີ່ທີ່ເລືອກ ແລະ ການເຊື່ອມຕໍ່ອິນເຕີເນັດຂອງທ່ານ</string>
+  <string name="multiple_regions">ຫຼາຍພື້ນທີ່</string>
+  <string name="permission_denied">ຖືກປະຕິເສດການອະນຸຍາດ</string>
+  <string name="close_app">ປິດແອັບ</string>
+  <string name="cancel">ຍົກເລີກ</string>
+  <string name="save">ບັນທຶກ</string>
+  <string name="no_imagery_available_for_area">ບໍ່ມີຮູບແຜນທີ່ສຳລັບພື້ນທີ່ນີ້ ກະລຸນາເລືອກພື້ນທີ່ທີ່ມີຮູບແຜນທີ່ເພື່ອດາວໂຫຼດລົງໃນອຸປະກອນ</string>
+  <string name="selected_offline_area_size">ພື້ນທີ່ທີ່ເລືອກອາດໃຊ້ພື້ນທີ່ເຖິງ %s\u00A0MB ໃນອຸປະກອນຂອງທ່ານ</string>
+  <string name="selected_offline_area_too_large">ຂະຫຍາຍແຜນທີ່ເຂົ້າ ແລະ ເລືອກພື້ນທີ່ໃຫ້ນ້ອຍລົງເພື່ອດາວໂຫຼດລົງໃນອຸປະກອນ</string>
+  <string name="offline_area_size_loading_symbol">…</string>
+  <string name="offline_area_select_cancel_button">ຍົກເລີກ</string>
+  <string name="offline_area_selector_title">ດາວໂຫຼດພື້ນທີ່ນີ້ບໍ?</string>
+  <string name="capture">ບັນທຶກຂໍ້ມູນ</string>
+  <string name="surveys">ແບບສຳຫຼວດ</string>
+  <string name="offline_icon_description">ໄອຄອນທີ່ສະແດງເມື່ອແບບສຳຫຼວດສາມາດໃຊ້ອອບລາຍໄດ້</string>
+  <string name="more_options_icon_description">ຕົວເລືອກເພີ່ມເຕີມ</string>
+  <string name="remove_offline_access_warning_title">ຄຳເຕືອນ</string>
+  <string name="remove_offline_access_warning_confirm_button">ລຶບ</string>
+  <string name="remove_offline_access_warning_dialog_body">ຖ້າທ່ານລຶບການໃຊ້ງານອອບລາຍ:\n \u2022 ຂໍ້ມູນທີ່ຍັງບໍ່ໄດ້ຊິງຈະຖືກລຶບທິ້ງ\n\nທ່ານແນ່ໃຈບໍວ່າຕ້ອງການລຶບການໃຊ້ງານອອບລາຍ?</string>
+  <string name="unnamed_point">ຈຸດທີ່ຍັງບໍ່ໄດ້ຕັ້ງຊື່</string>
+  <string name="unnamed_area">ພື້ນທີ່ທີ່ຍັງບໍ່ໄດ້ຕັ້ງຊື່</string>
+  <string name="unnamed_job">ພາລະກິດທີ່ຍັງບໍ່ໄດ້ຕັ້ງຊື່</string>
+  <string name="offline_area_size_on_disk_mb">%s\u00A0MB ໃນພື້ນທີ່ຈັດເກັບ</string>
+  <string name="offline_area_list_item_size_on_disk_mb">%s\u00A0MB</string>
+  <string name="offline_downloaded_areas">ພື້ນທີ່ທີ່ດາວໂຫຼດແລ້ວ</string>
+  <string name="offline_area_list_tip">ສາມາດເບິ່ງໄດ້ແບບອອບລາຍ</string>
+  <string name="offline_area_list_item_icon">ໄອຄອນລາຍການພື້ນທີ່ອອບລາຍ</string>
+  <string name="no_surveys_available">ບໍ່ມີແບບສຳຫຼວດໃຫ້ໃຊ້ ກະລຸນາຕິດຕໍ່ຜູ້ຈັດການແບບສຳຫຼວດເພື່ອຂໍສິດເຂົ້າໃຊ້</string>
+  <string name="previous">ກ່ອນໜ້າ</string>
+  <string name="network_error_when_signing_in">ເຊື່ອມຕໍ່ອິນເຕີເນັດເພື່ອເຂົ້າລະບົບ</string>
+  <string name="camera_permissions_needed">ທ່ານຕ້ອງອະນຸຍາດສິດໃຫ້ແອັບນີ້ໃຊ້ກ້ອງ ເພື່ອສົ່ງຮູບພາບ</string>
+  <string name="incomplete_area">ພື້ນທີ່ຍັງບໍ່ສົມບູນ</string>
+  <string name="initializing">ກຳລັງເລີ່ມຕົ້ນ…</string>
+  <string name="draw_area_task_instruction">ເລື່ອນແຜນທີ່ ແລ້ວແຕະ “ເພີ່ມຈຸດ” ເພື່ອເພີ່ມຈຸດຮອບບໍລິເວນທີ່ຕ້ອງການ.</string>
+  <string name="close">ປິດ</string>
+  <string name="data_consent_dialog_title">ຂໍ້ຕົກລົງການແບ່ງປັນຂໍ້ມູນ</string>
+  <string name="map_location">ຕຳແໜ່ງໃນແຜນທີ່:</string>
+  <string name="sign_out_dialog_title">ຄຳເຕືອນການອອກຈາກລະບົບ</string>
+  <string name="sign_out_dialog_body">ຖ້າທ່ານອອກຈາກລະບົບ:\n \u2022 ຂໍ້ມູນທີ່ຍັງບໍ່ໄດ້ຊິ້ງຈະຖືກລຶບຖິ້ມ\n \u2022 ທ່ານຈະບໍ່ສາມາດເຂົ້າລະບົບໄດ້ຖ້າທ່ານອອບໄລນ໌\n \u2022 ແບບສຳຫຼວດອອບໄລນ໌ຈະບໍ່ສາມາດໃຊ້ໄດ້ຈົນກວ່າທ່ານຈະເຂົ້າລະບົບອີກຄັ້ງ\n\nທ່ານແນ່ໃຈບໍວ່າຕ້ອງການອອກຈາກລະບົບ?</string>
+  <string name="read_only_data_collection_hint">ແບບສຳຫຼວດເປັນແບບເບິ່ງຢ່າງດຽວ</string>
+  <string name="no_submissions">ບໍ່ມີການສົ່ງຂໍ້ມູນ</string>
+  <string name="dismiss_info_popup">ປິດແຈ້ງເຕືອນ</string>
+  <string name="other">ອື່ນໆ</string>
+  <plurals name="submission_count">
+    <item quantity="other">%d ການສົ່ງຂໍ້ມູນ</item>
+  </plurals>
+  <string name="loi_name_dialog_title">ຕັ້ງຊື່ຕຳແໜ່ງນີ້</string>
+  <string name="loi_name_dialog_body">ຈະຖືກສ້າງຈຸດສຳຫຼວດໃໝ່ສຳລັບການເກັບຂໍ້ມູນ</string>
+  <string name="current_survey">ແບບສຳຫຼວດປັດຈຸບັນ</string>
+  <string name="switch_survey">ປ່ຽນແບບສຳຫຼວດ</string>
+  <string name="no_survey_selected">ບໍ່ໄດ້ເລືອກແບບສຳຫຼວດ</string>
+  <string name="undo">ຍ້ອນກັບ</string>
+  <string name="redo">ເຮັດຊ້ຳ</string>
+  <string name="view_licenses_title">ໃບອະນຸຍາດ</string>
+  <string name="about">ກ່ຽວກັບ</string>
+  <string name="terms_of_service">ເງື່ອນໄຂການໃຊ້ບໍລິການ</string>
+  <string name="about_ground">Ground ແມ່ນໂຄງການໂອເພນຊອດຂອງຊຸມຊົນ ທີ່ພັດທະນາໂດຍ Google ແລະ FAO ພາຍໃຕ້ຄວາມຮ່ວມມື Forest Data Partnership ໂດຍມີການສະໜັບສະໜູນຈາກ SIG, Ecam ແລະ ຜູ້ຮ່ວມພັດທະນາໂອເພນຊອດຈາກຊຸມຊົນ \n\nໂຄງການນີ້ຢູ່ພາຍໃຕ້ໃບອະນຸຍາດ <annotation type="apache_license">Apache License, Version 2.0</annotation>. \n\nເບິ່ງ <annotation type="all_licenses">ໃບອະນຸຍາດ</annotation> ອື່ນໆ</string>
+  <string name="pending_retry">ລໍຖ້າການລອງສົ່ງໃໝ່</string>
+  <string name="uploaded">ອັບໂຫຼດແລ້ວ</string>
+  <string name="uploading_form_data">ກຳລັງອັບໂຫຼດຂໍ້ມູນແບບຟອມ</string>
+  <string name="pending">ລໍຖ້າ</string>
+  <string name="photos_pending">ຮູບພາບທີ່ລໍຖ້າການສົ່ງ</string>
+  <string name="photos_pending_retry">ຮູບພາບລໍຖ້າການລອງສົ່ງໃໝ່</string>
+  <string name="uploading_photos">ກຳລັງອັບໂຫຼດຮູບພາບ</string>
+  <string name="data_sync_status">ສະຖານະການຊິງຂໍ້ມູນ</string>
+  <string name="signout_warning">ຖ້າທ່ານອອກຈາກລະບົບ ຂໍ້ມູນທີ່ຍັງບໍ່ໄດ້ບັນທຶກທັງໝົດຈະສູນເສຍ.</string>
+  <string name="admin_request_access">ເພື່ອດຳເນີນຕໍ່ ກະລຸນາຕິດຕໍ່ຜູ້ບໍລິຫານລະບົບເພື່ອຂໍສິດເຂົ້າໃຊ້.</string>
+  <string name="signup_request_access">ເພື່ອດຳເນີນຕໍ່ <annotation type="sign_up_link">ລົງທະບຽນເພື່ອຂໍສິດເຂົ້າໃຊ້</annotation>.</string>
+  <!-- Settings -->
+  <string name="general_title">ທົ່ວໄປ</string>
+  <string name="upload_media_title">ອັບໂຫຼດຮູບພາບ</string>
+  <string name="over_wifi_summary">ໃຊ້ໄດ້ສະເພາະ Wi-Fi ເທົ່ານັ້ນ</string>
+  <string name="help_title">ຊ່ວຍເຫຼືອ</string>
+  <string name="visit_website_title">ເຂົ້າເບິ່ງເວັບໄຊ</string>
+  <string name="accuracy">ຄວາມແມ່ນຍຳ:</string>
+  <string name="select_language_title">ເລືອກພາສາ</string>
+  <!-- Data Sharing Consent Text -->
+  <string name="data_sharing_no_terms">*ບໍ່ມີເງື່ອນໄຂໃຫ້ສະແດງ*</string>
+  <string name="data_sharing_private_message">## ການແບ່ງປັນຂໍ້ມູນສ່ວນຕົວ
+\nຂໍ້ມູນຈະຖືກແບ່ງປັນສະເພາະກັບຜູ້ຈັດການແບບສຳຫຼວດ ເຊິ່ງອາດບໍ່ແບ່ງປັນ ຫຼື ນຳໃຊ້ຂໍ້ມູນຕໍ່ສາທາລະນະ  </string>
+  <string name="data_sharing_public_message">## ການແບ່ງປັນຂໍ້ມູນສາທາລະນະ
+\nຜູ້ຈັດການແບບສຳຫຼວດສາມາດແບ່ງປັນ ແລະ ນຳໃຊ້ຂໍ້ມູນຕໍ່ສາທາລະນະ ພາຍໃຕ້ໃບອະນຸຍາດ *Creative Commons CC0 1.0*  </string>
+  <string name="draft_restored">ກູ້ຄືນຂໍ້ມູນທີ່ຍັງບໍ່ໄດ້ບັນທຶກ</string>
+  <string name="load_tos_failed">ບໍ່ສາມາດເຊື່ອມຕໍ່ໄດ້ ກະລຸນາລອງໃໝ່ໃນພາຍຫຼັງ</string>
+  <string name="data_submitted_image">ຮູບພາບການສົ່ງຂໍ້ມູນ</string>
+  <string name="data_collection_complete">ການເກັບຂໍ້ມູນສຳເລັດແລ້ວ!</string>
+  <string name="data_collection_complete_details">ຂໍ້ມູນຂອງທ່ານຖືກບັນທຶກແລ້ວ ແລະ ຈະຖືກຊິງອັດຕະໂນມັດເມື່ອທ່ານອອນລາຍ</string>
+  <string name="allow_location_confirmation">ອະນຸຍາດການລະບຸຕຳແໜ່ງ</string>
+  <string name="allow_location_title">ອະນຸຍາດການແບ່ງປັນຕຳແໜ່ງ</string>
+  <string name="allow_location_description">ຖ້າທ່ານບໍ່ອະນຸຍາດໃຫ້ Ground ເຂົ້າເຖິງຕຳແໜ່ງຂອງອຸປະກອນນີ້ ທ່ານຈະບໍ່ສາມາດດຳເນີນການເກັບຂໍ້ມູນສຳລັບຈຸດນີ້ໄດ້</string>
+  <string name="data_collection_cancellation_title">ຢຸດການເກັບຂໍ້ມູນບໍ?</string>
+  <string name="data_collection_cancellation_description">ຖ້າທ່ານອອກ ຂໍ້ມູນທີ່ຍັງບໍ່ໄດ້ສົ່ງຈະຖືກລຶບທິ້ງ.</string>
+  <string name="data_collection_cancellation_confirm_button">ຢືນຢັນ</string>
+  <string name="something_went_wrong">ເກີດຂໍ້ຜິດພາດ</string>
+  <string name="polygon_vertex_add_dialog_title">ພື້ນທີ່ບໍ່ຖືກຕ້ອງ</string>
+  <string name="polygon_vertex_add_dialog_message">ເສັ້ນຂອບເຂດພື້ນທີ່ບໍ່ສາມາດຕັດກັນເອງໄດ້</string>
+  <string name="polygon_vertex_add_dialog_positive_button">ຕົກລົງ</string>
+  <string name="clear">ລ້າງ</string>
+  <string name="text_task_data_character_limit">ສູງສຸດ 255 ຕົວອັກສອນ</string>
+  <string name="area_message">ພື້ນທີ່: %s</string>
+  <string name="lang_english">ພາສາອັງກິດ</string>
+  <string name="lang_french">ພາສາຝຣັ່ງ</string>
+  <string name="lang_spanish">ພາສາສະແປນ</string>
+  <string name="lang_portuguese">ພາສາໂປຣຕຸເກດ</string>
+  <string name="lang_vietnamese">ພາສາຫວຽດນາມ</string>
+  <string name="lang_thai">ພາສາໄທ</string>
+  <string name="lang_lao">ພາສາລາວ</string>
+  <string name="access_restricted">ຈຳກັດການເຂົ້າເຖິງ</string>
+  <string name="access_unlisted">ບໍ່ສະແດງໃນລາຍການ</string>
+  <string name="access_public">ສາທາລະນະ</string>
+  <string name="section_on_device">ຢູ່ໃນອຸປະກອນນີ້</string>
+  <string name="section_shared_with_me">ແບ່ງປັນໃຫ້ຂ້ອຍ</string>
+  <string name="section_public">ສາທາລະນະ</string>
+  <string name="dialog_title_update_required">ຈຳເປັນຕ້ອງອັບເດດ</string>
+  <string name="dialog_message_update_required">ມີເວີຊັນໃໝ່ຂອງແອັບໃຫ້ໃຊ້ ກະລຸນາອັບເດດເພື່ອໃຊ້ງານຕໍ່</string>
+  <string name="dialog_button_update">ອັບເດດ</string>
+  <string name="select_length_title">ເລືອກຫົວໜ່ວຍ</string>
+  <string name="length_metric">ເມັດຕຣິກ</string>
+  <string name="length_imperial">ອິມພີເຣຍວ</string>
+  <string name="delete_site">ລຶບຈຸດສຳຫຼວດ</string>
+  <string name="delete_site_dialog_title">ລຶບຈຸດສຳຫຼວດບໍ?</string>
+  <string name="delete_site_dialog_message">ຈຸດສຳຫຼວດນີ້ ແລະ ຂໍ້ມູນທັງໝົດທີ່ກ່ຽວຂ້ອງຈະຖືກລຶບອອກຢ່າງຖາວອນ ບໍ່ສາມາດກູ້ຄືນໄດ້</string>
+  <string name="delete">ລຶບ</string>
+  <string name="location_not_accurate_heading">ຕຳແໜ່ງຂອງທ່ານບໍ່ແມ່ນຍຳ</string>
+  <string name="location_not_accurate_description">ລອງຢືນນິ່ງໆ ຫຼື ລໍຖ້າໃຫ້ໄດ້ຕຳແໜ່ງທີ່ແມ່ນຍຳກວ່າ</string>
+  <string name="recenter">ຈັດຕຳແໜ່ງກາງໃໝ່</string>
+</resources>

@@ -16,7 +16,7 @@
 package org.groundplatform.android.system.auth
 
 import kotlinx.coroutines.flow.Flow
-import org.groundplatform.android.model.User
+import org.groundplatform.domain.model.User
 
 interface AuthenticationManager {
   val signInState: Flow<SignInState>
