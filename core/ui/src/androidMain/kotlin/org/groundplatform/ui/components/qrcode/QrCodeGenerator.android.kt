@@ -24,7 +24,6 @@ import com.google.zxing.BarcodeFormat
 import com.google.zxing.EncodeHintType
 import com.google.zxing.qrcode.QRCodeWriter
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
-
 actual fun generateQrBitmap(content: String, useHighEcc: Boolean): ImageBitmap {
   val hints =
     mapOf(
@@ -34,12 +33,13 @@ actual fun generateQrBitmap(content: String, useHighEcc: Boolean): ImageBitmap {
       EncodeHintType.CHARACTER_SET to "UTF-8",
     )
 
-  val bitMatrix =
-    QRCodeWriter().encode(content, BarcodeFormat.QR_CODE, QR_SIZE_PX, QR_SIZE_PX, hints)
+  val bitMatrix = QRCodeWriter().encode(content, BarcodeFormat.QR_CODE, 0, 0, hints)
 
-  val bitmap = createBitmap(QR_SIZE_PX, QR_SIZE_PX, Bitmap.Config.RGB_565)
-  for (x in 0 until QR_SIZE_PX) {
-    for (y in 0 until QR_SIZE_PX) {
+  val width = bitMatrix.width
+  val height = bitMatrix.height
+  val bitmap = createBitmap(width, height, Bitmap.Config.RGB_565)
+  for (x in 0 until width) {
+    for (y in 0 until height) {
       bitmap.setPixel(x, y, if (bitMatrix[x, y]) Color.BLACK else Color.WHITE)
     }
   }
