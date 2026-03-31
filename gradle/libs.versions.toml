@@ -35,6 +35,7 @@ firebaseBomVersion = "34.11.0"
 firebaseCrashlyticsGradleVersion = "3.0.6"
 fragmentVersion = "1.8.9"
 googleServicesVersion = "4.4.4"
+googleZxingVersion = "3.5.4"
 gradleVersion = "9.0.1"
 groundPlatformVersion = "bc2596d"
 gsonVersion = "2.13.2"
@@ -67,7 +68,6 @@ playServicesOssLicensesVersion = "17.4.0"
 preferenceKtx = "1.2.1"
 protobufKotlinLiteVersion = "4.26.1"
 protobufVersion = "0.9.6"
-qroseVersion = "1.1.2"
 robolectricVersion = "4.16.1"
 roomVersion = "2.8.4"
 secretsGradlePluginVersion = "2.0.1"
@@ -137,6 +137,7 @@ firebase-storage = { module = "com.google.firebase:firebase-storage" }
 firebase-perf = { module = "com.google.firebase:firebase-perf" }
 firebase-functions = { module = "com.google.firebase:firebase-functions" }
 google-services = { module = "com.google.gms:google-services", version.ref = "googleServicesVersion" }
+google-zxing = { module = "com.google.zxing:core", version.ref = "googleZxingVersion" }
 gradle = { module = "com.android.tools.build:gradle", version.ref = "gradleVersion" }
 ground-platform = { module = "com.github.google:ground-platform", version.ref = "groundPlatformVersion" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gsonVersion" }
@@ -188,7 +189,6 @@ compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.re
 compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "composeMultiplatformVersion" }
 compose-ui-tooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "composeMultiplatformVersion" }
 compose-ui-tooling-preview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "composeMultiplatformVersion" }
-qrose = { module = "io.github.alexzhirkevich:qrose", version.ref = "qroseVersion" }
 
 [plugins]
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlinVersion" }
