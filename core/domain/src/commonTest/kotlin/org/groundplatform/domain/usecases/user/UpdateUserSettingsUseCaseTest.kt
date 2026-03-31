@@ -13,40 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.usecases.user
+package org.groundplatform.domain.usecases.user
 
-import org.groundplatform.android.repository.UserRepository
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import org.groundplatform.domain.helpers.FakeUserRepository
 import org.groundplatform.domain.model.settings.MeasurementUnits
 import org.groundplatform.domain.model.settings.UserSettings
-import org.junit.Before
-import org.junit.Test
-import org.mockito.Mock
-import org.mockito.Mockito.verify
-import org.mockito.MockitoAnnotations
 
 class UpdateUserSettingsUseCaseTest {
 
-  @Mock lateinit var userRepository: UserRepository
-
-  private lateinit var useCase: UpdateUserSettingsUseCase
-
-  @Before
-  fun setUp() {
-    MockitoAnnotations.openMocks(this)
-    useCase = UpdateUserSettingsUseCase(userRepository)
-  }
+  private val userRepository = FakeUserRepository()
+  private val useCase = UpdateUserSettingsUseCase(userRepository)
 
   @Test
   fun `invoke updates user settings in repository`() {
     val settings =
       UserSettings(
         language = "en",
-        measurementUnits = MeasurementUnits.METRIC,
+        measurementUnits = MeasurementUnits.IMPERIAL,
         shouldUploadPhotosOnWifiOnly = true,
       )
 
     useCase(settings)
 
-    verify(userRepository).setUserSettings(settings)
+    assertEquals(settings, userRepository.getUserSettings())
   }
 }

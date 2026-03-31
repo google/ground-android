@@ -23,10 +23,23 @@ import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.job.Style
 import org.groundplatform.domain.model.locationofinterest.AuditInfo
 import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
+import org.groundplatform.domain.model.settings.MeasurementUnits
+import org.groundplatform.domain.model.settings.UserSettings
 import org.groundplatform.domain.model.task.Task
 
 object FakeData {
   fun newUser(): User = User("user id", "", "User")
+
+  fun newUserSettings(
+    language: String = "en",
+    measurementUnits: MeasurementUnits = MeasurementUnits.METRIC,
+    shouldUploadPhotosOnWifiOnly: Boolean = false,
+  ): UserSettings =
+    UserSettings(
+      language = language,
+      measurementUnits = measurementUnits,
+      shouldUploadPhotosOnWifiOnly = shouldUploadPhotosOnWifiOnly,
+    )
 
   fun newJob(
     id: String = "job id",
