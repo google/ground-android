@@ -19,12 +19,9 @@ import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import javax.inject.Provider
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.components.ConfirmationDialog
 import org.groundplatform.android.ui.datacollection.components.InstructionData
@@ -35,7 +32,6 @@ import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 @AndroidEntryPoint
 class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawAreaTaskViewModel>() {
   @Inject lateinit var drawAreaTaskMapFragmentProvider: Provider<DrawAreaTaskMapFragment>
-  private lateinit var drawAreaTaskMapFragment: DrawAreaTaskMapFragment
 
   override val taskHeader: TaskHeader by lazy {
     TaskHeader(viewModel.task.label, R.drawable.outline_draw)
@@ -66,13 +62,6 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
         onConfirmClicked = { showSelfIntersectionDialog = false },
       )
     }
-  }
-
-  override fun onTaskViewAttached() {
-    // Collect camera movement events from ViewModel (e.g., after undo/redo)
-    viewModel.cameraMoveEvents
-      .onEach { coordinates -> drawAreaTaskMapFragment.moveToPosition(coordinates) }
-      .launchIn(viewLifecycleOwner.lifecycleScope)
   }
 
   override fun onTaskResume() {

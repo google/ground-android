@@ -41,13 +41,13 @@ import org.groundplatform.android.repository.MutationRepository
 import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.android.repository.SubmissionRepository
 import org.groundplatform.android.repository.SurveyRepository
-import org.groundplatform.android.repository.UserRepository
-import org.groundplatform.android.system.auth.SignInState
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.common.SharedViewModel
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.User
+import org.groundplatform.domain.model.auth.SignInState
 import org.groundplatform.domain.model.submission.DraftSubmission
+import org.groundplatform.domain.repository.UserRepositoryInterface
 import timber.log.Timber
 
 data class HomeDrawerState(val user: User, val survey: Survey?, val appVersion: String)
@@ -64,7 +64,7 @@ internal constructor(
   private val mutationSyncWorkManager: MutationSyncWorkManager,
   private val mediaUploadWorkManager: MediaUploadWorkManager,
   val surveyRepository: SurveyRepository,
-  val userRepository: UserRepository,
+  val userRepository: UserRepositoryInterface,
 ) : AbstractViewModel() {
 
   private val savedStateHandle: SavedStateHandle = SavedStateHandle()

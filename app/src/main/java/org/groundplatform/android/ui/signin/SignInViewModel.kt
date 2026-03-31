@@ -22,18 +22,20 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.NetworkStatus
-import org.groundplatform.android.system.auth.SignInState
 import org.groundplatform.android.ui.common.AbstractViewModel
+import org.groundplatform.domain.model.auth.SignInState
+import org.groundplatform.domain.repository.UserRepositoryInterface
 
 /** View model responsible for handling the sign-in screen. */
 @HiltViewModel
 class SignInViewModel
 @Inject
-internal constructor(networkManager: NetworkManager, private val userRepository: UserRepository) :
-  AbstractViewModel() {
+internal constructor(
+  networkManager: NetworkManager,
+  private val userRepository: UserRepositoryInterface,
+) : AbstractViewModel() {
 
   val signInState: StateFlow<SignInState> =
     userRepository

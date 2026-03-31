@@ -25,10 +25,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
-import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.GoogleApiManager
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.common.EphemeralPopups
+import org.groundplatform.domain.repository.UserRepositoryInterface
 import timber.log.Timber
 
 /** Represents the different states the application can be in during its initial startup flow. */
@@ -44,7 +44,7 @@ class StartupViewModel
 @Inject
 internal constructor(
   private val googleApiManager: GoogleApiManager,
-  private val userRepository: UserRepository,
+  private val userRepository: UserRepositoryInterface,
   val popups: EphemeralPopups,
 ) : AbstractViewModel() {
 

@@ -31,6 +31,7 @@ import androidx.navigation.NavController
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
+import dagger.hilt.android.testing.UninstallModules
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.asFlow
@@ -38,9 +39,9 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.R
+import org.groundplatform.android.di.UserRepositoryModule
 import org.groundplatform.android.model.SurveyListItem
 import org.groundplatform.android.repository.SurveyRepository
-import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
 import org.groundplatform.android.testrules.FragmentScenarioRule
 import org.groundplatform.android.ui.surveyselector.components.SURVEY_LIST_TEST_TAG
@@ -49,6 +50,7 @@ import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
 import org.groundplatform.android.usecases.survey.ListAvailableSurveysUseCase
 import org.groundplatform.android.usecases.survey.RemoveOfflineSurveyUseCase
 import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.repository.UserRepositoryInterface
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -63,11 +65,12 @@ import org.robolectric.shadows.ShadowToast
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
+@UninstallModules(UserRepositoryModule::class)
 @RunWith(RobolectricTestRunner::class)
 class SurveySelectorFragmentTest : BaseHiltTest() {
 
   @BindValue @Mock lateinit var surveyRepository: SurveyRepository
-  @BindValue @Mock lateinit var userRepository: UserRepository
+  @BindValue @Mock lateinit var userRepository: UserRepositoryInterface
   @BindValue @Mock lateinit var activateSurvey: ActivateSurveyUseCase
   @BindValue @Mock lateinit var listAvailableSurveysUseCase: ListAvailableSurveysUseCase
   @BindValue @Mock lateinit var removeOfflineSurveyUseCase: RemoveOfflineSurveyUseCase

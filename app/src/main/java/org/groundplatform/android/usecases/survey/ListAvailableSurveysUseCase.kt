@@ -24,9 +24,9 @@ import kotlinx.coroutines.flow.map
 import org.groundplatform.android.model.SurveyListItem
 import org.groundplatform.android.model.toListItem
 import org.groundplatform.android.repository.SurveyRepository
-import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.NetworkStatus
+import org.groundplatform.domain.repository.UserRepositoryInterface
 
 /** Returns a flow of [SurveyListItem] to be displayed to the user. */
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -35,7 +35,7 @@ class ListAvailableSurveysUseCase
 constructor(
   private val networkManager: NetworkManager,
   private val surveyRepository: SurveyRepository,
-  private val userRepository: UserRepository,
+  private val userRepository: UserRepositoryInterface,
 ) {
 
   operator fun invoke(): Flow<List<SurveyListItem>> =

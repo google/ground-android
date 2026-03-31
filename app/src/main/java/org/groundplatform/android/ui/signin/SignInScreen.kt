@@ -58,11 +58,11 @@ import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.FirebaseFirestoreException.Code
 import org.groundplatform.android.BuildConfig
 import org.groundplatform.android.R
-import org.groundplatform.android.system.auth.SignInState
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.components.LoadingDialog
 import org.groundplatform.android.ui.components.PermissionDeniedDialog
 import org.groundplatform.android.util.isPermissionDeniedException
+import org.groundplatform.domain.model.auth.SignInState
 import org.groundplatform.ui.theme.AppTheme
 
 const val BUTTON_TEST_TAG = "google_sign_in_button"

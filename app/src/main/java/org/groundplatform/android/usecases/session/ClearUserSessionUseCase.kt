@@ -19,7 +19,7 @@ import javax.inject.Inject
 import org.groundplatform.android.data.local.room.LocalDatabase
 import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.android.repository.SurveyRepository
-import org.groundplatform.android.repository.UserRepository
+import org.groundplatform.domain.repository.UserRepositoryInterface
 
 /**
  * Use case to clear the user's session data and preferences. This includes removing all offline
@@ -35,7 +35,7 @@ constructor(
   private val localDatabase: LocalDatabase,
   private val offlineAreaRepository: OfflineAreaRepository,
   private val surveyRepository: SurveyRepository,
-  private val userRepository: UserRepository,
+  private val userRepository: UserRepositoryInterface,
 ) {
 
   suspend operator fun invoke() {

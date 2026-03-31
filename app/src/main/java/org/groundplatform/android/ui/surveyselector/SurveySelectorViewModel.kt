@@ -36,11 +36,11 @@ import kotlinx.coroutines.launch
 import org.groundplatform.android.di.coroutines.ApplicationScope
 import org.groundplatform.android.di.coroutines.IoDispatcher
 import org.groundplatform.android.model.SurveyListItem
-import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
 import org.groundplatform.android.usecases.survey.ListAvailableSurveysUseCase
 import org.groundplatform.android.usecases.survey.RemoveOfflineSurveyUseCase
+import org.groundplatform.domain.repository.UserRepositoryInterface
 import timber.log.Timber
 
 /** Represents view state and behaviors of the survey selector dialog. */
@@ -53,7 +53,7 @@ internal constructor(
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
   listAvailableSurveysUseCase: ListAvailableSurveysUseCase,
   private val removeOfflineSurveyUseCase: RemoveOfflineSurveyUseCase,
-  private val userRepository: UserRepository,
+  private val userRepository: UserRepositoryInterface,
   savedStateHandle: SavedStateHandle,
 ) : AbstractViewModel() {
 

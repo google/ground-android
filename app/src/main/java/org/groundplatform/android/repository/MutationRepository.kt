@@ -40,6 +40,7 @@ import org.groundplatform.domain.model.mutation.Mutation.SyncStatus.PENDING
 import org.groundplatform.domain.model.mutation.Mutation.SyncStatus.UNKNOWN
 import org.groundplatform.domain.model.mutation.SubmissionMutation
 import org.groundplatform.domain.model.submission.UploadQueueEntry
+import org.groundplatform.domain.repository.UserRepositoryInterface
 import timber.log.Timber
 
 /**
@@ -54,7 +55,7 @@ constructor(
   private val localLocationOfInterestStore: LocalLocationOfInterestStore,
   private val localSubmissionStore: LocalSubmissionStore,
   private val remoteDataStore: RemoteDataStore,
-  private val userRepository: UserRepository,
+  private val userRepository: UserRepositoryInterface,
 ) {
 
   /**

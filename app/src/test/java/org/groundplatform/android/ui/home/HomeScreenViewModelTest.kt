@@ -27,10 +27,10 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
-import org.groundplatform.android.system.auth.SignInState
 import org.groundplatform.android.ui.home.HomeScreenViewModel.AccountDialogState.HIDDEN
 import org.groundplatform.android.ui.home.HomeScreenViewModel.AccountDialogState.SIGN_OUT_CONFIRMATION
 import org.groundplatform.android.ui.home.HomeScreenViewModel.AccountDialogState.USER_DETAILS
+import org.groundplatform.domain.model.auth.SignInState
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
