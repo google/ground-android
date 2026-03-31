@@ -32,6 +32,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import java.text.SimpleDateFormat
@@ -43,6 +44,8 @@ import org.groundplatform.android.ui.datacollection.tasks.TaskScreenAction
 import org.groundplatform.domain.model.submission.DateTimeTaskData
 import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.ui.theme.sizes
+
+const val DATE_PICKER_TEST_TAG: String = "date picker test tag"
 
 @Composable
 fun DateTaskScreen(
@@ -121,6 +124,7 @@ private fun DateSelectionDialog(
   val datePickerState = rememberDatePickerState(initialSelectedDateMillis = initialDate)
 
   DatePickerDialog(
+    modifier = Modifier.testTag(DATE_PICKER_TEST_TAG),
     onDismissRequest = onDismiss,
     confirmButton = {
       TextButton(
