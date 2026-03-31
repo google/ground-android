@@ -88,20 +88,18 @@ private fun CIImage.toComposeImageBitmap(): ImageBitmap {
 
   data.usePinned { pinned ->
     CGBitmapContextCreate(
-      data = pinned.addressOf(0),
-      width = width.toULong(),
-      height = height.toULong(),
-      bitsPerComponent = 8u,
-      bytesPerRow = bytesPerRow.toULong(),
-      space = CGColorSpaceCreateDeviceRGB(),
-      bitmapInfo = CGImageAlphaInfo.kCGImageAlphaPremultipliedLast.value or kCGBitmapByteOrder32Big
-    )?.apply {
-      CGContextDrawImage(
-        this,
-        CGRectMake(0.0, 0.0, width.toDouble(), height.toDouble()),
-        cgImage
+        data = pinned.addressOf(0),
+        width = width.toULong(),
+        height = height.toULong(),
+        bitsPerComponent = 8u,
+        bytesPerRow = bytesPerRow.toULong(),
+        space = CGColorSpaceCreateDeviceRGB(),
+        bitmapInfo =
+          CGImageAlphaInfo.kCGImageAlphaPremultipliedLast.value or kCGBitmapByteOrder32Big,
       )
-    } ?: error("Failed to create bitmap context")
+      ?.apply {
+        CGContextDrawImage(this, CGRectMake(0.0, 0.0, width.toDouble(), height.toDouble()), cgImage)
+      } ?: error("Failed to create bitmap context")
   }
 
   val imageInfo = ImageInfo(width, height, ColorType.RGBA_8888, ColorAlphaType.PREMUL)
