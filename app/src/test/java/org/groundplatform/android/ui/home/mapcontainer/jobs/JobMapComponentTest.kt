@@ -149,7 +149,13 @@ class JobMapComponentTest {
   @Test
   fun `LoiJobSheet should be shown when there is a selected LOI`() {
     val selectedLoiSheetData =
-      SelectedLoiSheetData(canCollectData = true, LOCATION_OF_INTEREST, 0, true, LOCATION_OF_INTEREST_LOI_REPORT)
+      SelectedLoiSheetData(
+        canCollectData = true,
+        LOCATION_OF_INTEREST,
+        0,
+        true,
+        LOCATION_OF_INTEREST_LOI_REPORT,
+      )
     setContent(JobMapComponentState.LoiSelected(selectedLoiSheetData))
 
     composeTestRule
@@ -162,7 +168,13 @@ class JobMapComponentTest {
   fun `Clicking to delete site in the LoiJobSheet should dispatch the OnDeleteSiteClicked action`() {
     val performedActions = mutableListOf<JobMapComponentAction>()
     val selectedLoiSheetData =
-      SelectedLoiSheetData(canCollectData = true, LOCATION_OF_INTEREST, 0, true, LOCATION_OF_INTEREST_LOI_REPORT)
+      SelectedLoiSheetData(
+        canCollectData = true,
+        LOCATION_OF_INTEREST,
+        0,
+        true,
+        LOCATION_OF_INTEREST_LOI_REPORT,
+      )
     setContent(
       state = JobMapComponentState.LoiSelected(selectedLoiSheetData),
       onAction = { performedActions += it },
@@ -192,7 +204,7 @@ class JobMapComponentTest {
           ),
         submissionCount = 20,
         showDeleteLoiButton = false,
-        loiReport = LOCATION_OF_INTEREST_LOI_REPORT
+        loiReport = LOCATION_OF_INTEREST_LOI_REPORT,
       )
     setContent(
       state = JobMapComponentState.LoiSelected(selectedLoiSheetData),

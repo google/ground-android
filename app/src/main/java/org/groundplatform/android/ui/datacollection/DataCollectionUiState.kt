@@ -16,8 +16,8 @@
 package org.groundplatform.android.ui.datacollection
 
 import org.groundplatform.domain.model.job.Job
-import org.groundplatform.domain.model.task.Task
 import org.groundplatform.domain.model.locationofinterest.LoiReport
+import org.groundplatform.domain.model.task.Task
 
 /**
  * Top-level UI state for the Data Collection flow.

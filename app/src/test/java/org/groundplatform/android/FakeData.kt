@@ -35,11 +35,11 @@ import org.groundplatform.domain.model.job.Style
 import org.groundplatform.domain.model.locationofinterest.AuditInfo
 import org.groundplatform.domain.model.locationofinterest.LOI_NAME_PROPERTY
 import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
+import org.groundplatform.domain.model.locationofinterest.LoiReport
 import org.groundplatform.domain.model.map.Bounds
 import org.groundplatform.domain.model.mutation.LocationOfInterestMutation
 import org.groundplatform.domain.model.mutation.Mutation
 import org.groundplatform.domain.model.mutation.SubmissionMutation
-import org.groundplatform.domain.model.locationofinterest.LoiReport
 import org.groundplatform.domain.model.task.Condition
 import org.groundplatform.domain.model.task.MultipleChoice
 import org.groundplatform.domain.model.task.Task
