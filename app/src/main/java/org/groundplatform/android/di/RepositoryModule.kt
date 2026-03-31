@@ -30,7 +30,7 @@ import org.groundplatform.domain.repository.UserRepositoryInterface
 abstract class LocationOfInterestRepositoryModule {
   @Binds
   @Singleton
-  abstract fun bindSurveyRepository(
+  abstract fun bindLocationOfInterestRepository(
     impl: LocationOfInterestRepository
   ): LocationOfInterestRepositoryInterface
 }
@@ -38,5 +38,5 @@ abstract class LocationOfInterestRepositoryModule {
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class UserRepositoryModule {
-  @Binds @Singleton abstract fun bindSurveyRepository(impl: UserRepository): UserRepositoryInterface
+  @Binds @Singleton abstract fun bindUserRepository(impl: UserRepository): UserRepositoryInterface
 }
