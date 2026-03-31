@@ -19,6 +19,7 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import jakarta.inject.Singleton
 import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
@@ -28,6 +29,7 @@ import org.groundplatform.domain.repository.UserRepositoryInterface
 @InstallIn(SingletonComponent::class)
 abstract class LocationOfInterestRepositoryModule {
   @Binds
+  @Singleton
   abstract fun bindSurveyRepository(
     impl: LocationOfInterestRepository
   ): LocationOfInterestRepositoryInterface
@@ -36,5 +38,5 @@ abstract class LocationOfInterestRepositoryModule {
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class UserRepositoryModule {
-  @Binds abstract fun bindSurveyRepository(impl: UserRepository): UserRepositoryInterface
+  @Binds @Singleton abstract fun bindSurveyRepository(impl: UserRepository): UserRepositoryInterface
 }
