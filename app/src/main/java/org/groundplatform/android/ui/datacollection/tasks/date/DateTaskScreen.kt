@@ -77,7 +77,7 @@ internal fun DateTaskContent(
   onResponseCleared: () -> Unit,
 ) {
   val context = LocalContext.current
-  var showSheet by rememberSaveable { mutableStateOf(false) }
+  var showDialog by rememberSaveable { mutableStateOf(false) }
 
   val dateText =
     remember(taskData) {
@@ -94,18 +94,18 @@ internal fun DateTaskContent(
     modifier = Modifier.padding(horizontal = MaterialTheme.sizes.taskViewPadding),
     dateText = dateText,
     hintText = hintText,
-    onDateClick = { showSheet = true },
+    onDateClick = { showDialog = true },
   )
 
-  if (showSheet) {
+  if (showDialog) {
     DateSelectionDialog(
       initialDate = (taskData as? DateTimeTaskData)?.timeInMillis,
       onDateSelected = onDateSelected,
       onClear = {
         onResponseCleared()
-        showSheet = false
+        showDialog = false
       },
-      onDismiss = { showSheet = false },
+      onDismiss = { showDialog = false },
     )
   }
 }
