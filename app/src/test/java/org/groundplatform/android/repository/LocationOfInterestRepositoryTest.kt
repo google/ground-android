@@ -40,6 +40,7 @@ import org.groundplatform.domain.model.geometry.Polygon
 import org.groundplatform.domain.model.map.Bounds
 import org.groundplatform.domain.model.mutation.Mutation.Type.CREATE
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
+import org.groundplatform.domain.repository.UserRepositoryInterface
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -60,7 +61,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   @Inject lateinit var locationOfInterestRepository: LocationOfInterestRepositoryInterface
   @Inject lateinit var localLoiStore: LocalLocationOfInterestStore
   @Inject lateinit var mutationRepository: MutationRepository
-  @Inject lateinit var userRepository: UserRepository
+  @Inject lateinit var userRepository: UserRepositoryInterface
   @Inject lateinit var activateSurvey: ActivateSurveyUseCase
   @Inject lateinit var syncSurvey: SyncSurveyUseCase
 

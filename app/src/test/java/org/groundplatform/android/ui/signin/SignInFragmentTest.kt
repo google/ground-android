@@ -32,8 +32,8 @@ import org.groundplatform.android.FakeData
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.NetworkStatus
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
-import org.groundplatform.android.system.auth.SignInState
 import org.groundplatform.android.testrules.FragmentScenarioRule
+import org.groundplatform.domain.model.auth.SignInState
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test

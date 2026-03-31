@@ -32,14 +32,14 @@ import org.groundplatform.android.BuildConfig
 import org.groundplatform.android.common.Constants.SURVEY_PATH_SEGMENT
 import org.groundplatform.android.di.coroutines.IoDispatcher
 import org.groundplatform.android.repository.TermsOfServiceRepository
-import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.auth.AuthenticationManager
-import org.groundplatform.android.system.auth.SignInState
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.common.SharedViewModel
 import org.groundplatform.android.usecases.session.ClearUserSessionUseCase
 import org.groundplatform.android.usecases.survey.ReactivateLastSurveyUseCase
 import org.groundplatform.domain.model.User
+import org.groundplatform.domain.model.auth.SignInState
+import org.groundplatform.domain.repository.UserRepositoryInterface
 import timber.log.Timber
 
 /** Top-level view model representing state of the [MainActivity] shared by all fragments. */
@@ -48,7 +48,7 @@ class MainViewModel
 @Inject
 constructor(
   private val clearUserSessionUseCase: ClearUserSessionUseCase,
-  private val userRepository: UserRepository,
+  private val userRepository: UserRepositoryInterface,
   private val termsOfServiceRepository: TermsOfServiceRepository,
   private val reactivateLastSurvey: ReactivateLastSurveyUseCase,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,

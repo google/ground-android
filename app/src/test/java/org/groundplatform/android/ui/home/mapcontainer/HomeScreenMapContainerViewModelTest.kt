@@ -32,10 +32,9 @@ import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST_FEATURE
 import org.groundplatform.android.FakeData.SURVEY
 import org.groundplatform.android.FakeData.USER
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
-import org.groundplatform.android.di.RepositoryModule
+import org.groundplatform.android.di.LocationOfInterestRepositoryModule
 import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.repository.SurveyRepository
-import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
 import org.groundplatform.android.ui.home.mapcontainer.jobs.AdHocDataCollectionButtonData
 import org.groundplatform.android.ui.home.mapcontainer.jobs.SelectedLoiSheetData
@@ -43,6 +42,7 @@ import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.map.Bounds
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
+import org.groundplatform.domain.repository.UserRepositoryInterface
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -53,14 +53,14 @@ import org.robolectric.RobolectricTestRunner
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
-@UninstallModules(RepositoryModule::class)
+@UninstallModules(LocationOfInterestRepositoryModule::class)
 @RunWith(RobolectricTestRunner::class)
 class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
   @Inject lateinit var viewModel: HomeScreenMapContainerViewModel
   @Inject lateinit var surveyRepository: SurveyRepository
   @Inject lateinit var authenticationManager: FakeAuthenticationManager
   @Inject lateinit var remoteDataStore: FakeRemoteDataStore
-  @Inject lateinit var userRepository: UserRepository
+  @Inject lateinit var userRepository: UserRepositoryInterface
   @Inject lateinit var activateSurvey: ActivateSurveyUseCase
   @BindValue @Mock lateinit var loiRepository: LocationOfInterestRepositoryInterface
 
