@@ -60,8 +60,8 @@ import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
-import org.groundplatform.domain.usecases.GetLoiReportUseCase
 import org.groundplatform.domain.repository.UserRepositoryInterface
+import org.groundplatform.domain.usecases.GetLoiReportUseCase
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @SharedViewModel
