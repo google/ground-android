@@ -19,10 +19,10 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import org.groundplatform.android.usecases.user.GetUserSettingsUseCase
-import org.groundplatform.android.usecases.user.UpdateUserSettingsUseCase
 import org.groundplatform.domain.model.settings.MeasurementUnits
 import org.groundplatform.domain.model.settings.UserSettings
+import org.groundplatform.domain.usecases.user.GetUserSettingsUseCase
+import org.groundplatform.domain.usecases.user.UpdateUserSettingsUseCase
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test

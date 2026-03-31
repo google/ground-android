@@ -20,10 +20,10 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.groundplatform.android.ui.common.AbstractViewModel
-import org.groundplatform.android.usecases.user.GetUserSettingsUseCase
-import org.groundplatform.android.usecases.user.UpdateUserSettingsUseCase
 import org.groundplatform.domain.model.settings.MeasurementUnits
 import org.groundplatform.domain.model.settings.UserSettings
+import org.groundplatform.domain.usecases.user.GetUserSettingsUseCase
+import org.groundplatform.domain.usecases.user.UpdateUserSettingsUseCase
 
 @HiltViewModel
 class SettingsViewModel

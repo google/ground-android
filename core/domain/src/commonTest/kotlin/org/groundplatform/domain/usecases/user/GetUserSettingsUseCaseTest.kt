@@ -13,44 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.usecases.user
+package org.groundplatform.domain.usecases.user
 
-import org.groundplatform.android.repository.UserRepository
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import org.groundplatform.domain.helpers.FakeUserRepository
 import org.groundplatform.domain.model.settings.MeasurementUnits
 import org.groundplatform.domain.model.settings.UserSettings
-import org.junit.Assert.assertEquals
-import org.junit.Before
-import org.junit.Test
-import org.mockito.Mock
-import org.mockito.Mockito.verify
-import org.mockito.MockitoAnnotations
-import org.mockito.kotlin.whenever
 
 class GetUserSettingsUseCaseTest {
 
-  @Mock lateinit var userRepository: UserRepository
-
-  private lateinit var useCase: GetUserSettingsUseCase
-
-  @Before
-  fun setUp() {
-    MockitoAnnotations.openMocks(this)
-    useCase = GetUserSettingsUseCase(userRepository)
-  }
+  private val userRepository = FakeUserRepository()
+  private val useCase = GetUserSettingsUseCase(userRepository)
 
   @Test
   fun `invoke returns user settings from repository`() {
     val expectedSettings =
       UserSettings(
         language = "en",
-        measurementUnits = MeasurementUnits.METRIC,
-        shouldUploadPhotosOnWifiOnly = false,
+        measurementUnits = MeasurementUnits.IMPERIAL,
+        shouldUploadPhotosOnWifiOnly = true,
       )
-    whenever(userRepository.getUserSettings()).thenReturn(expectedSettings)
+    userRepository.currentUserSettings = expectedSettings
 
     val result = useCase()
 
     assertEquals(expectedSettings, result)
-    verify(userRepository).getUserSettings()
   }
 }

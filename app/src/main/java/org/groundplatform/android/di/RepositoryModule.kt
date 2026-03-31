@@ -21,14 +21,22 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import jakarta.inject.Singleton
 import org.groundplatform.android.repository.LocationOfInterestRepository
+import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
+import org.groundplatform.domain.repository.UserRepositoryInterface
 
-@InstallIn(SingletonComponent::class)
 @Module
-internal abstract class RepositoryModule {
+@InstallIn(SingletonComponent::class)
+abstract class LocationOfInterestRepositoryModule {
   @Binds
   @Singleton
   abstract fun bindLocationOfInterestRepository(
     impl: LocationOfInterestRepository
   ): LocationOfInterestRepositoryInterface
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class UserRepositoryModule {
+  @Binds @Singleton abstract fun bindUserRepository(impl: UserRepository): UserRepositoryInterface
 }
