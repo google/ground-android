@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.system.auth
+package org.groundplatform.domain.usecases.user
 
-import org.groundplatform.domain.model.User
+import org.groundplatform.domain.model.settings.UserSettings
+import org.groundplatform.domain.repository.UserRepositoryInterface
 
-sealed class SignInState {
+class UpdateUserSettingsUseCase(private val userRepository: UserRepositoryInterface) {
 
-  /** Returns true if a sign-in attempt is allowed based on current state. */
-  fun shouldAllowSignIn(): Boolean = this is SignedOut || this is Error
-
-  data object SignedOut : SignInState()
-
-  data object SigningIn : SignInState()
-
-  data class SignedIn(val user: User) : SignInState()
-
-  data class Error(val error: Throwable) : SignInState()
+  operator fun invoke(userSettings: UserSettings) {
+    userRepository.setUserSettings(userSettings)
+  }
 }

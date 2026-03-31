@@ -33,7 +33,6 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.databinding.MainActBinding
-import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.ActivityCallback
 import org.groundplatform.android.system.ActivityStreams
 import org.groundplatform.android.ui.common.AbstractActivity
@@ -42,6 +41,7 @@ import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.home.HomeScreenFragmentDirections
 import org.groundplatform.android.ui.signin.SignInFragmentDirections
 import org.groundplatform.android.ui.surveyselector.SurveySelectorFragmentDirections
+import org.groundplatform.domain.repository.UserRepositoryInterface
 import timber.log.Timber
 
 /**
@@ -51,7 +51,7 @@ import timber.log.Timber
 class MainActivity : AbstractActivity() {
   @Inject lateinit var activityStreams: ActivityStreams
   @Inject lateinit var viewModelFactory: ViewModelFactory
-  @Inject lateinit var userRepository: UserRepository
+  @Inject lateinit var userRepository: UserRepositoryInterface
 
   private lateinit var viewModel: MainViewModel
   private lateinit var navHostFragment: NavHostFragment

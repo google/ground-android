@@ -16,15 +16,9 @@
 package org.groundplatform.android.usecases.submission
 
 import com.google.common.truth.Truth.assertThat
-import dagger.hilt.android.testing.BindValue
-import dagger.hilt.android.testing.HiltAndroidTest
-import dagger.hilt.android.testing.UninstallModules
-import javax.inject.Inject
 import kotlin.test.assertFailsWith
-import org.groundplatform.android.BaseHiltTest
+import kotlinx.coroutines.test.runTest
 import org.groundplatform.android.FakeData.newTask
-import org.groundplatform.android.data.sync.MutationSyncWorkManager
-import org.groundplatform.android.di.RepositoryModule
 import org.groundplatform.android.repository.SubmissionRepository
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.Point
@@ -38,28 +32,24 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito.`when`
+import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
-import org.robolectric.RobolectricTestRunner
+import org.mockito.kotlin.whenever
 
-@HiltAndroidTest
-@UninstallModules(RepositoryModule::class)
-@RunWith(RobolectricTestRunner::class)
-class SubmitDataUseCaseTest : BaseHiltTest() {
+@RunWith(MockitoJUnitRunner::class)
+class SubmitDataUseCaseTest {
 
-  @Inject lateinit var submitDataUseCase: SubmitDataUseCase
-  @BindValue @Mock lateinit var mutationSyncWorkManager: MutationSyncWorkManager
-  @BindValue @Mock lateinit var locationOfInterestRepository: LocationOfInterestRepositoryInterface
-  @BindValue @Mock lateinit var submissionRepository: SubmissionRepository
+  @Mock lateinit var locationOfInterestRepository: LocationOfInterestRepositoryInterface
+  @Mock lateinit var submissionRepository: SubmissionRepository
+
+  private lateinit var submitDataUseCase: SubmitDataUseCase
 
   @Before
-  override fun setUp() {
-    super.setUp()
-    runWithTestDispatcher {
-      `when`(locationOfInterestRepository.saveLoi(any(), any(), any(), anyOrNull(), any()))
-        .thenReturn("loiId")
-    }
+  fun setUp() = runTest {
+    whenever(locationOfInterestRepository.saveLoi(any(), any(), any(), anyOrNull(), any()))
+      .thenReturn("loiId")
+    submitDataUseCase = SubmitDataUseCase(locationOfInterestRepository, submissionRepository)
   }
 
   @Test
@@ -69,7 +59,7 @@ class SubmitDataUseCaseTest : BaseHiltTest() {
 
     val exception =
       assertFailsWith<IllegalStateException> {
-        runWithTestDispatcher {
+        runTest {
           submitDataUseCase.invoke(
             selectedLoiId = null,
             job = Job(id = "1", tasks = mapOf(task.id to task)),
@@ -85,29 +75,28 @@ class SubmitDataUseCaseTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Invoke with CAPTURE_LOCATION task and CaptureLocationTaskData succeeds`() =
-    runWithTestDispatcher {
-      val task = newTask(id = "1", type = Task.Type.CAPTURE_LOCATION, isAddLoiTask = true)
-      val location = Point(Coordinates(10.0, 20.0))
-      val taskData = CaptureLocationTaskData(location, null, null)
-      val taskValue = ValueDelta(taskId = task.id, taskType = task.type, newTaskData = taskData)
+  fun `Invoke with CAPTURE_LOCATION task and CaptureLocationTaskData succeeds`() = runTest {
+    val task = newTask(id = "1", type = Task.Type.CAPTURE_LOCATION, isAddLoiTask = true)
+    val location = Point(Coordinates(10.0, 20.0))
+    val taskData = CaptureLocationTaskData(location, null, null)
+    val taskValue = ValueDelta(taskId = task.id, taskType = task.type, newTaskData = taskData)
 
-      submitDataUseCase.invoke(
-        selectedLoiId = null,
-        job = Job(id = "1", tasks = mapOf(task.id to task)),
-        surveyId = "survey",
-        deltas = listOf(taskValue),
-        loiName = "LOI Name",
-        collectionId = "collectionId",
-      )
-      // If no exception is thrown, the test passes.
-      // Ideally we should verify the repository was called, but that requires mocking which is
-      // harder in this integration-style test.
-      // The main point is to verify the 'when' block handles the type correctly.
-    }
+    submitDataUseCase.invoke(
+      selectedLoiId = null,
+      job = Job(id = "1", tasks = mapOf(task.id to task)),
+      surveyId = "survey",
+      deltas = listOf(taskValue),
+      loiName = "LOI Name",
+      collectionId = "collectionId",
+    )
+    // If no exception is thrown, the test passes.
+    // Ideally we should verify the repository was called, but that requires mocking which is
+    // harder in this integration-style test.
+    // The main point is to verify the 'when' block handles the type correctly.
+  }
 
   @Test
-  fun `Invoke with CAPTURE_LOCATION task and DropPinTaskData succeeds`() = runWithTestDispatcher {
+  fun `Invoke with CAPTURE_LOCATION task and DropPinTaskData succeeds`() = runTest {
     val task = newTask(id = "1", type = Task.Type.CAPTURE_LOCATION, isAddLoiTask = true)
     val location = Point(Coordinates(10.0, 20.0))
     val taskData = DropPinTaskData(location)

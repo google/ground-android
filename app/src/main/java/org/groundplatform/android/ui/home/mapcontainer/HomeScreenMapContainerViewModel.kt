@@ -43,7 +43,6 @@ import org.groundplatform.android.repository.MapStateRepository
 import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.android.repository.SubmissionRepository
 import org.groundplatform.android.repository.SurveyRepository
-import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.LocationManager
 import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.system.SettingsManager
@@ -61,6 +60,7 @@ import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
+import org.groundplatform.domain.repository.UserRepositoryInterface
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @SharedViewModel
@@ -76,7 +76,7 @@ internal constructor(
   offlineAreaRepository: OfflineAreaRepository,
   permissionsManager: PermissionsManager,
   private val surveyRepository: SurveyRepository,
-  private val userRepository: UserRepository,
+  private val userRepository: UserRepositoryInterface,
   private val localValueStore: LocalValueStore,
 ) :
   BaseMapViewModel(

@@ -29,7 +29,7 @@ import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST
 import org.groundplatform.android.FakeData.SURVEY
 import org.groundplatform.android.data.local.stores.LocalSurveyStore
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
-import org.groundplatform.android.di.RepositoryModule
+import org.groundplatform.android.di.LocationOfInterestRepositoryModule
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import org.junit.Assert.assertThrows
@@ -41,7 +41,7 @@ import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
 @HiltAndroidTest
-@UninstallModules(RepositoryModule::class)
+@UninstallModules(LocationOfInterestRepositoryModule::class)
 @RunWith(RobolectricTestRunner::class)
 class SyncSurveyUseCaseTest : BaseHiltTest() {
   @BindValue @Mock lateinit var loiRepository: LocationOfInterestRepositoryInterface

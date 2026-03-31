@@ -47,7 +47,6 @@ import org.groundplatform.android.ui.util.LocaleAwareMeasureFormatter
 import org.groundplatform.android.ui.util.VibrationHelper
 import org.groundplatform.android.ui.util.getDefaultColor
 import org.groundplatform.android.ui.util.getFormattedArea
-import org.groundplatform.android.usecases.user.GetUserSettingsUseCase
 import org.groundplatform.android.util.distanceTo
 import org.groundplatform.android.util.penult
 import org.groundplatform.domain.model.geometry.Coordinates
@@ -61,6 +60,7 @@ import org.groundplatform.domain.model.submission.DrawAreaTaskIncompleteData
 import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.submission.isNotNullOrEmpty
 import org.groundplatform.domain.model.task.Task
+import org.groundplatform.domain.usecases.user.GetUserSettingsUseCase
 import org.groundplatform.domain.util.calculateShoelacePolygonArea
 import org.groundplatform.domain.util.isSelfIntersecting
 import org.jetbrains.annotations.VisibleForTesting

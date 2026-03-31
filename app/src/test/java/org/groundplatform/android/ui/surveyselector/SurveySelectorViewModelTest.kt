@@ -26,11 +26,11 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.TestScope
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.model.SurveyListItem
-import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
 import org.groundplatform.android.usecases.survey.ListAvailableSurveysUseCase
 import org.groundplatform.android.usecases.survey.RemoveOfflineSurveyUseCase
 import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.repository.UserRepositoryInterface
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,7 +46,7 @@ class SurveySelectorViewModelTest : BaseHiltTest() {
   @Mock lateinit var activateSurveyUseCase: ActivateSurveyUseCase
   @Mock lateinit var listAvailableSurveysUseCase: ListAvailableSurveysUseCase
   @Mock lateinit var removeOfflineSurveyUseCase: RemoveOfflineSurveyUseCase
-  @Mock lateinit var userRepository: UserRepository
+  @Mock lateinit var userRepository: UserRepositoryInterface
 
   private lateinit var externalScope: CoroutineScope
   private lateinit var ioDispatcher: CoroutineDispatcher
