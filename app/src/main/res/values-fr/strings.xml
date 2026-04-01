@@ -171,7 +171,6 @@
   </string>
   <string name="draft_restored">Données non sauvegardées ont été restaurées</string>
   <string name="load_tos_failed">Impossible de se connecter, réessayer plus tard</string>
-  <string name="data_submitted_image">Données d&#8217;image soumises</string>
   <string name="data_collection_complete">Collecte des données terminée !</string>
   <string name="data_collection_complete_details">Vos données ont été sauvegardées et seront automatiquement synchronisées lorsque vous serez en ligne.</string>
   <string name="allow_location_confirmation">Autoriser la localisation</string>

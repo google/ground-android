@@ -97,14 +97,13 @@ class GetLoiReportUseCase(
     JsonObject(mapOf(KEY_TYPE to JsonPrimitive(type), KEY_COORDINATES to coordinates))
 
   /** Converts a single [Coordinates] to a GeoJSON position: [lng, lat]. */
-  private fun coordinatesToPosition(coordinates: Coordinates): JsonArray {
-    return JsonArray(
+  private fun coordinatesToPosition(coordinates: Coordinates): JsonArray =
+    JsonArray(
       listOf(
         JsonPrimitive(coordinates.lng.roundTo6Decimals()),
         JsonPrimitive(coordinates.lat.roundTo6Decimals()),
       )
     )
-  }
 
   /** Converts a list of [Coordinates] to a GeoJSON array of positions. */
   private fun coordinatesToPositions(coordinates: List<Coordinates>): JsonArray =

@@ -184,7 +184,6 @@
   </string>
   <string name="draft_restored">Datos no guardados restaurados</string>
   <string name="load_tos_failed">No se pudo conectar, intente de nuevo más tarde</string>
-  <string name="data_submitted_image">Datos de imagen enviados</string>
   <string name="data_collection_complete">¡Recolección de datos completada!</string>
   <string name="data_collection_complete_details">Sus datos se han guardado y se sincronizarán automáticamente cuando esté en línea.</string>
 

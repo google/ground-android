@@ -103,8 +103,8 @@ class LoiJobSheetTest {
     }
   }
 
-  private fun getLoiReport(name: String): LoiReport {
-    return LoiReport(
+  private fun getLoiReport(name: String): LoiReport =
+    LoiReport(
       loiName = name,
       geoJson =
         JsonObject(
@@ -121,7 +121,6 @@ class LoiJobSheetTest {
           )
         ),
     )
-  }
 
   companion object {
     private val NO_TASK_LOI =

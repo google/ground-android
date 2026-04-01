@@ -167,7 +167,6 @@
 \nຜູ້ຈັດການແບບສຳຫຼວດສາມາດແບ່ງປັນ ແລະ ນຳໃຊ້ຂໍ້ມູນຕໍ່ສາທາລະນະ ພາຍໃຕ້ໃບອະນຸຍາດ *Creative Commons CC0 1.0*  </string>
   <string name="draft_restored">ກູ້ຄືນຂໍ້ມູນທີ່ຍັງບໍ່ໄດ້ບັນທຶກ</string>
   <string name="load_tos_failed">ບໍ່ສາມາດເຊື່ອມຕໍ່ໄດ້ ກະລຸນາລອງໃໝ່ໃນພາຍຫຼັງ</string>
-  <string name="data_submitted_image">ຮູບພາບການສົ່ງຂໍ້ມູນ</string>
   <string name="data_collection_complete">ການເກັບຂໍ້ມູນສຳເລັດແລ້ວ!</string>
   <string name="data_collection_complete_details">ຂໍ້ມູນຂອງທ່ານຖືກບັນທຶກແລ້ວ ແລະ ຈະຖືກຊິງອັດຕະໂນມັດເມື່ອທ່ານອອນລາຍ</string>
   <string name="allow_location_confirmation">ອະນຸຍາດການລະບຸຕຳແໜ່ງ</string>
