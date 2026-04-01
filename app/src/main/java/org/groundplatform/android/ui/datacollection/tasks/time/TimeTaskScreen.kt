@@ -92,7 +92,7 @@ internal fun TimeTaskContent(
 
   if (showDialog) {
     TimeSelectionDialog(
-      initialDate = (taskData as? DateTimeTaskData)?.timeInMillis ?: System.currentTimeMillis(),
+      initialTime = (taskData as? DateTimeTaskData)?.timeInMillis ?: System.currentTimeMillis(),
       onTimeSelected = onTimeSelected,
       onClear = {
         onResponseCleared()
@@ -106,14 +106,14 @@ internal fun TimeTaskContent(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TimeSelectionDialog(
-  initialDate: Long?,
+  initialTime: Long?,
   onTimeSelected: (Long) -> Unit,
   onClear: () -> Unit,
   onDismiss: () -> Unit,
 ) {
   val calendar = Calendar.getInstance()
-  if (initialDate != null) {
-    calendar.timeInMillis = initialDate
+  if (initialTime != null) {
+    calendar.timeInMillis = initialTime
   }
 
   val timePickerState =
