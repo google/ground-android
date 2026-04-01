@@ -4,7 +4,6 @@ import android.text.format.DateFormat
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -24,17 +23,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreen
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreenAction
-import org.groundplatform.android.ui.datacollection.tasks.date.DateInputField
 import org.groundplatform.domain.model.submission.DateTimeTaskData
 import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.ui.theme.sizes
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Date
 
 const val TIME_PICKER_TEST_TAG: String = "time picker test tag"
 
@@ -125,7 +123,7 @@ private fun TimeSelectionDialog(
       is24Hour = DateFormat.is24HourFormat(LocalContext.current),
     )
 
-  AlertDialog(
+  TimePickerDialog(
     modifier = Modifier.testTag(TIME_PICKER_TEST_TAG),
     onDismissRequest = onDismiss,
     confirmButton = {
@@ -135,19 +133,17 @@ private fun TimeSelectionDialog(
           c.set(Calendar.HOUR_OF_DAY, timePickerState.hour)
           c.set(Calendar.MINUTE, timePickerState.minute)
           onTimeSelected(c.time.time)
+          onDismiss()
         }
       ) {
         Text(stringResource(android.R.string.ok))
       }
     },
     dismissButton = { TextButton(onClick = onClear) { Text(stringResource(R.string.clear)) } },
-    text = {
-      Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-      ) {
-        TimePicker(state = timePickerState)
-      }
-    },
-  )
+    title = {},
+  ) {
+    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+      TimePicker(state = timePickerState)
+    }
+  }
 }
