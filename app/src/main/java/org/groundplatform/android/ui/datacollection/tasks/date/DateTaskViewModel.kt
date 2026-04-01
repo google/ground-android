@@ -15,14 +15,13 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.date
 
-import java.util.Date
 import javax.inject.Inject
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 import org.groundplatform.domain.model.submission.DateTimeTaskData.Companion.fromMillis
 
 class DateTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
 
-  fun updateResponse(date: Date) {
-    setValue(fromMillis(date.time))
+  fun updateResponse(millis: Long) {
+    setValue(fromMillis(millis))
   }
 }

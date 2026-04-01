@@ -15,81 +15,25 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.date
 
-import android.app.DatePickerDialog
-import android.content.DialogInterface
-import android.text.format.DateFormat
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.ViewGroup
 import dagger.hilt.android.AndroidEntryPoint
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Date
-import org.groundplatform.android.R
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
-import org.groundplatform.domain.model.submission.DateTimeTaskData
-import org.groundplatform.ui.theme.sizes
-import org.jetbrains.annotations.TestOnly
+import org.groundplatform.android.util.createComposeView
 
 @AndroidEntryPoint
 class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
 
-  private var datePickerDialog: DatePickerDialog? = null
-
-  @Composable
-  override fun TaskBody() {
-    val taskData by viewModel.taskTaskData.collectAsStateWithLifecycle()
-    val context = LocalContext.current
-
-    val dateText =
-      remember(taskData) {
-        (taskData as? DateTimeTaskData)?.let {
-          DateFormat.getDateFormat(context).format(Date(it.timeInMillis))
-        } ?: ""
-      }
-
-    val hintText = remember {
-      (DateFormat.getDateFormat(context) as SimpleDateFormat).toPattern().uppercase()
-    }
-
-    DateInputField(
-      modifier = Modifier.padding(horizontal = MaterialTheme.sizes.taskViewPadding),
-      dateText = dateText,
-      hintText = hintText,
-      onDateClick = { showDateDialog() },
+  override fun onCreateView(
+    inflater: LayoutInflater,
+    container: ViewGroup?,
+    savedInstanceState: Bundle?,
+  ) = createComposeView {
+    DateTaskScreen(
+      viewModel = viewModel,
+      onFooterPositionUpdated = { saveFooterPosition(it) },
+      onAction = { handleTaskScreenAction(it) },
     )
   }
-
-  // TODO: Replace with bottom modal date picker.
-  private fun showDateDialog() {
-    val calendar = Calendar.getInstance()
-    val year = calendar[Calendar.YEAR]
-    val month = calendar[Calendar.MONTH]
-    val day = calendar[Calendar.DAY_OF_MONTH]
-    datePickerDialog =
-      DatePickerDialog(
-        requireContext(),
-        { _, updatedYear, updatedMonth, updatedDayOfMonth ->
-          val c = Calendar.getInstance()
-          c[Calendar.DAY_OF_MONTH] = updatedDayOfMonth
-          c[Calendar.MONTH] = updatedMonth
-          c[Calendar.YEAR] = updatedYear
-          viewModel.updateResponse(c.time)
-        },
-        year,
-        month,
-        day,
-      )
-    datePickerDialog?.setButton(DialogInterface.BUTTON_NEUTRAL, getString(R.string.clear)) { _, _ ->
-      viewModel.clearResponse()
-    }
-    datePickerDialog?.show()
-  }
-
-  @TestOnly fun getDatePickerDialog(): DatePickerDialog? = datePickerDialog
 }
