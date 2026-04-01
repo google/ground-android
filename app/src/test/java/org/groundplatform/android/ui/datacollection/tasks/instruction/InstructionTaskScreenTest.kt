@@ -17,11 +17,13 @@ package org.groundplatform.android.ui.datacollection.tasks.instruction
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.google.common.truth.Truth.assertThat
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
+import org.groundplatform.android.ui.datacollection.components.TEST_TAG_TASK_VIEW_HEADER
 import org.groundplatform.android.ui.datacollection.tasks.ButtonActionStateChecker
 import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreenAction
@@ -41,7 +43,12 @@ class InstructionTaskScreenTest {
   private var lastScreenAction: TaskScreenAction? = null
   private val buttonActionStateChecker = ButtonActionStateChecker(composeTestRule)
 
-  private fun setupTaskScreen(task: Task, taskData: TaskData? = null) {
+  private fun setupTaskScreen(
+    task: Task,
+    taskData: TaskData? = null,
+    isFirst: Boolean = false,
+    isLastWithValue: Boolean = false,
+  ) {
     lastScreenAction = null
     val viewModel =
       InstructionTaskViewModel().apply {
@@ -51,9 +58,9 @@ class InstructionTaskScreenTest {
           taskData = taskData,
           taskPositionInterface =
             object : TaskPositionInterface {
-              override fun isFirst() = false
+              override fun isFirst() = isFirst
 
-              override fun isLastWithValue(taskData: TaskData?) = false
+              override fun isLastWithValue(taskData: TaskData?) = isLastWithValue
             },
         )
       }
@@ -70,6 +77,7 @@ class InstructionTaskScreenTest {
   @Test
   fun `action buttons are enabled and visible by default`() {
     setupTaskScreen(TASK)
+
     buttonActionStateChecker.assertButtonStates(
       ButtonActionState(ButtonAction.PREVIOUS, isEnabled = true, isVisible = true),
       ButtonActionState(ButtonAction.NEXT, isEnabled = true, isVisible = true),
@@ -79,33 +87,53 @@ class InstructionTaskScreenTest {
   @Test
   fun `instructions text is displayed`() {
     setupTaskScreen(TASK)
+
     composeTestRule.onNodeWithText("Instruction label").assertIsDisplayed()
   }
 
   @Test
   fun `invokes onAction when next button is clicked`() {
     setupTaskScreen(TASK)
+
     buttonActionStateChecker.getNode(ButtonAction.NEXT).performClick()
+
     assertThat(lastScreenAction).isEqualTo(TaskScreenAction.OnButtonClicked(ButtonAction.NEXT))
   }
 
   @Test
   fun `invokes onAction when previous button is clicked`() {
     setupTaskScreen(TASK)
+
     buttonActionStateChecker.getNode(ButtonAction.PREVIOUS).performClick()
+
     assertThat(lastScreenAction).isEqualTo(TaskScreenAction.OnButtonClicked(ButtonAction.PREVIOUS))
   }
 
   @Test
-  fun `displays text when task is required`() {
-    setupTaskScreen(TASK.copy(isRequired = true))
-    composeTestRule.onNodeWithText("Instruction label").assertIsDisplayed()
+  fun `previous button is disabled when task is first`() {
+    setupTaskScreen(TASK, isFirst = true)
+
+    buttonActionStateChecker.assertButtonStates(
+      ButtonActionState(ButtonAction.PREVIOUS, isEnabled = false, isVisible = true),
+      ButtonActionState(ButtonAction.NEXT, isEnabled = true, isVisible = true),
+    )
   }
 
   @Test
-  fun `displays text when task is optional`() {
-    setupTaskScreen(TASK.copy(isRequired = false))
-    composeTestRule.onNodeWithText("Instruction label").assertIsDisplayed()
+  fun `done button is displayed when task is last`() {
+    setupTaskScreen(TASK, isLastWithValue = true)
+
+    buttonActionStateChecker.assertButtonStates(
+      ButtonActionState(ButtonAction.PREVIOUS, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.DONE, isEnabled = true, isVisible = true),
+    )
+  }
+
+  @Test
+  fun `header component is missing`() {
+    setupTaskScreen(TASK)
+
+    composeTestRule.onNodeWithTag(TEST_TAG_TASK_VIEW_HEADER).assertDoesNotExist()
   }
 
   companion object {
