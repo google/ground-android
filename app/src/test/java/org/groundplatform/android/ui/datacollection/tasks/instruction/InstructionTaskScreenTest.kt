@@ -38,24 +38,25 @@ class InstructionTaskScreenTest {
 
   @get:Rule val composeTestRule = createComposeRule()
 
-  private lateinit var viewModel: InstructionTaskViewModel
   private var lastScreenAction: TaskScreenAction? = null
   private val buttonActionStateChecker = ButtonActionStateChecker(composeTestRule)
 
   private fun setupTaskScreen(task: Task, taskData: TaskData? = null) {
     lastScreenAction = null
-    viewModel = InstructionTaskViewModel()
-    viewModel.initialize(
-      job = JOB,
-      task = task,
-      taskData = taskData,
-      taskPositionInterface =
-        object : TaskPositionInterface {
-          override fun isFirst() = false
+    val viewModel =
+      InstructionTaskViewModel().apply {
+        initialize(
+          job = JOB,
+          task = task,
+          taskData = taskData,
+          taskPositionInterface =
+            object : TaskPositionInterface {
+              override fun isFirst() = false
 
-          override fun isLastWithValue(taskData: TaskData?) = false
-        },
-    )
+              override fun isLastWithValue(taskData: TaskData?) = false
+            },
+        )
+      }
 
     composeTestRule.setContent {
       InstructionTaskScreen(
@@ -67,7 +68,7 @@ class InstructionTaskScreenTest {
   }
 
   @Test
-  fun `action buttons`() {
+  fun `action buttons are enabled and visible by default`() {
     setupTaskScreen(TASK)
     buttonActionStateChecker.assertButtonStates(
       ButtonActionState(ButtonAction.PREVIOUS, isEnabled = true, isVisible = true),
@@ -85,26 +86,22 @@ class InstructionTaskScreenTest {
   fun `invokes onAction when next button is clicked`() {
     setupTaskScreen(TASK)
     buttonActionStateChecker.getNode(ButtonAction.NEXT).performClick()
-    assertThat(lastScreenAction).isInstanceOf(TaskScreenAction.OnButtonClicked::class.java)
-    assertThat((lastScreenAction as TaskScreenAction.OnButtonClicked).action)
-      .isEqualTo(ButtonAction.NEXT)
+    assertThat(lastScreenAction).isEqualTo(TaskScreenAction.OnButtonClicked(ButtonAction.NEXT))
   }
 
   @Test
   fun `invokes onAction when previous button is clicked`() {
     setupTaskScreen(TASK)
     buttonActionStateChecker.getNode(ButtonAction.PREVIOUS).performClick()
-    assertThat(lastScreenAction).isInstanceOf(TaskScreenAction.OnButtonClicked::class.java)
-    assertThat((lastScreenAction as TaskScreenAction.OnButtonClicked).action)
-      .isEqualTo(ButtonAction.PREVIOUS)
+    assertThat(lastScreenAction).isEqualTo(TaskScreenAction.OnButtonClicked(ButtonAction.PREVIOUS))
   }
-  
+
   @Test
   fun `displays text when task is required`() {
     setupTaskScreen(TASK.copy(isRequired = true))
     composeTestRule.onNodeWithText("Instruction label").assertIsDisplayed()
   }
-  
+
   @Test
   fun `displays text when task is optional`() {
     setupTaskScreen(TASK.copy(isRequired = false))
