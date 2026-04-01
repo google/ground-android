@@ -132,6 +132,34 @@ class NumberTaskScreenTest {
   }
 
   @Test
+  fun displaysPrepopulatedResponse_whenTaskHasData() {
+    setupTaskScreen(TASK, NumberTaskData("123.4"))
+
+    composeTestRule.onNodeWithTag(INPUT_NUMBER_TEST_TAG).assertTextEquals("5 / 255", "123.4")
+    buttonActionStateChecker.assertButtonStates(
+      ButtonActionState(ButtonAction.PREVIOUS, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.SKIP, isEnabled = false, isVisible = false),
+      ButtonActionState(ButtonAction.NEXT, isEnabled = true, isVisible = true),
+    )
+  }
+
+  @Test
+  fun responseWhenOnUserInputIsInvalidText_NextButtonIsDisabled() {
+    setupTaskScreen(TASK)
+
+    composeTestRule.onNodeWithTag(INPUT_NUMBER_TEST_TAG).performTextInput("-")
+    composeTestRule.waitForIdle()
+
+    composeTestRule.onNodeWithTag(INPUT_NUMBER_TEST_TAG).assertTextEquals("0 / 255", "")
+    buttonActionStateChecker.assertButtonStates(
+      ButtonActionState(ButtonAction.PREVIOUS, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.SKIP, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.NEXT, isEnabled = false, isVisible = true),
+    )
+    assertThat(viewModel.taskTaskData.value).isNull()
+  }
+
+  @Test
   fun setsInitialActionButtonsState_whenTaskIsOptional() {
     setupTaskScreen(TASK)
 
