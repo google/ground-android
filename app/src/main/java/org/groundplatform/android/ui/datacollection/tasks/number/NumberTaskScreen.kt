@@ -23,13 +23,16 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.groundplatform.android.R
+import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.groundplatform.android.ui.datacollection.components.TextTaskInput
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreen
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreenAction
 import org.groundplatform.domain.model.submission.NumberTaskData.Companion.fromNumber
+import org.groundplatform.ui.theme.AppTheme
 import org.groundplatform.ui.theme.sizes
 
 const val INPUT_NUMBER_TEST_TAG: String = "number task input test tag"
@@ -69,4 +72,18 @@ internal fun NumberTaskContent(userResponse: String, onValueChanged: (String) ->
   ) { newText ->
     onValueChanged(newText)
   }
+}
+
+@Preview(showBackground = true)
+@Composable
+@ExcludeFromJacocoGeneratedReport
+private fun NumberTaskContentPreviewEmpty() {
+  AppTheme { NumberTaskContent(userResponse = "", onValueChanged = {}) }
+}
+
+@Preview(showBackground = true)
+@Composable
+@ExcludeFromJacocoGeneratedReport
+private fun NumberTaskContentPreviewWithNumber() {
+  AppTheme { NumberTaskContent(userResponse = "123.45", onValueChanged = {}) }
 }
