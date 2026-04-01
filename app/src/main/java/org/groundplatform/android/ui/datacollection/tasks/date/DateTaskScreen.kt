@@ -35,6 +35,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import java.lang.System
 import java.text.SimpleDateFormat
 import java.util.Date
 import org.groundplatform.android.R
@@ -102,7 +103,7 @@ internal fun DateTaskContent(
 
   if (showDialog) {
     DateSelectionDialog(
-      initialDate = (taskData as? DateTimeTaskData)?.timeInMillis,
+      initialDate = (taskData as? DateTimeTaskData)?.timeInMillis ?: System.currentTimeMillis(),
       onDateSelected = onDateSelected,
       onClear = {
         onResponseCleared()
