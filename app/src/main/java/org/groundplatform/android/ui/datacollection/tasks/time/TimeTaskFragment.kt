@@ -15,83 +15,25 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.time
 
-import android.app.TimePickerDialog
-import android.content.DialogInterface
-import android.text.format.DateFormat
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.ViewGroup
 import dagger.hilt.android.AndroidEntryPoint
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Date
-import org.groundplatform.android.R
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
-import org.groundplatform.domain.model.submission.DateTimeTaskData
-import org.groundplatform.ui.theme.sizes
-import org.jetbrains.annotations.TestOnly
+import org.groundplatform.android.util.createComposeView
 
 @AndroidEntryPoint
 class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
 
-  private var timePickerDialog: TimePickerDialog? = null
-
-  @Composable
-  override fun TaskBody() {
-    val taskData by viewModel.taskTaskData.collectAsStateWithLifecycle()
-    val context = LocalContext.current
-
-    val timeText =
-      remember(taskData) {
-        (taskData as? DateTimeTaskData)?.let {
-          DateFormat.getTimeFormat(context).format(Date(it.timeInMillis))
-        } ?: ""
-      }
-
-    val hintText = remember {
-      val timeFormat = DateFormat.getTimeFormat(context)
-      if (timeFormat is SimpleDateFormat) {
-        timeFormat.toPattern().uppercase()
-      } else {
-        "HH:MM AM/PM" // Fallback hint if DateFormat is not SimpleDateFormat
-      }
-    }
-
-    TimeTaskField(
-      modifier = Modifier.padding(horizontal = MaterialTheme.sizes.taskViewPadding),
-      timeText = timeText,
-      hintText = hintText,
-      onTimeClick = { showTimeDialog() },
+  override fun onCreateView(
+    inflater: LayoutInflater,
+    container: ViewGroup?,
+    savedInstanceState: Bundle?,
+  ) = createComposeView {
+    TimeTaskScreen(
+      viewModel = viewModel,
+      onFooterPositionUpdated = { saveFooterPosition(it) },
+      onAction = { handleTaskScreenAction(it) },
     )
   }
-
-  fun showTimeDialog() {
-    val calendar = Calendar.getInstance()
-    val hour = calendar[Calendar.HOUR]
-    val minute = calendar[Calendar.MINUTE]
-    timePickerDialog =
-      TimePickerDialog(
-        requireContext(),
-        { _, updatedHourOfDay, updatedMinute ->
-          val c = Calendar.getInstance()
-          c[Calendar.HOUR_OF_DAY] = updatedHourOfDay
-          c[Calendar.MINUTE] = updatedMinute
-          viewModel.updateResponse(c.time)
-        },
-        hour,
-        minute,
-        DateFormat.is24HourFormat(requireContext()),
-      )
-    timePickerDialog?.setButton(DialogInterface.BUTTON_NEUTRAL, getString(R.string.clear)) { _, _ ->
-      viewModel.clearResponse()
-    }
-    timePickerDialog?.show()
-  }
-
-  @TestOnly fun getTimePickerDialog(): TimePickerDialog? = timePickerDialog
 }

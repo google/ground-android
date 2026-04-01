@@ -21,7 +21,6 @@ import android.content.Intent
 import android.graphics.Point
 import android.net.Uri
 import android.provider.MediaStore
-import android.widget.TimePicker
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
@@ -48,6 +47,7 @@ import org.groundplatform.android.e2etest.TestConfig.TEST_PHOTO_FILE
 import org.groundplatform.android.e2etest.extensions.onTarget
 import org.groundplatform.android.ui.datacollection.tasks.date.DATE_PICKER_TEST_TAG
 import org.groundplatform.android.ui.datacollection.tasks.date.DATE_TEXT_TEST_TAG
+import org.groundplatform.android.ui.datacollection.tasks.time.TIME_PICKER_TEST_TAG
 import org.groundplatform.android.ui.datacollection.tasks.time.TIME_TEXT_TEST_TAG
 
 @OptIn(ExperimentalTestApi::class)
@@ -167,7 +167,7 @@ class AndroidTestDriver(
   override fun setTime() {
     click(TestDriver.Target.TestTag(TIME_TEXT_TEST_TAG))
 
-    device.wait(Until.findObject(By.clazz(TimePicker::class.java)), DEFAULT_TIMEOUT)
+    wait(TestDriver.Target.TestTag(TIME_PICKER_TEST_TAG))
     device.findObject(By.text("OK")).click()
   }
 
