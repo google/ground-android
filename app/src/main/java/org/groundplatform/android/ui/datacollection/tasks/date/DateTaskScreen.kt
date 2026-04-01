@@ -34,15 +34,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import java.lang.System
 import java.text.SimpleDateFormat
 import java.util.Date
 import org.groundplatform.android.R
+import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreen
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreenAction
 import org.groundplatform.domain.model.submission.DateTimeTaskData
+import org.groundplatform.ui.theme.AppTheme
 import org.groundplatform.ui.theme.sizes
 
 const val DATE_PICKER_TEST_TAG: String = "date picker test tag"
@@ -137,5 +140,39 @@ private fun DateSelectionDialog(
     dismissButton = { TextButton(onClick = onClear) { Text(stringResource(R.string.clear)) } },
   ) {
     DatePicker(state = datePickerState)
+  }
+}
+
+@Preview(showBackground = true)
+@Composable
+@ExcludeFromJacocoGeneratedReport
+private fun DateTaskContentFilledPreview() {
+  AppTheme {
+    DateTaskContent(
+      taskData = DateTimeTaskData(timeInMillis = 1711929600000L),
+      onDateSelected = {},
+      onResponseCleared = {},
+    )
+  }
+}
+
+@Preview(showBackground = true)
+@Composable
+@ExcludeFromJacocoGeneratedReport
+private fun DateTaskContentEmptyPreview() {
+  AppTheme { DateTaskContent(taskData = null, onDateSelected = {}, onResponseCleared = {}) }
+}
+
+@Preview(showBackground = true)
+@Composable
+@ExcludeFromJacocoGeneratedReport
+private fun DateSelectionDialogPreview() {
+  AppTheme {
+    DateSelectionDialog(
+      initialDate = System.currentTimeMillis(),
+      onDateSelected = {},
+      onClear = {},
+      onDismiss = {},
+    )
   }
 }
