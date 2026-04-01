@@ -27,11 +27,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import org.groundplatform.android.R
 import org.groundplatform.ui.theme.AppTheme
 import org.groundplatform.ui.theme.sizes
+
+const val TEST_TAG_TASK_VIEW_HEADER = "TaskViewHeader test tag"
 
 @Composable
 fun TaskViewLayout(
@@ -59,7 +62,10 @@ data class TaskHeader(val label: String, val iconResId: Int? = null)
 @Composable
 private fun TaskViewHeader(header: TaskHeader) {
   Row(
-    modifier = Modifier.fillMaxWidth().padding(MaterialTheme.sizes.taskViewPadding),
+    modifier =
+      Modifier.fillMaxWidth()
+        .padding(MaterialTheme.sizes.taskViewPadding)
+        .testTag(TEST_TAG_TASK_VIEW_HEADER),
     verticalAlignment = Alignment.CenterVertically,
   ) {
     if (header.iconResId != null) {
