@@ -15,36 +15,26 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.text
 
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.ViewGroup
 import dagger.hilt.android.AndroidEntryPoint
-import org.groundplatform.android.ui.datacollection.components.TextTaskInput
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
-import org.groundplatform.domain.model.submission.TextTaskData.Companion.fromString
-import org.groundplatform.ui.theme.sizes
-
-const val INPUT_TEXT_TEST_TAG: String = "text task input test tag"
+import org.groundplatform.android.util.createComposeView
 
 /** Fragment allowing the user to answer questions to complete a task. */
 @AndroidEntryPoint
 class TextTaskFragment : AbstractTaskFragment<TextTaskViewModel>() {
 
-  @Composable
-  override fun TaskBody() {
-    val userResponse by viewModel.responseText.observeAsState("")
-
-    TextTaskInput(
-      userResponse,
-      modifier =
-        Modifier.padding(horizontal = MaterialTheme.sizes.taskViewPadding)
-          .testTag(INPUT_TEXT_TEST_TAG),
-    ) { newText ->
-      viewModel.setValue(fromString(newText))
-    }
+  override fun onCreateView(
+    inflater: LayoutInflater,
+    container: ViewGroup?,
+    savedInstanceState: Bundle?,
+  ) = createComposeView {
+    TextTaskScreen(
+      viewModel = viewModel,
+      onFooterPositionUpdated = { saveFooterPosition(it) },
+      onAction = { handleTaskScreenAction(it) },
+    )
   }
 }
