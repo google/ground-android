@@ -30,7 +30,7 @@ import org.groundplatform.android.FakeData
 import org.groundplatform.android.R
 import org.groundplatform.android.repository.TermsOfServiceRepository
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
-import org.groundplatform.android.system.auth.SignInState
+import org.groundplatform.domain.model.auth.SignInState
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

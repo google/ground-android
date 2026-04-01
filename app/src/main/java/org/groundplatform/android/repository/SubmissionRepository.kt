@@ -30,6 +30,7 @@ import org.groundplatform.domain.model.submission.DraftSubmission
 import org.groundplatform.domain.model.submission.Submission
 import org.groundplatform.domain.model.submission.ValueDelta
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
+import org.groundplatform.domain.repository.UserRepositoryInterface
 
 /**
  * Coordinates persistence and retrieval of [Submission] instances from remote, local, and in memory
@@ -44,7 +45,7 @@ constructor(
   private val localValueStore: LocalValueStore,
   private val locationOfInterestRepository: LocationOfInterestRepositoryInterface,
   private val mutationSyncWorkManager: MutationSyncWorkManager,
-  private val userRepository: UserRepository,
+  private val userRepository: UserRepositoryInterface,
   private val uuidGenerator: OfflineUuidGenerator,
 ) {
 

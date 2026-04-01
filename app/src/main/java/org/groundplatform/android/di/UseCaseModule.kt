@@ -20,7 +20,10 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
+import org.groundplatform.domain.repository.UserRepositoryInterface
 import org.groundplatform.domain.usecases.GetLoiReportUseCase
+import org.groundplatform.domain.usecases.user.GetUserSettingsUseCase
+import org.groundplatform.domain.usecases.user.UpdateUserSettingsUseCase
 
 @InstallIn(SingletonComponent::class)
 @Module
@@ -29,4 +32,12 @@ object UseCaseModule {
   fun provideGetLoiReportUseCase(
     locationOfInterestRepository: LocationOfInterestRepositoryInterface
   ) = GetLoiReportUseCase(locationOfInterestRepository)
+
+  @Provides
+  fun providesUpdateUserSettingsUseCase(userRepository: UserRepositoryInterface) =
+    UpdateUserSettingsUseCase(userRepository)
+
+  @Provides
+  fun providesGetUserSettingsUseCase(userRepository: UserRepositoryInterface) =
+    GetUserSettingsUseCase(userRepository)
 }

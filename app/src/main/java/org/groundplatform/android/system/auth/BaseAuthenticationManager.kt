@@ -18,6 +18,7 @@ package org.groundplatform.android.system.auth
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import org.groundplatform.domain.model.User
+import org.groundplatform.domain.model.auth.SignInState
 
 abstract class BaseAuthenticationManager : AuthenticationManager {
 
