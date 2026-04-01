@@ -85,14 +85,14 @@ class MultipleChoiceTaskScreenTest {
   }
 
   @Test
-  fun displaysTaskHeader_whenTaskIsLoaded() {
+  fun `displays task header when task is loaded`() {
     setupTaskScreen(TASK)
 
     composeTestRule.onNodeWithText("Text label").assertIsDisplayed()
   }
 
   @Test
-  fun rendersSelectOneOptions() {
+  fun `renders select one options`() {
     val multipleChoice = MultipleChoice(OPTIONS, MultipleChoice.Cardinality.SELECT_ONE)
     setupTaskScreen(TASK.copy(multipleChoice = multipleChoice))
 
@@ -101,7 +101,7 @@ class MultipleChoiceTaskScreenTest {
   }
 
   @Test
-  fun rendersSelectMultipleOptions() {
+  fun `renders select multiple options`() {
     val multipleChoice = MultipleChoice(OPTIONS, MultipleChoice.Cardinality.SELECT_MULTIPLE)
     setupTaskScreen(TASK.copy(multipleChoice = multipleChoice))
 
@@ -110,7 +110,7 @@ class MultipleChoiceTaskScreenTest {
   }
 
   @Test
-  fun allowsOnlyOneSelection_forSelectOneCardinality() {
+  fun `allows only one selection for select one cardinality`() {
     val multipleChoice = MultipleChoice(OPTIONS, MultipleChoice.Cardinality.SELECT_ONE)
     setupTaskScreen(TASK.copy(multipleChoice = multipleChoice))
 
@@ -122,7 +122,7 @@ class MultipleChoiceTaskScreenTest {
   }
 
   @Test
-  fun allowsMultipleSelection_forSelectMultipleCardinality() {
+  fun `allows multiple selection for select multiple cardinality`() {
     val multipleChoice = MultipleChoice(OPTIONS, MultipleChoice.Cardinality.SELECT_MULTIPLE)
     setupTaskScreen(TASK.copy(multipleChoice = multipleChoice))
 
@@ -134,7 +134,7 @@ class MultipleChoiceTaskScreenTest {
   }
 
   @Test
-  fun savesOtherText() {
+  fun `saves other text`() {
     val multipleChoice = MultipleChoice(OPTIONS, MultipleChoice.Cardinality.SELECT_MULTIPLE, true)
     setupTaskScreen(TASK.copy(multipleChoice = multipleChoice))
 
@@ -146,7 +146,7 @@ class MultipleChoiceTaskScreenTest {
   }
 
   @Test
-  fun setsInitialActionButtonsState_whenTaskIsOptional() {
+  fun `sets initial action buttons state when task is optional`() {
     setupTaskScreen(TASK)
 
     buttonActionStateChecker.assertButtonStates(
@@ -225,6 +225,52 @@ class MultipleChoiceTaskScreenTest {
     composeTestRule.onNodeWithText("Option 1").performClick()
 
     buttonActionStateChecker.getNode(ButtonAction.SKIP).assertDoesNotExist()
+  }
+
+  @Test
+  fun `sets initial action buttons state when task is required`() {
+    setupTaskScreen(TASK.copy(isRequired = true))
+
+    buttonActionStateChecker.assertButtonStates(
+      ButtonActionState(ButtonAction.PREVIOUS, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.SKIP, isEnabled = false, isVisible = false),
+      ButtonActionState(ButtonAction.NEXT, isEnabled = false, isVisible = true),
+    )
+  }
+
+  @Test
+  fun `sets action buttons state when it is the first task`() {
+    setupTaskScreen(TASK, isFirst = true)
+
+    buttonActionStateChecker.assertButtonStates(
+      ButtonActionState(ButtonAction.PREVIOUS, isEnabled = false, isVisible = true),
+      ButtonActionState(ButtonAction.SKIP, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.NEXT, isEnabled = false, isVisible = true),
+    )
+  }
+
+  @Test
+  fun `sets action buttons state when it is the last task`() {
+    setupTaskScreen(TASK, isLastWithValue = true)
+
+    buttonActionStateChecker.assertButtonStates(
+      ButtonActionState(ButtonAction.PREVIOUS, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.SKIP, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.DONE, isEnabled = false, isVisible = true),
+    )
+  }
+
+  @Test
+  fun `sets action buttons state when data is pre-filled`() {
+    val multipleChoice = MultipleChoice(OPTIONS, MultipleChoice.Cardinality.SELECT_ONE)
+    val taskData = MultipleChoiceTaskData(multipleChoice, listOf("option id 1"))
+    setupTaskScreen(TASK.copy(multipleChoice = multipleChoice), taskData = taskData)
+
+    buttonActionStateChecker.assertButtonStates(
+      ButtonActionState(ButtonAction.PREVIOUS, isEnabled = true, isVisible = true),
+      ButtonActionState(ButtonAction.SKIP, isEnabled = false, isVisible = false),
+      ButtonActionState(ButtonAction.NEXT, isEnabled = true, isVisible = true),
+    )
   }
 
   companion object {
