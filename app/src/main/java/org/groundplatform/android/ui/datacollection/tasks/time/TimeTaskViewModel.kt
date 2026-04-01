@@ -15,9 +15,9 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.time
 
+import javax.inject.Inject
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 import org.groundplatform.domain.model.submission.DateTimeTaskData.Companion.fromMillis
-import javax.inject.Inject
 
 class TimeTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
 
