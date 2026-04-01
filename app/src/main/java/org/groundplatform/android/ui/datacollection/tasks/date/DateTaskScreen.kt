@@ -43,7 +43,6 @@ import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreen
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreenAction
 import org.groundplatform.domain.model.submission.DateTimeTaskData
-import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.ui.theme.sizes
 
 const val DATE_PICKER_TEST_TAG: String = "date picker test tag"
@@ -65,7 +64,7 @@ fun DateTaskScreen(
     onAction = onAction,
     taskBody = {
       DateTaskContent(
-        taskData,
+        taskData as? DateTimeTaskData,
         onDateSelected = { viewModel.updateResponse(it) },
         onResponseCleared = { viewModel.clearResponse() },
       )
@@ -76,7 +75,7 @@ fun DateTaskScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun DateTaskContent(
-  taskData: TaskData?,
+  taskData: DateTimeTaskData?,
   onDateSelected: (Long) -> Unit,
   onResponseCleared: () -> Unit,
 ) {
@@ -85,9 +84,7 @@ internal fun DateTaskContent(
 
   val dateText =
     remember(taskData) {
-      (taskData as? DateTimeTaskData)?.let {
-        DateFormat.getDateFormat(context).format(Date(it.timeInMillis))
-      } ?: ""
+      taskData?.let { DateFormat.getDateFormat(context).format(Date(it.timeInMillis)) } ?: ""
     }
 
   val hintText = remember {
@@ -103,7 +100,7 @@ internal fun DateTaskContent(
 
   if (showDialog) {
     DateSelectionDialog(
-      initialDate = (taskData as? DateTimeTaskData)?.timeInMillis ?: System.currentTimeMillis(),
+      initialDate = taskData?.timeInMillis ?: System.currentTimeMillis(),
       onDateSelected = onDateSelected,
       onClear = {
         onResponseCleared()

@@ -46,7 +46,6 @@ import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreen
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreenAction
 import org.groundplatform.domain.model.submission.DateTimeTaskData
-import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.ui.theme.sizes
 
 const val TIME_PICKER_TEST_TAG: String = "time picker test tag"
@@ -68,7 +67,7 @@ fun TimeTaskScreen(
     onAction = onAction,
     taskBody = {
       TimeTaskContent(
-        taskData,
+        taskData as? DateTimeTaskData,
         onTimeSelected = { viewModel.updateResponse(it) },
         onResponseCleared = { viewModel.clearResponse() },
       )
@@ -79,7 +78,7 @@ fun TimeTaskScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun TimeTaskContent(
-  taskData: TaskData?,
+  taskData: DateTimeTaskData?,
   onTimeSelected: (Long) -> Unit,
   onResponseCleared: () -> Unit,
 ) {
@@ -88,9 +87,7 @@ internal fun TimeTaskContent(
 
   val timeText =
     remember(taskData) {
-      (taskData as? DateTimeTaskData)?.let {
-        DateFormat.getTimeFormat(context).format(Date(it.timeInMillis))
-      } ?: ""
+      taskData?.let { DateFormat.getTimeFormat(context).format(Date(it.timeInMillis)) } ?: ""
     }
 
   val hintText = remember {
@@ -107,7 +104,7 @@ internal fun TimeTaskContent(
 
   if (showDialog) {
     TimeSelectionDialog(
-      initialTime = (taskData as? DateTimeTaskData)?.timeInMillis ?: System.currentTimeMillis(),
+      initialTime = taskData?.timeInMillis ?: System.currentTimeMillis(),
       onTimeSelected = onTimeSelected,
       onClear = {
         onResponseCleared()
