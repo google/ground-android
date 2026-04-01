@@ -42,8 +42,8 @@ class JobMapComponentTest {
   @Test
   fun `ActionButton to add new LOI is shown when there is data`() {
     setContent(
-      JobMapComponentState(
-        adHocDataCollectionButtonData =
+      JobMapComponentState.AddLoiButton(
+        jobs =
           listOf(AdHocDataCollectionButtonData(canCollectData = true, job = ADHOC_JOB))
       )
     )
@@ -52,8 +52,8 @@ class JobMapComponentTest {
   }
 
   @Test
-  fun `ActionButton to add new LOI is not shown when there is no data`() {
-    setContent(JobMapComponentState())
+  fun `ActionButton to add new LOI is not shown when the state is Hidden`() {
+    setContent(JobMapComponentState.Hidden)
 
     composeTestRule
       .onNodeWithContentDescription(getString(R.string.add_site))
@@ -64,8 +64,8 @@ class JobMapComponentTest {
   fun `Clicking button to add new LOI opens the job selection modal if there are multiple jobs`() {
     val performedActions = mutableListOf<JobMapComponentAction>()
     setContent(
-      JobMapComponentState(
-        adHocDataCollectionButtonData =
+      JobMapComponentState.AddLoiButton(
+        jobs =
           listOf(
             AdHocDataCollectionButtonData(
               canCollectData = true,
@@ -98,8 +98,8 @@ class JobMapComponentTest {
   fun `Clicking a job in the job selection modal triggers a JobSelected action`() {
     val performedActions = mutableListOf<JobMapComponentAction>()
     setContent(
-      JobMapComponentState(
-        adHocDataCollectionButtonData =
+      JobMapComponentState.AddLoiButton(
+        jobs =
           listOf(
             AdHocDataCollectionButtonData(
               canCollectData = true,
@@ -134,8 +134,8 @@ class JobMapComponentTest {
   fun `Clicking button to add new LOI triggers the JobSelected action immediately`() {
     val performedActions = mutableListOf<JobMapComponentAction>()
     setContent(
-      JobMapComponentState(
-        adHocDataCollectionButtonData =
+      JobMapComponentState.AddLoiButton(
+        jobs =
           listOf(AdHocDataCollectionButtonData(canCollectData = true, job = ADHOC_JOB))
       ),
       onAction = { performedActions += it },
@@ -160,7 +160,7 @@ class JobMapComponentTest {
   fun `LoiJobSheet should be shown when there is a selected LOI`() {
     val selectedLoiSheetData =
       SelectedLoiSheetData(canCollectData = true, LOCATION_OF_INTEREST, 0, true)
-    setContent(JobMapComponentState(selectedLoi = selectedLoiSheetData))
+    setContent(JobMapComponentState.LoiSelected( selectedLoiSheetData))
 
     composeTestRule
       .onNodeWithContentDescription(getString(R.string.add_site))
@@ -174,7 +174,7 @@ class JobMapComponentTest {
     val selectedLoiSheetData =
       SelectedLoiSheetData(canCollectData = true, LOCATION_OF_INTEREST, 0, true)
     setContent(
-      state = JobMapComponentState(selectedLoi = selectedLoiSheetData),
+      state = JobMapComponentState.LoiSelected( selectedLoiSheetData),
       onAction = { performedActions += it },
     )
 
@@ -204,7 +204,7 @@ class JobMapComponentTest {
         showDeleteLoiButton = false,
       )
     setContent(
-      state = JobMapComponentState(selectedLoi = selectedLoiSheetData),
+      state = JobMapComponentState.LoiSelected( selectedLoiSheetData),
       onAction = { performedActions += it },
     )
 

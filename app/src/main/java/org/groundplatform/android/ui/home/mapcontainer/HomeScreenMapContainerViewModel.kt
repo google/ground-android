@@ -49,7 +49,6 @@ import org.groundplatform.android.system.SettingsManager
 import org.groundplatform.android.ui.common.BaseMapViewModel
 import org.groundplatform.android.ui.common.SharedViewModel
 import org.groundplatform.android.ui.home.mapcontainer.jobs.AdHocDataCollectionButtonData
-import org.groundplatform.android.ui.home.mapcontainer.jobs.DataCollectionEntryPointData
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentState
 import org.groundplatform.android.ui.home.mapcontainer.jobs.SelectedLoiSheetData
 import org.groundplatform.android.ui.map.Feature
@@ -169,12 +168,11 @@ internal constructor(
       }
 
     jobMapComponentState =
-      processDataCollectionEntryPoints()
-        .map { (loiCard, jobCards) -> JobMapComponentState(loiCard, jobCards) }
+      processJobMapComponentState()
         .stateIn(
           scope = viewModelScope,
           started = SharingStarted.Lazily,
-          initialValue = JobMapComponentState(),
+          initialValue = JobMapComponentState.Hidden,
         )
   }
 
@@ -196,12 +194,11 @@ internal constructor(
   fun getDataSharingTerms(): Result<Survey.DataSharingTerms?> = getDataSharingTermsUseCase()
 
   /**
-   * Returns a flow of [DataCollectionEntryPointData] associated with the active survey's LOIs and
-   * adhoc jobs for displaying the cards.
+   * Returns a flow of [JobMapComponentState] associated with the active survey's LOIs and adhoc
+   * jobs for displaying the cards.
    */
   @VisibleForTesting
-  fun processDataCollectionEntryPoints():
-    Flow<Pair<SelectedLoiSheetData?, List<AdHocDataCollectionButtonData>>> =
+  fun processJobMapComponentState(): Flow<JobMapComponentState> =
     combine(loisInViewport, featureClicked, adHocLoiJobs) { loisInView, feature, jobs ->
       val canUserSubmitData = userRepository.canUserSubmitData()
       val loiCard =
@@ -216,14 +213,21 @@ internal constructor(
               showDeleteLoiButton = canDelete,
             )
           }
+
       if (loiCard == null && feature != null) {
         // The feature is not in view anymore.
         featureClicked.value = null
       }
-      val jobCard = jobs.map {
+      
+      val jobCards = jobs.map {
         AdHocDataCollectionButtonData(canCollectData = canUserSubmitData, job = it)
       }
-      Pair(loiCard, jobCard)
+      
+      when {
+        loiCard != null -> JobMapComponentState.LoiSelected(loiCard)
+        jobCards.isNotEmpty() -> JobMapComponentState.AddLoiButton(jobCards)
+        else -> JobMapComponentState.Hidden
+      }
     }
 
   private fun updatedLoiSelectedStates(

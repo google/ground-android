@@ -148,9 +148,8 @@ class HomeScreenMapContainerScreenTest {
     val performedActions = mutableListOf<JobMapComponentAction>()
     setContent(
       jobComponentState =
-        JobMapComponentState(
-          adHocDataCollectionButtonData =
-            listOf(AdHocDataCollectionButtonData(canCollectData = true, job = ADHOC_JOB))
+        JobMapComponentState.AddLoiButton(
+          jobs = listOf(AdHocDataCollectionButtonData(canCollectData = true, job = ADHOC_JOB))
         ),
       onJobComponentAction = { performedActions += it },
     )
@@ -165,7 +164,7 @@ class HomeScreenMapContainerScreenTest {
       MapFloatingActionButtonType.LocationNotLocked,
     shouldShowMapActions: Boolean = true,
     shouldShowRecenterButton: Boolean = true,
-    jobComponentState: JobMapComponentState = JobMapComponentState(),
+    jobComponentState: JobMapComponentState = JobMapComponentState.Hidden,
     onBaseMapAction: (BaseMapAction) -> Unit = {},
     onJobComponentAction: (JobMapComponentAction) -> Unit = {},
   ) {

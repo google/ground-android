@@ -134,23 +134,22 @@ private fun HomeScreenMapContainerScreenPreview() {
   AppTheme {
     HomeScreenMapContainerScreen(
       locationLockButtonType = MapFloatingActionButtonType.LocationNotLocked,
-      jobComponentState =
-        JobMapComponentState(
-          selectedLoi = null,
-          adHocDataCollectionButtonData =
-            listOf(
-              AdHocDataCollectionButtonData(
-                canCollectData = true,
-                job =
-                  Job(
-                    id = "1",
-                    style = Style(color = "#4169E1"),
-                    name = "job 1",
-                    tasks = emptyMap(),
-                  ),
+        jobComponentState =
+          JobMapComponentState.AddLoiButton(
+            jobs =
+              listOf(
+                AdHocDataCollectionButtonData(
+                  canCollectData = true,
+                  job =
+                    Job(
+                      id = "1",
+                      style = Style(color = "#4169E1"),
+                      name = "job 1",
+                      tasks = emptyMap(),
+                    ),
+                )
               )
-            ),
-        ),
+          ),
       shouldShowMapActions = true,
       shouldShowRecenter = true,
       onBaseMapAction = {},

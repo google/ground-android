@@ -38,6 +38,7 @@ import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
 import org.groundplatform.android.ui.home.mapcontainer.jobs.AdHocDataCollectionButtonData
 import org.groundplatform.android.ui.home.mapcontainer.jobs.SelectedLoiSheetData
+import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentState
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.map.Bounds
@@ -87,11 +88,9 @@ class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
   @Test
   fun `renders the job card when zoomed into LOI and clicked on`() = runWithTestDispatcher {
     viewModel.onFeatureClicked(features = setOf(LOCATION_OF_INTEREST_FEATURE))
-    val pair = viewModel.processDataCollectionEntryPoints().first()
-    assertThat(pair.first)
-      .isEqualTo(SelectedLoiSheetData(canCollectData = true, LOCATION_OF_INTEREST, 0, true))
-    assertThat(pair.second)
-      .isEqualTo(listOf(AdHocDataCollectionButtonData(canCollectData = true, ADHOC_JOB)))
+    val state = viewModel.processJobMapComponentState().first()
+    assertThat(state)
+      .isEqualTo(JobMapComponentState.LoiSelected(SelectedLoiSheetData(canCollectData = true, LOCATION_OF_INTEREST, 0, true)))
   }
 
   @Test

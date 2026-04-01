@@ -190,9 +190,11 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       JobMapComponentAction.OnJobCardDismissed ->
         mapContainerViewModel.selectLocationOfInterest(null)
       is JobMapComponentAction.OnJobSelected ->
-        jobMapComponentState.adHocDataCollectionButtonData
-          .firstOrNull { it.job == action.job }
-          ?.let { onCollectData(it) }
+        if (jobMapComponentState is JobMapComponentState.AddLoiButton) {
+          jobMapComponentState.jobs
+            .firstOrNull { it.job == action.job }
+            ?.let { onCollectData(it) }
+        }
       is JobMapComponentAction.OnJobSelectionModalVisibilityChanged ->
         mapContainerViewModel.onJobSelectionModalVisibilityChanged(action.isShown)
     }
