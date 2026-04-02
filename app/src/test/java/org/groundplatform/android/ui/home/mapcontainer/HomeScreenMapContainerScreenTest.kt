@@ -156,7 +156,7 @@ class HomeScreenMapContainerScreenTest {
 
     composeTestRule.onNodeWithContentDescription(getString(R.string.add_site)).performClick()
 
-    assertTrue(performedActions.last() is JobMapComponentAction.OnJobSelected)
+    assertTrue(performedActions.last() is JobMapComponentAction.OnAddLoiButtonClicked)
   }
 
   private fun setContent(
