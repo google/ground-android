@@ -204,8 +204,7 @@ internal constructor(
     combine(loisInViewport, featureClicked, adHocLoiJobs, showJobSelectionModal) {
       loisInView,
       feature,
-      jobs,
-      isModalShown ->
+      jobs, isModalShown ->
       val canUserSubmitData = userRepository.canUserSubmitData()
       val loiCard =
         loisInView
