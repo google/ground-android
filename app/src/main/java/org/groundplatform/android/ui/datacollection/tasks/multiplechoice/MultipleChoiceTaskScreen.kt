@@ -21,15 +21,21 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.groundplatform.android.R
+import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreen
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreenAction
+import org.groundplatform.domain.model.task.MultipleChoice.Cardinality
+import org.groundplatform.domain.model.task.Option
+import org.groundplatform.ui.theme.AppTheme
 import org.groundplatform.ui.theme.sizes
 
 @Composable
@@ -75,6 +81,39 @@ internal fun MultipleChoiceTaskContent(
           otherValueChanged = onOtherValueChanged,
         )
       }
+    }
+  }
+}
+
+@Preview(showBackground = true)
+@Composable
+@ExcludeFromJacocoGeneratedReport
+private fun MultipleChoiceTaskContentPreview() {
+  AppTheme {
+    Surface {
+      MultipleChoiceTaskContent(
+        list =
+          listOf(
+            MultipleChoiceItem(
+              option = Option("option id 1", "code1", "Option 1"),
+              cardinality = Cardinality.SELECT_ONE,
+              isSelected = true,
+            ),
+            MultipleChoiceItem(
+              option = Option("option id 2", "code2", "Option 2"),
+              cardinality = Cardinality.SELECT_ONE,
+              isSelected = false,
+            ),
+            MultipleChoiceItem(
+              option = Option("option id 3", "code3", "Other"),
+              cardinality = Cardinality.SELECT_ONE,
+              isSelected = false,
+              isOtherOption = true,
+            ),
+          ),
+        onItemToggled = {},
+        onOtherValueChanged = {},
+      )
     }
   }
 }
