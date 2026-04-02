@@ -36,8 +36,8 @@ import org.groundplatform.android.di.LocationOfInterestRepositoryModule
 import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
 import org.groundplatform.android.ui.home.mapcontainer.jobs.AdHocDataCollectionButtonData
-import org.groundplatform.android.ui.home.mapcontainer.jobs.SelectedLoiSheetData
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentState
+import org.groundplatform.android.ui.home.mapcontainer.jobs.SelectedLoiSheetData
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.map.Bounds
@@ -88,7 +88,11 @@ class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
     viewModel.onFeatureClicked(features = setOf(LOCATION_OF_INTEREST_FEATURE))
     val state = viewModel.processJobMapComponentState().first()
     assertThat(state)
-      .isEqualTo(JobMapComponentState.LoiSelected(SelectedLoiSheetData(canCollectData = true, LOCATION_OF_INTEREST, 0, true)))
+      .isEqualTo(
+        JobMapComponentState.LoiSelected(
+          SelectedLoiSheetData(canCollectData = true, LOCATION_OF_INTEREST, 0, true)
+        )
+      )
   }
 
   @Test
@@ -104,20 +108,25 @@ class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
   }
 
   @Test
-  fun `job component state is JobSelectionModal when multiple jobs exist`() = runWithTestDispatcher {
-    val state = JobMapComponentState.AddLoiButton(
-      listOf(
-        AdHocDataCollectionButtonData(canCollectData = true, job = ADHOC_JOB),
-        AdHocDataCollectionButtonData(canCollectData = true, job = ADHOC_JOB.copy(id = "ADHOC_JOB_2", name = "Adhoc Job 2")),
-      )
-    )
+  fun `job component state is JobSelectionModal when multiple jobs exist`() =
+    runWithTestDispatcher {
+      val state =
+        JobMapComponentState.AddLoiButton(
+          listOf(
+            AdHocDataCollectionButtonData(canCollectData = true, job = ADHOC_JOB),
+            AdHocDataCollectionButtonData(
+              canCollectData = true,
+              job = ADHOC_JOB.copy(id = "ADHOC_JOB_2", name = "Adhoc Job 2"),
+            ),
+          )
+        )
 
-    val result = viewModel.resolveAddLoiAction(state)
+      val result = viewModel.resolveAddLoiAction(state)
 
-    assertThat(result).isNull()
-    val updatedState = viewModel.processJobMapComponentState().first()
-    assertThat(updatedState).isInstanceOf(JobMapComponentState.JobSelectionModal::class.java)
-  }
+      assertThat(result).isNull()
+      val updatedState = viewModel.processJobMapComponentState().first()
+      assertThat(updatedState).isInstanceOf(JobMapComponentState.JobSelectionModal::class.java)
+    }
 
   @Test
   fun `job component state is AddLoiButton when there are adhoc jobs and modal is not shown`() =

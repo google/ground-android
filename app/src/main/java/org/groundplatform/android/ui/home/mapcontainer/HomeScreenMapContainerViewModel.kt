@@ -243,21 +243,20 @@ internal constructor(
   }
 
   /**
-   * Resolves the result of an "Add LOI" button click based on the current UI state
+   * Resolves the result of an "Add LOI" button click based on the current UI state.
    *
    * @return The single available [AdHocDataCollectionButtonData], or `null` if a selection modal
    *   should be shown or the action is not applicable.
    */
   fun resolveAddLoiAction(currentState: JobMapComponentState): AdHocDataCollectionButtonData? {
-    if (currentState is JobMapComponentState.AddLoiButton) {
-      val jobs = currentState.jobs
-      if (jobs.size > 1) {
-        setJobSelectionModalVisibility(true)
-        return null
-      }
-      return jobs.firstOrNull()
+    val state = currentState as? JobMapComponentState.AddLoiButton ?: return null
+
+    return if (state.jobs.size > 1) {
+      setJobSelectionModalVisibility(true)
+      null
+    } else {
+      state.jobs.firstOrNull()
     }
-    return null
   }
 
   private fun updatedLoiSelectedStates(

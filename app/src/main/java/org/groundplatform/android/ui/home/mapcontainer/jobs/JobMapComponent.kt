@@ -55,9 +55,7 @@ fun JobMapComponent(state: JobMapComponentState, onAction: (JobMapComponentActio
       )
     }
     is JobMapComponentState.AddLoiButton -> {
-      AddLoiButton(
-        onClick = { onAction(JobMapComponentAction.OnAddLoiButtonClicked) }
-      )
+      AddLoiButton(onClick = { onAction(JobMapComponentAction.OnAddLoiButtonClicked) })
     }
     is JobMapComponentState.JobSelectionModal -> {
       JobSelectionModal(
