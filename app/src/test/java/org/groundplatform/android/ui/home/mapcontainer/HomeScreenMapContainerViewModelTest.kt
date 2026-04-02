@@ -91,7 +91,8 @@ class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
       .isEqualTo(
         JobMapComponentState.LoiSelected(
           SelectedLoiSheetData(canCollectData = true, LOCATION_OF_INTEREST, 0, true)
-        ))
+        )
+      )
   }
 
   @Test
