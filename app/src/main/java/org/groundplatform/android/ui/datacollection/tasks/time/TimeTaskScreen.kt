@@ -37,15 +37,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import org.groundplatform.android.R
+import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreen
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreenAction
 import org.groundplatform.domain.model.submission.DateTimeTaskData
+import org.groundplatform.ui.theme.AppTheme
 import org.groundplatform.ui.theme.sizes
 
 const val TIME_PICKER_TEST_TAG: String = "time picker test tag"
@@ -157,5 +160,39 @@ private fun TimeSelectionDialog(
     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
       TimePicker(state = timePickerState)
     }
+  }
+}
+
+@Preview(showBackground = true)
+@Composable
+@ExcludeFromJacocoGeneratedReport
+private fun TimeTaskContentFilledPreview() {
+  AppTheme {
+    TimeTaskContent(
+      taskData = DateTimeTaskData(timeInMillis = 1711929600000L),
+      onTimeSelected = {},
+      onResponseCleared = {},
+    )
+  }
+}
+
+@Preview(showBackground = true)
+@Composable
+@ExcludeFromJacocoGeneratedReport
+private fun TimeTaskContentEmptyPreview() {
+  AppTheme { TimeTaskContent(taskData = null, onTimeSelected = {}, onResponseCleared = {}) }
+}
+
+@Preview(showBackground = true)
+@Composable
+@ExcludeFromJacocoGeneratedReport
+private fun TimeSelectionDialogPreview() {
+  AppTheme {
+    TimeSelectionDialog(
+      initialTime = System.currentTimeMillis(),
+      onTimeSelected = {},
+      onClear = {},
+      onDismiss = {},
+    )
   }
 }
