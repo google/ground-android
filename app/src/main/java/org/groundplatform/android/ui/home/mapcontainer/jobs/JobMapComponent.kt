@@ -46,12 +46,9 @@ import org.groundplatform.ui.theme.AppTheme
 
 @Composable
 fun JobMapComponent(state: JobMapComponentState, onAction: (JobMapComponentAction) -> Unit) {
-  var showShareLoiModal by rememberSaveable { mutableStateOf(false) }
   when (state) {
     is JobMapComponentState.LoiSelected -> {
-      if (showShareLoiModal && state.loi.loiReport != null) {
-        ShareLocationModal(state.loi.loiReport) { showShareLoiModal = false }
-      }
+      var showShareLoiModal by rememberSaveable { mutableStateOf(false) }
 
       LoiJobSheet(
         state = state.loi,
@@ -60,6 +57,10 @@ fun JobMapComponent(state: JobMapComponentState, onAction: (JobMapComponentActio
         onDismiss = { onAction(JobMapComponentAction.OnJobCardDismissed) },
         onShareClicked = { showShareLoiModal = true },
       )
+
+      if (showShareLoiModal && state.loi.loiReport != null) {
+        ShareLocationModal(state.loi.loiReport) { showShareLoiModal = false }
+      }
     }
     is JobMapComponentState.AddLoiButton -> {
       AddLoiButton(onClick = { onAction(JobMapComponentAction.OnAddLoiButtonClicked) })
