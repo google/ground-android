@@ -26,11 +26,6 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -47,12 +42,6 @@ import org.groundplatform.ui.theme.AppTheme
 
 @Composable
 fun JobMapComponent(state: JobMapComponentState, onAction: (JobMapComponentAction) -> Unit) {
-  var showJobSelectionModal by rememberSaveable { mutableStateOf(false) }
-
-  LaunchedEffect(showJobSelectionModal) {
-    onAction(JobMapComponentAction.OnJobSelectionModalVisibilityChanged(showJobSelectionModal))
-  }
-
   when (state) {
     is JobMapComponentState.LoiSelected -> {
       LoiJobSheet(
@@ -66,27 +55,16 @@ fun JobMapComponent(state: JobMapComponentState, onAction: (JobMapComponentActio
       )
     }
     is JobMapComponentState.AddLoiButton -> {
-      val data = state.jobs
-      if (showJobSelectionModal) {
-        JobSelectionModal(
-          jobs = data.map { it.job },
-          onJobClicked = { job ->
-            showJobSelectionModal = false
-            onAction(OnJobSelected(job))
-          },
-          onDismiss = { showJobSelectionModal = false },
-        )
-      } else {
-        AddLoiButton(
-          onClick = {
-            if (data.size > 1) {
-              showJobSelectionModal = true
-            } else {
-              onAction(OnJobSelected(data.first().job))
-            }
-          }
-        )
-      }
+      AddLoiButton(
+        onClick = { onAction(JobMapComponentAction.OnAddLoiButtonClicked(state.jobs)) }
+      )
+    }
+    is JobMapComponentState.JobSelectionModal -> {
+      JobSelectionModal(
+        jobs = state.jobs.map { it.job },
+        onJobClicked = { job -> onAction(OnJobSelected(job)) },
+        onDismiss = { onAction(JobMapComponentAction.OnJobSelectionModalDismissed) },
+      )
     }
     is JobMapComponentState.Hidden -> {}
   }
@@ -112,11 +90,15 @@ sealed interface JobMapComponentState {
 
   data class AddLoiButton(val jobs: List<AdHocDataCollectionButtonData>) : JobMapComponentState
 
+  data class JobSelectionModal(val jobs: List<AdHocDataCollectionButtonData>) : JobMapComponentState
+
   data object Hidden : JobMapComponentState
 }
 
 sealed interface JobMapComponentAction {
-  data class OnJobSelectionModalVisibilityChanged(val isShown: Boolean) : JobMapComponentAction
+  data class OnAddLoiButtonClicked(val jobs: List<AdHocDataCollectionButtonData>) : JobMapComponentAction
+
+  data object OnJobSelectionModalDismissed : JobMapComponentAction
 
   data class OnJobSelected(val job: Job) : JobMapComponentAction
 

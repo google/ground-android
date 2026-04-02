@@ -124,6 +124,8 @@ internal constructor(
    */
   private val adHocLoiJobs: Flow<List<Job>>
 
+  private val showJobSelectionModal = MutableStateFlow(false)
+
   /** Emits whether the current zoom has crossed the zoomed-in threshold or not to cluster LOIs. */
   private val isZoomedInFlow: Flow<Boolean>
 
@@ -199,7 +201,7 @@ internal constructor(
    */
   @VisibleForTesting
   fun processJobMapComponentState(): Flow<JobMapComponentState> =
-    combine(loisInViewport, featureClicked, adHocLoiJobs) { loisInView, feature, jobs ->
+    combine(loisInViewport, featureClicked, adHocLoiJobs, showJobSelectionModal) { loisInView, feature, jobs, isModalShown ->
       val canUserSubmitData = userRepository.canUserSubmitData()
       val loiCard =
         loisInView
@@ -225,10 +227,16 @@ internal constructor(
       
       when {
         loiCard != null -> JobMapComponentState.LoiSelected(loiCard)
+        isModalShown && jobCards.isNotEmpty() -> JobMapComponentState.JobSelectionModal(jobCards)
         jobCards.isNotEmpty() -> JobMapComponentState.AddLoiButton(jobCards)
         else -> JobMapComponentState.Hidden
       }
     }
+
+  fun setJobSelectionModalVisibility(isVisible: Boolean) {
+    showJobSelectionModal.value = isVisible
+    onJobSelectionModalVisibilityChanged(isVisible)
+  }
 
   private fun updatedLoiSelectedStates(
     features: Set<Feature>,

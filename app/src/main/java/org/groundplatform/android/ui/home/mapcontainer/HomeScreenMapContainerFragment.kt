@@ -189,14 +189,22 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       is JobMapComponentAction.OnDeleteSiteClicked -> onDeleteSite(action.selectedLoi)
       JobMapComponentAction.OnJobCardDismissed ->
         mapContainerViewModel.selectLocationOfInterest(null)
-      is JobMapComponentAction.OnJobSelected ->
-        if (jobMapComponentState is JobMapComponentState.AddLoiButton) {
-          jobMapComponentState.jobs
-            .firstOrNull { it.job == action.job }
-            ?.let { onCollectData(it) }
+      is JobMapComponentAction.OnJobSelected -> {
+        mapContainerViewModel.setJobSelectionModalVisibility(false)
+        val jobs =
+          (jobMapComponentState as? JobMapComponentState.AddLoiButton)?.jobs
+            ?: (jobMapComponentState as? JobMapComponentState.JobSelectionModal)?.jobs
+        jobs?.firstOrNull { it.job == action.job }?.let { onCollectData(it) }
+      }
+      is JobMapComponentAction.OnAddLoiButtonClicked -> {
+        if (action.jobs.size > 1) {
+          mapContainerViewModel.setJobSelectionModalVisibility(true)
+        } else {
+          action.jobs.firstOrNull()?.let { onCollectData(it) }
         }
-      is JobMapComponentAction.OnJobSelectionModalVisibilityChanged ->
-        mapContainerViewModel.onJobSelectionModalVisibilityChanged(action.isShown)
+      }
+      JobMapComponentAction.OnJobSelectionModalDismissed ->
+        mapContainerViewModel.setJobSelectionModalVisibility(false)
     }
   }
 
