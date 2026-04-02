@@ -56,7 +56,7 @@ fun JobMapComponent(state: JobMapComponentState, onAction: (JobMapComponentActio
     }
     is JobMapComponentState.AddLoiButton -> {
       AddLoiButton(
-        onClick = { onAction(JobMapComponentAction.OnAddLoiButtonClicked(state.jobs)) }
+        onClick = { onAction(JobMapComponentAction.OnAddLoiButtonClicked) }
       )
     }
     is JobMapComponentState.JobSelectionModal -> {
@@ -96,7 +96,7 @@ sealed interface JobMapComponentState {
 }
 
 sealed interface JobMapComponentAction {
-  data class OnAddLoiButtonClicked(val jobs: List<AdHocDataCollectionButtonData>) : JobMapComponentAction
+  data object OnAddLoiButtonClicked : JobMapComponentAction
 
   data object OnJobSelectionModalDismissed : JobMapComponentAction
 

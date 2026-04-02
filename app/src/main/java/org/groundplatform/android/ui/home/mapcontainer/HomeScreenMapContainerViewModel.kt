@@ -201,7 +201,11 @@ internal constructor(
    */
   @VisibleForTesting
   fun processJobMapComponentState(): Flow<JobMapComponentState> =
-    combine(loisInViewport, featureClicked, adHocLoiJobs, showJobSelectionModal) { loisInView, feature, jobs, isModalShown ->
+    combine(loisInViewport, featureClicked, adHocLoiJobs, showJobSelectionModal) {
+      loisInView,
+      feature,
+      jobs,
+      isModalShown ->
       val canUserSubmitData = userRepository.canUserSubmitData()
       val loiCard =
         loisInView
@@ -220,11 +224,11 @@ internal constructor(
         // The feature is not in view anymore.
         featureClicked.value = null
       }
-      
+
       val jobCards = jobs.map {
         AdHocDataCollectionButtonData(canCollectData = canUserSubmitData, job = it)
       }
-      
+
       when {
         loiCard != null -> JobMapComponentState.LoiSelected(loiCard)
         isModalShown && jobCards.isNotEmpty() -> JobMapComponentState.JobSelectionModal(jobCards)
@@ -236,6 +240,24 @@ internal constructor(
   fun setJobSelectionModalVisibility(isVisible: Boolean) {
     showJobSelectionModal.value = isVisible
     onJobSelectionModalVisibilityChanged(isVisible)
+  }
+
+  /**
+   * Resolves the result of an "Add LOI" button click based on the current UI state
+   *
+   * @return The single available [AdHocDataCollectionButtonData], or `null` if a selection modal
+   *   should be shown or the action is not applicable.
+   */
+  fun resolveAddLoiAction(currentState: JobMapComponentState): AdHocDataCollectionButtonData? {
+    if (currentState is JobMapComponentState.AddLoiButton) {
+      val jobs = currentState.jobs
+      if (jobs.size > 1) {
+        setJobSelectionModalVisibility(true)
+        return null
+      }
+      return jobs.firstOrNull()
+    }
+    return null
   }
 
   private fun updatedLoiSelectedStates(

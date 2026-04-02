@@ -196,13 +196,8 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
             ?: (jobMapComponentState as? JobMapComponentState.JobSelectionModal)?.jobs
         jobs?.firstOrNull { it.job == action.job }?.let { onCollectData(it) }
       }
-      is JobMapComponentAction.OnAddLoiButtonClicked -> {
-        if (action.jobs.size > 1) {
-          mapContainerViewModel.setJobSelectionModalVisibility(true)
-        } else {
-          action.jobs.firstOrNull()?.let { onCollectData(it) }
-        }
-      }
+      is JobMapComponentAction.OnAddLoiButtonClicked ->
+        mapContainerViewModel.resolveAddLoiAction(jobMapComponentState)?.let { onCollectData(it) }
       JobMapComponentAction.OnJobSelectionModalDismissed ->
         mapContainerViewModel.setJobSelectionModalVisibility(false)
     }
