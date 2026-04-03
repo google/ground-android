@@ -21,6 +21,8 @@ import android.net.Uri
 import android.os.Build
 import android.os.Build.VERSION_CODES
 import androidx.lifecycle.viewModelScope
+import java.io.File
+import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -40,8 +42,6 @@ import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.submission.isNotNullOrEmpty
 import org.groundplatform.domain.model.task.PhotoTaskData
 import timber.log.Timber
-import java.io.File
-import javax.inject.Inject
 
 class PhotoTaskViewModel
 @Inject

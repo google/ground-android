@@ -25,6 +25,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.core.net.toUri
 import com.google.common.truth.Truth.assertThat
+import java.io.File
 import kotlinx.coroutines.runBlocking
 import org.groundplatform.android.repository.UserMediaRepository
 import org.groundplatform.android.system.PermissionDeniedException
@@ -48,7 +49,6 @@ import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
-import java.io.File
 
 @RunWith(RobolectricTestRunner::class)
 class PhotoTaskScreenTest {
