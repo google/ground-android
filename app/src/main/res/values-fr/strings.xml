@@ -220,7 +220,7 @@
   <string name="recenter">Recentrer</string>
   <string name="survey_load_timeout_error">Le chargement du sondage a expiré. Veuillez vérifier votre connexion et réessayer.</string>
   <string name="camera_launch_failed_title">Erreur de caméra</string>
-  <string name="camera_launch_failed_desc">Impossible d\'ouvrir la caméra. Veuillez réessayer.</string>
-  <string name="photo_save_failed_title">Erreur d\'enregistrement</string>
-  <string name="photo_save_failed_desc">Impossible d\'enregistrer la photo capturée. Veuillez réessayer.</string>
+  <string name="camera_launch_failed_desc">Impossible d&#8217;ouvrir la caméra. Veuillez réessayer.</string>
+  <string name="photo_save_failed_title">Erreur d&#8217;enregistrement</string>
+  <string name="photo_save_failed_desc">Impossible d&#8217;enregistrer la photo capturée. Veuillez réessayer.</string>
 </resources>
