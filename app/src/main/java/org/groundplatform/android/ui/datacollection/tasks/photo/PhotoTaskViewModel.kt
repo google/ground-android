@@ -24,8 +24,11 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -50,6 +53,9 @@ constructor(
   private val permissionsManager: PermissionsManager,
 ) : AbstractTaskViewModel() {
 
+  private val _isAwaitingPhotoCapture = MutableStateFlow(false)
+  val isAwaitingPhotoCapture: StateFlow<Boolean> = _isAwaitingPhotoCapture.asStateFlow()
+
   /**
    * Task id waiting for a photo result. As only one photo result is returned at a time, we can
    * directly map it 1:1 with the task waiting for a photo result.
@@ -66,7 +72,7 @@ constructor(
     if (hasLaunchedCamera) return
 
     viewModelScope.launch {
-      _events.emit(PhotoTaskEvent.UpdateAwaitingPhotoCapture(true))
+      _isAwaitingPhotoCapture.value = true
       obtainCapturePhotoPermissions { launchPhotoCapture() }
     }
   }
@@ -94,7 +100,7 @@ constructor(
       _events.emit(PhotoTaskEvent.LaunchCamera(uri))
       Timber.d("Capture photo intent sent")
     } catch (e: IllegalArgumentException) {
-      _events.emit(PhotoTaskEvent.UpdateAwaitingPhotoCapture(false))
+      _isAwaitingPhotoCapture.value = false
       _events.emit(PhotoTaskEvent.ShowError(R.string.unexpected_error, R.string.unexpected_error))
       Timber.e(e, "Error launching photo capture")
     }
@@ -130,7 +136,7 @@ constructor(
       viewModelScope.launch { savePhotoTaskData(capturedUri!!) }
     }
     hasLaunchedCamera = false
-    viewModelScope.launch { _events.emit(PhotoTaskEvent.UpdateAwaitingPhotoCapture(false)) }
+    _isAwaitingPhotoCapture.value = false
   }
 
   /**

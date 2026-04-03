@@ -21,6 +21,4 @@ sealed interface PhotoTaskEvent {
   data class LaunchCamera(val uri: Uri) : PhotoTaskEvent
 
   data class ShowError(val titleResId: Int, val messageResId: Int) : PhotoTaskEvent
-
-  data class UpdateAwaitingPhotoCapture(val awaiting: Boolean) : PhotoTaskEvent
 }

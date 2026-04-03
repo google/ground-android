@@ -36,7 +36,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
@@ -59,8 +58,11 @@ fun PhotoTaskScreen(
   val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
   val uri by viewModel.uri.collectAsStateWithLifecycle(Uri.EMPTY)
   val event by viewModel.events.collectAsStateWithLifecycle(initialValue = null)
+  val isAwaiting by viewModel.isAwaitingPhotoCapture.collectAsStateWithLifecycle()
 
   var activeError by remember { mutableStateOf<PhotoTaskEvent.ShowError?>(null) }
+
+  LaunchedEffect(isAwaiting) { onAwaitingPhotoCapture(isAwaiting) }
 
   val capturePhotoLauncher =
     rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { result ->
@@ -72,9 +74,6 @@ fun PhotoTaskScreen(
       is PhotoTaskEvent.LaunchCamera -> capturePhotoLauncher.launch(currentEvent.uri)
       is PhotoTaskEvent.ShowError -> {
         activeError = currentEvent
-      }
-      is PhotoTaskEvent.UpdateAwaitingPhotoCapture -> {
-        onAwaitingPhotoCapture(currentEvent.awaiting)
       }
       null -> {
         /* Do nothing */
