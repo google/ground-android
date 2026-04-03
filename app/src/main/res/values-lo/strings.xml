@@ -209,4 +209,8 @@
   <string name="location_not_accurate_heading">ຕຳແໜ່ງຂອງທ່ານບໍ່ແມ່ນຍຳ</string>
   <string name="location_not_accurate_description">ລອງຢືນນິ່ງໆ ຫຼື ລໍຖ້າໃຫ້ໄດ້ຕຳແໜ່ງທີ່ແມ່ນຍຳກວ່າ</string>
   <string name="recenter">ຈັດຕຳແໜ່ງກາງໃໝ່</string>
+  <string name="camera_launch_failed_title">ຂໍ້ຜິດພາດຂອງກ້ອງ</string>
+  <string name="camera_launch_failed_desc">ບໍ່ສາມາດເປີດກ້ອງໄດ້. ກະລຸນາລອງໃໝ່ອີກຄັ້ງ.</string>
+  <string name="photo_save_failed_title">ຂໍ້ຜິດພາດໃນການບັນທຶກ</string>
+  <string name="photo_save_failed_desc">ບໍ່ສາມາດບັນທຶກຮູບພາບທີ່ຖ່າຍໄດ້. ກະລຸນາລອງໃໝ່ອີກຄັ້ງ.</string>
 </resources>

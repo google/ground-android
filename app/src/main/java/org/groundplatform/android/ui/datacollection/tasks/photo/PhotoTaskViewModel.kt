@@ -100,7 +100,7 @@ constructor(
       Timber.d("Capture photo intent sent")
     } catch (e: IllegalArgumentException) {
       _isAwaitingPhotoCapture.value = false
-      _events.emit(PhotoTaskEvent.ShowError(R.string.unexpected_error, R.string.unexpected_error))
+      _events.emit(PhotoTaskEvent.ShowError(R.string.camera_launch_failed_title, R.string.camera_launch_failed_desc))
       Timber.e(e, "Error launching photo capture")
     }
   }
@@ -144,7 +144,7 @@ constructor(
       withContext(Dispatchers.Main) { setValue(PhotoTaskData(remoteFilename)) }
     } catch (e: IOException) {
       Timber.e(e, "Error saving photo to storage")
-      _events.emit(PhotoTaskEvent.ShowError(R.string.unexpected_error, R.string.unexpected_error))
+      _events.emit(PhotoTaskEvent.ShowError(R.string.photo_save_failed_title, R.string.photo_save_failed_desc))
     }
   }
 }
