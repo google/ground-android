@@ -33,7 +33,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
-import androidx.core.view.doOnAttach
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlin.properties.Delegates
@@ -99,11 +98,6 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     instructionData?.let { InstructionsDialog(it) }
   }
 
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
-    view.doOnAttach { onTaskViewAttached() }
-  }
-
   override fun onResume() {
     super.onResume()
     onTaskResume()
@@ -118,9 +112,6 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   /** Invoked when the instruction dialog is dismissed. */
   open fun onInstructionDialogDismissed() {}
-
-  /** Invoked after the task view gets attached to the fragment. */
-  open fun onTaskViewAttached() {}
 
   /** Invoked when the task fragment is visible to the user. */
   open fun onTaskResume() {}

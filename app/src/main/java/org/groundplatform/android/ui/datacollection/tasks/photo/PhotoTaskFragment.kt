@@ -80,10 +80,6 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
     )
   }
 
-  override fun onTaskViewAttached() {
-    viewModel.surveyId = dataCollectionViewModel.requireSurveyId()
-  }
-
   override fun onResume() {
     super.onResume()
 

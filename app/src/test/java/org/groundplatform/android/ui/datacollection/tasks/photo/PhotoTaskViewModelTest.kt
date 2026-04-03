@@ -179,8 +179,8 @@ class PhotoTaskViewModelTest : BaseHiltTest() {
 
         override fun isLastWithValue(taskData: TaskData?) = isLastTaskWithValue
       },
+      "survey_1",
     )
-    viewModel.surveyId = "survey_1"
   }
 
   companion object {

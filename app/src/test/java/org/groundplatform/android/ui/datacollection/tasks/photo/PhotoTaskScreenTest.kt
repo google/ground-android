@@ -72,7 +72,6 @@ class PhotoTaskScreenTest {
   ) {
     lastButtonAction = null
     viewModel = PhotoTaskViewModel(userMediaRepository)
-    viewModel.surveyId = "survey_1"
     viewModel.initialize(
       job = JOB,
       task = task,
@@ -83,6 +82,7 @@ class PhotoTaskScreenTest {
 
           override fun isLastWithValue(taskData: TaskData?) = isLastWithValue
         },
+      surveyId = "survey_1",
     )
 
     composeTestRule.setContent {

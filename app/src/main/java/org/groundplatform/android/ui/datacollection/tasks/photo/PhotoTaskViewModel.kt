@@ -45,8 +45,6 @@ class PhotoTaskViewModel @Inject constructor(private val userMediaRepository: Us
    */
   var taskWaitingForPhoto: String? = null
 
-  lateinit var surveyId: String
-
   var hasLaunchedCamera: Boolean = false
   var capturedUri: Uri? = null
 
