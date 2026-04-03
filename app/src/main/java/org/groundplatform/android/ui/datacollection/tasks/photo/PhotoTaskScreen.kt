@@ -38,7 +38,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.components.ConfirmationDialog
@@ -91,29 +93,46 @@ fun PhotoTaskScreen(
       PhotoTaskContent(
         uri = uri,
         onTakePhoto = { viewModel.onTakePhoto() },
+        activeError = activeError,
+        onDismissError = { activeError = null },
         modifier = Modifier.padding(horizontal = MaterialTheme.sizes.taskViewPadding),
       )
     },
   )
-
-  activeError?.let {
-    ConfirmationDialog(
-      title = it.titleResId,
-      description = it.messageResId,
-      confirmButtonText = R.string.ok,
-      onConfirmClicked = { activeError = null },
-    )
-  }
 }
 
 @Composable
-internal fun PhotoTaskContent(uri: Uri, onTakePhoto: () -> Unit, modifier: Modifier = Modifier) {
+internal fun PhotoTaskContent(
+  uri: Uri,
+  onTakePhoto: () -> Unit,
+  activeError: PhotoTaskEvent.ShowError?,
+  onDismissError: () -> Unit,
+  modifier: Modifier = Modifier,
+) {
   Box(modifier = modifier.fillMaxWidth().padding(horizontal = 8.dp)) {
     if (uri == Uri.EMPTY) {
       CaptureButton(onTakePhoto)
     } else {
       UriImage(uri = uri, modifier = Modifier.fillMaxWidth().padding(top = 4.dp))
     }
+  }
+
+  activeError?.let { errorEvent ->
+    val (titleResId, messageResId) =
+      when (errorEvent.errorType) {
+        PhotoTaskError.PERMISSION_DENIED ->
+          Pair(R.string.permission_denied, R.string.camera_permissions_needed)
+        PhotoTaskError.CAMERA_LAUNCH_FAILED ->
+          Pair(R.string.camera_launch_failed_title, R.string.camera_launch_failed_desc)
+        PhotoTaskError.PHOTO_SAVE_FAILED ->
+          Pair(R.string.photo_save_failed_title, R.string.photo_save_failed_desc)
+      }
+    ConfirmationDialog(
+      title = titleResId,
+      description = messageResId,
+      confirmButtonText = R.string.ok,
+      onConfirmClicked = onDismissError,
+    )
   }
 }
 
@@ -131,4 +150,32 @@ private fun CaptureButton(onTakePhoto: () -> Unit) {
     Spacer(Modifier.size(ButtonDefaults.IconSpacing))
     Text(text = stringResource(id = R.string.camera))
   }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PhotoTaskContent_Empty() {
+  PhotoTaskContent(uri = Uri.EMPTY, onTakePhoto = {}, activeError = null, onDismissError = {})
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PhotoTaskContent_WithPhoto() {
+  PhotoTaskContent(
+    uri = "content://mock/uri".toUri(),
+    onTakePhoto = {},
+    activeError = null,
+    onDismissError = {},
+  )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PhotoTaskContent_WithError() {
+  PhotoTaskContent(
+    uri = Uri.EMPTY,
+    onTakePhoto = {},
+    activeError = PhotoTaskEvent.ShowError(PhotoTaskError.CAMERA_LAUNCH_FAILED),
+    onDismissError = {},
+  )
 }

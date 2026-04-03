@@ -20,5 +20,11 @@ import android.net.Uri
 sealed interface PhotoTaskEvent {
   data class LaunchCamera(val uri: Uri) : PhotoTaskEvent
 
-  data class ShowError(val titleResId: Int, val messageResId: Int) : PhotoTaskEvent
+  data class ShowError(val errorType: PhotoTaskError) : PhotoTaskEvent
+}
+
+enum class PhotoTaskError {
+  PERMISSION_DENIED,
+  CAMERA_LAUNCH_FAILED,
+  PHOTO_SAVE_FAILED,
 }

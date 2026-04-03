@@ -32,7 +32,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.groundplatform.android.R
 import org.groundplatform.android.data.remote.firebase.FirebaseStorageManager
 import org.groundplatform.android.repository.UserMediaRepository
 import org.groundplatform.android.system.PermissionDeniedException
@@ -84,9 +83,7 @@ constructor(
       permissionsManager.obtainPermission(CAMERA)
       onPermissionsGranted()
     } catch (_: PermissionDeniedException) {
-      _events.emit(
-        PhotoTaskEvent.ShowError(R.string.permission_denied, R.string.camera_permissions_needed)
-      )
+      _events.emit(PhotoTaskEvent.ShowError(PhotoTaskError.PERMISSION_DENIED))
     }
   }
 
@@ -100,7 +97,7 @@ constructor(
       Timber.d("Capture photo intent sent")
     } catch (e: IllegalArgumentException) {
       _isAwaitingPhotoCapture.value = false
-      _events.emit(PhotoTaskEvent.ShowError(R.string.camera_launch_failed_title, R.string.camera_launch_failed_desc))
+      _events.emit(PhotoTaskEvent.ShowError(PhotoTaskError.CAMERA_LAUNCH_FAILED))
       Timber.e(e, "Error launching photo capture")
     }
   }
@@ -144,7 +141,7 @@ constructor(
       withContext(Dispatchers.Main) { setValue(PhotoTaskData(remoteFilename)) }
     } catch (e: IOException) {
       Timber.e(e, "Error saving photo to storage")
-      _events.emit(PhotoTaskEvent.ShowError(R.string.photo_save_failed_title, R.string.photo_save_failed_desc))
+      _events.emit(PhotoTaskEvent.ShowError(PhotoTaskError.PHOTO_SAVE_FAILED))
     }
   }
 }
