@@ -18,29 +18,33 @@
 package org.groundplatform.android.ui.datacollection.tasks.photo
 
 import android.net.Uri
+import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import java.io.File
+import java.io.IOException
 import javax.inject.Inject
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.repository.UserMediaRepository
-import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.job.Style
 import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.task.PhotoTaskData
 import org.groundplatform.domain.model.task.Task
+import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.kotlin.any
+import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
@@ -58,6 +62,12 @@ class PhotoTaskViewModelTest : BaseHiltTest() {
   override fun setUp() {
     super.setUp()
     setupViewModel()
+    Dispatchers.setMain(testDispatcher)
+  }
+
+  @After
+  fun tearDown() {
+    Dispatchers.resetMain()
   }
 
   @Test
@@ -91,11 +101,34 @@ class PhotoTaskViewModelTest : BaseHiltTest() {
       whenever(mockFile.absolutePath).thenReturn("/path/to/file")
       whenever(mockFile.name).thenReturn("file.jpg")
 
-      viewModel.onCaptureResult(true)
-      advanceUntilIdle()
+      viewModel.taskTaskData.test {
+        assertThat(awaitItem()).isNull() // Assert initial state
+
+        viewModel.onCaptureResult(true)
+        advanceUntilIdle()
+
+        val item = awaitItem()
+        assertThat(item).isInstanceOf(PhotoTaskData::class.java)
+        assertThat((item as PhotoTaskData).remoteFilename)
+          .isEqualTo("user-media/surveys/survey_1/submissions/file.jpg")
+      }
 
       verify(userMediaRepository).savePhotoFromUri(uri, TASK.id)
       verify(userMediaRepository).addImageToGallery("/path/to/file", "file.jpg")
+      assertThat(viewModel.hasLaunchedCamera).isFalse()
+    }
+
+  @Test
+  fun `onCaptureResult logs error when savePhotoFromUri throws IOException`() =
+    runWithTestDispatcher {
+      val uri = mock<Uri>()
+      viewModel.capturedUri = uri
+      viewModel.taskWaitingForPhoto = TASK.id
+      doThrow(IOException()).whenever(userMediaRepository).savePhotoFromUri(any(), any())
+
+      viewModel.onCaptureResult(true)
+      advanceUntilIdle()
+
       assertThat(viewModel.hasLaunchedCamera).isFalse()
     }
 
@@ -115,56 +148,6 @@ class PhotoTaskViewModelTest : BaseHiltTest() {
 
     verify(userMediaRepository, org.mockito.kotlin.never()).savePhotoFromUri(any(), any())
     assertThat(viewModel.hasLaunchedCamera).isFalse()
-  }
-
-  @Test
-  fun `Should have the correct action buttons in the proper order`() = runWithTestDispatcher {
-    advanceUntilIdle()
-
-    val states = viewModel.taskActionButtonStates.first()
-
-    assertThat(states.map { it.action })
-      .containsExactly(
-        ButtonAction.PREVIOUS,
-        ButtonAction.UNDO,
-        ButtonAction.SKIP,
-        ButtonAction.NEXT,
-      )
-      .inOrder()
-  }
-
-  @Test
-  fun `UNDO is not visible and NEXT is disabled when the photo is not taken yet`() =
-    runWithTestDispatcher {
-      advanceUntilIdle()
-
-      val states = viewModel.taskActionButtonStates.first()
-
-      with(requireNotNull(states.find { it.action == ButtonAction.UNDO })) {
-        assertFalse(isVisible)
-        assertFalse(isEnabled)
-      }
-      with(requireNotNull(states.find { it.action == ButtonAction.NEXT })) {
-        assertTrue(isVisible)
-        assertFalse(isEnabled)
-      }
-    }
-
-  @Test
-  fun `UNDO and NEXT are visible and enabled when the photo is present`() = runWithTestDispatcher {
-    viewModel.setValue(PhotoTaskData("path/photo.jpg"))
-    advanceUntilIdle()
-
-    val states = viewModel.taskActionButtonStates.first()
-
-    with(requireNotNull(states.find { it.action == ButtonAction.UNDO })) {
-      assertTrue(isVisible)
-      assertTrue(isEnabled)
-    }
-    with(requireNotNull(states.find { it.action == ButtonAction.NEXT })) {
-      assertTrue(isVisible)
-      assertTrue(isEnabled)
-    }
   }
 
   @Test

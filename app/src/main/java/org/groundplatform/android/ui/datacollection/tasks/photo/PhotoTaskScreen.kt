@@ -24,22 +24,63 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.groundplatform.android.R
-import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
+import org.groundplatform.android.ui.components.ConfirmationDialog
+import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.groundplatform.android.ui.datacollection.components.UriImage
-import org.groundplatform.ui.theme.AppTheme
+import org.groundplatform.android.ui.datacollection.tasks.TaskScreen
+import org.groundplatform.android.ui.datacollection.tasks.TaskScreenAction
+import org.groundplatform.ui.theme.sizes
 
 @Composable
-fun PhotoTaskContent(uri: Uri, onTakePhoto: () -> Unit, modifier: Modifier = Modifier) {
+fun PhotoTaskScreen(
+  viewModel: PhotoTaskViewModel,
+  onTakePhoto: () -> Unit,
+  onFooterPositionUpdated: (Float) -> Unit,
+  onAction: (TaskScreenAction) -> Unit,
+) {
+  val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
+  val uri by viewModel.uri.collectAsStateWithLifecycle(Uri.EMPTY)
+  val showPermissionDeniedDialog by
+    viewModel.showPermissionDeniedDialog.collectAsStateWithLifecycle()
+
+  TaskScreen(
+    taskHeader =
+      TaskHeader(label = viewModel.task.label, iconResId = R.drawable.ic_question_answer),
+    taskActionButtonsStates = taskActionButtonsStates,
+    onFooterPositionUpdated = onFooterPositionUpdated,
+    onAction = onAction,
+    taskBody = {
+      PhotoTaskContent(
+        uri = uri,
+        onTakePhoto = onTakePhoto,
+        modifier = Modifier.padding(horizontal = MaterialTheme.sizes.taskViewPadding),
+      )
+    },
+  )
+
+  if (showPermissionDeniedDialog) {
+    ConfirmationDialog(
+      title = R.string.permission_denied,
+      description = R.string.camera_permissions_needed,
+      confirmButtonText = R.string.ok,
+      onConfirmClicked = { viewModel.setShowPermissionDeniedDialog(false) },
+    )
+  }
+}
+
+@Composable
+internal fun PhotoTaskContent(uri: Uri, onTakePhoto: () -> Unit, modifier: Modifier = Modifier) {
   Box(modifier = modifier.fillMaxWidth().padding(horizontal = 8.dp)) {
     if (uri == Uri.EMPTY) {
       CaptureButton(onTakePhoto)
@@ -62,21 +103,5 @@ private fun CaptureButton(onTakePhoto: () -> Unit) {
     )
     Spacer(Modifier.size(ButtonDefaults.IconSpacing))
     Text(text = stringResource(id = R.string.camera))
-  }
-}
-
-@Preview(showBackground = true)
-@Composable
-@ExcludeFromJacocoGeneratedReport
-private fun PhotoTaskContentPreviewEmpty() {
-  AppTheme { PhotoTaskContent(uri = Uri.EMPTY, onTakePhoto = {}) }
-}
-
-@Preview(showBackground = true)
-@Composable
-@ExcludeFromJacocoGeneratedReport
-private fun PhotoTaskScreenPreviewWithPhoto() {
-  AppTheme {
-    PhotoTaskContent(uri = "content://media/external/images/media/1".toUri(), onTakePhoto = {})
   }
 }

@@ -19,33 +19,25 @@ import android.Manifest
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import org.groundplatform.android.R
 import org.groundplatform.android.di.coroutines.ApplicationScope
 import org.groundplatform.android.di.coroutines.IoDispatcher
-import org.groundplatform.android.di.coroutines.MainScope
 import org.groundplatform.android.repository.UserMediaRepository
 import org.groundplatform.android.system.PermissionDeniedException
 import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.ui.common.EphemeralPopups
-import org.groundplatform.android.ui.components.ConfirmationDialog
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.ui.home.HomeScreenViewModel
-import org.groundplatform.ui.theme.sizes
+import org.groundplatform.android.util.createComposeView
 import timber.log.Timber
 
 /** Fragment allowing the user to capture a photo to complete a task. */
@@ -53,7 +45,6 @@ import timber.log.Timber
 class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   @Inject lateinit var userMediaRepository: UserMediaRepository
   @Inject @ApplicationScope lateinit var externalScope: CoroutineScope
-  @Inject @MainScope lateinit var mainScope: CoroutineScope
   @Inject lateinit var permissionsManager: PermissionsManager
   @Inject lateinit var popups: EphemeralPopups
   @Inject @IoDispatcher lateinit var ioDispatcher: CoroutineDispatcher
@@ -76,25 +67,17 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
       }
   }
 
-  @Composable
-  override fun TaskBody() {
-    var showPermissionDeniedDialog by viewModel.showPermissionDeniedDialog
-    val uri by viewModel.uri.collectAsStateWithLifecycle(Uri.EMPTY)
-
-    PhotoTaskContent(
-      modifier = Modifier.padding(horizontal = MaterialTheme.sizes.taskViewPadding),
-      uri = uri,
+  override fun onCreateView(
+    inflater: LayoutInflater,
+    container: ViewGroup?,
+    savedInstanceState: Bundle?,
+  ) = createComposeView {
+    PhotoTaskScreen(
+      viewModel = viewModel,
       onTakePhoto = { onTakePhoto() },
+      onFooterPositionUpdated = { saveFooterPosition(it) },
+      onAction = { handleTaskScreenAction(it) },
     )
-
-    if (showPermissionDeniedDialog) {
-      ConfirmationDialog(
-        title = R.string.permission_denied,
-        description = R.string.camera_permissions_needed,
-        confirmButtonText = R.string.ok,
-        onConfirmClicked = { showPermissionDeniedDialog = false },
-      )
-    }
   }
 
   override fun onTaskViewAttached() {
@@ -129,7 +112,7 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
 
         onPermissionsGranted()
       } catch (_: PermissionDeniedException) {
-        viewModel.showPermissionDeniedDialog.value = true
+        viewModel.setShowPermissionDeniedDialog(true)
       }
     }
   }

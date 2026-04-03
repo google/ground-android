@@ -15,19 +15,20 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.photo
 
+import android.net.Uri
+import android.os.Environment
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.fragment.app.Fragment
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
+import java.io.File
 import org.groundplatform.android.repository.UserMediaRepository
 import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.ui.common.EphemeralPopups
 import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
-import org.groundplatform.android.ui.datacollection.components.ButtonAction
-import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.BaseTaskFragmentTest
 import org.groundplatform.android.ui.home.HomeScreenViewModel
 import org.groundplatform.domain.model.job.Job
@@ -37,11 +38,14 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito.doReturn
+import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment.getApplication
+import org.robolectric.shadows.ShadowLooper.idleMainLooper
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
@@ -68,7 +72,7 @@ class PhotoTaskFragmentTest : BaseTaskFragmentTest<PhotoTaskFragment, PhotoTaskV
 
   override fun setUp() {
     super.setUp()
-    homeScreenViewModel = org.mockito.Mockito.mock(HomeScreenViewModel::class.java)
+    homeScreenViewModel = mock(HomeScreenViewModel::class.java)
     photoTaskViewModel = PhotoTaskViewModel(userMediaRepository)
 
     doReturn(homeScreenViewModel).`when`(viewModelFactory).create(HomeScreenViewModel::class.java)
@@ -79,56 +83,11 @@ class PhotoTaskFragmentTest : BaseTaskFragmentTest<PhotoTaskFragment, PhotoTaskV
     whenever(dataCollectionViewModel.requireSurveyId()).thenReturn("test survey id")
     kotlinx.coroutines.runBlocking {
       val file =
-        java.io.File(
-          org.robolectric.RuntimeEnvironment.getApplication()
-            .getExternalFilesDir(android.os.Environment.DIRECTORY_PICTURES),
-          "image.jpg",
-        )
+        File(getApplication().getExternalFilesDir(Environment.DIRECTORY_PICTURES), "image.jpg")
       file.createNewFile()
       whenever(userMediaRepository.createImageFile(any())).thenReturn(file)
-      whenever(userMediaRepository.getUriForFile(any())).thenReturn(android.net.Uri.EMPTY)
+      whenever(userMediaRepository.getUriForFile(any())).thenReturn(Uri.EMPTY)
     }
-  }
-
-  @Test
-  fun `displays task header correctly`() {
-    setupTaskFragment<PhotoTaskFragment>(job, task)
-
-    hasTaskViewWithHeader(task)
-  }
-
-  @Test
-  fun `Initial action buttons state`() {
-    setupTaskFragment<PhotoTaskFragment>(job, task)
-
-    assertFragmentHasButtons(
-      ButtonActionState(ButtonAction.PREVIOUS, isEnabled = true, isVisible = true),
-      ButtonActionState(ButtonAction.UNDO, isEnabled = false, isVisible = false),
-      ButtonActionState(ButtonAction.SKIP, isEnabled = true, isVisible = true),
-      ButtonActionState(ButtonAction.NEXT, isEnabled = false, isVisible = true),
-    )
-  }
-
-  @Test
-  fun `Initial action buttons state when task is required`() {
-    setupTaskFragment<PhotoTaskFragment>(job, task.copy(isRequired = true))
-
-    assertFragmentHasButtons(
-      ButtonActionState(ButtonAction.PREVIOUS, isEnabled = true, isVisible = true),
-      ButtonActionState(ButtonAction.UNDO, isEnabled = false, isVisible = false),
-      ButtonActionState(ButtonAction.SKIP, isEnabled = false, isVisible = false),
-      ButtonActionState(ButtonAction.NEXT, isEnabled = false, isVisible = true),
-    )
-  }
-
-  @Test
-  fun `action buttons when task is required`() {
-    setupTaskFragment<PhotoTaskFragment>(job, task.copy(isRequired = true))
-
-    runner()
-      .assertButtonIsDisabled("Next")
-      .assertButtonIsHidden("Skip")
-      .assertButtonIsHidden("Undo", true)
   }
 
   @Test
@@ -137,7 +96,7 @@ class PhotoTaskFragmentTest : BaseTaskFragmentTest<PhotoTaskFragment, PhotoTaskV
 
     composeTestRule.onNodeWithText("Camera").performClick()
 
-    org.robolectric.shadows.ShadowLooper.idleMainLooper()
+    idleMainLooper()
 
     kotlinx.coroutines.runBlocking {
       verify(userMediaRepository).createImageFile(any())

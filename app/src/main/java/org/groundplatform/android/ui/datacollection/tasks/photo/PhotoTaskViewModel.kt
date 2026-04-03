@@ -16,12 +16,14 @@
 package org.groundplatform.android.ui.datacollection.tasks.photo
 
 import android.net.Uri
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import java.io.IOException
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -48,7 +50,12 @@ class PhotoTaskViewModel @Inject constructor(private val userMediaRepository: Us
   var hasLaunchedCamera: Boolean = false
   var capturedUri: Uri? = null
 
-  val showPermissionDeniedDialog = mutableStateOf(false)
+  private val _showPermissionDeniedDialog = MutableStateFlow(false)
+  val showPermissionDeniedDialog: StateFlow<Boolean> = _showPermissionDeniedDialog.asStateFlow()
+
+  fun setShowPermissionDeniedDialog(visible: Boolean) {
+    _showPermissionDeniedDialog.value = visible
+  }
 
   val uri: Flow<Uri> = taskTaskData.map { taskData ->
     if (taskData is PhotoTaskData && taskData.isNotNullOrEmpty()) {
