@@ -21,7 +21,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Build.VERSION_CODES
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,7 +30,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.groundplatform.android.data.remote.firebase.FirebaseStorageManager
 import org.groundplatform.android.repository.UserMediaRepository
 import org.groundplatform.android.system.PermissionDeniedException
@@ -54,12 +52,6 @@ constructor(
 
   private val _isAwaitingPhotoCapture = MutableStateFlow(false)
   val isAwaitingPhotoCapture: StateFlow<Boolean> = _isAwaitingPhotoCapture.asStateFlow()
-
-  /**
-   * Task id waiting for a photo result. As only one photo result is returned at a time, we can
-   * directly map it 1:1 with the task waiting for a photo result.
-   */
-  var taskWaitingForPhoto: String? = null
 
   var capturedUri: Uri? = null
 
@@ -89,7 +81,6 @@ constructor(
 
   private suspend fun launchPhotoCapture() {
     try {
-      taskWaitingForPhoto = task.id
       val file = userMediaRepository.createImageFile(task.id)
       val uri = userMediaRepository.getUriForFile(file)
       capturedUri = uri
@@ -130,18 +121,14 @@ constructor(
    * inclusion in a data collection submission.
    */
   private suspend fun savePhotoTaskData(uri: Uri) {
-    val currentTask = taskWaitingForPhoto
-    requireNotNull(currentTask) { "Photo captured but no task waiting for the result" }
-
     try {
-      val file = userMediaRepository.savePhotoFromUri(uri, currentTask)
+      val file = userMediaRepository.savePhotoFromUri(uri, task.id)
       userMediaRepository.addImageToGallery(file.absolutePath, file.name)
       val remoteFilename = FirebaseStorageManager.getRemoteMediaPath(surveyId, file.name)
-
-      withContext(Dispatchers.Main) { setValue(PhotoTaskData(remoteFilename)) }
+      setValue(PhotoTaskData(remoteFilename))
     } catch (e: IOException) {
-      Timber.e(e, "Error saving photo to storage")
       _events.emit(PhotoTaskEvent.ShowError(PhotoTaskError.PHOTO_SAVE_FAILED))
+      Timber.e(e, "Error saving photo to storage")
     }
   }
 }
