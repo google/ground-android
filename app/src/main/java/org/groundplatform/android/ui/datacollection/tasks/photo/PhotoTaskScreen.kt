@@ -33,6 +33,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -41,7 +42,10 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.flowWithLifecycle
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.components.ConfirmationDialog
 import org.groundplatform.android.ui.datacollection.components.TaskHeader
@@ -59,26 +63,27 @@ fun PhotoTaskScreen(
 ) {
   val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
   val uri by viewModel.uri.collectAsStateWithLifecycle(Uri.EMPTY)
-  val event by viewModel.events.collectAsStateWithLifecycle(initialValue = null)
   val isAwaiting by viewModel.isAwaitingPhotoCapture.collectAsStateWithLifecycle()
 
   var activeError by remember { mutableStateOf<PhotoTaskEvent.ShowError?>(null) }
 
-  LaunchedEffect(isAwaiting) { onAwaitingPhotoCapture(isAwaiting) }
+  val currentOnAwaiting by rememberUpdatedState(onAwaitingPhotoCapture)
+  LaunchedEffect(isAwaiting) { currentOnAwaiting(isAwaiting) }
 
   val capturePhotoLauncher =
     rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { result ->
       viewModel.onCaptureResult(result)
     }
 
-  LaunchedEffect(event) {
-    when (val currentEvent = event) {
-      is PhotoTaskEvent.LaunchCamera -> capturePhotoLauncher.launch(currentEvent.uri)
-      is PhotoTaskEvent.ShowError -> {
-        activeError = currentEvent
-      }
-      null -> {
-        /* Do nothing */
+  val lifecycleOwner = LocalLifecycleOwner.current
+  LaunchedEffect(viewModel.events, lifecycleOwner) {
+    viewModel.events.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED).collect {
+      currentEvent ->
+      when (currentEvent) {
+        is PhotoTaskEvent.LaunchCamera -> capturePhotoLauncher.launch(currentEvent.uri)
+        is PhotoTaskEvent.ShowError -> {
+          activeError = currentEvent
+        }
       }
     }
   }

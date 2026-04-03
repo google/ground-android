@@ -57,8 +57,6 @@ class PhotoTaskViewModelTest : BaseHiltTest() {
   @BindValue @Mock lateinit var permissionsManager: PermissionsManager
   @Inject lateinit var viewModel: PhotoTaskViewModel
 
-  @Mock private lateinit var mockFile: File
-
   override fun setUp() {
     super.setUp()
     setupViewModel()
@@ -76,7 +74,7 @@ class PhotoTaskViewModelTest : BaseHiltTest() {
     val mockFile = mock<File>()
     whenever(userMediaRepository.createImageFile(any())).thenReturn(mockFile)
     whenever(userMediaRepository.getUriForFile(mockFile)).thenReturn(mock<Uri>())
-    whenever(mockFile.absolutePath).thenReturn("/path/to/file")
+    whenever(mockFile.absolutePath).thenReturn("/path/to/file.jpg")
     whenever(mockFile.name).thenReturn("file.jpg")
 
     viewModel.onTakePhoto()
@@ -94,7 +92,7 @@ class PhotoTaskViewModelTest : BaseHiltTest() {
         .isEqualTo("user-media/surveys/survey_1/submissions/file.jpg")
     }
 
-    verify(userMediaRepository).addImageToGallery("/path/to/file", "file.jpg")
+    verify(userMediaRepository).addImageToGallery("/path/to/file.jpg", "file.jpg")
     assertThat(viewModel.isAwaitingPhotoCapture.value).isFalse()
   }
 
@@ -105,15 +103,15 @@ class PhotoTaskViewModelTest : BaseHiltTest() {
       val mockFile = mock<File>()
       whenever(userMediaRepository.createImageFile(any())).thenReturn(mockFile)
       whenever(userMediaRepository.getUriForFile(mockFile)).thenReturn(mock<Uri>())
-      whenever(mockFile.absolutePath).thenReturn("/path/to/file")
+      whenever(mockFile.absolutePath).thenReturn("/path/to/file.jpg")
       whenever(mockFile.name).thenReturn("file.jpg")
 
-      viewModel.onTakePhoto()
-      advanceUntilIdle()
-
-      whenever(userMediaRepository.addImageToGallery(any(), any())).thenThrow(RuntimeException())
-
       viewModel.events.test {
+        viewModel.onTakePhoto()
+        assertThat(awaitItem()).isInstanceOf(PhotoTaskEvent.LaunchCamera::class.java)
+
+        whenever(userMediaRepository.addImageToGallery(any(), any())).thenThrow(RuntimeException())
+
         viewModel.onCaptureResult(true)
         val event = awaitItem()
         assertThat(event).isInstanceOf(PhotoTaskEvent.ShowError::class.java)
