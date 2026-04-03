@@ -16,6 +16,8 @@
 package org.groundplatform.android.ui.datacollection.tasks.photo
 
 import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,9 +29,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
@@ -45,14 +52,35 @@ import org.groundplatform.ui.theme.sizes
 @Composable
 fun PhotoTaskScreen(
   viewModel: PhotoTaskViewModel,
-  onTakePhoto: () -> Unit,
   onFooterPositionUpdated: (Float) -> Unit,
   onAction: (TaskScreenAction) -> Unit,
+  onAwaitingPhotoCapture: (Boolean) -> Unit,
 ) {
   val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
   val uri by viewModel.uri.collectAsStateWithLifecycle(Uri.EMPTY)
-  val showPermissionDeniedDialog by
-    viewModel.showPermissionDeniedDialog.collectAsStateWithLifecycle()
+  val event by viewModel.events.collectAsStateWithLifecycle(initialValue = null)
+
+  var activeError by remember { mutableStateOf<PhotoTaskEvent.ShowError?>(null) }
+
+  val capturePhotoLauncher =
+    rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { result ->
+      viewModel.onCaptureResult(result)
+    }
+
+  LaunchedEffect(event) {
+    when (val currentEvent = event) {
+      is PhotoTaskEvent.LaunchCamera -> capturePhotoLauncher.launch(currentEvent.uri)
+      is PhotoTaskEvent.ShowError -> {
+        activeError = currentEvent
+      }
+      is PhotoTaskEvent.UpdateAwaitingPhotoCapture -> {
+        onAwaitingPhotoCapture(currentEvent.awaiting)
+      }
+      null -> {
+        /* Do nothing */
+      }
+    }
+  }
 
   TaskScreen(
     taskHeader =
@@ -63,18 +91,18 @@ fun PhotoTaskScreen(
     taskBody = {
       PhotoTaskContent(
         uri = uri,
-        onTakePhoto = onTakePhoto,
+        onTakePhoto = { viewModel.onTakePhoto() },
         modifier = Modifier.padding(horizontal = MaterialTheme.sizes.taskViewPadding),
       )
     },
   )
 
-  if (showPermissionDeniedDialog) {
+  activeError?.let {
     ConfirmationDialog(
-      title = R.string.permission_denied,
-      description = R.string.camera_permissions_needed,
+      title = it.titleResId,
+      description = it.messageResId,
       confirmButtonText = R.string.ok,
-      onConfirmClicked = { viewModel.setShowPermissionDeniedDialog(false) },
+      onConfirmClicked = { activeError = null },
     )
   }
 }

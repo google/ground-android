@@ -15,29 +15,40 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.photo
 
+import android.Manifest.permission.CAMERA
+import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.net.Uri
+import android.os.Build
+import android.os.Build.VERSION_CODES
 import androidx.lifecycle.viewModelScope
-import java.io.IOException
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.groundplatform.android.R
 import org.groundplatform.android.data.remote.firebase.FirebaseStorageManager
 import org.groundplatform.android.repository.UserMediaRepository
+import org.groundplatform.android.system.PermissionDeniedException
+import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.submission.isNotNullOrEmpty
 import org.groundplatform.domain.model.task.PhotoTaskData
 import timber.log.Timber
+import java.io.IOException
+import javax.inject.Inject
 
-class PhotoTaskViewModel @Inject constructor(private val userMediaRepository: UserMediaRepository) :
-  AbstractTaskViewModel() {
+class PhotoTaskViewModel
+@Inject
+constructor(
+  private val userMediaRepository: UserMediaRepository,
+  private val permissionsManager: PermissionsManager,
+) : AbstractTaskViewModel() {
 
   /**
    * Task id waiting for a photo result. As only one photo result is returned at a time, we can
@@ -48,11 +59,45 @@ class PhotoTaskViewModel @Inject constructor(private val userMediaRepository: Us
   var hasLaunchedCamera: Boolean = false
   var capturedUri: Uri? = null
 
-  private val _showPermissionDeniedDialog = MutableStateFlow(false)
-  val showPermissionDeniedDialog: StateFlow<Boolean> = _showPermissionDeniedDialog.asStateFlow()
+  private val _events = MutableSharedFlow<PhotoTaskEvent>()
+  val events: SharedFlow<PhotoTaskEvent> = _events.asSharedFlow()
 
-  fun setShowPermissionDeniedDialog(visible: Boolean) {
-    _showPermissionDeniedDialog.value = visible
+  fun onTakePhoto() {
+    if (hasLaunchedCamera) return
+
+    viewModelScope.launch {
+      _events.emit(PhotoTaskEvent.UpdateAwaitingPhotoCapture(true))
+      obtainCapturePhotoPermissions { launchPhotoCapture() }
+    }
+  }
+
+  suspend fun obtainCapturePhotoPermissions(onPermissionsGranted: suspend () -> Unit = {}) {
+    try {
+      if (Build.VERSION.SDK_INT < VERSION_CODES.R) {
+        permissionsManager.obtainPermission(WRITE_EXTERNAL_STORAGE)
+      }
+      permissionsManager.obtainPermission(CAMERA)
+      onPermissionsGranted()
+    } catch (_: PermissionDeniedException) {
+      _events.emit(
+        PhotoTaskEvent.ShowError(R.string.permission_denied, R.string.camera_permissions_needed)
+      )
+    }
+  }
+
+  private suspend fun launchPhotoCapture() {
+    try {
+      waitForPhotoCapture(task.id)
+      val uri = createImageFileUri()
+      capturedUri = uri
+      hasLaunchedCamera = true
+      _events.emit(PhotoTaskEvent.LaunchCamera(uri))
+      Timber.d("Capture photo intent sent")
+    } catch (e: IllegalArgumentException) {
+      _events.emit(PhotoTaskEvent.UpdateAwaitingPhotoCapture(false))
+      _events.emit(PhotoTaskEvent.ShowError(R.string.unexpected_error, R.string.unexpected_error))
+      Timber.e(e, "Error launching photo capture")
+    }
   }
 
   val uri: Flow<Uri> = taskTaskData.map { taskData ->
@@ -85,6 +130,7 @@ class PhotoTaskViewModel @Inject constructor(private val userMediaRepository: Us
       viewModelScope.launch { savePhotoTaskData(capturedUri!!) }
     }
     hasLaunchedCamera = false
+    viewModelScope.launch { _events.emit(PhotoTaskEvent.UpdateAwaitingPhotoCapture(false)) }
   }
 
   /**

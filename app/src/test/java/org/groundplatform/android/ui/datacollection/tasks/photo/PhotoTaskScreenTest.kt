@@ -15,7 +15,8 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.photo
 
-import android.content.Context
+import android.Manifest.permission.CAMERA
+import android.net.Uri
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -23,12 +24,11 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.core.net.toUri
-import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
-import org.groundplatform.android.R
-import org.groundplatform.android.getString
 import org.groundplatform.android.repository.UserMediaRepository
+import org.groundplatform.android.system.PermissionDeniedException
+import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.ButtonActionStateChecker
@@ -45,8 +45,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
+import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
+import java.io.File
 
 @RunWith(RobolectricTestRunner::class)
 class PhotoTaskScreenTest {
@@ -54,6 +56,7 @@ class PhotoTaskScreenTest {
   @get:Rule val composeTestRule = createComposeRule()
 
   @Mock private lateinit var userMediaRepository: UserMediaRepository
+  @Mock private lateinit var permissionsManager: PermissionsManager
   private lateinit var viewModel: PhotoTaskViewModel
   private var lastButtonAction: ButtonAction? = null
   private val buttonActionStateChecker = ButtonActionStateChecker(composeTestRule)
@@ -71,7 +74,7 @@ class PhotoTaskScreenTest {
     onTakePhoto: () -> Unit = {},
   ) {
     lastButtonAction = null
-    viewModel = PhotoTaskViewModel(userMediaRepository)
+    viewModel = PhotoTaskViewModel(userMediaRepository, permissionsManager)
     viewModel.initialize(
       job = JOB,
       task = task,
@@ -88,13 +91,13 @@ class PhotoTaskScreenTest {
     composeTestRule.setContent {
       PhotoTaskScreen(
         viewModel = viewModel,
-        onTakePhoto = onTakePhoto,
         onFooterPositionUpdated = {},
         onAction = {
           if (it is TaskScreenAction.OnButtonClicked) {
             lastButtonAction = it.action
           }
         },
+        onAwaitingPhotoCapture = {},
       )
     }
   }
@@ -122,13 +125,18 @@ class PhotoTaskScreenTest {
 
   @Test
   fun `invokes onTakePhoto callback when capture button is clicked`() {
-    var onTakePhotoCalled = false
+    setupTaskScreen(TASK)
 
-    setupTaskScreen(TASK, onTakePhoto = { onTakePhotoCalled = true })
+    val file = File("test.jpg")
+    val dummyUri = Uri.parse("content://test")
+    runBlocking { whenever(userMediaRepository.createImageFile(TASK.id)).thenReturn(file) }
+    whenever(userMediaRepository.getUriForFile(file)).thenReturn(dummyUri)
 
     composeTestRule.onNodeWithText("Camera").performClick()
 
-    assertThat(onTakePhotoCalled).isTrue()
+    composeTestRule.waitForIdle()
+
+    runBlocking { verify(permissionsManager).obtainPermission(CAMERA) }
   }
 
   @Test
@@ -208,15 +216,18 @@ class PhotoTaskScreenTest {
   }
 
   @Test
-  fun `shows permission denied dialog when state is true`() {
+  fun `shows permission denied dialog when permission is denied`() {
     setupTaskScreen(TASK)
 
-    viewModel.setShowPermissionDeniedDialog(true)
+    runBlocking {
+      whenever(permissionsManager.obtainPermission(CAMERA)).then {
+        throw PermissionDeniedException("Permission denied")
+      }
+    }
 
-    val context = getApplicationContext<Context>()
-    val expectedTitle = getString(R.string.permission_denied)
+    viewModel.onTakePhoto()
 
-    composeTestRule.onNodeWithText(expectedTitle).assertIsDisplayed()
+    composeTestRule.onNodeWithText("Permission denied").assertIsDisplayed()
   }
 
   companion object {

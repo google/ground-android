@@ -73,7 +73,7 @@ class PhotoTaskFragmentTest : BaseTaskFragmentTest<PhotoTaskFragment, PhotoTaskV
   override fun setUp() {
     super.setUp()
     homeScreenViewModel = mock(HomeScreenViewModel::class.java)
-    photoTaskViewModel = PhotoTaskViewModel(userMediaRepository)
+    photoTaskViewModel = PhotoTaskViewModel(userMediaRepository, permissionsManager)
 
     doReturn(homeScreenViewModel).`when`(viewModelFactory).create(HomeScreenViewModel::class.java)
     doReturn(photoTaskViewModel).`when`(viewModelFactory).create(PhotoTaskViewModel::class.java)
