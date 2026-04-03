@@ -168,6 +168,26 @@ class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
     assertThat(updatedState).isInstanceOf(JobMapComponentState.AddLoiButton::class.java)
   }
 
+  @Test
+  fun `job component state is Hidden when no data is present`() = runWithTestDispatcher {
+    val emptySurvey = SURVEY.copy(id = "EMPTY_SURVEY", jobMap = mapOf())
+    remoteDataStore.surveys = listOf(emptySurvey)
+    activateSurvey(emptySurvey.id)
+    advanceUntilIdle()
+
+    val state = viewModel.processJobMapComponentState().first()
+    assertThat(state).isEqualTo(JobMapComponentState.Hidden)
+  }
+
+  @Test
+  fun `resolveAddLoiAction returns null when state is not AddLoiButton`() = runWithTestDispatcher {
+    val state = JobMapComponentState.Hidden
+
+    val result = viewModel.resolveAddLoiAction(state)
+
+    assertThat(result).isNull()
+  }
+
   companion object {
     private val BOUNDS = Bounds(Coordinates(-20.0, -20.0), Coordinates(-10.0, -10.0))
     val CAMERA_POSITION =

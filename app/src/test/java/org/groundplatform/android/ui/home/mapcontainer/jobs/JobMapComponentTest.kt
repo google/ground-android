@@ -115,6 +115,21 @@ class JobMapComponentTest {
   }
 
   @Test
+  fun `Dismissing job selection modal triggers OnJobSelectionModalDismissed action`() {
+    val performedActions = mutableListOf<JobMapComponentAction>()
+    setContent(
+      JobMapComponentState.JobSelectionModal(
+        jobs = listOf(AdHocDataCollectionButtonData(canCollectData = true, job = ADHOC_JOB))
+      ),
+      onAction = { performedActions += it },
+    )
+
+    composeTestRule.onNodeWithContentDescription(getString(R.string.close)).performClick()
+
+    assertTrue(performedActions.any { it is JobMapComponentAction.OnJobSelectionModalDismissed })
+  }
+
+  @Test
   fun `Clicking button to add new LOI triggers the OnAddLoiButtonClicked action`() {
     val performedActions = mutableListOf<JobMapComponentAction>()
     setContent(
