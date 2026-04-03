@@ -40,7 +40,7 @@ import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.submission.isNotNullOrEmpty
 import org.groundplatform.domain.model.task.PhotoTaskData
 import timber.log.Timber
-import java.io.IOException
+import java.io.File
 import javax.inject.Inject
 
 class PhotoTaskViewModel
@@ -53,7 +53,7 @@ constructor(
   private val _isAwaitingPhotoCapture = MutableStateFlow(false)
   val isAwaitingPhotoCapture: StateFlow<Boolean> = _isAwaitingPhotoCapture.asStateFlow()
 
-  var capturedUri: Uri? = null
+  private var tempPhotoFile: File? = null
 
   private val _events = MutableSharedFlow<PhotoTaskEvent>()
   val events: SharedFlow<PhotoTaskEvent> = _events.asSharedFlow()
@@ -81,9 +81,8 @@ constructor(
 
   private suspend fun launchPhotoCapture() {
     try {
-      val file = userMediaRepository.createImageFile(task.id)
-      val uri = userMediaRepository.getUriForFile(file)
-      capturedUri = uri
+      tempPhotoFile = userMediaRepository.createImageFile(task.id)
+      val uri = userMediaRepository.getUriForFile(tempPhotoFile!!)
       _events.emit(PhotoTaskEvent.LaunchCamera(uri))
       Timber.d("Capture photo intent sent")
     } catch (e: IllegalArgumentException) {
@@ -110,25 +109,25 @@ constructor(
     )
 
   fun onCaptureResult(result: Boolean) {
-    if (result && capturedUri != null) {
-      viewModelScope.launch { savePhotoTaskData(capturedUri!!) }
+    viewModelScope.launch {
+      if (result && tempPhotoFile != null) {
+        finalizePhotoCapture(tempPhotoFile!!)
+      } else {
+        _events.emit(PhotoTaskEvent.ShowError(PhotoTaskError.PHOTO_SAVE_FAILED))
+      }
     }
     _isAwaitingPhotoCapture.value = false
   }
 
-  /**
-   * Saves photo data stored on an on-device URI in Ground-associated storage and prepares it for
-   * inclusion in a data collection submission.
-   */
-  private suspend fun savePhotoTaskData(uri: Uri) {
+  /** Finalizes the photo capture by adding it to the gallery and updating the task data. */
+  private suspend fun finalizePhotoCapture(file: File) {
     try {
-      val file = userMediaRepository.savePhotoFromUri(uri, task.id)
       userMediaRepository.addImageToGallery(file.absolutePath, file.name)
       val remoteFilename = FirebaseStorageManager.getRemoteMediaPath(surveyId, file.name)
       setValue(PhotoTaskData(remoteFilename))
-    } catch (e: IOException) {
+    } catch (e: Exception) {
       _events.emit(PhotoTaskEvent.ShowError(PhotoTaskError.PHOTO_SAVE_FAILED))
-      Timber.e(e, "Error saving photo to storage")
+      Timber.e(e, "Error finalizing photo capture")
     }
   }
 }
