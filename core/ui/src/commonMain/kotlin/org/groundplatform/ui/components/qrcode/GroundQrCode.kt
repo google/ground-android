@@ -15,6 +15,7 @@
  */
 package org.groundplatform.ui.components.qrcode
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,12 +37,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.groundplatform.ui.theme.sizes
+
+@VisibleForTesting const val TEST_TAG_GROUND_QR_CODE = "TEST_TAG_GROUND_QR_CODE"
 
 /**
  * Maximum content size (in UTF-8 bytes) for which a center logo is displayed.
@@ -83,7 +87,10 @@ fun GroundQrCode(
       value = withContext(Dispatchers.Default) { generateQrBitmap(content, showLogo) }
     }
 
-  Column(modifier = modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+  Column(
+    modifier = modifier.fillMaxWidth().testTag(TEST_TAG_GROUND_QR_CODE),
+    horizontalAlignment = Alignment.CenterHorizontally,
+  ) {
     Text(
       text = title,
       style = MaterialTheme.typography.titleMedium,

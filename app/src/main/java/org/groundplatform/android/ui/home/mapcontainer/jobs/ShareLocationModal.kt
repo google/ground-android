@@ -65,10 +65,7 @@ fun ShareLocationModal(loiReport: LoiReport, onDismiss: () -> Unit) {
           modifier =
             Modifier.fillMaxWidth()
               .padding(vertical = 16.dp)
-              .background(
-                MaterialTheme.colorScheme.background,
-                RoundedCornerShape(12.dp),
-              ) // todo consider shapes
+              .background(MaterialTheme.colorScheme.background, RoundedCornerShape(12.dp))
               .padding(24.dp)
         ) {
           GroundQrCode(
