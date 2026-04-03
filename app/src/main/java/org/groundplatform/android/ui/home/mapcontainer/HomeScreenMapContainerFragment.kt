@@ -185,16 +185,28 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     action: JobMapComponentAction,
   ) {
     when (action) {
-      is JobMapComponentAction.OnAddDataClicked -> onCollectData(action.selectedLoi)
-      is JobMapComponentAction.OnDeleteSiteClicked -> onDeleteSite(action.selectedLoi)
-      JobMapComponentAction.OnJobCardDismissed ->
+      is JobMapComponentAction.OnAddDataClicked -> {
+        onCollectData(action.selectedLoi)
+      }
+      is JobMapComponentAction.OnDeleteSiteClicked -> {
+        onDeleteSite(action.selectedLoi)
+      }
+      JobMapComponentAction.OnJobCardDismissed -> {
         mapContainerViewModel.selectLocationOfInterest(null)
-      is JobMapComponentAction.OnJobSelected ->
-        jobMapComponentState.adHocDataCollectionButtonData
-          .firstOrNull { it.job == action.job }
-          ?.let { onCollectData(it) }
-      is JobMapComponentAction.OnJobSelectionModalVisibilityChanged ->
-        mapContainerViewModel.onJobSelectionModalVisibilityChanged(action.isShown)
+      }
+      is JobMapComponentAction.OnJobSelected -> {
+        mapContainerViewModel.setJobSelectionModalVisibility(false)
+        val jobs =
+          (jobMapComponentState as? JobMapComponentState.AddLoiButton)?.jobs
+            ?: (jobMapComponentState as? JobMapComponentState.JobSelectionModal)?.jobs
+        jobs?.firstOrNull { it.job == action.job }?.let { onCollectData(it) }
+      }
+      is JobMapComponentAction.OnAddLoiButtonClicked -> {
+        mapContainerViewModel.resolveAddLoiAction(jobMapComponentState)?.let { onCollectData(it) }
+      }
+      JobMapComponentAction.OnJobSelectionModalDismissed -> {
+        mapContainerViewModel.setJobSelectionModalVisibility(false)
+      }
     }
   }
 

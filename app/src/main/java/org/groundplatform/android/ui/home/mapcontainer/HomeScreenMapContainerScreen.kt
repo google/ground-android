@@ -135,9 +135,8 @@ private fun HomeScreenMapContainerScreenPreview() {
     HomeScreenMapContainerScreen(
       locationLockButtonType = MapFloatingActionButtonType.LocationNotLocked,
       jobComponentState =
-        JobMapComponentState(
-          selectedLoi = null,
-          adHocDataCollectionButtonData =
+        JobMapComponentState.AddLoiButton(
+          jobs =
             listOf(
               AdHocDataCollectionButtonData(
                 canCollectData = true,
@@ -149,7 +148,7 @@ private fun HomeScreenMapContainerScreenPreview() {
                     tasks = emptyMap(),
                   ),
               )
-            ),
+            )
         ),
       shouldShowMapActions = true,
       shouldShowRecenter = true,
