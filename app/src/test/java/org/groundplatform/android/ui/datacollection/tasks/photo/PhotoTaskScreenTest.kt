@@ -71,7 +71,6 @@ class PhotoTaskScreenTest {
     taskData: TaskData? = null,
     isFirst: Boolean = false,
     isLastWithValue: Boolean = false,
-    onTakePhoto: () -> Unit = {},
   ) {
     lastButtonAction = null
     viewModel = PhotoTaskViewModel(userMediaRepository, permissionsManager)

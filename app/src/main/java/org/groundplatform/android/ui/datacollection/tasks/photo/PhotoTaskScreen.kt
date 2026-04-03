@@ -81,9 +81,7 @@ fun PhotoTaskScreen(
       currentEvent ->
       when (currentEvent) {
         is PhotoTaskEvent.LaunchCamera -> capturePhotoLauncher.launch(currentEvent.uri)
-        is PhotoTaskEvent.ShowError -> {
-          activeError = currentEvent
-        }
+        is PhotoTaskEvent.ShowError -> activeError = currentEvent
       }
     }
   }
@@ -159,13 +157,13 @@ private fun CaptureButton(onTakePhoto: () -> Unit) {
 
 @Preview(showBackground = true)
 @Composable
-private fun PhotoTaskContent_Empty() {
+private fun PreviewPhotoTaskContentEmpty() {
   PhotoTaskContent(uri = Uri.EMPTY, onTakePhoto = {}, activeError = null, onDismissError = {})
 }
 
 @Preview(showBackground = true)
 @Composable
-private fun PhotoTaskContent_WithPhoto() {
+private fun PreviewPhotoTaskContentWithPhoto() {
   PhotoTaskContent(
     uri = "content://mock/uri".toUri(),
     onTakePhoto = {},
@@ -176,7 +174,7 @@ private fun PhotoTaskContent_WithPhoto() {
 
 @Preview(showBackground = true)
 @Composable
-private fun PhotoTaskContent_WithError() {
+private fun PreviewPhotoTaskContentWithError() {
   PhotoTaskContent(
     uri = Uri.EMPTY,
     onTakePhoto = {},
