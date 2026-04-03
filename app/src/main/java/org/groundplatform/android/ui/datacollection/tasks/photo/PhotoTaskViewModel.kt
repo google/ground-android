@@ -62,14 +62,13 @@ constructor(
    */
   var taskWaitingForPhoto: String? = null
 
-  var hasLaunchedCamera: Boolean = false
   var capturedUri: Uri? = null
 
   private val _events = MutableSharedFlow<PhotoTaskEvent>()
   val events: SharedFlow<PhotoTaskEvent> = _events.asSharedFlow()
 
   fun onTakePhoto() {
-    if (hasLaunchedCamera) return
+    if (_isAwaitingPhotoCapture.value) return
 
     viewModelScope.launch {
       _isAwaitingPhotoCapture.value = true
@@ -93,10 +92,10 @@ constructor(
 
   private suspend fun launchPhotoCapture() {
     try {
-      waitForPhotoCapture(task.id)
-      val uri = createImageFileUri()
+      taskWaitingForPhoto = task.id
+      val file = userMediaRepository.createImageFile(task.id)
+      val uri = userMediaRepository.getUriForFile(file)
       capturedUri = uri
-      hasLaunchedCamera = true
       _events.emit(PhotoTaskEvent.LaunchCamera(uri))
       Timber.d("Capture photo intent sent")
     } catch (e: IllegalArgumentException) {
@@ -122,20 +121,10 @@ constructor(
       getNextButton(taskData),
     )
 
-  suspend fun createImageFileUri(): Uri {
-    val file = userMediaRepository.createImageFile(task.id)
-    return userMediaRepository.getUriForFile(file)
-  }
-
-  fun waitForPhotoCapture(taskId: String) {
-    taskWaitingForPhoto = taskId
-  }
-
   fun onCaptureResult(result: Boolean) {
     if (result && capturedUri != null) {
       viewModelScope.launch { savePhotoTaskData(capturedUri!!) }
     }
-    hasLaunchedCamera = false
     _isAwaitingPhotoCapture.value = false
   }
 
@@ -155,6 +144,7 @@ constructor(
       withContext(Dispatchers.Main) { setValue(PhotoTaskData(remoteFilename)) }
     } catch (e: IOException) {
       Timber.e(e, "Error saving photo to storage")
+      _events.emit(PhotoTaskEvent.ShowError(R.string.unexpected_error, R.string.unexpected_error))
     }
   }
 }
