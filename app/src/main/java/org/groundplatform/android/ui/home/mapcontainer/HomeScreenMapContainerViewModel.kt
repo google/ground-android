@@ -49,7 +49,6 @@ import org.groundplatform.android.system.SettingsManager
 import org.groundplatform.android.ui.common.BaseMapViewModel
 import org.groundplatform.android.ui.common.SharedViewModel
 import org.groundplatform.android.ui.home.mapcontainer.jobs.AdHocDataCollectionButtonData
-import org.groundplatform.android.ui.home.mapcontainer.jobs.DataCollectionEntryPointData
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentState
 import org.groundplatform.android.ui.home.mapcontainer.jobs.SelectedLoiSheetData
 import org.groundplatform.android.ui.map.Feature
@@ -125,6 +124,8 @@ internal constructor(
    */
   private val adHocLoiJobs: Flow<List<Job>>
 
+  private val showJobSelectionModal = MutableStateFlow(false)
+
   /** Emits whether the current zoom has crossed the zoomed-in threshold or not to cluster LOIs. */
   private val isZoomedInFlow: Flow<Boolean>
 
@@ -169,12 +170,11 @@ internal constructor(
       }
 
     jobMapComponentState =
-      processDataCollectionEntryPoints()
-        .map { (loiCard, jobCards) -> JobMapComponentState(loiCard, jobCards) }
+      processJobMapComponentState()
         .stateIn(
           scope = viewModelScope,
           started = SharingStarted.Lazily,
-          initialValue = JobMapComponentState(),
+          initialValue = JobMapComponentState.Hidden,
         )
   }
 
@@ -196,13 +196,16 @@ internal constructor(
   fun getDataSharingTerms(): Result<Survey.DataSharingTerms?> = getDataSharingTermsUseCase()
 
   /**
-   * Returns a flow of [DataCollectionEntryPointData] associated with the active survey's LOIs and
-   * adhoc jobs for displaying the cards.
+   * Returns a flow of [JobMapComponentState] associated with the active survey's LOIs and adhoc
+   * jobs for displaying the cards.
    */
   @VisibleForTesting
-  fun processDataCollectionEntryPoints():
-    Flow<Pair<SelectedLoiSheetData?, List<AdHocDataCollectionButtonData>>> =
-    combine(loisInViewport, featureClicked, adHocLoiJobs) { loisInView, feature, jobs ->
+  fun processJobMapComponentState(): Flow<JobMapComponentState> =
+    combine(loisInViewport, featureClicked, adHocLoiJobs, showJobSelectionModal) {
+      loisInView,
+      feature,
+      jobs,
+      isModalShown ->
       val canUserSubmitData = userRepository.canUserSubmitData()
       val loiCard =
         loisInView
@@ -216,15 +219,45 @@ internal constructor(
               showDeleteLoiButton = canDelete,
             )
           }
+
       if (loiCard == null && feature != null) {
         // The feature is not in view anymore.
         featureClicked.value = null
       }
-      val jobCard = jobs.map {
+
+      val jobCards = jobs.map {
         AdHocDataCollectionButtonData(canCollectData = canUserSubmitData, job = it)
       }
-      Pair(loiCard, jobCard)
+
+      when {
+        loiCard != null -> JobMapComponentState.LoiSelected(loiCard)
+        isModalShown && jobCards.isNotEmpty() -> JobMapComponentState.JobSelectionModal(jobCards)
+        jobCards.isNotEmpty() -> JobMapComponentState.AddLoiButton(jobCards)
+        else -> JobMapComponentState.Hidden
+      }
     }
+
+  fun setJobSelectionModalVisibility(isVisible: Boolean) {
+    showJobSelectionModal.value = isVisible
+    onJobSelectionModalVisibilityChanged(isVisible)
+  }
+
+  /**
+   * Resolves the result of an "Add LOI" button click based on the current UI state.
+   *
+   * @return The single available [AdHocDataCollectionButtonData], or `null` if a selection modal
+   *   should be shown or the action is not applicable.
+   */
+  fun resolveAddLoiAction(currentState: JobMapComponentState): AdHocDataCollectionButtonData? {
+    val state = currentState as? JobMapComponentState.AddLoiButton ?: return null
+
+    return if (state.jobs.size > 1) {
+      setJobSelectionModalVisibility(true)
+      null
+    } else {
+      state.jobs.firstOrNull()
+    }
+  }
 
   private fun updatedLoiSelectedStates(
     features: Set<Feature>,
