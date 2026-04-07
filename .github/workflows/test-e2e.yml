@@ -24,10 +24,16 @@ permissions:
   contents: read
 
 jobs:
+  approve:
+    runs-on: ubuntu-latest
+    environment: e2e-approval
+    steps:
+      - run: echo "Approval granted"
+
   run-instrumentation-tests:
+    needs: approve
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    environment: e2e-approval
     strategy:
       fail-fast: false
       matrix:
