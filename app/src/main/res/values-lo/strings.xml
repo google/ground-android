@@ -208,4 +208,7 @@
   <string name="location_not_accurate_heading">ຕຳແໜ່ງຂອງທ່ານບໍ່ແມ່ນຍຳ</string>
   <string name="location_not_accurate_description">ລອງຢືນນິ່ງໆ ຫຼື ລໍຖ້າໃຫ້ໄດ້ຕຳແໜ່ງທີ່ແມ່ນຍຳກວ່າ</string>
   <string name="recenter">ຈັດຕຳແໜ່ງກາງໃໝ່</string>
+  <string name="share_location">ແບ່ງປັນຕຳແໜ່ງ</string>
+  <string name="scan_this_qr_to_download_geojson">ສະແກນ QR ນີ້ເພື່ອເບິ່ງ GeoJSON</string>
+  <string name="share">ແບ່ງປັນ</string>
 </resources>

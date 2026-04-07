@@ -239,4 +239,7 @@
 
   <string name="recenter">Recentrar</string>
   <string name="survey_load_timeout_error">La carga de la encuesta ha excedido el tiempo de espera. Verifica tu conexión e inténtalo de nuevo.</string>
+  <string name="share_location">Compartir ubicación</string>
+  <string name="scan_this_qr_to_download_geojson">Escanea este código QR para ver el GeoJSON</string>
+  <string name="share">Compartir</string>
 </resources>

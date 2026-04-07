@@ -241,4 +241,7 @@
   <string name="recenter">Recentrar</string>
 
   <string name="survey_load_timeout_error">O carregamento da pesquisa expirou. Verifique sua conexão e tente novamente.</string>
+  <string name="share_location">Partilhar localização</string>
+  <string name="scan_this_qr_to_download_geojson">Leia este código QR para visualizar o GeoJson</string>
+  <string name="share">Partilhar</string>
 </resources>
