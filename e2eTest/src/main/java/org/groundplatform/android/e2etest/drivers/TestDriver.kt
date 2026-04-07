@@ -38,6 +38,8 @@ interface TestDriver {
 
   fun assertVisible(componentText: String, isVisible: Boolean = false)
 
+  fun dismissSystemDialogs(option: String)
+
   sealed class Target {
     data class TestTag(val tag: String) : Target()
 

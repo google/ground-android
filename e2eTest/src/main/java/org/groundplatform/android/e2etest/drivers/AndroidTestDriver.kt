@@ -180,4 +180,9 @@ class AndroidTestDriver(
       composeRule.onTarget(TestDriver.Target.Text(componentText)).assertIsNotDisplayed()
     }
   }
+
+  override fun dismissSystemDialogs(option: String) {
+    val dialog = device.wait(Until.findObject(By.textContains(option)), DEFAULT_TIMEOUT)
+    dialog?.click()
+  }
 }

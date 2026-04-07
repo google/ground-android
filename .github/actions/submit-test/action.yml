@@ -87,11 +87,6 @@ runs:
         disable-animations: true
         script: |
           adb wait-for-device
-          adb shell settings put secure location_mode 3
-          adb shell settings put secure location_providers_allowed gps,network
-          adb shell settings put global assisted_gps_enabled 1
-          adb shell settings put global network_location_opt_in 1
-          adb shell settings put global use_google_location_services 1
           adb emu geo fix -122.084 37.422
           sleep 2
           ./gradlew connectedLocalDebugAndroidTest --stacktrace
