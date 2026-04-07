@@ -41,6 +41,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
+import java.util.regex.Pattern
 import org.groundplatform.android.R
 import org.groundplatform.android.e2etest.TestConfig.DEFAULT_TIMEOUT
 import org.groundplatform.android.e2etest.TestConfig.TEST_PHOTO_FILE
@@ -182,7 +183,13 @@ class AndroidTestDriver(
   }
 
   override fun dismissSystemDialogs(option: String) {
-    val dialog = device.wait(Until.findObject(By.textContains(option)), DEFAULT_TIMEOUT)
+    val dialog =
+      device.wait(
+        Until.findObject(
+          By.text(Pattern.compile(".*${Regex.escape(option)}.*", Pattern.CASE_INSENSITIVE))
+        ),
+        DEFAULT_TIMEOUT,
+      )
     dialog?.click()
   }
 }
