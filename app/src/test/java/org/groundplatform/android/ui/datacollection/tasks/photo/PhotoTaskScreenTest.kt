@@ -240,7 +240,7 @@ class PhotoTaskScreenTest {
     runBlocking {
       whenever(userMediaRepository.createImageFile(TASK.id)).thenReturn(file)
       whenever(userMediaRepository.addImageToGallery(file.absolutePath, file.name)).then {
-        throw RuntimeException("Save failed")
+        error("Save failed")
       }
     }
     whenever(userMediaRepository.getUriForFile(file)).thenReturn(dummyUri)
