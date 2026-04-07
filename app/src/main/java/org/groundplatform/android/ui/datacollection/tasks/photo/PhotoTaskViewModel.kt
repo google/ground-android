@@ -76,7 +76,7 @@ constructor(
     viewModelScope.launch { obtainCapturePhotoPermissions { launchPhotoCapture() } }
   }
 
-  suspend fun obtainCapturePhotoPermissions(onPermissionsGranted: suspend () -> Unit = {}) {
+  private suspend fun obtainCapturePhotoPermissions(onPermissionsGranted: suspend () -> Unit = {}) {
     try {
       if (Build.VERSION.SDK_INT < VERSION_CODES.R) {
         permissionsManager.obtainPermission(WRITE_EXTERNAL_STORAGE)
@@ -120,8 +120,8 @@ constructor(
       } else {
         _events.send(PhotoTaskEvent.ShowError(PhotoTaskError.PHOTO_SAVE_FAILED))
       }
+      _isAwaitingPhotoCapture.value = false
     }
-    _isAwaitingPhotoCapture.value = false
   }
 
   /** Finalizes the photo capture by adding it to the gallery and updating the task data. */

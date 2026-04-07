@@ -32,8 +32,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -65,7 +65,7 @@ fun PhotoTaskScreen(
   val uri by viewModel.uri.collectAsStateWithLifecycle(Uri.EMPTY)
   val isAwaiting by viewModel.isAwaitingPhotoCapture.collectAsStateWithLifecycle()
 
-  var activeError by remember { mutableStateOf<PhotoTaskEvent.ShowError?>(null) }
+  var activeError by rememberSaveable { mutableStateOf<PhotoTaskError?>(null) }
 
   val currentOnAwaiting by rememberUpdatedState(onAwaitingPhotoCapture)
   LaunchedEffect(isAwaiting) { currentOnAwaiting(isAwaiting) }
@@ -81,7 +81,7 @@ fun PhotoTaskScreen(
       currentEvent ->
       when (currentEvent) {
         is PhotoTaskEvent.LaunchCamera -> capturePhotoLauncher.launch(currentEvent.uri)
-        is PhotoTaskEvent.ShowError -> activeError = currentEvent
+        is PhotoTaskEvent.ShowError -> activeError = currentEvent.errorType
       }
     }
   }
@@ -108,7 +108,7 @@ fun PhotoTaskScreen(
 internal fun PhotoTaskContent(
   uri: Uri,
   onTakePhoto: () -> Unit,
-  activeError: PhotoTaskEvent.ShowError?,
+  activeError: PhotoTaskError?,
   onDismissError: () -> Unit,
   modifier: Modifier = Modifier,
 ) {
@@ -120,9 +120,9 @@ internal fun PhotoTaskContent(
     }
   }
 
-  activeError?.let { errorEvent ->
+  activeError?.let { errorType ->
     val (titleResId, messageResId) =
-      when (errorEvent.errorType) {
+      when (errorType) {
         PhotoTaskError.PERMISSION_DENIED ->
           Pair(R.string.permission_denied, R.string.camera_permissions_needed)
         PhotoTaskError.CAMERA_LAUNCH_FAILED ->
@@ -135,6 +135,7 @@ internal fun PhotoTaskContent(
       description = messageResId,
       confirmButtonText = R.string.ok,
       onConfirmClicked = onDismissError,
+      dismissButtonText = null,
     )
   }
 }
@@ -178,7 +179,7 @@ private fun PreviewPhotoTaskContentWithError() {
   PhotoTaskContent(
     uri = Uri.EMPTY,
     onTakePhoto = {},
-    activeError = PhotoTaskEvent.ShowError(PhotoTaskError.CAMERA_LAUNCH_FAILED),
+    activeError = PhotoTaskError.CAMERA_LAUNCH_FAILED,
     onDismissError = {},
   )
 }
