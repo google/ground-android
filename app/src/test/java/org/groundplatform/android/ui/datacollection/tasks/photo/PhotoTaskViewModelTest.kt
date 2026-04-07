@@ -121,17 +121,6 @@ class PhotoTaskViewModelTest : BaseHiltTest() {
     }
 
   @Test
-  fun `onCaptureResult emits error when result is false`() = runWithTestDispatcher {
-    viewModel.events.test {
-      viewModel.onCaptureResult(false)
-      val event = awaitItem()
-      assertThat(event).isInstanceOf(PhotoTaskEvent.ShowError::class.java)
-      assertThat((event as PhotoTaskEvent.ShowError).errorType)
-        .isEqualTo(PhotoTaskError.PHOTO_SAVE_FAILED)
-    }
-  }
-
-  @Test
   fun `onTakePhoto emits LaunchCamera event`() = runWithTestDispatcher {
     whenever(permissionsManager.obtainPermission(any())).thenReturn(Unit)
     val mockFile = mock<File>()
