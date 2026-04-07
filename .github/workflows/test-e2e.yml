@@ -28,6 +28,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: e2e-approval
+    strategy:
+      fail-fast: false
+      matrix:
+        api-level: [ 24, 30 ]
     env:
       FIREBASE_CLI_EXPERIMENTS: webframeworks
 
@@ -47,3 +51,4 @@ jobs:
           android-repository: google/ground-android
           upload-artifacts: true
           google-maps-key: ${{ secrets.MAPS_API_KEY }}
+          api-level: ${{ matrix.api-level }}
