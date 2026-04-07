@@ -117,8 +117,6 @@ constructor(
     viewModelScope.launch {
       if (result && filePath != null) {
         finalizePhotoCapture(File(filePath))
-      } else {
-        _events.send(PhotoTaskEvent.ShowError(PhotoTaskError.PHOTO_SAVE_FAILED))
       }
       _isAwaitingPhotoCapture.value = false
     }

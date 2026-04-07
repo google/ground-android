@@ -215,7 +215,7 @@ class PhotoTaskScreenTest {
   }
 
   @Test
-  fun `shows permission denied dialog when permission is denied`() {
+  fun `dismisses permission denied dialog when OK is clicked`() {
     setupTaskScreen(TASK)
 
     runBlocking {
@@ -227,6 +227,43 @@ class PhotoTaskScreenTest {
     viewModel.onTakePhoto()
 
     composeTestRule.onNodeWithText("Permission denied").assertIsDisplayed()
+    composeTestRule.onNodeWithText("OK").performClick()
+    composeTestRule.onNodeWithText("Permission denied").assertIsNotDisplayed()
+  }
+
+  @Test
+  fun `shows photo save failed dialog when finalize fails`() {
+    setupTaskScreen(TASK)
+
+    val file = File("test.jpg")
+    val dummyUri = Uri.parse("content://test")
+    runBlocking {
+      whenever(userMediaRepository.createImageFile(TASK.id)).thenReturn(file)
+      whenever(userMediaRepository.addImageToGallery(file.absolutePath, file.name)).then {
+        throw RuntimeException("Save failed")
+      }
+    }
+    whenever(userMediaRepository.getUriForFile(file)).thenReturn(dummyUri)
+
+    viewModel.onTakePhoto()
+    viewModel.onCaptureResult(true)
+
+    composeTestRule.onNodeWithText("Save Error").assertIsDisplayed()
+  }
+
+  @Test
+  fun `shows camera launch failed dialog when camera launch fails`() {
+    setupTaskScreen(TASK)
+
+    runBlocking {
+      whenever(userMediaRepository.createImageFile(TASK.id)).then {
+        throw IllegalArgumentException("Launch failed")
+      }
+    }
+
+    viewModel.onTakePhoto()
+
+    composeTestRule.onNodeWithText("Camera Error").assertIsDisplayed()
   }
 
   companion object {
