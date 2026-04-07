@@ -88,7 +88,8 @@ runs:
         script: |
           adb wait-for-device
           adb shell settings put secure location_mode 3
-          adb shell settings put secure location_providers_allowed +gps,network
+          adb shell settings put secure location_providers_allowed gps,network
+          adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
           adb emu geo fix -122.084 37.422
           sleep 2
           ./gradlew connectedLocalDebugAndroidTest --stacktrace
