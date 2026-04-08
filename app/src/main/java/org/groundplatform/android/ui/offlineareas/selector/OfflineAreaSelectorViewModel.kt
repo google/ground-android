@@ -38,7 +38,6 @@ import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.system.SettingsManager
 import org.groundplatform.android.ui.common.BaseMapViewModel
-import org.groundplatform.android.ui.common.SharedViewModel
 import org.groundplatform.android.ui.offlineareas.selector.model.BottomTextState
 import org.groundplatform.android.ui.offlineareas.selector.model.UiState
 import org.groundplatform.android.util.toMb
