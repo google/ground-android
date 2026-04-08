@@ -30,7 +30,7 @@ jobs:
     steps:
       - run: echo "Approval granted"
 
-  run-instrumentation-tests:
+  instrumentation-matrix:
     needs: request-approval
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -58,3 +58,12 @@ jobs:
           upload-artifacts: true
           google-maps-key: ${{ secrets.MAPS_API_KEY }}
           api-level: ${{ matrix.api-level }}
+
+  run-instrumentation-tests:
+    needs: instrumentation-matrix
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check matrix results
+        run: |
+          [ "${{ needs.instrumentation-matrix.result }}" = "success" ] || exit 1
