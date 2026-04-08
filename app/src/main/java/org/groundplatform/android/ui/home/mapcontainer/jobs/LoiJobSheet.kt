@@ -98,7 +98,7 @@ fun LoiJobSheet(
 }
 
 @Composable
-private fun ModalContents( // todo consider refactor to simpler state
+private fun ModalContents(
   loi: LocationOfInterest,
   canUserSubmitData: Boolean,
   submissionCount: Int,

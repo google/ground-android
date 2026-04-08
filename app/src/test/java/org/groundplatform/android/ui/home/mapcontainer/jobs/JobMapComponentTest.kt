@@ -20,6 +20,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import kotlin.test.Test
@@ -31,6 +32,7 @@ import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST_LOI_REPORT
 import org.groundplatform.android.FakeData.newTask
 import org.groundplatform.android.R
 import org.groundplatform.android.getString
+import org.groundplatform.ui.components.qrcode.TEST_TAG_GROUND_QR_CODE
 import org.junit.Rule
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -220,6 +222,48 @@ class JobMapComponentTest {
         it is JobMapComponentAction.OnAddDataClicked && it.selectedLoi == selectedLoiSheetData
       }
     )
+  }
+
+  @Test
+  fun `Clicking on the Share button should display the ShareLocationModal`() {
+    val loiSheetData =
+      SelectedLoiSheetData(
+        canCollectData = true,
+        LOCATION_OF_INTEREST,
+        0,
+        true,
+        LOCATION_OF_INTEREST_LOI_REPORT,
+      )
+    composeTestRule.setContent {
+      JobMapComponent(state = JobMapComponentState.LoiSelected(loiSheetData), onAction = {})
+    }
+
+    composeTestRule.onNodeWithText(getString(R.string.share)).performClick()
+
+    composeTestRule.onNodeWithText(getString(R.string.share_location)).assertIsDisplayed()
+    composeTestRule.onNodeWithTag(TEST_TAG_GROUND_QR_CODE).assertIsDisplayed()
+  }
+
+  @Test
+  fun `Clicking on the Close button on the ShareLocationModal should close it`() {
+    val loiSheetData =
+      SelectedLoiSheetData(
+        canCollectData = true,
+        LOCATION_OF_INTEREST,
+        0,
+        true,
+        LOCATION_OF_INTEREST_LOI_REPORT,
+      )
+    composeTestRule.setContent {
+      JobMapComponent(state = JobMapComponentState.LoiSelected(loiSheetData), onAction = {})
+    }
+
+    composeTestRule.onNodeWithText(getString(R.string.share)).performClick()
+    composeTestRule.onNodeWithText(getString(R.string.close)).performClick()
+    composeTestRule.waitForIdle()
+
+    composeTestRule.onNodeWithText(loiSheetData.loi.job.name!!).assertIsDisplayed()
+    composeTestRule.onNodeWithTag(TEST_TAG_GROUND_QR_CODE).assertDoesNotExist()
   }
 
   private fun setContent(

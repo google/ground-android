@@ -16,6 +16,7 @@
 package org.groundplatform.android.usecases.submission
 
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.test.runTest
 import org.groundplatform.android.FakeData.newTask
@@ -45,10 +46,12 @@ class SubmitDataUseCaseTest {
 
   private lateinit var submitDataUseCase: SubmitDataUseCase
 
+  private val submittedLoiId = "loiId"
+
   @Before
   fun setUp() = runTest {
     whenever(locationOfInterestRepository.saveLoi(any(), any(), any(), anyOrNull(), any()))
-      .thenReturn("loiId")
+      .thenReturn(submittedLoiId)
     submitDataUseCase = SubmitDataUseCase(locationOfInterestRepository, submissionRepository)
   }
 
@@ -81,18 +84,17 @@ class SubmitDataUseCaseTest {
     val taskData = CaptureLocationTaskData(location, null, null)
     val taskValue = ValueDelta(taskId = task.id, taskType = task.type, newTaskData = taskData)
 
-    submitDataUseCase.invoke(
-      selectedLoiId = null,
-      job = Job(id = "1", tasks = mapOf(task.id to task)),
-      surveyId = "survey",
-      deltas = listOf(taskValue),
-      loiName = "LOI Name",
-      collectionId = "collectionId",
-    )
-    // If no exception is thrown, the test passes.
-    // Ideally we should verify the repository was called, but that requires mocking which is
-    // harder in this integration-style test.
-    // The main point is to verify the 'when' block handles the type correctly.
+    val result =
+      submitDataUseCase.invoke(
+        selectedLoiId = null,
+        job = Job(id = "1", tasks = mapOf(task.id to task)),
+        surveyId = "survey",
+        deltas = listOf(taskValue),
+        loiName = "LOI Name",
+        collectionId = "collectionId",
+      )
+
+    assertEquals(submittedLoiId, result)
   }
 
   @Test
@@ -102,13 +104,16 @@ class SubmitDataUseCaseTest {
     val taskData = DropPinTaskData(location)
     val taskValue = ValueDelta(taskId = task.id, taskType = task.type, newTaskData = taskData)
 
-    submitDataUseCase.invoke(
-      selectedLoiId = null,
-      job = Job(id = "1", tasks = mapOf(task.id to task)),
-      surveyId = "survey",
-      deltas = listOf(taskValue),
-      loiName = "LOI Name",
-      collectionId = "collectionId",
-    )
+    val result =
+      submitDataUseCase.invoke(
+        selectedLoiId = null,
+        job = Job(id = "1", tasks = mapOf(task.id to task)),
+        surveyId = "survey",
+        deltas = listOf(taskValue),
+        loiName = "LOI Name",
+        collectionId = "collectionId",
+      )
+
+    assertEquals(submittedLoiId, result)
   }
 }

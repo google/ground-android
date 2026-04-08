@@ -20,6 +20,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.navigation.fragment.findNavController
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -332,6 +333,23 @@ class DataCollectionFragmentTest : BaseHiltTest() {
 
     assertThat(getToolbar()?.navigationIcon).isNotNull()
     assertThat(getToolbar()?.title).isEqualTo(getString(R.string.data_collection_complete))
+  }
+
+  @Test
+  fun `Back navigation at the end of data collection exits the screen`() = runWithTestDispatcher {
+    setupFragment()
+
+    runner()
+      .inputText(TASK_1_RESPONSE)
+      .clickNextButton()
+      .selectOption(TASK_2_OPTION_LABEL)
+      .clickDoneButton()
+      .pressBackButton()
+
+    advanceUntilIdle()
+
+    assertThat(fragment.findNavController().currentDestination?.id)
+      .isNotEqualTo(R.id.data_collection_fragment)
   }
 
   @Test

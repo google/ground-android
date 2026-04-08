@@ -21,7 +21,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -54,7 +56,7 @@ fun ShareLocationModal(loiReport: LoiReport, onDismiss: () -> Unit) {
       shape = RoundedCornerShape(24.dp),
       colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
     ) {
-      Column(Modifier.padding(24.dp)) {
+      Column(Modifier.verticalScroll(rememberScrollState()).padding(24.dp)) {
         Text(
           text = stringResource(R.string.share_location),
           style = MaterialTheme.typography.titleLarge,

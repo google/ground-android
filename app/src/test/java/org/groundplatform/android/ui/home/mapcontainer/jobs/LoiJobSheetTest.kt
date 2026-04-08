@@ -85,7 +85,25 @@ class LoiJobSheetTest {
     composeTestRule.onNodeWithText(getString(R.string.delete_site)).assertIsNotDisplayed()
   }
 
-  private fun setContent(loi: LocationOfInterest, showDeleteLoiButton: Boolean = false) {
+  @Test
+  fun `share button is shown when there is a LoiReport`() {
+    setContent(FREE_FORM_LOI)
+
+    composeTestRule.onNodeWithText(getString(R.string.share)).assertIsDisplayed()
+  }
+
+  @Test
+  fun `share button is not shown when there is no LoiReport`() {
+    setContent(FREE_FORM_LOI, loiReport = null)
+
+    composeTestRule.onNodeWithText(getString(R.string.share)).assertIsNotDisplayed()
+  }
+
+  private fun setContent(
+    loi: LocationOfInterest,
+    showDeleteLoiButton: Boolean = false,
+    loiReport: LoiReport? = getLoiReport(loi.id),
+  ) {
     composeTestRule.setContent {
       LoiJobSheet(
         state =
@@ -94,7 +112,7 @@ class LoiJobSheetTest {
             submissionCount = 0,
             loi = loi,
             showDeleteLoiButton = showDeleteLoiButton,
-            loiReport = getLoiReport(loi.id),
+            loiReport = loiReport,
           ),
         onCollectClicked = {},
         onDismiss = {},

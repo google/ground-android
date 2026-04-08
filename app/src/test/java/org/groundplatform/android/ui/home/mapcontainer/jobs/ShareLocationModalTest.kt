@@ -19,6 +19,8 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import kotlin.test.Test
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
@@ -28,6 +30,7 @@ import org.groundplatform.android.getString
 import org.groundplatform.domain.model.locationofinterest.LoiReport
 import org.groundplatform.ui.components.qrcode.TEST_TAG_GROUND_QR_CODE
 import org.groundplatform.ui.theme.AppTheme
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -44,6 +47,27 @@ class ShareLocationModalTest {
     composeTestRule.onNodeWithText(getString(R.string.share_location)).assertIsDisplayed()
     composeTestRule.onNodeWithText(LOI_NAME).assertIsDisplayed()
     composeTestRule.onNodeWithTag(TEST_TAG_GROUND_QR_CODE).assertIsDisplayed()
+    composeTestRule
+      .onNodeWithText(getString(R.string.scan_this_qr_to_download_geojson))
+      .performScrollTo()
+      .assertIsDisplayed()
+    composeTestRule.onNodeWithText(getString(R.string.close)).performScrollTo().assertIsDisplayed()
+  }
+
+  @Test
+  fun `onDismiss callback is triggered when close button is clicked`() {
+    var dismissed = false
+
+    composeTestRule.setContent {
+      ShareLocationModal(
+        loiReport = LoiReport(LOI_NAME, LOI_GEO_JSON),
+        onDismiss = { dismissed = true },
+      )
+    }
+
+    composeTestRule.onNodeWithText(getString(R.string.close)).performScrollTo().performClick()
+
+    composeTestRule.runOnIdle { assertTrue(dismissed) }
   }
 
   private companion object {
