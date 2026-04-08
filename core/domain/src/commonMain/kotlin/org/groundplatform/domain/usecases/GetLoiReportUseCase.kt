@@ -43,7 +43,7 @@ class GetLoiReportUseCase(
   /**
    * Returns a [LoiReport] for the given LOI, or `null` if it does not exist.
    *
-   * @param loiId the identifier of the location of interest.
+   * @param loiName the identifier of the location of interest.
    * @param surveyId the identifier of the survey the LOI belongs to.
    * @throws IllegalStateException if the LOI geometry is a bare [LinearRing].
    */
