@@ -218,7 +218,7 @@
 
   <string name="recenter">Recentrer</string>
   <string name="survey_load_timeout_error">Le chargement du sondage a expiré. Veuillez vérifier votre connexion et réessayer.</string>
-  <string name="share_location">Partager l\'emplacement</string>
+  <string name="share_location">Partager l&#8217;emplacement</string>
   <string name="scan_this_qr_to_download_geojson">Scannez ce code QR pour afficher le GeoJson</string>
   <string name="share">Partager</string>
 </resources>
