@@ -38,7 +38,7 @@ interface TestDriver {
 
   fun assertVisible(componentText: String, isVisible: Boolean = false)
 
-  fun dismissSystemDialogs(option: String)
+  fun enableLocationServices()
 
   sealed class Target {
     data class TestTag(val tag: String) : Target()

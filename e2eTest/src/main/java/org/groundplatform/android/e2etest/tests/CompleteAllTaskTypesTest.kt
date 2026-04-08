@@ -92,7 +92,7 @@ class CompleteAllTaskTypesTest {
     with(SurveySelectorRobot(testDriver)) { selectSurvey(TestConfig.SURVEY_NAME) }
     // Add new LOI and test all task types except DRAW_AREA
     with(HomeScreenRobot(testDriver)) {
-      dismissLocationServicesPopup()
+      enableLocationServices()
       moveMap()
       recenter()
       addLoi()

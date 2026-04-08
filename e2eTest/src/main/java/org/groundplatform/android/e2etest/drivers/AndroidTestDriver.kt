@@ -182,14 +182,14 @@ class AndroidTestDriver(
     }
   }
 
-  override fun dismissSystemDialogs(option: String) {
-    val dialog =
+  override fun enableLocationServices() {
+    val button =
       device.wait(
         Until.findObject(
-          By.text(Pattern.compile(".*${Regex.escape(option)}.*", Pattern.CASE_INSENSITIVE))
+          By.text(Pattern.compile(".*${Regex.escape("ok")}.*", Pattern.CASE_INSENSITIVE))
         ),
         DEFAULT_TIMEOUT,
       )
-    dialog?.click()
+    button?.click()
   }
 }
