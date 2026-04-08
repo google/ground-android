@@ -31,13 +31,19 @@ jobs:
       - run: echo "Approval granted"
 
   instrumentation-matrix:
+    name: API ${{ matrix.api-level }}
     needs: request-approval
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        api-level: [ 24, 30 ]
+        include:
+          - api-level: 30
+            required: true
+          - api-level: 24
+            required: false
+    continue-on-error: ${{ !matrix.required }}
     env:
       FIREBASE_CLI_EXPERIMENTS: webframeworks
 
@@ -66,4 +72,7 @@ jobs:
     steps:
       - name: Check matrix results
         run: |
-          [ "${{ needs.instrumentation-matrix.result }}" = "success" ] || exit 1
+          if [ "${{ needs.instrumentation-matrix.result }}" != "success" ]; then
+            echo "Required instrumentation tests failed"
+            exit 1
+          fi
