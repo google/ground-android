@@ -95,63 +95,63 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
   }
 
   private fun setupObservers() {
+    viewModel.isDownloadProgressVisible.observe(viewLifecycleOwner) {
+      showDownloadProgressDialog(it)
+    }
+    viewModel.isFailure.observe(viewLifecycleOwner) {
+      if (it) {
+        Toast.makeText(context, R.string.offline_area_download_error, Toast.LENGTH_LONG).show()
+      }
+    }
+
     viewLifecycleOwner.lifecycleScope.launch {
-      viewModel.isDownloadProgressVisible.observe(viewLifecycleOwner) {
-        showDownloadProgressDialog(it)
-      }
-      viewModel.isFailure.observe(viewLifecycleOwner) {
-        if (it) {
-          Toast.makeText(context, R.string.offline_area_download_error, Toast.LENGTH_LONG).show()
-        }
-      }
-    }
+      viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        launch {
+          viewModel.navigate.collect {
+            when (it) {
+              is UiState.OfflineAreaBackToHomeScreen -> {
+                findNavController()
+                  .navigate(OfflineAreaSelectorFragmentDirections.offlineAreaBackToHomescreen())
+              }
 
-    lifecycleScope.launch {
-      viewModel.navigate.collect {
-        when (it) {
-          is UiState.OfflineAreaBackToHomeScreen -> {
-            findNavController()
-              .navigate(OfflineAreaSelectorFragmentDirections.offlineAreaBackToHomescreen())
-          }
-          is UiState.Up -> {
-            findNavController().navigateUp()
+              is UiState.Up -> {
+                findNavController().navigateUp()
+              }
+            }
           }
         }
-      }
-    }
-
-    lifecycleScope.launch {
-      viewModel.networkUnavailableEvent.collect {
-        popups.ErrorPopup().show(R.string.connect_to_download_message)
+        launch {
+          viewModel.networkUnavailableEvent.collect {
+            popups.ErrorPopup().show(R.string.connect_to_download_message)
+          }
+        }
+        launch {
+          viewModel.bottomTextState.collect {
+            binding.bottomText.text =
+              when (it) {
+                is BottomTextState.AreaSize ->
+                  resources.getString(R.string.selected_offline_area_size, it.size)
+                BottomTextState.AreaTooLarge ->
+                  resources.getString(R.string.selected_offline_area_too_large)
+                BottomTextState.Loading ->
+                  resources.getString(
+                    R.string.selected_offline_area_size,
+                    resources.getString(R.string.offline_area_size_loading_symbol),
+                  )
+                BottomTextState.NetworkError ->
+                  resources.getString(R.string.connect_to_download_message)
+                BottomTextState.NoImageryAvailable ->
+                  resources.getString(R.string.no_imagery_available_for_area)
+                null -> ""
+              }
+          }
+        }
       }
     }
 
     viewModel.downloadButtonEnabled.observe(viewLifecycleOwner) {
       binding.downloadButton.isEnabled = it
       binding.downloadButton.isClickable = it
-    }
-    lifecycleScope.launch {
-      repeatOnLifecycle(Lifecycle.State.STARTED) {
-        viewModel.bottomTextState.collect {
-          binding.bottomText.text =
-            when (it) {
-              is BottomTextState.AreaSize ->
-                resources.getString(R.string.selected_offline_area_size, it.size)
-              BottomTextState.AreaTooLarge ->
-                resources.getString(R.string.selected_offline_area_too_large)
-              BottomTextState.Loading ->
-                resources.getString(
-                  R.string.selected_offline_area_size,
-                  resources.getString(R.string.offline_area_size_loading_symbol),
-                )
-              BottomTextState.NetworkError ->
-                resources.getString(R.string.connect_to_download_message)
-              BottomTextState.NoImageryAvailable ->
-                resources.getString(R.string.no_imagery_available_for_area)
-              null -> ""
-            }
-        }
-      }
     }
   }
 
