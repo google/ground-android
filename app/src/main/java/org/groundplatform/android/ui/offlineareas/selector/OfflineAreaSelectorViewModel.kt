@@ -51,7 +51,6 @@ private const val MIN_DOWNLOAD_ZOOM_LEVEL = 9
 private const val MAX_AREA_DOWNLOAD_SIZE_MB = 50
 
 /** States and behaviors of Map UI used to select areas for download and viewing offline. */
-@SharedViewModel
 class OfflineAreaSelectorViewModel
 @Inject
 internal constructor(
