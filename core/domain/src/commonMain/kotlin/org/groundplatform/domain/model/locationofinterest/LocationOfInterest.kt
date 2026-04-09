@@ -24,6 +24,7 @@ import org.groundplatform.domain.model.mutation.Mutation
 typealias LoiProperties = Map<String, Any>
 
 const val LOI_NAME_PROPERTY = "name"
+const val LOI_GEO_ID_PROPERTY = "tbd"
 
 fun generateProperties(loiName: String? = null): LoiProperties =
   loiName?.let { mapOf(LOI_NAME_PROPERTY to it) } ?: mapOf()

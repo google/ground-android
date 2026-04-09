@@ -22,7 +22,9 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import org.groundplatform.android.data.local.stores.LocalLocationOfInterestStore
 import org.groundplatform.android.data.local.stores.LocalSurveyStore
@@ -119,7 +121,9 @@ constructor(
 
   override suspend fun getOfflineLoi(surveyId: String, loiId: String): LocationOfInterest? {
     val survey = localSurveyStore.getSurveyById(surveyId)
-    val locationOfInterest = survey?.let { localLoiStore.getLocationOfInterest(it, loiId) }
+    val locationOfInterest = survey?.let {
+      localLoiStore.getLocationOfInterestFlow(it, loiId).firstOrNull()
+    }
 
     if (survey == null) {
       Timber.e("Survey not found: $surveyId")
@@ -127,6 +131,15 @@ constructor(
       Timber.e("LOI not found for survey $surveyId: LOI ID $loiId")
     }
     return locationOfInterest
+  }
+
+  override fun getLoiFlow(surveyId: String, loiId: String): Flow<LocationOfInterest?> = flow {
+    val survey = localSurveyStore.getSurveyById(surveyId)
+    if (survey != null) {
+      emitAll(localLoiStore.getLocationOfInterestFlow(survey, loiId))
+    } else {
+      emit(null)
+    }
   }
 
   override suspend fun saveLoi(

@@ -38,10 +38,10 @@ interface LocalLocationOfInterestStore :
   fun getValidLois(survey: Survey): Flow<Set<LocationOfInterest>>
 
   /** Returns the [LocationOfInterest] with the specified UUID from the local data store. */
-  suspend fun getLocationOfInterest(
+  suspend fun getLocationOfInterestFlow(
     survey: Survey,
     locationOfInterestId: String,
-  ): LocationOfInterest?
+  ): Flow<LocationOfInterest?>
 
   /** Deletes LOI from local database. */
   suspend fun deleteLocationOfInterest(locationOfInterestId: String)

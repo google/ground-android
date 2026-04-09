@@ -16,6 +16,9 @@
 package org.groundplatform.domain.usecases
 
 import kotlin.math.round
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
@@ -27,6 +30,7 @@ import org.groundplatform.domain.model.geometry.LinearRing
 import org.groundplatform.domain.model.geometry.MultiPolygon
 import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.geometry.Polygon
+import org.groundplatform.domain.model.locationofinterest.LOI_GEO_ID_PROPERTY
 import org.groundplatform.domain.model.locationofinterest.LOI_NAME_PROPERTY
 import org.groundplatform.domain.model.locationofinterest.LoiProperties
 import org.groundplatform.domain.model.locationofinterest.LoiReport
@@ -47,17 +51,21 @@ class GetLoiReportUseCase(
    * @param surveyId the identifier of the survey the LOI belongs to.
    * @throws IllegalStateException if the LOI geometry is a bare [LinearRing].
    */
-  suspend operator fun invoke(loiName: String, loiId: String, surveyId: String): LoiReport? {
-    val loi = locationOfInterestRepository.getOfflineLoi(surveyId, loiId)
-    return loi?.let {
-      LoiReport(
-        loiName,
-        it.geometry.toGeoJson(
-          it.properties.filter { property -> property.key == LOI_NAME_PROPERTY }
-        ),
-      )
-    }
-  }
+  operator fun invoke(loiName: String, loiId: String, surveyId: String): Flow<LoiReport?> =
+    locationOfInterestRepository
+      .getLoiFlow(surveyId, loiId)
+      .map { loi ->
+        loi?.let {
+          val geoId = it.properties[LOI_GEO_ID_PROPERTY]?.toString()
+          LoiReport(
+            loiName = loiName,
+            geoJson =
+              it.geometry.toGeoJson(it.properties.filter { p -> p.key == LOI_NAME_PROPERTY }),
+            geoId = geoId,
+          )
+        }
+      }
+      .distinctUntilChanged()
 
   /**
    * Converts a [Geometry] to its GeoJSON representation as defined by

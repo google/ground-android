@@ -41,6 +41,9 @@ interface LocationOfInterestDao : BaseDao<LocationOfInterestEntity> {
   @Query("SELECT * FROM location_of_interest WHERE id = :id")
   suspend fun findById(id: String): LocationOfInterestEntity?
 
+  @Query("SELECT * FROM location_of_interest WHERE id = :id")
+  fun getLoiFlow(id: String): Flow<LocationOfInterestEntity?>
+
   /**
    * Deletes all LOIs in specified survey whose IDs are not present in the specified list..
    * Main-safe.

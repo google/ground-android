@@ -52,11 +52,13 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
       toLocationsOfInterest(survey, it)
     }
 
-  override suspend fun getLocationOfInterest(
+  override suspend fun getLocationOfInterestFlow(
     survey: Survey,
     locationOfInterestId: String,
-  ): LocationOfInterest? =
-    locationOfInterestDao.findById(locationOfInterestId)?.toModelObject(survey)
+  ): Flow<LocationOfInterest?> =
+    locationOfInterestDao.getLoiFlow(locationOfInterestId).map { entity ->
+      entity?.toModelObject(survey)
+    }
 
   // TODO: Apply pending local mutations before saving.
   // Issue URL: https://github.com/google/ground-android/issues/706

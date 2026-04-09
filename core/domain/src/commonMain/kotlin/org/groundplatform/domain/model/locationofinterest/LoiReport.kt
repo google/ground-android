@@ -18,4 +18,4 @@ package org.groundplatform.domain.model.locationofinterest
 import kotlinx.serialization.json.JsonObject
 
 /** Represents the data collected for a specific LOI which can be downloaded and shared. */
-data class LoiReport(val loiName: String, val geoJson: JsonObject)
+data class LoiReport(val loiName: String, val geoJson: JsonObject, val geoId: String?)

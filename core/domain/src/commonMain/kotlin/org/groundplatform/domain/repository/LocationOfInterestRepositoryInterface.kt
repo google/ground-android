@@ -29,6 +29,7 @@ interface LocationOfInterestRepositoryInterface {
 
   /** This only works if the survey and location of interests are already cached to local db. */
   suspend fun getOfflineLoi(surveyId: String, loiId: String): LocationOfInterest?
+  fun getLoiFlow(surveyId: String, loiId: String): Flow<LocationOfInterest?>
 
   /** Saves a new LOI in the local db and enqueues a sync worker. */
   suspend fun saveLoi(
