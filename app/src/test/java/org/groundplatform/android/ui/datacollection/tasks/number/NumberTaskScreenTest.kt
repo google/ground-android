@@ -59,6 +59,7 @@ class NumberTaskScreenTest {
 
           override fun isLastWithValue(taskData: TaskData?) = false
         },
+      surveyId = "survey_id",
     )
 
     buttonActionStateChecker = ButtonActionStateChecker(composeTestRule)

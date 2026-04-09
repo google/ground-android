@@ -62,6 +62,7 @@ class InstructionTaskScreenTest {
 
               override fun isLastWithValue(taskData: TaskData?) = isLastWithValue
             },
+          surveyId = "survey_id",
         )
       }
 

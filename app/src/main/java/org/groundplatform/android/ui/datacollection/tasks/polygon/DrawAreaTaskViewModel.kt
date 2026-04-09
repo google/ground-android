@@ -170,8 +170,9 @@ internal constructor(
     task: Task,
     taskData: TaskData?,
     taskPositionInterface: TaskPositionInterface,
+    surveyId: String,
   ) {
-    super.initialize(job, task, taskData, taskPositionInterface)
+    super.initialize(job, task, taskData, taskPositionInterface, surveyId)
     viewModelScope.launch { measurementUnits = getUserSettingsUseCase.invoke().measurementUnits }
     featureStyle = Feature.Style(job.getDefaultColor(), Feature.VertexStyle.CIRCLE)
 

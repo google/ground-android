@@ -62,6 +62,7 @@ class DateTaskScreenTest {
 
           override fun isLastWithValue(taskData: TaskData?) = false
         },
+      surveyId = "survey_id",
     )
 
     composeTestRule.setContent {

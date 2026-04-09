@@ -15,145 +15,32 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.photo
 
-import android.Manifest
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.lifecycleScope
+import android.view.LayoutInflater
+import android.view.ViewGroup
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import org.groundplatform.android.R
-import org.groundplatform.android.di.coroutines.ApplicationScope
-import org.groundplatform.android.di.coroutines.IoDispatcher
-import org.groundplatform.android.di.coroutines.MainScope
-import org.groundplatform.android.repository.UserMediaRepository
-import org.groundplatform.android.system.PermissionDeniedException
-import org.groundplatform.android.system.PermissionsManager
-import org.groundplatform.android.ui.common.EphemeralPopups
-import org.groundplatform.android.ui.components.ConfirmationDialog
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.ui.home.HomeScreenViewModel
-import org.groundplatform.ui.theme.sizes
-import timber.log.Timber
+import org.groundplatform.android.util.createComposeView
 
 /** Fragment allowing the user to capture a photo to complete a task. */
 @AndroidEntryPoint
 class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
-  @Inject lateinit var userMediaRepository: UserMediaRepository
-  @Inject @ApplicationScope lateinit var externalScope: CoroutineScope
-  @Inject @MainScope lateinit var mainScope: CoroutineScope
-  @Inject lateinit var permissionsManager: PermissionsManager
-  @Inject lateinit var popups: EphemeralPopups
-  @Inject @IoDispatcher lateinit var ioDispatcher: CoroutineDispatcher
 
   private val homeScreenViewModel: HomeScreenViewModel by lazy {
     getViewModel(HomeScreenViewModel::class.java)
   }
 
-  // Registers a callback to execute after a user captures a photo from the on-device camera.
-  private lateinit var capturePhotoLauncher: ActivityResultLauncher<Uri>
-
-  private var hasRequestedPermissionsOnResume = false
-
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-
-    capturePhotoLauncher =
-      registerForActivityResult(ActivityResultContracts.TakePicture()) { result: Boolean ->
-        externalScope.launch(ioDispatcher) { viewModel.onCaptureResult(result) }
-      }
-  }
-
-  @Composable
-  override fun TaskBody() {
-    var showPermissionDeniedDialog by viewModel.showPermissionDeniedDialog
-    val uri by viewModel.uri.collectAsStateWithLifecycle(Uri.EMPTY)
-
-    PhotoTaskContent(
-      modifier = Modifier.padding(horizontal = MaterialTheme.sizes.taskViewPadding),
-      uri = uri,
-      onTakePhoto = { onTakePhoto() },
+  override fun onCreateView(
+    inflater: LayoutInflater,
+    container: ViewGroup?,
+    savedInstanceState: Bundle?,
+  ) = createComposeView {
+    PhotoTaskScreen(
+      viewModel = viewModel,
+      onFooterPositionUpdated = { saveFooterPosition(it) },
+      onAction = { handleTaskScreenAction(it) },
+      onAwaitingPhotoCapture = { homeScreenViewModel.awaitingPhotoCapture = it },
     )
-
-    if (showPermissionDeniedDialog) {
-      ConfirmationDialog(
-        title = R.string.permission_denied,
-        description = R.string.camera_permissions_needed,
-        confirmButtonText = R.string.ok,
-        onConfirmClicked = { showPermissionDeniedDialog = false },
-      )
-    }
-  }
-
-  override fun onTaskViewAttached() {
-    viewModel.surveyId = dataCollectionViewModel.requireSurveyId()
-  }
-
-  override fun onResume() {
-    super.onResume()
-
-    if (!hasRequestedPermissionsOnResume) {
-      obtainCapturePhotoPermissions()
-      hasRequestedPermissionsOnResume = true
-    }
-  }
-
-  // Requests camera/photo access permissions from the device, executing an optional callback
-  // when permission is granted.
-  private fun obtainCapturePhotoPermissions(onPermissionsGranted: () -> Unit = {}) {
-    lifecycleScope.launch {
-      try {
-
-        // From Android 11 onwards (api level 30), requesting WRITE_EXTERNAL_STORAGE permission
-        // always returns denied. By default, the app has read/write access to shared data.
-        //
-        // For more details please refer to:
-        // https://developer.android.com/about/versions/11/privacy/storage#permissions-target-11
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-          permissionsManager.obtainPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        }
-
-        permissionsManager.obtainPermission(Manifest.permission.CAMERA)
-
-        onPermissionsGranted()
-      } catch (_: PermissionDeniedException) {
-        viewModel.showPermissionDeniedDialog.value = true
-      }
-    }
-  }
-
-  fun onTakePhoto() {
-    if (viewModel.hasLaunchedCamera) return
-
-    // Keep track of the fact that we are restoring the application after a photo capture.
-    homeScreenViewModel.awaitingPhotoCapture = true
-    obtainCapturePhotoPermissions { lifecycleScope.launch { launchPhotoCapture() } }
-  }
-
-  private suspend fun launchPhotoCapture() {
-    try {
-      viewModel.waitForPhotoCapture(viewModel.task.id)
-      val uri = viewModel.createImageFileUri()
-      viewModel.capturedUri = uri
-      viewModel.hasLaunchedCamera = true
-      capturePhotoLauncher.launch(uri)
-      Timber.d("Capture photo intent sent")
-    } catch (e: IllegalArgumentException) {
-      homeScreenViewModel.awaitingPhotoCapture = false
-      popups.ErrorPopup().unknownError()
-      Timber.e(e)
-    }
   }
 }
