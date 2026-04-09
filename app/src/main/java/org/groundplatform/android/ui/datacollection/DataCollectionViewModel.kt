@@ -176,13 +176,13 @@ internal constructor(
         clearDraft()
         externalScope.launch(ioDispatcher) {
           val submittedLoiId = saveChanges(st, getDeltas())
-          val loiReport =
-            getLoiReportUseCase.invoke(
+          getLoiReportUseCase
+            .invoke(
               loiName = getTypedLoiNameOrEmpty(),
               loiId = submittedLoiId,
               surveyId = st.surveyId,
             )
-          _uiState.value = DataCollectionUiState.TaskSubmitted(loiReport)
+            .collect { _uiState.value = DataCollectionUiState.TaskSubmitted(it) }
         }
       }
     }
