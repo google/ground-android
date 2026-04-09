@@ -32,7 +32,7 @@ import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST_LOI_REPORT
 import org.groundplatform.android.FakeData.newTask
 import org.groundplatform.android.R
 import org.groundplatform.android.getString
-import org.groundplatform.ui.components.qrcode.TEST_TAG_GROUND_QR_CODE
+import org.groundplatform.android.ui.components.TEST_TAG_SHARE_LOI_COMPONENT
 import org.junit.Rule
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -241,7 +241,7 @@ class JobMapComponentTest {
     composeTestRule.onNodeWithText(getString(R.string.share)).performClick()
 
     composeTestRule.onNodeWithText(getString(R.string.share_location)).assertIsDisplayed()
-    composeTestRule.onNodeWithTag(TEST_TAG_GROUND_QR_CODE).assertIsDisplayed()
+    composeTestRule.onNodeWithTag(TEST_TAG_SHARE_LOI_COMPONENT).assertIsDisplayed()
   }
 
   @Test
@@ -263,7 +263,7 @@ class JobMapComponentTest {
     composeTestRule.waitForIdle()
 
     composeTestRule.onNodeWithText(loiSheetData.loi.job.name!!).assertIsDisplayed()
-    composeTestRule.onNodeWithTag(TEST_TAG_GROUND_QR_CODE).assertDoesNotExist()
+    composeTestRule.onNodeWithTag(TEST_TAG_SHARE_LOI_COMPONENT).assertDoesNotExist()
   }
 
   private fun setContent(

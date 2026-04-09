@@ -15,11 +15,8 @@
  */
 package org.groundplatform.android.ui.home.mapcontainer.jobs
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -34,7 +31,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -44,8 +40,8 @@ import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import org.groundplatform.android.R
+import org.groundplatform.android.ui.components.ShareLoiComponent
 import org.groundplatform.domain.model.locationofinterest.LoiReport
-import org.groundplatform.ui.components.qrcode.GroundQrCode
 import org.groundplatform.ui.theme.AppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -63,22 +59,10 @@ fun ShareLocationModal(loiReport: LoiReport, onDismiss: () -> Unit) {
           fontWeight = FontWeight.Normal,
         )
 
-        Box(
-          modifier =
-            Modifier.fillMaxWidth()
-              .padding(vertical = 16.dp)
-              .background(MaterialTheme.colorScheme.background, RoundedCornerShape(12.dp))
-              .padding(24.dp)
-        ) {
-          GroundQrCode(
-            modifier = Modifier.align(Alignment.Center),
-            title = loiReport.loiName,
-            footer = stringResource(R.string.scan_this_qr_to_download_geojson),
-            content = loiReport.geoJson.toString(),
-            contentDescription = "QR code with LOI Geometry",
-            centerLogoPainter = painterResource(R.drawable.ground_logo),
-          )
-        }
+        ShareLoiComponent(
+          modifier = Modifier.padding(vertical = 16.dp),
+          loiReport = loiReport
+        )
 
         TextButton(
           modifier = Modifier.align(Alignment.End).padding(top = 16.dp),
@@ -97,6 +81,7 @@ private fun ShareLocationModalPreview() {
   val testLoiReport =
     LoiReport(
       loiName = "Test LOI",
+      geoId = "1234567890",
       geoJson =
         JsonObject(
           mapOf(

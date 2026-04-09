@@ -30,7 +30,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -53,8 +52,8 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
+import org.groundplatform.android.ui.components.ShareLoiComponent
 import org.groundplatform.domain.model.locationofinterest.LoiReport
-import org.groundplatform.ui.components.qrcode.GroundQrCode
 import org.groundplatform.ui.theme.AppTheme
 
 private val DEFAULT_TOOLBAR_HEIGHT = 56.dp
@@ -141,24 +140,7 @@ private fun ShareableContent(modifier: Modifier = Modifier, loiReport: LoiReport
         textAlign = TextAlign.Center,
         style = MaterialTheme.typography.titleMedium,
       )
-      Box(
-        modifier =
-          Modifier.fillMaxWidth()
-            .background(
-              MaterialTheme.colorScheme.background,
-              RoundedCornerShape(12.dp),
-            ) // todo consider shapes
-            .padding(24.dp)
-      ) {
-        GroundQrCode(
-          modifier = Modifier.align(Alignment.Center),
-          title = loiReport.loiName,
-          footer = stringResource(R.string.scan_this_qr_to_download_geojson),
-          content = loiReport.geoJson.toString(),
-          contentDescription = "QR code with LOI Geometry",
-          centerLogoPainter = painterResource(R.drawable.ground_logo),
-        )
-      }
+      ShareLoiComponent(loiReport = loiReport)
     }
   }
 }
@@ -166,6 +148,7 @@ private fun ShareableContent(modifier: Modifier = Modifier, loiReport: LoiReport
 private val testLoiReport =
   LoiReport(
     loiName = "Test LOI",
+    geoId = "1234567890",
     geoJson =
       JsonObject(
         mapOf(

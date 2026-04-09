@@ -18,16 +18,13 @@ package org.groundplatform.ui.components.qrcode
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
@@ -37,15 +34,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.groundplatform.ui.theme.sizes
-
-@VisibleForTesting const val TEST_TAG_GROUND_QR_CODE = "TEST_TAG_GROUND_QR_CODE"
 
 /**
  * Maximum content size (in UTF-8 bytes) for which a center logo is displayed.
@@ -73,11 +66,9 @@ private const val LOGO_SIZE_FRACTION = 0.15f
 @Composable
 fun GroundQrCode(
   modifier: Modifier = Modifier,
-  title: String,
   content: String,
   contentDescription: String,
   centerLogoPainter: Painter?,
-  footer: String,
 ) {
   val contentBytes = remember(content) { content.encodeToByteArray().size }
   val showLogo = centerLogoPainter != null && contentBytes <= MAX_QR_BYTES_WITH_LOGO
@@ -87,46 +78,30 @@ fun GroundQrCode(
       value = withContext(Dispatchers.Default) { generateQrBitmap(content, showLogo) }
     }
 
-  Column(
-    modifier = modifier.fillMaxWidth().testTag(TEST_TAG_GROUND_QR_CODE),
-    horizontalAlignment = Alignment.CenterHorizontally,
-  ) {
-    Text(
-      text = title,
-      style = MaterialTheme.typography.titleMedium,
-      color = MaterialTheme.colorScheme.onSurfaceVariant,
-    )
-    Box(modifier = modifier.sizeIn(minWidth = 142.dp, minHeight = 142.dp)) {
-      qrBitmap?.let {
+  Box(modifier = modifier.sizeIn(minWidth = 142.dp, minHeight = 142.dp)) {
+    qrBitmap?.let {
+      Image(
+        modifier = Modifier.align(Alignment.Center),
+        bitmap = it,
+        contentDescription = contentDescription,
+        contentScale = ContentScale.Fit,
+      )
+      if (showLogo) {
         Image(
-          modifier = Modifier.align(Alignment.Center),
-          bitmap = it,
-          contentDescription = contentDescription,
-          contentScale = ContentScale.Fit,
+          painter = centerLogoPainter,
+          contentDescription = null,
+          modifier = Modifier.align(Alignment.Center).fillMaxSize(LOGO_SIZE_FRACTION),
         )
-        if (showLogo) {
-          Image(
-            painter = centerLogoPainter,
-            contentDescription = null,
-            modifier = Modifier.align(Alignment.Center).fillMaxSize(LOGO_SIZE_FRACTION),
-          )
-        }
       }
-        ?: run {
-          CircularProgressIndicator(
-            modifier =
-              Modifier.size(MaterialTheme.sizes.progressIndicatorSize).align(Alignment.Center),
-            color = MaterialTheme.colorScheme.primary,
-            strokeWidth = MaterialTheme.sizes.progressIndicatorStrokeWidth,
-          )
-        }
     }
-    Text(
-      text = footer,
-      style = MaterialTheme.typography.bodySmall,
-      fontWeight = FontWeight.Normal,
-      color = MaterialTheme.colorScheme.onSurfaceVariant,
-    )
+      ?: run {
+        CircularProgressIndicator(
+          modifier =
+            Modifier.size(MaterialTheme.sizes.progressIndicatorSize).align(Alignment.Center),
+          color = MaterialTheme.colorScheme.primary,
+          strokeWidth = MaterialTheme.sizes.progressIndicatorStrokeWidth,
+        )
+      }
   }
 }
 
@@ -137,10 +112,8 @@ private fun GroundQrCodePreview() {
     Surface {
       GroundQrCode(
         modifier = Modifier.padding(16.dp).size(400.dp),
-        title = "Test QR code",
         content = "https://www.google.com",
         contentDescription = "Google",
-        footer = "Scan this QR",
         centerLogoPainter = null,
       )
     }

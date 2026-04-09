@@ -30,7 +30,7 @@ import kotlinx.serialization.json.JsonPrimitive
 import org.groundplatform.android.R
 import org.groundplatform.android.getString
 import org.groundplatform.domain.model.locationofinterest.LoiReport
-import org.groundplatform.ui.components.qrcode.TEST_TAG_GROUND_QR_CODE
+import org.groundplatform.android.ui.components.TEST_TAG_SHARE_LOI_COMPONENT
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -52,7 +52,7 @@ class DataSubmissionConfirmationScreenTest {
       .assertIsDisplayed()
     composeTestRule.onNodeWithText(getString(R.string.share_location)).assertIsDisplayed()
     composeTestRule.onNodeWithText(LOI_REPORT.loiName).assertIsDisplayed()
-    composeTestRule.onNodeWithTag(TEST_TAG_GROUND_QR_CODE).assertIsDisplayed()
+    composeTestRule.onNodeWithTag(TEST_TAG_SHARE_LOI_COMPONENT).assertIsDisplayed()
     composeTestRule
       .onNodeWithText(getString(R.string.scan_this_qr_to_download_geojson))
       .performScrollTo()
@@ -76,7 +76,7 @@ class DataSubmissionConfirmationScreenTest {
       .assertIsDisplayed()
     composeTestRule.onNodeWithText(getString(R.string.share_location)).assertIsDisplayed()
     composeTestRule.onNodeWithText(LOI_REPORT.loiName).assertIsDisplayed()
-    composeTestRule.onNodeWithTag(TEST_TAG_GROUND_QR_CODE).assertIsDisplayed()
+    composeTestRule.onNodeWithTag(TEST_TAG_SHARE_LOI_COMPONENT).assertIsDisplayed()
     composeTestRule
       .onNodeWithText(getString(R.string.scan_this_qr_to_download_geojson))
       .assertIsDisplayed()
@@ -93,7 +93,7 @@ class DataSubmissionConfirmationScreenTest {
       .onNodeWithText(getString(R.string.data_collection_complete_details))
       .assertIsDisplayed()
     composeTestRule.onNodeWithText(getString(R.string.share_location)).assertDoesNotExist()
-    composeTestRule.onNodeWithTag(TEST_TAG_GROUND_QR_CODE).assertDoesNotExist()
+    composeTestRule.onNodeWithTag(TEST_TAG_SHARE_LOI_COMPONENT).assertDoesNotExist()
     composeTestRule.onNodeWithText(getString(R.string.close)).performScrollTo().assertIsDisplayed()
   }
 
