@@ -17,9 +17,9 @@ package org.groundplatform.android.ui.components
 
 import android.content.ClipData
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -31,9 +31,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,10 +57,7 @@ import org.jetbrains.annotations.VisibleForTesting
 @VisibleForTesting const val TEST_TAG_SHARE_LOI_COMPONENT = "TEST_TAG_GROUND_QR_CODE"
 
 @Composable
-fun ShareLoiComponent(
-  modifier: Modifier = Modifier,
-  loiReport: LoiReport,
-) {
+fun ShareLoiComponent(modifier: Modifier = Modifier, loiReport: LoiReport) {
   Box(
     modifier =
       modifier
@@ -84,9 +79,7 @@ fun ShareLoiComponent(
         centerLogoPainter = painterResource(R.drawable.ground_logo),
       )
 
-      loiReport.geoId?.let {
-        GeoIdItem(content = it)
-      }
+      loiReport.geoId?.let { GeoIdItem(content = it) }
 
       Text(
         text = stringResource(R.string.scan_this_qr_to_download_geojson),
@@ -103,7 +96,11 @@ fun GeoIdItem(modifier: Modifier = Modifier, content: String) {
   val clipboardManager = LocalClipboard.current
   val scope = rememberCoroutineScope()
 
-  Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+  Row(
+    modifier = modifier.fillMaxWidth(),
+    verticalAlignment = Alignment.CenterVertically,
+    horizontalArrangement = Arrangement.Center,
+  ) {
     Text(
       text = "GeoId: $content",
       maxLines = 1,
@@ -154,9 +151,5 @@ private fun ShareLoiComponentPreview() {
         ),
     )
 
-  AppTheme {
-    ShareLoiComponent(
-      loiReport = testLoiReport,
-    )
-  }
+  AppTheme { ShareLoiComponent(loiReport = testLoiReport) }
 }
