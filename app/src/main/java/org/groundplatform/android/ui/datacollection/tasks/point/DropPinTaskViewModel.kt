@@ -52,8 +52,9 @@ constructor(
     task: Task,
     taskData: TaskData?,
     taskPositionInterface: TaskPositionInterface,
+    surveyId: String,
   ) {
-    super.initialize(job, task, taskData, taskPositionInterface)
+    super.initialize(job, task, taskData, taskPositionInterface, surveyId)
     pinColor = job.getDefaultColor()
 
     // Drop a marker for current value

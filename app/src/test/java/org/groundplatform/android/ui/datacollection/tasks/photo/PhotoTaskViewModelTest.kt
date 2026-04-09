@@ -18,25 +18,28 @@
 package org.groundplatform.android.ui.datacollection.tasks.photo
 
 import android.net.Uri
+import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import java.io.File
 import javax.inject.Inject
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.repository.UserMediaRepository
-import org.groundplatform.android.ui.datacollection.components.ButtonAction
+import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.job.Style
 import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.task.PhotoTaskData
 import org.groundplatform.domain.model.task.Task
+import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -51,119 +54,85 @@ import org.robolectric.RobolectricTestRunner
 class PhotoTaskViewModelTest : BaseHiltTest() {
 
   @BindValue @Mock lateinit var userMediaRepository: UserMediaRepository
+  @BindValue @Mock lateinit var permissionsManager: PermissionsManager
   @Inject lateinit var viewModel: PhotoTaskViewModel
-
-  @Mock private lateinit var mockFile: File
 
   override fun setUp() {
     super.setUp()
     setupViewModel()
+    Dispatchers.setMain(testDispatcher)
+  }
+
+  @After
+  fun tearDown() {
+    Dispatchers.resetMain()
   }
 
   @Test
-  fun `createImageFileUri creates file and returns uri`() = runWithTestDispatcher {
-    val mockUri = mock<Uri>()
+  fun `onCaptureResult saves photo when result is true`() = runWithTestDispatcher {
+    whenever(permissionsManager.obtainPermission(any())).thenReturn(Unit)
+    val mockFile = mock<File>()
     whenever(userMediaRepository.createImageFile(any())).thenReturn(mockFile)
-    whenever(userMediaRepository.getUriForFile(mockFile)).thenReturn(mockUri)
+    whenever(userMediaRepository.getUriForFile(mockFile)).thenReturn(mock<Uri>())
+    whenever(mockFile.absolutePath).thenReturn("/path/to/file.jpg")
+    whenever(mockFile.name).thenReturn("file.jpg")
 
-    val uri = viewModel.createImageFileUri()
+    viewModel.onTakePhoto()
+    advanceUntilIdle()
 
-    assertThat(uri).isEqualTo(mockUri)
-    verify(userMediaRepository).createImageFile(TASK.id)
-    verify(userMediaRepository).getUriForFile(mockFile)
-  }
-
-  @Test
-  fun `waitForPhotoCapture sets taskWaitingForPhoto`() {
-    viewModel.waitForPhotoCapture(TASK.id)
-
-    assertThat(viewModel.taskWaitingForPhoto).isEqualTo(TASK.id)
-  }
-
-  @OptIn(ExperimentalCoroutinesApi::class)
-  @Test
-  fun `onCaptureResult saves photo when result is true and uri is present`() =
-    runWithTestDispatcher {
-      val uri = mock<Uri>()
-      viewModel.capturedUri = uri
-      viewModel.taskWaitingForPhoto = TASK.id
-      whenever(userMediaRepository.savePhotoFromUri(any(), any())).thenReturn(mockFile)
-      whenever(mockFile.absolutePath).thenReturn("/path/to/file")
-      whenever(mockFile.name).thenReturn("file.jpg")
+    viewModel.taskTaskData.test {
+      assertThat(awaitItem()).isNull()
 
       viewModel.onCaptureResult(true)
       advanceUntilIdle()
 
-      verify(userMediaRepository).savePhotoFromUri(uri, TASK.id)
-      verify(userMediaRepository).addImageToGallery("/path/to/file", "file.jpg")
-      assertThat(viewModel.hasLaunchedCamera).isFalse()
+      val item = awaitItem()
+      assertThat(item).isInstanceOf(PhotoTaskData::class.java)
+      assertThat((item as PhotoTaskData).remoteFilename)
+        .isEqualTo("user-media/surveys/survey_1/submissions/file.jpg")
     }
 
-  @Test
-  fun `onCaptureResult does nothing when result is false`() = runWithTestDispatcher {
-    viewModel.onCaptureResult(false)
-
-    verify(userMediaRepository, org.mockito.kotlin.never()).savePhotoFromUri(any(), any())
-    assertThat(viewModel.hasLaunchedCamera).isFalse()
+    verify(userMediaRepository).addImageToGallery("/path/to/file.jpg", "file.jpg")
+    assertThat(viewModel.isAwaitingPhotoCapture.value).isFalse()
   }
 
   @Test
-  fun `onCaptureResult does nothing when capturedUri is null`() = runWithTestDispatcher {
-    viewModel.capturedUri = null
-
-    viewModel.onCaptureResult(true)
-
-    verify(userMediaRepository, org.mockito.kotlin.never()).savePhotoFromUri(any(), any())
-    assertThat(viewModel.hasLaunchedCamera).isFalse()
-  }
-
-  @Test
-  fun `Should have the correct action buttons in the proper order`() = runWithTestDispatcher {
-    advanceUntilIdle()
-
-    val states = viewModel.taskActionButtonStates.first()
-
-    assertThat(states.map { it.action })
-      .containsExactly(
-        ButtonAction.PREVIOUS,
-        ButtonAction.UNDO,
-        ButtonAction.SKIP,
-        ButtonAction.NEXT,
-      )
-      .inOrder()
-  }
-
-  @Test
-  fun `UNDO is not visible and NEXT is disabled when the photo is not taken yet`() =
+  fun `onCaptureResult emits error when finalizePhotoCapture throws Exception`() =
     runWithTestDispatcher {
-      advanceUntilIdle()
+      whenever(permissionsManager.obtainPermission(any())).thenReturn(Unit)
+      val mockFile = mock<File>()
+      whenever(userMediaRepository.createImageFile(any())).thenReturn(mockFile)
+      whenever(userMediaRepository.getUriForFile(mockFile)).thenReturn(mock<Uri>())
+      whenever(mockFile.absolutePath).thenReturn("/path/to/file.jpg")
+      whenever(mockFile.name).thenReturn("file.jpg")
 
-      val states = viewModel.taskActionButtonStates.first()
+      viewModel.events.test {
+        viewModel.onTakePhoto()
+        assertThat(awaitItem()).isInstanceOf(PhotoTaskEvent.LaunchCamera::class.java)
 
-      with(requireNotNull(states.find { it.action == ButtonAction.UNDO })) {
-        assertFalse(isVisible)
-        assertFalse(isEnabled)
-      }
-      with(requireNotNull(states.find { it.action == ButtonAction.NEXT })) {
-        assertTrue(isVisible)
-        assertFalse(isEnabled)
+        whenever(userMediaRepository.addImageToGallery(any(), any())).thenThrow(RuntimeException())
+
+        viewModel.onCaptureResult(true)
+        val event = awaitItem()
+        assertThat(event).isInstanceOf(PhotoTaskEvent.ShowError::class.java)
+        assertThat((event as PhotoTaskEvent.ShowError).errorType)
+          .isEqualTo(PhotoTaskError.PHOTO_SAVE_FAILED)
       }
     }
 
   @Test
-  fun `UNDO and NEXT are visible and enabled when the photo is present`() = runWithTestDispatcher {
-    viewModel.setValue(PhotoTaskData("path/photo.jpg"))
-    advanceUntilIdle()
+  fun `onTakePhoto emits LaunchCamera event`() = runWithTestDispatcher {
+    whenever(permissionsManager.obtainPermission(any())).thenReturn(Unit)
+    val mockFile = mock<File>()
+    whenever(userMediaRepository.createImageFile(any())).thenReturn(mockFile)
+    val mockUri = mock<Uri>()
+    whenever(userMediaRepository.getUriForFile(mockFile)).thenReturn(mockUri)
 
-    val states = viewModel.taskActionButtonStates.first()
-
-    with(requireNotNull(states.find { it.action == ButtonAction.UNDO })) {
-      assertTrue(isVisible)
-      assertTrue(isEnabled)
-    }
-    with(requireNotNull(states.find { it.action == ButtonAction.NEXT })) {
-      assertTrue(isVisible)
-      assertTrue(isEnabled)
+    viewModel.events.test {
+      viewModel.onTakePhoto()
+      val event = awaitItem()
+      assertThat(event).isInstanceOf(PhotoTaskEvent.LaunchCamera::class.java)
+      assertThat((event as PhotoTaskEvent.LaunchCamera).uri).isEqualTo(mockUri)
     }
   }
 
@@ -196,8 +165,8 @@ class PhotoTaskViewModelTest : BaseHiltTest() {
 
         override fun isLastWithValue(taskData: TaskData?) = isLastTaskWithValue
       },
+      "survey_1",
     )
-    viewModel.surveyId = "survey_1"
   }
 
   companion object {

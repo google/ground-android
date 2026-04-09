@@ -15,18 +15,28 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.photo
 
+import android.Manifest.permission.CAMERA
+import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.net.Uri
-import androidx.compose.runtime.mutableStateOf
+import android.os.Build
+import android.os.Build.VERSION_CODES
 import androidx.lifecycle.viewModelScope
-import java.io.IOException
+import java.io.File
 import javax.inject.Inject
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.groundplatform.android.data.remote.firebase.FirebaseStorageManager
 import org.groundplatform.android.repository.UserMediaRepository
+import org.groundplatform.android.system.PermissionDeniedException
+import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 import org.groundplatform.domain.model.submission.TaskData
@@ -34,27 +44,62 @@ import org.groundplatform.domain.model.submission.isNotNullOrEmpty
 import org.groundplatform.domain.model.task.PhotoTaskData
 import timber.log.Timber
 
-class PhotoTaskViewModel @Inject constructor(private val userMediaRepository: UserMediaRepository) :
-  AbstractTaskViewModel() {
+class PhotoTaskViewModel
+@Inject
+constructor(
+  private val userMediaRepository: UserMediaRepository,
+  private val permissionsManager: PermissionsManager,
+) : AbstractTaskViewModel() {
 
-  /**
-   * Task id waiting for a photo result. As only one photo result is returned at a time, we can
-   * directly map it 1:1 with the task waiting for a photo result.
-   */
-  var taskWaitingForPhoto: String? = null
+  private var tempPhotoFilePath: String? = null
 
-  lateinit var surveyId: String
+  private val _isAwaitingPhotoCapture = MutableStateFlow(false)
+  val isAwaitingPhotoCapture: StateFlow<Boolean> = _isAwaitingPhotoCapture.asStateFlow()
 
-  var hasLaunchedCamera: Boolean = false
-  var capturedUri: Uri? = null
+  private val _events = Channel<PhotoTaskEvent>()
+  val events: Flow<PhotoTaskEvent> = _events.receiveAsFlow()
 
-  val showPermissionDeniedDialog = mutableStateOf(false)
+  val uri: StateFlow<Uri> =
+    taskTaskData
+      .map { taskData ->
+        if (taskData is PhotoTaskData && taskData.isNotNullOrEmpty()) {
+          userMediaRepository.getDownloadUrl(taskData.remoteFilename)
+        } else {
+          Uri.EMPTY
+        }
+      }
+      .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), Uri.EMPTY)
 
-  val uri: Flow<Uri> = taskTaskData.map { taskData ->
-    if (taskData is PhotoTaskData && taskData.isNotNullOrEmpty()) {
-      userMediaRepository.getDownloadUrl(taskData.remoteFilename)
-    } else {
-      Uri.EMPTY
+  fun onTakePhoto() {
+    if (_isAwaitingPhotoCapture.value) return
+    _isAwaitingPhotoCapture.value = true
+    viewModelScope.launch { obtainCapturePhotoPermissions { launchPhotoCapture() } }
+  }
+
+  private suspend fun obtainCapturePhotoPermissions(onPermissionsGranted: suspend () -> Unit = {}) {
+    try {
+      if (Build.VERSION.SDK_INT < VERSION_CODES.R) {
+        permissionsManager.obtainPermission(WRITE_EXTERNAL_STORAGE)
+      }
+      permissionsManager.obtainPermission(CAMERA)
+      onPermissionsGranted()
+    } catch (_: PermissionDeniedException) {
+      _isAwaitingPhotoCapture.value = false
+      _events.send(PhotoTaskEvent.ShowError(PhotoTaskError.PERMISSION_DENIED))
+    }
+  }
+
+  private suspend fun launchPhotoCapture() {
+    try {
+      val file = userMediaRepository.createImageFile(task.id)
+      tempPhotoFilePath = file.absolutePath
+      val uri = userMediaRepository.getUriForFile(file)
+      _events.send(PhotoTaskEvent.LaunchCamera(uri))
+      Timber.d("Capture photo intent sent")
+    } catch (e: IllegalArgumentException) {
+      _isAwaitingPhotoCapture.value = false
+      _events.send(PhotoTaskEvent.ShowError(PhotoTaskError.CAMERA_LAUNCH_FAILED))
+      Timber.e(e, "Error launching photo capture")
     }
   }
 
@@ -66,38 +111,26 @@ class PhotoTaskViewModel @Inject constructor(private val userMediaRepository: Us
       getNextButton(taskData),
     )
 
-  suspend fun createImageFileUri(): Uri {
-    val file = userMediaRepository.createImageFile(task.id)
-    return userMediaRepository.getUriForFile(file)
-  }
-
-  fun waitForPhotoCapture(taskId: String) {
-    taskWaitingForPhoto = taskId
-  }
-
   fun onCaptureResult(result: Boolean) {
-    if (result && capturedUri != null) {
-      viewModelScope.launch { savePhotoTaskData(capturedUri!!) }
+    val filePath = tempPhotoFilePath
+    tempPhotoFilePath = null // Clear to avoid reusing stale path
+    viewModelScope.launch {
+      if (result && filePath != null) {
+        finalizePhotoCapture(File(filePath))
+      }
+      _isAwaitingPhotoCapture.value = false
     }
-    hasLaunchedCamera = false
   }
 
-  /**
-   * Saves photo data stored on an on-device URI in Ground-associated storage and prepares it for
-   * inclusion in a data collection submission.
-   */
-  private suspend fun savePhotoTaskData(uri: Uri) {
-    val currentTask = taskWaitingForPhoto
-    requireNotNull(currentTask) { "Photo captured but no task waiting for the result" }
-
+  /** Finalizes the photo capture by adding it to the gallery and updating the task data. */
+  private suspend fun finalizePhotoCapture(file: File) {
     try {
-      val file = userMediaRepository.savePhotoFromUri(uri, currentTask)
       userMediaRepository.addImageToGallery(file.absolutePath, file.name)
       val remoteFilename = FirebaseStorageManager.getRemoteMediaPath(surveyId, file.name)
-
-      withContext(Dispatchers.Main) { setValue(PhotoTaskData(remoteFilename)) }
-    } catch (e: IOException) {
-      Timber.e(e, "Error saving photo to storage")
+      setValue(PhotoTaskData(remoteFilename))
+    } catch (e: Exception) {
+      _events.send(PhotoTaskEvent.ShowError(PhotoTaskError.PHOTO_SAVE_FAILED))
+      Timber.e(e, "Error finalizing photo capture")
     }
   }
 }

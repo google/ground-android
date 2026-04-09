@@ -240,4 +240,8 @@
 
   <string name="recenter">Recentrar</string>
   <string name="survey_load_timeout_error">La carga de la encuesta ha excedido el tiempo de espera. Verifica tu conexión e inténtalo de nuevo.</string>
+  <string name="camera_launch_failed_title">Error de cámara</string>
+  <string name="camera_launch_failed_desc">No se pudo abrir la cámara. Por favor, inténtalo de nuevo.</string>
+  <string name="photo_save_failed_title">Error al guardar</string>
+  <string name="photo_save_failed_desc">No se pudo guardar la foto capturada. Por favor, inténtalo de nuevo.</string>
 </resources>

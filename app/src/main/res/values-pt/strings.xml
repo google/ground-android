@@ -242,4 +242,8 @@
   <string name="recenter">Recentrar</string>
 
   <string name="survey_load_timeout_error">O carregamento da pesquisa expirou. Verifique sua conexão e tente novamente.</string>
+  <string name="camera_launch_failed_title">Erro de câmera</string>
+  <string name="camera_launch_failed_desc">Falha ao abrir a câmera. Por favor, tente novamente.</string>
+  <string name="photo_save_failed_title">Erro ao salvar</string>
+  <string name="photo_save_failed_desc">Falha ao salvar a foto capturada. Por favor, tente novamente.</string>
 </resources>

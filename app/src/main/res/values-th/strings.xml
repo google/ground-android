@@ -211,4 +211,8 @@
   <string name="location_not_accurate_heading">ตำแหน่งของคุณยังไม่แม่นยำ</string>
   <string name="location_not_accurate_description">ลองยืนนิ่ง ๆ หรือรอให้ระบบระบุตำแหน่งได้แม่นยำยิ่งขึ้น</string>
   <string name="recenter">จัดกึ่งกลางใหม่</string>
+  <string name="camera_launch_failed_title">ข้อผิดพลาดของกล้อง</string>
+  <string name="camera_launch_failed_desc">ไม่สามารถเปิดกล้องได้ โปรดลองอีกครั้ง</string>
+  <string name="photo_save_failed_title">ข้อผิดพลาดในการบันทึก</string>
+  <string name="photo_save_failed_desc">ไม่สามารถบันทึกรูปภาพที่ถ่ายได้ โปรดลองอีกครั้ง</string>
 </resources>

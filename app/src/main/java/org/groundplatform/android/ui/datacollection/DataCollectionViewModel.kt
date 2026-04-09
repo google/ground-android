@@ -220,6 +220,7 @@ internal constructor(
             override fun isLastWithValue(taskData: TaskData?): Boolean =
               isLastPositionWithValue(task, taskData)
           },
+        surveyId = state.surveyId,
       )
       updateDataAndInvalidateTasks(task, taskData)
       taskViewModels.value[task.id] = created
