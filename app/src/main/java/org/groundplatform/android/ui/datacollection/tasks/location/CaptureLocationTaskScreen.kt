@@ -36,20 +36,21 @@ fun CaptureLocationTaskScreen(
   onOpenSettings: () -> Unit,
   mapContent: @Composable () -> Unit,
 ) {
-  val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+  val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
+  val showAccuracyCard by viewModel.showAccuracyCard.collectAsStateWithLifecycle()
+  val showPermissionDeniedDialog by
+    viewModel.showPermissionDeniedDialog.collectAsStateWithLifecycle()
 
-  LaunchedEffect(Unit) {
-    viewModel.enableLocationLock()
-  }
+  LaunchedEffect(Unit) { viewModel.enableLocationLock() }
 
   TaskScreen(
     taskHeader = TaskHeader(viewModel.task.label, R.drawable.outline_pin_drop),
-    taskActionButtonsStates = uiState.taskActionButtonStates,
+    taskActionButtonsStates = taskActionButtonsStates,
     onFooterPositionUpdated = onFooterPositionUpdated,
     onAction = onAction,
     shouldShowHeader = true,
     headerCard = {
-      if (uiState.showAccuracyCard) {
+      if (showAccuracyCard) {
         LocationAccuracyCard(
           onDismiss = { viewModel.dismissAccuracyCard() },
           modifier = Modifier.padding(bottom = 12.dp),
@@ -59,7 +60,7 @@ fun CaptureLocationTaskScreen(
     taskBody = {
       mapContent()
 
-      if (uiState.showPermissionDeniedDialog) {
+      if (showPermissionDeniedDialog) {
         ConfirmationDialog(
           title = R.string.allow_location_title,
           description = R.string.allow_location_description,

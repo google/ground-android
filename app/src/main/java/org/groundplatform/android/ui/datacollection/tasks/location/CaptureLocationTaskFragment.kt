@@ -15,11 +15,11 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.location
 
-import android.os.Bundle
-import android.view.LayoutInflater
 import android.content.Intent
 import android.net.Uri
+import android.os.Bundle
 import android.provider.Settings
+import android.view.LayoutInflater
 import android.view.ViewGroup
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject

@@ -17,13 +17,12 @@ package org.groundplatform.android.ui.datacollection.tasks.location
 
 import android.location.Location
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -41,41 +40,27 @@ import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.submission.isNullOrEmpty
 import javax.inject.Inject
 
-data class CaptureLocationUiState(
-  val showPermissionDeniedDialog: Boolean = false,
-  val showAccuracyCard: Boolean = false,
-  val taskActionButtonStates: List<ButtonActionState> = emptyList(),
-)
-
 class CaptureLocationTaskViewModel @Inject constructor() : AbstractMapTaskViewModel() {
 
   private val _showPermissionDeniedDialog = MutableStateFlow(false)
 
   private val _lastLocation = MutableStateFlow<Location?>(null)
 
-  private val isCaptureEnabled: Flow<Boolean> = _lastLocation.map { location ->
-    val accuracy = location?.getAccuracyOrNull()?.toFloat() ?: Float.MAX_VALUE
-    location != null && accuracy <= ACCURACY_THRESHOLD_IN_M
-  }
+  private val _userDismissedAccuracyCard = MutableStateFlow(false)
 
-  private val _dismissAccuracyCard = MutableStateFlow(false)
-
-  private val showAccuracyCard: StateFlow<Boolean> =
-    combine(_lastLocation, isCaptureEnabled, _dismissAccuracyCard) {
-        location,
-        captureEnabled,
-        dismissed ->
-        location != null && !captureEnabled && !dismissed
+  val showAccuracyCard: StateFlow<Boolean> =
+    combine(_lastLocation, _userDismissedAccuracyCard) { location, dismissed ->
+        location != null && !location.isAccurate() && !dismissed
       }
       .stateIn(viewModelScope, WhileSubscribed(5_000), false)
 
   override val taskActionButtonStates: StateFlow<List<ButtonActionState>> by lazy {
-    combine(isCaptureEnabled, taskTaskData) { captureEnabled, taskData ->
+    combine(_lastLocation, taskTaskData) { location, taskData ->
         listOf(
           getPreviousButton(),
           getSkipButton(taskData),
           getUndoButton(taskData),
-          getCaptureLocationButton(captureEnabled, taskData),
+          getCaptureLocationButton(location.isAccurate(), taskData),
           getNextButton(taskData, hideIfEmpty = true),
         )
       }
@@ -83,14 +68,7 @@ class CaptureLocationTaskViewModel @Inject constructor() : AbstractMapTaskViewMo
       .stateIn(viewModelScope, WhileSubscribed(5_000), emptyList())
   }
 
-  val uiState: StateFlow<CaptureLocationUiState> =
-    combine(_showPermissionDeniedDialog, showAccuracyCard, taskActionButtonStates) {
-        permissionDialog,
-        accuracyCard,
-        buttonStates ->
-        CaptureLocationUiState(permissionDialog, accuracyCard, buttonStates)
-      }
-      .stateIn(viewModelScope, WhileSubscribed(5_000), CaptureLocationUiState())
+  val showPermissionDeniedDialog: StateFlow<Boolean> = _showPermissionDeniedDialog.asStateFlow()
 
   init {
     viewModelScope.launch {
@@ -104,14 +82,14 @@ class CaptureLocationTaskViewModel @Inject constructor() : AbstractMapTaskViewMo
     viewModelScope.launch {
       _lastLocation.collect { location ->
         if (location == null) {
-          _dismissAccuracyCard.value = false
+          _userDismissedAccuracyCard.value = false
         }
       }
     }
   }
 
   fun dismissAccuracyCard() {
-    _dismissAccuracyCard.value = true
+    _userDismissedAccuracyCard.value = true
   }
 
   private fun dismissPermissionDeniedDialog() {
@@ -161,5 +139,10 @@ class CaptureLocationTaskViewModel @Inject constructor() : AbstractMapTaskViewMo
     } else {
       super.onButtonClick(action)
     }
+  }
+
+  private fun Location?.isAccurate(): Boolean {
+    val accuracy = this?.getAccuracyOrNull()?.toFloat() ?: Float.MAX_VALUE
+    return this != null && accuracy <= ACCURACY_THRESHOLD_IN_M
   }
 }
