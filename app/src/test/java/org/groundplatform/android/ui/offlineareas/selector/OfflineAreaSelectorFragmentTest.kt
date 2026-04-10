@@ -21,7 +21,6 @@ import androidx.compose.ui.test.isNotDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.lifecycle.Observer
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
@@ -29,25 +28,30 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.isEnabled
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
+import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
-import junit.framework.Assert.assertFalse
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.R
 import org.groundplatform.android.repository.OfflineAreaRepository
+import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.testrules.FragmentScenarioRule
-import org.junit.Assert.assertNull
+import org.groundplatform.android.ui.offlineareas.selector.model.OfflineAreaSelectorState
+import org.hamcrest.CoreMatchers.not
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mock
 import org.mockito.Mockito.mock
 import org.mockito.kotlin.any
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class OfflineAreaSelectorFragmentTest : BaseHiltTest() {
@@ -56,6 +60,7 @@ class OfflineAreaSelectorFragmentTest : BaseHiltTest() {
   @Inject lateinit var viewModel: OfflineAreaSelectorViewModel
 
   private val offlineAreaRepository: OfflineAreaRepository = mock()
+  @BindValue @Mock lateinit var networkManager: NetworkManager
 
   @get:Rule val composeTestRule = createAndroidComposeRule<ComponentActivity>()
   @get:Rule val fragmentScenario = FragmentScenarioRule()
@@ -88,29 +93,31 @@ class OfflineAreaSelectorFragmentTest : BaseHiltTest() {
       )
   }
 
+  @Test
+  fun `download button should be disabled and not clickable by default`() {
+    onView(withId(R.id.download_button)).check(matches(isDisplayed()))
+    onView(withId(R.id.download_button)).check(matches(not(isEnabled())))
+  }
+
+  @Test
+  fun `bottom text should be empty by default`() {
+    onView(withId(R.id.bottom_text)).check(matches(withText("")))
+  }
+
   // TODO: Complete below test
   // Issue URL: https://github.com/google/ground-android/issues/3032
   @Test
   fun `stopDownloading cancels active download and updates UI state`() = runWithTestDispatcher {
-    composeTestRule.setContent { DownloadProgressDialog(viewModel.downloadProgress.value!!, {}) }
+    composeTestRule.setContent { DownloadProgressDialog(0f, {}) }
 
     val progressFlow = MutableSharedFlow<Pair<Int, Int>>()
     whenever(offlineAreaRepository.downloadTiles(any())).thenReturn(progressFlow)
-
-    val downloadProgressValues = mutableListOf<Float>()
-    val observer = Observer<Float> { downloadProgressValues.add(it) }
-
-    viewModel.downloadProgress.observeForever(observer)
 
     viewModel.onDownloadClick()
     advanceUntilIdle()
 
     progressFlow.emit(Pair(50, 100))
     advanceUntilIdle()
-
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.cancel))
-      .isDisplayed()
 
     composeTestRule
       .onNodeWithText(composeTestRule.activity.getString(R.string.cancel))
@@ -121,10 +128,9 @@ class OfflineAreaSelectorFragmentTest : BaseHiltTest() {
       .onNodeWithText(composeTestRule.activity.getString(R.string.cancel))
       .isNotDisplayed()
 
-    assertFalse(viewModel.isDownloadProgressVisible.value!!)
-    assertNull(viewModel.downloadJob)
-
-    viewModel.downloadProgress.removeObserver(observer)
+    val state = viewModel.uiState.value
+    assert(state.downloadState is OfflineAreaSelectorState.DownloadState.Idle)
+    assert(viewModel.downloadJob == null)
   }
 
   // TODO: Write `test test failure case displays toast`
