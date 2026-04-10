@@ -52,6 +52,7 @@ abstract class AbstractTaskViewModel internal constructor() : AbstractViewModel(
       .stateIn(viewModelScope, WhileSubscribed(5_000), emptyList())
   }
 
+  lateinit var surveyId: String
   lateinit var task: Task
   private lateinit var taskPositionInterface: TaskPositionInterface
 
@@ -60,7 +61,9 @@ abstract class AbstractTaskViewModel internal constructor() : AbstractViewModel(
     task: Task,
     taskData: TaskData?,
     taskPositionInterface: TaskPositionInterface,
+    surveyId: String,
   ) {
+    this.surveyId = surveyId
     this.task = task
     this.taskPositionInterface = taskPositionInterface
     setValue(taskData)

@@ -47,8 +47,9 @@ class MultipleChoiceTaskViewModel @Inject constructor() : AbstractTaskViewModel(
     task: Task,
     taskData: TaskData?,
     taskPositionInterface: TaskPositionInterface,
+    surveyId: String,
   ) {
-    super.initialize(job, task, taskData, taskPositionInterface)
+    super.initialize(job, task, taskData, taskPositionInterface, surveyId)
     loadPendingSelections()
     updateMultipleChoiceItems()
   }

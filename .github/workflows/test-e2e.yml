@@ -24,10 +24,26 @@ permissions:
   contents: read
 
 jobs:
-  run-instrumentation-tests:
+  request-approval:
+    runs-on: ubuntu-latest
+    environment: e2e-approval
+    steps:
+      - run: echo "Approval granted"
+
+  instrumentation-matrix:
+    name: API ${{ matrix.api-level }}
+    needs: request-approval
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    environment: e2e-approval
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - api-level: 30
+            required: true
+          - api-level: 24
+            required: false
+    continue-on-error: ${{ !matrix.required }}
     env:
       FIREBASE_CLI_EXPERIMENTS: webframeworks
 
@@ -47,3 +63,16 @@ jobs:
           android-repository: google/ground-android
           upload-artifacts: true
           google-maps-key: ${{ secrets.MAPS_API_KEY }}
+          api-level: ${{ matrix.api-level }}
+
+  run-instrumentation-tests:
+    needs: instrumentation-matrix
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check matrix results
+        run: |
+          if [ "${{ needs.instrumentation-matrix.result }}" != "success" ]; then
+            echo "Required instrumentation tests failed"
+            exit 1
+          fi
