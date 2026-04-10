@@ -22,9 +22,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -44,8 +41,8 @@ import org.groundplatform.android.ui.common.MapConfig
 import org.groundplatform.android.ui.components.MapFloatingActionButton
 import org.groundplatform.android.ui.home.mapcontainer.HomeScreenMapContainerViewModel
 import org.groundplatform.android.ui.map.MapFragment
-import org.groundplatform.android.ui.offlineareas.selector.model.BottomTextState
-import org.groundplatform.android.ui.offlineareas.selector.model.UiState
+import org.groundplatform.android.ui.offlineareas.selector.model.OfflineAreaSelectorEvent
+import org.groundplatform.android.ui.offlineareas.selector.model.OfflineAreaSelectorState
 import org.groundplatform.android.util.renderComposableDialog
 import org.groundplatform.android.util.setComposableContent
 
@@ -91,67 +88,39 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
     }
     binding.downloadButton.setOnClickListener { viewModel.onDownloadClick() }
     binding.cancelButton.setOnClickListener { viewModel.onCancelClick() }
+    setupDownloadProgressDialog()
     setupObservers()
   }
 
   private fun setupObservers() {
-    viewModel.isDownloadProgressVisible.observe(viewLifecycleOwner) {
-      showDownloadProgressDialog(it)
-    }
-    viewModel.isFailure.observe(viewLifecycleOwner) {
-      if (it) {
-        Toast.makeText(context, R.string.offline_area_download_error, Toast.LENGTH_LONG).show()
-      }
-    }
-
     viewLifecycleOwner.lifecycleScope.launch {
       viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        launch { viewModel.uiState.collect { updateUi(it) } }
+
         launch {
-          viewModel.navigate.collect {
+          viewModel.uiEvent.collect {
             when (it) {
-              is UiState.OfflineAreaBackToHomeScreen -> {
+              is OfflineAreaSelectorEvent.NavigateOfflineAreaBackToHomeScreen -> {
                 findNavController()
                   .navigate(OfflineAreaSelectorFragmentDirections.offlineAreaBackToHomescreen())
               }
 
-              is UiState.Up -> {
+              is OfflineAreaSelectorEvent.NavigateUp -> {
                 findNavController().navigateUp()
+              }
+
+              OfflineAreaSelectorEvent.NetworkUnavailable -> {
+                popups.ErrorPopup().show(R.string.connect_to_download_message)
+              }
+
+              OfflineAreaSelectorEvent.DownloadError -> {
+                Toast.makeText(context, R.string.offline_area_download_error, Toast.LENGTH_LONG)
+                  .show()
               }
             }
           }
         }
-        launch {
-          viewModel.networkUnavailableEvent.collect {
-            popups.ErrorPopup().show(R.string.connect_to_download_message)
-          }
-        }
-        launch {
-          viewModel.bottomTextState.collect {
-            binding.bottomText.text =
-              when (it) {
-                is BottomTextState.AreaSize ->
-                  resources.getString(R.string.selected_offline_area_size, it.size)
-                BottomTextState.AreaTooLarge ->
-                  resources.getString(R.string.selected_offline_area_too_large)
-                BottomTextState.Loading ->
-                  resources.getString(
-                    R.string.selected_offline_area_size,
-                    resources.getString(R.string.offline_area_size_loading_symbol),
-                  )
-                BottomTextState.NetworkError ->
-                  resources.getString(R.string.connect_to_download_message)
-                BottomTextState.NoImageryAvailable ->
-                  resources.getString(R.string.no_imagery_available_for_area)
-                null -> ""
-              }
-          }
-        }
       }
-    }
-
-    viewModel.downloadButtonEnabled.observe(viewLifecycleOwner) {
-      binding.downloadButton.isEnabled = it
-      binding.downloadButton.isClickable = it
     }
   }
 
@@ -173,20 +142,45 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
 
   override fun getMapViewModel(): BaseMapViewModel = viewModel
 
-  private fun showDownloadProgressDialog(isVisible: Boolean) {
-    renderComposableDialog {
-      val openAlertDialog = remember { mutableStateOf(isVisible) }
-      val progress = viewModel.downloadProgress.observeAsState(0f)
-      when {
-        openAlertDialog.value -> {
-          DownloadProgressDialog(
-            progress = progress.value,
-            onDismiss = {
-              openAlertDialog.value = false
-              viewModel.stopDownloading()
-            },
+  private fun updateUi(state: OfflineAreaSelectorState) {
+    binding.bottomText.text =
+      when (state.bottomTextState) {
+        is OfflineAreaSelectorState.BottomTextState.AreaSize ->
+          resources.getString(R.string.selected_offline_area_size, state.bottomTextState.size)
+
+        OfflineAreaSelectorState.BottomTextState.AreaTooLarge ->
+          resources.getString(R.string.selected_offline_area_too_large)
+
+        OfflineAreaSelectorState.BottomTextState.Loading ->
+          resources.getString(
+            R.string.selected_offline_area_size,
+            resources.getString(R.string.offline_area_size_loading_symbol),
           )
-        }
+
+        OfflineAreaSelectorState.BottomTextState.NetworkError ->
+          resources.getString(R.string.connect_to_download_message)
+
+        OfflineAreaSelectorState.BottomTextState.NoImageryAvailable ->
+          resources.getString(R.string.no_imagery_available_for_area)
+
+        null -> ""
+      }
+
+    with(binding.downloadButton) {
+      isEnabled = state.isDownloadButtonEnabled()
+      isClickable = state.isDownloadButtonEnabled()
+    }
+  }
+
+  private fun setupDownloadProgressDialog() {
+    renderComposableDialog {
+      val state by viewModel.uiState.collectAsStateWithLifecycle()
+      val downloadState = state.downloadState
+      if (downloadState is OfflineAreaSelectorState.DownloadState.InProgress) {
+        DownloadProgressDialog(
+          progress = downloadState.progress,
+          onDismiss = { viewModel.stopDownloading() },
+        )
       }
     }
   }

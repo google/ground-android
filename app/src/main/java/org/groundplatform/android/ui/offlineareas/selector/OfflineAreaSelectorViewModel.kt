@@ -15,7 +15,6 @@
  */
 package org.groundplatform.android.ui.offlineareas.selector
 
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
@@ -38,8 +37,8 @@ import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.system.SettingsManager
 import org.groundplatform.android.ui.common.BaseMapViewModel
-import org.groundplatform.android.ui.offlineareas.selector.model.BottomTextState
-import org.groundplatform.android.ui.offlineareas.selector.model.UiState
+import org.groundplatform.android.ui.offlineareas.selector.model.OfflineAreaSelectorEvent
+import org.groundplatform.android.ui.offlineareas.selector.model.OfflineAreaSelectorState
 import org.groundplatform.android.util.toMb
 import org.groundplatform.android.util.toMbString
 import org.groundplatform.domain.model.map.Bounds
@@ -76,26 +75,18 @@ internal constructor(
   val remoteTileSource: TileSource = RemoteMogTileSource
 
   private var viewport: Bounds? = null
-  val isDownloadProgressVisible = MutableLiveData(false)
-  val downloadProgress = MutableLiveData(0f)
 
-  private val _bottomTextState = MutableStateFlow<BottomTextState?>(null)
-  val bottomTextState: StateFlow<BottomTextState?> = _bottomTextState
+  private val _uiState = MutableStateFlow(OfflineAreaSelectorState())
+  val uiState: StateFlow<OfflineAreaSelectorState> = _uiState
 
-  val downloadButtonEnabled = MutableLiveData(false)
-  val isFailure = MutableLiveData(false)
-
-  private val _navigate = MutableSharedFlow<UiState>(replay = 0)
-  val navigate = _navigate.asSharedFlow()
-
-  private val _networkUnavailableEvent = MutableSharedFlow<Unit>()
-  val networkUnavailableEvent = _networkUnavailableEvent.asSharedFlow()
+  private val _uiEvent = MutableSharedFlow<OfflineAreaSelectorEvent>(replay = 0)
+  val uiEvent = _uiEvent.asSharedFlow()
 
   var downloadJob: Job? = null
 
   fun onDownloadClick() {
     if (!networkManager.isNetworkConnected()) {
-      viewModelScope.launch { _networkUnavailableEvent.emit(Unit) }
+      viewModelScope.launch { _uiEvent.emit(OfflineAreaSelectorEvent.NetworkUnavailable) }
       return
     }
 
@@ -104,22 +95,24 @@ internal constructor(
       return
     }
 
-    isDownloadProgressVisible.value = true
-    downloadProgress.value = 0f
+    _uiState.value =
+      _uiState.value.copy(downloadState = OfflineAreaSelectorState.DownloadState.InProgress(0f))
     downloadJob =
       viewModelScope.launch(ioDispatcher) {
         offlineAreaRepository
           .downloadTiles(viewport!!)
           .catch {
-            isFailure.postValue(true)
-            isDownloadProgressVisible.postValue(false)
+            _uiState.value =
+              _uiState.value.copy(downloadState = OfflineAreaSelectorState.DownloadState.Idle)
+            _uiEvent.emit(OfflineAreaSelectorEvent.DownloadError)
             Timber.d("Download Stopped by $it ")
           }
           .collect { (bytesDownloaded, totalBytes) ->
             updateDownloadProgress(bytesDownloaded, totalBytes)
           }
-        isDownloadProgressVisible.postValue(false)
-        _navigate.emit(UiState.OfflineAreaBackToHomeScreen)
+        _uiState.value =
+          _uiState.value.copy(downloadState = OfflineAreaSelectorState.DownloadState.Idle)
+        _uiEvent.emit(OfflineAreaSelectorEvent.NavigateOfflineAreaBackToHomeScreen)
       }
   }
 
@@ -130,22 +123,25 @@ internal constructor(
       } else {
         0f
       }
-    downloadProgress.postValue(progressValue)
+    _uiState.value =
+      _uiState.value.copy(
+        downloadState = OfflineAreaSelectorState.DownloadState.InProgress(progressValue)
+      )
   }
 
   fun onCancelClick() {
-    viewModelScope.launch { _navigate.emit(UiState.Up) }
+    viewModelScope.launch { _uiEvent.emit(OfflineAreaSelectorEvent.NavigateUp) }
   }
 
   fun stopDownloading() {
     downloadJob?.cancel()
     downloadJob = null
-    isDownloadProgressVisible.postValue(false)
+    _uiState.value =
+      _uiState.value.copy(downloadState = OfflineAreaSelectorState.DownloadState.Idle)
   }
 
   override fun onMapDragged() {
-    downloadButtonEnabled.postValue(false)
-    _bottomTextState.value = null
+    _uiState.value = _uiState.value.copy(bottomTextState = null)
     super.onMapDragged()
   }
 
@@ -176,7 +172,8 @@ internal constructor(
       onUnavailableAreaSelected()
       return
     }
-    _bottomTextState.value = BottomTextState.Loading
+    _uiState.value =
+      _uiState.value.copy(bottomTextState = OfflineAreaSelectorState.BottomTextState.Loading)
 
     offlineAreaRepository
       .estimateSizeOnDisk(bounds)
@@ -195,22 +192,26 @@ internal constructor(
   }
 
   private fun onUpdateDownloadSizeError() {
-    _bottomTextState.value = BottomTextState.NetworkError
-    downloadButtonEnabled.postValue(false)
+    _uiState.value =
+      _uiState.value.copy(bottomTextState = OfflineAreaSelectorState.BottomTextState.NetworkError)
   }
 
   private fun onUnavailableAreaSelected() {
-    _bottomTextState.value = BottomTextState.NoImageryAvailable
-    downloadButtonEnabled.postValue(false)
+    _uiState.value =
+      _uiState.value.copy(
+        bottomTextState = OfflineAreaSelectorState.BottomTextState.NoImageryAvailable
+      )
   }
 
   private fun onDownloadableAreaSelected(sizeInMb: Float) {
-    _bottomTextState.value = BottomTextState.AreaSize(sizeInMb.toMbString())
-    downloadButtonEnabled.postValue(true)
+    _uiState.value =
+      _uiState.value.copy(
+        bottomTextState = OfflineAreaSelectorState.BottomTextState.AreaSize(sizeInMb.toMbString())
+      )
   }
 
   private fun onLargeAreaSelected() {
-    _bottomTextState.value = BottomTextState.AreaTooLarge
-    downloadButtonEnabled.postValue(false)
+    _uiState.value =
+      _uiState.value.copy(bottomTextState = OfflineAreaSelectorState.BottomTextState.AreaTooLarge)
   }
 }
