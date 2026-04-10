@@ -33,6 +33,18 @@ import org.groundplatform.android.ui.datacollection.tasks.TaskScreen
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreenAction
 import org.groundplatform.ui.theme.AppTheme
 
+/**
+ * A screen for capturing the user's current location.
+ *
+ * This is the stateful wrapper that collects state from [CaptureLocationTaskViewModel] and
+ * handles event routing.
+ *
+ * @param viewModel The view model for this task.
+ * @param onFooterPositionUpdated Callback when the footer position changes.
+ * @param onAction Callback for screen actions (e.g., navigation).
+ * @param onOpenSettings Callback to open app settings when permission is denied.
+ * @param mapContent Composable for rendering the map.
+ */
 @Composable
 fun CaptureLocationTaskScreen(
   viewModel: CaptureLocationTaskViewModel,
@@ -62,6 +74,20 @@ fun CaptureLocationTaskScreen(
   )
 }
 
+/**
+ * The stateless content of the capture location task screen.
+ *
+ * @param taskLabel The label of the task.
+ * @param taskActionButtonsStates The states of the action buttons.
+ * @param showAccuracyCard Whether to show the accuracy warning card.
+ * @param showPermissionDeniedDialog Whether to show the permission denied dialog.
+ * @param onDismissAccuracyCard Callback when the accuracy card is dismissed.
+ * @param onAllowLocationClicked Callback when the allow location button is clicked in the dialog.
+ * @param onOpenSettings Callback to open app settings.
+ * @param onFooterPositionUpdated Callback when the footer position changes.
+ * @param onAction Callback for screen actions.
+ * @param mapContent Composable for rendering the map.
+ */
 @Composable
 private fun CaptureLocationTaskContent(
   taskLabel: String,

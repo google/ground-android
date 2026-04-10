@@ -40,6 +40,12 @@ import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.submission.isNullOrEmpty
 import javax.inject.Inject
 
+/**
+ * ViewModel for the Capture Location task.
+ *
+ * Manages the state of the location capture flow, including location lock, accuracy checks,
+ * and action button states.
+ */
 class CaptureLocationTaskViewModel @Inject constructor() : AbstractMapTaskViewModel() {
 
   private val _showPermissionDeniedDialog = MutableStateFlow(false)
@@ -48,6 +54,12 @@ class CaptureLocationTaskViewModel @Inject constructor() : AbstractMapTaskViewMo
 
   private val _userDismissedAccuracyCard = MutableStateFlow(false)
 
+  /**
+   * Emits true if the accuracy card should be shown.
+   *
+   * The card is shown when a location is available but not accurate enough, and the user
+   * hasn't dismissed the card yet.
+   */
   val showAccuracyCard: StateFlow<Boolean> =
     combine(_lastLocation, _userDismissedAccuracyCard) { location, dismissed ->
         location != null && !location.isAccurate() && !dismissed
@@ -68,6 +80,7 @@ class CaptureLocationTaskViewModel @Inject constructor() : AbstractMapTaskViewMo
       .stateIn(viewModelScope, WhileSubscribed(5_000), emptyList())
   }
 
+  /** Emits true if the permission denied dialog should be shown. */
   val showPermissionDeniedDialog: StateFlow<Boolean> = _showPermissionDeniedDialog.asStateFlow()
 
   init {
