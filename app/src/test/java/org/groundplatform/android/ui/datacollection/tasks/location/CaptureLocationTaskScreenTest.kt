@@ -133,7 +133,7 @@ class CaptureLocationTaskScreenTest {
     assertThat(viewModel.taskTaskData.value).isEqualTo(TASK_DATA)
   }
 
-  @Test(expected = IllegalStateException::class)
+  @Test(expected = IllegalArgumentException::class)
   fun `throws error when capture is attempted with poor accuracy`() {
     setupTaskScreen(TASK, location = BAD_LOCATION)
 

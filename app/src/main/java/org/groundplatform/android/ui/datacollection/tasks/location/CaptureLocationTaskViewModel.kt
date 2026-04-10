@@ -78,14 +78,6 @@ class CaptureLocationTaskViewModel @Inject constructor() : AbstractMapTaskViewMo
         }
       }
     }
-
-    viewModelScope.launch {
-      _lastLocation.collect { location ->
-        if (location == null) {
-          _userDismissedAccuracyCard.value = false
-        }
-      }
-    }
   }
 
   fun dismissAccuracyCard() {
@@ -104,23 +96,10 @@ class CaptureLocationTaskViewModel @Inject constructor() : AbstractMapTaskViewMo
     _lastLocation.update { location }
   }
 
-  private fun updateResponse() {
-    val location = _lastLocation.value
-    if (location == null) {
-      updateLocationLock(LocationLockEnabledState.ENABLE)
-    } else {
-      val accuracy = location.getAccuracyOrNull()
-      if (accuracy != null && accuracy > ACCURACY_THRESHOLD_IN_M) {
-        error("Location accuracy $accuracy exceeds threshold $ACCURACY_THRESHOLD_IN_M")
-      }
-      setValue(
-        CaptureLocationTaskData(
-          location = Point(location.toCoordinates()),
-          altitude = location.getAltitudeOrNull(),
-          accuracy = accuracy,
-        )
-      )
-    }
+  private fun updateResponse(location: Location?) {
+    requireNotNull(location)
+    require(location.isAccurate())
+    setValue(location.toTaskData())
   }
 
   private fun getCaptureLocationButton(
@@ -135,14 +114,22 @@ class CaptureLocationTaskViewModel @Inject constructor() : AbstractMapTaskViewMo
 
   override fun onButtonClick(action: ButtonAction) {
     if (action == ButtonAction.CAPTURE_LOCATION) {
-      updateResponse()
+      updateResponse(_lastLocation.value)
     } else {
       super.onButtonClick(action)
     }
   }
 
   private fun Location?.isAccurate(): Boolean {
-    val accuracy = this?.getAccuracyOrNull()?.toFloat() ?: Float.MAX_VALUE
-    return this != null && accuracy <= ACCURACY_THRESHOLD_IN_M
+    if (this == null) return false
+    val accuracy = getAccuracyOrNull()?.toFloat() ?: Float.MAX_VALUE
+    return accuracy <= ACCURACY_THRESHOLD_IN_M
   }
+
+  private fun Location.toTaskData() =
+    CaptureLocationTaskData(
+      location = Point(toCoordinates()),
+      altitude = getAltitudeOrNull(),
+      accuracy = getAccuracyOrNull(),
+    )
 }
