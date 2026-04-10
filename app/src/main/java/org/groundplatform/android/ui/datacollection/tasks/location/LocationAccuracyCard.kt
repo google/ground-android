@@ -76,7 +76,7 @@ fun LocationAccuracyCard(onDismiss: () -> Unit, modifier: Modifier = Modifier) {
       IconButton(onClick = onDismiss, modifier = Modifier.size(24.dp)) {
         Icon(
           painter = painterResource(R.drawable.baseline_close_24),
-          contentDescription = null,
+          contentDescription = stringResource(R.string.close),
           tint = MaterialTheme.colorScheme.onSurface,
         )
       }
