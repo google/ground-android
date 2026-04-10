@@ -147,7 +147,7 @@ private fun ShareableContent(modifier: Modifier = Modifier, loiReport: LoiReport
             .background(
               MaterialTheme.colorScheme.background,
               RoundedCornerShape(12.dp),
-            ) // todo consider shapes
+            )
             .padding(24.dp)
       ) {
         GroundQrCode(
