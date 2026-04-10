@@ -20,13 +20,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.groundplatform.android.R
+import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.components.ConfirmationDialog
+import org.groundplatform.android.ui.datacollection.components.ButtonAction
+import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreen
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreenAction
+import org.groundplatform.ui.theme.AppTheme
 
 @Composable
 fun CaptureLocationTaskScreen(
@@ -43,8 +48,35 @@ fun CaptureLocationTaskScreen(
 
   LaunchedEffect(Unit) { viewModel.enableLocationLock() }
 
+  CaptureLocationTaskContent(
+    taskLabel = viewModel.task.label,
+    taskActionButtonsStates = taskActionButtonsStates,
+    showAccuracyCard = showAccuracyCard,
+    showPermissionDeniedDialog = showPermissionDeniedDialog,
+    onDismissAccuracyCard = { viewModel.dismissAccuracyCard() },
+    onAllowLocationClicked = { viewModel.onAllowLocationClicked() },
+    onOpenSettings = onOpenSettings,
+    onFooterPositionUpdated = onFooterPositionUpdated,
+    onAction = onAction,
+    mapContent = mapContent,
+  )
+}
+
+@Composable
+private fun CaptureLocationTaskContent(
+  taskLabel: String,
+  taskActionButtonsStates: List<ButtonActionState>,
+  showAccuracyCard: Boolean,
+  showPermissionDeniedDialog: Boolean,
+  onDismissAccuracyCard: () -> Unit,
+  onAllowLocationClicked: () -> Unit,
+  onOpenSettings: () -> Unit,
+  onFooterPositionUpdated: (Float) -> Unit,
+  onAction: (TaskScreenAction) -> Unit,
+  mapContent: @Composable () -> Unit,
+) {
   TaskScreen(
-    taskHeader = TaskHeader(viewModel.task.label, R.drawable.outline_pin_drop),
+    taskHeader = TaskHeader(taskLabel, R.drawable.outline_pin_drop),
     taskActionButtonsStates = taskActionButtonsStates,
     onFooterPositionUpdated = onFooterPositionUpdated,
     onAction = onAction,
@@ -52,7 +84,7 @@ fun CaptureLocationTaskScreen(
     headerCard = {
       if (showAccuracyCard) {
         LocationAccuracyCard(
-          onDismiss = { viewModel.dismissAccuracyCard() },
+          onDismiss = onDismissAccuracyCard,
           modifier = Modifier.padding(bottom = 12.dp),
         )
       }
@@ -66,11 +98,38 @@ fun CaptureLocationTaskScreen(
           description = R.string.allow_location_description,
           confirmButtonText = R.string.allow_location_confirmation,
           onConfirmClicked = {
-            viewModel.onAllowLocationClicked()
+            onAllowLocationClicked()
             onOpenSettings()
           },
         )
       }
     },
   )
+}
+
+@Preview(showBackground = true)
+@Composable
+@ExcludeFromJacocoGeneratedReport
+private fun CaptureLocationTaskScreenPreview() {
+  AppTheme {
+    CaptureLocationTaskContent(
+      taskLabel = "Task for capturing current location",
+      taskActionButtonsStates =
+        listOf(
+          ButtonActionState(ButtonAction.PREVIOUS, isEnabled = true, isVisible = true),
+          ButtonActionState(ButtonAction.SKIP, isEnabled = true, isVisible = true),
+          ButtonActionState(ButtonAction.UNDO, isEnabled = false, isVisible = false),
+          ButtonActionState(ButtonAction.CAPTURE_LOCATION, isEnabled = true, isVisible = true),
+          ButtonActionState(ButtonAction.NEXT, isEnabled = false, isVisible = false),
+        ),
+      showAccuracyCard = true,
+      showPermissionDeniedDialog = true,
+      onDismissAccuracyCard = {},
+      onAllowLocationClicked = {},
+      onOpenSettings = {},
+      onFooterPositionUpdated = {},
+      onAction = {},
+      mapContent = {},
+    )
+  }
 }
