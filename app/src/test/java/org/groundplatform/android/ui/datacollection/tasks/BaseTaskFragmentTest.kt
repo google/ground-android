@@ -84,6 +84,7 @@ abstract class BaseTaskFragmentTest<F : AbstractTaskFragment<VM>, VM : AbstractT
 
           override fun isLastWithValue(taskData: TaskData?) = isLastPosition
         },
+      surveyId = "survey_id",
     )
     whenever(dataCollectionViewModel.getTaskViewModel(task.id)).thenReturn(viewModel)
     whenever(dataCollectionViewModel.isCurrentActiveTaskFlow(task.id))

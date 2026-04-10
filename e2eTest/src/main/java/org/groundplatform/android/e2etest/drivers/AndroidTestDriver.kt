@@ -41,6 +41,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
+import java.util.regex.Pattern
 import org.groundplatform.android.R
 import org.groundplatform.android.e2etest.TestConfig.DEFAULT_TIMEOUT
 import org.groundplatform.android.e2etest.TestConfig.TEST_PHOTO_FILE
@@ -179,5 +180,16 @@ class AndroidTestDriver(
     } else {
       composeRule.onTarget(TestDriver.Target.Text(componentText)).assertIsNotDisplayed()
     }
+  }
+
+  override fun enableLocationServices() {
+    val button =
+      device.wait(
+        Until.findObject(
+          By.text(Pattern.compile(".*${Regex.escape("ok")}.*", Pattern.CASE_INSENSITIVE))
+        ),
+        DEFAULT_TIMEOUT,
+      )
+    button?.click()
   }
 }

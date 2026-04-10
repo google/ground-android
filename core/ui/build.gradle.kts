@@ -27,6 +27,7 @@ kotlin {
     namespace = "org.groundplatform.core.ui"
     compileSdk = libs.versions.androidCompileSdk.get().toInt()
     minSdk = libs.versions.androidMinSdk.get().toInt()
+    androidResources.enable = true
   }
 
   val xcfName = "GroundUiKit"

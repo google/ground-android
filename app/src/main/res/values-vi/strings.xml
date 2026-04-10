@@ -212,6 +212,10 @@
 
   <string name="recenter">Recenter</string>
   <string name="survey_load_timeout_error">Đã hết thời gian tải khảo sát. Vui lòng kiểm tra kết nối và thử lại.</string>
+  <string name="camera_launch_failed_title">Lỗi máy ảnh</string>
+  <string name="camera_launch_failed_desc">Không thể mở máy ảnh. Vui lòng thử lại.</string>
+  <string name="photo_save_failed_title">Lỗi lưu</string>
+  <string name="photo_save_failed_desc">Không thể lưu ảnh đã chụp. Vui lòng thử lại.</string>
   <string name="share_location">Chia sẻ vị trí</string>
   <string name="scan_this_qr_to_download_geojson">Quét mã QR này để xem GeoJSON</string>
   <string name="share">Chia sẻ</string>
