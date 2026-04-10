@@ -15,25 +15,16 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.location
 
-import android.content.Intent
-import android.net.Uri
-import android.provider.Settings
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlinx.coroutines.flow.first
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.components.ConfirmationDialog
 import org.groundplatform.android.ui.datacollection.components.TaskHeader
-import org.groundplatform.android.ui.datacollection.tasks.LocationLockEnabledState
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreen
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreenAction
 
@@ -42,24 +33,15 @@ fun CaptureLocationTaskScreen(
   viewModel: CaptureLocationTaskViewModel,
   onFooterPositionUpdated: (Float) -> Unit,
   onAction: (TaskScreenAction) -> Unit,
+  onOpenSettings: () -> Unit,
   mapContent: @Composable () -> Unit,
 ) {
   val taskActionButtonStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
-  val location by viewModel.lastLocation.collectAsStateWithLifecycle()
-  var showPermissionDeniedDialog by viewModel.showPermissionDeniedDialog
-  var showAccuracyCard by remember { mutableStateOf(false) }
-
-  LaunchedEffect(location) {
-    showAccuracyCard = location != null && !viewModel.isCaptureEnabled.first()
-  }
+  val showPermissionDeniedDialog by viewModel.showPermissionDeniedDialog.collectAsStateWithLifecycle()
+  val showAccuracyCard by viewModel.showAccuracyCard.collectAsStateWithLifecycle()
 
   LaunchedEffect(Unit) {
     viewModel.enableLocationLock()
-    viewModel.enableLocationLockFlow.collect {
-      if (it == LocationLockEnabledState.NEEDS_ENABLE) {
-        showPermissionDeniedDialog = true
-      }
-    }
   }
 
   TaskScreen(
@@ -71,7 +53,7 @@ fun CaptureLocationTaskScreen(
     headerCard = {
       if (showAccuracyCard) {
         LocationAccuracyCard(
-          onDismiss = { showAccuracyCard = false },
+          onDismiss = { viewModel.dismissAccuracyCard() },
           modifier = Modifier.padding(bottom = 12.dp),
         )
       }
@@ -80,18 +62,13 @@ fun CaptureLocationTaskScreen(
       mapContent()
 
       if (showPermissionDeniedDialog) {
-        val context = LocalContext.current
         ConfirmationDialog(
           title = R.string.allow_location_title,
           description = R.string.allow_location_description,
           confirmButtonText = R.string.allow_location_confirmation,
           onConfirmClicked = {
-            showPermissionDeniedDialog = false
-
-            // Open the app settings
-            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-            intent.data = Uri.fromParts("package", context.packageName, null)
-            context.startActivity(intent)
+            viewModel.onAllowLocationClicked()
+            onOpenSettings()
           },
         )
       }

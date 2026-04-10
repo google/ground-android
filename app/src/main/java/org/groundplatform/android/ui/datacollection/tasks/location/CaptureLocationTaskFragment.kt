@@ -17,6 +17,9 @@ package org.groundplatform.android.ui.datacollection.tasks.location
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import android.view.ViewGroup
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -40,6 +43,7 @@ class CaptureLocationTaskFragment @Inject constructor() :
       viewModel = viewModel,
       onFooterPositionUpdated = { saveFooterPosition(it) },
       onAction = { handleTaskScreenAction(it) },
+      onOpenSettings = { openAppSettings() },
     ) {
       TaskMapFragmentContainer(
         taskId = viewModel.task.id,
@@ -47,5 +51,11 @@ class CaptureLocationTaskFragment @Inject constructor() :
         fragmentProvider = captureLocationTaskMapFragmentProvider,
       )
     }
+  }
+
+  private fun openAppSettings() {
+    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+    intent.data = Uri.fromParts("package", requireContext().packageName, null)
+    requireContext().startActivity(intent)
   }
 }

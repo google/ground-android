@@ -17,7 +17,6 @@ package org.groundplatform.android.ui.datacollection.tasks.location
 
 import android.location.Location
 import androidx.annotation.VisibleForTesting
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
@@ -30,6 +29,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import org.groundplatform.android.common.Constants.ACCURACY_THRESHOLD_IN_M
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
@@ -45,7 +45,8 @@ import org.groundplatform.domain.model.submission.isNullOrEmpty
 
 class CaptureLocationTaskViewModel @Inject constructor() : AbstractMapTaskViewModel() {
 
-  val showPermissionDeniedDialog = mutableStateOf(false)
+  private val _showPermissionDeniedDialog = MutableStateFlow(false)
+  val showPermissionDeniedDialog = _showPermissionDeniedDialog.asStateFlow()
 
   private val _lastLocation = MutableStateFlow<Location?>(null)
   val lastLocation = _lastLocation.asStateFlow()
@@ -53,6 +54,47 @@ class CaptureLocationTaskViewModel @Inject constructor() : AbstractMapTaskViewMo
   val isCaptureEnabled: Flow<Boolean> = _lastLocation.map { location ->
     val accuracy: Float = location?.getAccuracyOrNull()?.toFloat() ?: Float.MAX_VALUE
     location != null && accuracy <= ACCURACY_THRESHOLD_IN_M
+  }
+
+  private val _dismissAccuracyCard = MutableStateFlow(false)
+
+  val showAccuracyCard: StateFlow<Boolean> = combine(
+    lastLocation,
+    isCaptureEnabled,
+    _dismissAccuracyCard
+  ) { location, isCaptureEnabled, dismissed ->
+    location != null && !isCaptureEnabled && !dismissed
+  }
+  .stateIn(viewModelScope, WhileSubscribed(5_000), false)
+
+  init {
+    viewModelScope.launch {
+      enableLocationLockFlow.collect {
+        if (it == LocationLockEnabledState.NEEDS_ENABLE) {
+          _showPermissionDeniedDialog.value = true
+        }
+      }
+    }
+
+    viewModelScope.launch {
+      lastLocation.collect {
+        if (it == null) {
+          _dismissAccuracyCard.value = false
+        }
+      }
+    }
+  }
+
+  fun dismissAccuracyCard() {
+    _dismissAccuracyCard.value = true
+  }
+
+  fun dismissPermissionDeniedDialog() {
+    _showPermissionDeniedDialog.value = false
+  }
+
+  fun onAllowLocationClicked() {
+    dismissPermissionDeniedDialog()
   }
 
   override val taskActionButtonStates: StateFlow<List<ButtonActionState>> by lazy {

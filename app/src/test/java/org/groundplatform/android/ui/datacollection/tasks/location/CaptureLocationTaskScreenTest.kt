@@ -69,6 +69,7 @@ class CaptureLocationTaskScreenTest {
     )
   private val job = Job(id = "job1")
   private var lastScreenAction: TaskScreenAction? = null
+  private var openSettingsCalled = false
   private lateinit var viewModel: CaptureLocationTaskViewModel
   private lateinit var buttonActionStateChecker: ButtonActionStateChecker
   private lateinit var context: Context
@@ -106,11 +107,18 @@ class CaptureLocationTaskScreenTest {
       surveyId = "survey_id",
     )
 
+    openSettingsCalled = false
     composeTestRule.setContent {
       CaptureLocationTaskScreen(
         viewModel = viewModel,
         onFooterPositionUpdated = {},
-        onAction = { lastScreenAction = it },
+        onAction = { action ->
+          lastScreenAction = action
+          if (action is TaskScreenAction.OnButtonClicked) {
+            viewModel.onButtonClick(action.action)
+          }
+        },
+        onOpenSettings = { openSettingsCalled = true },
         mapContent = { /* Dummy content */ }
       )
     }
