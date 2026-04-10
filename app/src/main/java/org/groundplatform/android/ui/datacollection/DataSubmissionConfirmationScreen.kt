@@ -144,10 +144,7 @@ private fun ShareableContent(modifier: Modifier = Modifier, loiReport: LoiReport
       Box(
         modifier =
           Modifier.fillMaxWidth()
-            .background(
-              MaterialTheme.colorScheme.background,
-              RoundedCornerShape(12.dp),
-            )
+            .background(MaterialTheme.colorScheme.background, RoundedCornerShape(12.dp))
             .padding(24.dp)
       ) {
         GroundQrCode(
