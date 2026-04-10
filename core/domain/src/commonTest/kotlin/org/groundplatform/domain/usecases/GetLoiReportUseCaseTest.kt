@@ -242,9 +242,67 @@ class GetLoiReportUseCaseTest {
     }
   }
 
+  @Test
+  fun `Should round coordinates to 6 decimals`() = runTest {
+    val lineString =
+      LineString(
+        listOf(
+          Coordinates(1.123456789, 2.987654321),
+          Coordinates(3.123456789, 4.987654321),
+          Coordinates(5.123456789, 6.987654321),
+        )
+      )
+    val loiReport =
+      invokeUseCase(geometry = lineString, properties = generateProperties("Rounding test"))
+
+    val expectedGeoJson =
+      """
+      {
+        "type": "Feature",
+        "properties": {"name": "Rounding test"},
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [2.987654, 1.123457],
+            [4.987654, 3.123457],
+            [6.987654, 5.123457]
+          ]
+        }
+      }
+      """
+        .trimIndent()
+
+    assertEquals(Json.parseToJsonElement(expectedGeoJson), loiReport.geoJson)
+  }
+
+  @Test
+  fun `Should only include name property even if more are provided`() = runTest {
+    val properties =
+      generateProperties("Name test") +
+        mapOf("description" to "Should be removed", "extra" to "Also removed")
+
+    val loiReport =
+      invokeUseCase(geometry = Point(Coordinates(lat = 0.0, lng = 0.0)), properties = properties)
+
+    val expectedGeoJson =
+      """
+      {
+        "type": "Feature",
+        "properties": {"name": "Name test"},
+        "geometry": {
+          "type": "Point",
+          "coordinates": [0.0, 0.0]
+        }
+      }
+      """
+        .trimIndent()
+
+    assertEquals(Json.parseToJsonElement(expectedGeoJson), loiReport.geoJson)
+  }
+
   private suspend fun invokeUseCase(geometry: Geometry, properties: LoiProperties): LoiReport {
     loiRepository.offlineLoi =
       loiRepository.offlineLoi.copy(geometry = geometry, properties = properties)
-    return getLoiReportUseCase.invoke("loiId", "surveyId")!!
+    return getLoiReportUseCase.invoke("loiName", "loiId", "surveyId")!!
   }
 }

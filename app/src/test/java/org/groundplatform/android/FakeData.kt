@@ -16,6 +16,10 @@
 package org.groundplatform.android
 
 import kotlin.time.Clock
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.buildJsonObject
 import org.groundplatform.android.model.imagery.OfflineArea
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.gms.features.FeatureClusterItem
@@ -32,6 +36,7 @@ import org.groundplatform.domain.model.job.Style
 import org.groundplatform.domain.model.locationofinterest.AuditInfo
 import org.groundplatform.domain.model.locationofinterest.LOI_NAME_PROPERTY
 import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
+import org.groundplatform.domain.model.locationofinterest.LoiReport
 import org.groundplatform.domain.model.map.Bounds
 import org.groundplatform.domain.model.mutation.LocationOfInterestMutation
 import org.groundplatform.domain.model.mutation.Mutation
@@ -109,6 +114,24 @@ object FakeData {
       geometry = Point(Coordinates(0.0, 0.0)),
     )
 
+  val LOCATION_OF_INTEREST_LOI_REPORT =
+    LoiReport(
+      loiName = "Unnamed point",
+      geoJson =
+        JsonObject(
+          mapOf(
+            "type" to JsonPrimitive("Feature"),
+            "properties" to buildJsonObject {},
+            "geometry" to
+              JsonObject(
+                mapOf(
+                  "type" to JsonPrimitive("Point"),
+                  "coordinates" to JsonArray(listOf(JsonPrimitive(0.0), JsonPrimitive(0.0))),
+                )
+              ),
+          )
+        ),
+    )
   val LOCATION_OF_INTEREST_FEATURE =
     Feature(
       id = LOCATION_OF_INTEREST.id,

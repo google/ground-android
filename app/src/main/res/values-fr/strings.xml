@@ -171,7 +171,6 @@
   </string>
   <string name="draft_restored">Données non sauvegardées ont été restaurées</string>
   <string name="load_tos_failed">Impossible de se connecter, réessayer plus tard</string>
-  <string name="data_submitted_image">Données d&#8217;image soumises</string>
   <string name="data_collection_complete">Collecte des données terminée !</string>
   <string name="data_collection_complete_details">Vos données ont été sauvegardées et seront automatiquement synchronisées lorsque vous serez en ligne.</string>
   <string name="allow_location_confirmation">Autoriser la localisation</string>
@@ -223,4 +222,7 @@
   <string name="camera_launch_failed_desc">Impossible d&#8217;ouvrir la caméra. Veuillez réessayer.</string>
   <string name="photo_save_failed_title">Erreur d&#8217;enregistrement</string>
   <string name="photo_save_failed_desc">Impossible d&#8217;enregistrer la photo capturée. Veuillez réessayer.</string>
+  <string name="share_location">Partager l&#8217;emplacement</string>
+  <string name="scan_this_qr_to_download_geojson">Scannez ce code QR pour afficher le GeoJson</string>
+  <string name="share">Partager</string>
 </resources>

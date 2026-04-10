@@ -56,6 +56,7 @@ import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.submission.ValueDelta
 import org.groundplatform.domain.model.submission.isNotNullOrEmpty
 import org.groundplatform.domain.model.task.Task
+import org.groundplatform.domain.usecases.GetLoiReportUseCase
 import timber.log.Timber
 
 /** View model for the Data Collection fragment. */
@@ -72,6 +73,7 @@ internal constructor(
   private val popups: Provider<EphemeralPopups>,
   private val viewModelFactory: ViewModelFactory,
   private val dataCollectionInitializer: DataCollectionInitializer,
+  private val getLoiReportUseCase: GetLoiReportUseCase,
 ) : AbstractViewModel() {
 
   /** The current vertical position of the task view footer. */
@@ -86,7 +88,6 @@ internal constructor(
 
   private val jobId: String = requireNotNull(savedStateHandle[TASK_JOB_ID_KEY])
   private val loiId: String? = savedStateHandle[TASK_LOI_ID_KEY]
-  private val loiName: String? = savedStateHandle[TASK_LOI_NAME_KEY]
 
   private val taskDataHandler = TaskDataHandler()
   private lateinit var taskSequenceHandler: TaskSequenceHandler
@@ -99,7 +100,13 @@ internal constructor(
 
   init {
     viewModelScope.launch {
-      val initResult = dataCollectionInitializer.initialize(savedStateHandle, jobId, loiId, loiName)
+      val initResult =
+        dataCollectionInitializer.initialize(
+          savedStateHandle,
+          jobId,
+          loiId,
+          getTypedLoiNameOrEmpty(),
+        )
 
       if (initResult is DataCollectionUiState.Ready) {
         taskSequenceHandler = TaskSequenceHandler(initResult.tasks, taskDataHandler)
@@ -167,8 +174,16 @@ internal constructor(
         moveToNextTask()
       } else {
         clearDraft()
-        saveChanges(st, getDeltas())
-        _uiState.value = DataCollectionUiState.TaskSubmitted
+        externalScope.launch(ioDispatcher) {
+          val submittedLoiId = saveChanges(st, getDeltas())
+          val loiReport =
+            getLoiReportUseCase.invoke(
+              loiName = getTypedLoiNameOrEmpty(),
+              loiId = submittedLoiId,
+              surveyId = st.surveyId,
+            )
+          _uiState.value = DataCollectionUiState.TaskSubmitted(loiReport)
+        }
       }
     }
   }
@@ -241,18 +256,19 @@ internal constructor(
     moveToTask(withReady { taskSequenceHandler.getNextTask(it.currentTaskId) })
   }
 
-  private fun saveChanges(state: DataCollectionUiState.Ready, deltas: List<ValueDelta>) {
-    externalScope.launch(ioDispatcher) {
-      val collectionId = offlineUuidGenerator.generateUuid()
-      submitDataUseCase.invoke(
-        loiId,
-        state.job,
-        state.surveyId,
-        deltas,
-        savedStateHandle[TASK_LOI_NAME_KEY],
-        collectionId,
-      )
-    }
+  private suspend fun saveChanges(
+    state: DataCollectionUiState.Ready,
+    deltas: List<ValueDelta>,
+  ): String {
+    val collectionId = offlineUuidGenerator.generateUuid()
+    return submitDataUseCase.invoke(
+      selectedLoiId = loiId,
+      job = state.job,
+      surveyId = state.surveyId,
+      deltas = deltas,
+      loiName = savedStateHandle[TASK_LOI_NAME_KEY],
+      collectionId = collectionId,
+    )
   }
 
   private fun suppressDrafts() {
@@ -283,7 +299,7 @@ internal constructor(
     val state = uiState.value
 
     if (
-      state == DataCollectionUiState.TaskSubmitted ||
+      state is DataCollectionUiState.TaskSubmitted ||
         deltas.isEmpty() ||
         state !is DataCollectionUiState.Ready
     ) {
