@@ -15,9 +15,13 @@
  */
 package org.groundplatform.android.ui.offlineareas.selector.model
 
-sealed class UiState {
+sealed class OfflineAreaSelectorEvent {
 
-  data object OfflineAreaBackToHomeScreen : UiState()
+  data object NavigateOfflineAreaBackToHomeScreen : OfflineAreaSelectorEvent()
 
-  data object Up : UiState()
+  data object NavigateUp : OfflineAreaSelectorEvent()
+
+  data object NetworkUnavailable : OfflineAreaSelectorEvent()
+
+  data object DownloadError : OfflineAreaSelectorEvent()
 }
