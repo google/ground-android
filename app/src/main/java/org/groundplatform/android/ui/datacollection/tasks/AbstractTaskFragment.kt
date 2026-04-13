@@ -177,8 +177,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
    * preloaded pages from overwriting the position.
    */
   fun saveFooterPosition(top: Float) {
-    val currentState = dataCollectionViewModel.uiState.value
-    val isActive = (currentState as? DataCollectionUiState.Ready)?.currentTaskId == taskId
+    val isActive = (dataCollectionViewModel.uiState?.value as? DataCollectionUiState.Ready)?.currentTaskId == taskId
     if (isActive) {
       dataCollectionViewModel.updateFooterPosition(top)
     }
