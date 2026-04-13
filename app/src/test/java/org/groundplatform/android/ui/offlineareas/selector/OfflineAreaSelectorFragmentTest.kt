@@ -35,7 +35,6 @@ import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlin.test.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flow
@@ -153,6 +152,7 @@ class OfflineAreaSelectorFragmentTest : BaseHiltTest() {
 
   @Test
   fun `download failure displays error toast`() = runWithTestDispatcher {
+    @Suppress("TooGenericExceptionThrown")
     setupMocks(downloadProgressFlow = flow { throw RuntimeException("download failed") })
 
     viewModel.onMapCameraMoved(CAMERA_POSITION)
