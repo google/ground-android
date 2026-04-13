@@ -40,6 +40,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -51,8 +52,12 @@ import org.groundplatform.ui.theme.AppTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShareLocationModal(loiReport: LoiReport, onDismiss: () -> Unit) {
-  Dialog(onDismissRequest = onDismiss) {
+  Dialog(
+    onDismissRequest = onDismiss,
+    properties = DialogProperties(usePlatformDefaultWidth = false),
+  ) {
     Card(
+      modifier = Modifier.padding(16.dp),
       shape = RoundedCornerShape(24.dp),
       colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
     ) {

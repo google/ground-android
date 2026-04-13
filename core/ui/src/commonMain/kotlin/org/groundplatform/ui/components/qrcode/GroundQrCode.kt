@@ -19,6 +19,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -96,10 +97,10 @@ fun GroundQrCode(
       style = MaterialTheme.typography.titleMedium,
       color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
-    Box(modifier = modifier.sizeIn(minWidth = 142.dp, minHeight = 142.dp)) {
+    Box(modifier = modifier.aspectRatio(1f).sizeIn(minWidth = 142.dp, minHeight = 142.dp)) {
       qrBitmap?.let {
         Image(
-          modifier = Modifier.align(Alignment.Center),
+          modifier = Modifier.align(Alignment.Center).fillMaxSize(),
           bitmap = it,
           contentDescription = contentDescription,
           contentScale = ContentScale.Fit,
