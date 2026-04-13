@@ -15,41 +15,51 @@
  */
 package org.groundplatform.android.ui.offlineareas.selector
 
-import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.isNotDisplayed
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavController
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.isEnabled
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
+import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
-import javax.inject.Inject
+import kotlin.test.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.R
+import org.groundplatform.android.getString
+import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.testrules.FragmentScenarioRule
 import org.groundplatform.android.ui.offlineareas.selector.model.OfflineAreaSelectorState
+import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.map.Bounds
 import org.hamcrest.CoreMatchers.not
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito.mock
 import org.mockito.kotlin.any
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.shadows.ShadowToast
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
@@ -57,19 +67,24 @@ import org.robolectric.RobolectricTestRunner
 class OfflineAreaSelectorFragmentTest : BaseHiltTest() {
 
   lateinit var fragment: OfflineAreaSelectorFragment
-  @Inject lateinit var viewModel: OfflineAreaSelectorViewModel
+  lateinit var viewModel: OfflineAreaSelectorViewModel
+  lateinit var navController: NavController
 
-  private val offlineAreaRepository: OfflineAreaRepository = mock()
+  @BindValue @Mock lateinit var offlineAreaRepository: OfflineAreaRepository
   @BindValue @Mock lateinit var networkManager: NetworkManager
 
-  @get:Rule val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+  @get:Rule val composeTestRule = createComposeRule()
   @get:Rule val fragmentScenario = FragmentScenarioRule()
 
   @Before
   override fun setUp() {
     super.setUp()
-    fragmentScenario.launchFragmentInHiltContainer<OfflineAreaSelectorFragment> {
+    fragmentScenario.launchFragmentWithNavController<OfflineAreaSelectorFragment>(
+      destId = R.id.offline_area_selector_fragment,
+      navControllerCallback = { navController = it },
+    ) {
       fragment = this as OfflineAreaSelectorFragment
+      viewModel = ViewModelProvider(fragment)[OfflineAreaSelectorViewModel::class.java]
     }
   }
 
@@ -104,35 +119,122 @@ class OfflineAreaSelectorFragmentTest : BaseHiltTest() {
     onView(withId(R.id.bottom_text)).check(matches(withText("")))
   }
 
-  // TODO: Complete below test
-  // Issue URL: https://github.com/google/ground-android/issues/3032
   @Test
   fun `stopDownloading cancels active download and updates UI state`() = runWithTestDispatcher {
+    val progressFlow = MutableSharedFlow<Pair<Int, Int>>()
+    setupMocks(downloadProgressFlow = progressFlow)
     composeTestRule.setContent { DownloadProgressDialog(0f, {}) }
 
-    val progressFlow = MutableSharedFlow<Pair<Int, Int>>()
-    whenever(offlineAreaRepository.downloadTiles(any())).thenReturn(progressFlow)
-
-    viewModel.onDownloadClick()
+    viewModel.onMapCameraMoved(CAMERA_POSITION)
     advanceUntilIdle()
+
+    onView(withId(R.id.download_button))
+      .check(matches(isDisplayed()))
+      .check(matches(isEnabled()))
+      .perform(click())
+    advanceUntilIdle()
+
+    composeTestRule
+      .onNodeWithText(getString(R.string.offline_map_imagery_download_progress_dialog_message))
+      .isDisplayed()
 
     progressFlow.emit(Pair(50, 100))
     advanceUntilIdle()
 
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.cancel))
-      .performClick()
+    composeTestRule.onNodeWithText(getString(R.string.cancel)).performClick()
     progressFlow.emit(Pair(75, 100))
 
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.cancel))
-      .isNotDisplayed()
+    composeTestRule.onNodeWithText(getString(R.string.cancel)).isNotDisplayed()
 
     val state = viewModel.uiState.value
     assert(state.downloadState is OfflineAreaSelectorState.DownloadState.Idle)
     assert(viewModel.downloadJob == null)
   }
 
-  // TODO: Write `test test failure case displays toast`
-  // Issue URL: https://github.com/google/ground-android/issues/3038
+  @Test
+  fun `download failure displays error toast`() = runWithTestDispatcher {
+    setupMocks(downloadProgressFlow = flow { throw RuntimeException("download failed") })
+
+    viewModel.onMapCameraMoved(CAMERA_POSITION)
+    advanceUntilIdle()
+    onView(withId(R.id.download_button))
+      .check(matches(isDisplayed()))
+      .check(matches(isEnabled()))
+      .perform(click())
+    advanceUntilIdle()
+
+    assertThat(ShadowToast.shownToastCount()).isEqualTo(1)
+    assertEquals(
+      getString(R.string.offline_area_download_error),
+      ShadowToast.getTextOfLatestToast(),
+    )
+  }
+
+  @Test
+  fun `network unavailable displays error popup`() = runWithTestDispatcher {
+    setupMocks(isNetworkConnected = false)
+
+    viewModel.onMapCameraMoved(CAMERA_POSITION)
+    advanceUntilIdle()
+    onView(withId(R.id.download_button))
+      .check(matches(isDisplayed()))
+      .check(matches(isEnabled()))
+      .perform(click())
+    advanceUntilIdle()
+
+    assertThat(ShadowToast.shownToastCount()).isEqualTo(1)
+    assertEquals(
+      getString(R.string.connect_to_download_message),
+      ShadowToast.getTextOfLatestToast(),
+    )
+  }
+
+  @Test
+  fun `successful download navigates back to home screen`() = runWithTestDispatcher {
+    setupMocks(downloadProgressFlow = flow { emit(Pair(100, 100)) })
+
+    viewModel.onMapCameraMoved(CAMERA_POSITION)
+    advanceUntilIdle()
+    onView(withId(R.id.download_button))
+      .check(matches(isDisplayed()))
+      .check(matches(isEnabled()))
+      .perform(click())
+    advanceUntilIdle()
+
+    assertThat(navController.currentDestination!!.id).isEqualTo(R.id.home_screen_fragment)
+  }
+
+  @Test
+  fun `cancel button triggers navigate up`() = runWithTestDispatcher {
+    setupMocks()
+
+    viewModel.onMapCameraMoved(CAMERA_POSITION)
+    advanceUntilIdle()
+    onView(withId(R.id.cancel_button)).perform(click())
+    advanceUntilIdle()
+
+    assertThat(navController.currentDestination?.id)
+      .isNotEqualTo(R.id.offline_area_selector_fragment)
+  }
+
+  private suspend fun setupMocks(
+    hasHiResImagery: Result<Boolean> = Result.success(true),
+    estimatedSizeOnDisk: Result<Int> = Result.success(1024 * 1024 * 5),
+    isNetworkConnected: Boolean = true,
+    downloadProgressFlow: Flow<Pair<Int, Int>> = MutableSharedFlow(),
+  ) {
+    whenever(offlineAreaRepository.hasHiResImagery(any())).thenReturn(hasHiResImagery)
+    whenever(offlineAreaRepository.estimateSizeOnDisk(any())).thenReturn(estimatedSizeOnDisk)
+    whenever(networkManager.isNetworkConnected()).thenReturn(isNetworkConnected)
+    whenever(offlineAreaRepository.downloadTiles(any())).thenReturn(downloadProgressFlow)
+  }
+
+  private companion object {
+    val CAMERA_POSITION =
+      CameraPosition(
+        Coordinates(0.5, 0.5),
+        10.0f,
+        Bounds(Coordinates(0.0, 0.0), Coordinates(1.0, 1.0)),
+      )
+  }
 }
