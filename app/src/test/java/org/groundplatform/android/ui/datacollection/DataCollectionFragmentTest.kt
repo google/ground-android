@@ -20,6 +20,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.navigation.fragment.findNavController
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -38,6 +39,7 @@ import org.groundplatform.android.R
 import org.groundplatform.android.data.local.room.converter.SubmissionDeltasConverter
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.data.sync.MutationSyncWorkManager
+import org.groundplatform.android.getString
 import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.repository.MutationRepository
 import org.groundplatform.android.repository.SubmissionRepository
@@ -60,6 +62,7 @@ import org.groundplatform.domain.model.task.Option
 import org.groundplatform.domain.model.task.Task
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -315,7 +318,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Clicking done on final task hides the navigation close button`() = runWithTestDispatcher {
+  fun `Clicking done on final task displays the close button and title`() = runWithTestDispatcher {
     setupFragment()
 
     runner()
@@ -326,7 +329,27 @@ class DataCollectionFragmentTest : BaseHiltTest() {
       .selectOption(TASK_2_OPTION_LABEL)
       .clickDoneButton() // Click "done" on final task
 
-    assertThat(getToolbar()?.navigationIcon).isNull()
+    advanceUntilIdle()
+
+    assertThat(getToolbar()?.navigationIcon).isNotNull()
+    assertThat(getToolbar()?.title).isEqualTo(getString(R.string.data_collection_complete))
+  }
+
+  @Test
+  fun `Back navigation at the end of data collection exits the screen`() = runWithTestDispatcher {
+    setupFragment()
+
+    runner()
+      .inputText(TASK_1_RESPONSE)
+      .clickNextButton()
+      .selectOption(TASK_2_OPTION_LABEL)
+      .clickDoneButton()
+      .pressBackButton()
+
+    advanceUntilIdle()
+
+    assertThat(fragment.findNavController().currentDestination?.id)
+      .isNotEqualTo(R.id.data_collection_fragment)
   }
 
   @Test
@@ -652,9 +675,11 @@ class DataCollectionFragmentTest : BaseHiltTest() {
       .selectOption(TASK_2_OPTION_LABEL)
       .clickDoneButton()
 
+    advanceUntilIdle()
+
     // Simulate state after task submission
     val state = fragment.viewModel.uiState.value
-    assertThat(state).isEqualTo(DataCollectionUiState.TaskSubmitted)
+    assertTrue(state is DataCollectionUiState.TaskSubmitted)
   }
 
   @Test

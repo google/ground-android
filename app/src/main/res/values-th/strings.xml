@@ -169,7 +169,6 @@
   </string>
   <string name="draft_restored">บันทึกข้อมูลที่ยังไม่ได้บันทึกถูกกู้คืนแล้ว</string>
   <string name="load_tos_failed">ไม่สามารถเชื่อมต่อได้ กรุณาลองใหม่ภายหลัง</string>
-  <string name="data_submitted_image">ภาพการส่งข้อมูล</string>
   <string name="data_collection_complete">การเก็บข้อมูลเสร็จสมบูรณ์!</string>
   <string name="data_collection_complete_details">ข้อมูลของคุณถูกบันทึกแล้ว และจะซิงค์อัตโนมัติเมื่อคุณเชื่อมต่ออินเทอร์เน็ต</string>
   <string name="allow_location_confirmation">อนุญาตการเข้าถึงตำแหน่ง</string>
@@ -215,4 +214,7 @@
   <string name="camera_launch_failed_desc">ไม่สามารถเปิดกล้องได้ โปรดลองอีกครั้ง</string>
   <string name="photo_save_failed_title">ข้อผิดพลาดในการบันทึก</string>
   <string name="photo_save_failed_desc">ไม่สามารถบันทึกรูปภาพที่ถ่ายได้ โปรดลองอีกครั้ง</string>
+  <string name="share_location">แชร์ตำแหน่ง</string>
+  <string name="scan_this_qr_to_download_geojson">สแกนคิวอาร์โค้ดนี้เพื่อดู GeoJSON</string>
+  <string name="share">แชร์</string>
 </resources>

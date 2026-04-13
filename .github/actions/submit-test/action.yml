@@ -25,6 +25,10 @@ inputs:
   google-maps-key:
     description: 'A Google Maps API key'
 
+  api-level:
+    description: 'Android API level to run the emulator with'
+    default: '30'
+
 runs:
   using: composite
   steps:
@@ -76,7 +80,7 @@ runs:
     - name: Run tests
       uses: reactivecircus/android-emulator-runner@v2
       with:
-        api-level: 30
+        api-level: ${{ inputs.api-level }}
         target: google_apis
         arch: x86_64
         emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
@@ -91,7 +95,7 @@ runs:
       if: always()
       uses: actions/upload-artifact@v6
       with:
-        name: test-reports
+        name: test-reports-api${{ inputs.api-level }}
         path: '**/build/reports/androidTests'
         retention-days: 7
         if-no-files-found: warn
@@ -100,7 +104,7 @@ runs:
       if: always()
       uses: actions/upload-artifact@v6
       with:
-        name: test-screenshots
+        name: test-screenshots-api${{ inputs.api-level }}
         path: '**/build/outputs/connected_android_test_additional_output'
         retention-days: 7
         if-no-files-found: ignore
@@ -118,7 +122,7 @@ runs:
       continue-on-error: true
       uses: actions/upload-artifact@v6
       with:
-        name: firebase-emulator-log
+        name: firebase-emulator-log-api${{ inputs.api-level }}
         path: /tmp/firebase-emulator.log
         retention-days: 7
         if-no-files-found: warn
@@ -127,7 +131,7 @@ runs:
       if: always() && inputs.upload-artifacts == 'true'
       uses: actions/upload-artifact@v6
       with:
-        name: firebase-emulator-data
+        name: firebase-emulator-data-api${{ inputs.api-level }}
         path: ${{ github.workspace }}/test-android-result
         retention-days: 7
         if-no-files-found: warn

@@ -166,7 +166,6 @@
 \nNgười tổ chức khảo sát có thể chia sẻ và sử dụng dữ liệu công khai theo Giấy phép *Creative Commons CC0 1.0*  </string>
   <string name="draft_restored">Dữ liệu chưa lưu đã được khôi phục</string>
   <string name="load_tos_failed">Không thể kết nối, vui lòng thử lại sau</string>
-  <string name="data_submitted_image">Ảnh đã được gửi kèm dữ liệu</string>
   <string name="data_collection_complete">Thu thập dữ liệu hoàn tất!</string>
   <string name="data_collection_complete_details">Dữ liệu của bạn đã được lưu và sẽ tự động đồng bộ khi bạn trực tuyến.</string>
   <string name="allow_location_confirmation">Cho phép truy cập vị trí</string>
@@ -217,4 +216,7 @@
   <string name="camera_launch_failed_desc">Không thể mở máy ảnh. Vui lòng thử lại.</string>
   <string name="photo_save_failed_title">Lỗi lưu</string>
   <string name="photo_save_failed_desc">Không thể lưu ảnh đã chụp. Vui lòng thử lại.</string>
+  <string name="share_location">Chia sẻ vị trí</string>
+  <string name="scan_this_qr_to_download_geojson">Quét mã QR này để xem GeoJSON</string>
+  <string name="share">Chia sẻ</string>
 </resources>
