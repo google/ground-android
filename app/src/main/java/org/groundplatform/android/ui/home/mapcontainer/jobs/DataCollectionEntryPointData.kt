@@ -18,6 +18,7 @@ package org.groundplatform.android.ui.home.mapcontainer.jobs
 
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
+import org.groundplatform.domain.model.locationofinterest.LoiReport
 
 /** Data classes used to populate the data collection entry UI, like the LOI bottom sheet. */
 sealed interface DataCollectionEntryPointData {
@@ -29,6 +30,7 @@ data class SelectedLoiSheetData(
   val loi: LocationOfInterest,
   val submissionCount: Int,
   val showDeleteLoiButton: Boolean,
+  val loiReport: LoiReport?,
 ) : DataCollectionEntryPointData
 
 data class AdHocDataCollectionButtonData(override val canCollectData: Boolean, val job: Job) :

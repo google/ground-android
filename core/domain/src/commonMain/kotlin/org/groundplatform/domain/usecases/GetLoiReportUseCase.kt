@@ -15,6 +15,7 @@
  */
 package org.groundplatform.domain.usecases
 
+import kotlin.math.round
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
@@ -26,6 +27,7 @@ import org.groundplatform.domain.model.geometry.LinearRing
 import org.groundplatform.domain.model.geometry.MultiPolygon
 import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.geometry.Polygon
+import org.groundplatform.domain.model.locationofinterest.LOI_NAME_PROPERTY
 import org.groundplatform.domain.model.locationofinterest.LoiProperties
 import org.groundplatform.domain.model.locationofinterest.LoiReport
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
@@ -41,13 +43,20 @@ class GetLoiReportUseCase(
   /**
    * Returns a [LoiReport] for the given LOI, or `null` if it does not exist.
    *
-   * @param loiId the identifier of the location of interest.
+   * @param loiName the identifier of the location of interest.
    * @param surveyId the identifier of the survey the LOI belongs to.
    * @throws IllegalStateException if the LOI geometry is a bare [LinearRing].
    */
-  suspend operator fun invoke(loiId: String, surveyId: String): LoiReport? {
+  suspend operator fun invoke(loiName: String, loiId: String, surveyId: String): LoiReport? {
     val loi = locationOfInterestRepository.getOfflineLoi(surveyId, loiId)
-    return loi?.let { LoiReport(it.geometry.toGeoJson(it.properties)) }
+    return loi?.let {
+      LoiReport(
+        loiName,
+        it.geometry.toGeoJson(
+          it.properties.filter { property -> property.key == LOI_NAME_PROPERTY }
+        ),
+      )
+    }
   }
 
   /**
@@ -89,7 +98,12 @@ class GetLoiReportUseCase(
 
   /** Converts a single [Coordinates] to a GeoJSON position: [lng, lat]. */
   private fun coordinatesToPosition(coordinates: Coordinates): JsonArray =
-    JsonArray(listOf(JsonPrimitive(coordinates.lng), JsonPrimitive(coordinates.lat)))
+    JsonArray(
+      listOf(
+        JsonPrimitive(coordinates.lng.roundTo6Decimals()),
+        JsonPrimitive(coordinates.lat.roundTo6Decimals()),
+      )
+    )
 
   /** Converts a list of [Coordinates] to a GeoJSON array of positions. */
   private fun coordinatesToPositions(coordinates: List<Coordinates>): JsonArray =
@@ -101,6 +115,8 @@ class GetLoiReportUseCase(
     polygon.holes.forEach { rings.add(coordinatesToPositions(it.coordinates)) }
     return JsonArray(rings)
   }
+
+  private fun Double.roundTo6Decimals(): Double = round(this * 1e6) / 1e6
 
   private companion object {
     const val KEY_TYPE = "type"

@@ -184,7 +184,6 @@
   </string>
   <string name="draft_restored">Datos no guardados restaurados</string>
   <string name="load_tos_failed">No se pudo conectar, intente de nuevo más tarde</string>
-  <string name="data_submitted_image">Datos de imagen enviados</string>
   <string name="data_collection_complete">¡Recolección de datos completada!</string>
   <string name="data_collection_complete_details">Sus datos se han guardado y se sincronizarán automáticamente cuando esté en línea.</string>
 
@@ -244,4 +243,7 @@
   <string name="camera_launch_failed_desc">No se pudo abrir la cámara. Por favor, inténtalo de nuevo.</string>
   <string name="photo_save_failed_title">Error al guardar</string>
   <string name="photo_save_failed_desc">No se pudo guardar la foto capturada. Por favor, inténtalo de nuevo.</string>
+  <string name="share_location">Compartir ubicación</string>
+  <string name="scan_this_qr_to_download_geojson">Escanea este código QR para ver el GeoJSON</string>
+  <string name="share">Compartir</string>
 </resources>
