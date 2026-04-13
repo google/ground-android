@@ -21,9 +21,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import dagger.hilt.android.testing.HiltAndroidTest
-import javax.inject.Inject
 import kotlin.test.Test
-import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.R
 import org.groundplatform.android.getString
 import org.junit.Assert.assertTrue
@@ -33,15 +31,13 @@ import org.robolectric.RobolectricTestRunner
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-class DownloadProgressDialogTest : BaseHiltTest() {
+class DownloadProgressDialogTest {
 
   @get:Rule val composeTestRule = createComposeRule()
 
-  @Inject lateinit var viewModel: OfflineAreaSelectorViewModel
-
   @Test
   fun `DownloadProgressDialog displays title correctly`() {
-    composeTestRule.setContent { DownloadProgressDialog(viewModel.downloadProgress.value!!, {}) }
+    composeTestRule.setContent { DownloadProgressDialog(0f, {}) }
 
     composeTestRule
       .onNodeWithText(getString(R.string.offline_map_imagery_download_progress_dialog_title, 0))
@@ -50,7 +46,7 @@ class DownloadProgressDialogTest : BaseHiltTest() {
 
   @Test
   fun `DownloadProgressDialog displays correct message`() {
-    composeTestRule.setContent { DownloadProgressDialog(viewModel.downloadProgress.value!!, {}) }
+    composeTestRule.setContent { DownloadProgressDialog(0f, {}) }
 
     composeTestRule
       .onNodeWithText(getString(R.string.offline_map_imagery_download_progress_dialog_message))
@@ -61,9 +57,7 @@ class DownloadProgressDialogTest : BaseHiltTest() {
   fun `DownloadProgressDialog calls onDismiss when dismiss button is clicked`() {
     var isDismissed = false
 
-    composeTestRule.setContent {
-      DownloadProgressDialog(viewModel.downloadProgress.value!!, { isDismissed = true })
-    }
+    composeTestRule.setContent { DownloadProgressDialog(0f, { isDismissed = true }) }
 
     composeTestRule.onNodeWithText(getString(R.string.cancel)).performClick()
 
@@ -72,9 +66,7 @@ class DownloadProgressDialogTest : BaseHiltTest() {
 
   @Test
   fun `DownloadProgressDialog displays correct title for progress percentage`() {
-    viewModel.downloadProgress.value = 0.5f
-
-    composeTestRule.setContent { DownloadProgressDialog(viewModel.downloadProgress.value!!, {}) }
+    composeTestRule.setContent { DownloadProgressDialog(0.5f, {}) }
 
     composeTestRule
       .onNodeWithText(getString(R.string.offline_map_imagery_download_progress_dialog_title, 50))
