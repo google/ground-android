@@ -22,6 +22,10 @@ import org.groundplatform.android.ui.components.LOCATION_NOT_LOCKED_TEST_TAG
 
 @OptIn(ExperimentalTestApi::class)
 class HomeScreenRobot(override val testDriver: TestDriver) : Robot<HomeScreenRobot>() {
+  fun enableLocationServices() {
+    testDriver.enableLocationServices()
+  }
+
   fun moveMap() = testDriver.dragMapBy(500, 500)
 
   fun recenter() = testDriver.click(TestDriver.Target.TestTag(LOCATION_NOT_LOCKED_TEST_TAG))

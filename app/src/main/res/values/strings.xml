@@ -188,7 +188,6 @@
   </string>
   <string name="draft_restored">Unsaved data restored</string>
   <string name="load_tos_failed">Could not connect, try again later</string>
-  <string name="data_submitted_image">Data submitted image</string>
   <string name="data_collection_complete">Data collection complete!</string>
   <string name="data_collection_complete_details">Your data has been saved and will be automatically synced when you’re online.</string>
 
@@ -242,4 +241,7 @@
   <string name="location_not_accurate_description">Try standing still or waiting for a more accurate position</string>
 
   <string name="recenter">Re-center</string>
+  <string name="share_location">Share location</string>
+  <string name="scan_this_qr_to_download_geojson">Scan this QR code to view the GeoJson</string>
+  <string name="share">Share</string>
 </resources>
