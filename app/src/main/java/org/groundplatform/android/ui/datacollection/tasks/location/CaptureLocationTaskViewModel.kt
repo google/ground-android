@@ -17,6 +17,7 @@ package org.groundplatform.android.ui.datacollection.tasks.location
 
 import android.location.Location
 import androidx.lifecycle.viewModelScope
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.StateFlow
@@ -38,13 +39,12 @@ import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.submission.CaptureLocationTaskData
 import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.submission.isNullOrEmpty
-import javax.inject.Inject
 
 /**
  * ViewModel for the Capture Location task.
  *
- * Manages the state of the location capture flow, including location lock, accuracy checks,
- * and action button states.
+ * Manages the state of the location capture flow, including location lock, accuracy checks, and
+ * action button states.
  */
 class CaptureLocationTaskViewModel @Inject constructor() : AbstractMapTaskViewModel() {
 
@@ -57,8 +57,8 @@ class CaptureLocationTaskViewModel @Inject constructor() : AbstractMapTaskViewMo
   /**
    * Emits true if the accuracy card should be shown.
    *
-   * The card is shown when a location is available but not accurate enough, and the user
-   * hasn't dismissed the card yet.
+   * The card is shown when a location is available but not accurate enough, and the user hasn't
+   * dismissed the card yet.
    */
   val showAccuracyCard: StateFlow<Boolean> =
     combine(_lastLocation, _userDismissedAccuracyCard) { location, dismissed ->

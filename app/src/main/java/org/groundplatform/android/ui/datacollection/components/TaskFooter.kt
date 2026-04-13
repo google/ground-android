@@ -33,13 +33,13 @@ import org.groundplatform.ui.theme.AppTheme
 @Composable
 fun TaskFooter(
   modifier: Modifier = Modifier,
-  headerCard: (@Composable () -> Unit)? = null,
+  content: (@Composable () -> Unit)? = null,
   buttonActionStates: List<ButtonActionState>,
   onButtonClicked: (ButtonAction) -> Unit,
 ) {
   Column(modifier = modifier.padding(24.dp).fillMaxWidth()) {
-    if (headerCard != null) {
-      headerCard()
+    if (content != null) {
+      content()
       Spacer(Modifier.height(12.dp))
     }
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -71,7 +71,7 @@ private fun TaskFooterWithHeaderPreview() {
     listOf(ButtonAction.PREVIOUS, ButtonAction.UNDO, ButtonAction.REDO, ButtonAction.NEXT)
   AppTheme {
     TaskFooter(
-      headerCard = { LocationAccuracyCard(onDismiss = {}) },
+      content = { LocationAccuracyCard(onDismiss = {}) },
       buttonActionStates = actions.map { ButtonActionState(it) },
       onButtonClicked = {},
     )

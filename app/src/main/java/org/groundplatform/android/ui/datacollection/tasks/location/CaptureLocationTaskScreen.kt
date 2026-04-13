@@ -36,8 +36,8 @@ import org.groundplatform.ui.theme.AppTheme
 /**
  * A screen for capturing the user's current location.
  *
- * This is the stateful wrapper that collects state from [CaptureLocationTaskViewModel] and
- * handles event routing.
+ * This is the stateful wrapper that collects state from [CaptureLocationTaskViewModel] and handles
+ * event routing.
  *
  * @param viewModel The view model for this task.
  * @param onFooterPositionUpdated Callback when the footer position changes.
@@ -106,8 +106,7 @@ private fun CaptureLocationTaskContent(
     taskActionButtonsStates = taskActionButtonsStates,
     onFooterPositionUpdated = onFooterPositionUpdated,
     onAction = onAction,
-    shouldShowHeader = true,
-    headerCard = {
+    footerContent = {
       if (showAccuracyCard) {
         LocationAccuracyCard(
           onDismiss = onDismissAccuracyCard,

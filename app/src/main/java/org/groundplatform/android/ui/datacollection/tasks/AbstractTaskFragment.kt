@@ -160,7 +160,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
     TaskFooter(
       modifier = Modifier.onGloballyPositioned { layoutCoordinates = it },
-      headerCard =
+      content =
         if (shouldShowHeader()) {
           { HeaderCard() }
         } else {

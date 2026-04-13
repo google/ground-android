@@ -43,12 +43,11 @@ fun TaskScreen(
   instructionData: InstructionData? = null,
   taskActionButtonsStates: List<ButtonActionState>,
   shouldShowLoiNameDialog: Boolean = false,
-  shouldShowHeader: Boolean = false,
   showInstructionsDialog: Boolean = false,
   loiName: String = "",
   onFooterPositionUpdated: (Float) -> Unit,
   onAction: (TaskScreenAction) -> Unit,
-  headerCard: @Composable (() -> Unit)? = null,
+  footerContent: @Composable (() -> Unit)? = null,
   taskBody: @Composable () -> Unit,
 ) {
   val isKeyboardOpen = WindowInsets.isImeVisible
@@ -64,7 +63,7 @@ fun TaskScreen(
     footer = {
       TaskFooter(
         modifier = Modifier.onGloballyPositioned { layoutCoordinates = it },
-        headerCard = headerCard.takeIf { shouldShowHeader },
+        content = footerContent,
         buttonActionStates = taskActionButtonsStates,
         onButtonClicked = { onAction(TaskScreenAction.OnButtonClicked(it)) },
       )
