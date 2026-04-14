@@ -215,7 +215,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
   private fun getTask(): Task = viewModel.task
 
   @Composable
-  private fun LoiNameDialog() {
+  protected fun LoiNameDialog() {
     var openAlertDialog by dataCollectionViewModel.loiNameDialogOpen
 
     if (openAlertDialog) {

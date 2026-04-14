@@ -15,9 +15,11 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.point
 
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
@@ -42,7 +44,8 @@ constructor(
 ) : AbstractMapTaskViewModel() {
 
   private var pinColor: Int = 0
-  val features: MutableLiveData<Set<Feature>> = MutableLiveData()
+  private val _features = MutableStateFlow<Set<Feature>>(emptySet())
+  val features: StateFlow<Set<Feature>> = _features.asStateFlow()
   /** Whether the instructions dialog has been shown or not. */
   var instructionsDialogShown: Boolean by localValueStore::dropPinInstructionsShown
   var captureLocation: Boolean = false
@@ -72,7 +75,7 @@ constructor(
 
   override fun clearResponse() {
     super.clearResponse()
-    features.postValue(setOf())
+    _features.value = setOf()
   }
 
   private fun updateResponse(point: Point) {
@@ -82,7 +85,7 @@ constructor(
 
   private fun dropMarker(point: Point) = viewModelScope.launch {
     val feature = createFeature(point)
-    features.postValue(setOf(feature))
+    _features.value = setOf(feature)
   }
 
   /** Creates a new map [Feature] representing the point placed by the user. */
