@@ -21,11 +21,10 @@ import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
@@ -51,18 +50,16 @@ fun TaskScreen(
   taskBody: @Composable () -> Unit,
 ) {
   val isKeyboardOpen = WindowInsets.isImeVisible
-  var layoutCoordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
+  var footerPositionY by remember { mutableFloatStateOf(0f) }
 
   // Update footer position whenever layout changes or keyboard is toggled.
-  LaunchedEffect(isKeyboardOpen, layoutCoordinates) {
-    layoutCoordinates?.let { onFooterPositionUpdated(it.positionInWindow().y) }
-  }
+  LaunchedEffect(isKeyboardOpen, footerPositionY) { onFooterPositionUpdated(footerPositionY) }
 
   TaskViewLayout(
     header = taskHeader,
     footer = {
       TaskFooter(
-        modifier = Modifier.onGloballyPositioned { layoutCoordinates = it },
+        modifier = Modifier.onGloballyPositioned { footerPositionY = it.positionInWindow().y },
         content = footerContent,
         buttonActionStates = taskActionButtonsStates,
         onButtonClicked = { onAction(TaskScreenAction.OnButtonClicked(it)) },
