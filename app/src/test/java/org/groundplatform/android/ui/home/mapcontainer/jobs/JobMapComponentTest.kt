@@ -23,6 +23,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import kotlin.test.Test
 import kotlin.test.assertTrue
 import org.groundplatform.android.FakeData.ADHOC_JOB
@@ -259,7 +260,7 @@ class JobMapComponentTest {
     }
 
     composeTestRule.onNodeWithText(getString(R.string.share)).performClick()
-    composeTestRule.onNodeWithText(getString(R.string.close)).performClick()
+    composeTestRule.onNodeWithText(getString(R.string.close)).performScrollTo().performClick()
     composeTestRule.waitForIdle()
 
     composeTestRule.onNodeWithText(loiSheetData.loi.job.name!!).assertIsDisplayed()
