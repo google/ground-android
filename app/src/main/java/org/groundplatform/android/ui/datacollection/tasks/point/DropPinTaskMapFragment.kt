@@ -35,13 +35,13 @@ class DropPinTaskMapFragment @Inject constructor() :
     // Disable pan/zoom gestures if a marker has been placed on the map.
     launchWhenTaskVisible(dataCollectionViewModel, taskId) {
       taskViewModel.features.collect { features ->
-        updateGestures(features, taskViewModel.captureLocation)
+        updateGestures(features)
       }
     }
   }
 
-  private fun updateGestures(features: Set<Feature>, captureLocation: Boolean) {
-    if (features.isNotEmpty() || captureLocation) {
+  private fun updateGestures(features: Set<Feature>) {
+    if (features.isNotEmpty()) {
       map.disableGestures()
     } else {
       map.enableGestures()

@@ -242,13 +242,13 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   @Composable
   private fun InstructionsDialog(instructionData: InstructionData) {
-    var showInstructionsDialog by viewModel.showInstructionsDialog
+    val showInstructionsDialog by viewModel.showInstructionsDialog.collectAsStateWithLifecycle()
 
     if (showInstructionsDialog) {
       InstructionsDialog(
         data = instructionData,
         onDismissed = {
-          showInstructionsDialog = false
+          viewModel.dismissInstructions()
           onInstructionDialogDismissed()
         },
       )

@@ -49,13 +49,7 @@ fun DropPinTaskScreen(
   mapContent: @Composable () -> Unit,
 ) {
   val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
-  val showInstructionsDialog = viewModel.showInstructionsDialog.value
-
-  LaunchedEffect(Unit) {
-    if (viewModel.shouldShowInstructionsDialog()) {
-      viewModel.showInstructionsDialog.value = true
-    }
-  }
+  val showInstructionsDialog by viewModel.showInstructionsDialog.collectAsStateWithLifecycle()
 
   DropPinTaskContent(
     taskLabel = viewModel.task.label,
@@ -64,8 +58,7 @@ fun DropPinTaskScreen(
     onFooterPositionUpdated = onFooterPositionUpdated,
     onAction = { action ->
       if (action is TaskScreenAction.OnInstructionsDismiss) {
-        viewModel.instructionsDialogShown = true
-        viewModel.showInstructionsDialog.value = false
+        viewModel.dismissDropPinInstructions()
       } else {
         onAction(action)
       }
