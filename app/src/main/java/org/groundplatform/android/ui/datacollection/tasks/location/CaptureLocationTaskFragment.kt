@@ -17,31 +17,16 @@ package org.groundplatform.android.ui.datacollection.tasks.location
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Bundle
 import android.provider.Settings
-import androidx.compose.foundation.layout.padding
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
+import android.view.LayoutInflater
+import android.view.ViewGroup
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import javax.inject.Provider
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
-import org.groundplatform.android.R
-import org.groundplatform.android.ui.components.ConfirmationDialog
-import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.groundplatform.android.ui.datacollection.components.TaskMapFragmentContainer
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
-import org.groundplatform.android.ui.datacollection.tasks.LocationLockEnabledState
+import org.groundplatform.android.util.createComposeView
 
 @AndroidEntryPoint
 class CaptureLocationTaskFragment @Inject constructor() :
@@ -49,69 +34,28 @@ class CaptureLocationTaskFragment @Inject constructor() :
   @Inject
   lateinit var captureLocationTaskMapFragmentProvider: Provider<CaptureLocationTaskMapFragment>
 
-  override val taskHeader: TaskHeader by lazy {
-    TaskHeader(viewModel.task.label, R.drawable.outline_pin_drop)
-  }
-
-  @Composable
-  override fun TaskBody() {
-    var showPermissionDeniedDialog by viewModel.showPermissionDeniedDialog
-
-    TaskMapFragmentContainer(
-      taskId = viewModel.task.id,
-      fragmentManager = childFragmentManager,
-      fragmentProvider = captureLocationTaskMapFragmentProvider,
-    )
-
-    if (showPermissionDeniedDialog) {
-      ConfirmationDialog(
-        title = R.string.allow_location_title,
-        description = R.string.allow_location_description,
-        confirmButtonText = R.string.allow_location_confirmation,
-        onConfirmClicked = {
-          showPermissionDeniedDialog = false
-
-          // Open the app settings
-          val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-          intent.data = Uri.fromParts("package", context?.packageName, null)
-          context?.startActivity(intent)
-        },
+  override fun onCreateView(
+    inflater: LayoutInflater,
+    container: ViewGroup?,
+    savedInstanceState: Bundle?,
+  ) = createComposeView {
+    CaptureLocationTaskScreen(
+      viewModel = viewModel,
+      onFooterPositionUpdated = { saveFooterPosition(it) },
+      onAction = { handleTaskScreenAction(it) },
+      onOpenSettings = { openAppSettings() },
+    ) {
+      TaskMapFragmentContainer(
+        taskId = viewModel.task.id,
+        fragmentManager = childFragmentManager,
+        fragmentProvider = captureLocationTaskMapFragmentProvider,
       )
     }
   }
 
-  override fun onTaskResume() {
-    // Ensure that the location lock is enabled, if it hasn't been.
-    if (isVisible) {
-      viewModel.enableLocationLock()
-      lifecycleScope.launch {
-        lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-          viewModel.enableLocationLockFlow.collect {
-            if (it == LocationLockEnabledState.NEEDS_ENABLE) {
-              viewModel.showPermissionDeniedDialog.value = true
-            }
-          }
-        }
-      }
-    }
-  }
-
-  override fun shouldShowHeader() = true
-
-  @Composable
-  override fun HeaderCard() {
-    val location by viewModel.lastLocation.collectAsState()
-    var showAccuracyCard by remember { mutableStateOf(false) }
-
-    LaunchedEffect(location) {
-      showAccuracyCard = location != null && !viewModel.isCaptureEnabled.first()
-    }
-
-    if (showAccuracyCard) {
-      LocationAccuracyCard(
-        onDismiss = { showAccuracyCard = false },
-        modifier = Modifier.padding(bottom = 12.dp),
-      )
-    }
+  private fun openAppSettings() {
+    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+    intent.data = Uri.fromParts("package", requireContext().packageName, null)
+    requireContext().startActivity(intent)
   }
 }

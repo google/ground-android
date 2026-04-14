@@ -41,19 +41,18 @@ class TaskScreenTest {
   @get:Rule val composeTestRule = createComposeRule()
 
   @Test
-  fun `renders header card when shouldShowHeader is true`() {
+  fun `renders footer header when footerHeader is not null`() {
     composeTestRule.setContent {
       TaskScreen(
         taskHeader = TaskHeader("Test Header"),
         instructionData = null,
         taskActionButtonsStates = emptyList(),
         shouldShowLoiNameDialog = false,
-        shouldShowHeader = true,
         showInstructionsDialog = false,
         loiName = "",
         onFooterPositionUpdated = {},
         onAction = {},
-        headerCard = { Text("Header Card Content") },
+        footerContent = { Text("Header Card Content") },
         taskBody = {},
       )
     }
@@ -69,12 +68,11 @@ class TaskScreenTest {
         instructionData = null,
         taskActionButtonsStates = emptyList(),
         shouldShowLoiNameDialog = false,
-        shouldShowHeader = false,
         showInstructionsDialog = false,
         loiName = "",
         onFooterPositionUpdated = {},
         onAction = {},
-        headerCard = null,
+        footerContent = null,
         taskBody = { Text("Task Body Content") },
       )
     }
@@ -92,12 +90,11 @@ class TaskScreenTest {
         instructionData = null,
         taskActionButtonsStates = listOf(ButtonActionState(ButtonAction.NEXT)),
         shouldShowLoiNameDialog = false,
-        shouldShowHeader = false,
         showInstructionsDialog = false,
         loiName = "",
         onFooterPositionUpdated = {},
         onAction = { actionFired = it },
-        headerCard = null,
+        footerContent = null,
         taskBody = {},
       )
     }
@@ -115,12 +112,11 @@ class TaskScreenTest {
         instructionData = null,
         taskActionButtonsStates = emptyList(),
         shouldShowLoiNameDialog = true,
-        shouldShowHeader = false,
         showInstructionsDialog = false,
         loiName = "My Custom LOI",
         onFooterPositionUpdated = {},
         onAction = {},
-        headerCard = null,
+        footerContent = null,
         taskBody = {},
       )
     }
@@ -138,12 +134,11 @@ class TaskScreenTest {
         instructionData = null,
         taskActionButtonsStates = emptyList(),
         shouldShowLoiNameDialog = true,
-        shouldShowHeader = false,
         showInstructionsDialog = false,
         loiName = "My Custom LOI",
         onFooterPositionUpdated = {},
         onAction = { actionFired = it },
-        headerCard = null,
+        footerContent = null,
         taskBody = {},
       )
     }
@@ -169,12 +164,11 @@ class TaskScreenTest {
         instructionData = InstructionData(R.drawable.ic_question_answer, R.string.add_point),
         taskActionButtonsStates = emptyList(),
         shouldShowLoiNameDialog = false,
-        shouldShowHeader = false,
         showInstructionsDialog = true,
         loiName = "",
         onFooterPositionUpdated = {},
         onAction = { actionFired = it },
-        headerCard = null,
+        footerContent = null,
         taskBody = {},
       )
     }
@@ -195,12 +189,11 @@ class TaskScreenTest {
         instructionData = null,
         taskActionButtonsStates = emptyList(),
         shouldShowLoiNameDialog = false,
-        shouldShowHeader = false,
         showInstructionsDialog = false,
         loiName = "",
         onFooterPositionUpdated = { footerPosition = it },
         onAction = {},
-        headerCard = null,
+        footerContent = null,
         taskBody = {},
       )
     }
@@ -214,19 +207,18 @@ class TaskScreenTest {
   }
 
   @Test
-  fun `does not render header card when shouldShowHeader is false`() {
+  fun `does not render footer header when footerHeader is null`() {
     composeTestRule.setContent {
       TaskScreen(
         taskHeader = TaskHeader("Test Header"),
         instructionData = null,
         taskActionButtonsStates = emptyList(),
         shouldShowLoiNameDialog = false,
-        shouldShowHeader = false,
         showInstructionsDialog = false,
         loiName = "",
         onFooterPositionUpdated = {},
         onAction = {},
-        headerCard = { Text("Header Card Content") },
+        footerContent = null,
         taskBody = {},
       )
     }
@@ -242,12 +234,11 @@ class TaskScreenTest {
         instructionData = null,
         taskActionButtonsStates = emptyList(),
         shouldShowLoiNameDialog = false,
-        shouldShowHeader = false,
         showInstructionsDialog = false,
         loiName = "My Custom LOI",
         onFooterPositionUpdated = {},
         onAction = {},
-        headerCard = null,
+        footerContent = null,
         taskBody = {},
       )
     }
@@ -263,12 +254,11 @@ class TaskScreenTest {
         instructionData = InstructionData(R.drawable.ic_question_answer, R.string.add_point),
         taskActionButtonsStates = emptyList(),
         shouldShowLoiNameDialog = false,
-        shouldShowHeader = false,
         showInstructionsDialog = false,
         loiName = "",
         onFooterPositionUpdated = {},
         onAction = {},
-        headerCard = null,
+        footerContent = null,
         taskBody = {},
       )
     }
@@ -284,12 +274,11 @@ class TaskScreenTest {
         instructionData = null,
         taskActionButtonsStates = emptyList(),
         shouldShowLoiNameDialog = false,
-        shouldShowHeader = false,
         showInstructionsDialog = true, // Expected to show, but data is null
         loiName = "",
         onFooterPositionUpdated = {},
         onAction = {},
-        headerCard = null,
+        footerContent = null,
         taskBody = {},
       )
     }

@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.ui.common.BaseMapViewModel
+import org.jetbrains.annotations.TestOnly
 
 /** Defines the state of an inflated Map [Task] and controls its UI. */
 abstract class AbstractMapTaskViewModel internal constructor() : AbstractTaskViewModel() {
@@ -30,6 +31,7 @@ abstract class AbstractMapTaskViewModel internal constructor() : AbstractTaskVie
 
   private var lastCameraPosition: CameraPosition? = null
 
+  @TestOnly
   fun updateLocationLock(newState: LocationLockEnabledState) = _enableLocationLockFlow.update {
     newState
   }
