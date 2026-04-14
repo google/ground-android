@@ -173,9 +173,16 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   /**
    * Updates the [DataCollectionViewModel] with the current vertical position of the task footer.
+   * Only updates if this task is the currently active (visible) task, preventing off-screen
+   * preloaded pages from overwriting the position.
    */
   fun saveFooterPosition(top: Float) {
-    dataCollectionViewModel.updateFooterPosition(top)
+    val isActive =
+      (dataCollectionViewModel.uiState?.value as? DataCollectionUiState.Ready)?.currentTaskId ==
+        taskId
+    if (isActive) {
+      dataCollectionViewModel.updateFooterPosition(top)
+    }
   }
 
   /** Handles actions triggered from the task screen UI. */
