@@ -45,14 +45,6 @@ abstract class AbstractTaskViewModel internal constructor() : AbstractViewModel(
   private val _showInstructionsDialog = MutableStateFlow(false)
   val showInstructionsDialog = _showInstructionsDialog.asStateFlow()
 
-  fun dismissInstructions() {
-    _showInstructionsDialog.value = false
-  }
-
-  fun showInstructions() {
-    _showInstructionsDialog.value = true
-  }
-
   open val taskActionButtonStates: StateFlow<List<ButtonActionState>> by lazy {
     taskTaskData
       .map { getButtonStates(it) }
@@ -63,6 +55,14 @@ abstract class AbstractTaskViewModel internal constructor() : AbstractViewModel(
   lateinit var surveyId: String
   lateinit var task: Task
   private lateinit var taskPositionInterface: TaskPositionInterface
+
+  fun dismissInstructions() {
+    _showInstructionsDialog.value = false
+  }
+
+  fun showInstructions() {
+    _showInstructionsDialog.value = true
+  }
 
   open fun initialize(
     job: Job,
