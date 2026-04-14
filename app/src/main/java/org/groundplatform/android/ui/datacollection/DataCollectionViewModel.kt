@@ -19,6 +19,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+import javax.inject.Provider
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -56,8 +58,6 @@ import org.groundplatform.domain.model.submission.isNotNullOrEmpty
 import org.groundplatform.domain.model.task.Task
 import org.groundplatform.domain.usecases.GetLoiReportUseCase
 import timber.log.Timber
-import javax.inject.Inject
-import javax.inject.Provider
 
 /** View model for the Data Collection fragment. */
 @HiltViewModel
