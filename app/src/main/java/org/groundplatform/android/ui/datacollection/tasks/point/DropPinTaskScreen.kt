@@ -16,7 +16,6 @@
 package org.groundplatform.android.ui.datacollection.tasks.point
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -45,6 +44,8 @@ import org.groundplatform.ui.theme.AppTheme
 fun DropPinTaskScreen(
   viewModel: DropPinTaskViewModel,
   onFooterPositionUpdated: (Float) -> Unit,
+  shouldShowLoiNameDialog: Boolean,
+  loiName: String,
   onAction: (TaskScreenAction) -> Unit,
   mapContent: @Composable () -> Unit,
 ) {
@@ -55,6 +56,8 @@ fun DropPinTaskScreen(
     taskLabel = viewModel.task.label,
     taskActionButtonsStates = taskActionButtonsStates,
     showInstructionsDialog = showInstructionsDialog,
+    shouldShowLoiNameDialog = shouldShowLoiNameDialog,
+    loiName = loiName,
     onFooterPositionUpdated = onFooterPositionUpdated,
     onAction = { action ->
       if (action is TaskScreenAction.OnInstructionsDismiss) {
@@ -82,6 +85,8 @@ private fun DropPinTaskContent(
   taskLabel: String,
   taskActionButtonsStates: List<ButtonActionState>,
   showInstructionsDialog: Boolean,
+  shouldShowLoiNameDialog: Boolean,
+  loiName: String,
   onFooterPositionUpdated: (Float) -> Unit,
   onAction: (TaskScreenAction) -> Unit,
   mapContent: @Composable () -> Unit,
@@ -92,6 +97,8 @@ private fun DropPinTaskContent(
       InstructionData(iconId = R.drawable.swipe_24, stringId = R.string.drop_a_pin_tooltip_text),
     taskActionButtonsStates = taskActionButtonsStates,
     showInstructionsDialog = showInstructionsDialog,
+    shouldShowLoiNameDialog = shouldShowLoiNameDialog,
+    loiName = loiName,
     onFooterPositionUpdated = onFooterPositionUpdated,
     onAction = onAction,
     taskBody = mapContent,
@@ -114,6 +121,8 @@ private fun DropPinTaskScreenPreview() {
           ButtonActionState(ButtonAction.NEXT, isEnabled = false, isVisible = false),
         ),
       showInstructionsDialog = true,
+      shouldShowLoiNameDialog = false,
+      loiName = "",
       onFooterPositionUpdated = {},
       onAction = {},
       mapContent = {},

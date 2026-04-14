@@ -18,12 +18,14 @@ package org.groundplatform.android.ui.datacollection.tasks.point
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
-import javax.inject.Provider
 import org.groundplatform.android.ui.datacollection.components.TaskMapFragmentContainer
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.util.createComposeView
+import javax.inject.Inject
+import javax.inject.Provider
 
 @AndroidEntryPoint
 class DropPinTaskFragment @Inject constructor() : AbstractTaskFragment<DropPinTaskViewModel>() {
@@ -34,20 +36,21 @@ class DropPinTaskFragment @Inject constructor() : AbstractTaskFragment<DropPinTa
     container: ViewGroup?,
     savedInstanceState: Bundle?,
   ) = createComposeView {
+    val shouldShowLoiNameDialog by dataCollectionViewModel.loiNameDialogOpen
+    val loiName by dataCollectionViewModel.loiNameDraft.collectAsStateWithLifecycle()
+
     DropPinTaskScreen(
       viewModel = viewModel,
       onFooterPositionUpdated = { saveFooterPosition(it) },
-      onAction = { handleTaskScreenAction(it) },
+      shouldShowLoiNameDialog = shouldShowLoiNameDialog,
+      loiName = loiName,
+      onAction = { action -> handleTaskScreenAction(action) },
     ) {
       TaskMapFragmentContainer(
         taskId = viewModel.task.id,
         fragmentManager = childFragmentManager,
         fragmentProvider = dropPinTaskMapFragmentProvider,
       )
-    }
-
-    if (viewModel.task.isAddLoiTask) {
-      LoiNameDialog()
     }
   }
 }

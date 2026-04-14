@@ -142,9 +142,10 @@ class DropPinTaskScreenTest : BaseHiltTest() {
     task: Task,
     isFirst: Boolean = false,
     isLastWithValue: Boolean = false,
+    viewModelToUse: DropPinTaskViewModel = viewModel,
   ) {
     lastScreenAction = null
-    viewModel.initialize(
+    viewModelToUse.initialize(
       job = JOB,
       task = task,
       taskData = null,
@@ -154,12 +155,14 @@ class DropPinTaskScreenTest : BaseHiltTest() {
 
     composeTestRule.setContent {
       DropPinTaskScreen(
-        viewModel = viewModel,
+        viewModel = viewModelToUse,
         onFooterPositionUpdated = {},
+        shouldShowLoiNameDialog = false,
+        loiName = "",
         onAction = { action ->
           lastScreenAction = action
           if (action is TaskScreenAction.OnButtonClicked) {
-            viewModel.onButtonClick(action.action)
+            viewModelToUse.onButtonClick(action.action)
           }
         },
         mapContent = { /* Dummy content */ },

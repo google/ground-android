@@ -132,7 +132,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   private fun handleNext() {
     if (getTask().isAddLoiTask) {
-      dataCollectionViewModel.loiNameDialogOpen.value = true
+      dataCollectionViewModel.openLoiNameDialog()
     } else {
       moveToNext()
     }
@@ -187,11 +187,23 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
 
   /** Handles actions triggered from the task screen UI. */
   fun handleTaskScreenAction(screenAction: TaskScreenAction) {
-    if (screenAction is TaskScreenAction.OnButtonClicked) {
-      handleButtonClick(screenAction.action)
-    } else {
-      // TODO: Handle other actions
-      // https://github.com/google/ground-android/issues/3630
+    when (screenAction) {
+      is TaskScreenAction.OnButtonClicked -> {
+        handleButtonClick(screenAction.action)
+      }
+      is TaskScreenAction.OnLoiNameChanged -> {
+        dataCollectionViewModel.setLoiNameDraft(screenAction.name)
+      }
+      is TaskScreenAction.OnLoiNameDismiss -> {
+        dataCollectionViewModel.dismissLoiNameDialog(dataCollectionViewModel.getLoiName())
+      }
+      is TaskScreenAction.OnLoiNameConfirm -> {
+        dataCollectionViewModel.confirmLoiName(screenAction.name)
+        moveToNext()
+      }
+      else -> {
+        // Remaining actions are task specific and are handled within the task screen.
+      }
     }
   }
 

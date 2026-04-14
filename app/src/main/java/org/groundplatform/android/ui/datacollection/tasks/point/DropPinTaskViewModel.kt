@@ -16,6 +16,7 @@
 package org.groundplatform.android.ui.datacollection.tasks.point
 
 import androidx.lifecycle.viewModelScope
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -34,7 +35,6 @@ import org.groundplatform.domain.model.submission.DropPinTaskData
 import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.submission.isNullOrEmpty
 import org.groundplatform.domain.model.task.Task
-import javax.inject.Inject
 
 class DropPinTaskViewModel
 @Inject
