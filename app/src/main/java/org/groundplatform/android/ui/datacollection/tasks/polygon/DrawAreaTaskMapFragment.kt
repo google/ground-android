@@ -17,10 +17,9 @@ package org.groundplatform.android.ui.datacollection.tasks.polygon
 
 import android.os.Bundle
 import android.view.View
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.asLiveData
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -70,10 +69,9 @@ class DrawAreaTaskMapFragment @Inject constructor() :
     moveToBounds(bounds, padding = 200, shouldAnimate = false)
   }
 
-  override fun renderFeatures(): LiveData<Set<Feature>> =
+  override fun renderFeatures(): Flow<Set<Feature>> =
     taskViewModel.draftArea
       .map { feature: Feature? -> if (feature == null) setOf() else setOf(feature) }
-      .asLiveData()
 
   override fun onMapCameraMoved(position: CameraPosition) {
     super.onMapCameraMoved(position)

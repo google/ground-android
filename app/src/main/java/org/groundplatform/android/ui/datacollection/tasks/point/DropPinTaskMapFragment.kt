@@ -15,10 +15,9 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.point
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.asLiveData
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.flow.Flow
 import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment
 import org.groundplatform.android.ui.datacollection.tasks.launchWhenTaskVisible
@@ -51,7 +50,7 @@ class DropPinTaskMapFragment @Inject constructor() :
     taskViewModel.updateCameraPosition(position)
   }
 
-  override fun renderFeatures(): LiveData<Set<Feature>> = taskViewModel.features.asLiveData()
+  override fun renderFeatures(): Flow<Set<Feature>> = taskViewModel.features
 
   override fun setDefaultViewPort() {
     val feature = taskViewModel.features.value?.firstOrNull() ?: return
