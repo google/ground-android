@@ -38,11 +38,6 @@ class FakeCall<I, O>(private var behavior: suspend (I) -> O) {
     return behavior(input)
   }
 
-  /** Clears all recorded calls. */
-  fun reset() {
-    _calls.clear()
-  }
-
   /** Replaces the current behavior with [newBehavior]. */
   fun overrideBehavior(newBehavior: suspend (I) -> O) {
     behavior = newBehavior
