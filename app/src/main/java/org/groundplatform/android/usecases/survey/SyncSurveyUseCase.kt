@@ -17,9 +17,9 @@
 package org.groundplatform.android.usecases.survey
 
 import javax.inject.Inject
-import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
+import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import timber.log.Timber
 
 /**
@@ -34,7 +34,7 @@ class SyncSurveyUseCase
 @Inject
 constructor(
   private val loiRepository: LocationOfInterestRepositoryInterface,
-  private val surveyRepository: SurveyRepository,
+  private val surveyRepository: SurveyRepositoryInterface,
 ) {
 
   suspend operator fun invoke(surveyId: String): Survey? =

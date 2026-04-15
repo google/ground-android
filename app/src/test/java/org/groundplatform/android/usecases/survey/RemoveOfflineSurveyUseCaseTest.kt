@@ -26,8 +26,8 @@ import org.groundplatform.android.FakeData.SURVEY
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.local.stores.LocalSurveyStore
 import org.groundplatform.android.model.map.CameraPosition
-import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -40,7 +40,7 @@ class RemoveOfflineSurveyUseCaseTest : BaseHiltTest() {
   @Inject lateinit var localSurveyStore: LocalSurveyStore
   @Inject lateinit var localValueStore: LocalValueStore
   @Inject lateinit var removeOfflineSurveyUseCase: RemoveOfflineSurveyUseCase
-  @Inject lateinit var surveyRepository: SurveyRepository
+  @Inject lateinit var surveyRepository: SurveyRepositoryInterface
 
   @Test
   fun `should delete local copy`() = runWithTestDispatcher {

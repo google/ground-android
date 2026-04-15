@@ -19,7 +19,7 @@ import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 import org.groundplatform.android.data.local.room.LocalDatabase
 import org.groundplatform.android.repository.OfflineAreaRepository
-import org.groundplatform.android.repository.SurveyRepository
+import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
 import org.junit.runner.RunWith
 import org.mockito.InjectMocks
@@ -32,7 +32,7 @@ import org.mockito.kotlin.verify
 class ClearUserSessionUseCaseTest {
   @Mock lateinit var localDatabase: LocalDatabase
   @Mock lateinit var offlineAreaRepository: OfflineAreaRepository
-  @Mock lateinit var surveyRepository: SurveyRepository
+  @Mock lateinit var surveyRepository: SurveyRepositoryInterface
   @Mock lateinit var userRepository: UserRepositoryInterface
 
   @InjectMocks lateinit var clearUserSessionUseCase: ClearUserSessionUseCase

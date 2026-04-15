@@ -42,7 +42,6 @@ import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.repository.MapStateRepository
 import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.android.repository.SubmissionRepository
-import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.system.LocationManager
 import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.system.SettingsManager
@@ -60,6 +59,7 @@ import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
+import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
 import org.groundplatform.domain.usecases.GetLoiReportUseCase
 
@@ -76,7 +76,7 @@ internal constructor(
   settingsManager: SettingsManager,
   offlineAreaRepository: OfflineAreaRepository,
   permissionsManager: PermissionsManager,
-  private val surveyRepository: SurveyRepository,
+  private val surveyRepository: SurveyRepositoryInterface,
   private val userRepository: UserRepositoryInterface,
   private val localValueStore: LocalValueStore,
   private val locationOfInterestHelper: LocationOfInterestHelper,

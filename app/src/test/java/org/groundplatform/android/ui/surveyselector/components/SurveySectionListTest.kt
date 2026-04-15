@@ -24,9 +24,9 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import org.groundplatform.android.R
 import org.groundplatform.android.getString
-import org.groundplatform.android.model.SurveyListItem
 import org.groundplatform.android.ui.surveyselector.SurveySection
 import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.SurveyListItem
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Rule

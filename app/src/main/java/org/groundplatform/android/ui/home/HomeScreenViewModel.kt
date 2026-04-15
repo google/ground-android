@@ -40,13 +40,13 @@ import org.groundplatform.android.data.sync.MutationSyncWorkManager
 import org.groundplatform.android.repository.MutationRepository
 import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.android.repository.SubmissionRepository
-import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.common.SharedViewModel
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.User
 import org.groundplatform.domain.model.auth.SignInState
 import org.groundplatform.domain.model.submission.DraftSubmission
+import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
 import timber.log.Timber
 
@@ -63,7 +63,7 @@ internal constructor(
   private val mutationRepository: MutationRepository,
   private val mutationSyncWorkManager: MutationSyncWorkManager,
   private val mediaUploadWorkManager: MediaUploadWorkManager,
-  val surveyRepository: SurveyRepository,
+  val surveyRepository: SurveyRepositoryInterface,
   val userRepository: UserRepositoryInterface,
 ) : AbstractViewModel() {
 

@@ -50,7 +50,6 @@ import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.model.map.MapType
 import org.groundplatform.android.repository.MapStateRepository
 import org.groundplatform.android.repository.OfflineAreaRepository
-import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.system.FINE_LOCATION_UPDATES_REQUEST
 import org.groundplatform.android.system.LocationManager
 import org.groundplatform.android.system.PermissionsManager
@@ -65,6 +64,7 @@ import org.groundplatform.android.ui.map.gms.toCoordinates
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
+import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import timber.log.Timber
 
 open class BaseMapViewModel
@@ -75,7 +75,7 @@ constructor(
   private val settingsManager: SettingsManager,
   private val offlineAreaRepository: OfflineAreaRepository,
   private val permissionsManager: PermissionsManager,
-  private val surveyRepository: SurveyRepository,
+  private val surveyRepository: SurveyRepositoryInterface,
   private val locationOfInterestRepository: LocationOfInterestRepositoryInterface,
 ) : AbstractViewModel() {
 

@@ -16,7 +16,7 @@
 package org.groundplatform.android.ui.surveyselector
 
 import org.groundplatform.android.R
-import org.groundplatform.android.model.SurveyListItem
+import org.groundplatform.domain.model.SurveyListItem
 
 /** Represents a section of surveys in the survey list. */
 data class SurveySection(val titleResId: Int, val surveys: List<SurveyListItem>)

@@ -35,6 +35,7 @@ import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.auth.SignInState
 import org.groundplatform.domain.model.settings.MeasurementUnits
 import org.groundplatform.domain.model.settings.UserSettings
+import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -50,7 +51,7 @@ class UserRepositoryTest : BaseHiltTest() {
   @Inject lateinit var localUserStore: LocalUserStore
   @Inject lateinit var localSurveyStore: LocalSurveyStore
   @Inject lateinit var localValueStore: LocalValueStore
-  @Inject lateinit var surveyRepository: SurveyRepository
+  @Inject lateinit var surveyRepository: SurveyRepositoryInterface
   @Inject lateinit var userRepository: UserRepositoryInterface
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
 
