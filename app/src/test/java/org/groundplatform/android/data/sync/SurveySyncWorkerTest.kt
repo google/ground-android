@@ -25,7 +25,6 @@ import androidx.work.WorkerParameters
 import androidx.work.testing.TestListenableWorkerBuilder
 import androidx.work.workDataOf
 import com.google.common.truth.Truth.assertThat
-import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
@@ -45,7 +44,7 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class SurveySyncWorkerTest : BaseHiltTest() {
   private lateinit var context: Context
-  @BindValue @Mock lateinit var syncSurvey: SyncSurveyUseCase
+  @Mock lateinit var syncSurvey: SyncSurveyUseCase
 
   @Inject @IoDispatcher lateinit var ioDispatcher: CoroutineDispatcher
 
