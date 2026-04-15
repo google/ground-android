@@ -70,8 +70,9 @@ class DrawAreaTaskMapFragment @Inject constructor() :
   }
 
   override fun renderFeatures(): Flow<Set<Feature>> =
-    taskViewModel.draftArea
-      .map { feature: Feature? -> if (feature == null) setOf() else setOf(feature) }
+    taskViewModel.draftArea.map { feature: Feature? ->
+      if (feature == null) setOf() else setOf(feature)
+    }
 
   override fun onMapCameraMoved(position: CameraPosition) {
     super.onMapCameraMoved(position)
