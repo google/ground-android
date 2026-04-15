@@ -29,7 +29,7 @@ import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import org.groundplatform.android.di.coroutines.IoDispatcher
-import org.groundplatform.android.usecases.survey.SyncSurveyUseCase
+import org.groundplatform.domain.usecases.survey.SyncSurveyUseCase
 import timber.log.Timber
 
 /** Worker responsible for syncing latest surveys and LOIs from remote server to local db. */

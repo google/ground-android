@@ -13,14 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.groundplatform.domain.usecases.survey
 
-package org.groundplatform.android.usecases.survey
-
-import javax.inject.Inject
+import co.touchlab.kermit.Logger
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
-import timber.log.Timber
 
 /**
  * Loads the survey with the specified id and related LOIs from remote and writes to local db.
@@ -30,9 +28,7 @@ import timber.log.Timber
  *
  * @throws error if the remote query fails.
  */
-class SyncSurveyUseCase
-@Inject
-constructor(
+class SyncSurveyUseCase(
   private val loiRepository: LocationOfInterestRepositoryInterface,
   private val surveyRepository: SurveyRepositoryInterface,
 ) {
@@ -41,13 +37,13 @@ constructor(
     fetchSurvey(surveyId)?.also { syncSurvey(it) }
 
   private suspend fun fetchSurvey(surveyId: String): Survey? {
-    Timber.d("Loading survey $surveyId")
+    Logger.d("Loading survey $surveyId")
     return surveyRepository.getRemoteSurvey(surveyId)
   }
 
   private suspend fun syncSurvey(survey: Survey) {
     surveyRepository.saveSurvey(survey)
     loiRepository.syncLocationsOfInterest(survey)
-    Timber.d("Synced survey ${survey.id}")
+    Logger.d("Synced survey ${survey.id}")
   }
 }
