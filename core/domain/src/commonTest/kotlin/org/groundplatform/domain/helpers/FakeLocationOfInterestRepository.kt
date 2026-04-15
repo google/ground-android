@@ -30,8 +30,10 @@ internal class FakeLocationOfInterestRepository : LocationOfInterestRepositoryIn
   var offlineLoi = newLocationOfInterest()
   var hasValidLois = true
 
+  val syncLocationsOfInterestCall = FakeCall<Survey, Unit> {}
+
   override suspend fun syncLocationsOfInterest(survey: Survey) {
-    /* Nothing to do */
+    syncLocationsOfInterestCall(survey)
   }
 
   override suspend fun getOfflineLoi(surveyId: String, loiId: String): LocationOfInterest =
