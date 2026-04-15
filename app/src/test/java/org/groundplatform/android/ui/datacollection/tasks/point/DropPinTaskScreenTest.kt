@@ -27,6 +27,7 @@ import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.JOB
 import org.groundplatform.android.FakeData.newTask
 import org.groundplatform.android.R
+import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.getString
 import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
@@ -53,6 +54,7 @@ class DropPinTaskScreenTest : BaseHiltTest() {
   @get:Rule val composeTestRule = createComposeRule()
 
   @Inject lateinit var viewModel: DropPinTaskViewModel
+  @Inject lateinit var localValueStore: LocalValueStore
   private lateinit var buttonActionStateChecker: ButtonActionStateChecker
   private var lastScreenAction: TaskScreenAction? = null
 
@@ -138,17 +140,38 @@ class DropPinTaskScreenTest : BaseHiltTest() {
     composeTestRule.onNodeWithText(tooltipText).assertIsDisplayed()
   }
 
+  @Test
+  fun `Initializes with task data`() {
+    val location = Point(Coordinates(10.0, 20.0))
+    val taskData = DropPinTaskData(location)
+    setupTaskScreen(TASK, taskData = taskData)
+
+    assertThat(viewModel.features.value).hasSize(1)
+    assertThat(viewModel.features.value.first().geometry).isEqualTo(location)
+  }
+
+  @Test
+  fun `dismissDropPinInstructions updates state`() {
+    setupTaskScreen(TASK)
+    localValueStore.dropPinInstructionsShown = false
+
+    viewModel.dismissDropPinInstructions()
+
+    assertThat(localValueStore.dropPinInstructionsShown).isTrue()
+  }
+
   private fun setupTaskScreen(
     task: Task,
     isFirst: Boolean = false,
     isLastWithValue: Boolean = false,
+    taskData: TaskData? = null,
     viewModelToUse: DropPinTaskViewModel = viewModel,
   ) {
     lastScreenAction = null
     viewModelToUse.initialize(
       job = JOB,
       task = task,
-      taskData = null,
+      taskData = taskData,
       taskPositionInterface = createTaskPositionInterface(isFirst, isLastWithValue),
       surveyId = "survey_id",
     )
