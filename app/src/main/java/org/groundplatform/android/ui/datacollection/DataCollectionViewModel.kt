@@ -84,6 +84,10 @@ internal constructor(
   val uiState: StateFlow<DataCollectionUiState> = _uiState
 
   val loiNameDialogOpen = mutableStateOf(false)
+
+  private val _loiNameDraft = MutableStateFlow("")
+  val loiNameDraft: StateFlow<String> = _loiNameDraft
+
   private var shouldLoadFromDraft: Boolean = savedStateHandle[TASK_SHOULD_LOAD_FROM_DRAFT] ?: false
 
   private val jobId: String = requireNotNull(savedStateHandle[TASK_JOB_ID_KEY])
@@ -124,6 +128,30 @@ internal constructor(
     _uiState.update { state ->
       (state as? DataCollectionUiState.Ready)?.copy(loiName = name) ?: state
     }
+  }
+
+  fun setLoiNameDraft(name: String) {
+    _loiNameDraft.value = name
+  }
+
+  fun getLoiName(): String {
+    val state = uiState.value
+    return (state as? DataCollectionUiState.Ready)?.loiName ?: getTypedLoiNameOrEmpty()
+  }
+
+  fun openLoiNameDialog() {
+    setLoiNameDraft(getLoiName())
+    loiNameDialogOpen.value = true
+  }
+
+  fun confirmLoiName(name: String) {
+    loiNameDialogOpen.value = false
+    setLoiName(name)
+  }
+
+  fun dismissLoiNameDialog(initialName: String) {
+    loiNameDialogOpen.value = false
+    setLoiNameDraft(initialName)
   }
 
   private fun isFirstPosition(taskId: String): Boolean =

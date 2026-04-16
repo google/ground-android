@@ -66,7 +66,7 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
 
   override fun onTaskResume() {
     if (isVisible && !viewModel.instructionsDialogShown) {
-      viewModel.showInstructionsDialog.value = true
+      viewModel.showInstructions()
     }
     viewModel.polygonArea.observe(viewLifecycleOwner) { area ->
       Toast.makeText(requireContext(), getString(R.string.area_message, area), Toast.LENGTH_LONG)

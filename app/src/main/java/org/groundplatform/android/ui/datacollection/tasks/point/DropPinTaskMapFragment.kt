@@ -15,10 +15,9 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.point
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.asFlow
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.flow.Flow
 import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment
 import org.groundplatform.android.ui.datacollection.tasks.launchWhenTaskVisible
@@ -34,14 +33,12 @@ class DropPinTaskMapFragment @Inject constructor() :
 
     // Disable pan/zoom gestures if a marker has been placed on the map.
     launchWhenTaskVisible(dataCollectionViewModel, taskId) {
-      taskViewModel.features.asFlow().collect { features ->
-        updateGestures(features, taskViewModel.captureLocation)
-      }
+      taskViewModel.features.collect { features -> updateGestures(features) }
     }
   }
 
-  private fun updateGestures(features: Set<Feature>, captureLocation: Boolean) {
-    if (features.isNotEmpty() || captureLocation) {
+  private fun updateGestures(features: Set<Feature>) {
+    if (features.isNotEmpty()) {
       map.disableGestures()
     } else {
       map.enableGestures()
@@ -53,7 +50,7 @@ class DropPinTaskMapFragment @Inject constructor() :
     taskViewModel.updateCameraPosition(position)
   }
 
-  override fun renderFeatures(): LiveData<Set<Feature>> = taskViewModel.features
+  override fun renderFeatures(): Flow<Set<Feature>> = taskViewModel.features
 
   override fun setDefaultViewPort() {
     val feature = taskViewModel.features.value?.firstOrNull() ?: return

@@ -15,43 +15,42 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.point
 
-import androidx.compose.runtime.Composable
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import javax.inject.Provider
-import org.groundplatform.android.R
-import org.groundplatform.android.ui.datacollection.components.InstructionData
-import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.groundplatform.android.ui.datacollection.components.TaskMapFragmentContainer
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
+import org.groundplatform.android.util.createComposeView
 
 @AndroidEntryPoint
 class DropPinTaskFragment @Inject constructor() : AbstractTaskFragment<DropPinTaskViewModel>() {
   @Inject lateinit var dropPinTaskMapFragmentProvider: Provider<DropPinTaskMapFragment>
 
-  override val taskHeader: TaskHeader by lazy {
-    TaskHeader(viewModel.task.label, R.drawable.outline_pin_drop)
-  }
+  override fun onCreateView(
+    inflater: LayoutInflater,
+    container: ViewGroup?,
+    savedInstanceState: Bundle?,
+  ) = createComposeView {
+    val shouldShowLoiNameDialog by dataCollectionViewModel.loiNameDialogOpen
+    val loiName by dataCollectionViewModel.loiNameDraft.collectAsStateWithLifecycle()
 
-  override val instructionData =
-    InstructionData(iconId = R.drawable.swipe_24, stringId = R.string.drop_a_pin_tooltip_text)
-
-  @Composable
-  override fun TaskBody() {
-    TaskMapFragmentContainer(
-      taskId = viewModel.task.id,
-      fragmentManager = childFragmentManager,
-      fragmentProvider = dropPinTaskMapFragmentProvider,
-    )
-  }
-
-  override fun onTaskResume() {
-    if (isVisible && viewModel.shouldShowInstructionsDialog()) {
-      viewModel.showInstructionsDialog.value = true
+    DropPinTaskScreen(
+      viewModel = viewModel,
+      onFooterPositionUpdated = { saveFooterPosition(it) },
+      shouldShowLoiNameDialog = shouldShowLoiNameDialog,
+      loiName = loiName,
+      onAction = { action -> handleTaskScreenAction(action) },
+    ) {
+      TaskMapFragmentContainer(
+        taskId = viewModel.task.id,
+        fragmentManager = childFragmentManager,
+        fragmentProvider = dropPinTaskMapFragmentProvider,
+      )
     }
-  }
-
-  override fun onInstructionDialogDismissed() {
-    viewModel.instructionsDialogShown = true
   }
 }

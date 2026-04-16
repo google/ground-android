@@ -15,7 +15,6 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
@@ -43,7 +42,8 @@ abstract class AbstractTaskViewModel internal constructor() : AbstractViewModel(
   private val _taskDataFlow: MutableStateFlow<TaskData?> = MutableStateFlow(null)
   val taskTaskData: StateFlow<TaskData?> = _taskDataFlow.asStateFlow()
 
-  val showInstructionsDialog = mutableStateOf(false)
+  private val _showInstructionsDialog = MutableStateFlow(false)
+  val showInstructionsDialog = _showInstructionsDialog.asStateFlow()
 
   open val taskActionButtonStates: StateFlow<List<ButtonActionState>> by lazy {
     taskTaskData
@@ -55,6 +55,14 @@ abstract class AbstractTaskViewModel internal constructor() : AbstractViewModel(
   lateinit var surveyId: String
   lateinit var task: Task
   private lateinit var taskPositionInterface: TaskPositionInterface
+
+  fun dismissInstructions() {
+    _showInstructionsDialog.value = false
+  }
+
+  fun showInstructions() {
+    _showInstructionsDialog.value = true
+  }
 
   open fun initialize(
     job: Job,
