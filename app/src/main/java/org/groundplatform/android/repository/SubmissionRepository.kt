@@ -27,11 +27,11 @@ import org.groundplatform.domain.model.mutation.Mutation
 import org.groundplatform.domain.model.mutation.Mutation.SyncStatus
 import org.groundplatform.domain.model.mutation.SubmissionMutation
 import org.groundplatform.domain.model.submission.DraftSubmission
-import org.groundplatform.domain.model.submission.Submission
 import org.groundplatform.domain.model.submission.ValueDelta
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import org.groundplatform.domain.repository.SubmissionRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
+import timber.log.Timber
 
 @Singleton
 class SubmissionRepository
@@ -43,7 +43,7 @@ constructor(
   private val mutationSyncWorkManager: MutationSyncWorkManager,
   private val userRepository: UserRepositoryInterface,
   private val uuidGenerator: OfflineUuidGenerator,
-): SubmissionRepositoryInterface {
+) : SubmissionRepositoryInterface {
   override suspend fun saveSubmission(
     surveyId: String,
     locationOfInterestId: String,
@@ -67,10 +67,13 @@ constructor(
           collectionId = collectionId,
         )
       applyAndEnqueue(mutation)
-    }
+    } ?: run { Timber.w("Job not found for survey $surveyId and LOI $locationOfInterestId") }
   }
 
-  override suspend fun getDraftSubmission(draftSubmissionId: String, survey: Survey): DraftSubmission? =
+  override suspend fun getDraftSubmission(
+    draftSubmissionId: String,
+    survey: Survey,
+  ): DraftSubmission? =
     localSubmissionStore.getDraftSubmission(draftSubmissionId = draftSubmissionId, survey = survey)
 
   override suspend fun countDraftSubmissions() = localSubmissionStore.countDraftSubmissions()
