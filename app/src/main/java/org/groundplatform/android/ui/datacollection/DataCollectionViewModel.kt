@@ -34,7 +34,6 @@ import org.groundplatform.android.data.local.room.converter.SubmissionDeltasConv
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.android.di.coroutines.ApplicationScope
 import org.groundplatform.android.di.coroutines.IoDispatcher
-import org.groundplatform.android.repository.SubmissionRepository
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.common.EphemeralPopups
 import org.groundplatform.android.ui.common.ViewModelFactory
@@ -50,12 +49,13 @@ import org.groundplatform.android.ui.datacollection.tasks.point.DropPinTaskViewM
 import org.groundplatform.android.ui.datacollection.tasks.polygon.DrawAreaTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.text.TextTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.time.TimeTaskViewModel
-import org.groundplatform.android.usecases.submission.SubmitDataUseCase
+import org.groundplatform.domain.usecases.submission.SubmitDataUseCase
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.submission.ValueDelta
 import org.groundplatform.domain.model.submission.isNotNullOrEmpty
 import org.groundplatform.domain.model.task.Task
+import org.groundplatform.domain.repository.SubmissionRepositoryInterface
 import org.groundplatform.domain.usecases.GetLoiReportUseCase
 import timber.log.Timber
 
@@ -67,7 +67,7 @@ internal constructor(
   private val savedStateHandle: SavedStateHandle,
   @ApplicationScope private val externalScope: CoroutineScope,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-  private val submissionRepository: SubmissionRepository,
+  private val submissionRepository: SubmissionRepositoryInterface,
   private val submitDataUseCase: SubmitDataUseCase,
   private val offlineUuidGenerator: OfflineUuidGenerator,
   private val popups: Provider<EphemeralPopups>,
