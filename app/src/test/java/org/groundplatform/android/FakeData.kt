@@ -41,9 +41,8 @@ import org.groundplatform.domain.model.map.Bounds
 import org.groundplatform.domain.model.mutation.LocationOfInterestMutation
 import org.groundplatform.domain.model.mutation.Mutation
 import org.groundplatform.domain.model.mutation.SubmissionMutation
-import org.groundplatform.domain.model.task.Condition
-import org.groundplatform.domain.model.task.MultipleChoice
 import org.groundplatform.domain.model.task.Task
+import org.groundplatform.testcommon.FakeDataGenerator.newTask
 
 /**
  * Shared test data constants. Tests are expected to override existing or set missing values when
@@ -176,25 +175,6 @@ object FakeData {
 
   val OFFLINE_AREA =
     OfflineArea("id_1", OfflineArea.State.PENDING, Bounds(0.0, 0.0, 0.0, 0.0), "Test Area", 0..14)
-
-  fun newTask(
-    id: String = "taskId",
-    type: Task.Type = Task.Type.TEXT,
-    multipleChoice: MultipleChoice? = null,
-    isAddLoiTask: Boolean = false,
-    condition: Condition? = null,
-    isRequired: Boolean = false,
-  ): Task =
-    Task(
-      id = id,
-      index = 0,
-      type = type,
-      label = "",
-      isRequired = isRequired,
-      multipleChoice = multipleChoice,
-      isAddLoiTask = isAddLoiTask,
-      condition = condition,
-    )
 
   fun newLoiMutation(
     point: Point,

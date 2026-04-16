@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.domain.helpers
+package org.groundplatform.testcommon
 
 /**
  * Records calls to a fake method and allows overriding its behavior for testing.

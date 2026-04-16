@@ -21,9 +21,9 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlinx.coroutines.test.runTest
-import org.groundplatform.domain.helpers.FakeData
-import org.groundplatform.domain.helpers.FakeLocationOfInterestRepository
-import org.groundplatform.domain.helpers.FakeSurveyRepository
+import org.groundplatform.testcommon.FakeDataGenerator
+import org.groundplatform.testcommon.FakeLocationOfInterestRepository
+import org.groundplatform.testcommon.FakeSurveyRepository
 
 class SyncSurveyUseCaseTest {
   private val surveyRepository = FakeSurveyRepository()
@@ -32,7 +32,7 @@ class SyncSurveyUseCaseTest {
 
   @Test
   fun `Syncs survey and LOIs with remote`() = runTest {
-    val survey = FakeData.newSurvey()
+    val survey = FakeDataGenerator.newSurvey()
     surveyRepository.remoteSurveys = listOf(survey)
 
     syncSurvey(survey.id)
@@ -55,6 +55,6 @@ class SyncSurveyUseCaseTest {
   fun `when remote survey load fails, should throw error`() = runTest {
     surveyRepository.onGetRemoteSurveyCall.overrideBehavior { error("Something went wrong") }
 
-    assertFailsWith<IllegalStateException> { syncSurvey(FakeData.newSurvey().id) }
+    assertFailsWith<IllegalStateException> { syncSurvey(FakeDataGenerator.newSurvey().id) }
   }
 }

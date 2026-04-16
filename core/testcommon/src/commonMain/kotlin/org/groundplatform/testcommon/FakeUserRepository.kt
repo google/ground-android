@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.domain.helpers
+package org.groundplatform.testcommon
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -23,9 +23,9 @@ import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
 import org.groundplatform.domain.model.settings.UserSettings
 import org.groundplatform.domain.repository.UserRepositoryInterface
 
-internal class FakeUserRepository : UserRepositoryInterface {
-  var currentUser: User = FakeData.newUser()
-  var currentUserSettings: UserSettings = FakeData.newUserSettings()
+class FakeUserRepository : UserRepositoryInterface {
+  var currentUser: User = FakeDataGenerator.newUser()
+  var currentUserSettings: UserSettings = FakeDataGenerator.newUserSettings()
   var signInState: SignInState = SignInState.SignedIn(currentUser)
   var canSubmitData = true
   var canDeleteLoi = true
@@ -37,7 +37,7 @@ internal class FakeUserRepository : UserRepositoryInterface {
   }
 
   override fun signIn() {
-    currentUser = FakeData.newUser()
+    currentUser = FakeDataGenerator.newUser()
     signInState = SignInState.SignedIn(currentUser)
   }
 

@@ -282,6 +282,7 @@ dependencies {
 
     // Markdown Parser
     implementation libs.markdown
+    testImplementation project(':core:testcommon')
 
     // Testing
     androidTestImplementation libs.androidx.junit

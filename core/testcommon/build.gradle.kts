@@ -13,13 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-plugins {
-  alias(libs.plugins.kotlin.multiplatform)
-  alias(libs.plugins.kotlin.serialization)
-}
-
-apply(from = "../../config/jacoco/jacoco.gradle")
+plugins { alias(libs.plugins.kotlin.multiplatform) }
 
 kotlin {
   // We do not add an Android target here because this is a pure domain module.
@@ -36,19 +30,12 @@ kotlin {
   sourceSets {
     commonMain {
       dependencies {
-        implementation(libs.kermit)
+        api(project(":core:domain"))
         implementation(libs.kotlin.stdlib)
-        implementation(libs.kotlinx.serialization.json)
         implementation(libs.kotlinx.collections.immutable)
         implementation(libs.kotlinx.coroutines.core)
-      }
-    }
-
-    commonTest {
-      dependencies {
-        implementation(project(":core:testcommon"))
-        implementation(libs.kotlin.test)
-        implementation(libs.kotlinx.coroutines.test)
+        api(libs.kotlin.test)
+        api(libs.kotlinx.coroutines.test)
       }
     }
   }

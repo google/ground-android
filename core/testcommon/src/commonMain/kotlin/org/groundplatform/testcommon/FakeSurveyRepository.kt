@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.domain.helpers
+package org.groundplatform.testcommon
 
+import kotlin.collections.plus
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -37,7 +38,7 @@ class FakeSurveyRepository : SurveyRepositoryInterface {
   val onGetRemoteSurveyCall = FakeCall<String, Survey?> { id -> remoteSurveys.find { it.id == id } }
 
   override suspend fun saveSurvey(survey: Survey) {
-    offlineSurveys += survey
+    offlineSurveys + survey
   }
 
   override suspend fun getRemoteSurvey(surveyId: String): Survey? = onGetRemoteSurveyCall(surveyId)
