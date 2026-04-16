@@ -21,11 +21,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import org.groundplatform.android.model.SurveyListItem
-import org.groundplatform.android.model.toListItem
-import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.NetworkStatus
+import org.groundplatform.domain.model.SurveyListItem
+import org.groundplatform.domain.model.toListItem
+import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
 
 /** Returns a flow of [SurveyListItem] to be displayed to the user. */
@@ -34,7 +34,7 @@ class ListAvailableSurveysUseCase
 @Inject
 constructor(
   private val networkManager: NetworkManager,
-  private val surveyRepository: SurveyRepository,
+  private val surveyRepository: SurveyRepositoryInterface,
   private val userRepository: UserRepositoryInterface,
 ) {
 

@@ -28,7 +28,6 @@ import androidx.work.testing.SynchronousExecutor
 import androidx.work.testing.TestDriver
 import androidx.work.testing.WorkManagerTestInitHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlin.test.assertEquals
@@ -38,7 +37,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.SURVEY
 import org.groundplatform.android.di.coroutines.IoDispatcher
-import org.groundplatform.android.usecases.survey.SyncSurveyUseCase
+import org.groundplatform.domain.usecases.survey.SyncSurveyUseCase
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -53,7 +52,7 @@ import org.robolectric.RobolectricTestRunner
 class SurveySyncServiceTest : BaseHiltTest() {
   @Inject @ApplicationContext lateinit var context: Context
   @Inject @IoDispatcher lateinit var ioDispatcher: CoroutineDispatcher
-  @BindValue @Mock lateinit var syncSurvey: SyncSurveyUseCase
+  @Mock lateinit var syncSurvey: SyncSurveyUseCase
 
   private lateinit var workManager: WorkManager
   private lateinit var testDriver: TestDriver

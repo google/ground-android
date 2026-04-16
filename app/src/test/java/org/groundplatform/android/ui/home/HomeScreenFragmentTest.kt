@@ -50,10 +50,10 @@ import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.R
 import org.groundplatform.android.data.local.stores.LocalSurveyStore
-import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.testrules.FragmentScenarioRule
 import org.groundplatform.android.ui.components.MapFloatingActionButtonType
 import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -136,7 +136,7 @@ abstract class AbstractHomeScreenFragmentTest : BaseHiltTest() {
 @RunWith(RobolectricTestRunner::class)
 class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
 
-  @Inject lateinit var surveyRepository: SurveyRepository
+  @Inject lateinit var surveyRepository: SurveyRepositoryInterface
 
   @get:Rule val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
@@ -221,7 +221,7 @@ class NavigationDrawerItemClickTest(
   private val shouldDrawerCloseAfterClick: Boolean,
 ) : AbstractHomeScreenFragmentTest() {
 
-  @Inject lateinit var surveyRepository: SurveyRepository
+  @Inject lateinit var surveyRepository: SurveyRepositoryInterface
 
   @get:Rule val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 

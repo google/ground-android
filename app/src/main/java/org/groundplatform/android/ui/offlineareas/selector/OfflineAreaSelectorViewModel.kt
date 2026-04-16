@@ -31,7 +31,6 @@ import org.groundplatform.android.model.imagery.TileSource
 import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.repository.MapStateRepository
 import org.groundplatform.android.repository.OfflineAreaRepository
-import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.system.LocationManager
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.PermissionsManager
@@ -43,6 +42,7 @@ import org.groundplatform.android.util.toMb
 import org.groundplatform.android.util.toMbString
 import org.groundplatform.domain.model.map.Bounds
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
+import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import timber.log.Timber
 
 private const val MIN_DOWNLOAD_ZOOM_LEVEL = 9
@@ -55,7 +55,7 @@ internal constructor(
   private val offlineAreaRepository: OfflineAreaRepository,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
   locationManager: LocationManager,
-  surveyRepository: SurveyRepository,
+  surveyRepository: SurveyRepositoryInterface,
   mapStateRepository: MapStateRepository,
   settingsManager: SettingsManager,
   permissionsManager: PermissionsManager,

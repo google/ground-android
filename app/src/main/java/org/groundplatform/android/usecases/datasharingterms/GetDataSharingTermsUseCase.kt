@@ -17,14 +17,14 @@ package org.groundplatform.android.usecases.datasharingterms
 
 import javax.inject.Inject
 import org.groundplatform.android.data.local.LocalValueStore
-import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.repository.SurveyRepositoryInterface
 
 class GetDataSharingTermsUseCase
 @Inject
 constructor(
   private val localValueStore: LocalValueStore,
-  private val surveyRepository: SurveyRepository,
+  private val surveyRepository: SurveyRepositoryInterface,
 ) {
 
   /** Returns the data sharing terms for the currently active survey, if not already accepted. */

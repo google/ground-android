@@ -20,13 +20,13 @@ import androidx.lifecycle.asLiveData
 import javax.inject.Inject
 import kotlinx.coroutines.flow.map
 import org.groundplatform.android.repository.MutationRepository
-import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.common.LocationOfInterestHelper
 import org.groundplatform.domain.model.mutation.LocationOfInterestMutation
 import org.groundplatform.domain.model.mutation.SubmissionMutation
 import org.groundplatform.domain.model.submission.UploadQueueEntry
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
+import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
 import timber.log.Timber
 
@@ -44,7 +44,7 @@ internal constructor(
   private val locationOfInterestRepository: LocationOfInterestRepositoryInterface,
   private val userRepository: UserRepositoryInterface,
   private val locationOfInterestHelper: LocationOfInterestHelper,
-  private val surveyRepository: SurveyRepository,
+  private val surveyRepository: SurveyRepositoryInterface,
 ) : AbstractViewModel() {
 
   /**

@@ -30,6 +30,7 @@ import org.groundplatform.domain.model.auth.SignInState
 import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
 import org.groundplatform.domain.model.settings.MeasurementUnits
 import org.groundplatform.domain.model.settings.UserSettings
+import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
 import timber.log.Timber
 
@@ -45,7 +46,7 @@ constructor(
   private val localValueStore: LocalValueStore,
   private val localUserStore: LocalUserStore,
   private val networkManager: NetworkManager,
-  private val surveyRepository: SurveyRepository,
+  private val surveyRepository: SurveyRepositoryInterface,
   private val remoteDataStore: RemoteDataStore,
 ) : UserRepositoryInterface {
 

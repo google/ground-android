@@ -29,7 +29,6 @@ import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.android.repository.MapStateRepository
 import org.groundplatform.android.repository.OfflineAreaRepository
-import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.system.LocationManager
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.PermissionsManager
@@ -40,6 +39,7 @@ import org.groundplatform.android.util.toMbString
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.map.Bounds
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
+import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -56,7 +56,7 @@ class OfflineAreaSelectorViewModelTest : BaseHiltTest() {
 
   @Mock private lateinit var offlineAreaRepository: OfflineAreaRepository
   @Mock private lateinit var locationManager: LocationManager
-  @Mock private lateinit var surveyRepository: SurveyRepository
+  @Mock private lateinit var surveyRepository: SurveyRepositoryInterface
   @Mock private lateinit var mapStateRepository: MapStateRepository
   @Mock private lateinit var settingsManager: SettingsManager
   @Mock private lateinit var permissionsManager: PermissionsManager

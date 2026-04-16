@@ -20,8 +20,10 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
+import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
 import org.groundplatform.domain.usecases.GetLoiReportUseCase
+import org.groundplatform.domain.usecases.survey.SyncSurveyUseCase
 import org.groundplatform.domain.usecases.user.GetUserSettingsUseCase
 import org.groundplatform.domain.usecases.user.UpdateUserSettingsUseCase
 
@@ -40,4 +42,10 @@ object UseCaseModule {
   @Provides
   fun providesGetUserSettingsUseCase(userRepository: UserRepositoryInterface) =
     GetUserSettingsUseCase(userRepository)
+
+  @Provides
+  fun providesSyncSurveyUseCase(
+    loiRepository: LocationOfInterestRepositoryInterface,
+    surveyRepository: SurveyRepositoryInterface,
+  ) = SyncSurveyUseCase(loiRepository, surveyRepository)
 }

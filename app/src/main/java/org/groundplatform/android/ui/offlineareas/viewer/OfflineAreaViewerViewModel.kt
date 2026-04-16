@@ -26,7 +26,6 @@ import org.groundplatform.android.di.coroutines.IoDispatcher
 import org.groundplatform.android.model.imagery.OfflineArea
 import org.groundplatform.android.repository.MapStateRepository
 import org.groundplatform.android.repository.OfflineAreaRepository
-import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.system.LocationManager
 import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.system.SettingsManager
@@ -34,6 +33,7 @@ import org.groundplatform.android.ui.common.BaseMapViewModel
 import org.groundplatform.android.util.toMb
 import org.groundplatform.android.util.toMbString
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
+import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import timber.log.Timber
 
 /**
@@ -48,7 +48,7 @@ constructor(
   mapStateRepository: MapStateRepository,
   settingsManager: SettingsManager,
   permissionsManager: PermissionsManager,
-  surveyRepository: SurveyRepository,
+  surveyRepository: SurveyRepositoryInterface,
   locationOfInterestRepository: LocationOfInterestRepositoryInterface,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) :

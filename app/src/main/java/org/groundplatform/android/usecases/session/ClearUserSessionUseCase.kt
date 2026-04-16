@@ -18,7 +18,7 @@ package org.groundplatform.android.usecases.session
 import javax.inject.Inject
 import org.groundplatform.android.data.local.room.LocalDatabase
 import org.groundplatform.android.repository.OfflineAreaRepository
-import org.groundplatform.android.repository.SurveyRepository
+import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
 
 /**
@@ -34,7 +34,7 @@ class ClearUserSessionUseCase
 constructor(
   private val localDatabase: LocalDatabase,
   private val offlineAreaRepository: OfflineAreaRepository,
-  private val surveyRepository: SurveyRepository,
+  private val surveyRepository: SurveyRepositoryInterface,
   private val userRepository: UserRepositoryInterface,
 ) {
 

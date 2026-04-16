@@ -16,8 +16,8 @@
 package org.groundplatform.android.data.remote
 
 import kotlinx.coroutines.flow.Flow
-import org.groundplatform.android.model.SurveyListItem
 import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.SurveyListItem
 import org.groundplatform.domain.model.TermsOfService
 import org.groundplatform.domain.model.User
 import org.groundplatform.domain.model.locationofinterest.LocationOfInterest

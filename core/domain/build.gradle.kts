@@ -36,6 +36,7 @@ kotlin {
   sourceSets {
     commonMain {
       dependencies {
+        implementation(libs.kermit)
         implementation(libs.kotlin.stdlib)
         implementation(libs.kotlinx.serialization.json)
         implementation(libs.kotlinx.collections.immutable)

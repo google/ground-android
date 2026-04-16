@@ -36,15 +36,15 @@ import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.local.stores.LocalSurveyStore
 import org.groundplatform.android.data.remote.RemoteDataStore
 import org.groundplatform.android.di.coroutines.ApplicationScope
-import org.groundplatform.android.model.SurveyListItem
 import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.SurveyListItem
 import org.groundplatform.domain.model.User
+import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import timber.log.Timber
 
 private const val ACTIVATE_SURVEY_TIMEOUT_MILLS: Long = 3 * 1000
 private const val LOAD_REMOTE_SURVEY_TIMEOUT_MILLS: Long = 30 * 1000
 
-/** Maintains the state of currently active survey. */
 @OptIn(ExperimentalCoroutinesApi::class)
 @Singleton
 class SurveyRepository
@@ -55,35 +55,35 @@ constructor(
   private val localSurveyStore: LocalSurveyStore,
   private val localValueStore: LocalValueStore,
   private val remoteDataStore: RemoteDataStore,
-) {
+) : SurveyRepositoryInterface {
   private val _selectedSurveyId = MutableStateFlow<String?>(null)
 
-  val activeSurveyFlow: StateFlow<Survey?> =
+  override val activeSurveyFlow: StateFlow<Survey?> =
     _selectedSurveyId
       .flatMapLatest { id -> getOfflineSurveyFlow(id) }
       .stateIn(externalScope, SharingStarted.Lazily, null)
 
-  /** The currently active survey, or `null` if no survey is active. */
-  val activeSurvey: Survey?
+  override val activeSurvey: Survey?
     get() = activeSurveyFlow.value
 
-  suspend fun saveSurvey(survey: Survey) = localSurveyStore.insertOrUpdateSurvey(survey)
+  override suspend fun saveSurvey(survey: Survey) = localSurveyStore.insertOrUpdateSurvey(survey)
 
-  suspend fun getRemoteSurvey(surveyId: String): Survey? =
+  override suspend fun getRemoteSurvey(surveyId: String): Survey? =
     withTimeout(LOAD_REMOTE_SURVEY_TIMEOUT_MILLS) { remoteDataStore.loadSurvey(surveyId) }
 
-  fun getRemoteSurveys(user: User): Flow<List<SurveyListItem>> =
+  override fun getRemoteSurveys(user: User): Flow<List<SurveyListItem>> =
     combine(remoteDataStore.getRestrictedSurveyList(user), remoteDataStore.getPublicSurveyList()) {
       restrictedSurveys,
       publicSurveys ->
       restrictedSurveys + publicSurveys
     }
 
-  suspend fun getOfflineSurvey(surveyId: String): Survey? = localSurveyStore.getSurveyById(surveyId)
+  override suspend fun getOfflineSurvey(surveyId: String): Survey? =
+    localSurveyStore.getSurveyById(surveyId)
 
-  fun getOfflineSurveys(): Flow<List<Survey>> = localSurveyStore.surveys
+  override fun getOfflineSurveys(): Flow<List<Survey>> = localSurveyStore.surveys
 
-  suspend fun removeOfflineSurvey(surveyId: String) {
+  override suspend fun removeOfflineSurvey(surveyId: String) {
     getOfflineSurvey(surveyId)?.let { localSurveyStore.deleteSurvey(it) }
   }
 
@@ -94,7 +94,7 @@ constructor(
    * Activates the survey with the specified id. Waits for [ACTIVATE_SURVEY_TIMEOUT_MILLS] before
    * throwing an error if the survey couldn't be activated.
    */
-  suspend fun activateSurvey(surveyId: String) {
+  override suspend fun activateSurvey(surveyId: String) {
     _selectedSurveyId.update { surveyId }
 
     // Wait for survey to be updated. Else throw an error after timeout.
@@ -118,10 +118,10 @@ constructor(
     }
   }
 
-  suspend fun clearActiveSurvey() {
+  override suspend fun clearActiveSurvey() {
     activateSurvey("")
   }
 
-  fun isSurveyActive(surveyId: String): Boolean =
+  override fun isSurveyActive(surveyId: String): Boolean =
     surveyId.isNotBlank() && activeSurvey?.id == surveyId
 }

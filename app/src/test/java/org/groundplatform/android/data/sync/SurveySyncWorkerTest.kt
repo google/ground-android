@@ -25,7 +25,6 @@ import androidx.work.WorkerParameters
 import androidx.work.testing.TestListenableWorkerBuilder
 import androidx.work.workDataOf
 import com.google.common.truth.Truth.assertThat
-import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
@@ -33,7 +32,7 @@ import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.SURVEY
 import org.groundplatform.android.data.sync.SurveySyncWorker.Companion.SURVEY_ID_PARAM_KEY
 import org.groundplatform.android.di.coroutines.IoDispatcher
-import org.groundplatform.android.usecases.survey.SyncSurveyUseCase
+import org.groundplatform.domain.usecases.survey.SyncSurveyUseCase
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -45,7 +44,7 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class SurveySyncWorkerTest : BaseHiltTest() {
   private lateinit var context: Context
-  @BindValue @Mock lateinit var syncSurvey: SyncSurveyUseCase
+  @Mock lateinit var syncSurvey: SyncSurveyUseCase
 
   @Inject @IoDispatcher lateinit var ioDispatcher: CoroutineDispatcher
 

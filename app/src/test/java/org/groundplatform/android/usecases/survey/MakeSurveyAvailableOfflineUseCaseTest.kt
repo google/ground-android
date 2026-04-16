@@ -17,14 +17,15 @@
 package org.groundplatform.android.usecases.survey
 
 import com.google.common.truth.Truth.assertThat
-import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.runBlocking
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.SURVEY
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
+import org.groundplatform.domain.usecases.survey.SyncSurveyUseCase
 import org.junit.Assert.assertThrows
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -34,10 +35,17 @@ import org.robolectric.RobolectricTestRunner
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class MakeSurveyAvailableOfflineUseCaseTest : BaseHiltTest() {
-  @BindValue @Mock lateinit var syncSurveyUseCase: SyncSurveyUseCase
+  @Mock lateinit var syncSurveyUseCase: SyncSurveyUseCase
 
-  @Inject lateinit var makeSurveyAvailableOffline: MakeSurveyAvailableOfflineUseCase
+  private lateinit var makeSurveyAvailableOffline: MakeSurveyAvailableOfflineUseCase
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
+
+  @Before
+  override fun setUp() {
+    super.setUp()
+    makeSurveyAvailableOffline =
+      MakeSurveyAvailableOfflineUseCase(fakeRemoteDataStore, syncSurveyUseCase)
+  }
 
   @Test
   fun `when survey sync returns null, should return null`() = runWithTestDispatcher {
