@@ -28,7 +28,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -90,12 +89,7 @@ internal constructor(
 
   init {
     if (!surveyIdToActivate.isNullOrBlank()) {
-      viewModelScope.launch {
-        // Wait for the survey list to contain the target survey
-        surveyList.first { surveys -> surveys.any { it.id == surveyIdToActivate } }
-        // Once found, activate it
-        activateSurvey(surveyIdToActivate)
-      }
+      viewModelScope.launch { activateSurvey(surveyIdToActivate) }
     }
   }
 

@@ -59,6 +59,9 @@ class SurveySelectorViewModelTest : BaseHiltTest() {
     externalScope = TestScope(testDispatcher)
     ioDispatcher = testDispatcher
     whenever(listAvailableSurveysUseCase()).thenReturn(flowOf(listOf(TEST_SURVEY)))
+  }
+
+  private fun createViewModel(savedStateHandle: SavedStateHandle = SavedStateHandle()) {
     viewModel =
       SurveySelectorViewModel(
         activateSurveyUseCase,
@@ -67,12 +70,14 @@ class SurveySelectorViewModelTest : BaseHiltTest() {
         listAvailableSurveysUseCase,
         removeOfflineSurveyUseCase,
         userRepository,
-        SavedStateHandle(),
+        savedStateHandle,
       )
   }
 
   @Test
   fun `uiState loads surveys`() = runWithTestDispatcher {
+    createViewModel()
+
     viewModel.uiState.test {
       val state = awaitItem()
       assertThat(state.isLoading).isFalse()
@@ -82,6 +87,7 @@ class SurveySelectorViewModelTest : BaseHiltTest() {
 
   @Test
   fun `activateSurvey navigates on success`() = runWithTestDispatcher {
+    createViewModel()
     whenever(activateSurveyUseCase("1")).thenReturn(true)
 
     viewModel.events.test {
@@ -92,11 +98,33 @@ class SurveySelectorViewModelTest : BaseHiltTest() {
 
   @Test
   fun `activateSurvey shows error on failure`() = runWithTestDispatcher {
+    createViewModel()
     val error = RuntimeException("Oops")
     whenever(activateSurveyUseCase("1")).thenThrow(error)
 
     viewModel.events.test {
       viewModel.activateSurvey("1")
+      assertThat(awaitItem()).isEqualTo(SurveySelectorEvent.ShowError(error))
+    }
+  }
+
+  @Test
+  fun `activateSurvey from deeplink works correctly`() = runWithTestDispatcher {
+    val savedState = SavedStateHandle(mapOf("surveyId" to "deeplink-id"))
+    whenever(activateSurveyUseCase("deeplink-id")).thenReturn(true)
+    createViewModel(savedStateHandle = savedState)
+
+    viewModel.events.test { assertThat(awaitItem()).isEqualTo(SurveySelectorEvent.NavigateToHome) }
+  }
+
+  @Test
+  fun `activateSurvey from deeplink shows error on failure`() = runWithTestDispatcher {
+    val savedState = SavedStateHandle(mapOf("surveyId" to "bad-id"))
+    val error = RuntimeException("activation failed")
+    whenever(activateSurveyUseCase("bad-id")).thenThrow(error)
+    createViewModel(savedStateHandle = savedState)
+
+    viewModel.events.test {
       assertThat(awaitItem()).isEqualTo(SurveySelectorEvent.ShowError(error))
     }
   }
