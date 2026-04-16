@@ -49,7 +49,6 @@ import org.groundplatform.android.ui.datacollection.tasks.point.DropPinTaskViewM
 import org.groundplatform.android.ui.datacollection.tasks.polygon.DrawAreaTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.text.TextTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.time.TimeTaskViewModel
-import org.groundplatform.domain.usecases.submission.SubmitDataUseCase
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.submission.ValueDelta
@@ -57,6 +56,7 @@ import org.groundplatform.domain.model.submission.isNotNullOrEmpty
 import org.groundplatform.domain.model.task.Task
 import org.groundplatform.domain.repository.SubmissionRepositoryInterface
 import org.groundplatform.domain.usecases.GetLoiReportUseCase
+import org.groundplatform.domain.usecases.submission.SubmitDataUseCase
 import timber.log.Timber
 
 /** View model for the Data Collection fragment. */
