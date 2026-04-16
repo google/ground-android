@@ -22,17 +22,19 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import androidx.constraintlayout.widget.Guideline
-import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnLayout
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.asFlow
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlin.getValue
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.databinding.DataCollectionFragBinding
@@ -40,7 +42,9 @@ import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.common.BackPressListener
 import org.groundplatform.android.ui.components.ConfirmationDialog
 import org.groundplatform.android.ui.home.HomeScreenFragmentDirections
+import org.groundplatform.android.ui.main.MainViewModel
 import org.groundplatform.android.util.renderComposableDialog
+import org.groundplatform.android.util.systemInsets
 import org.groundplatform.domain.model.locationofinterest.LoiReport
 import org.groundplatform.domain.model.task.Task
 
@@ -50,6 +54,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   @Inject lateinit var viewPagerAdapterFactory: DataCollectionViewPagerAdapterFactory
 
   val viewModel: DataCollectionViewModel by hiltNavGraphViewModels(R.id.data_collection)
+  private val mainViewModel: MainViewModel by lazy { getViewModel(MainViewModel::class.java) }
 
   private lateinit var binding: DataCollectionFragBinding
   private lateinit var progressBar: ProgressBar
@@ -88,7 +93,14 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
 
     viewLifecycleOwner.lifecycleScope.launch {
       viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-        viewModel.footerVerticalPosition.collect { setProgressBarPosition(it) }
+        combine(mainViewModel.windowInsets.asFlow(), viewModel.footerVerticalPosition) {
+            insets,
+            position ->
+            Pair(insets, position)
+          }
+          .collect { (insets, position) ->
+            setProgressBarPosition(position - insets.systemInsets().top)
+          }
       }
     }
 
@@ -139,11 +151,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   }
 
   private fun setProgressBarPosition(topPosition: Float) {
-    val insets = requireView().rootWindowInsets ?: return
-    val windowInsets = WindowInsetsCompat.toWindowInsetsCompat(insets)
-    val systemBarsInsets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-
-    val guidelineTop = topPosition.toInt() - systemBarsInsets.top
+    val guidelineTop = topPosition.toInt()
 
     if (guidelineTop > 0) {
       guideline.setGuidelineBegin(guidelineTop)
