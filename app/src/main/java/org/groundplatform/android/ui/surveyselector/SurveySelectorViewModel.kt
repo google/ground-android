@@ -91,9 +91,6 @@ internal constructor(
   init {
     if (!surveyIdToActivate.isNullOrBlank()) {
       viewModelScope.launch {
-        // Wait for the survey list to contain the target survey
-        surveyList.first { surveys -> surveys.any { it.id == surveyIdToActivate } }
-        // Once found, activate it
         activateSurvey(surveyIdToActivate)
       }
     }
