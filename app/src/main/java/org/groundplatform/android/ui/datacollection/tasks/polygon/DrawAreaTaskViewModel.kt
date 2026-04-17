@@ -141,7 +141,13 @@ internal constructor(
    * User-specified vertices of the area being drawn. If [isMarkedComplete] is false, then the last
    * vertex represents the map center and the second last vertex is the last added vertex.
    */
-  private var vertices: List<Coordinates> = listOf()
+  private val vertices: List<Coordinates>
+    get() =
+      when (val data = taskTaskData.value) {
+        is DrawAreaTaskIncompleteData -> data.lineString.coordinates
+        is DrawAreaTaskData -> data.area.getShellCoordinates()
+        else -> emptyList()
+      }
 
   /** Stack of vertices that have been removed. */
   private val _redoVertexStack = mutableListOf<Coordinates>()
@@ -246,8 +252,6 @@ internal constructor(
     addVertex(updatedTarget, true)
   }
 
-  /** Attempts to remove the last vertex of drawn polygon, if any. */
-  @VisibleForTesting
   fun removeLastVertex() {
     // Do nothing if there are no vertices to remove.
     if (vertices.isEmpty()) return
@@ -255,20 +259,18 @@ internal constructor(
     // Reset complete status
     _uiState.update { it.copy(isMarkedComplete = false) }
 
-    _redoVertexStack.add(vertices.last())
+    val lastRemoved = vertices.last()
+    _redoVertexStack.add(lastRemoved)
 
     // Remove last vertex and update polygon
-    val updatedVertices = vertices.toMutableList().apply { removeAt(lastIndex) }.toImmutableList()
+    val updatedVertices = vertices.dropLast(1).toImmutableList()
 
     // Render changes to UI
-    updateVertices(updatedVertices)
-
-    // Update saved response.
     if (updatedVertices.isEmpty()) {
       setValue(null)
-      _redoVertexStack.clear()
+      refreshMap()
     } else {
-      setValue(DrawAreaTaskIncompleteData(LineString(updatedVertices)))
+      updateVertices(updatedVertices)
     }
   }
 
@@ -282,12 +284,9 @@ internal constructor(
 
     val redoVertex = _redoVertexStack.removeAt(_redoVertexStack.lastIndex)
 
-    val mutableVertices = vertices.toMutableList()
-    mutableVertices.add(redoVertex)
-    val updatedVertices = mutableVertices.toImmutableList()
+    val updatedVertices = (vertices + redoVertex).toImmutableList()
 
     updateVertices(updatedVertices)
-    setValue(DrawAreaTaskIncompleteData(LineString(updatedVertices)))
   }
 
   fun onCameraMoved(newTarget: Coordinates) {
@@ -308,7 +307,6 @@ internal constructor(
     }
   }
 
-  /** Adds a new vertex to the polygon. */
   private fun addVertex(vertex: Coordinates, shouldOverwriteLastVertex: Boolean) {
     val updatedVertices = vertices.toMutableList()
 
@@ -320,19 +318,14 @@ internal constructor(
     // Add the new vertex
     updatedVertices.add(vertex)
 
-    // Render changes to UI
+    // Render changes to UI (and save to domain model via updateVertices)
     updateVertices(updatedVertices.toImmutableList())
-
-    // Save response if it is user initiated
-    if (!shouldOverwriteLastVertex) {
-      setValue(DrawAreaTaskIncompleteData(LineString(updatedVertices.toImmutableList())))
-    }
   }
 
   private fun checkVertexIntersection(): Boolean {
     val intersected = isSelfIntersecting(vertices)
     if (intersected) {
-      vertices = vertices.dropLast(1)
+      updateVertices(vertices.dropLast(1).toImmutableList())
       onSelfIntersectionDetected()
     }
     return intersected
@@ -359,7 +352,7 @@ internal constructor(
   }
 
   private fun updateVertices(newVertices: List<Coordinates>) {
-    this.vertices = newVertices
+    setValue(DrawAreaTaskIncompleteData(LineString(newVertices.toImmutableList())))
     refreshMap()
   }
 
