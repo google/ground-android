@@ -23,7 +23,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import javax.inject.Provider
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.components.ConfirmationDialog
 import org.groundplatform.android.ui.datacollection.components.InstructionData
@@ -56,7 +56,7 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
       fragmentProvider = drawAreaTaskMapFragmentProvider,
     )
 
-    if (uiState.selfIntersectionDetected) {
+    if (uiState.isSelfIntersectionDetected) {
       ConfirmationDialog(
         title = R.string.polygon_vertex_add_dialog_title,
         description = R.string.polygon_vertex_add_dialog_message,
@@ -74,17 +74,15 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
 
     launchWhenTaskVisible(dataCollectionViewModel, viewModel.task.id) {
       viewModel.uiState
-        .map { it.polygonArea }
+        .mapNotNull { it.polygonArea }
         .distinctUntilChanged()
         .collect { area ->
-          if (area != null) {
-            Toast.makeText(
-                requireContext(),
-                getString(R.string.area_message, area),
-                Toast.LENGTH_LONG,
-              )
-              .show()
-          }
+          Toast.makeText(
+              requireContext(),
+              getString(R.string.area_message, area),
+              Toast.LENGTH_LONG,
+            )
+            .show()
         }
     }
   }

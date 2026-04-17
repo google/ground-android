@@ -38,7 +38,7 @@ class DrawAreaTaskMapFragment @Inject constructor() :
     launchWhenTaskVisible(dataCollectionViewModel, taskId) {
       launch {
         taskViewModel.uiState
-          .map { ui -> !ui.tooClose && !ui.isMarkedComplete }
+          .map { ui -> !ui.isTooClose && !ui.isMarkedComplete }
           .collect { shouldShow -> setCenterMarkerVisibility(shouldShow) }
       }
 

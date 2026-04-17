@@ -399,7 +399,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
       DISTANCE_THRESHOLD_DP.toDouble()
     }
 
-    assertThat(viewModel.uiState.value.tooClose).isTrue()
+    assertThat(viewModel.uiState.value.isTooClose).isTrue()
   }
 
   @Test
@@ -412,7 +412,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
       DISTANCE_THRESHOLD_DP.toDouble() + 1
     }
 
-    assertThat(viewModel.uiState.value.tooClose).isFalse()
+    assertThat(viewModel.uiState.value.isTooClose).isFalse()
   }
 
   @Test
@@ -425,7 +425,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     // The logic `_isTooClose.value = vertices.size > 1` in `addLastVertex` should set it to true.
     viewModel.addLastVertex()
 
-    assertThat(viewModel.uiState.value.tooClose).isTrue()
+    assertThat(viewModel.uiState.value.isTooClose).isTrue()
   }
 
   @Test
@@ -434,7 +434,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     updateLastVertexAndAdd(COORDINATE_1)
 
     // Only 1 vertex.
-    assertThat(viewModel.uiState.value.tooClose).isFalse()
+    assertThat(viewModel.uiState.value.isTooClose).isFalse()
   }
 
   @Test

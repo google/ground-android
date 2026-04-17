@@ -67,9 +67,19 @@ import timber.log.Timber
 /** Min. distance between the last two vertices required for distance tooltip to be shown shown. */
 const val TOOLTIP_MIN_DISTANCE_METERS = 0.1
 
+/**
+ * Represents the transient UI state of the Draw Area task.
+ *
+ * @property isTooClose True if the last placed vertex is too close to the previous one, preventing
+ *   further actions.
+ * @property isSelfIntersectionDetected True if a self-intersection was detected, triggering an
+ *   error dialog.
+ * @property isMarkedComplete True if the polygon has been completed and confirmed.
+ * @property polygonArea The formatted area of the completed polygon, or null if not available.
+ */
 data class DrawAreaUiState(
-  val tooClose: Boolean = false,
-  val selfIntersectionDetected: Boolean = false,
+  val isTooClose: Boolean = false,
+  val isSelfIntersectionDetected: Boolean = false,
   val isMarkedComplete: Boolean = false,
   val polygonArea: String? = null,
 )
@@ -149,8 +159,8 @@ internal constructor(
           getSkipButton(taskData),
           getUndoButton(taskData, true),
           getRedoButton(taskData),
-          getAddPointButton(isClosed, ui.tooClose),
-          getCompleteButton(isClosed, ui.isMarkedComplete, ui.selfIntersectionDetected),
+          getAddPointButton(isClosed, ui.isTooClose),
+          getCompleteButton(isClosed, ui.isMarkedComplete, ui.isSelfIntersectionDetected),
           getNextButton(taskData).takeIf { ui.isMarkedComplete },
         )
       }
@@ -197,11 +207,11 @@ internal constructor(
   @VisibleForTesting fun getLastVertex() = vertices.lastOrNull()
 
   private fun onSelfIntersectionDetected() {
-    _uiState.update { it.copy(selfIntersectionDetected = true) }
+    _uiState.update { it.copy(isSelfIntersectionDetected = true) }
   }
 
   fun dismissSelfIntersectionDialog() {
-    _uiState.update { it.copy(selfIntersectionDetected = false) }
+    _uiState.update { it.copy(isSelfIntersectionDetected = false) }
   }
 
   /**
@@ -231,7 +241,7 @@ internal constructor(
     val isTooClose =
       vertices.size > 1 &&
         prev?.let { calculateDistanceInPixels(it, target) <= DISTANCE_THRESHOLD_DP } == true
-    _uiState.update { it.copy(tooClose = isTooClose) }
+    _uiState.update { it.copy(isTooClose = isTooClose) }
 
     addVertex(updatedTarget, true)
   }
@@ -293,7 +303,7 @@ internal constructor(
     _redoVertexStack.clear()
     val vertex = vertices.lastOrNull() ?: currentCameraTarget
     vertex?.let {
-      _uiState.update { it.copy(tooClose = vertices.size > 1) }
+      _uiState.update { it.copy(isTooClose = vertices.size > 1) }
       addVertex(it, false)
     }
   }
