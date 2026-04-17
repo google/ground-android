@@ -26,12 +26,10 @@ kotlin {
   sourceSets {
     commonMain {
       dependencies {
-        api(project(":core:domain"))
+        implementation(project(":core:domain"))
         implementation(libs.kotlin.stdlib)
         implementation(libs.kotlinx.collections.immutable)
         implementation(libs.kotlinx.coroutines.core)
-        api(libs.kotlin.test)
-        api(libs.kotlinx.coroutines.test)
       }
     }
   }
