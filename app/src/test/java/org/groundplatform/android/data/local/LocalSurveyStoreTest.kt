@@ -33,7 +33,7 @@ import org.groundplatform.domain.model.task.MultipleChoice
 import org.groundplatform.domain.model.task.MultipleChoice.Cardinality.SELECT_ONE
 import org.groundplatform.domain.model.task.Option
 import org.groundplatform.domain.model.task.Task.Type.MULTIPLE_CHOICE
-import org.groundplatform.testcommon.FakeDataGenerator.newTask
+import org.groundplatform.testing.FakeDataGenerator.newTask
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner

@@ -16,10 +16,6 @@
 plugins { alias(libs.plugins.kotlin.multiplatform) }
 
 kotlin {
-  // We do not add an Android target here because this is a pure domain module.
-  // Adding an Android target would require the Android Gradle Plugin (AGP) and SDK configuration,
-  // which would couple the domain layer to platform-specific infrastructure.
-  // iOS targets are included because Kotlin can compile to iOS without any platform plugin.
   jvm()
   jvmToolchain(libs.versions.jvmToolchainVersion.get().toInt())
 

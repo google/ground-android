@@ -37,7 +37,7 @@ import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.submission.CaptureLocationTaskData
 import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.task.Task
-import org.groundplatform.testcommon.FakeDataGenerator.newTask
+import org.groundplatform.testing.FakeDataGenerator.newTask
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test

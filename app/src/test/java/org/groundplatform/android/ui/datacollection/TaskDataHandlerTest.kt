@@ -27,7 +27,7 @@ import org.groundplatform.android.FlakyTestRule
 import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.submission.TextTaskData
 import org.groundplatform.domain.model.task.Task
-import org.groundplatform.testcommon.FakeDataGenerator
+import org.groundplatform.testing.FakeDataGenerator
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

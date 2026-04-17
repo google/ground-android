@@ -44,7 +44,7 @@ jobs:
         run: ./gradlew checkCode
 
       - name: Run unit tests
-        run: ./gradlew testLocalDebugUnitTest
+        run: ./gradlew testLocalDebugUnitTest jvmTest
 
       - name: Generate codecov report
         run: ./gradlew jacocoLocalDebugUnitTestReport

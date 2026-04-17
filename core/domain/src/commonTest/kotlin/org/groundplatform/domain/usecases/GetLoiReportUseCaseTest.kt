@@ -30,7 +30,7 @@ import org.groundplatform.domain.model.geometry.Polygon
 import org.groundplatform.domain.model.locationofinterest.LoiProperties
 import org.groundplatform.domain.model.locationofinterest.LoiReport
 import org.groundplatform.domain.model.locationofinterest.generateProperties
-import org.groundplatform.testcommon.FakeLocationOfInterestRepository
+import org.groundplatform.testing.FakeLocationOfInterestRepository
 
 @Suppress("MultilineRawStringIndentation")
 class GetLoiReportUseCaseTest {

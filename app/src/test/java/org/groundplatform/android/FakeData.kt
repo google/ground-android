@@ -42,7 +42,7 @@ import org.groundplatform.domain.model.mutation.LocationOfInterestMutation
 import org.groundplatform.domain.model.mutation.Mutation
 import org.groundplatform.domain.model.mutation.SubmissionMutation
 import org.groundplatform.domain.model.task.Task
-import org.groundplatform.testcommon.FakeDataGenerator.newTask
+import org.groundplatform.testing.FakeDataGenerator.newTask
 
 /**
  * Shared test data constants. Tests are expected to override existing or set missing values when

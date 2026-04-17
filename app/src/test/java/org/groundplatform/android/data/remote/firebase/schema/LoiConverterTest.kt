@@ -42,7 +42,7 @@ import org.groundplatform.domain.model.locationofinterest.AuditInfo
 import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
 import org.groundplatform.domain.model.task.MultipleChoice
 import org.groundplatform.domain.model.task.Task
-import org.groundplatform.testcommon.FakeDataGenerator.newTask
+import org.groundplatform.testing.FakeDataGenerator.newTask
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock

@@ -32,7 +32,7 @@ import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST
 import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST_LOI_REPORT
 import org.groundplatform.android.R
 import org.groundplatform.android.getString
-import org.groundplatform.testcommon.FakeDataGenerator.newTask
+import org.groundplatform.testing.FakeDataGenerator.newTask
 import org.groundplatform.ui.components.qrcode.TEST_TAG_GROUND_QR_CODE
 import org.junit.Rule
 import org.junit.runner.RunWith

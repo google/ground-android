@@ -26,9 +26,9 @@ import org.groundplatform.domain.model.submission.CaptureLocationTaskData
 import org.groundplatform.domain.model.submission.DropPinTaskData
 import org.groundplatform.domain.model.submission.ValueDelta
 import org.groundplatform.domain.model.task.Task
-import org.groundplatform.testcommon.FakeDataGenerator
-import org.groundplatform.testcommon.FakeLocationOfInterestRepository
-import org.groundplatform.testcommon.FakeSubmissionRepository
+import org.groundplatform.testing.FakeDataGenerator
+import org.groundplatform.testing.FakeLocationOfInterestRepository
+import org.groundplatform.testing.FakeSubmissionRepository
 
 class SubmitDataUseCaseTest {
 

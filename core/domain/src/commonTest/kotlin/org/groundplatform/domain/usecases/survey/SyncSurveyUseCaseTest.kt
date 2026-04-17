@@ -21,9 +21,9 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlinx.coroutines.test.runTest
-import org.groundplatform.testcommon.FakeDataGenerator
-import org.groundplatform.testcommon.FakeLocationOfInterestRepository
-import org.groundplatform.testcommon.FakeSurveyRepository
+import org.groundplatform.testing.FakeDataGenerator
+import org.groundplatform.testing.FakeLocationOfInterestRepository
+import org.groundplatform.testing.FakeSurveyRepository
 
 class SyncSurveyUseCaseTest {
   private val surveyRepository = FakeSurveyRepository()

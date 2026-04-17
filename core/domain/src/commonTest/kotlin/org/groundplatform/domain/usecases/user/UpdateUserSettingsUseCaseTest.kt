@@ -19,7 +19,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import org.groundplatform.domain.model.settings.MeasurementUnits
 import org.groundplatform.domain.model.settings.UserSettings
-import org.groundplatform.testcommon.FakeUserRepository
+import org.groundplatform.testing.FakeUserRepository
 
 class UpdateUserSettingsUseCaseTest {
 
