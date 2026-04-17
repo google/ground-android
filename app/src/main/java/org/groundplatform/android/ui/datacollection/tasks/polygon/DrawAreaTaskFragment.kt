@@ -49,7 +49,6 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
   @Composable
   override fun TaskBody() {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val showSelfIntersectionDialog = uiState.showSelfIntersectionDialog
 
     TaskMapFragmentContainer(
       taskId = viewModel.task.id,
@@ -57,7 +56,7 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
       fragmentProvider = drawAreaTaskMapFragmentProvider,
     )
 
-    if (showSelfIntersectionDialog) {
+    if (uiState.selfIntersectionDetected) {
       ConfirmationDialog(
         title = R.string.polygon_vertex_add_dialog_title,
         description = R.string.polygon_vertex_add_dialog_message,

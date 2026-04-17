@@ -69,8 +69,7 @@ const val TOOLTIP_MIN_DISTANCE_METERS = 0.1
 
 data class DrawAreaUiState(
   val tooClose: Boolean = false,
-  val selfIntersection: Boolean = false,
-  val showSelfIntersectionDialog: Boolean = false,
+  val selfIntersectionDetected: Boolean = false,
   val isMarkedComplete: Boolean = false,
   val polygonArea: String? = null,
 )
@@ -151,7 +150,7 @@ internal constructor(
           getUndoButton(taskData, true),
           getRedoButton(taskData),
           getAddPointButton(isClosed, ui.tooClose),
-          getCompleteButton(isClosed, ui.isMarkedComplete, ui.selfIntersection),
+          getCompleteButton(isClosed, ui.isMarkedComplete, ui.selfIntersectionDetected),
           getNextButton(taskData).takeIf { ui.isMarkedComplete },
         )
       }
@@ -198,11 +197,11 @@ internal constructor(
   @VisibleForTesting fun getLastVertex() = vertices.lastOrNull()
 
   private fun onSelfIntersectionDetected() {
-    _uiState.update { it.copy(showSelfIntersectionDialog = true) }
+    _uiState.update { it.copy(selfIntersectionDetected = true) }
   }
 
   fun dismissSelfIntersectionDialog() {
-    _uiState.update { it.copy(showSelfIntersectionDialog = false) }
+    _uiState.update { it.copy(selfIntersectionDetected = false) }
   }
 
   /**
@@ -322,7 +321,6 @@ internal constructor(
 
   private fun checkVertexIntersection(): Boolean {
     val intersected = isSelfIntersecting(vertices)
-    _uiState.update { it.copy(selfIntersection = intersected) }
     if (intersected) {
       vertices = vertices.dropLast(1)
       onSelfIntersectionDetected()
@@ -343,7 +341,6 @@ internal constructor(
       }
 
     val intersected = isSelfIntersecting(ring)
-    _uiState.update { it.copy(selfIntersection = intersected) }
     if (intersected) {
       onSelfIntersectionDetected()
       return false
