@@ -15,9 +15,6 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.polygon
 
-import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
 import kotlinx.collections.immutable.toImmutableList
@@ -33,6 +30,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.data.local.LocalValueStore
@@ -68,6 +66,14 @@ import timber.log.Timber
 
 /** Min. distance between the last two vertices required for distance tooltip to be shown shown. */
 const val TOOLTIP_MIN_DISTANCE_METERS = 0.1
+
+data class DrawAreaUiState(
+  val tooClose: Boolean = false,
+  val selfIntersection: Boolean = false,
+  val showSelfIntersectionDialog: Boolean = false,
+  val isMarkedComplete: Boolean = false,
+  val polygonArea: String? = null,
+)
 
 @SharedViewModel
 class DrawAreaTaskViewModel
@@ -117,8 +123,8 @@ internal constructor(
   /** Whether the instructions dialog has been shown or not. */
   var instructionsDialogShown: Boolean by localValueStore::drawAreaInstructionsShown
 
-  private val _polygonArea = MutableLiveData<String>()
-  val polygonArea: LiveData<String> = _polygonArea
+  private val _uiState = MutableStateFlow(DrawAreaUiState())
+  val uiState: StateFlow<DrawAreaUiState> = _uiState.asStateFlow()
 
   private var currentCameraTarget: Coordinates? = null
 
@@ -133,32 +139,20 @@ internal constructor(
   val redoVertexStack: List<Coordinates>
     get() = _redoVertexStack
 
-  /** Represents whether the user has completed drawing the polygon or not. */
-  private val _isMarkedComplete = MutableStateFlow(false)
-  val isMarkedComplete: StateFlow<Boolean> = _isMarkedComplete.asStateFlow()
-
-  private val _isTooClose = MutableStateFlow(false)
-  val isTooClose: StateFlow<Boolean> = _isTooClose.asStateFlow()
-
-  val showSelfIntersectionDialog = mutableStateOf(false)
-
-  var hasSelfIntersection: Boolean = false
-    private set
-
   private lateinit var featureStyle: Feature.Style
   lateinit var measurementUnits: MeasurementUnits
 
   override val taskActionButtonStates: StateFlow<List<ButtonActionState>> by lazy {
-    combine(taskTaskData, merge(draftArea, draftUpdates)) { taskData, currentFeature ->
+    combine(taskTaskData, merge(draftArea, draftUpdates), uiState) { taskData, currentFeature, ui ->
         val isClosed = (currentFeature?.geometry as? LineString)?.isClosed() ?: false
         listOfNotNull(
           getPreviousButton(),
           getSkipButton(taskData),
           getUndoButton(taskData, true),
           getRedoButton(taskData),
-          getAddPointButton(isClosed, isTooClose.value),
-          getCompleteButton(isClosed, isMarkedComplete.value, hasSelfIntersection),
-          getNextButton(taskData).takeIf { isMarkedComplete() },
+          getAddPointButton(isClosed, ui.tooClose),
+          getCompleteButton(isClosed, ui.isMarkedComplete, ui.selfIntersection),
+          getNextButton(taskData).takeIf { ui.isMarkedComplete },
         )
       }
       .distinctUntilChanged()
@@ -199,12 +193,16 @@ internal constructor(
     }
   }
 
-  fun isMarkedComplete(): Boolean = isMarkedComplete.value
+  fun isMarkedComplete(): Boolean = uiState.value.isMarkedComplete
 
   @VisibleForTesting fun getLastVertex() = vertices.lastOrNull()
 
   private fun onSelfIntersectionDetected() {
-    showSelfIntersectionDialog.value = true
+    _uiState.update { it.copy(showSelfIntersectionDialog = true) }
+  }
+
+  fun dismissSelfIntersectionDialog() {
+    _uiState.update { it.copy(showSelfIntersectionDialog = false) }
   }
 
   /**
@@ -216,7 +214,7 @@ internal constructor(
     target: Coordinates,
     calculateDistanceInPixels: (c1: Coordinates, c2: Coordinates) -> Double,
   ) {
-    check(!isMarkedComplete.value) {
+    check(!uiState.value.isMarkedComplete) {
       "Attempted to update last vertex after completing the drawing"
     }
 
@@ -231,9 +229,10 @@ internal constructor(
     }
 
     val prev = vertices.dropLast(1).lastOrNull()
-    _isTooClose.value =
+    val isTooClose =
       vertices.size > 1 &&
         prev?.let { calculateDistanceInPixels(it, target) <= DISTANCE_THRESHOLD_DP } == true
+    _uiState.update { it.copy(tooClose = isTooClose) }
 
     addVertex(updatedTarget, true)
   }
@@ -245,7 +244,7 @@ internal constructor(
     if (vertices.isEmpty()) return
 
     // Reset complete status
-    _isMarkedComplete.value = false
+    _uiState.update { it.copy(isMarkedComplete = false) }
 
     _redoVertexStack.add(vertices.last())
 
@@ -270,7 +269,7 @@ internal constructor(
       return
     }
 
-    _isMarkedComplete.value = false
+    _uiState.update { it.copy(isMarkedComplete = false) }
 
     val redoVertex = _redoVertexStack.removeAt(_redoVertexStack.lastIndex)
 
@@ -289,11 +288,13 @@ internal constructor(
   /** Adds the last vertex to the polygon. */
   @VisibleForTesting
   fun addLastVertex() {
-    check(!isMarkedComplete.value) { "Attempted to add last vertex after completing the drawing" }
+    check(!uiState.value.isMarkedComplete) {
+      "Attempted to add last vertex after completing the drawing"
+    }
     _redoVertexStack.clear()
     val vertex = vertices.lastOrNull() ?: currentCameraTarget
     vertex?.let {
-      _isTooClose.value = vertices.size > 1
+      _uiState.update { it.copy(tooClose = vertices.size > 1) }
       addVertex(it, false)
     }
   }
@@ -320,12 +321,13 @@ internal constructor(
   }
 
   private fun checkVertexIntersection(): Boolean {
-    hasSelfIntersection = isSelfIntersecting(vertices)
-    if (hasSelfIntersection) {
+    val intersected = isSelfIntersecting(vertices)
+    _uiState.update { it.copy(selfIntersection = intersected) }
+    if (intersected) {
       vertices = vertices.dropLast(1)
       onSelfIntersectionDetected()
     }
-    return hasSelfIntersection
+    return intersected
   }
 
   private fun validatePolygonCompletion(): Boolean {
@@ -340,8 +342,9 @@ internal constructor(
         vertices
       }
 
-    hasSelfIntersection = isSelfIntersecting(ring)
-    if (hasSelfIntersection) {
+    val intersected = isSelfIntersecting(ring)
+    _uiState.update { it.copy(selfIntersection = intersected) }
+    if (intersected) {
       onSelfIntersectionDetected()
       return false
     }
@@ -356,14 +359,16 @@ internal constructor(
   @VisibleForTesting
   fun completePolygon() {
     check(LineString(vertices).isClosed()) { "Polygon is not complete" }
-    check(!isMarkedComplete.value) { "Already marked complete" }
+    check(!uiState.value.isMarkedComplete) { "Already marked complete" }
 
-    _isMarkedComplete.value = true
+    _uiState.update { it.copy(isMarkedComplete = true) }
 
     refreshMap()
     setValue(DrawAreaTaskData(Polygon(LinearRing(vertices))))
     val areaInSquareMeters = calculateShoelacePolygonArea(vertices)
-    _polygonArea.value = getFormattedArea(areaInSquareMeters, measurementUnits)
+    _uiState.update {
+      it.copy(polygonArea = getFormattedArea(areaInSquareMeters, measurementUnits))
+    }
   }
 
   /**
@@ -410,7 +415,7 @@ internal constructor(
 
   /** Returns the distance in meters between the last two vertices for displaying in the tooltip. */
   private fun getDistanceTooltipText(): String? {
-    if (isMarkedComplete.value || vertices.size <= 1) return null
+    if (uiState.value.isMarkedComplete || vertices.size <= 1) return null
     val distance = vertices.penult().distanceTo(vertices.last())
     if (distance < TOOLTIP_MIN_DISTANCE_METERS) return null
     return localeAwareMeasureFormatter.formatDistance(distance, measurementUnits)
