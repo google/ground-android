@@ -22,12 +22,12 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import org.groundplatform.android.FakeData
 import org.groundplatform.android.FlakyTest
 import org.groundplatform.android.FlakyTestRule
 import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.submission.TextTaskData
 import org.groundplatform.domain.model.task.Task
+import org.groundplatform.testcommon.FakeDataGenerator
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -205,7 +205,7 @@ class TaskDataHandlerTest {
   }
 
   private fun createTask(taskId: String): Task =
-    FakeData.newTask(id = taskId, type = Task.Type.TEXT)
+    FakeDataGenerator.newTask(id = taskId, type = Task.Type.TEXT)
 
   private fun createTaskData(value: String): TextTaskData = TextTaskData(value)
 }

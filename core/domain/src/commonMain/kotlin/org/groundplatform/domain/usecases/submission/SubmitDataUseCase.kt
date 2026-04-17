@@ -32,10 +32,9 @@ class SubmitDataUseCase(
 
   /**
    * Creates a Submission for the given [job] with collected data defines as a collection of
-   * [org.groundplatform.domain.model.submission.ValueDelta]s. If [selectedLoiId] is null, a new LOI
-   * is created based on the first [org.groundplatform.domain.model.submission.ValueDelta] since the
-   * Suggest LOI task is the first task in the Data Collection flow when a new LOI is being
-   * suggested. The supplied [loiName] will then be stored as the "name" in the properties.
+   * [ValueDelta]s. If [selectedLoiId] is null, a new LOI is created based on the first [ValueDelta]
+   * since the Suggest LOI task is the first task in the Data Collection flow when a new LOI is
+   * being suggested. The supplied [loiName] will then be stored as the "name" in the properties.
    */
   suspend operator fun invoke(
     selectedLoiId: String?,

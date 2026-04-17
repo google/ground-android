@@ -17,7 +17,6 @@ package org.groundplatform.android.data.local.room.converter
 
 import com.google.common.truth.Truth.assertThat
 import kotlinx.collections.immutable.persistentListOf
-import org.groundplatform.android.FakeData
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.LineString
 import org.groundplatform.domain.model.geometry.LinearRing
@@ -34,6 +33,7 @@ import org.groundplatform.domain.model.submission.TextTaskData
 import org.groundplatform.domain.model.task.MultipleChoice
 import org.groundplatform.domain.model.task.Option
 import org.groundplatform.domain.model.task.Task
+import org.groundplatform.testcommon.FakeDataGenerator
 import org.json.JSONArray
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -126,39 +126,39 @@ class ValueJsonConverterTest(
     fun data() =
       listOf(
         arrayOf(
-          FakeData.newTask(type = Task.Type.TEXT),
+          FakeDataGenerator.newTask(type = Task.Type.TEXT),
           TextTaskData.fromString("sample text"),
           "sample text",
         ),
         arrayOf(
-          FakeData.newTask(type = Task.Type.MULTIPLE_CHOICE),
+          FakeDataGenerator.newTask(type = Task.Type.MULTIPLE_CHOICE),
           singleChoiceResponse,
           singleChoiceResponseJson,
         ),
         arrayOf(
-          FakeData.newTask(type = Task.Type.MULTIPLE_CHOICE),
+          FakeDataGenerator.newTask(type = Task.Type.MULTIPLE_CHOICE),
           multipleChoiceTaskData,
           multipleChoiceResponseJson,
         ),
         arrayOf(
-          FakeData.newTask(type = Task.Type.NUMBER),
+          FakeDataGenerator.newTask(type = Task.Type.NUMBER),
           NumberTaskData.fromNumber("12345.0"),
           12345.0,
         ),
-        arrayOf(FakeData.newTask(type = Task.Type.DATE), dateTimeOption, dateTimeResponse),
-        arrayOf(FakeData.newTask(type = Task.Type.TIME), dateTimeOption, dateTimeResponse),
+        arrayOf(FakeDataGenerator.newTask(type = Task.Type.DATE), dateTimeOption, dateTimeResponse),
+        arrayOf(FakeDataGenerator.newTask(type = Task.Type.TIME), dateTimeOption, dateTimeResponse),
         arrayOf(
-          FakeData.newTask(type = Task.Type.DROP_PIN),
+          FakeDataGenerator.newTask(type = Task.Type.DROP_PIN),
           dropPinTaskResponse,
           dropPinGeometryTaskResponseString,
         ),
         arrayOf(
-          FakeData.newTask(type = Task.Type.DRAW_AREA),
+          FakeDataGenerator.newTask(type = Task.Type.DRAW_AREA),
           drawAreaTaskResponse,
           polygonGeometryTaskResponseString,
         ),
         arrayOf(
-          FakeData.newTask(type = Task.Type.DRAW_AREA),
+          FakeDataGenerator.newTask(type = Task.Type.DRAW_AREA),
           incompleteDrawAreaTaskResponse,
           lineStringGeometryTaskResponseString,
         ),
