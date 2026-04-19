@@ -16,7 +16,6 @@
 package org.groundplatform.android.ui.datacollection.tasks.polygon
 
 import com.google.common.truth.Truth.assertThat
-import org.groundplatform.android.ui.datacollection.tasks.polygon.PolygonDrawingSession.Companion.DISTANCE_THRESHOLD_DP
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.junit.Before
 import org.junit.Test
@@ -64,14 +63,14 @@ class PolygonDrawingSessionTest {
 
   @Test
   fun `updateTentativeVertex adds vertex when empty`() {
-    session.updateTentativeVertex(COORDINATE_1) { _, _ -> 100.0 }
+    session.updateTentativeVertex(COORDINATE_1) { _, _ -> DISTANCE_ABOVE_THRESHOLD }
     assertThat(session.vertices).containsExactly(COORDINATE_1)
   }
 
   @Test
   fun `updateTentativeVertex overwrites last vertex`() {
     session.addVertex(COORDINATE_1, false)
-    session.updateTentativeVertex(COORDINATE_2) { _, _ -> 100.0 }
+    session.updateTentativeVertex(COORDINATE_2) { _, _ -> DISTANCE_ABOVE_THRESHOLD }
     assertThat(session.vertices).containsExactly(COORDINATE_2)
   }
 
@@ -80,7 +79,7 @@ class PolygonDrawingSessionTest {
     session.setVertices(listOf(COORDINATE_1, COORDINATE_2, COORDINATE_3))
 
     // Target is close to COORDINATE_1
-    session.updateTentativeVertex(COORDINATE_4) { _, _ -> DISTANCE_THRESHOLD_DP.toDouble() }
+    session.updateTentativeVertex(COORDINATE_4) { _, _ -> DISTANCE_BELOW_THRESHOLD }
     assertThat(session.vertices.last()).isEqualTo(COORDINATE_1)
   }
 
@@ -89,7 +88,7 @@ class PolygonDrawingSessionTest {
     session.setVertices(listOf(COORDINATE_1, COORDINATE_2, COORDINATE_3))
 
     // Target is far from COORDINATE_1
-    session.updateTentativeVertex(COORDINATE_4) { _, _ -> DISTANCE_THRESHOLD_DP.toDouble() + 1 }
+    session.updateTentativeVertex(COORDINATE_4) { _, _ -> DISTANCE_ABOVE_THRESHOLD }
     assertThat(session.vertices.last()).isEqualTo(COORDINATE_4)
   }
 
@@ -98,7 +97,7 @@ class PolygonDrawingSessionTest {
     session.setVertices(listOf(COORDINATE_1, COORDINATE_2))
 
     // Target is close to COORDINATE_2
-    session.updateTentativeVertex(COORDINATE_3) { _, _ -> DISTANCE_THRESHOLD_DP.toDouble() }
+    session.updateTentativeVertex(COORDINATE_3) { _, _ -> DISTANCE_BELOW_THRESHOLD }
     assertThat(session.isTooClose).isTrue()
   }
 
@@ -107,7 +106,7 @@ class PolygonDrawingSessionTest {
     session.setVertices(listOf(COORDINATE_1, COORDINATE_2))
 
     // Target is far from COORDINATE_2
-    session.updateTentativeVertex(COORDINATE_3) { _, _ -> DISTANCE_THRESHOLD_DP.toDouble() + 1 }
+    session.updateTentativeVertex(COORDINATE_3) { _, _ -> DISTANCE_ABOVE_THRESHOLD }
     assertThat(session.isTooClose).isFalse()
   }
 
@@ -215,6 +214,9 @@ class PolygonDrawingSessionTest {
   }
 
   companion object {
+    private const val DISTANCE_BELOW_THRESHOLD = 20.0
+    private const val DISTANCE_ABOVE_THRESHOLD = 30.0
+
     private val COORDINATE_1 = Coordinates(10.0, 10.0)
     private val COORDINATE_2 = Coordinates(20.0, 20.0)
     private val COORDINATE_3 = Coordinates(30.0, 30.0)
