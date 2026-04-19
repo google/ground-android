@@ -26,6 +26,12 @@ interface PolygonDrawingSession {
   /** The stack of vertices that have been removed and can be redone. */
   val redoVertexStack: List<Coordinates>
 
+  /** Whether the current tentative vertex is too close to the previous one. */
+  val isTooClose: Boolean
+
+  /** Whether the current polygon geometry self-intersects. */
+  val hasSelfIntersection: Boolean
+
   /**
    * Adds a new vertex to the polygon.
    *
@@ -34,6 +40,40 @@ interface PolygonDrawingSession {
    *   is typically used for updating the transient vertex following the camera.
    */
   fun addVertex(vertex: Coordinates, shouldOverwriteLastVertex: Boolean)
+
+  /**
+   * Updates the tentative vertex of the session with snapping logic.
+   *
+   * @param target The target coordinates (e.g., camera center).
+   * @param calculateDistance A function to calculate distance in pixels between two coordinates.
+   */
+  fun updateTentativeVertex(
+    target: Coordinates,
+    calculateDistance: (Coordinates, Coordinates) -> Double,
+  )
+
+  /**
+   * Commits the tentative vertex and returns the new committed list to signal persistence needs.
+   *
+   * @param currentCameraTarget The current camera target to use if tentative vertex is null.
+   * @return The updated list of committed vertices if changed, or null.
+   */
+  fun commitTentativeVertex(currentCameraTarget: Coordinates?): List<Coordinates>?
+
+  /**
+   * Checks if the current polygon geometry self-intersects. If it does, it may remove the last
+   * vertex to restore validity.
+   *
+   * @return true if self-intersection was detected, false otherwise.
+   */
+  fun checkVertexIntersection(): Boolean
+
+  /**
+   * Validates if the polygon can be completed.
+   *
+   * @return true if valid for completion, false otherwise.
+   */
+  fun validatePolygonCompletion(): Boolean
 
   /**
    * Attempts to remove the last vertex of the drawn polygon. The removed vertex is added to the
@@ -60,4 +100,9 @@ interface PolygonDrawingSession {
    * @param newVertices The new list of vertices.
    */
   fun setVertices(newVertices: List<Coordinates>)
+
+  companion object {
+    /** Min. distance in dp between two points for them be considered as overlapping. */
+    const val DISTANCE_THRESHOLD_DP = 24
+  }
 }

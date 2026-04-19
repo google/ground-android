@@ -16,7 +16,9 @@
 package org.groundplatform.android.ui.datacollection.tasks.polygon
 
 import kotlinx.collections.immutable.toImmutableList
+import org.groundplatform.android.ui.datacollection.tasks.polygon.PolygonDrawingSession.Companion.DISTANCE_THRESHOLD_DP
 import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.util.isSelfIntersecting
 
 class PolygonDrawingSessionImpl : PolygonDrawingSession {
   private var _vertices: List<Coordinates> = listOf()
@@ -29,6 +31,14 @@ class PolygonDrawingSessionImpl : PolygonDrawingSession {
   override val redoVertexStack: List<Coordinates>
     get() = _redoVertexStack
 
+  private var _isTooClose: Boolean = false
+  override val isTooClose: Boolean
+    get() = _isTooClose
+
+  private var _hasSelfIntersection: Boolean = false
+  override val hasSelfIntersection: Boolean
+    get() = _hasSelfIntersection
+
   override fun addVertex(vertex: Coordinates, shouldOverwriteLastVertex: Boolean) {
     val updatedVertices = _vertices.toMutableList()
 
@@ -39,6 +49,64 @@ class PolygonDrawingSessionImpl : PolygonDrawingSession {
     updatedVertices.add(vertex)
 
     _vertices = updatedVertices.toImmutableList()
+  }
+
+  override fun updateTentativeVertex(
+    target: Coordinates,
+    calculateDistance: (Coordinates, Coordinates) -> Double,
+  ) {
+    val firstVertex = _vertices.firstOrNull()
+    var updatedTarget = target
+    if (firstVertex != null && _vertices.size > 2) {
+      val distance = calculateDistance(firstVertex, target)
+
+      if (distance <= DISTANCE_THRESHOLD_DP) {
+        updatedTarget = firstVertex
+      }
+    }
+
+    val prev = _vertices.dropLast(1).lastOrNull()
+    _isTooClose =
+      _vertices.size > 1 &&
+        prev?.let { calculateDistance(it, target) <= DISTANCE_THRESHOLD_DP } == true
+
+    addVertex(updatedTarget, true)
+  }
+
+  override fun commitTentativeVertex(currentCameraTarget: Coordinates?): List<Coordinates>? {
+    _redoVertexStack.clear()
+    val vertex = _vertices.lastOrNull() ?: currentCameraTarget
+    return if (vertex != null) {
+      _isTooClose = _vertices.size > 1
+      addVertex(vertex, false)
+      _vertices
+    } else {
+      null
+    }
+  }
+
+  override fun checkVertexIntersection(): Boolean {
+    _hasSelfIntersection = isSelfIntersecting(_vertices)
+    if (_hasSelfIntersection) {
+      _vertices = _vertices.dropLast(1).toImmutableList()
+    }
+    return _hasSelfIntersection
+  }
+
+  override fun validatePolygonCompletion(): Boolean {
+    if (_vertices.size < 3) {
+      return false
+    }
+
+    val ring =
+      if (_vertices.first() != _vertices.last()) {
+        _vertices + _vertices.first()
+      } else {
+        _vertices
+      }
+
+    _hasSelfIntersection = isSelfIntersecting(ring)
+    return !_hasSelfIntersection
   }
 
   override fun removeLastVertex(): Boolean {

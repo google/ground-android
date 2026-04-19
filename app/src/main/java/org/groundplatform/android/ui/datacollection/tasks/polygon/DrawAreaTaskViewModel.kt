@@ -61,7 +61,6 @@ import org.groundplatform.domain.model.submission.isNotNullOrEmpty
 import org.groundplatform.domain.model.task.Task
 import org.groundplatform.domain.usecases.user.GetUserSettingsUseCase
 import org.groundplatform.domain.util.calculateShoelacePolygonArea
-import org.groundplatform.domain.util.isSelfIntersecting
 import org.jetbrains.annotations.VisibleForTesting
 import timber.log.Timber
 
@@ -215,22 +214,9 @@ internal constructor(
       "Attempted to update last vertex after completing the drawing"
     }
 
-    val firstVertex = session.vertices.firstOrNull()
-    var updatedTarget = target
-    if (firstVertex != null && session.vertices.size > 2) {
-      val distance = calculateDistanceInPixels(firstVertex, target)
-
-      if (distance <= DISTANCE_THRESHOLD_DP) {
-        updatedTarget = firstVertex
-      }
-    }
-
-    val prev = session.vertices.dropLast(1).lastOrNull()
-    _isTooClose.value =
-      session.vertices.size > 1 &&
-        prev?.let { calculateDistanceInPixels(it, target) <= DISTANCE_THRESHOLD_DP } == true
-
-    addVertex(updatedTarget, true)
+    session.updateTentativeVertex(target, calculateDistanceInPixels)
+    _isTooClose.value = session.isTooClose
+    refreshMap()
   }
 
   /** Attempts to remove the last vertex of drawn polygon, if any. */
@@ -275,52 +261,31 @@ internal constructor(
   @VisibleForTesting
   fun addLastVertex() {
     check(!isMarkedComplete.value) { "Attempted to add last vertex after completing the drawing" }
-    session.clearRedoStack()
-    val vertex = session.vertices.lastOrNull() ?: currentCameraTarget
-    vertex?.let {
-      _isTooClose.value = session.vertices.size > 1
-      addVertex(it, false)
-    }
-  }
-
-  /** Adds a new vertex to the polygon. */
-  private fun addVertex(vertex: Coordinates, shouldOverwriteLastVertex: Boolean) {
-    session.addVertex(vertex, shouldOverwriteLastVertex)
-
-    refreshMap()
-
-    if (!shouldOverwriteLastVertex) {
-      setValue(DrawAreaTaskIncompleteData(LineString(session.vertices)))
+    val vertices = session.commitTentativeVertex(currentCameraTarget)
+    _isTooClose.value = session.isTooClose
+    if (vertices != null) {
+      setValue(DrawAreaTaskIncompleteData(LineString(vertices)))
+      refreshMap()
     }
   }
 
   private fun checkVertexIntersection(): Boolean {
-    hasSelfIntersection = isSelfIntersecting(session.vertices)
-    if (hasSelfIntersection) {
-      session.setVertices(session.vertices.dropLast(1))
+    val intersected = session.checkVertexIntersection()
+    hasSelfIntersection = session.hasSelfIntersection
+    if (intersected) {
       onSelfIntersectionDetected()
+      refreshMap()
     }
-    return hasSelfIntersection
+    return intersected
   }
 
   private fun validatePolygonCompletion(): Boolean {
-    if (session.vertices.size < 3) {
-      return false
-    }
-
-    val ring =
-      if (session.vertices.first() != session.vertices.last()) {
-        session.vertices + session.vertices.first()
-      } else {
-        session.vertices
-      }
-
-    hasSelfIntersection = isSelfIntersecting(ring)
-    if (hasSelfIntersection) {
+    val valid = session.validatePolygonCompletion()
+    hasSelfIntersection = session.hasSelfIntersection
+    if (!valid && hasSelfIntersection) {
       onSelfIntersectionDetected()
-      return false
     }
-    return true
+    return valid
   }
 
   private fun updateVertices(newVertices: List<Coordinates>) {

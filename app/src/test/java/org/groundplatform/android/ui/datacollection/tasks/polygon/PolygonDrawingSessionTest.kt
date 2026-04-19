@@ -16,6 +16,7 @@
 package org.groundplatform.android.ui.datacollection.tasks.polygon
 
 import com.google.common.truth.Truth.assertThat
+import org.groundplatform.android.ui.datacollection.tasks.polygon.PolygonDrawingSession.Companion.DISTANCE_THRESHOLD_DP
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.junit.Before
 import org.junit.Test
@@ -102,8 +103,92 @@ class PolygonDrawingSessionTest {
     assertThat(session.vertices).containsExactlyElementsIn(newVertices).inOrder()
   }
 
+  @Test
+  fun `updateTentativeVertex adds vertex when empty`() {
+    session.updateTentativeVertex(COORDINATE_1) { _, _ -> 100.0 }
+    assertThat(session.vertices).containsExactly(COORDINATE_1)
+  }
+
+  @Test
+  fun `updateTentativeVertex overwrites last vertex`() {
+    session.addVertex(COORDINATE_1, false)
+    session.updateTentativeVertex(COORDINATE_2) { _, _ -> 100.0 }
+    assertThat(session.vertices).containsExactly(COORDINATE_2)
+  }
+
+  @Test
+  fun `updateTentativeVertex snaps to first vertex when close`() {
+    session.addVertex(COORDINATE_1, false)
+    session.addVertex(COORDINATE_2, false)
+    session.addVertex(COORDINATE_3, false)
+
+    // Target is close to COORDINATE_1
+    session.updateTentativeVertex(COORDINATE_4) { _, _ -> DISTANCE_THRESHOLD_DP.toDouble() }
+    assertThat(session.vertices.last()).isEqualTo(COORDINATE_1)
+  }
+
+  @Test
+  fun `updateTentativeVertex sets isTooClose true when close to previous`() {
+    session.addVertex(COORDINATE_1, false)
+    session.addVertex(COORDINATE_2, false)
+
+    // Target is close to COORDINATE_2
+    session.updateTentativeVertex(COORDINATE_3) { _, _ -> DISTANCE_THRESHOLD_DP.toDouble() }
+    assertThat(session.isTooClose).isTrue()
+  }
+
+  @Test
+  fun `commitTentativeVertex clears redo stack`() {
+    session.addVertex(COORDINATE_1, false)
+    session.removeLastVertex()
+    assertThat(session.redoVertexStack).isNotEmpty()
+
+    session.commitTentativeVertex(COORDINATE_2)
+    assertThat(session.redoVertexStack).isEmpty()
+  }
+
+  @Test
+  fun `commitTentativeVertex adds vertex to committed list`() {
+    session.commitTentativeVertex(COORDINATE_1)
+    assertThat(session.vertices).containsExactly(COORDINATE_1)
+  }
+
+  @Test
+  fun `checkVertexIntersection detects intersection and drops vertex`() {
+    session.setVertices(listOf(C1, C2, C3, C4))
+    assertThat(session.checkVertexIntersection()).isTrue()
+    assertThat(session.vertices).containsExactly(C1, C2, C3).inOrder()
+  }
+
+  @Test
+  fun `validatePolygonCompletion returns false when size less than 3`() {
+    session.setVertices(listOf(C1, C2))
+    assertThat(session.validatePolygonCompletion()).isFalse()
+  }
+
+  @Test
+  fun `validatePolygonCompletion returns false when self-intersecting`() {
+    session.setVertices(listOf(C1, C2, C3, C4))
+    assertThat(session.validatePolygonCompletion()).isFalse()
+    assertThat(session.hasSelfIntersection).isTrue()
+  }
+
+  @Test
+  fun `validatePolygonCompletion returns true when valid`() {
+    session.setVertices(listOf(C1, C3, C2, C4))
+    assertThat(session.validatePolygonCompletion()).isTrue()
+    assertThat(session.hasSelfIntersection).isFalse()
+  }
+
   companion object {
     private val COORDINATE_1 = Coordinates(10.0, 10.0)
     private val COORDINATE_2 = Coordinates(20.0, 20.0)
+    private val COORDINATE_3 = Coordinates(30.0, 30.0)
+    private val COORDINATE_4 = Coordinates(40.0, 40.0)
+
+    private val C1 = Coordinates(0.0, 0.0)
+    private val C2 = Coordinates(10.0, 10.0)
+    private val C3 = Coordinates(10.0, 0.0)
+    private val C4 = Coordinates(0.0, 10.0)
   }
 }
