@@ -75,12 +75,10 @@ class PolygonDrawingSessionImpl : PolygonDrawingSession {
   override fun commitTentativeVertex(currentCameraTarget: Coordinates?): List<Coordinates>? {
     _redoVertexStack.clear()
     val vertex = _vertices.lastOrNull() ?: currentCameraTarget
-    return if (vertex != null) {
+    return vertex?.let {
       _isTooClose = _vertices.size > 1
-      addVertex(vertex, false)
+      addVertex(it, false)
       _vertices
-    } else {
-      null
     }
   }
 
