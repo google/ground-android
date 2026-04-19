@@ -26,10 +26,10 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.JOB
-import org.groundplatform.android.FakeData.newTask
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.submission.TextTaskData
+import org.groundplatform.testing.FakeDataGenerator.newTask
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner

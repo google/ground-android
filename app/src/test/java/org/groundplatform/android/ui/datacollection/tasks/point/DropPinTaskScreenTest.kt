@@ -25,7 +25,6 @@ import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.JOB
-import org.groundplatform.android.FakeData.newTask
 import org.groundplatform.android.R
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.getString
@@ -40,6 +39,7 @@ import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.submission.DropPinTaskData
 import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.task.Task
+import org.groundplatform.testing.FakeDataGenerator.newTask
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test

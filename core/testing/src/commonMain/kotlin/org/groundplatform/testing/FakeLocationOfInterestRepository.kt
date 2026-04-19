@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.domain.helpers
+package org.groundplatform.testing
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
-import org.groundplatform.domain.helpers.FakeData.newLocationOfInterest
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.geometry.Geometry
 import org.groundplatform.domain.model.job.Job
@@ -26,8 +25,8 @@ import org.groundplatform.domain.model.map.Bounds
 import org.groundplatform.domain.model.mutation.LocationOfInterestMutation
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 
-internal class FakeLocationOfInterestRepository : LocationOfInterestRepositoryInterface {
-  var offlineLoi = newLocationOfInterest()
+class FakeLocationOfInterestRepository : LocationOfInterestRepositoryInterface {
+  var offlineLoi = FakeDataGenerator.newLocationOfInterest()
   var hasValidLois = true
 
   val syncLocationsOfInterestCall = FakeCall<Survey, Unit> {}

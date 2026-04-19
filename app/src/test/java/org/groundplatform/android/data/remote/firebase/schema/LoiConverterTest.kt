@@ -22,7 +22,6 @@ import kotlinx.collections.immutable.persistentListOf
 import org.groundplatform.android.FakeData.FAKE_GENERAL_ACCESS
 import org.groundplatform.android.FakeData.USER
 import org.groundplatform.android.FakeData.USER_ID
-import org.groundplatform.android.FakeData.newTask
 import org.groundplatform.android.assertIsSuccessWith
 import org.groundplatform.android.data.remote.firebase.protobuf.toFirestoreMap
 import org.groundplatform.android.data.remote.firebase.schema.LoiConverter.toLoi
@@ -43,6 +42,7 @@ import org.groundplatform.domain.model.locationofinterest.AuditInfo
 import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
 import org.groundplatform.domain.model.task.MultipleChoice
 import org.groundplatform.domain.model.task.Task
+import org.groundplatform.testing.FakeDataGenerator.newTask
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock

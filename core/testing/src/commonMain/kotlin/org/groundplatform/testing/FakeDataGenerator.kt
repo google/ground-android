@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.domain.helpers
+package org.groundplatform.testing
 
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.User
@@ -26,9 +26,13 @@ import org.groundplatform.domain.model.locationofinterest.AuditInfo
 import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
 import org.groundplatform.domain.model.settings.MeasurementUnits
 import org.groundplatform.domain.model.settings.UserSettings
+import org.groundplatform.domain.model.submission.DraftSubmission
+import org.groundplatform.domain.model.submission.ValueDelta
+import org.groundplatform.domain.model.task.Condition
+import org.groundplatform.domain.model.task.MultipleChoice
 import org.groundplatform.domain.model.task.Task
 
-object FakeData {
+object FakeDataGenerator {
   fun newUser(): User = User("user id", "", "User")
 
   fun newUserSettings(
@@ -50,6 +54,7 @@ object FakeData {
     strategy: Job.DataCollectionStrategy = Job.DataCollectionStrategy.PREDEFINED,
   ): Job = Job(id = id, style = style, name = name, tasks = tasks, strategy = strategy)
 
+  @Suppress("StringLiteralDuplication")
   fun newLocationOfInterest(
     id: String = "loi id",
     surveyId: String = "survey id",
@@ -97,5 +102,43 @@ object FakeData {
       acl = acl,
       dataSharingTerms = dataSharingTerms,
       generalAccess = generalAccess,
+    )
+
+  fun newDraftSubmission(
+    id: String = "draft submission id",
+    jobId: String = "job id",
+    loiId: String? = "loi id",
+    loiName: String? = null,
+    surveyId: String = "survey id",
+    deltas: List<ValueDelta> = emptyList(),
+    currentTaskId: String = "task id",
+  ): DraftSubmission =
+    DraftSubmission(
+      id = id,
+      jobId = jobId,
+      loiId = loiId,
+      loiName = loiName,
+      surveyId = surveyId,
+      deltas = deltas,
+      currentTaskId = currentTaskId,
+    )
+
+  fun newTask(
+    id: String = "taskId",
+    type: Task.Type = Task.Type.TEXT,
+    multipleChoice: MultipleChoice? = null,
+    isAddLoiTask: Boolean = false,
+    condition: Condition? = null,
+    isRequired: Boolean = false,
+  ): Task =
+    Task(
+      id = id,
+      index = 0,
+      type = type,
+      label = "",
+      isRequired = isRequired,
+      multipleChoice = multipleChoice,
+      isAddLoiTask = isAddLoiTask,
+      condition = condition,
     )
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Google LLC
+ * Copyright 2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+plugins { alias(libs.plugins.kotlin.multiplatform) }
 
-pluginManagement {
-    repositories {
-        gradlePluginPortal()
-        google()
-        mavenCentral()
+kotlin {
+  jvm()
+  jvmToolchain(libs.versions.jvmToolchainVersion.get().toInt())
+
+  iosX64()
+  iosArm64()
+  iosSimulatorArm64()
+
+  sourceSets {
+    commonMain {
+      dependencies {
+        implementation(project(":core:domain"))
+        implementation(libs.kotlin.stdlib)
+        implementation(libs.kotlinx.collections.immutable)
+        implementation(libs.kotlinx.coroutines.core)
+      }
     }
+  }
 }
-
-plugins {
-    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
-}
-
-include ':app', ':e2eTest'
-include ':core:ui'
-include ':core:domain'
-include ':core:testing'

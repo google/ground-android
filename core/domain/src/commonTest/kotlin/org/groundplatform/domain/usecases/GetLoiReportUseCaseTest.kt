@@ -20,7 +20,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
-import org.groundplatform.domain.helpers.FakeLocationOfInterestRepository
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.Geometry
 import org.groundplatform.domain.model.geometry.LineString
@@ -31,6 +30,7 @@ import org.groundplatform.domain.model.geometry.Polygon
 import org.groundplatform.domain.model.locationofinterest.LoiProperties
 import org.groundplatform.domain.model.locationofinterest.LoiReport
 import org.groundplatform.domain.model.locationofinterest.generateProperties
+import org.groundplatform.testing.FakeLocationOfInterestRepository
 
 @Suppress("MultilineRawStringIndentation")
 class GetLoiReportUseCaseTest {

@@ -22,7 +22,6 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.first
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.SURVEY
-import org.groundplatform.android.FakeData.newTask
 import org.groundplatform.android.data.local.stores.LocalSurveyStore
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.job.Style
@@ -34,6 +33,7 @@ import org.groundplatform.domain.model.task.MultipleChoice
 import org.groundplatform.domain.model.task.MultipleChoice.Cardinality.SELECT_ONE
 import org.groundplatform.domain.model.task.Option
 import org.groundplatform.domain.model.task.Task.Type.MULTIPLE_CHOICE
+import org.groundplatform.testing.FakeDataGenerator.newTask
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner

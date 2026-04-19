@@ -41,7 +41,6 @@ import org.groundplatform.android.common.Constants.CLUSTERING_ZOOM_THRESHOLD
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.repository.MapStateRepository
 import org.groundplatform.android.repository.OfflineAreaRepository
-import org.groundplatform.android.repository.SubmissionRepository
 import org.groundplatform.android.system.LocationManager
 import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.system.SettingsManager
@@ -59,6 +58,7 @@ import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
+import org.groundplatform.domain.repository.SubmissionRepositoryInterface
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
 import org.groundplatform.domain.usecases.GetLoiReportUseCase
@@ -71,7 +71,7 @@ internal constructor(
   private val getDataSharingTermsUseCase: GetDataSharingTermsUseCase,
   private val loiRepository: LocationOfInterestRepositoryInterface,
   private val mapStateRepository: MapStateRepository,
-  private val submissionRepository: SubmissionRepository,
+  private val submissionRepository: SubmissionRepositoryInterface,
   locationManager: LocationManager,
   settingsManager: SettingsManager,
   offlineAreaRepository: OfflineAreaRepository,

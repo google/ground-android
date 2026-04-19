@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.usecases.submission
+package org.groundplatform.domain.usecases.submission
 
-import androidx.room.Transaction
-import javax.inject.Inject
-import org.groundplatform.android.repository.SubmissionRepository
+import co.touchlab.kermit.Logger
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.submission.CaptureLocationTaskData
 import org.groundplatform.domain.model.submission.DrawAreaTaskData
@@ -25,13 +23,11 @@ import org.groundplatform.domain.model.submission.DropPinTaskData
 import org.groundplatform.domain.model.submission.ValueDelta
 import org.groundplatform.domain.model.task.Task
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
-import timber.log.Timber
+import org.groundplatform.domain.repository.SubmissionRepositoryInterface
 
-class SubmitDataUseCase
-@Inject
-constructor(
+class SubmitDataUseCase(
   private val locationOfInterestRepository: LocationOfInterestRepositoryInterface,
-  private val submissionRepository: SubmissionRepository,
+  private val submissionRepository: SubmissionRepositoryInterface,
 ) {
 
   /**
@@ -40,7 +36,6 @@ constructor(
    * since the Suggest LOI task is the first task in the Data Collection flow when a new LOI is
    * being suggested. The supplied [loiName] will then be stored as the "name" in the properties.
    */
-  @Transaction
   suspend operator fun invoke(
     selectedLoiId: String?,
     job: Job,
@@ -49,7 +44,7 @@ constructor(
     loiName: String?,
     collectionId: String,
   ): String {
-    Timber.v("Submitting data for LOI: $selectedLoiId")
+    Logger.v("Submitting data for LOI: $selectedLoiId")
     val deltasToSubmit = deltas.toMutableList()
     val submissionLoiId =
       selectedLoiId ?: addLocationOfInterest(surveyId, job, deltasToSubmit, loiName, collectionId)

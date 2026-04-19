@@ -24,7 +24,6 @@ import androidx.compose.ui.test.performClick
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.groundplatform.android.FakeData.JOB
-import org.groundplatform.android.FakeData.newTask
 import org.groundplatform.android.R
 import org.groundplatform.android.getString
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
@@ -38,6 +37,7 @@ import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.submission.CaptureLocationTaskData
 import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.task.Task
+import org.groundplatform.testing.FakeDataGenerator.newTask
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
