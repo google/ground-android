@@ -135,8 +135,8 @@ internal constructor(
 
   val showSelfIntersectionDialog = mutableStateOf(false)
 
-  var hasSelfIntersection: Boolean = false
-    private set
+  val hasSelfIntersection: Boolean
+    get() = session.hasSelfIntersection
 
   private lateinit var featureStyle: Feature.Style
   lateinit var measurementUnits: MeasurementUnits
@@ -271,7 +271,6 @@ internal constructor(
 
   private fun checkVertexIntersection(): Boolean {
     val intersected = session.checkVertexIntersection()
-    hasSelfIntersection = session.hasSelfIntersection
     if (intersected) {
       onSelfIntersectionDetected()
       refreshMap()
@@ -281,7 +280,6 @@ internal constructor(
 
   private fun validatePolygonCompletion(): Boolean {
     val valid = session.validatePolygonCompletion()
-    hasSelfIntersection = session.hasSelfIntersection
     if (!valid && hasSelfIntersection) {
       onSelfIntersectionDetected()
     }

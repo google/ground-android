@@ -168,6 +168,16 @@ class PolygonDrawingSessionTest {
     session.setVertices(listOf(C1, C2, C3, C4))
     assertThat(session.checkVertexIntersection()).isTrue()
     assertThat(session.vertices).containsExactly(C1, C2, C3).inOrder()
+    assertThat(session.hasSelfIntersection).isFalse()
+  }
+
+  @Test
+  fun `hasSelfIntersection updates dynamically when vertices change`() {
+    session.setVertices(listOf(C1, C2, C3, C4))
+    assertThat(session.hasSelfIntersection).isTrue()
+
+    session.removeLastVertex()
+    assertThat(session.hasSelfIntersection).isFalse()
   }
 
   @Test
