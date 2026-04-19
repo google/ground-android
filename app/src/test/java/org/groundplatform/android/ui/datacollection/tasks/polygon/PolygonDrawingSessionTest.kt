@@ -1,0 +1,109 @@
+/*
+ * Copyright 2026 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.groundplatform.android.ui.datacollection.tasks.polygon
+
+import com.google.common.truth.Truth.assertThat
+import org.groundplatform.domain.model.geometry.Coordinates
+import org.junit.Before
+import org.junit.Test
+
+class PolygonDrawingSessionTest {
+
+  private lateinit var session: PolygonDrawingSession
+
+  @Before
+  fun setUp() {
+    session = PolygonDrawingSession()
+  }
+
+  @Test
+  fun `Initial state is empty`() {
+    assertThat(session.vertices).isEmpty()
+    assertThat(session.redoVertexStack).isEmpty()
+  }
+
+  @Test
+  fun `addVertex adds vertex to list`() {
+    session.addVertex(COORDINATE_1, false)
+    assertThat(session.vertices).containsExactly(COORDINATE_1)
+  }
+
+  @Test
+  fun `addVertex can overwrite last vertex`() {
+    session.addVertex(COORDINATE_1, false)
+    session.addVertex(COORDINATE_2, true)
+    assertThat(session.vertices).containsExactly(COORDINATE_2)
+  }
+
+  @Test
+  fun `addVertex with overwrite does nothing if empty`() {
+    session.addVertex(COORDINATE_1, true)
+    assertThat(session.vertices).containsExactly(COORDINATE_1)
+  }
+
+  @Test
+  fun `removeLastVertex returns false when empty`() {
+    assertThat(session.removeLastVertex()).isFalse()
+  }
+
+  @Test
+  fun `removeLastVertex removes last vertex and adds to redo stack`() {
+    session.addVertex(COORDINATE_1, false)
+    session.addVertex(COORDINATE_2, false)
+
+    assertThat(session.removeLastVertex()).isTrue()
+    assertThat(session.vertices).containsExactly(COORDINATE_1)
+    assertThat(session.redoVertexStack).containsExactly(COORDINATE_2)
+  }
+
+  @Test
+  fun `redoLastVertex returns null when redo stack is empty`() {
+    assertThat(session.redoLastVertex()).isNull()
+  }
+
+  @Test
+  fun `redoLastVertex restores last removed vertex`() {
+    session.addVertex(COORDINATE_1, false)
+    session.addVertex(COORDINATE_2, false)
+    session.removeLastVertex()
+
+    assertThat(session.redoLastVertex()).isEqualTo(COORDINATE_2)
+    assertThat(session.vertices).containsExactly(COORDINATE_1, COORDINATE_2).inOrder()
+    assertThat(session.redoVertexStack).isEmpty()
+  }
+
+  @Test
+  fun `clearRedoStack clears the stack`() {
+    session.addVertex(COORDINATE_1, false)
+    session.removeLastVertex()
+    assertThat(session.redoVertexStack).isNotEmpty()
+
+    session.clearRedoStack()
+    assertThat(session.redoVertexStack).isEmpty()
+  }
+
+  @Test
+  fun `setVertices updates vertices list`() {
+    val newVertices = listOf(COORDINATE_1, COORDINATE_2)
+    session.setVertices(newVertices)
+    assertThat(session.vertices).containsExactlyElementsIn(newVertices).inOrder()
+  }
+
+  companion object {
+    private val COORDINATE_1 = Coordinates(10.0, 10.0)
+    private val COORDINATE_2 = Coordinates(20.0, 20.0)
+  }
+}

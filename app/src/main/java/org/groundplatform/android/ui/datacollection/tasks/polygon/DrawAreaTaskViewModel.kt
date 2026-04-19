@@ -20,7 +20,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -122,16 +121,11 @@ internal constructor(
 
   private var currentCameraTarget: Coordinates? = null
 
-  /**
-   * User-specified vertices of the area being drawn. If [isMarkedComplete] is false, then the last
-   * vertex represents the map center and the second last vertex is the last added vertex.
-   */
-  private var vertices: List<Coordinates> = listOf()
+  private val session = PolygonDrawingSession()
 
-  /** Stack of vertices that have been removed. */
-  private val _redoVertexStack = mutableListOf<Coordinates>()
+  /** Stack of vertices that have been removed and can be redone. */
   val redoVertexStack: List<Coordinates>
-    get() = _redoVertexStack
+    get() = session.redoVertexStack
 
   /** Represents whether the user has completed drawing the polygon or not. */
   private val _isMarkedComplete = MutableStateFlow(false)
@@ -201,7 +195,8 @@ internal constructor(
 
   fun isMarkedComplete(): Boolean = isMarkedComplete.value
 
-  @VisibleForTesting fun getLastVertex() = vertices.lastOrNull()
+  /** Returns the last vertex of the polygon, if any. */
+  @VisibleForTesting fun getLastVertex() = session.vertices.lastOrNull()
 
   private fun onSelfIntersectionDetected() {
     showSelfIntersectionDialog.value = true
@@ -220,9 +215,9 @@ internal constructor(
       "Attempted to update last vertex after completing the drawing"
     }
 
-    val firstVertex = vertices.firstOrNull()
+    val firstVertex = session.vertices.firstOrNull()
     var updatedTarget = target
-    if (firstVertex != null && vertices.size > 2) {
+    if (firstVertex != null && session.vertices.size > 2) {
       val distance = calculateDistanceInPixels(firstVertex, target)
 
       if (distance <= DISTANCE_THRESHOLD_DP) {
@@ -230,9 +225,9 @@ internal constructor(
       }
     }
 
-    val prev = vertices.dropLast(1).lastOrNull()
+    val prev = session.vertices.dropLast(1).lastOrNull()
     _isTooClose.value =
-      vertices.size > 1 &&
+      session.vertices.size > 1 &&
         prev?.let { calculateDistanceInPixels(it, target) <= DISTANCE_THRESHOLD_DP } == true
 
     addVertex(updatedTarget, true)
@@ -241,45 +236,35 @@ internal constructor(
   /** Attempts to remove the last vertex of drawn polygon, if any. */
   @VisibleForTesting
   fun removeLastVertex() {
-    // Do nothing if there are no vertices to remove.
-    if (vertices.isEmpty()) return
+    if (session.vertices.isEmpty()) return
 
-    // Reset complete status
     _isMarkedComplete.value = false
 
-    _redoVertexStack.add(vertices.last())
+    session.removeLastVertex()
 
-    // Remove last vertex and update polygon
-    val updatedVertices = vertices.toMutableList().apply { removeAt(lastIndex) }.toImmutableList()
+    refreshMap()
 
-    // Render changes to UI
-    updateVertices(updatedVertices)
-
-    // Update saved response.
+    val updatedVertices = session.vertices
     if (updatedVertices.isEmpty()) {
       setValue(null)
-      _redoVertexStack.clear()
+      session.clearRedoStack()
     } else {
       setValue(DrawAreaTaskIncompleteData(LineString(updatedVertices)))
     }
   }
 
   fun redoLastVertex() {
-    if (redoVertexStack.isEmpty()) {
+    if (session.redoVertexStack.isEmpty()) {
       Timber.e("redoVertexStack is already empty")
       return
     }
 
     _isMarkedComplete.value = false
 
-    val redoVertex = _redoVertexStack.removeAt(_redoVertexStack.lastIndex)
+    session.redoLastVertex()
 
-    val mutableVertices = vertices.toMutableList()
-    mutableVertices.add(redoVertex)
-    val updatedVertices = mutableVertices.toImmutableList()
-
-    updateVertices(updatedVertices)
-    setValue(DrawAreaTaskIncompleteData(LineString(updatedVertices)))
+    refreshMap()
+    setValue(DrawAreaTaskIncompleteData(LineString(session.vertices)))
   }
 
   fun onCameraMoved(newTarget: Coordinates) {
@@ -290,54 +275,44 @@ internal constructor(
   @VisibleForTesting
   fun addLastVertex() {
     check(!isMarkedComplete.value) { "Attempted to add last vertex after completing the drawing" }
-    _redoVertexStack.clear()
-    val vertex = vertices.lastOrNull() ?: currentCameraTarget
+    session.clearRedoStack()
+    val vertex = session.vertices.lastOrNull() ?: currentCameraTarget
     vertex?.let {
-      _isTooClose.value = vertices.size > 1
+      _isTooClose.value = session.vertices.size > 1
       addVertex(it, false)
     }
   }
 
   /** Adds a new vertex to the polygon. */
   private fun addVertex(vertex: Coordinates, shouldOverwriteLastVertex: Boolean) {
-    val updatedVertices = vertices.toMutableList()
+    session.addVertex(vertex, shouldOverwriteLastVertex)
 
-    // Maybe remove the last vertex before adding the new vertex.
-    if (shouldOverwriteLastVertex && updatedVertices.isNotEmpty()) {
-      updatedVertices.removeAt(updatedVertices.lastIndex)
-    }
+    refreshMap()
 
-    // Add the new vertex
-    updatedVertices.add(vertex)
-
-    // Render changes to UI
-    updateVertices(updatedVertices.toImmutableList())
-
-    // Save response if it is user initiated
     if (!shouldOverwriteLastVertex) {
-      setValue(DrawAreaTaskIncompleteData(LineString(updatedVertices.toImmutableList())))
+      setValue(DrawAreaTaskIncompleteData(LineString(session.vertices)))
     }
   }
 
   private fun checkVertexIntersection(): Boolean {
-    hasSelfIntersection = isSelfIntersecting(vertices)
+    hasSelfIntersection = isSelfIntersecting(session.vertices)
     if (hasSelfIntersection) {
-      vertices = vertices.dropLast(1)
+      session.setVertices(session.vertices.dropLast(1))
       onSelfIntersectionDetected()
     }
     return hasSelfIntersection
   }
 
   private fun validatePolygonCompletion(): Boolean {
-    if (vertices.size < 3) {
+    if (session.vertices.size < 3) {
       return false
     }
 
     val ring =
-      if (vertices.first() != vertices.last()) {
-        vertices + vertices.first()
+      if (session.vertices.first() != session.vertices.last()) {
+        session.vertices + session.vertices.first()
       } else {
-        vertices
+        session.vertices
       }
 
     hasSelfIntersection = isSelfIntersecting(ring)
@@ -349,20 +324,20 @@ internal constructor(
   }
 
   private fun updateVertices(newVertices: List<Coordinates>) {
-    this.vertices = newVertices
+    session.setVertices(newVertices)
     refreshMap()
   }
 
   @VisibleForTesting
   fun completePolygon() {
-    check(LineString(vertices).isClosed()) { "Polygon is not complete" }
+    check(LineString(session.vertices).isClosed()) { "Polygon is not complete" }
     check(!isMarkedComplete.value) { "Already marked complete" }
 
     _isMarkedComplete.value = true
 
     refreshMap()
-    setValue(DrawAreaTaskData(Polygon(LinearRing(vertices))))
-    val areaInSquareMeters = calculateShoelacePolygonArea(vertices)
+    setValue(DrawAreaTaskData(Polygon(LinearRing(session.vertices))))
+    val areaInSquareMeters = calculateShoelacePolygonArea(session.vertices)
     _polygonArea.value = getFormattedArea(areaInSquareMeters, measurementUnits)
   }
 
@@ -382,7 +357,7 @@ internal constructor(
    * This coroutine runs on [viewModelScope] to ensure lifecycle safety.
    */
   private fun refreshMap() = viewModelScope.launch {
-    if (vertices.isEmpty()) {
+    if (session.vertices.isEmpty()) {
       _draftArea.emit(null)
       draftTag = null
     } else {
@@ -401,7 +376,7 @@ internal constructor(
     Feature(
       id = id ?: uuidGenerator.generateUuid(),
       type = Feature.Type.USER_POLYGON,
-      geometry = LineString(vertices),
+      geometry = LineString(session.vertices),
       style = featureStyle,
       clusterable = false,
       selected = true,
@@ -410,8 +385,8 @@ internal constructor(
 
   /** Returns the distance in meters between the last two vertices for displaying in the tooltip. */
   private fun getDistanceTooltipText(): String? {
-    if (isMarkedComplete.value || vertices.size <= 1) return null
-    val distance = vertices.penult().distanceTo(vertices.last())
+    if (isMarkedComplete.value || session.vertices.size <= 1) return null
+    val distance = session.vertices.penult().distanceTo(session.vertices.last())
     if (distance < TOOLTIP_MIN_DISTANCE_METERS) return null
     return localeAwareMeasureFormatter.formatDistance(distance, measurementUnits)
   }
