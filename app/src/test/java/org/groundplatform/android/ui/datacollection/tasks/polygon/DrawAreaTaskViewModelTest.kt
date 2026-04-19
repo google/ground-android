@@ -126,29 +126,6 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Detects when last coordinate is close to starting one for three vertices`() {
-    setupViewModel()
-    updateLastVertexAndAdd(COORDINATE_1)
-    updateLastVertexAndAdd(COORDINATE_2)
-
-    updateLastVertex(COORDINATE_3, true)
-
-    assertGeometry(3, isLineString = true)
-  }
-
-  @Test
-  fun `Detects when last coordinate is close to starting one for four vertices`() {
-    setupViewModel()
-    updateLastVertexAndAdd(COORDINATE_1)
-    updateLastVertexAndAdd(COORDINATE_2)
-    updateLastVertexAndAdd(COORDINATE_3)
-
-    updateLastVertex(COORDINATE_4, true)
-
-    assertGeometry(4, isLineString = true)
-  }
-
-  @Test
   fun `Can remove last vertex on two vertices`() {
     setupViewModel()
     updateLastVertexAndAdd(COORDINATE_1)
@@ -384,35 +361,6 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     assertThat(secondFeature.tooltipText).isNull()
 
     viewModel.removeLastVertex()
-  }
-
-  @Test
-  fun `isTooClose is true when last vertex is close to previous vertex`() {
-    setupViewModel()
-    updateLastVertexAndAdd(COORDINATE_1)
-    updateLastVertexAndAdd(COORDINATE_2)
-
-    // Distance between COORDINATE_2 (10, 10) and COORDINATE_3 (20, 20) is ~14.14
-    // Threshold is 24. So this should be too close.
-    updateLastVertex(COORDINATE_3, isNearFirstVertex = false)
-    viewModel.updateLastVertexAndMaybeCompletePolygon(COORDINATE_3) { _, _ ->
-      DISTANCE_THRESHOLD_DP.toDouble()
-    }
-
-    assertThat(viewModel.isTooClose.value).isTrue()
-  }
-
-  @Test
-  fun `isTooClose is false when last vertex is far from previous vertex`() {
-    setupViewModel()
-    updateLastVertexAndAdd(COORDINATE_1)
-    updateLastVertexAndAdd(COORDINATE_2)
-
-    viewModel.updateLastVertexAndMaybeCompletePolygon(COORDINATE_3) { _, _ ->
-      DISTANCE_THRESHOLD_DP.toDouble() + 1
-    }
-
-    assertThat(viewModel.isTooClose.value).isFalse()
   }
 
   @Test
