@@ -128,6 +128,17 @@ class PolygonDrawingSessionTest {
   }
 
   @Test
+  fun `updateTentativeVertex does not snap when far from first vertex`() {
+    session.addVertex(COORDINATE_1, false)
+    session.addVertex(COORDINATE_2, false)
+    session.addVertex(COORDINATE_3, false)
+
+    // Target is far from COORDINATE_1
+    session.updateTentativeVertex(COORDINATE_4) { _, _ -> DISTANCE_THRESHOLD_DP.toDouble() + 1 }
+    assertThat(session.vertices.last()).isEqualTo(COORDINATE_4)
+  }
+
+  @Test
   fun `updateTentativeVertex sets isTooClose true when close to previous`() {
     session.addVertex(COORDINATE_1, false)
     session.addVertex(COORDINATE_2, false)
@@ -164,11 +175,22 @@ class PolygonDrawingSessionTest {
   }
 
   @Test
+  fun `commitTentativeVertex returns null when no vertex to commit`() {
+    assertThat(session.commitTentativeVertex(null)).isNull()
+  }
+
+  @Test
   fun `checkVertexIntersection detects intersection and drops vertex`() {
     session.setVertices(listOf(C1, C2, C3, C4))
     assertThat(session.checkVertexIntersection()).isTrue()
     assertThat(session.vertices).containsExactly(C1, C2, C3).inOrder()
     assertThat(session.hasSelfIntersection).isFalse()
+  }
+
+  @Test
+  fun `checkVertexIntersection returns false when no intersection`() {
+    session.setVertices(listOf(C1, C3, C2, C4)) // Valid square
+    assertThat(session.checkVertexIntersection()).isFalse()
   }
 
   @Test
