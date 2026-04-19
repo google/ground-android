@@ -37,6 +37,13 @@ class PolygonDrawingSessionTest {
   }
 
   @Test
+  fun `setVertices updates vertices list`() {
+    val newVertices = listOf(COORDINATE_1, COORDINATE_2)
+    session.setVertices(newVertices)
+    assertThat(session.vertices).containsExactlyElementsIn(newVertices).inOrder()
+  }
+
+  @Test
   fun `addVertex adds vertex to list`() {
     session.addVertex(COORDINATE_1, false)
     assertThat(session.vertices).containsExactly(COORDINATE_1)
@@ -53,52 +60,6 @@ class PolygonDrawingSessionTest {
   fun `addVertex with overwrite does nothing if empty`() {
     session.addVertex(COORDINATE_1, true)
     assertThat(session.vertices).containsExactly(COORDINATE_1)
-  }
-
-  @Test
-  fun `removeLastVertex returns false when empty`() {
-    assertThat(session.removeLastVertex()).isFalse()
-  }
-
-  @Test
-  fun `removeLastVertex removes last vertex and adds to redo stack`() {
-    session.setVertices(listOf(COORDINATE_1, COORDINATE_2))
-
-    assertThat(session.removeLastVertex()).isTrue()
-    assertThat(session.vertices).containsExactly(COORDINATE_1)
-    assertThat(session.redoVertexStack).containsExactly(COORDINATE_2)
-  }
-
-  @Test
-  fun `redoLastVertex returns null when redo stack is empty`() {
-    assertThat(session.redoLastVertex()).isNull()
-  }
-
-  @Test
-  fun `redoLastVertex restores last removed vertex`() {
-    session.setVertices(listOf(COORDINATE_1, COORDINATE_2))
-    session.removeLastVertex()
-
-    assertThat(session.redoLastVertex()).isEqualTo(COORDINATE_2)
-    assertThat(session.vertices).containsExactly(COORDINATE_1, COORDINATE_2).inOrder()
-    assertThat(session.redoVertexStack).isEmpty()
-  }
-
-  @Test
-  fun `clearRedoStack clears the stack`() {
-    session.addVertex(COORDINATE_1, false)
-    session.removeLastVertex()
-    assertThat(session.redoVertexStack).isNotEmpty()
-
-    session.clearRedoStack()
-    assertThat(session.redoVertexStack).isEmpty()
-  }
-
-  @Test
-  fun `setVertices updates vertices list`() {
-    val newVertices = listOf(COORDINATE_1, COORDINATE_2)
-    session.setVertices(newVertices)
-    assertThat(session.vertices).containsExactlyElementsIn(newVertices).inOrder()
   }
 
   @Test
@@ -172,6 +133,45 @@ class PolygonDrawingSessionTest {
   }
 
   @Test
+  fun `removeLastVertex returns false when empty`() {
+    assertThat(session.removeLastVertex()).isFalse()
+  }
+
+  @Test
+  fun `removeLastVertex removes last vertex and adds to redo stack`() {
+    session.setVertices(listOf(COORDINATE_1, COORDINATE_2))
+
+    assertThat(session.removeLastVertex()).isTrue()
+    assertThat(session.vertices).containsExactly(COORDINATE_1)
+    assertThat(session.redoVertexStack).containsExactly(COORDINATE_2)
+  }
+
+  @Test
+  fun `redoLastVertex returns null when redo stack is empty`() {
+    assertThat(session.redoLastVertex()).isNull()
+  }
+
+  @Test
+  fun `redoLastVertex restores last removed vertex`() {
+    session.setVertices(listOf(COORDINATE_1, COORDINATE_2))
+    session.removeLastVertex()
+
+    assertThat(session.redoLastVertex()).isEqualTo(COORDINATE_2)
+    assertThat(session.vertices).containsExactly(COORDINATE_1, COORDINATE_2).inOrder()
+    assertThat(session.redoVertexStack).isEmpty()
+  }
+
+  @Test
+  fun `clearRedoStack clears the stack`() {
+    session.addVertex(COORDINATE_1, false)
+    session.removeLastVertex()
+    assertThat(session.redoVertexStack).isNotEmpty()
+
+    session.clearRedoStack()
+    assertThat(session.redoVertexStack).isEmpty()
+  }
+
+  @Test
   fun `checkVertexIntersection detects intersection and drops vertex`() {
     session.setVertices(listOf(C1, C2, C3, C4))
     assertThat(session.checkVertexIntersection()).isTrue()
@@ -183,15 +183,6 @@ class PolygonDrawingSessionTest {
   fun `checkVertexIntersection returns false when no intersection`() {
     session.setVertices(listOf(C1, C3, C2, C4)) // Valid square
     assertThat(session.checkVertexIntersection()).isFalse()
-  }
-
-  @Test
-  fun `hasSelfIntersection updates dynamically when vertices change`() {
-    session.setVertices(listOf(C1, C2, C3, C4))
-    assertThat(session.hasSelfIntersection).isTrue()
-
-    session.removeLastVertex()
-    assertThat(session.hasSelfIntersection).isFalse()
   }
 
   @Test
@@ -211,6 +202,15 @@ class PolygonDrawingSessionTest {
   fun `validatePolygonCompletion returns true when valid`() {
     session.setVertices(listOf(C1, C3, C2, C4))
     assertThat(session.validatePolygonCompletion()).isTrue()
+    assertThat(session.hasSelfIntersection).isFalse()
+  }
+
+  @Test
+  fun `hasSelfIntersection updates dynamically when vertices change`() {
+    session.setVertices(listOf(C1, C2, C3, C4))
+    assertThat(session.hasSelfIntersection).isTrue()
+
+    session.removeLastVertex()
     assertThat(session.hasSelfIntersection).isFalse()
   }
 
