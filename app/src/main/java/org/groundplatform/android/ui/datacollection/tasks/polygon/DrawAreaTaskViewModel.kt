@@ -135,9 +135,6 @@ internal constructor(
 
   val showSelfIntersectionDialog = mutableStateOf(false)
 
-  val hasSelfIntersection: Boolean
-    get() = session.hasSelfIntersection
-
   private lateinit var featureStyle: Feature.Style
   lateinit var measurementUnits: MeasurementUnits
 
@@ -150,7 +147,7 @@ internal constructor(
           getUndoButton(taskData, true),
           getRedoButton(taskData),
           getAddPointButton(isClosed, isTooClose.value),
-          getCompleteButton(isClosed, isMarkedComplete.value, hasSelfIntersection),
+          getCompleteButton(isClosed, isMarkedComplete.value),
           getNextButton(taskData).takeIf { isMarkedComplete() },
         )
       }
@@ -280,7 +277,7 @@ internal constructor(
 
   private fun validatePolygonCompletion(): Boolean {
     val valid = session.validatePolygonCompletion()
-    if (!valid && hasSelfIntersection) {
+    if (!valid && session.hasSelfIntersection) {
       onSelfIntersectionDetected()
     }
     return valid
@@ -380,14 +377,10 @@ internal constructor(
       isVisible = !isPolygonClosed,
     )
 
-  private fun getCompleteButton(
-    isClosed: Boolean,
-    isMarkedComplete: Boolean,
-    hasSelfIntersection: Boolean,
-  ): ButtonActionState =
+  private fun getCompleteButton(isClosed: Boolean, isMarkedComplete: Boolean): ButtonActionState =
     ButtonActionState(
       action = ButtonAction.COMPLETE,
-      isEnabled = isClosed && !isMarkedComplete && !hasSelfIntersection,
+      isEnabled = isClosed && !isMarkedComplete && !session.hasSelfIntersection,
       isVisible = isClosed && !isMarkedComplete,
     )
 
