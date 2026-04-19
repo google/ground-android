@@ -62,8 +62,7 @@ class PolygonDrawingSessionTest {
 
   @Test
   fun `removeLastVertex removes last vertex and adds to redo stack`() {
-    session.addVertex(COORDINATE_1, false)
-    session.addVertex(COORDINATE_2, false)
+    session.setVertices(listOf(COORDINATE_1, COORDINATE_2))
 
     assertThat(session.removeLastVertex()).isTrue()
     assertThat(session.vertices).containsExactly(COORDINATE_1)
@@ -77,8 +76,7 @@ class PolygonDrawingSessionTest {
 
   @Test
   fun `redoLastVertex restores last removed vertex`() {
-    session.addVertex(COORDINATE_1, false)
-    session.addVertex(COORDINATE_2, false)
+    session.setVertices(listOf(COORDINATE_1, COORDINATE_2))
     session.removeLastVertex()
 
     assertThat(session.redoLastVertex()).isEqualTo(COORDINATE_2)
@@ -118,9 +116,7 @@ class PolygonDrawingSessionTest {
 
   @Test
   fun `updateTentativeVertex snaps to first vertex when close`() {
-    session.addVertex(COORDINATE_1, false)
-    session.addVertex(COORDINATE_2, false)
-    session.addVertex(COORDINATE_3, false)
+    session.setVertices(listOf(COORDINATE_1, COORDINATE_2, COORDINATE_3))
 
     // Target is close to COORDINATE_1
     session.updateTentativeVertex(COORDINATE_4) { _, _ -> DISTANCE_THRESHOLD_DP.toDouble() }
@@ -129,9 +125,7 @@ class PolygonDrawingSessionTest {
 
   @Test
   fun `updateTentativeVertex does not snap when far from first vertex`() {
-    session.addVertex(COORDINATE_1, false)
-    session.addVertex(COORDINATE_2, false)
-    session.addVertex(COORDINATE_3, false)
+    session.setVertices(listOf(COORDINATE_1, COORDINATE_2, COORDINATE_3))
 
     // Target is far from COORDINATE_1
     session.updateTentativeVertex(COORDINATE_4) { _, _ -> DISTANCE_THRESHOLD_DP.toDouble() + 1 }
@@ -140,8 +134,7 @@ class PolygonDrawingSessionTest {
 
   @Test
   fun `updateTentativeVertex sets isTooClose true when close to previous`() {
-    session.addVertex(COORDINATE_1, false)
-    session.addVertex(COORDINATE_2, false)
+    session.setVertices(listOf(COORDINATE_1, COORDINATE_2))
 
     // Target is close to COORDINATE_2
     session.updateTentativeVertex(COORDINATE_3) { _, _ -> DISTANCE_THRESHOLD_DP.toDouble() }
@@ -150,8 +143,7 @@ class PolygonDrawingSessionTest {
 
   @Test
   fun `updateTentativeVertex sets isTooClose false when far from previous`() {
-    session.addVertex(COORDINATE_1, false)
-    session.addVertex(COORDINATE_2, false)
+    session.setVertices(listOf(COORDINATE_1, COORDINATE_2))
 
     // Target is far from COORDINATE_2
     session.updateTentativeVertex(COORDINATE_3) { _, _ -> DISTANCE_THRESHOLD_DP.toDouble() + 1 }
