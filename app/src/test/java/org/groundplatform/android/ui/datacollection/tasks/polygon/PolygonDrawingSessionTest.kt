@@ -26,7 +26,7 @@ class PolygonDrawingSessionTest {
 
   @Before
   fun setUp() {
-    session = PolygonDrawingSession()
+    session = PolygonDrawingSessionImpl()
   }
 
   @Test

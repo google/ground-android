@@ -121,7 +121,7 @@ internal constructor(
 
   private var currentCameraTarget: Coordinates? = null
 
-  private val session = PolygonDrawingSession()
+  private val session: PolygonDrawingSession = PolygonDrawingSessionImpl()
 
   /** Stack of vertices that have been removed and can be redone. */
   val redoVertexStack: List<Coordinates>

@@ -15,25 +15,16 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.polygon
 
-import kotlinx.collections.immutable.toImmutableList
 import org.groundplatform.domain.model.geometry.Coordinates
 
-/**
- * Encapsulates the state and basic operations for a polygon drawing session. This includes the list
- * of vertices and the redo stack.
- */
-class PolygonDrawingSession {
-  private var _vertices: List<Coordinates> = listOf()
+/** Encapsulates the state and basic operations for a polygon drawing session. */
+interface PolygonDrawingSession {
 
   /** The list of committed vertices in the current drawing session. */
   val vertices: List<Coordinates>
-    get() = _vertices
-
-  private val _redoVertexStack = mutableListOf<Coordinates>()
 
   /** The stack of vertices that have been removed and can be redone. */
   val redoVertexStack: List<Coordinates>
-    get() = _redoVertexStack
 
   /**
    * Adds a new vertex to the polygon.
@@ -42,19 +33,7 @@ class PolygonDrawingSession {
    * @param shouldOverwriteLastVertex If true, the last vertex will be replaced by the new one. This
    *   is typically used for updating the transient vertex following the camera.
    */
-  fun addVertex(vertex: Coordinates, shouldOverwriteLastVertex: Boolean) {
-    val updatedVertices = _vertices.toMutableList()
-
-    // Maybe remove the last vertex before adding the new vertex.
-    if (shouldOverwriteLastVertex && updatedVertices.isNotEmpty()) {
-      updatedVertices.removeAt(updatedVertices.lastIndex)
-    }
-
-    // Add the new vertex
-    updatedVertices.add(vertex)
-
-    _vertices = updatedVertices.toImmutableList()
-  }
+  fun addVertex(vertex: Coordinates, shouldOverwriteLastVertex: Boolean)
 
   /**
    * Attempts to remove the last vertex of the drawn polygon. The removed vertex is added to the
@@ -62,13 +41,7 @@ class PolygonDrawingSession {
    *
    * @return true if a vertex was removed, false otherwise.
    */
-  fun removeLastVertex(): Boolean {
-    if (_vertices.isEmpty()) return false
-
-    _redoVertexStack.add(_vertices.last())
-    _vertices = _vertices.dropLast(1).toImmutableList()
-    return true
-  }
+  fun removeLastVertex(): Boolean
 
   /**
    * Redoes the last removed vertex by removing it from the redo stack and adding it back to the
@@ -76,25 +49,15 @@ class PolygonDrawingSession {
    *
    * @return The restored vertex, or null if the redo stack was empty.
    */
-  fun redoLastVertex(): Coordinates? {
-    if (_redoVertexStack.isEmpty()) return null
-
-    val redoVertex = _redoVertexStack.removeAt(_redoVertexStack.lastIndex)
-    _vertices = (_vertices + redoVertex).toImmutableList()
-    return redoVertex
-  }
+  fun redoLastVertex(): Coordinates?
 
   /** Clears the redo stack. */
-  fun clearRedoStack() {
-    _redoVertexStack.clear()
-  }
+  fun clearRedoStack()
 
   /**
    * Sets the vertices to a new list.
    *
    * @param newVertices The new list of vertices.
    */
-  fun setVertices(newVertices: List<Coordinates>) {
-    _vertices = newVertices.toImmutableList()
-  }
+  fun setVertices(newVertices: List<Coordinates>)
 }
