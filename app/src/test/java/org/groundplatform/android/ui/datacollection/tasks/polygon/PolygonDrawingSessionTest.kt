@@ -134,12 +134,12 @@ class PolygonDrawingSessionTest {
   }
 
   @Test
-  fun `removeLastVertex clears redo stack when vertices become empty`() {
+  fun `removeLastVertex does not clear redo stack when vertices become empty`() {
     session.setVertices(listOf(COORDINATE_1))
 
     assertThat(session.removeLastVertex()).isTrue()
     assertThat(session.vertices).isEmpty()
-    assertThat(session.redoVertexStack).isEmpty()
+    assertThat(session.redoVertexStack).containsExactly(COORDINATE_1)
   }
 
   @Test

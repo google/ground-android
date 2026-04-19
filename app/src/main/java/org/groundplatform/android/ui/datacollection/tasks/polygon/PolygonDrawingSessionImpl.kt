@@ -111,11 +111,6 @@ class PolygonDrawingSessionImpl : PolygonDrawingSession {
     _isMarkedComplete = false
     redoVertexStack.add(_vertices.last())
     _vertices = _vertices.dropLast(1).toImmutableList()
-
-    if (_vertices.isEmpty()) {
-      redoVertexStack.clear()
-    }
-
     return true
   }
 
