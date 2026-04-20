@@ -25,8 +25,8 @@ import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.SURVEY
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.local.stores.LocalSurveyStore
-import org.groundplatform.android.model.map.CameraPosition
 import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.map.CameraPosition
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.junit.Test
 import org.junit.runner.RunWith

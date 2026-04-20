@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.ui.common
+package org.groundplatform.domain.model.map
 
-import org.groundplatform.domain.model.map.MapType
+import org.groundplatform.domain.model.geometry.Coordinates
 
-/** Configuration to apply on the rendered base map. */
-data class MapConfig(
-  val showOfflineImagery: Boolean,
-  val overrideMapType: MapType? = null,
-  val allowGestures: Boolean = true,
-  val allowRotateGestures: Boolean = true,
+/** Represents current camera position of the map. */
+data class CameraPosition(
+  val coordinates: Coordinates,
+  val zoomLevel: Float? = null,
+  val bounds: Bounds? = null,
 )

@@ -27,8 +27,8 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.groundplatform.android.BaseHiltTest
-import org.groundplatform.android.model.map.MapType
-import org.groundplatform.android.repository.MapStateRepository
+import org.groundplatform.domain.model.map.MapType
+import org.groundplatform.domain.repository.MapStateRepositoryInterface
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -44,7 +44,7 @@ class BasemapSelectorScreenTest : BaseHiltTest() {
 
   @get:Rule val composeTestRule = createComposeRule()
 
-  @Inject lateinit var mapStateRepository: MapStateRepository
+  @Inject lateinit var mapStateRepository: MapStateRepositoryInterface
 
   private lateinit var viewModel: BasemapSelectorViewModel
   private var isDismissed = false

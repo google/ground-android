@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.ui.common
+package org.groundplatform.domain.repository
 
+import kotlinx.coroutines.flow.StateFlow
+import org.groundplatform.domain.model.map.CameraPosition
 import org.groundplatform.domain.model.map.MapType
 
-/** Configuration to apply on the rendered base map. */
-data class MapConfig(
-  val showOfflineImagery: Boolean,
-  val overrideMapType: MapType? = null,
-  val allowGestures: Boolean = true,
-  val allowRotateGestures: Boolean = true,
-)
+/** Provides access and storage of persistent map states. */
+interface MapStateRepositoryInterface {
+  val mapTypeFlow: StateFlow<MapType>
+  var mapType: MapType
+  val offlineImageryEnabledFlow: StateFlow<Boolean>
+  var isOfflineImageryEnabled: Boolean
+  var isLocationLockEnabled: Boolean
+
+  fun setCameraPosition(cameraPosition: CameraPosition)
+
+  fun getCameraPosition(surveyId: String): CameraPosition?
+}
