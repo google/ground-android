@@ -22,6 +22,12 @@ import org.groundplatform.domain.model.geometry.LineString
 import org.groundplatform.domain.util.isSelfIntersecting
 
 class PolygonDrawingSessionImpl : PolygonDrawingSession {
+  private var _isTooClose: Boolean = false
+  private var _isMarkedComplete: Boolean = false
+
+  override val state: PolygonDrawingSession.State
+    get() = PolygonDrawingSession.State(_isTooClose, _isMarkedComplete)
+
   private var _vertices: List<Coordinates> = listOf()
 
   override val vertices: List<Coordinates>
@@ -31,12 +37,6 @@ class PolygonDrawingSessionImpl : PolygonDrawingSession {
 
   override val redoVertexStack: List<Coordinates>
     get() = _redoVertexStack
-
-  private var _isTooClose: Boolean = false
-  private var _isMarkedComplete: Boolean = false
-
-  override val state: PolygonDrawingSession.State
-    get() = PolygonDrawingSession.State(_isTooClose, _isMarkedComplete)
 
   override val hasSelfIntersection: Boolean
     get() = isSelfIntersecting(_vertices)
@@ -51,6 +51,10 @@ class PolygonDrawingSessionImpl : PolygonDrawingSession {
     updatedVertices.add(vertex)
 
     _vertices = updatedVertices.toImmutableList()
+  }
+
+  override fun setVertices(newVertices: List<Coordinates>) {
+    _vertices = newVertices.toImmutableList()
   }
 
   override fun updateTentativeVertex(
@@ -123,9 +127,5 @@ class PolygonDrawingSessionImpl : PolygonDrawingSession {
 
   override fun clearRedoStack() {
     _redoVertexStack.clear()
-  }
-
-  override fun setVertices(newVertices: List<Coordinates>) {
-    _vertices = newVertices.toImmutableList()
   }
 }

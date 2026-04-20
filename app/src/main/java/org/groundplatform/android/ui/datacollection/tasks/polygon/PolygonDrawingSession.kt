@@ -35,6 +35,13 @@ interface PolygonDrawingSession {
   val hasSelfIntersection: Boolean
 
   /**
+   * Sets the vertices to a new list.
+   *
+   * @param newVertices The new list of vertices.
+   */
+  fun setVertices(newVertices: List<Coordinates>)
+
+  /**
    * Updates the tentative vertex of the session with snapping logic.
    *
    * @param target The target coordinates (e.g., camera center).
@@ -89,13 +96,6 @@ interface PolygonDrawingSession {
 
   /** Clears the redo stack. */
   fun clearRedoStack()
-
-  /**
-   * Sets the vertices to a new list.
-   *
-   * @param newVertices The new list of vertices.
-   */
-  fun setVertices(newVertices: List<Coordinates>)
 
   companion object {
     /** Min. distance in dp between two points for them be considered as overlapping. */
