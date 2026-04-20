@@ -97,9 +97,8 @@ class PolygonDrawingSessionImpl : PolygonDrawingSession {
     return intersected
   }
 
-  override fun isValidPolygon(): Boolean {
-    return LineString(_vertices).isClosed() && !isSelfIntersecting(_vertices)
-  }
+  override fun isValidPolygon(): Boolean =
+    LineString(_vertices).isClosed() && !isSelfIntersecting(_vertices)
 
   override fun complete() {
     check(isValidPolygon()) { "Polygon is not valid" }

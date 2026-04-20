@@ -129,10 +129,6 @@ internal constructor(
   private val _sessionState = MutableStateFlow(PolygonDrawingSession.State())
   val sessionState: StateFlow<PolygonDrawingSession.State> = _sessionState.asStateFlow()
 
-  private fun syncSessionState() {
-    _sessionState.value = session.state
-  }
-
   val showSelfIntersectionDialog = mutableStateOf(false)
 
   private lateinit var featureStyle: Feature.Style
@@ -196,6 +192,10 @@ internal constructor(
 
   /** Returns the last vertex of the polygon, if any. */
   @VisibleForTesting fun getLastVertex() = session.vertices.lastOrNull()
+
+  private fun syncSessionState() {
+    _sessionState.value = session.state
+  }
 
   private fun onSelfIntersectionDetected() {
     showSelfIntersectionDialog.value = true
