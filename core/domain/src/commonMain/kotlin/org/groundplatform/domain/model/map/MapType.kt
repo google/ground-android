@@ -13,17 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.model.map
+package org.groundplatform.domain.model.map
 
-import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Serializable
 
 /**
  * The type of base map shown beneath all other layers. Google Maps SDK refers to these as "map
  * type", or "map styles" in Mapbox, or "basemap" in Leaflet.
  */
-@Parcelize
-enum class MapType : Parcelable {
+@Serializable
+enum class MapType {
   ROAD,
   TERRAIN,
   SATELLITE,
