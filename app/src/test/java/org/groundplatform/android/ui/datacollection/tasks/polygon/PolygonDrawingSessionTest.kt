@@ -108,6 +108,13 @@ class PolygonDrawingSessionTest {
   }
 
   @Test
+  fun `commitTentativeVertex sets isTooClose true when size greater than 1`() {
+    session.setVertices(listOf(COORDINATE_1, COORDINATE_2))
+    session.commitTentativeVertex(COORDINATE_3)
+    assertThat(session.state.isTooClose).isTrue()
+  }
+
+  @Test
   fun `commitTentativeVertex returns null when no vertex to commit`() {
     assertThat(session.commitTentativeVertex(null)).isNull()
   }
