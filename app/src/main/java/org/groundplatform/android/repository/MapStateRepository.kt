@@ -22,16 +22,17 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import org.groundplatform.android.data.local.LocalValueStore
-import org.groundplatform.android.model.map.CameraPosition
-import org.groundplatform.android.model.map.MapType
+import org.groundplatform.domain.model.map.CameraPosition
+import org.groundplatform.domain.model.map.MapType
+import org.groundplatform.domain.repository.MapStateRepositoryInterface
 
-/** Provides access and storage of persistent map states. */
 @Singleton
-class MapStateRepository @Inject constructor(private val localValueStore: LocalValueStore) {
+class MapStateRepository @Inject constructor(private val localValueStore: LocalValueStore) :
+  MapStateRepositoryInterface {
 
   private val _mapType = MutableStateFlow(mapType)
-  val mapTypeFlow: StateFlow<MapType> = _mapType.asStateFlow()
-  var mapType: MapType
+  override val mapTypeFlow: StateFlow<MapType> = _mapType.asStateFlow()
+  override var mapType: MapType
     get() = MapType.entries[localValueStore.mapType]
     set(value) {
       localValueStore.mapType = value.ordinal
@@ -39,19 +40,19 @@ class MapStateRepository @Inject constructor(private val localValueStore: LocalV
     }
 
   private val _offlineImageryEnabled = MutableStateFlow(isOfflineImageryEnabled)
-  val offlineImageryEnabledFlow: StateFlow<Boolean> = _offlineImageryEnabled.asStateFlow()
-  var isOfflineImageryEnabled: Boolean
+  override val offlineImageryEnabledFlow: StateFlow<Boolean> = _offlineImageryEnabled.asStateFlow()
+  override var isOfflineImageryEnabled: Boolean
     get() = localValueStore.isOfflineImageryEnabled
     set(value) {
       localValueStore.isOfflineImageryEnabled = value
       _offlineImageryEnabled.update { value }
     }
 
-  var isLocationLockEnabled: Boolean by localValueStore::isLocationLockEnabled
+  override var isLocationLockEnabled: Boolean by localValueStore::isLocationLockEnabled
 
-  fun setCameraPosition(cameraPosition: CameraPosition) =
+  override fun setCameraPosition(cameraPosition: CameraPosition) =
     localValueStore.setLastCameraPosition(localValueStore.lastActiveSurveyId, cameraPosition)
 
-  fun getCameraPosition(surveyId: String): CameraPosition? =
+  override fun getCameraPosition(surveyId: String): CameraPosition? =
     localValueStore.getLastCameraPosition(surveyId)
 }

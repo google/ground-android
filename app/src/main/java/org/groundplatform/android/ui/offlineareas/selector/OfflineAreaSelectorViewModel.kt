@@ -28,8 +28,6 @@ import kotlinx.coroutines.launch
 import org.groundplatform.android.di.coroutines.IoDispatcher
 import org.groundplatform.android.model.imagery.RemoteMogTileSource
 import org.groundplatform.android.model.imagery.TileSource
-import org.groundplatform.android.model.map.CameraPosition
-import org.groundplatform.android.repository.MapStateRepository
 import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.android.system.LocationManager
 import org.groundplatform.android.system.NetworkManager
@@ -41,7 +39,9 @@ import org.groundplatform.android.ui.offlineareas.selector.model.OfflineAreaSele
 import org.groundplatform.android.util.toMb
 import org.groundplatform.android.util.toMbString
 import org.groundplatform.domain.model.map.Bounds
+import org.groundplatform.domain.model.map.CameraPosition
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
+import org.groundplatform.domain.repository.MapStateRepositoryInterface
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import timber.log.Timber
 
@@ -56,7 +56,7 @@ internal constructor(
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
   locationManager: LocationManager,
   surveyRepository: SurveyRepositoryInterface,
-  mapStateRepository: MapStateRepository,
+  mapStateRepository: MapStateRepositoryInterface,
   settingsManager: SettingsManager,
   permissionsManager: PermissionsManager,
   locationOfInterestRepository: LocationOfInterestRepositoryInterface,

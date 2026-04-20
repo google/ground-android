@@ -19,11 +19,11 @@ import android.annotation.SuppressLint
 import androidx.annotation.IdRes
 import kotlinx.coroutines.flow.SharedFlow
 import org.groundplatform.android.model.imagery.TileSource
-import org.groundplatform.android.model.map.CameraPosition
-import org.groundplatform.android.model.map.MapType
 import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.map.Bounds
+import org.groundplatform.domain.model.map.CameraPosition
+import org.groundplatform.domain.model.map.MapType
 
 /** Implementation of Fragment which supports displaying a map. */
 interface MapFragment {

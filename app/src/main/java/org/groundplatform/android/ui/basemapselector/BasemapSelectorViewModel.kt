@@ -18,15 +18,16 @@ package org.groundplatform.android.ui.basemapselector
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.StateFlow
-import org.groundplatform.android.model.map.MapType
-import org.groundplatform.android.repository.MapStateRepository
 import org.groundplatform.android.ui.common.AbstractViewModel
+import org.groundplatform.domain.model.map.MapType
+import org.groundplatform.domain.repository.MapStateRepositoryInterface
 
 /** ViewModel for the [BasemapSelectorScreen]. */
 @HiltViewModel
 class BasemapSelectorViewModel
 @Inject
-internal constructor(private val mapStateRepository: MapStateRepository) : AbstractViewModel() {
+internal constructor(private val mapStateRepository: MapStateRepositoryInterface) :
+  AbstractViewModel() {
 
   val currentMapType: StateFlow<MapType> = mapStateRepository.mapTypeFlow
   val isOfflineImageryEnabled: StateFlow<Boolean> = mapStateRepository.offlineImageryEnabledFlow
