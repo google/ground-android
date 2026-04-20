@@ -28,9 +28,6 @@ interface PolygonDrawingSession {
   /** The list of committed vertices in the current drawing session. */
   val vertices: List<Coordinates>
 
-  /** The stack of vertices that have been removed and can be redone. */
-  val redoVertexStack: List<Coordinates>
-
   /** Whether the current polygon geometry self-intersects. */
   val hasSelfIntersection: Boolean
 
@@ -93,6 +90,9 @@ interface PolygonDrawingSession {
    * @return The restored vertex, or null if the redo stack was empty.
    */
   fun redoLastVertex(): Coordinates?
+
+  /** Checks if there are any vertices in the redo stack. */
+  fun canRedo(): Boolean
 
   companion object {
     /** Min. distance in dp between two points for them be considered as overlapping. */

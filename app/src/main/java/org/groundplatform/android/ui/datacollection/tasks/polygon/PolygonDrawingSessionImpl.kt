@@ -35,9 +35,6 @@ class PolygonDrawingSessionImpl : PolygonDrawingSession {
 
   private val _redoVertexStack = mutableListOf<Coordinates>()
 
-  override val redoVertexStack: List<Coordinates>
-    get() = _redoVertexStack
-
   override val hasSelfIntersection: Boolean
     get() = isSelfIntersecting(_vertices)
 
@@ -128,4 +125,6 @@ class PolygonDrawingSessionImpl : PolygonDrawingSession {
     _vertices = (_vertices + redoVertex).toImmutableList()
     return redoVertex
   }
+
+  override fun canRedo(): Boolean = _redoVertexStack.isNotEmpty()
 }

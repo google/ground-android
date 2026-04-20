@@ -122,10 +122,6 @@ internal constructor(
 
   private val session: PolygonDrawingSession = PolygonDrawingSessionImpl()
 
-  /** Stack of vertices that have been removed and can be redone. */
-  val redoVertexStack: List<Coordinates>
-    get() = session.redoVertexStack
-
   private val _sessionState = MutableStateFlow(PolygonDrawingSession.State())
   val sessionState: StateFlow<PolygonDrawingSession.State> = _sessionState.asStateFlow()
 
@@ -237,7 +233,7 @@ internal constructor(
   }
 
   fun redoLastVertex() {
-    if (session.redoVertexStack.isEmpty()) {
+    if (!session.canRedo()) {
       Timber.e("redoVertexStack is already empty")
       return
     }
@@ -365,7 +361,7 @@ internal constructor(
   private fun getRedoButton(taskData: TaskData?): ButtonActionState =
     ButtonActionState(
       action = ButtonAction.REDO,
-      isEnabled = redoVertexStack.isNotEmpty() && taskData.isNotNullOrEmpty(),
+      isEnabled = session.canRedo() && taskData.isNotNullOrEmpty(),
       isVisible = true,
     )
 
