@@ -408,6 +408,4 @@ internal constructor(
       }
     }
   }
-
-  companion object {}
 }
