@@ -26,6 +26,8 @@ interface MapStateRepositoryInterface {
   val offlineImageryEnabledFlow: StateFlow<Boolean>
   var isOfflineImageryEnabled: Boolean
   var isLocationLockEnabled: Boolean
+
   fun setCameraPosition(cameraPosition: CameraPosition)
+
   fun getCameraPosition(surveyId: String): CameraPosition?
 }

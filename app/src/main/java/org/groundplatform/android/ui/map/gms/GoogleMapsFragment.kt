@@ -47,8 +47,6 @@ import kotlinx.coroutines.launch
 import org.groundplatform.android.model.imagery.LocalTileSource
 import org.groundplatform.android.model.imagery.RemoteMogTileSource
 import org.groundplatform.android.model.imagery.TileSource
-import org.groundplatform.domain.model.map.CameraPosition
-import org.groundplatform.domain.model.map.MapType
 import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.MapFragment
@@ -59,6 +57,8 @@ import org.groundplatform.android.util.invert
 import org.groundplatform.android.util.systemInsets
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.map.Bounds
+import org.groundplatform.domain.model.map.CameraPosition
+import org.groundplatform.domain.model.map.MapType
 import timber.log.Timber
 
 const val TILE_OVERLAY_Z = 0f

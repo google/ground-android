@@ -42,13 +42,13 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.R
 import org.groundplatform.android.getString
-import org.groundplatform.domain.model.map.CameraPosition
 import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.testrules.FragmentScenarioRule
 import org.groundplatform.android.ui.offlineareas.selector.model.OfflineAreaSelectorState
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.map.Bounds
+import org.groundplatform.domain.model.map.CameraPosition
 import org.hamcrest.CoreMatchers.not
 import org.junit.Before
 import org.junit.Rule

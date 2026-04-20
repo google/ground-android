@@ -22,11 +22,11 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import org.groundplatform.android.common.Constants.DEFAULT_MAP_TYPE
 import org.groundplatform.android.common.PrefKeys
-import org.groundplatform.domain.model.map.CameraPosition
 import org.groundplatform.android.util.allowThreadDiskReads
 import org.groundplatform.android.util.allowThreadDiskWrites
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.map.Bounds
+import org.groundplatform.domain.model.map.CameraPosition
 import org.groundplatform.domain.model.settings.MeasurementUnits
 import timber.log.Timber
 

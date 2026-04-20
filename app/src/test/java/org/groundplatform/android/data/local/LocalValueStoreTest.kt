@@ -20,7 +20,6 @@ import androidx.core.content.edit
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import java.util.Locale
-import org.groundplatform.android.FakeData
 import org.groundplatform.android.common.PrefKeys
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.map.Bounds
@@ -116,7 +115,10 @@ class LocalValueStoreTest {
 
   @Test
   fun `clearLastCameraPosition removes stored value`() {
-    localValueStore.setLastCameraPosition(SURVEY_ID, CameraPosition(COORDINATES, ZOOM_LEVEL, BOUNDS))
+    localValueStore.setLastCameraPosition(
+      SURVEY_ID,
+      CameraPosition(COORDINATES, ZOOM_LEVEL, BOUNDS),
+    )
 
     localValueStore.clearLastCameraPosition(SURVEY_ID)
 

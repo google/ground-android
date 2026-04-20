@@ -33,10 +33,10 @@ import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.OFFLINE_AREA
 import org.groundplatform.android.R
 import org.groundplatform.android.data.local.stores.LocalOfflineAreaStore
-import org.groundplatform.domain.model.map.MapType
 import org.groundplatform.android.testrules.FragmentScenarioRule
 import org.groundplatform.android.ui.common.MapConfig
 import org.groundplatform.android.util.view.isGone
+import org.groundplatform.domain.model.map.MapType
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

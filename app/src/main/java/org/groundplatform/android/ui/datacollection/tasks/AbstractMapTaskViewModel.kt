@@ -18,8 +18,8 @@ package org.groundplatform.android.ui.datacollection.tasks
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import org.groundplatform.domain.model.map.CameraPosition
 import org.groundplatform.android.ui.common.BaseMapViewModel
+import org.groundplatform.domain.model.map.CameraPosition
 import org.jetbrains.annotations.TestOnly
 
 /** Defines the state of an inflated Map [Task] and controls its UI. */
