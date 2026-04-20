@@ -68,8 +68,8 @@ interface PolygonDrawingSession {
    */
   fun isValidPolygon(): Boolean
 
-  /** Sets whether the polygon is marked as complete. */
-  fun setMarkedComplete(complete: Boolean)
+  /** Completes the polygon drawing session. */
+  fun complete()
 
   /**
    * Attempts to remove the last vertex of the drawn polygon. The removed vertex is added to the

@@ -224,8 +224,6 @@ internal constructor(
   fun removeLastVertex() {
     if (session.vertices.isEmpty()) return
 
-    session.setMarkedComplete(false)
-
     session.removeLastVertex()
     syncSessionState()
 
@@ -245,8 +243,6 @@ internal constructor(
       Timber.e("redoVertexStack is already empty")
       return
     }
-
-    session.setMarkedComplete(false)
 
     session.redoLastVertex()
     syncSessionState()
@@ -297,10 +293,7 @@ internal constructor(
 
   @VisibleForTesting
   fun completePolygon() {
-    check(LineString(session.vertices).isClosed()) { "Polygon is not complete" }
-    check(!sessionState.value.isMarkedComplete) { "Already marked complete" }
-
-    session.setMarkedComplete(true)
+    session.complete()
     syncSessionState()
 
     refreshMap()

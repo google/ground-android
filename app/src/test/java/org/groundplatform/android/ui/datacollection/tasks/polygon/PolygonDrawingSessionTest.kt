@@ -180,7 +180,7 @@ class PolygonDrawingSessionTest {
 
   @Test
   fun `validatePolygonCompletion returns true when valid`() {
-    session.setVertices(listOf(C1, C3, C2, C4))
+    session.setVertices(listOf(C1, C3, C2, C4, C1))
     assertThat(session.isValidPolygon()).isTrue()
     assertThat(session.hasSelfIntersection).isFalse()
   }
@@ -192,6 +192,39 @@ class PolygonDrawingSessionTest {
 
     session.removeLastVertex()
     assertThat(session.hasSelfIntersection).isFalse()
+  }
+
+  @Test
+  fun `complete() throws when polygon is not closed`() {
+    session.setVertices(listOf(C1, C2, C3))
+    org.junit.Assert.assertThrows(IllegalStateException::class.java) { session.complete() }
+  }
+
+  @Test
+  fun `complete() marks session as complete`() {
+    session.setVertices(listOf(C1, C3, C2, C4, C1))
+    session.complete()
+    assertThat(session.state.isMarkedComplete).isTrue()
+  }
+
+  @Test
+  fun `removeLastVertex resets completion state`() {
+    session.setVertices(listOf(C1, C3, C2, C4, C1))
+    session.complete()
+    assertThat(session.state.isMarkedComplete).isTrue()
+
+    session.removeLastVertex()
+    assertThat(session.state.isMarkedComplete).isFalse()
+  }
+
+  @Test
+  fun `redoLastVertex resets completion state`() {
+    session.setVertices(listOf(C1, C3, C2, C4, C1))
+    session.complete()
+    session.removeLastVertex()
+
+    session.redoLastVertex()
+    assertThat(session.state.isMarkedComplete).isFalse()
   }
 
   companion object {

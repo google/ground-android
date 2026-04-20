@@ -18,6 +18,7 @@ package org.groundplatform.android.ui.datacollection.tasks.polygon
 import kotlinx.collections.immutable.toImmutableList
 import org.groundplatform.android.ui.datacollection.tasks.polygon.PolygonDrawingSession.Companion.DISTANCE_THRESHOLD_DP
 import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.geometry.LineString
 import org.groundplatform.domain.util.isSelfIntersecting
 
 class PolygonDrawingSessionImpl : PolygonDrawingSession {
@@ -93,27 +94,19 @@ class PolygonDrawingSessionImpl : PolygonDrawingSession {
   }
 
   override fun isValidPolygon(): Boolean {
-    if (_vertices.size < 3) {
-      return false
-    }
-
-    val ring =
-      if (_vertices.first() != _vertices.last()) {
-        _vertices + _vertices.first()
-      } else {
-        _vertices
-      }
-
-    return !isSelfIntersecting(ring)
+    return LineString(_vertices).isClosed() && !isSelfIntersecting(_vertices)
   }
 
-  override fun setMarkedComplete(complete: Boolean) {
-    _isMarkedComplete = complete
+  override fun complete() {
+    check(isValidPolygon()) { "Polygon is not valid" }
+    check(!_isMarkedComplete) { "Already marked complete" }
+    _isMarkedComplete = true
   }
 
   override fun removeLastVertex(): Boolean {
     if (_vertices.isEmpty()) return false
 
+    _isMarkedComplete = false
     _redoVertexStack.add(_vertices.last())
     _vertices = _vertices.dropLast(1).toImmutableList()
     return true
@@ -122,6 +115,7 @@ class PolygonDrawingSessionImpl : PolygonDrawingSession {
   override fun redoLastVertex(): Coordinates? {
     if (_redoVertexStack.isEmpty()) return null
 
+    _isMarkedComplete = false
     val redoVertex = _redoVertexStack.removeAt(_redoVertexStack.lastIndex)
     _vertices = (_vertices + redoVertex).toImmutableList()
     return redoVertex
