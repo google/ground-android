@@ -40,7 +40,7 @@ import org.groundplatform.android.data.local.room.converter.SubmissionDeltasConv
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.data.sync.MutationSyncWorkManager
 import org.groundplatform.android.getString
-import org.groundplatform.android.model.map.CameraPosition
+import org.groundplatform.domain.model.map.CameraPosition
 import org.groundplatform.android.repository.MutationRepository
 import org.groundplatform.android.testrules.FragmentScenarioRule
 import org.groundplatform.android.ui.datacollection.tasks.point.DropPinTaskViewModel

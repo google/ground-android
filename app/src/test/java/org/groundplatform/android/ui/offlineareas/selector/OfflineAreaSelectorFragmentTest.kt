@@ -42,7 +42,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.R
 import org.groundplatform.android.getString
-import org.groundplatform.android.model.map.CameraPosition
+import org.groundplatform.domain.model.map.CameraPosition
 import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.testrules.FragmentScenarioRule

@@ -18,7 +18,7 @@ package org.groundplatform.android.ui.datacollection.tasks.point
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
-import org.groundplatform.android.model.map.CameraPosition
+import org.groundplatform.domain.model.map.CameraPosition
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment
 import org.groundplatform.android.ui.datacollection.tasks.launchWhenTaskVisible
 import org.groundplatform.android.ui.map.Feature

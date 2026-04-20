@@ -28,7 +28,7 @@ import org.groundplatform.android.FakeData.JOB
 import org.groundplatform.android.R
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.getString
-import org.groundplatform.android.model.map.CameraPosition
+import org.groundplatform.domain.model.map.CameraPosition
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.ButtonActionStateChecker

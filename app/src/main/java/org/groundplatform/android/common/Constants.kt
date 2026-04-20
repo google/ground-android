@@ -17,7 +17,7 @@ package org.groundplatform.android.common
 
 import android.content.Context
 import org.groundplatform.android.BuildConfig
-import org.groundplatform.android.model.map.MapType
+import org.groundplatform.domain.model.map.MapType
 
 /** Application constants. */
 object Constants {

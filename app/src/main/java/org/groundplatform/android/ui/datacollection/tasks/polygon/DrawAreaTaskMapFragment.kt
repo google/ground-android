@@ -23,7 +23,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import org.groundplatform.android.model.map.CameraPosition
+import org.groundplatform.domain.model.map.CameraPosition
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment
 import org.groundplatform.android.ui.datacollection.tasks.launchWhenTaskVisible
 import org.groundplatform.android.ui.map.Feature

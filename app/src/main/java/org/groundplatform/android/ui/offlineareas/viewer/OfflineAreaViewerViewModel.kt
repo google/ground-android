@@ -24,7 +24,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import org.groundplatform.android.di.coroutines.IoDispatcher
 import org.groundplatform.android.model.imagery.OfflineArea
-import org.groundplatform.android.repository.MapStateRepository
 import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.android.system.LocationManager
 import org.groundplatform.android.system.PermissionsManager
@@ -33,6 +32,7 @@ import org.groundplatform.android.ui.common.BaseMapViewModel
 import org.groundplatform.android.util.toMb
 import org.groundplatform.android.util.toMbString
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
+import org.groundplatform.domain.repository.MapStateRepositoryInterface
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import timber.log.Timber
 
@@ -45,7 +45,7 @@ class OfflineAreaViewerViewModel
 constructor(
   private val offlineAreaRepository: OfflineAreaRepository,
   locationManager: LocationManager,
-  mapStateRepository: MapStateRepository,
+  mapStateRepository: MapStateRepositoryInterface,
   settingsManager: SettingsManager,
   permissionsManager: PermissionsManager,
   surveyRepository: SurveyRepositoryInterface,

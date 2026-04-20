@@ -33,7 +33,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.databinding.OfflineAreaSelectorFragBinding
-import org.groundplatform.android.model.map.MapType
+import org.groundplatform.domain.model.map.MapType
 import org.groundplatform.android.ui.common.AbstractMapContainerFragment
 import org.groundplatform.android.ui.common.BaseMapViewModel
 import org.groundplatform.android.ui.common.EphemeralPopups
