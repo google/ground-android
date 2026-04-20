@@ -150,8 +150,6 @@ class PolygonDrawingSessionTest {
     assertThat(session.redoVertexStack).isEmpty()
   }
 
-
-
   @Test
   fun `checkVertexIntersection detects intersection and drops vertex`() {
     session.setVertices(listOf(C1, C2, C3, C4))
