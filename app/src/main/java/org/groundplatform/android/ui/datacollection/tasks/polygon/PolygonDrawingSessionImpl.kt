@@ -113,6 +113,11 @@ class PolygonDrawingSessionImpl : PolygonDrawingSession {
     _isMarkedComplete = false
     _redoVertexStack.add(_vertices.last())
     _vertices = _vertices.dropLast(1).toImmutableList()
+
+    if (_vertices.isEmpty()) {
+      _redoVertexStack.clear()
+    }
+
     return true
   }
 
@@ -125,7 +130,5 @@ class PolygonDrawingSessionImpl : PolygonDrawingSession {
     return redoVertex
   }
 
-  override fun clearRedoStack() {
-    _redoVertexStack.clear()
-  }
+
 }

@@ -94,9 +94,6 @@ interface PolygonDrawingSession {
    */
   fun redoLastVertex(): Coordinates?
 
-  /** Clears the redo stack. */
-  fun clearRedoStack()
-
   companion object {
     /** Min. distance in dp between two points for them be considered as overlapping. */
     const val DISTANCE_THRESHOLD_DP = 24

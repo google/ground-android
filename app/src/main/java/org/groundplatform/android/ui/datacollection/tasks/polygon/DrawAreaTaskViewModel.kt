@@ -222,17 +222,15 @@ internal constructor(
   /** Attempts to remove the last vertex of drawn polygon, if any. */
   @VisibleForTesting
   fun removeLastVertex() {
-    if (session.vertices.isEmpty()) return
+    val result = session.removeLastVertex()
+    if (!result) return
 
-    session.removeLastVertex()
     syncSessionState()
-
     refreshMap()
 
     val updatedVertices = session.vertices
     if (updatedVertices.isEmpty()) {
       setValue(null)
-      session.clearRedoStack()
     } else {
       setValue(DrawAreaTaskIncompleteData(LineString(updatedVertices)))
     }

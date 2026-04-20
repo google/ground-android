@@ -93,11 +93,11 @@ class PolygonDrawingSessionTest {
 
   @Test
   fun `commitTentativeVertex clears redo stack`() {
-    session.setVertices(listOf(COORDINATE_1))
+    session.setVertices(listOf(COORDINATE_1, COORDINATE_2))
     session.removeLastVertex()
     assertThat(session.redoVertexStack).isNotEmpty()
 
-    session.commitTentativeVertex(COORDINATE_2)
+    session.commitTentativeVertex(COORDINATE_3)
     assertThat(session.redoVertexStack).isEmpty()
   }
 
@@ -127,6 +127,15 @@ class PolygonDrawingSessionTest {
   }
 
   @Test
+  fun `removeLastVertex clears redo stack when vertices become empty`() {
+    session.setVertices(listOf(COORDINATE_1))
+
+    assertThat(session.removeLastVertex()).isTrue()
+    assertThat(session.vertices).isEmpty()
+    assertThat(session.redoVertexStack).isEmpty()
+  }
+
+  @Test
   fun `redoLastVertex returns null when redo stack is empty`() {
     assertThat(session.redoLastVertex()).isNull()
   }
@@ -141,15 +150,7 @@ class PolygonDrawingSessionTest {
     assertThat(session.redoVertexStack).isEmpty()
   }
 
-  @Test
-  fun `clearRedoStack clears the stack`() {
-    session.setVertices(listOf(COORDINATE_1))
-    session.removeLastVertex()
-    assertThat(session.redoVertexStack).isNotEmpty()
 
-    session.clearRedoStack()
-    assertThat(session.redoVertexStack).isEmpty()
-  }
 
   @Test
   fun `checkVertexIntersection detects intersection and drops vertex`() {
