@@ -22,7 +22,7 @@ import org.junit.Test
 
 class PolygonDrawingSessionTest {
 
-  private lateinit var session: PolygonDrawingSession
+  private lateinit var session: PolygonDrawingSessionImpl
 
   @Before
   fun setUp() {

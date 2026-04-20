@@ -212,7 +212,6 @@ class DrawAreaTaskFragmentTest :
 
     viewModel.removeLastVertex()
     viewModel.removeLastVertex()
-    assertThat(viewModel.redoVertexStack).isEmpty()
     runner().assertButtonIsDisabled(REDO_POINT_BUTTON_TEXT, true)
   }
 
