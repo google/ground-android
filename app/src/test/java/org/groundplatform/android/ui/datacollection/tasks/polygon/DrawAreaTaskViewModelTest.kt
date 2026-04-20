@@ -39,7 +39,7 @@ import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
-import org.groundplatform.android.ui.datacollection.tasks.polygon.DrawAreaTaskViewModel.Companion.DISTANCE_THRESHOLD_DP
+import org.groundplatform.android.ui.datacollection.tasks.polygon.PolygonDrawingSession.Companion.DISTANCE_THRESHOLD_DP
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.gms.GmsExt.getShellCoordinates
 import org.groundplatform.domain.model.geometry.Coordinates
@@ -373,7 +373,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     // The logic `_isTooClose.value = vertices.size > 1` in `addLastVertex` should set it to true.
     viewModel.addLastVertex()
 
-    assertThat(viewModel.isTooClose.value).isTrue()
+    assertThat(viewModel.sessionState.value.isTooClose).isTrue()
   }
 
   @Test
@@ -382,7 +382,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     updateLastVertexAndAdd(COORDINATE_1)
 
     // Only 1 vertex.
-    assertThat(viewModel.isTooClose.value).isFalse()
+    assertThat(viewModel.sessionState.value.isTooClose).isFalse()
   }
 
   @Test

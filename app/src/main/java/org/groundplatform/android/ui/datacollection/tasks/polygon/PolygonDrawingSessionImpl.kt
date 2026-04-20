@@ -32,13 +32,15 @@ class PolygonDrawingSessionImpl : PolygonDrawingSession {
     get() = _redoVertexStack
 
   private var _isTooClose: Boolean = false
-  override val isTooClose: Boolean
-    get() = _isTooClose
+  private var _isMarkedComplete: Boolean = false
+
+  override val state: PolygonDrawingSession.State
+    get() = PolygonDrawingSession.State(_isTooClose, _isMarkedComplete)
 
   override val hasSelfIntersection: Boolean
     get() = isSelfIntersecting(_vertices)
 
-  override fun addVertex(vertex: Coordinates, shouldOverwriteLastVertex: Boolean) {
+  private fun addVertex(vertex: Coordinates, shouldOverwriteLastVertex: Boolean) {
     val updatedVertices = _vertices.toMutableList()
 
     if (shouldOverwriteLastVertex && updatedVertices.isNotEmpty()) {
@@ -90,7 +92,7 @@ class PolygonDrawingSessionImpl : PolygonDrawingSession {
     return intersected
   }
 
-  override fun validatePolygonCompletion(): Boolean {
+  override fun isValidPolygon(): Boolean {
     if (_vertices.size < 3) {
       return false
     }
@@ -103,6 +105,10 @@ class PolygonDrawingSessionImpl : PolygonDrawingSession {
       }
 
     return !isSelfIntersecting(ring)
+  }
+
+  override fun setMarkedComplete(complete: Boolean) {
+    _isMarkedComplete = complete
   }
 
   override fun removeLastVertex(): Boolean {

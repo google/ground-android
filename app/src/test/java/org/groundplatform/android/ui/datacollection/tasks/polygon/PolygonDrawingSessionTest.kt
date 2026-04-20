@@ -43,25 +43,6 @@ class PolygonDrawingSessionTest {
   }
 
   @Test
-  fun `addVertex adds vertex to list`() {
-    session.addVertex(COORDINATE_1, false)
-    assertThat(session.vertices).containsExactly(COORDINATE_1)
-  }
-
-  @Test
-  fun `addVertex can overwrite last vertex`() {
-    session.addVertex(COORDINATE_1, false)
-    session.addVertex(COORDINATE_2, true)
-    assertThat(session.vertices).containsExactly(COORDINATE_2)
-  }
-
-  @Test
-  fun `addVertex with overwrite does nothing if empty`() {
-    session.addVertex(COORDINATE_1, true)
-    assertThat(session.vertices).containsExactly(COORDINATE_1)
-  }
-
-  @Test
   fun `updateTentativeVertex adds vertex when empty`() {
     session.updateTentativeVertex(COORDINATE_1) { _, _ -> DISTANCE_ABOVE_THRESHOLD }
     assertThat(session.vertices).containsExactly(COORDINATE_1)
@@ -69,7 +50,7 @@ class PolygonDrawingSessionTest {
 
   @Test
   fun `updateTentativeVertex overwrites last vertex`() {
-    session.addVertex(COORDINATE_1, false)
+    session.setVertices(listOf(COORDINATE_1))
     session.updateTentativeVertex(COORDINATE_2) { _, _ -> DISTANCE_ABOVE_THRESHOLD }
     assertThat(session.vertices).containsExactly(COORDINATE_2)
   }
@@ -98,7 +79,7 @@ class PolygonDrawingSessionTest {
 
     // Target is close to COORDINATE_2
     session.updateTentativeVertex(COORDINATE_3) { _, _ -> DISTANCE_BELOW_THRESHOLD }
-    assertThat(session.isTooClose).isTrue()
+    assertThat(session.state.isTooClose).isTrue()
   }
 
   @Test
@@ -107,12 +88,12 @@ class PolygonDrawingSessionTest {
 
     // Target is far from COORDINATE_2
     session.updateTentativeVertex(COORDINATE_3) { _, _ -> DISTANCE_ABOVE_THRESHOLD }
-    assertThat(session.isTooClose).isFalse()
+    assertThat(session.state.isTooClose).isFalse()
   }
 
   @Test
   fun `commitTentativeVertex clears redo stack`() {
-    session.addVertex(COORDINATE_1, false)
+    session.setVertices(listOf(COORDINATE_1))
     session.removeLastVertex()
     assertThat(session.redoVertexStack).isNotEmpty()
 
@@ -162,7 +143,7 @@ class PolygonDrawingSessionTest {
 
   @Test
   fun `clearRedoStack clears the stack`() {
-    session.addVertex(COORDINATE_1, false)
+    session.setVertices(listOf(COORDINATE_1))
     session.removeLastVertex()
     assertThat(session.redoVertexStack).isNotEmpty()
 
@@ -187,20 +168,20 @@ class PolygonDrawingSessionTest {
   @Test
   fun `validatePolygonCompletion returns false when size less than 3`() {
     session.setVertices(listOf(C1, C2))
-    assertThat(session.validatePolygonCompletion()).isFalse()
+    assertThat(session.isValidPolygon()).isFalse()
   }
 
   @Test
   fun `validatePolygonCompletion returns false when self-intersecting`() {
     session.setVertices(listOf(C1, C2, C3, C4))
-    assertThat(session.validatePolygonCompletion()).isFalse()
+    assertThat(session.isValidPolygon()).isFalse()
     assertThat(session.hasSelfIntersection).isTrue()
   }
 
   @Test
   fun `validatePolygonCompletion returns true when valid`() {
     session.setVertices(listOf(C1, C3, C2, C4))
-    assertThat(session.validatePolygonCompletion()).isTrue()
+    assertThat(session.isValidPolygon()).isTrue()
     assertThat(session.hasSelfIntersection).isFalse()
   }
 

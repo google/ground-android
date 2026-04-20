@@ -247,14 +247,14 @@ class DrawAreaTaskFragmentTest :
 
   /** Updates the last vertex of the polygon with the given vertex. */
   private fun updateLastVertex(coordinate: Coordinates, isNearFirstVertex: Boolean = false) {
-    val threshold = DrawAreaTaskViewModel.DISTANCE_THRESHOLD_DP.toDouble()
+    val threshold = PolygonDrawingSession.DISTANCE_THRESHOLD_DP.toDouble()
     val distanceInPixels = if (isNearFirstVertex) threshold else threshold + 1
     viewModel.updateLastVertexAndMaybeCompletePolygon(coordinate) { _, _ -> distanceInPixels }
   }
 
   /** Updates the last vertex of the polygon with the given vertex. */
   private fun updateCloseVertex(coordinate: Coordinates) {
-    val threshold = DrawAreaTaskViewModel.DISTANCE_THRESHOLD_DP.toDouble()
+    val threshold = PolygonDrawingSession.DISTANCE_THRESHOLD_DP.toDouble()
     viewModel.updateLastVertexAndMaybeCompletePolygon(coordinate) { _, _ -> threshold }
   }
 

@@ -20,26 +20,19 @@ import org.groundplatform.domain.model.geometry.Coordinates
 /** Encapsulates the state and basic operations for a polygon drawing session. */
 interface PolygonDrawingSession {
 
+  data class State(val isTooClose: Boolean = false, val isMarkedComplete: Boolean = false)
+
+  /** The current state of the session. */
+  val state: State
+
   /** The list of committed vertices in the current drawing session. */
   val vertices: List<Coordinates>
 
   /** The stack of vertices that have been removed and can be redone. */
   val redoVertexStack: List<Coordinates>
 
-  /** Whether the current tentative vertex is too close to the previous one. */
-  val isTooClose: Boolean
-
   /** Whether the current polygon geometry self-intersects. */
   val hasSelfIntersection: Boolean
-
-  /**
-   * Adds a new vertex to the polygon.
-   *
-   * @param vertex The coordinates of the vertex to add.
-   * @param shouldOverwriteLastVertex If true, the last vertex will be replaced by the new one. This
-   *   is typically used for updating the transient vertex following the camera.
-   */
-  fun addVertex(vertex: Coordinates, shouldOverwriteLastVertex: Boolean)
 
   /**
    * Updates the tentative vertex of the session with snapping logic.
@@ -73,7 +66,10 @@ interface PolygonDrawingSession {
    *
    * @return true if valid for completion, false otherwise.
    */
-  fun validatePolygonCompletion(): Boolean
+  fun isValidPolygon(): Boolean
+
+  /** Sets whether the polygon is marked as complete. */
+  fun setMarkedComplete(complete: Boolean)
 
   /**
    * Attempts to remove the last vertex of the drawn polygon. The removed vertex is added to the
