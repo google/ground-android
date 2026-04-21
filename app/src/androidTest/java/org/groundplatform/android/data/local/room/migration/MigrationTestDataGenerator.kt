@@ -62,4 +62,29 @@ object MigrationTestDataGenerator {
       put("task_id", "someOtherTask")
       put("expression_type", 1)
     }
+
+  fun getLocationOfInterestMutationContentValues(
+    id: Long,
+    state: Int,
+    surveyId: String = "survey",
+    loiId: String = "loi",
+    jobId: String = "job",
+    userId: String = "user",
+    collectionId: String = "collection",
+  ): ContentValues =
+    ContentValues().apply {
+      put("id", id)
+      put("survey_id", surveyId)
+      put("type", 1) // CREATE
+      put("state", state)
+      put("retry_count", 0L)
+      put("last_error", "")
+      put("user_id", userId)
+      put("client_timestamp", 0L)
+      put("location_of_interest_id", loiId)
+      put("job_id", jobId)
+      put("collection_id", collectionId)
+      put("newProperties", "{}")
+      put("newCustomId", "")
+    }
 }

@@ -177,7 +177,12 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
   fun `Enqueues media upload worker when any mutation has pending photos`() =
     runWithTestDispatcher {
       val jobWithPhotoTask =
-        TEST_JOB.copy(tasks = mapOf("photoTaskId" to FakeDataGenerator.newTask(id = "photoTaskId", type = Task.Type.PHOTO)))
+        TEST_JOB.copy(
+          tasks =
+            mapOf(
+              "photoTaskId" to FakeDataGenerator.newTask(id = "photoTaskId", type = Task.Type.PHOTO)
+            )
+        )
       localSurveyStore.insertOrUpdateSurvey(
         TEST_SURVEY.copy(jobMap = mapOf(jobWithPhotoTask.id to jobWithPhotoTask))
       )

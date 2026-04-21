@@ -209,6 +209,6 @@ object FakeDataGenerator {
       clientTimestamp = timestamp,
       retryCount = retryCount,
       lastError = lastError,
-      deltas = deltas
+      deltas = deltas,
     )
 }
