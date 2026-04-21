@@ -37,7 +37,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.groundplatform.android.data.sync.MediaUploadWorkManager
 import org.groundplatform.android.data.sync.MutationSyncWorkManager
-import org.groundplatform.android.repository.MutationRepository
 import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.common.SharedViewModel
@@ -45,6 +44,7 @@ import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.User
 import org.groundplatform.domain.model.auth.SignInState
 import org.groundplatform.domain.model.submission.DraftSubmission
+import org.groundplatform.domain.repository.MutationRepositoryInterface
 import org.groundplatform.domain.repository.SubmissionRepositoryInterface
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
@@ -60,7 +60,7 @@ class HomeScreenViewModel
 internal constructor(
   private val offlineAreaRepository: OfflineAreaRepository,
   private val submissionRepository: SubmissionRepositoryInterface,
-  private val mutationRepository: MutationRepository,
+  private val mutationRepository: MutationRepositoryInterface,
   private val mutationSyncWorkManager: MutationSyncWorkManager,
   private val mediaUploadWorkManager: MediaUploadWorkManager,
   val surveyRepository: SurveyRepositoryInterface,

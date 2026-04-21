@@ -15,6 +15,7 @@
  */
 package org.groundplatform.testing
 
+import kotlin.time.Clock
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.User
 import org.groundplatform.domain.model.geometry.Coordinates
@@ -23,7 +24,12 @@ import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.job.Style
 import org.groundplatform.domain.model.locationofinterest.AuditInfo
+import org.groundplatform.domain.model.locationofinterest.LOI_NAME_PROPERTY
 import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
+import org.groundplatform.domain.model.mutation.LocationOfInterestMutation
+import org.groundplatform.domain.model.mutation.Mutation
+import org.groundplatform.domain.model.mutation.Mutation.SyncStatus.PENDING
+import org.groundplatform.domain.model.mutation.SubmissionMutation
 import org.groundplatform.domain.model.settings.MeasurementUnits
 import org.groundplatform.domain.model.settings.UserSettings
 import org.groundplatform.domain.model.submission.DraftSubmission
@@ -32,6 +38,7 @@ import org.groundplatform.domain.model.task.Condition
 import org.groundplatform.domain.model.task.MultipleChoice
 import org.groundplatform.domain.model.task.Task
 
+@Suppress("StringLiteralDuplication")
 object FakeDataGenerator {
   fun newUser(): User = User("user id", "", "User")
 
@@ -140,5 +147,65 @@ object FakeDataGenerator {
       multipleChoice = multipleChoice,
       isAddLoiTask = isAddLoiTask,
       condition = condition,
+    )
+
+  fun newLoiMutation(
+    id: Long = 1L,
+    mutationType: Mutation.Type = Mutation.Type.CREATE,
+    syncStatus: Mutation.SyncStatus = PENDING,
+    surveyId: String = "survey id",
+    locationOfInterestId: String = "loi id",
+    userId: String = "user id",
+    jobId: String = "job id",
+    timestamp: Long = Clock.System.now().toEpochMilliseconds(),
+    collectionId: String = "",
+    properties: Map<String, String> = mapOf(LOI_NAME_PROPERTY to "Test LOI Name"),
+    geometry: Geometry = Point(Coordinates(0.0, 0.0)),
+    retryCount: Long = 0,
+    lastError: String = "",
+  ) =
+    LocationOfInterestMutation(
+      id = id,
+      type = mutationType,
+      syncStatus = syncStatus,
+      surveyId = surveyId,
+      locationOfInterestId = locationOfInterestId,
+      jobId = jobId,
+      userId = userId,
+      clientTimestamp = timestamp,
+      collectionId = collectionId,
+      geometry = geometry,
+      properties = properties,
+      retryCount = retryCount,
+      lastError = lastError,
+    )
+
+  fun newSubmissionMutation(
+    id: Long = 1L,
+    surveyId: String = "survey id",
+    loiId: String = "loi id",
+    submissionId: String = "submission id",
+    userId: String = "user id",
+    collectionId: String = "",
+    job: Job = newJob(),
+    syncStatus: Mutation.SyncStatus = PENDING,
+    mutationType: Mutation.Type = Mutation.Type.CREATE,
+    timestamp: Long = Clock.System.now().toEpochMilliseconds(),
+    retryCount: Long = 0,
+    lastError: String = "",
+  ): SubmissionMutation =
+    SubmissionMutation(
+      id = id,
+      type = mutationType,
+      syncStatus = syncStatus,
+      surveyId = surveyId,
+      locationOfInterestId = loiId,
+      userId = userId,
+      collectionId = collectionId,
+      job = job,
+      submissionId = submissionId,
+      clientTimestamp = timestamp,
+      retryCount = retryCount,
+      lastError = lastError,
     )
 }

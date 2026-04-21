@@ -27,9 +27,9 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import org.groundplatform.android.data.remote.RemoteDataStore
 import org.groundplatform.android.di.coroutines.IoDispatcher
-import org.groundplatform.android.repository.MutationRepository
 import org.groundplatform.android.util.priority
 import org.groundplatform.domain.model.mutation.Mutation
+import org.groundplatform.domain.repository.MutationRepositoryInterface
 import timber.log.Timber
 
 /**
@@ -42,7 +42,7 @@ class LocalMutationSyncWorker
 constructor(
   @Assisted context: Context,
   @Assisted params: WorkerParameters,
-  private val mutationRepository: MutationRepository,
+  private val mutationRepository: MutationRepositoryInterface,
   private val mediaUploadWorkManager: MediaUploadWorkManager,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : CoroutineWorker(context, params) {

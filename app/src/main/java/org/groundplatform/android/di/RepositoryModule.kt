@@ -22,11 +22,13 @@ import dagger.hilt.components.SingletonComponent
 import jakarta.inject.Singleton
 import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.MapStateRepository
+import org.groundplatform.android.repository.MutationRepository
 import org.groundplatform.android.repository.SubmissionRepository
 import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import org.groundplatform.domain.repository.MapStateRepositoryInterface
+import org.groundplatform.domain.repository.MutationRepositoryInterface
 import org.groundplatform.domain.repository.SubmissionRepositoryInterface
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
@@ -69,4 +71,12 @@ abstract class MapStateRepositoryModule {
   @Binds
   @Singleton
   abstract fun bindMapStateRepository(impl: MapStateRepository): MapStateRepositoryInterface
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class MutationRepositoryModule {
+  @Binds
+  @Singleton
+  abstract fun bindMutationRepository(impl: MutationRepository): MutationRepositoryInterface
 }

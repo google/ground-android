@@ -40,7 +40,6 @@ import org.groundplatform.android.data.local.room.converter.SubmissionDeltasConv
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.data.sync.MutationSyncWorkManager
 import org.groundplatform.android.getString
-import org.groundplatform.android.repository.MutationRepository
 import org.groundplatform.android.testrules.FragmentScenarioRule
 import org.groundplatform.android.ui.datacollection.tasks.point.DropPinTaskViewModel
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
@@ -60,6 +59,7 @@ import org.groundplatform.domain.model.task.MultipleChoice
 import org.groundplatform.domain.model.task.Option
 import org.groundplatform.domain.model.task.Task
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
+import org.groundplatform.domain.repository.MutationRepositoryInterface
 import org.groundplatform.domain.repository.SubmissionRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
 import org.junit.Assert.assertTrue
@@ -80,7 +80,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   @Inject lateinit var activateSurvey: ActivateSurveyUseCase
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
   @Inject lateinit var loiRepository: LocationOfInterestRepositoryInterface
-  @Inject lateinit var mutationRepository: MutationRepository
+  @Inject lateinit var mutationRepository: MutationRepositoryInterface
   @Inject lateinit var submissionRepository: SubmissionRepositoryInterface
   @Inject lateinit var userRepository: UserRepositoryInterface
 

@@ -34,10 +34,12 @@ import org.groundplatform.android.data.local.stores.LocalLocationOfInterestStore
 import org.groundplatform.android.data.local.stores.LocalSubmissionStore
 import org.groundplatform.android.data.local.stores.LocalSurveyStore
 import org.groundplatform.android.data.local.stores.LocalUserStore
+import org.groundplatform.android.proto.geometry
 import org.groundplatform.android.ui.map.gms.GmsExt.getShellCoordinates
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.User
 import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.geometry.LineString
 import org.groundplatform.domain.model.geometry.LinearRing
 import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.geometry.Polygon
@@ -49,6 +51,7 @@ import org.groundplatform.domain.model.mutation.SubmissionMutation
 import org.groundplatform.domain.model.submission.TextTaskData
 import org.groundplatform.domain.model.submission.ValueDelta
 import org.groundplatform.domain.model.task.Task
+import org.groundplatform.testing.FakeDataGenerator
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -305,8 +308,9 @@ class LocalLocationOfInterestStoreTest : BaseHiltTest() {
         Coordinates(49.863051, 8.647306),
         Coordinates(49.865374, 8.646920),
       )
-    private val TEST_LOI_MUTATION = FakeData.newLoiMutation(TEST_POINT)
-    private val TEST_POLYGON_LOI_MUTATION = FakeData.newAoiMutation(TEST_POLYGON_1)
+    private val TEST_LOI_MUTATION = FakeDataGenerator.newLoiMutation(geometry = TEST_POINT)
+    private val TEST_POLYGON_LOI_MUTATION =
+      FakeDataGenerator.newLoiMutation(geometry = LineString(TEST_POLYGON_1))
     private val TEST_SUBMISSION_MUTATION =
       SubmissionMutation(
         job = TEST_JOB,
