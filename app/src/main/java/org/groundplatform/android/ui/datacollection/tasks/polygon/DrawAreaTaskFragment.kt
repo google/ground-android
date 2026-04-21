@@ -18,16 +18,19 @@ package org.groundplatform.android.ui.datacollection.tasks.polygon
 import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import javax.inject.Provider
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.mapNotNull
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.components.ConfirmationDialog
 import org.groundplatform.android.ui.datacollection.components.InstructionData
 import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.groundplatform.android.ui.datacollection.components.TaskMapFragmentContainer
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
+import org.groundplatform.android.ui.datacollection.tasks.launchWhenTaskVisible
 
 @AndroidEntryPoint
 class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawAreaTaskViewModel>() {
@@ -45,7 +48,7 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
 
   @Composable
   override fun TaskBody() {
-    var showSelfIntersectionDialog by viewModel.showSelfIntersectionDialog
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     TaskMapFragmentContainer(
       taskId = viewModel.task.id,
@@ -53,13 +56,13 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
       fragmentProvider = drawAreaTaskMapFragmentProvider,
     )
 
-    if (showSelfIntersectionDialog) {
+    if (uiState.isSelfIntersectionDetected) {
       ConfirmationDialog(
         title = R.string.polygon_vertex_add_dialog_title,
         description = R.string.polygon_vertex_add_dialog_message,
         confirmButtonText = R.string.polygon_vertex_add_dialog_positive_button,
         dismissButtonText = null,
-        onConfirmClicked = { showSelfIntersectionDialog = false },
+        onConfirmClicked = { viewModel.dismissSelfIntersectionDialog() },
       )
     }
   }
@@ -68,9 +71,19 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
     if (isVisible && !viewModel.instructionsDialogShown) {
       viewModel.showInstructions()
     }
-    viewModel.polygonArea.observe(viewLifecycleOwner) { area ->
-      Toast.makeText(requireContext(), getString(R.string.area_message, area), Toast.LENGTH_LONG)
-        .show()
+
+    launchWhenTaskVisible(dataCollectionViewModel, viewModel.task.id) {
+      viewModel.uiState
+        .mapNotNull { it.polygonArea }
+        .distinctUntilChanged()
+        .collect { area ->
+          Toast.makeText(
+              requireContext(),
+              getString(R.string.area_message, area),
+              Toast.LENGTH_LONG,
+            )
+            .show()
+        }
     }
   }
 

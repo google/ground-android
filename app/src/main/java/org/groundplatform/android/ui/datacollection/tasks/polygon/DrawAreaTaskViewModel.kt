@@ -15,9 +15,6 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.polygon
 
-import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
 import kotlinx.collections.immutable.toImmutableList
@@ -33,6 +30,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.data.local.LocalValueStore
@@ -68,6 +66,23 @@ import timber.log.Timber
 
 /** Min. distance between the last two vertices required for distance tooltip to be shown shown. */
 const val TOOLTIP_MIN_DISTANCE_METERS = 0.1
+
+/**
+ * Represents the transient UI state of the Draw Area task.
+ *
+ * @property isTooClose True if the last placed vertex is too close to the previous one, preventing
+ *   further actions.
+ * @property isSelfIntersectionDetected True if a self-intersection was detected, triggering an
+ *   error dialog.
+ * @property isMarkedComplete True if the polygon has been completed and confirmed.
+ * @property polygonArea The formatted area of the completed polygon, or null if not available.
+ */
+data class DrawAreaUiState(
+  val isTooClose: Boolean = false,
+  val isSelfIntersectionDetected: Boolean = false,
+  val isMarkedComplete: Boolean = false,
+  val polygonArea: String? = null,
+)
 
 @SharedViewModel
 class DrawAreaTaskViewModel
@@ -117,8 +132,8 @@ internal constructor(
   /** Whether the instructions dialog has been shown or not. */
   var instructionsDialogShown: Boolean by localValueStore::drawAreaInstructionsShown
 
-  private val _polygonArea = MutableLiveData<String>()
-  val polygonArea: LiveData<String> = _polygonArea
+  private val _uiState = MutableStateFlow(DrawAreaUiState())
+  val uiState: StateFlow<DrawAreaUiState> = _uiState.asStateFlow()
 
   private var currentCameraTarget: Coordinates? = null
 
@@ -126,39 +141,33 @@ internal constructor(
    * User-specified vertices of the area being drawn. If [isMarkedComplete] is false, then the last
    * vertex represents the map center and the second last vertex is the last added vertex.
    */
-  private var vertices: List<Coordinates> = listOf()
+  private val vertices: List<Coordinates>
+    get() =
+      when (val data = taskTaskData.value) {
+        is DrawAreaTaskIncompleteData -> data.lineString.coordinates
+        is DrawAreaTaskData -> data.area.getShellCoordinates()
+        else -> emptyList()
+      }
 
   /** Stack of vertices that have been removed. */
   private val _redoVertexStack = mutableListOf<Coordinates>()
   val redoVertexStack: List<Coordinates>
     get() = _redoVertexStack
 
-  /** Represents whether the user has completed drawing the polygon or not. */
-  private val _isMarkedComplete = MutableStateFlow(false)
-  val isMarkedComplete: StateFlow<Boolean> = _isMarkedComplete.asStateFlow()
-
-  private val _isTooClose = MutableStateFlow(false)
-  val isTooClose: StateFlow<Boolean> = _isTooClose.asStateFlow()
-
-  val showSelfIntersectionDialog = mutableStateOf(false)
-
-  var hasSelfIntersection: Boolean = false
-    private set
-
   private lateinit var featureStyle: Feature.Style
   lateinit var measurementUnits: MeasurementUnits
 
   override val taskActionButtonStates: StateFlow<List<ButtonActionState>> by lazy {
-    combine(taskTaskData, merge(draftArea, draftUpdates)) { taskData, currentFeature ->
+    combine(taskTaskData, merge(draftArea, draftUpdates), uiState) { taskData, currentFeature, ui ->
         val isClosed = (currentFeature?.geometry as? LineString)?.isClosed() ?: false
         listOfNotNull(
           getPreviousButton(),
           getSkipButton(taskData),
           getUndoButton(taskData, true),
           getRedoButton(taskData),
-          getAddPointButton(isClosed, isTooClose.value),
-          getCompleteButton(isClosed, isMarkedComplete.value, hasSelfIntersection),
-          getNextButton(taskData).takeIf { isMarkedComplete() },
+          getAddPointButton(isClosed, ui.isTooClose),
+          getCompleteButton(isClosed, ui.isMarkedComplete, ui.isSelfIntersectionDetected),
+          getNextButton(taskData).takeIf { ui.isMarkedComplete },
         )
       }
       .distinctUntilChanged()
@@ -199,12 +208,16 @@ internal constructor(
     }
   }
 
-  fun isMarkedComplete(): Boolean = isMarkedComplete.value
+  fun isMarkedComplete(): Boolean = uiState.value.isMarkedComplete
 
   @VisibleForTesting fun getLastVertex() = vertices.lastOrNull()
 
   private fun onSelfIntersectionDetected() {
-    showSelfIntersectionDialog.value = true
+    _uiState.update { it.copy(isSelfIntersectionDetected = true) }
+  }
+
+  fun dismissSelfIntersectionDialog() {
+    _uiState.update { it.copy(isSelfIntersectionDetected = false) }
   }
 
   /**
@@ -216,7 +229,7 @@ internal constructor(
     target: Coordinates,
     calculateDistanceInPixels: (c1: Coordinates, c2: Coordinates) -> Double,
   ) {
-    check(!isMarkedComplete.value) {
+    check(!uiState.value.isMarkedComplete) {
       "Attempted to update last vertex after completing the drawing"
     }
 
@@ -231,36 +244,33 @@ internal constructor(
     }
 
     val prev = vertices.dropLast(1).lastOrNull()
-    _isTooClose.value =
+    val isTooClose =
       vertices.size > 1 &&
         prev?.let { calculateDistanceInPixels(it, target) <= DISTANCE_THRESHOLD_DP } == true
+    _uiState.update { it.copy(isTooClose = isTooClose) }
 
     addVertex(updatedTarget, true)
   }
 
-  /** Attempts to remove the last vertex of drawn polygon, if any. */
-  @VisibleForTesting
   fun removeLastVertex() {
     // Do nothing if there are no vertices to remove.
     if (vertices.isEmpty()) return
 
     // Reset complete status
-    _isMarkedComplete.value = false
+    _uiState.update { it.copy(isMarkedComplete = false) }
 
-    _redoVertexStack.add(vertices.last())
+    val lastRemoved = vertices.last()
+    _redoVertexStack.add(lastRemoved)
 
     // Remove last vertex and update polygon
-    val updatedVertices = vertices.toMutableList().apply { removeAt(lastIndex) }.toImmutableList()
+    val updatedVertices = vertices.dropLast(1).toImmutableList()
 
     // Render changes to UI
-    updateVertices(updatedVertices)
-
-    // Update saved response.
     if (updatedVertices.isEmpty()) {
       setValue(null)
-      _redoVertexStack.clear()
+      refreshMap()
     } else {
-      setValue(DrawAreaTaskIncompleteData(LineString(updatedVertices)))
+      updateVertices(updatedVertices)
     }
   }
 
@@ -270,16 +280,13 @@ internal constructor(
       return
     }
 
-    _isMarkedComplete.value = false
+    _uiState.update { it.copy(isMarkedComplete = false) }
 
     val redoVertex = _redoVertexStack.removeAt(_redoVertexStack.lastIndex)
 
-    val mutableVertices = vertices.toMutableList()
-    mutableVertices.add(redoVertex)
-    val updatedVertices = mutableVertices.toImmutableList()
+    val updatedVertices = (vertices + redoVertex).toImmutableList()
 
     updateVertices(updatedVertices)
-    setValue(DrawAreaTaskIncompleteData(LineString(updatedVertices)))
   }
 
   fun onCameraMoved(newTarget: Coordinates) {
@@ -289,16 +296,17 @@ internal constructor(
   /** Adds the last vertex to the polygon. */
   @VisibleForTesting
   fun addLastVertex() {
-    check(!isMarkedComplete.value) { "Attempted to add last vertex after completing the drawing" }
+    check(!uiState.value.isMarkedComplete) {
+      "Attempted to add last vertex after completing the drawing"
+    }
     _redoVertexStack.clear()
     val vertex = vertices.lastOrNull() ?: currentCameraTarget
     vertex?.let {
-      _isTooClose.value = vertices.size > 1
+      _uiState.update { it.copy(isTooClose = vertices.size > 1) }
       addVertex(it, false)
     }
   }
 
-  /** Adds a new vertex to the polygon. */
   private fun addVertex(vertex: Coordinates, shouldOverwriteLastVertex: Boolean) {
     val updatedVertices = vertices.toMutableList()
 
@@ -310,22 +318,17 @@ internal constructor(
     // Add the new vertex
     updatedVertices.add(vertex)
 
-    // Render changes to UI
+    // Render changes to UI (and save to domain model via updateVertices)
     updateVertices(updatedVertices.toImmutableList())
-
-    // Save response if it is user initiated
-    if (!shouldOverwriteLastVertex) {
-      setValue(DrawAreaTaskIncompleteData(LineString(updatedVertices.toImmutableList())))
-    }
   }
 
   private fun checkVertexIntersection(): Boolean {
-    hasSelfIntersection = isSelfIntersecting(vertices)
-    if (hasSelfIntersection) {
-      vertices = vertices.dropLast(1)
+    val intersected = isSelfIntersecting(vertices)
+    if (intersected) {
+      updateVertices(vertices.dropLast(1).toImmutableList())
       onSelfIntersectionDetected()
     }
-    return hasSelfIntersection
+    return intersected
   }
 
   private fun validatePolygonCompletion(): Boolean {
@@ -340,8 +343,8 @@ internal constructor(
         vertices
       }
 
-    hasSelfIntersection = isSelfIntersecting(ring)
-    if (hasSelfIntersection) {
+    val intersected = isSelfIntersecting(ring)
+    if (intersected) {
       onSelfIntersectionDetected()
       return false
     }
@@ -349,21 +352,23 @@ internal constructor(
   }
 
   private fun updateVertices(newVertices: List<Coordinates>) {
-    this.vertices = newVertices
+    setValue(DrawAreaTaskIncompleteData(LineString(newVertices.toImmutableList())))
     refreshMap()
   }
 
   @VisibleForTesting
   fun completePolygon() {
     check(LineString(vertices).isClosed()) { "Polygon is not complete" }
-    check(!isMarkedComplete.value) { "Already marked complete" }
+    check(!uiState.value.isMarkedComplete) { "Already marked complete" }
 
-    _isMarkedComplete.value = true
+    _uiState.update { it.copy(isMarkedComplete = true) }
 
     refreshMap()
     setValue(DrawAreaTaskData(Polygon(LinearRing(vertices))))
     val areaInSquareMeters = calculateShoelacePolygonArea(vertices)
-    _polygonArea.value = getFormattedArea(areaInSquareMeters, measurementUnits)
+    _uiState.update {
+      it.copy(polygonArea = getFormattedArea(areaInSquareMeters, measurementUnits))
+    }
   }
 
   /**
@@ -410,7 +415,7 @@ internal constructor(
 
   /** Returns the distance in meters between the last two vertices for displaying in the tooltip. */
   private fun getDistanceTooltipText(): String? {
-    if (isMarkedComplete.value || vertices.size <= 1) return null
+    if (uiState.value.isMarkedComplete || vertices.size <= 1) return null
     val distance = vertices.penult().distanceTo(vertices.last())
     if (distance < TOOLTIP_MIN_DISTANCE_METERS) return null
     return localeAwareMeasureFormatter.formatDistance(distance, measurementUnits)

@@ -274,7 +274,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
 
     viewModel.completePolygon()
 
-    with(viewModel.polygonArea.value) {
+    with(viewModel.uiState.value.polygonArea) {
       assert((this?.split(" ")?.first()?.toDouble() ?: 0.0) > 0.0)
       assertEquals(this?.endsWith("ha"), true)
     }
@@ -292,7 +292,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
 
     viewModel.completePolygon()
 
-    with(viewModel.polygonArea.value) {
+    with(viewModel.uiState.value.polygonArea) {
       assert((this?.split(" ")?.first()?.toDouble() ?: 0.0) > 0.0)
       assertEquals(this?.endsWith("ac"), true)
     }
@@ -399,7 +399,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
       DISTANCE_THRESHOLD_DP.toDouble()
     }
 
-    assertThat(viewModel.isTooClose.value).isTrue()
+    assertThat(viewModel.uiState.value.isTooClose).isTrue()
   }
 
   @Test
@@ -412,7 +412,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
       DISTANCE_THRESHOLD_DP.toDouble() + 1
     }
 
-    assertThat(viewModel.isTooClose.value).isFalse()
+    assertThat(viewModel.uiState.value.isTooClose).isFalse()
   }
 
   @Test
@@ -425,7 +425,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     // The logic `_isTooClose.value = vertices.size > 1` in `addLastVertex` should set it to true.
     viewModel.addLastVertex()
 
-    assertThat(viewModel.isTooClose.value).isTrue()
+    assertThat(viewModel.uiState.value.isTooClose).isTrue()
   }
 
   @Test
@@ -434,7 +434,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     updateLastVertexAndAdd(COORDINATE_1)
 
     // Only 1 vertex.
-    assertThat(viewModel.isTooClose.value).isFalse()
+    assertThat(viewModel.uiState.value.isTooClose).isFalse()
   }
 
   @Test

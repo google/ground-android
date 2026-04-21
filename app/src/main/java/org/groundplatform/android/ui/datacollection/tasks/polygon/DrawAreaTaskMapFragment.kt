@@ -20,7 +20,6 @@ import android.view.View
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment
@@ -38,9 +37,8 @@ class DrawAreaTaskMapFragment @Inject constructor() :
 
     launchWhenTaskVisible(dataCollectionViewModel, taskId) {
       launch {
-        combine(taskViewModel.isMarkedComplete, taskViewModel.isTooClose) { isComplete, tooClose ->
-            !tooClose && !isComplete
-          }
+        taskViewModel.uiState
+          .map { ui -> !ui.isTooClose && !ui.isMarkedComplete }
           .collect { shouldShow -> setCenterMarkerVisibility(shouldShow) }
       }
 
