@@ -15,12 +15,12 @@
  */
 package org.groundplatform.android.usecases.session
 
-import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 import org.groundplatform.android.data.local.room.LocalDatabase
 import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.InjectMocks
 import org.mockito.Mock

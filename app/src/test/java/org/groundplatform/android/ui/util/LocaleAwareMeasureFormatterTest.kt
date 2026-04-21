@@ -18,7 +18,7 @@ package org.groundplatform.android.ui.util
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
-import kotlin.test.Test
+import org.junit.Test
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.domain.model.settings.MeasurementUnits
 import org.junit.runner.RunWith
