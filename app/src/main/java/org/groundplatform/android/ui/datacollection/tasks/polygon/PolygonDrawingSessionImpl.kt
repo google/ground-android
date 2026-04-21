@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.polygon
 
+import androidx.annotation.VisibleForTesting
 import kotlinx.collections.immutable.toImmutableList
 import org.groundplatform.android.ui.datacollection.tasks.polygon.PolygonDrawingSession.Companion.DISTANCE_THRESHOLD_DP
 import org.groundplatform.domain.model.geometry.Coordinates
@@ -33,10 +34,8 @@ class PolygonDrawingSessionImpl : PolygonDrawingSession {
   override val vertices: List<Coordinates>
     get() = _vertices
 
-  private val _redoVertexStack = mutableListOf<Coordinates>()
-
-  internal val redoVertexStack: List<Coordinates>
-    get() = _redoVertexStack
+  @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+  internal val redoVertexStack = mutableListOf<Coordinates>()
 
   override val hasSelfIntersection: Boolean
     get() = isSelfIntersecting(_vertices)
@@ -80,7 +79,7 @@ class PolygonDrawingSessionImpl : PolygonDrawingSession {
   }
 
   override fun commitTentativeVertex(currentCameraTarget: Coordinates?): List<Coordinates>? {
-    _redoVertexStack.clear()
+    redoVertexStack.clear()
     val vertex = _vertices.lastOrNull() ?: currentCameraTarget
     return vertex?.let {
       _isTooClose = _vertices.size > 1
@@ -110,24 +109,24 @@ class PolygonDrawingSessionImpl : PolygonDrawingSession {
     if (_vertices.isEmpty()) return false
 
     _isMarkedComplete = false
-    _redoVertexStack.add(_vertices.last())
+    redoVertexStack.add(_vertices.last())
     _vertices = _vertices.dropLast(1).toImmutableList()
 
     if (_vertices.isEmpty()) {
-      _redoVertexStack.clear()
+      redoVertexStack.clear()
     }
 
     return true
   }
 
   override fun redoLastVertex(): Coordinates? {
-    if (_redoVertexStack.isEmpty()) return null
+    if (redoVertexStack.isEmpty()) return null
 
     _isMarkedComplete = false
-    val redoVertex = _redoVertexStack.removeAt(_redoVertexStack.lastIndex)
+    val redoVertex = redoVertexStack.removeAt(redoVertexStack.lastIndex)
     _vertices = (_vertices + redoVertex).toImmutableList()
     return redoVertex
   }
 
-  override fun canRedo(): Boolean = _redoVertexStack.isNotEmpty()
+  override fun canRedo(): Boolean = redoVertexStack.isNotEmpty()
 }
