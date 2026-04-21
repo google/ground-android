@@ -45,6 +45,7 @@ import org.groundplatform.domain.model.submission.SubmissionData
 import org.groundplatform.domain.model.submission.TextTaskData
 import org.groundplatform.domain.model.submission.ValueDelta
 import org.groundplatform.domain.model.task.Task
+import org.groundplatform.testing.FakeDataGenerator
 import org.hamcrest.MatcherAssert
 import org.hamcrest.Matchers
 import org.junit.Test
@@ -173,7 +174,7 @@ class LocalSubmissionStoreTest : BaseHiltTest() {
         generalAccess = FAKE_GENERAL_ACCESS,
       )
     private val TEST_POINT = Point(Coordinates(110.0, -23.1))
-    private val TEST_LOI_MUTATION = FakeData.newLoiMutation(TEST_POINT)
+    private val TEST_LOI_MUTATION = FakeDataGenerator.newLoiMutation(geometry = TEST_POINT)
     private val TEST_SUBMISSION_MUTATION =
       SubmissionMutation(
         job = TEST_JOB,
