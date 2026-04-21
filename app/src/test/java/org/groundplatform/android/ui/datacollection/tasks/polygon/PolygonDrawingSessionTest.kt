@@ -57,11 +57,32 @@ class PolygonDrawingSessionTest {
 
   @Test
   fun `updateTentativeVertex snaps to first vertex when close`() {
-    session.setVertices(listOf(COORDINATE_1, COORDINATE_2, COORDINATE_3))
+    session.setVertices(listOf(COORDINATE_1, COORDINATE_2, COORDINATE_3, COORDINATE_4))
 
     // Target is close to COORDINATE_1
     session.updateTentativeVertex(COORDINATE_4) { _, _ -> DISTANCE_BELOW_THRESHOLD }
     assertThat(session.vertices.last()).isEqualTo(COORDINATE_1)
+    assertThat(session.vertices.size).isEqualTo(4)
+  }
+
+  @Test
+  fun `updateTentativeVertex does not snap to first vertex when only 2 committed points`() {
+    session.setVertices(listOf(COORDINATE_1, COORDINATE_2, COORDINATE_3))
+
+    // Target is close to COORDINATE_1
+    session.updateTentativeVertex(COORDINATE_4) { _, _ -> DISTANCE_BELOW_THRESHOLD }
+    assertThat(session.vertices.last()).isEqualTo(COORDINATE_4)
+    assertThat(session.vertices.size).isEqualTo(3)
+  }
+
+  @Test
+  fun `updateTentativeVertex sets isTooClose true when close to first vertex and cannot close`() {
+    session.setVertices(listOf(COORDINATE_1, COORDINATE_2))
+
+    // Target is close to COORDINATE_1
+    session.updateTentativeVertex(COORDINATE_3) { _, _ -> DISTANCE_BELOW_THRESHOLD }
+    assertThat(session.state.isTooClose).isTrue()
+    assertThat(session.vertices.size).isEqualTo(2)
   }
 
   @Test

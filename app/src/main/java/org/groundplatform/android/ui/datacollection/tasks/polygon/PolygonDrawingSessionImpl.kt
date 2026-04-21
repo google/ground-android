@@ -62,7 +62,10 @@ class PolygonDrawingSessionImpl : PolygonDrawingSession {
   ) {
     val firstVertex = _vertices.firstOrNull()
     var updatedTarget = target
-    if (firstVertex != null && _vertices.size > 2) {
+
+    // Only allow snapping to the first vertex if we have at least 3 committed points.
+    // _vertices size includes the tentative vertex, so we need > 3.
+    if (firstVertex != null && _vertices.size > 3) {
       val distance = calculateDistance(firstVertex, target)
 
       if (distance <= DISTANCE_THRESHOLD_DP) {
@@ -70,10 +73,23 @@ class PolygonDrawingSessionImpl : PolygonDrawingSession {
       }
     }
 
-    val prev = _vertices.dropLast(1).lastOrNull()
-    _isTooClose =
-      _vertices.size > 1 &&
-        prev?.let { calculateDistance(it, target) <= DISTANCE_THRESHOLD_DP } == true
+    _vertices.dropLast(1)
+
+    if (_vertices.size > 1) {
+      val first = _vertices.first()
+      val prev = _vertices.last()
+
+      val closeToPrev = calculateDistance(prev, target) <= DISTANCE_THRESHOLD_DP
+      val closeToFirst = calculateDistance(first, target) <= DISTANCE_THRESHOLD_DP
+      val cannotClose = _vertices.size <= 3
+
+      // Prevent closing the polygon if we don't have enough committed points (need at least 3).
+      // If we are too close to the first vertex but cannot close, mark it as too close to prevent
+      // committing a degenerate shape.
+      _isTooClose = closeToPrev || (cannotClose && closeToFirst)
+    } else {
+      _isTooClose = false
+    }
 
     addVertex(updatedTarget, true)
   }
