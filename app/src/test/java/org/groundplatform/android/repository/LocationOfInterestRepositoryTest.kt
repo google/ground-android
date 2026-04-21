@@ -103,8 +103,14 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   fun `apply and enqueue when enqueues loi mutation`() = runWithTestDispatcher {
     locationOfInterestRepository.applyAndEnqueue(mutation)
 
-    mutationRepository.getSurveyMutationsFlow(TEST_SURVEY).test {
-      assertThat(expectMostRecentItem()).isEqualTo(listOf(mutation.copy(id = 1)))
+    mutationRepository.getUploadQueueFlow().test {
+      with(expectMostRecentItem().first()) {
+        assertThat(userId).isEqualTo(TEST_USER.id)
+        assertThat(clientTimestamp).isEqualTo(mutation.clientTimestamp)
+        assertThat(uploadStatus).isEqualTo(mutation.syncStatus)
+        assertThat(loiMutation).isEqualTo(mutation.copy(id = 1))
+        assertThat(submissionMutation).isNull()
+      }
     }
   }
 
