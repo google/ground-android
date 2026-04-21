@@ -131,7 +131,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
   @Test
   fun `Removing last vertex on no vertices does nothing`() {
     setupViewModel()
-    
+
     viewModel.removeLastVertex()
 
     assertGeometry(0)
@@ -225,9 +225,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     updateLastVertexAndAdd(COORDINATE_2)
     updateLastVertex(COORDINATE_3, false)
 
-    kotlin.test.assertFailsWith<IllegalStateException> {
-      viewModel.completePolygon()
-    }
+    kotlin.test.assertFailsWith<IllegalStateException> { viewModel.completePolygon() }
   }
 
   @Test
