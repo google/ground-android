@@ -20,7 +20,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -62,7 +61,6 @@ import org.groundplatform.domain.model.submission.isNotNullOrEmpty
 import org.groundplatform.domain.model.task.Task
 import org.groundplatform.domain.usecases.user.GetUserSettingsUseCase
 import org.groundplatform.domain.util.calculateShoelacePolygonArea
-import org.groundplatform.domain.util.isSelfIntersecting
 import org.jetbrains.annotations.VisibleForTesting
 import timber.log.Timber
 
@@ -122,43 +120,30 @@ internal constructor(
 
   private var currentCameraTarget: Coordinates? = null
 
-  /**
-   * User-specified vertices of the area being drawn. If [isMarkedComplete] is false, then the last
-   * vertex represents the map center and the second last vertex is the last added vertex.
-   */
-  private var vertices: List<Coordinates> = listOf()
+  private val session: PolygonDrawingSession = PolygonDrawingSessionImpl()
 
-  /** Stack of vertices that have been removed. */
-  private val _redoVertexStack = mutableListOf<Coordinates>()
-  val redoVertexStack: List<Coordinates>
-    get() = _redoVertexStack
-
-  /** Represents whether the user has completed drawing the polygon or not. */
-  private val _isMarkedComplete = MutableStateFlow(false)
-  val isMarkedComplete: StateFlow<Boolean> = _isMarkedComplete.asStateFlow()
-
-  private val _isTooClose = MutableStateFlow(false)
-  val isTooClose: StateFlow<Boolean> = _isTooClose.asStateFlow()
+  private val _sessionState = MutableStateFlow(PolygonDrawingSession.State())
+  val sessionState: StateFlow<PolygonDrawingSession.State> = _sessionState.asStateFlow()
 
   val showSelfIntersectionDialog = mutableStateOf(false)
-
-  var hasSelfIntersection: Boolean = false
-    private set
 
   private lateinit var featureStyle: Feature.Style
   lateinit var measurementUnits: MeasurementUnits
 
   override val taskActionButtonStates: StateFlow<List<ButtonActionState>> by lazy {
-    combine(taskTaskData, merge(draftArea, draftUpdates)) { taskData, currentFeature ->
+    combine(taskTaskData, merge(draftArea, draftUpdates), sessionState) {
+        taskData,
+        currentFeature,
+        sessionState ->
         val isClosed = (currentFeature?.geometry as? LineString)?.isClosed() ?: false
         listOfNotNull(
           getPreviousButton(),
           getSkipButton(taskData),
           getUndoButton(taskData, true),
           getRedoButton(taskData),
-          getAddPointButton(isClosed, isTooClose.value),
-          getCompleteButton(isClosed, isMarkedComplete.value, hasSelfIntersection),
-          getNextButton(taskData).takeIf { isMarkedComplete() },
+          getAddPointButton(isClosed, sessionState.isTooClose),
+          getCompleteButton(isClosed, sessionState.isMarkedComplete),
+          getNextButton(taskData).takeIf { sessionState.isMarkedComplete },
         )
       }
       .distinctUntilChanged()
@@ -199,9 +184,14 @@ internal constructor(
     }
   }
 
-  fun isMarkedComplete(): Boolean = isMarkedComplete.value
+  fun isMarkedComplete(): Boolean = sessionState.value.isMarkedComplete
 
-  @VisibleForTesting fun getLastVertex() = vertices.lastOrNull()
+  /** Returns the last vertex of the polygon, if any. */
+  @VisibleForTesting fun getLastVertex() = session.vertices.lastOrNull()
+
+  private fun syncSessionState() {
+    _sessionState.value = session.state
+  }
 
   private fun onSelfIntersectionDetected() {
     showSelfIntersectionDialog.value = true
@@ -216,70 +206,43 @@ internal constructor(
     target: Coordinates,
     calculateDistanceInPixels: (c1: Coordinates, c2: Coordinates) -> Double,
   ) {
-    check(!isMarkedComplete.value) {
+    check(!sessionState.value.isMarkedComplete) {
       "Attempted to update last vertex after completing the drawing"
     }
 
-    val firstVertex = vertices.firstOrNull()
-    var updatedTarget = target
-    if (firstVertex != null && vertices.size > 2) {
-      val distance = calculateDistanceInPixels(firstVertex, target)
-
-      if (distance <= DISTANCE_THRESHOLD_DP) {
-        updatedTarget = firstVertex
-      }
-    }
-
-    val prev = vertices.dropLast(1).lastOrNull()
-    _isTooClose.value =
-      vertices.size > 1 &&
-        prev?.let { calculateDistanceInPixels(it, target) <= DISTANCE_THRESHOLD_DP } == true
-
-    addVertex(updatedTarget, true)
+    session.updateTentativeVertex(target, calculateDistanceInPixels)
+    syncSessionState()
+    refreshMap()
   }
 
   /** Attempts to remove the last vertex of drawn polygon, if any. */
   @VisibleForTesting
   fun removeLastVertex() {
-    // Do nothing if there are no vertices to remove.
-    if (vertices.isEmpty()) return
+    val result = session.removeLastVertex()
+    if (!result) return
 
-    // Reset complete status
-    _isMarkedComplete.value = false
+    syncSessionState()
+    refreshMap()
 
-    _redoVertexStack.add(vertices.last())
-
-    // Remove last vertex and update polygon
-    val updatedVertices = vertices.toMutableList().apply { removeAt(lastIndex) }.toImmutableList()
-
-    // Render changes to UI
-    updateVertices(updatedVertices)
-
-    // Update saved response.
+    val updatedVertices = session.vertices
     if (updatedVertices.isEmpty()) {
       setValue(null)
-      _redoVertexStack.clear()
     } else {
       setValue(DrawAreaTaskIncompleteData(LineString(updatedVertices)))
     }
   }
 
   fun redoLastVertex() {
-    if (redoVertexStack.isEmpty()) {
+    if (!session.canRedo()) {
       Timber.e("redoVertexStack is already empty")
       return
     }
 
-    _isMarkedComplete.value = false
+    session.redoLastVertex()
+    syncSessionState()
 
-    val redoVertex = _redoVertexStack.removeAt(_redoVertexStack.lastIndex)
-
-    val mutableVertices = vertices.toMutableList()
-    mutableVertices.add(redoVertex)
-    val updatedVertices = mutableVertices.toImmutableList()
-
-    updateVertices(updatedVertices)
-    setValue(DrawAreaTaskIncompleteData(LineString(updatedVertices)))
+    refreshMap()
+    setValue(DrawAreaTaskIncompleteData(LineString(session.vertices)))
   }
 
   fun onCameraMoved(newTarget: Coordinates) {
@@ -289,80 +252,47 @@ internal constructor(
   /** Adds the last vertex to the polygon. */
   @VisibleForTesting
   fun addLastVertex() {
-    check(!isMarkedComplete.value) { "Attempted to add last vertex after completing the drawing" }
-    _redoVertexStack.clear()
-    val vertex = vertices.lastOrNull() ?: currentCameraTarget
-    vertex?.let {
-      _isTooClose.value = vertices.size > 1
-      addVertex(it, false)
+    check(!sessionState.value.isMarkedComplete) {
+      "Attempted to add last vertex after completing the drawing"
     }
-  }
-
-  /** Adds a new vertex to the polygon. */
-  private fun addVertex(vertex: Coordinates, shouldOverwriteLastVertex: Boolean) {
-    val updatedVertices = vertices.toMutableList()
-
-    // Maybe remove the last vertex before adding the new vertex.
-    if (shouldOverwriteLastVertex && updatedVertices.isNotEmpty()) {
-      updatedVertices.removeAt(updatedVertices.lastIndex)
-    }
-
-    // Add the new vertex
-    updatedVertices.add(vertex)
-
-    // Render changes to UI
-    updateVertices(updatedVertices.toImmutableList())
-
-    // Save response if it is user initiated
-    if (!shouldOverwriteLastVertex) {
-      setValue(DrawAreaTaskIncompleteData(LineString(updatedVertices.toImmutableList())))
+    val vertices = session.commitTentativeVertex(currentCameraTarget)
+    syncSessionState()
+    if (vertices != null) {
+      setValue(DrawAreaTaskIncompleteData(LineString(vertices)))
+      refreshMap()
     }
   }
 
   private fun checkVertexIntersection(): Boolean {
-    hasSelfIntersection = isSelfIntersecting(vertices)
-    if (hasSelfIntersection) {
-      vertices = vertices.dropLast(1)
+    val intersected = session.checkVertexIntersection()
+    if (intersected) {
       onSelfIntersectionDetected()
+      refreshMap()
     }
-    return hasSelfIntersection
+    return intersected
   }
 
-  private fun validatePolygonCompletion(): Boolean {
-    if (vertices.size < 3) {
-      return false
-    }
-
-    val ring =
-      if (vertices.first() != vertices.last()) {
-        vertices + vertices.first()
-      } else {
-        vertices
-      }
-
-    hasSelfIntersection = isSelfIntersecting(ring)
-    if (hasSelfIntersection) {
+  private fun isValidPolygon(): Boolean {
+    val valid = session.isValidPolygon()
+    if (!valid && session.hasSelfIntersection) {
       onSelfIntersectionDetected()
-      return false
     }
-    return true
+    return valid
   }
 
   private fun updateVertices(newVertices: List<Coordinates>) {
-    this.vertices = newVertices
+    session.setVertices(newVertices)
     refreshMap()
   }
 
   @VisibleForTesting
   fun completePolygon() {
-    check(LineString(vertices).isClosed()) { "Polygon is not complete" }
-    check(!isMarkedComplete.value) { "Already marked complete" }
-
-    _isMarkedComplete.value = true
+    session.complete()
+    syncSessionState()
 
     refreshMap()
-    setValue(DrawAreaTaskData(Polygon(LinearRing(vertices))))
-    val areaInSquareMeters = calculateShoelacePolygonArea(vertices)
+    setValue(DrawAreaTaskData(Polygon(LinearRing(session.vertices))))
+    val areaInSquareMeters = calculateShoelacePolygonArea(session.vertices)
     _polygonArea.value = getFormattedArea(areaInSquareMeters, measurementUnits)
   }
 
@@ -382,7 +312,7 @@ internal constructor(
    * This coroutine runs on [viewModelScope] to ensure lifecycle safety.
    */
   private fun refreshMap() = viewModelScope.launch {
-    if (vertices.isEmpty()) {
+    if (session.vertices.isEmpty()) {
       _draftArea.emit(null)
       draftTag = null
     } else {
@@ -401,7 +331,7 @@ internal constructor(
     Feature(
       id = id ?: uuidGenerator.generateUuid(),
       type = Feature.Type.USER_POLYGON,
-      geometry = LineString(vertices),
+      geometry = LineString(session.vertices),
       style = featureStyle,
       clusterable = false,
       selected = true,
@@ -410,8 +340,8 @@ internal constructor(
 
   /** Returns the distance in meters between the last two vertices for displaying in the tooltip. */
   private fun getDistanceTooltipText(): String? {
-    if (isMarkedComplete.value || vertices.size <= 1) return null
-    val distance = vertices.penult().distanceTo(vertices.last())
+    if (sessionState.value.isMarkedComplete || session.vertices.size <= 1) return null
+    val distance = session.vertices.penult().distanceTo(session.vertices.last())
     if (distance < TOOLTIP_MIN_DISTANCE_METERS) return null
     return localeAwareMeasureFormatter.formatDistance(distance, measurementUnits)
   }
@@ -431,7 +361,7 @@ internal constructor(
   private fun getRedoButton(taskData: TaskData?): ButtonActionState =
     ButtonActionState(
       action = ButtonAction.REDO,
-      isEnabled = redoVertexStack.isNotEmpty() && taskData.isNotNullOrEmpty(),
+      isEnabled = session.canRedo() && taskData.isNotNullOrEmpty(),
       isVisible = true,
     )
 
@@ -442,14 +372,10 @@ internal constructor(
       isVisible = !isPolygonClosed,
     )
 
-  private fun getCompleteButton(
-    isClosed: Boolean,
-    isMarkedComplete: Boolean,
-    hasSelfIntersection: Boolean,
-  ): ButtonActionState =
+  private fun getCompleteButton(isClosed: Boolean, isMarkedComplete: Boolean): ButtonActionState =
     ButtonActionState(
       action = ButtonAction.COMPLETE,
-      isEnabled = isClosed && !isMarkedComplete && !hasSelfIntersection,
+      isEnabled = isClosed && !isMarkedComplete && !session.hasSelfIntersection,
       isVisible = isClosed && !isMarkedComplete,
     )
 
@@ -469,7 +395,7 @@ internal constructor(
         if (!intersected) triggerVibration()
       }
       ButtonAction.COMPLETE -> {
-        if (validatePolygonCompletion()) {
+        if (isValidPolygon()) {
           completePolygon()
         }
       }
@@ -477,10 +403,5 @@ internal constructor(
         super.onButtonClick(action)
       }
     }
-  }
-
-  companion object {
-    /** Min. distance in dp between two points for them be considered as overlapping. */
-    const val DISTANCE_THRESHOLD_DP = 24
   }
 }

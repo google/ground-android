@@ -19,7 +19,6 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
@@ -212,7 +211,6 @@ class DrawAreaTaskFragmentTest :
 
     viewModel.removeLastVertex()
     viewModel.removeLastVertex()
-    assertThat(viewModel.redoVertexStack).isEmpty()
     runner().assertButtonIsDisabled(REDO_POINT_BUTTON_TEXT, true)
   }
 
@@ -247,14 +245,14 @@ class DrawAreaTaskFragmentTest :
 
   /** Updates the last vertex of the polygon with the given vertex. */
   private fun updateLastVertex(coordinate: Coordinates, isNearFirstVertex: Boolean = false) {
-    val threshold = DrawAreaTaskViewModel.DISTANCE_THRESHOLD_DP.toDouble()
+    val threshold = PolygonDrawingSession.DISTANCE_THRESHOLD_DP.toDouble()
     val distanceInPixels = if (isNearFirstVertex) threshold else threshold + 1
     viewModel.updateLastVertexAndMaybeCompletePolygon(coordinate) { _, _ -> distanceInPixels }
   }
 
   /** Updates the last vertex of the polygon with the given vertex. */
   private fun updateCloseVertex(coordinate: Coordinates) {
-    val threshold = DrawAreaTaskViewModel.DISTANCE_THRESHOLD_DP.toDouble()
+    val threshold = PolygonDrawingSession.DISTANCE_THRESHOLD_DP.toDouble()
     viewModel.updateLastVertexAndMaybeCompletePolygon(coordinate) { _, _ -> threshold }
   }
 
