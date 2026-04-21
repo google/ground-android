@@ -20,6 +20,7 @@
   xmlns:app="http://schemas.android.com/apk/res-auto">
 
   <data>
+    <import type="android.view.View" />
     <variable
       name="viewModel"
       type="org.groundplatform.android.ui.offlineareas.OfflineAreasViewModel" />
@@ -51,7 +52,7 @@
       android:orientation="vertical"
       app:layout_constraintLeft_toLeftOf="parent"
       app:layout_constraintTop_toBottomOf="@id/offline_areas_toolbar"
-      app:visible="@{viewModel.showList}">
+      android:visibility="@{viewModel.showList ? View.VISIBLE : View.GONE}">
       <TextView
         android:id="@+id/offline_areas_list_title"
         style="@style/TextAppearance.App.TitleMedium"
@@ -76,7 +77,7 @@
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toBottomOf="@+id/offline_area_list_heading"
-      app:visible="@{viewModel.showList}" />
+      android:visibility="@{viewModel.showList ? View.VISIBLE : View.GONE}" />
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
       android:id="@+id/floatingActionButton"
@@ -101,7 +102,7 @@
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:srcCompat="@drawable/offline_map_imagery"
-      app:visible="@{viewModel.showNoAreasMessage}" />
+      android:visibility="@{viewModel.showNoAreasMessage ? View.VISIBLE : View.GONE}" />
     <TextView
       android:id="@+id/no_areas_downloaded_message"
       style="@style/TextAppearance.App.BodyMedium"
@@ -115,7 +116,7 @@
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent"
-      app:visible="@{viewModel.showNoAreasMessage}" />
+      android:visibility="@{viewModel.showNoAreasMessage ? View.VISIBLE : View.GONE}" />
     <ProgressBar
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
@@ -123,6 +124,6 @@
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent"
-      app:visible="@{viewModel.showProgressSpinner}" />
+      android:visibility="@{viewModel.showProgressSpinner ? View.VISIBLE : View.GONE}" />
   </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
