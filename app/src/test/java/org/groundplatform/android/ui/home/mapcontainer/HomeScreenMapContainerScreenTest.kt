@@ -22,7 +22,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import kotlin.test.Test
+import org.junit.Test
 import kotlin.test.assertTrue
 import org.groundplatform.android.FakeData.ADHOC_JOB
 import org.groundplatform.android.R

@@ -21,6 +21,7 @@
   xmlns:tools="http://schemas.android.com/tools">
 
   <data>
+    <import type="android.view.View" />
     <variable
       name="viewModel"
       type="org.groundplatform.android.ui.offlineareas.viewer.OfflineAreaViewerViewModel" />
@@ -91,7 +92,7 @@
             android:layout_height="wrap_content"
             android:text="@{@string/offline_area_size_on_disk_mb(viewModel.areaSize)}"
             android:textAlignment="center"
-            app:visible="@{viewModel.areaSize != null}"
+            android:visibility="@{viewModel.areaSize != null ? View.VISIBLE : View.GONE}"
             tools:text="n.n MB on disk" />
         </LinearLayout>
 
@@ -122,7 +123,7 @@
       android:background="@color/blackOverlay"
       android:clickable="true"
       android:focusable="true"
-      app:visible="@{viewModel.progressOverlayVisible}">
+      android:visibility="@{viewModel.progressOverlayVisible ? View.VISIBLE : View.GONE}">
       <ProgressBar
         android:layout_width="64dp"
         android:layout_height="64dp"

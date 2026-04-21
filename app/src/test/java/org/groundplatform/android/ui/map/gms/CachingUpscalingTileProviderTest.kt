@@ -20,7 +20,7 @@ import com.google.android.gms.maps.model.Tile
 import com.google.android.gms.maps.model.TileProvider
 import com.google.common.truth.Truth.assertThat
 import java.io.ByteArrayOutputStream
-import kotlin.test.Test
+import org.junit.Test
 import org.junit.Before
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
