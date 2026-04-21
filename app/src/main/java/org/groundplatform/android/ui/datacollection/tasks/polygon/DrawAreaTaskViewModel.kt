@@ -57,7 +57,6 @@ import org.groundplatform.domain.model.settings.MeasurementUnits
 import org.groundplatform.domain.model.submission.DrawAreaTaskData
 import org.groundplatform.domain.model.submission.DrawAreaTaskIncompleteData
 import org.groundplatform.domain.model.submission.TaskData
-import org.groundplatform.domain.model.submission.isNotNullOrEmpty
 import org.groundplatform.domain.model.task.Task
 import org.groundplatform.domain.usecases.user.GetUserSettingsUseCase
 import org.groundplatform.domain.util.calculateShoelacePolygonArea
@@ -140,7 +139,7 @@ internal constructor(
           getPreviousButton(),
           getSkipButton(taskData),
           getUndoButton(taskData, true),
-          getRedoButton(taskData),
+          getRedoButton(),
           getAddPointButton(isClosed, sessionState.isTooClose),
           getCompleteButton(isClosed, sessionState.isMarkedComplete),
           getNextButton(taskData).takeIf { sessionState.isMarkedComplete },
@@ -358,10 +357,10 @@ internal constructor(
     vibrationHelper.vibrate()
   }
 
-  private fun getRedoButton(taskData: TaskData?): ButtonActionState =
+  private fun getRedoButton(): ButtonActionState =
     ButtonActionState(
       action = ButtonAction.REDO,
-      isEnabled = session.canRedo() && taskData.isNotNullOrEmpty(),
+      isEnabled = session.canRedo(),
       isVisible = true,
     )
 

@@ -198,21 +198,22 @@ class DrawAreaTaskFragmentTest :
   }
 
   @Test
-  fun `redo button when is disabled empty redo vertex stack`() = runWithTestDispatcher {
-    setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = false))
+  fun `redo button is enabled when redo stack is not empty even if vertices become empty`() =
+    runWithTestDispatcher {
+      setupTaskFragment<DrawAreaTaskFragment>(job, task.copy(isRequired = false))
 
-    runner().assertButtonIsDisabled(REDO_POINT_BUTTON_TEXT, true)
+      runner().assertButtonIsDisabled(REDO_POINT_BUTTON_TEXT, true)
 
-    updateLastVertexAndAddPoint(COORDINATE_1)
-    updateLastVertexAndAddPoint(COORDINATE_2)
+      updateLastVertexAndAddPoint(COORDINATE_1)
+      updateLastVertexAndAddPoint(COORDINATE_2)
 
-    viewModel.removeLastVertex()
-    runner().assertButtonIsEnabled(REDO_POINT_BUTTON_TEXT, true)
+      viewModel.removeLastVertex()
+      runner().assertButtonIsEnabled(REDO_POINT_BUTTON_TEXT, true)
 
-    viewModel.removeLastVertex()
-    viewModel.removeLastVertex()
-    runner().assertButtonIsDisabled(REDO_POINT_BUTTON_TEXT, true)
-  }
+      viewModel.removeLastVertex()
+      viewModel.removeLastVertex()
+      runner().assertButtonIsEnabled(REDO_POINT_BUTTON_TEXT, true)
+    }
 
   @Test
   fun `Instructions dialog is shown`() = runWithTestDispatcher {

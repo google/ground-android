@@ -456,6 +456,22 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     }
 
   @Test
+  fun `REDO button is visible and enabled when there is something to redo even if vertices become empty`() =
+    runWithTestDispatcher {
+      setupViewModel()
+      updateLastVertexAndAdd(COORDINATE_1)
+      viewModel.removeLastVertex()
+      advanceUntilIdle()
+
+      val states = viewModel.taskActionButtonStates.first()
+
+      with(requireNotNull(states.find { it.action == ButtonAction.REDO })) {
+        assertTrue(isVisible)
+        assertTrue(isEnabled)
+      }
+    }
+
+  @Test
   fun `ADD_POINT is visible and enabled when polygon is not finished yet`() =
     runWithTestDispatcher {
       setupViewModel()
