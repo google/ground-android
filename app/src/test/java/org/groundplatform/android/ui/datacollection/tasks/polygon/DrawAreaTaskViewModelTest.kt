@@ -119,6 +119,25 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
   }
 
   @Test
+  fun `Removing last vertex on one vertex clears geometry`() {
+    setupViewModel()
+    updateLastVertex(COORDINATE_1)
+
+    viewModel.removeLastVertex()
+
+    assertGeometry(0)
+  }
+
+  @Test
+  fun `Removing last vertex on no vertices does nothing`() {
+    setupViewModel()
+    
+    viewModel.removeLastVertex()
+
+    assertGeometry(0)
+  }
+
+  @Test
   fun `Check distance between Vertices`() {
     setupViewModel()
     updateLastVertexAndAdd(COORDINATE_1)
@@ -127,6 +146,29 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     updateLastVertex(COORDINATE_4, true)
 
     assertThat(featureTestObserver.value()?.tooltipText).isEqualTo("3,106,126 m")
+  }
+
+  @Test
+  fun `Detects when last coordinate is close to starting one for three vertices`() {
+    setupViewModel()
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+
+    updateLastVertex(COORDINATE_3, true)
+
+    assertGeometry(3, isLineString = true)
+  }
+
+  @Test
+  fun `Detects when last coordinate is close to starting one for four vertices`() {
+    setupViewModel()
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+    updateLastVertexAndAdd(COORDINATE_3)
+
+    updateLastVertex(COORDINATE_4, true)
+
+    assertGeometry(4, isLineString = true)
   }
 
   @Test
@@ -174,6 +216,18 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
 
     viewModel.completePolygon()
     assertGeometry(4, isLineString = true)
+  }
+
+  @Test
+  fun `Cannot complete polygon when polygon is not complete`() {
+    setupViewModel()
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+    updateLastVertex(COORDINATE_3, false)
+
+    kotlin.test.assertFailsWith<IllegalStateException> {
+      viewModel.completePolygon()
+    }
   }
 
   @Test
@@ -284,6 +338,44 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     updateLastVertexAndAdd(COORDINATE_1)
 
     // Only 1 vertex.
+    assertThat(viewModel.sessionState.value.isTooClose).isFalse()
+  }
+
+  @Test
+  fun `isTooClose is true after adding a vertex if size is greater than 1`() {
+    setupViewModel()
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+
+    viewModel.addLastVertex()
+
+    assertThat(viewModel.sessionState.value.isTooClose).isTrue()
+  }
+
+  @Test
+  fun `isTooClose is true when last vertex is close to previous vertex`() {
+    setupViewModel()
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+
+    updateLastVertex(COORDINATE_3, isNearFirstVertex = false)
+    viewModel.updateLastVertexAndMaybeCompletePolygon(COORDINATE_3) { _, _ ->
+      DISTANCE_THRESHOLD_DP.toDouble()
+    }
+
+    assertThat(viewModel.sessionState.value.isTooClose).isTrue()
+  }
+
+  @Test
+  fun `isTooClose is false when last vertex is far from previous vertex`() {
+    setupViewModel()
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+
+    viewModel.updateLastVertexAndMaybeCompletePolygon(COORDINATE_3) { _, _ ->
+      DISTANCE_THRESHOLD_DP.toDouble() + 1
+    }
+
     assertThat(viewModel.sessionState.value.isTooClose).isFalse()
   }
 
@@ -453,6 +545,33 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     advanceUntilIdle()
 
     assertEquals(COORDINATE_1, viewModel.getLastVertex())
+  }
+
+  @Test
+  fun `redoLastVertex re-adds last vertex`() {
+    setupViewModel()
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+
+    viewModel.removeLastVertex()
+    assertGeometry(2, isLineString = true)
+
+    viewModel.redoLastVertex()
+    assertGeometry(3, isLineString = true)
+  }
+
+  @Test
+  fun `redoLastVertex when redo stack is empty does nothing`() = runWithTestDispatcher {
+    setupViewModel()
+    updateLastVertexAndAdd(COORDINATE_1)
+    advanceUntilIdle()
+
+    val initialGeometry = featureTestObserver.value()?.geometry
+
+    viewModel.redoLastVertex()
+    advanceUntilIdle()
+
+    assertThat(featureTestObserver.value()?.geometry).isEqualTo(initialGeometry)
   }
 
   @Test
