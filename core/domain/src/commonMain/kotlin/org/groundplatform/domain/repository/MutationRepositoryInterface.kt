@@ -45,14 +45,13 @@ interface MutationRepositoryInterface {
   fun getUploadQueueFlow(): Flow<List<UploadQueueEntry>>
 
   /**
-   * Mark pending mutations as ready for media upload. If the mutation is of type DELETE, also
-   * removes the corresponding submission or LOI.
+   * Applies mutations to remote data store, updating their status in the queue accordingly. Catches
+   * and handles all exceptions.
+   *
+   * @return [MutationResult] indicating the outcome of the sync attempt, including whether any
+   *   media uploads are pending.
    */
-  suspend fun finalizePendingMutationsForMediaUpload(mutations: List<Mutation>)
-
-  suspend fun markAsInProgress(mutations: List<Mutation>)
-
-  suspend fun uploadMutations(mutations: List<Mutation>)
+  suspend fun processMutations(mutations: List<Mutation>): MutationResult
 
   suspend fun markAsComplete(mutations: List<Mutation>)
 
@@ -61,4 +60,20 @@ interface MutationRepositoryInterface {
   suspend fun markAsMediaUploadInProgress(mutations: List<SubmissionMutation>)
 
   suspend fun markAsFailedMediaUpload(mutations: List<SubmissionMutation>, error: Throwable)
+
+  /** Specifies whether the sync succeeded and if there is any follow-up work. */
+  sealed class MutationResult {
+    /**
+     * All mutations were successfully applied to the remote data store.
+     *
+     * @property hasPendingMediaUploads `true` if one or more mutations contain media that still
+     *   need to be uploaded.
+     */
+    data class Success(val hasPendingMediaUploads: Boolean) : MutationResult()
+
+    /**
+     * At least one mutation failed to apply; all mutations in the batch have been marked failed.
+     */
+    data object Failure : MutationResult()
+  }
 }

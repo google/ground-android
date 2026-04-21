@@ -40,20 +40,25 @@ import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.di.coroutines.IoDispatcher
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
 import org.groundplatform.domain.model.geometry.Point
-import org.groundplatform.domain.model.mutation.LocationOfInterestMutation
 import org.groundplatform.domain.model.mutation.Mutation
+import org.groundplatform.domain.model.mutation.Mutation.SyncStatus.COMPLETED
 import org.groundplatform.domain.model.mutation.Mutation.SyncStatus.FAILED
 import org.groundplatform.domain.model.mutation.Mutation.SyncStatus.IN_PROGRESS
 import org.groundplatform.domain.model.mutation.Mutation.SyncStatus.MEDIA_UPLOAD_PENDING
 import org.groundplatform.domain.model.mutation.Mutation.SyncStatus.PENDING
 import org.groundplatform.domain.model.mutation.Mutation.SyncStatus.UNKNOWN
-import org.groundplatform.domain.model.mutation.SubmissionMutation
+import org.groundplatform.domain.model.submission.ValueDelta
+import org.groundplatform.domain.model.task.PhotoTaskData
+import org.groundplatform.domain.model.task.Task
 import org.groundplatform.domain.repository.MutationRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
+import org.groundplatform.testing.FakeDataGenerator
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
+import org.mockito.kotlin.never
+import org.mockito.kotlin.verify
 import org.robolectric.RobolectricTestRunner
 
 @HiltAndroidTest
@@ -98,22 +103,20 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
         )
     }
 
-  private val testSurvey = FakeData.SURVEY.copy(id = TEST_SURVEY_ID)
-
   @Before
   override fun setUp() {
     super.setUp()
     context = ApplicationProvider.getApplicationContext()
     runBlocking {
-      fakeAuthenticationManager.setUser(FakeData.USER.copy(id = TEST_USER_ID))
-      localUserStore.insertOrUpdateUser(FakeData.USER.copy(id = TEST_USER_ID))
-      localSurveyStore.insertOrUpdateSurvey(testSurvey)
+      fakeAuthenticationManager.setUser(TEST_USER)
+      localUserStore.insertOrUpdateUser(TEST_USER)
+      localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
     }
   }
 
   @Test
   fun `Ignores mutations not belonging to current user`() = runWithTestDispatcher {
-    fakeAuthenticationManager.setUser(FakeData.USER.copy(id = "random user id"))
+    fakeAuthenticationManager.setUser(TEST_USER.copy(id = "random user id"))
 
     addPendingMutations()
 
@@ -125,11 +128,11 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
 
   @Test
   fun `Ignores mutations partially if there are multiple users`() = runWithTestDispatcher {
-    localUserStore.insertOrUpdateUser(FakeData.USER.copy(id = "user1"))
+    localUserStore.insertOrUpdateUser(TEST_USER.copy(id = "user1"))
     localLocationOfInterestStore.applyAndEnqueue(createLoiMutation("user1"))
 
-    localUserStore.insertOrUpdateUser(FakeData.USER.copy(id = TEST_USER_ID))
-    localSubmissionStore.applyAndEnqueue(createSubmissionMutation(TEST_USER_ID))
+    localUserStore.insertOrUpdateUser(TEST_USER.copy(id = TEST_USER_ID))
+    localSubmissionStore.applyAndEnqueue(createSubmissionMutation())
 
     val result = createAndDoWork(context)
 
@@ -169,6 +172,41 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
         lastErrors = listOf(ERROR_MESSAGE, ERROR_MESSAGE),
       )
     }
+
+  @Test
+  fun `Enqueues media upload worker when any mutation has pending photos`() =
+    runWithTestDispatcher {
+      val jobWithPhotoTask =
+        TEST_JOB.copy(tasks = mapOf("photoTaskId" to FakeDataGenerator.newTask(id = "photoTaskId", type = Task.Type.PHOTO)))
+      localSurveyStore.insertOrUpdateSurvey(
+        TEST_SURVEY.copy(jobMap = mapOf(jobWithPhotoTask.id to jobWithPhotoTask))
+      )
+      localLocationOfInterestStore.applyAndEnqueue(createLoiMutation(TEST_USER_ID))
+      localSubmissionStore.applyAndEnqueue(
+        createSubmissionMutation()
+          .copy(
+            deltas =
+              listOf(ValueDelta("photoTaskId", Task.Type.PHOTO, PhotoTaskData("some/photo.jpg")))
+          )
+      )
+
+      val result = createAndDoWork(context)
+
+      assertThat(result).isEqualTo(success())
+      assertMutationsState(complete = 1)
+      assertThat(getMutations(MEDIA_UPLOAD_PENDING)).hasSize(1)
+      verify(mockMediaUploadWorkManager).enqueueSyncWorker()
+    }
+
+  @Test
+  fun `Does not enqueue media upload worker when no mutation has photos`() = runWithTestDispatcher {
+    addPendingMutations()
+
+    val result = createAndDoWork(context)
+
+    assertThat(result).isEqualTo(success())
+    verify(mockMediaUploadWorkManager, never()).enqueueSyncWorker()
+  }
 
   @Test
   fun `Worker retries on failure`() = runWithTestDispatcher {
@@ -217,7 +255,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
       .that(getMutations(IN_PROGRESS))
       .hasSize(inProgress)
     assertWithMessage("Completed mutations count incorrect")
-      .that(getMutations(MEDIA_UPLOAD_PENDING))
+      .that(getMutations(COMPLETED))
       .hasSize(complete)
 
     val failedMutations = getMutations(FAILED)
@@ -227,15 +265,13 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
   }
 
   private suspend fun addPendingMutations() {
-    localLocationOfInterestStore.applyAndEnqueue(createLoiMutation(TEST_USER_ID))
-    localSubmissionStore.applyAndEnqueue(createSubmissionMutation(TEST_USER_ID))
+    localLocationOfInterestStore.applyAndEnqueue(createLoiMutation())
+    localSubmissionStore.applyAndEnqueue(createSubmissionMutation())
   }
 
-  private fun createLoiMutation(userId: String) =
-    LocationOfInterestMutation(
+  private fun createLoiMutation(userId: String = TEST_USER_ID) =
+    FakeDataGenerator.newLoiMutation(
       jobId = TEST_JOB.id,
-      type = Mutation.Type.CREATE,
-      syncStatus = Mutation.SyncStatus.PENDING,
       locationOfInterestId = TEST_LOI_ID,
       userId = userId,
       surveyId = TEST_SURVEY_ID,
@@ -243,12 +279,10 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
       collectionId = "collectionId",
     )
 
-  private fun createSubmissionMutation(userId: String) =
-    SubmissionMutation(
-      type = Mutation.Type.CREATE,
-      syncStatus = Mutation.SyncStatus.PENDING,
-      locationOfInterestId = TEST_LOI_ID,
-      userId = userId,
+  private fun createSubmissionMutation() =
+    FakeDataGenerator.newSubmissionMutation(
+      loiId = TEST_LOI_ID,
+      userId = TEST_USER_ID,
       job = TEST_JOB,
       surveyId = TEST_SURVEY_ID,
       collectionId = "collectionId",
@@ -266,6 +300,9 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
     private const val TEST_SURVEY_ID = "surveyId"
     private const val TEST_USER_ID = "userId"
     private val TEST_GEOMETRY = Point(FakeData.COORDINATES)
-    private val TEST_JOB = FakeData.JOB
+    private val TEST_JOB = FakeDataGenerator.newJob()
+    private val TEST_USER = FakeDataGenerator.newUser(id = TEST_USER_ID)
+    private val TEST_SURVEY =
+      FakeDataGenerator.newSurvey(id = TEST_SURVEY_ID, jobMap = mapOf(TEST_JOB.id to TEST_JOB))
   }
 }

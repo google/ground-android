@@ -25,6 +25,7 @@ import org.groundplatform.android.data.local.stores.LocalLocationOfInterestStore
 import org.groundplatform.android.data.local.stores.LocalSubmissionStore
 import org.groundplatform.android.data.remote.RemoteDataStore
 import org.groundplatform.android.system.auth.AuthenticationManager
+import org.groundplatform.android.util.priority
 import org.groundplatform.domain.model.User
 import org.groundplatform.domain.model.mutation.LocationOfInterestMutation
 import org.groundplatform.domain.model.mutation.Mutation
@@ -111,23 +112,36 @@ constructor(
    */
   private suspend fun saveMutationsLocally(mutations: List<Mutation>) {
     val loiMutations = mutations.filterIsInstance<LocationOfInterestMutation>()
-    localLocationOfInterestStore.updateAll(loiMutations)
+    if (loiMutations.isNotEmpty()) localLocationOfInterestStore.updateAll(loiMutations)
 
     val submissionMutations = mutations.filterIsInstance<SubmissionMutation>()
-    localSubmissionStore.updateAll(submissionMutations)
+    if (submissionMutations.isNotEmpty()) localSubmissionStore.updateAll(submissionMutations)
   }
 
-  override suspend fun finalizePendingMutationsForMediaUpload(mutations: List<Mutation>) {
+  override suspend fun processMutations(
+    mutations: List<Mutation>
+  ): MutationRepositoryInterface.MutationResult =
+    try {
+    markAsInProgress(mutations)
+    uploadMutations(mutations)
     finalizeDeletions(mutations)
-    // TODO: Only do this is there are actually photos to upload.
-    // Issue URL: https://github.com/google/ground-android/issues/2873
-    markForMediaUpload(mutations)
-  }
+    val (hasMediaToUpload, hasNoMedia) =
+      mutations.partition { it is SubmissionMutation && it.getPhotoData().isNotEmpty() }
+    if (hasNoMedia.isNotEmpty()) markAsComplete(hasNoMedia)
+    if (hasMediaToUpload.isNotEmpty()) markForMediaUpload(hasMediaToUpload)
+    MutationRepositoryInterface.MutationResult.Success(hasMediaToUpload.isNotEmpty())
+    } catch (t: Throwable) {
+      // Mark all mutations as having failed since the remote datastore only commits when all
+      // mutations have succeeded.
+      markAsFailed(mutations, t)
+      Timber.log(t.priority(), t, "Failed to sync local data")
+      return MutationRepositoryInterface.MutationResult.Failure
+    }
 
   private suspend fun finalizeDeletions(mutations: List<Mutation>) =
     mutations
       .filter { it.type === Mutation.Type.DELETE }
-      .map { mutation ->
+      .forEach { mutation ->
         when (mutation) {
           is SubmissionMutation -> {
             localSubmissionStore.deleteSubmission(mutation.submissionId)
@@ -138,11 +152,11 @@ constructor(
         }
       }
 
-  override suspend fun markAsInProgress(mutations: List<Mutation>) {
+  private suspend fun markAsInProgress(mutations: List<Mutation>) {
     saveMutationsLocally(mutations.updateMutationStatus(IN_PROGRESS))
   }
 
-  override suspend fun uploadMutations(mutations: List<Mutation>) {
+  private suspend fun uploadMutations(mutations: List<Mutation>) {
     val user = userRepository.getAuthenticatedUser()
     remoteDataStore.applyMutations(mutations, user)
   }
