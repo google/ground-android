@@ -60,6 +60,7 @@ import org.groundplatform.domain.model.task.MultipleChoice
 import org.groundplatform.domain.model.task.Option
 import org.groundplatform.domain.model.task.Task
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
+import org.groundplatform.domain.repository.MutationRepositoryInterface
 import org.groundplatform.domain.repository.SubmissionRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
 import org.junit.Assert.assertTrue
@@ -80,7 +81,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   @Inject lateinit var activateSurvey: ActivateSurveyUseCase
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
   @Inject lateinit var loiRepository: LocationOfInterestRepositoryInterface
-  @Inject lateinit var mutationRepository: MutationRepository
+  @Inject lateinit var mutationRepository: MutationRepositoryInterface
   @Inject lateinit var submissionRepository: SubmissionRepositoryInterface
   @Inject lateinit var userRepository: UserRepositoryInterface
 

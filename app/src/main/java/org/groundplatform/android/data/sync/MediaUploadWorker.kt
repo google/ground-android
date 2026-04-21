@@ -28,11 +28,11 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import org.groundplatform.android.data.remote.RemoteStorageManager
 import org.groundplatform.android.di.coroutines.IoDispatcher
-import org.groundplatform.android.repository.MutationRepository
 import org.groundplatform.android.repository.UserMediaRepository
 import org.groundplatform.android.util.priority
 import org.groundplatform.domain.model.mutation.SubmissionMutation
 import org.groundplatform.domain.model.task.PhotoTaskData
+import org.groundplatform.domain.repository.MutationRepositoryInterface
 import timber.log.Timber
 
 /**
@@ -51,7 +51,7 @@ constructor(
   @Assisted context: Context,
   @Assisted workerParams: WorkerParameters,
   private val remoteStorageManager: RemoteStorageManager,
-  private val mutationRepository: MutationRepository,
+  private val mutationRepository: MutationRepositoryInterface,
   private val userMediaRepository: UserMediaRepository,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : CoroutineWorker(context, workerParams) {
