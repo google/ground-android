@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"\?>
-
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright 2024 Google LLC
   ~
@@ -17,14 +16,14 @@
   -->
 
 <!--
-  Data extraction rules for Android 12 (API 31) and above.
-  Used by android:dataExtractionRules in AndroidManifest.xml.
+    Data extraction rules for Android 12 (API 31) and above.
+    Used by android:dataExtractionRules in AndroidManifest.xml.
 
-  Prevents sensitive app data (Firebase tokens, survey responses,
-  GPS coordinates) from being extracted via cloud backup or
-  device-to-device transfer on Android 12+ devices.
+    Prevents sensitive app data (Firebase tokens, survey responses,
+    GPS coordinates) from being extracted via cloud backup or
+    device-to-device transfer on Android 12+ devices.
 
-  See: https://developer.android.com/about/versions/12/backup-restore
+    See: https://developer.android.com/about/versions/12/backup-restore
 -->
 <data-extraction-rules>
 
