@@ -25,12 +25,14 @@ import org.groundplatform.android.repository.MapStateRepository
 import org.groundplatform.android.repository.MutationRepository
 import org.groundplatform.android.repository.SubmissionRepository
 import org.groundplatform.android.repository.SurveyRepository
+import org.groundplatform.android.repository.TermsOfServiceRepository
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import org.groundplatform.domain.repository.MapStateRepositoryInterface
 import org.groundplatform.domain.repository.MutationRepositoryInterface
 import org.groundplatform.domain.repository.SubmissionRepositoryInterface
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
+import org.groundplatform.domain.repository.TermsOfServiceRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
 
 @Module
@@ -79,4 +81,14 @@ abstract class MutationRepositoryModule {
   @Binds
   @Singleton
   abstract fun bindMutationRepository(impl: MutationRepository): MutationRepositoryInterface
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class TermsOfServiceRepositoryModule {
+  @Binds
+  @Singleton
+  abstract fun bindTermsOfServiceRepository(
+    impl: TermsOfServiceRepository
+  ): TermsOfServiceRepositoryInterface
 }
