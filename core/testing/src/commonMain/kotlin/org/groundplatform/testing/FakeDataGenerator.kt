@@ -40,7 +40,8 @@ import org.groundplatform.domain.model.task.Task
 
 @Suppress("StringLiteralDuplication")
 object FakeDataGenerator {
-  fun newUser(): User = User("user id", "", "User")
+  fun newUser(id: String = "user id", email: String = "", displayName: String = "User"): User =
+    User(id, email, displayName)
 
   fun newUserSettings(
     language: String = "en",
@@ -193,6 +194,7 @@ object FakeDataGenerator {
     timestamp: Long = Clock.System.now().toEpochMilliseconds(),
     retryCount: Long = 0,
     lastError: String = "",
+    deltas: List<ValueDelta> = emptyList(),
   ): SubmissionMutation =
     SubmissionMutation(
       id = id,
@@ -207,5 +209,6 @@ object FakeDataGenerator {
       clientTimestamp = timestamp,
       retryCount = retryCount,
       lastError = lastError,
+      deltas = deltas,
     )
 }
