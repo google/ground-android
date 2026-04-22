@@ -29,9 +29,9 @@ import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.data.local.room.LocalDataStoreException
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
-import org.groundplatform.android.repository.TermsOfServiceRepository
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
 import org.groundplatform.domain.model.auth.SignInState
+import org.groundplatform.domain.repository.TermsOfServiceRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
 import org.junit.Before
 import org.junit.Test
@@ -47,7 +47,7 @@ class MainViewModelTest : BaseHiltTest() {
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
   @Inject lateinit var viewModel: MainViewModel
   @Inject lateinit var sharedPreferences: SharedPreferences
-  @Inject lateinit var tosRepository: TermsOfServiceRepository
+  @Inject lateinit var tosRepository: TermsOfServiceRepositoryInterface
   @Inject lateinit var userRepository: UserRepositoryInterface
 
   @Before

@@ -37,10 +37,10 @@ import kotlin.test.assertNull
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.R
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
-import org.groundplatform.android.repository.TermsOfServiceRepository
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.testrules.FragmentScenarioRule
 import org.groundplatform.domain.model.TermsOfService
+import org.groundplatform.domain.repository.TermsOfServiceRepositoryInterface
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -55,7 +55,7 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
   @get:Rule val fragmentScenario = FragmentScenarioRule()
 
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
-  @Inject lateinit var termsOfServiceRepository: TermsOfServiceRepository
+  @Inject lateinit var termsOfServiceRepository: TermsOfServiceRepositoryInterface
   private lateinit var navController: NavController
 
   @BindValue @Mock lateinit var networkManager: NetworkManager
