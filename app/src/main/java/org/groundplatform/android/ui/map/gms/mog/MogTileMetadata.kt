@@ -16,6 +16,8 @@
 
 package org.groundplatform.android.ui.map.gms.mog
 
+import org.groundplatform.domain.model.imagery.TileCoordinates
+
 /** Metadata for the tiles with the specified coordinates provided by the specified MOG. */
 data class MogTileMetadata(
   val tileCoordinates: TileCoordinates,

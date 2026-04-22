@@ -18,6 +18,8 @@ package org.groundplatform.android.ui.util
 import androidx.annotation.VisibleForTesting
 import java.util.Locale
 import org.groundplatform.domain.model.settings.MeasurementUnits
+import org.groundplatform.domain.model.util.MegabyteCount
+import kotlin.math.ceil
 
 @VisibleForTesting const val SQUARE_METERS_PER_ACRE = 4046.86
 @VisibleForTesting const val SQUARE_METERS_PER_HECTARE = 10_000
@@ -42,3 +44,9 @@ fun getFormattedArea(areaInSquareMeters: Double, measurementUnits: MeasurementUn
   val rounded = String.format(Locale.getDefault(), "%.2f", convertedArea)
   return "$rounded $stringUnit"
 }
+
+/**
+ * Returns the number of megabytes a string, replacing smaller sizes with "<1" and rounding up
+ * others.
+ */
+fun MegabyteCount.toMbString(): String = if (this < 1) "<1" else ceil(this).toInt().toString()

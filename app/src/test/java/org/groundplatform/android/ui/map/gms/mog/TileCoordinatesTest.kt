@@ -17,6 +17,7 @@ package org.groundplatform.android.ui.map.gms.mog
 
 import com.google.common.truth.Truth.assertThat
 import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.imagery.TileCoordinates
 import org.groundplatform.domain.model.map.Bounds
 import org.junit.Test
 

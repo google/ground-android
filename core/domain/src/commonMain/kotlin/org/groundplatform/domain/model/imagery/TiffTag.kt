@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.groundplatform.android.ui.map.gms.mog
+package org.groundplatform.domain.model.imagery
 
 enum class TiffTag(val id: Int, val isArray: Boolean) {
   ImageLength(257, false),

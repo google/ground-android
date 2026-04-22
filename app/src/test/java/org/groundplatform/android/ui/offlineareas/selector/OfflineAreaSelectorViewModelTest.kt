@@ -33,7 +33,7 @@ import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.system.SettingsManager
 import org.groundplatform.android.ui.offlineareas.selector.model.OfflineAreaSelectorEvent
 import org.groundplatform.android.ui.offlineareas.selector.model.OfflineAreaSelectorState
-import org.groundplatform.android.util.toMbString
+import org.groundplatform.android.ui.util.toMbString
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.map.Bounds
 import org.groundplatform.domain.model.map.CameraPosition

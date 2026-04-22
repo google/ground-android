@@ -13,10 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.groundplatform.android.ui.map.gms.mog
-
-import com.google.android.gms.maps.model.LatLngBounds
+package org.groundplatform.domain.model.imagery
 
 data class PixelBounds(val min: PixelCoordinates, val max: PixelCoordinates) {
   fun contains(pixelCoordinates: PixelCoordinates): Boolean {
@@ -27,6 +24,3 @@ data class PixelBounds(val min: PixelCoordinates, val max: PixelCoordinates) {
     return x in minX..maxX && y in minY..maxY
   }
 }
-
-fun LatLngBounds.toPixelBounds(zoom: Int) =
-  PixelBounds(northwest().toPixelCoordinates(zoom), southeast().toPixelCoordinates(zoom))

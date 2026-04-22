@@ -23,14 +23,14 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import org.groundplatform.android.di.coroutines.IoDispatcher
-import org.groundplatform.android.model.imagery.OfflineArea
+import org.groundplatform.domain.model.imagery.OfflineArea
 import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.android.system.LocationManager
 import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.system.SettingsManager
 import org.groundplatform.android.ui.common.BaseMapViewModel
-import org.groundplatform.android.util.toMb
-import org.groundplatform.android.util.toMbString
+import org.groundplatform.android.ui.util.toMbString
+import org.groundplatform.domain.model.util.toMb
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import org.groundplatform.domain.repository.MapStateRepositoryInterface
 import org.groundplatform.domain.repository.SurveyRepositoryInterface

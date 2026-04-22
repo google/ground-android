@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.groundplatform.domain.model.imagery
 
-package org.groundplatform.android.ui.map.gms.mog
-
+import kotlin.math.PI
 import kotlin.math.ln
 import kotlin.math.tan
 import org.groundplatform.domain.model.geometry.Coordinates
@@ -43,7 +43,7 @@ data class TileCoordinates(val x: Int, val y: Int, val zoom: Int) {
       val zoomFactor = 1 shl zoom
       val latRad = coordinates.lat.toRadians()
       val x1 = zoomFactor * (coordinates.lng + 180) / 360
-      val y1 = zoomFactor * (1 - (ln(tan(latRad) + sec(latRad)) / Math.PI)) / 2
+      val y1 = zoomFactor * (1 - (ln(tan(latRad) + sec(latRad)) / PI)) / 2
       val (x, y) = PixelCoordinates((x1 * 256.0).toInt(), (y1 * 256.0).toInt(), zoom)
       return TileCoordinates(x / 256, y / 256, zoom)
     }

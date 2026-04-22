@@ -45,7 +45,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.withIndex
 import kotlinx.coroutines.launch
 import org.groundplatform.android.common.Constants.DEFAULT_LOI_ZOOM_LEVEL
-import org.groundplatform.android.model.imagery.TileSource
+import org.groundplatform.domain.model.imagery.TileSource
 import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.android.system.FINE_LOCATION_UPDATES_REQUEST
 import org.groundplatform.android.system.LocationManager

@@ -16,6 +16,7 @@
 package org.groundplatform.android.ui.map.gms.mog
 
 import com.google.common.truth.Truth.assertWithMessage
+import org.groundplatform.domain.model.imagery.TiffTag
 import org.junit.Test
 
 class TiffTagTest {

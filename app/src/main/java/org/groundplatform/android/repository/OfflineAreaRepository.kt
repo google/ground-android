@@ -25,26 +25,26 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.mapNotNull
 import org.groundplatform.android.data.local.stores.LocalOfflineAreaStore
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
-import org.groundplatform.android.model.imagery.LocalTileSource
-import org.groundplatform.android.model.imagery.OfflineArea
-import org.groundplatform.android.model.imagery.TileSource
+import org.groundplatform.domain.model.imagery.LocalTileSource
+import org.groundplatform.domain.model.imagery.OfflineArea
+import org.groundplatform.domain.model.imagery.TileSource
 import org.groundplatform.android.system.GeocodingManager
 import org.groundplatform.android.ui.map.gms.mog.MogClient
 import org.groundplatform.android.ui.map.gms.mog.MogTileDownloader
 import org.groundplatform.android.ui.map.gms.mog.getTilePath
 import org.groundplatform.android.ui.map.gms.mog.maxZoom
 import org.groundplatform.android.ui.util.FileUtil
-import org.groundplatform.android.util.ByteCount
 import org.groundplatform.android.util.deleteIfEmpty
 import org.groundplatform.android.util.rangeOf
 import org.groundplatform.domain.model.map.Bounds
+import org.groundplatform.domain.model.util.ByteCount
 import timber.log.Timber
 
 /**
  * Corners of the viewport are scaled by this value when determining the name of downloaded areas.
  * Value derived experimentally.
  */
-const val AREA_NAME_SENSITIVITY = 0.5
+private const val AREA_NAME_SENSITIVITY = 0.5
 
 @Singleton
 class OfflineAreaRepository
