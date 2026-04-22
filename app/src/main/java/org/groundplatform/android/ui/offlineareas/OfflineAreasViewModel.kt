@@ -24,18 +24,18 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
-import org.groundplatform.domain.model.imagery.OfflineArea
-import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.util.toMbString
+import org.groundplatform.domain.model.imagery.OfflineArea
 import org.groundplatform.domain.model.util.toMb
+import org.groundplatform.domain.repository.OfflineAreaRepositoryInterface
 
 /**
  * View model for the offline area manager fragment. Handles the current list of downloaded areas.
  */
 class OfflineAreasViewModel
 @Inject
-internal constructor(private val offlineAreaRepository: OfflineAreaRepository) :
+internal constructor(private val offlineAreaRepository: OfflineAreaRepositoryInterface) :
   AbstractViewModel() {
 
   /**

@@ -23,6 +23,7 @@ import jakarta.inject.Singleton
 import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.MapStateRepository
 import org.groundplatform.android.repository.MutationRepository
+import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.android.repository.SubmissionRepository
 import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.repository.TermsOfServiceRepository
@@ -30,6 +31,7 @@ import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import org.groundplatform.domain.repository.MapStateRepositoryInterface
 import org.groundplatform.domain.repository.MutationRepositoryInterface
+import org.groundplatform.domain.repository.OfflineAreaRepositoryInterface
 import org.groundplatform.domain.repository.SubmissionRepositoryInterface
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.repository.TermsOfServiceRepositoryInterface
@@ -91,4 +93,14 @@ abstract class TermsOfServiceRepositoryModule {
   abstract fun bindTermsOfServiceRepository(
     impl: TermsOfServiceRepository
   ): TermsOfServiceRepositoryInterface
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class OfflineAreaRepositoryModule {
+  @Binds
+  @Singleton
+  abstract fun bindOfflineAreaRepositoryRepository(
+    impl: OfflineAreaRepository
+  ): OfflineAreaRepositoryInterface
 }

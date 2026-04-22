@@ -33,6 +33,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
+import dagger.hilt.android.testing.UninstallModules
 import kotlin.test.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -41,14 +42,15 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.R
+import org.groundplatform.android.di.OfflineAreaRepositoryModule
 import org.groundplatform.android.getString
-import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.testrules.FragmentScenarioRule
 import org.groundplatform.android.ui.offlineareas.selector.model.OfflineAreaSelectorState
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.map.Bounds
 import org.groundplatform.domain.model.map.CameraPosition
+import org.groundplatform.domain.repository.OfflineAreaRepositoryInterface
 import org.hamcrest.CoreMatchers.not
 import org.junit.Before
 import org.junit.Rule
@@ -62,6 +64,7 @@ import org.robolectric.shadows.ShadowToast
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
+@UninstallModules(OfflineAreaRepositoryModule::class)
 @RunWith(RobolectricTestRunner::class)
 class OfflineAreaSelectorFragmentTest : BaseHiltTest() {
 
@@ -69,7 +72,7 @@ class OfflineAreaSelectorFragmentTest : BaseHiltTest() {
   lateinit var viewModel: OfflineAreaSelectorViewModel
   lateinit var navController: NavController
 
-  @BindValue @Mock lateinit var offlineAreaRepository: OfflineAreaRepository
+  @BindValue @Mock lateinit var offlineAreaRepository: OfflineAreaRepositoryInterface
   @BindValue @Mock lateinit var networkManager: NetworkManager
 
   @get:Rule val composeTestRule = createComposeRule()
