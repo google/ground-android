@@ -135,7 +135,7 @@ constructor(
       // mutations have succeeded.
       markAsFailed(mutations, t)
       Timber.log(t.priority(), t, "Failed to sync local data")
-      return MutationRepositoryInterface.MutationResult.Failure
+      MutationRepositoryInterface.MutationResult.Failure
     }
 
   private suspend fun finalizeDeletions(mutations: List<Mutation>) =
