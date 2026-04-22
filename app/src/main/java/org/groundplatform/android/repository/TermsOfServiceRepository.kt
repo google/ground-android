@@ -24,6 +24,7 @@ import org.groundplatform.android.data.remote.DataStoreException
 import org.groundplatform.android.data.remote.RemoteDataStore
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.domain.model.TermsOfService
+import org.groundplatform.domain.repository.TermsOfServiceRepositoryInterface
 import timber.log.Timber
 
 private const val LOAD_REMOTE_SURVEY_TERMS_OF_SERVICE_TIMEOUT_MILLIS: Long = 30 * 1000
@@ -35,15 +36,15 @@ constructor(
   private val networkManager: NetworkManager,
   private val remoteDataStore: RemoteDataStore,
   private val localValueStore: LocalValueStore,
-) {
+): TermsOfServiceRepositoryInterface {
 
-  var isTermsOfServiceAccepted: Boolean by localValueStore::isTermsOfServiceAccepted
+  override var isTermsOfServiceAccepted: Boolean by localValueStore::isTermsOfServiceAccepted
 
   /**
    * Fetches and returns [TermsOfService] from remote data store. Throws an error if the request
    * times out or network is unavailable.
    */
-  suspend fun getTermsOfService(): TermsOfService? {
+  override suspend fun getTermsOfService(): TermsOfService? {
     if (!networkManager.isNetworkConnected()) {
       throw DataStoreException("No network")
     }

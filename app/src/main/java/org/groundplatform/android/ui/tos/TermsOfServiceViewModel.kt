@@ -27,11 +27,11 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
-import org.groundplatform.android.repository.TermsOfServiceRepository
 import org.groundplatform.android.system.auth.AuthenticationManager
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.common.EphemeralPopups
 import org.groundplatform.android.util.isPermissionDeniedException
+import org.groundplatform.domain.repository.TermsOfServiceRepositoryInterface
 import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
 import org.intellij.markdown.html.HtmlGenerator
 import org.intellij.markdown.parser.MarkdownParser
@@ -40,7 +40,7 @@ import timber.log.Timber
 class TermsOfServiceViewModel
 @Inject
 constructor(
-  private val termsOfServiceRepository: TermsOfServiceRepository,
+  private val termsOfServiceRepository: TermsOfServiceRepositoryInterface,
   private val popups: EphemeralPopups,
   private val authManager: AuthenticationManager,
 ) : AbstractViewModel() {
