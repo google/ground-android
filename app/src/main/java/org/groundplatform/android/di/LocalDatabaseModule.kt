@@ -30,6 +30,7 @@ import org.groundplatform.android.common.Constants
 import org.groundplatform.android.data.local.room.LocalDatabase
 import org.groundplatform.android.data.local.room.migration.Migration_124_125
 import org.groundplatform.android.data.local.room.migration.Migration_125_126
+import org.groundplatform.android.data.local.room.migration.Migration_126_127
 import org.groundplatform.android.di.coroutines.IoDispatcher
 
 @InstallIn(SingletonComponent::class)
@@ -53,7 +54,7 @@ object LocalDatabaseModule {
         .setTransactionExecutor(Executors.newSingleThreadExecutor())
         // Run queries and transactions on background I/O thread.
         .setQueryExecutor(ioDispatcher.asExecutor())
-        .addMigrations(Migration_124_125, Migration_125_126)
+        .addMigrations(Migration_124_125, Migration_125_126, Migration_126_127)
         .build()
         .also { INSTANCE = it }
   }

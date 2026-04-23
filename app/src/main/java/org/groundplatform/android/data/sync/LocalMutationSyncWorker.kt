@@ -25,10 +25,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
-import org.groundplatform.android.data.remote.RemoteDataStore
 import org.groundplatform.android.di.coroutines.IoDispatcher
-import org.groundplatform.android.util.priority
-import org.groundplatform.domain.model.mutation.Mutation
 import org.groundplatform.domain.repository.MutationRepositoryInterface
 import timber.log.Timber
 
@@ -51,31 +48,15 @@ constructor(
     withContext(ioDispatcher) {
       val queue = mutationRepository.getIncompleteUploads()
       Timber.d("Uploading ${queue.size} additions / changes")
-      val results = queue.map { processMutations(it.mutations()) }
-      if (results.any { it }) mediaUploadWorkManager.enqueueSyncWorker()
-      if (results.all { it }) success() else retry()
-    }
+      val results = queue.map { mutationRepository.processMutations(it.mutations()) }
 
-  /**
-   * Applies mutations to remote data store, updating their status in the queue accordingly. Catches
-   * and handles all exceptions.
-   *
-   * @return `true` if all mutations were successfully synced with [RemoteDataStore], `false` if at
-   *   least one failed.
-   */
-  private suspend fun processMutations(mutations: List<Mutation>): Boolean {
-    if (mutations.isEmpty()) return true
-    try {
-      mutationRepository.markAsInProgress(mutations)
-      mutationRepository.uploadMutations(mutations)
-      mutationRepository.finalizePendingMutationsForMediaUpload(mutations)
-      return true
-    } catch (t: Throwable) {
-      // Mark all mutations as having failed since the remote datastore only commits when all
-      // mutations have succeeded.
-      mutationRepository.markAsFailed(mutations, t)
-      Timber.log(t.priority(), t, "Failed to sync local data")
-      return false
+      val successfulMutations =
+        results.filterIsInstance<MutationRepositoryInterface.MutationResult.Success>()
+
+      if (successfulMutations.any { it.hasPendingMediaUploads }) {
+        mediaUploadWorkManager.enqueueSyncWorker()
+      }
+
+      if (results.size == successfulMutations.size) success() else retry()
     }
-  }
 }
