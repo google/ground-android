@@ -13,34 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.ui.map.gms.mog
+package org.groundplatform.domain.model.imagery
 
-import com.google.common.truth.Truth.assertThat
+import kotlin.test.Test
+import kotlin.test.assertEquals
 import org.groundplatform.domain.model.geometry.Coordinates
-import org.groundplatform.domain.model.imagery.TileCoordinates
 import org.groundplatform.domain.model.map.Bounds
-import org.junit.Test
 
 class TileCoordinatesTest {
 
   @Test
   fun `creates tile coordinates from lat lng correctly`() {
-    assertThat(TileCoordinates.fromCoordinates(Coordinates(10.5, 20.5), 10))
-      .isEqualTo(TileCoordinates(570, 481, 10))
+    assertEquals(
+      TileCoordinates(570, 481, 10),
+      TileCoordinates.fromCoordinates(Coordinates(10.5, 20.5), 10),
+    )
   }
 
   @Test
   fun `toString returns custom formatted value`() {
-    assertThat(TileCoordinates(10, 20, 10).toString()).isEqualTo("(10, 20) at zoom 10")
+    assertEquals("(10, 20) at zoom 10", TileCoordinates(10, 20, 10).toString())
   }
 
   @Test
   fun `returns tiles within bounds correctly`() {
     val tiles = TileCoordinates.withinBounds(Bounds(10.0, 10.0, 11.0, 11.0), 10)
 
-    assertThat(tiles).hasSize(16)
-    assertThat(tiles)
-      .containsExactly(
+    assertEquals(16, tiles.size)
+    assertEquals(
+      listOf(
         TileCoordinates(540, 480, 10),
         TileCoordinates(541, 480, 10),
         TileCoordinates(542, 480, 10),
@@ -57,6 +58,8 @@ class TileCoordinatesTest {
         TileCoordinates(541, 483, 10),
         TileCoordinates(542, 483, 10),
         TileCoordinates(543, 483, 10),
-      )
+      ),
+      tiles,
+    )
   }
 }

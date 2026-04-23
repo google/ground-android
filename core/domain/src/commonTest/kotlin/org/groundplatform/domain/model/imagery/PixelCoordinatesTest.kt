@@ -13,15 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.ui.map.gms.mog
+package org.groundplatform.domain.model.imagery
 
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import org.groundplatform.domain.model.geometry.Coordinates
-import org.groundplatform.domain.model.imagery.PixelCoordinates
-import org.groundplatform.domain.model.imagery.TileCoordinates
-import org.groundplatform.domain.model.imagery.toPixelCoordinate
-import org.groundplatform.domain.model.imagery.toPixelCoordinates
-import org.junit.Test
 
 class PixelCoordinatesTest {
   @Test
@@ -46,7 +42,7 @@ class PixelCoordinatesTest {
   }
 
   @Test
-  fun `LatLng#toPixelCoordinates() at zoom 0 returns correct values`() {
+  fun `Coordinates#toPixelCoordinates() at zoom 0 returns correct values`() {
     // jsfiddle used to find examples: https://jsfiddle.net/gmiceli/pjhy4Lfm/16/
     val actual = Coordinates(40.6874, -73.9306).toPixelCoordinates(0)
     val expected = PixelCoordinates(75, 96, 0)
@@ -54,7 +50,7 @@ class PixelCoordinatesTest {
   }
 
   @Test
-  fun `LatLng#toPixelCoordinates() at intermediate zoom returns correct values`() {
+  fun `Coordinates#toPixelCoordinates() at intermediate zoom returns correct values`() {
     // jsfiddle used to find examples: https://jsfiddle.net/gmiceli/pjhy4Lfm/16/
     val actual = Coordinates(41.876, 12.4757).toPixelCoordinates(3)
     val expected = PixelCoordinates(1094, 761, 3)
