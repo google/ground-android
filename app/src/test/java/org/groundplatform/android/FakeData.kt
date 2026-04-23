@@ -19,7 +19,7 @@ import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
-import org.groundplatform.android.model.imagery.OfflineArea
+import org.groundplatform.domain.model.imagery.OfflineArea
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.gms.features.FeatureClusterItem
 import org.groundplatform.domain.model.Survey

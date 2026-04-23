@@ -25,26 +25,23 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.mapNotNull
 import org.groundplatform.android.data.local.stores.LocalOfflineAreaStore
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
-import org.groundplatform.android.model.imagery.LocalTileSource
-import org.groundplatform.android.model.imagery.OfflineArea
-import org.groundplatform.android.model.imagery.TileSource
+import org.groundplatform.domain.model.imagery.LocalTileSource
+import org.groundplatform.domain.model.imagery.OfflineArea
+import org.groundplatform.domain.model.imagery.TileSource
 import org.groundplatform.android.system.GeocodingManager
 import org.groundplatform.android.ui.map.gms.mog.MogClient
 import org.groundplatform.android.ui.map.gms.mog.MogTileDownloader
 import org.groundplatform.android.ui.map.gms.mog.getTilePath
 import org.groundplatform.android.ui.map.gms.mog.maxZoom
 import org.groundplatform.android.ui.util.FileUtil
-import org.groundplatform.android.util.ByteCount
 import org.groundplatform.android.util.deleteIfEmpty
 import org.groundplatform.android.util.rangeOf
 import org.groundplatform.domain.model.map.Bounds
+import org.groundplatform.domain.model.util.ByteCount
+import org.groundplatform.domain.repository.OfflineAreaRepositoryInterface
 import timber.log.Timber
 
-/**
- * Corners of the viewport are scaled by this value when determining the name of downloaded areas.
- * Value derived experimentally.
- */
-const val AREA_NAME_SENSITIVITY = 0.5
+private const val AREA_NAME_SENSITIVITY = 0.5
 
 @Singleton
 class OfflineAreaRepository
@@ -55,7 +52,7 @@ constructor(
   private val geocodingManager: GeocodingManager,
   private val mogClient: MogClient,
   private val offlineUuidGenerator: OfflineUuidGenerator,
-) {
+): OfflineAreaRepositoryInterface {
 
   private suspend fun addOfflineArea(bounds: Bounds, zoomRange: IntRange) {
     val areaName = geocodingManager.getAreaName(bounds.shrink(AREA_NAME_SENSITIVITY))
@@ -70,21 +67,12 @@ constructor(
     )
   }
 
-  /**
-   * Retrieves all offline areas from the local store and continually streams the list as the local
-   * store is updated.
-   */
-  fun offlineAreas(): Flow<List<OfflineArea>> = localOfflineAreaStore.offlineAreas()
+  override fun offlineAreas(): Flow<List<OfflineArea>> = localOfflineAreaStore.offlineAreas()
 
-  /** Fetches a single offline area by ID. */
-  suspend fun getOfflineArea(offlineAreaId: String): OfflineArea? =
+  override suspend fun getOfflineArea(offlineAreaId: String): OfflineArea? =
     localOfflineAreaStore.getOfflineAreaById(offlineAreaId)
 
-  /**
-   * Downloads tiles in the specified bounds and stores them in the local filesystem. Emits the
-   * number of bytes processed and total expected bytes as the download progresses.
-   */
-  fun downloadTiles(bounds: Bounds): Flow<Pair<Int, Int>> = flow {
+  override fun downloadTiles(bounds: Bounds): Flow<Pair<Int, Int>> = flow {
     val requests = mogClient.buildTilesRequests(bounds)
     val totalBytes = requests.sumOf { it.totalBytes }
     var bytesDownloaded = 0
@@ -105,7 +93,7 @@ constructor(
 
   private fun getLocalTileSourcePath(): String = getLocalTileDirectory().path
 
-  fun getOfflineTileSourcesFlow(): Flow<TileSource> =
+  override fun getOfflineTileSourcesFlow(): Flow<TileSource> =
     localOfflineAreaStore.offlineAreas().mapNotNull(::mapOfflineAreasToTileSource)
 
   private fun mapOfflineAreasToTileSource(list: List<OfflineArea>): TileSource? {
@@ -120,7 +108,7 @@ constructor(
     )
   }
 
-  suspend fun hasHiResImagery(bounds: Bounds): Result<Boolean> =
+  override suspend fun hasHiResImagery(bounds: Bounds): Result<Boolean> =
     try {
       val maxZoom = mogClient.collection.sources.maxZoom()
       Result.success(mogClient.buildTilesRequests(bounds, maxZoom..maxZoom).isNotEmpty())
@@ -129,7 +117,7 @@ constructor(
       Result.failure(e)
     }
 
-  suspend fun estimateSizeOnDisk(bounds: Bounds): Result<Int> =
+  override suspend fun estimateSizeOnDisk(bounds: Bounds): Result<Int> =
     try {
       val requests = mogClient.buildTilesRequests(bounds)
       Result.success(requests.sumOf { it.totalBytes })
@@ -138,15 +126,10 @@ constructor(
       Result.failure(e)
     }
 
-  /** Returns the number of bytes occupied by tiles on the local device. */
-  fun sizeOnDevice(offlineArea: OfflineArea): ByteCount =
+  override fun sizeOnDevice(offlineArea: OfflineArea): ByteCount =
     offlineArea.tiles.sumOf { File(getLocalTileSourcePath(), it.getTilePath()).length().toInt() }
 
-  /**
-   * Deletes the provided offline area from the device, including all associated unused tiles on the
-   * local filesystem. Folders containing the deleted tiles are also removed if empty.
-   */
-  suspend fun removeFromDevice(offlineArea: OfflineArea) {
+  override suspend fun removeFromDevice(offlineArea: OfflineArea) {
     val tilesInSelectedArea = offlineArea.tiles
     if (tilesInSelectedArea.isEmpty()) Timber.w("No tiles associate with offline area $offlineArea")
     localOfflineAreaStore.deleteOfflineArea(offlineArea.id)
@@ -163,7 +146,7 @@ constructor(
     }
   }
 
-  suspend fun removeAllOfflineAreas() {
+  override suspend fun removeAllOfflineAreas() {
     localOfflineAreaStore.offlineAreas().first().forEach { removeFromDevice(it) }
     val directoryToDelete = getLocalTileDirectory()
     if (directoryToDelete.exists()) {

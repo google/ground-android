@@ -16,6 +16,8 @@
 
 package org.groundplatform.android.ui.map.gms.mog
 
+import org.groundplatform.domain.model.imagery.TileCoordinates
+
 /**
  * Contiguous tiles are fetched in a single request. To minimize the number of server requests, we
  * also allow additional unneeded tiles to be fetched so that nearly contiguous tiles can be also

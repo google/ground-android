@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.groundplatform.android.ui.map.gms.mog
+package org.groundplatform.domain.model.imagery
 
 /** Not all types are used by this implementation, but all are included here for completeness. */
 enum class TiffTagDataType(

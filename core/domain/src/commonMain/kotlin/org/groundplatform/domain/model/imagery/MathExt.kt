@@ -13,16 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.groundplatform.domain.model.imagery
 
-package org.groundplatform.android.util
+import kotlin.math.PI
+import kotlin.math.abs
+import kotlin.math.cos
 
-import java.io.File
+/**
+ * Returns the value shifted left [n] bits when [n] is positive, or right [-n] bits when negative.
+ */
+fun Int.shiftLeft(n: Int) = if (n >= 0) this shl n else this shr abs(n)
 
-/** Return true iff the file is non-null and contains other files. */
-fun File?.isEmpty() = this?.listFiles().isNullOrEmpty()
+/** Returns the secant of angle `x` given in radians. */
+fun sec(x: Double) = 1 / cos(x)
 
-/** Deletes the file if itt is non-null and doesn't contain other files. */
-fun File.deleteIfEmpty() {
-  if (isEmpty()) delete()
-}
-
+/** Converts degrees into radians. */
+fun Double.toRadians() = this * (PI / 180)

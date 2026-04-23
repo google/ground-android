@@ -13,18 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.ui.map.gms.mog
+package org.groundplatform.domain.model.imagery
 
-import com.google.common.truth.Truth.assertWithMessage
-import org.junit.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class TiffTagTest {
 
   @Test
   fun `unique id`() {
-    assertWithMessage("TiffTag enum contains non-unique ids")
-      .that(TiffTag.entries.toTypedArray())
-      .hasLength(TiffTag.byId.size)
+    assertEquals(
+      TiffTag.byId.size,
+      TiffTag.entries.toTypedArray().size,
+      "TiffTag enum contains non-unique ids",
+    )
   }
 
   @Test
@@ -33,7 +37,7 @@ class TiffTagTest {
       .filter {
         it == TiffTag.TileByteCounts || it == TiffTag.TileOffsets || it == TiffTag.JPEGTables
       }
-      .forEach { assertWithMessage("${it.name} should be of type array").that(it.isArray).isTrue() }
+      .forEach { assertTrue(it.isArray, "${it.name} should be of type array") }
   }
 
   @Test
@@ -42,8 +46,6 @@ class TiffTagTest {
       .filter {
         it != TiffTag.TileByteCounts && it != TiffTag.TileOffsets && it != TiffTag.JPEGTables
       }
-      .forEach {
-        assertWithMessage("${it.name} should not be of type array").that(it.isArray).isFalse()
-      }
+      .forEach { assertFalse(it.isArray, "${it.name} should not be of type array") }
   }
 }

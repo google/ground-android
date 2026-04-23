@@ -44,9 +44,9 @@ import kotlin.math.sqrt
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
-import org.groundplatform.android.model.imagery.LocalTileSource
-import org.groundplatform.android.model.imagery.RemoteMogTileSource
-import org.groundplatform.android.model.imagery.TileSource
+import org.groundplatform.domain.model.imagery.LocalTileSource
+import org.groundplatform.domain.model.imagery.RemoteMogTileSource
+import org.groundplatform.domain.model.imagery.TileSource
 import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.MapFragment

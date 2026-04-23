@@ -25,7 +25,7 @@ import org.groundplatform.android.data.local.room.dao.OfflineAreaDao
 import org.groundplatform.android.data.local.room.dao.insertOrUpdate
 import org.groundplatform.android.data.local.room.entity.OfflineAreaEntity
 import org.groundplatform.android.data.local.stores.LocalOfflineAreaStore
-import org.groundplatform.android.model.imagery.OfflineArea
+import org.groundplatform.domain.model.imagery.OfflineArea
 
 @Singleton
 class RoomOfflineAreaStore @Inject internal constructor() : LocalOfflineAreaStore {

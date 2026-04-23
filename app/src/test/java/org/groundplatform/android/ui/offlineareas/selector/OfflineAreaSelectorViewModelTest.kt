@@ -26,19 +26,19 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
-import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.android.system.LocationManager
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.system.SettingsManager
 import org.groundplatform.android.ui.offlineareas.selector.model.OfflineAreaSelectorEvent
 import org.groundplatform.android.ui.offlineareas.selector.model.OfflineAreaSelectorState
-import org.groundplatform.android.util.toMbString
+import org.groundplatform.android.ui.util.toMbString
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.map.Bounds
 import org.groundplatform.domain.model.map.CameraPosition
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import org.groundplatform.domain.repository.MapStateRepositoryInterface
+import org.groundplatform.domain.repository.OfflineAreaRepositoryInterface
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -54,7 +54,7 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class OfflineAreaSelectorViewModelTest : BaseHiltTest() {
 
-  @Mock private lateinit var offlineAreaRepository: OfflineAreaRepository
+  @Mock private lateinit var offlineAreaRepository: OfflineAreaRepositoryInterface
   @Mock private lateinit var locationManager: LocationManager
   @Mock private lateinit var surveyRepository: SurveyRepositoryInterface
   @Mock private lateinit var mapStateRepository: MapStateRepositoryInterface

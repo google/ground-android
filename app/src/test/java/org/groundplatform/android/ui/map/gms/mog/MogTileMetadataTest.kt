@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android.ui.map.gms.mog
 
+import org.groundplatform.domain.model.imagery.TileCoordinates
 import org.junit.Assert.assertThrows
 import org.junit.Test
 
