@@ -53,10 +53,4 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
       )
     }
   }
-
-  override fun onTaskResume() {
-    if (isVisible && !viewModel.instructionsDialogShown) {
-      viewModel.showInstructions()
-    }
-  }
 }

@@ -65,8 +65,7 @@ fun DrawAreaTaskScreen(
     onFooterPositionUpdated = onFooterPositionUpdated,
     onAction = { action ->
       if (action is TaskScreenAction.OnInstructionsDismiss) {
-        viewModel.dismissInstructions()
-        viewModel.instructionsDialogShown = true
+        viewModel.dismissDrawAreaInstructions()
       } else {
         onAction(action)
       }

@@ -112,7 +112,7 @@ internal constructor(
   val cameraMoveEvents = _cameraMoveEvents.receiveAsFlow()
 
   /** Whether the instructions dialog has been shown or not. */
-  var instructionsDialogShown: Boolean by localValueStore::drawAreaInstructionsShown
+  internal var instructionsDialogShown: Boolean by localValueStore::drawAreaInstructionsShown
 
   private val _polygonArea = MutableLiveData<String>()
   val polygonArea: LiveData<String> = _polygonArea
@@ -149,6 +149,12 @@ internal constructor(
       .stateIn(viewModelScope, WhileSubscribed(5_000), emptyList())
   }
 
+  init {
+    if (!instructionsDialogShown) {
+      showInstructions()
+    }
+  }
+
   override fun initialize(
     job: Job,
     task: Task,
@@ -181,6 +187,11 @@ internal constructor(
         }
       }
     }
+  }
+
+  fun dismissDrawAreaInstructions() {
+    instructionsDialogShown = true
+    dismissInstructions()
   }
 
   fun isMarkedComplete(): Boolean = sessionState.value.isMarkedComplete
@@ -358,11 +369,7 @@ internal constructor(
   }
 
   private fun getRedoButton(): ButtonActionState =
-    ButtonActionState(
-      action = ButtonAction.REDO,
-      isEnabled = session.canRedo(),
-      isVisible = true,
-    )
+    ButtonActionState(action = ButtonAction.REDO, isEnabled = session.canRedo(), isVisible = true)
 
   private fun getAddPointButton(isPolygonClosed: Boolean, isTooClose: Boolean): ButtonActionState =
     ButtonActionState(
