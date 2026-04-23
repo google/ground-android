@@ -23,7 +23,6 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.core.net.toUri
 import com.google.common.truth.Truth.assertThat
 import java.io.File
 import kotlinx.coroutines.runBlocking
@@ -113,7 +112,7 @@ class PhotoTaskScreenTest {
   fun `shows photo preview when photo is present`() {
     runBlocking {
       whenever(userMediaRepository.getDownloadUrl("test_file.jpg"))
-        .thenReturn("content://media/external/images/media/1".toUri())
+        .thenReturn("content://media/external/images/media/1")
     }
 
     setupTaskScreen(TASK, PhotoTaskData("test_file.jpg"))
@@ -126,8 +125,8 @@ class PhotoTaskScreenTest {
   fun `invokes onTakePhoto callback when capture button is clicked`() {
     setupTaskScreen(TASK)
 
-    val file = File("test.jpg")
-    val dummyUri = Uri.parse("content://test")
+    val file = "test.jpg"
+    val dummyUri = "content://test"
     runBlocking { whenever(userMediaRepository.createImageFile(TASK.id)).thenReturn(file) }
     whenever(userMediaRepository.getUriForFile(file)).thenReturn(dummyUri)
 
@@ -171,7 +170,7 @@ class PhotoTaskScreenTest {
   fun `sets action buttons state when data is present`() {
     runBlocking {
       whenever(userMediaRepository.getDownloadUrl("test_file.jpg"))
-        .thenReturn("content://media/external/images/media/1".toUri())
+        .thenReturn("content://media/external/images/media/1")
     }
     setupTaskScreen(TASK.copy(isRequired = true), PhotoTaskData("test_file.jpg"))
 
@@ -238,12 +237,12 @@ class PhotoTaskScreenTest {
     val file = File("test.jpg")
     val dummyUri = Uri.parse("content://test")
     runBlocking {
-      whenever(userMediaRepository.createImageFile(TASK.id)).thenReturn(file)
+      whenever(userMediaRepository.createImageFile(TASK.id)).thenReturn(file.absolutePath)
       whenever(userMediaRepository.addImageToGallery(file.absolutePath, file.name)).then {
         error("Save failed")
       }
     }
-    whenever(userMediaRepository.getUriForFile(file)).thenReturn(dummyUri)
+    whenever(userMediaRepository.getUriForFile(file.absolutePath)).thenReturn(dummyUri.toString())
 
     viewModel.onTakePhoto()
     viewModel.onCaptureResult(true)

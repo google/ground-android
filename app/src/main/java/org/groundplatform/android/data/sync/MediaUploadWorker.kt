@@ -23,6 +23,7 @@ import androidx.work.ListenableWorker.Result.success
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import java.io.File
 import java.io.FileNotFoundException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -91,7 +92,7 @@ constructor(
   private suspend fun uploadPhotoMedia(photoTaskData: PhotoTaskData): kotlin.Result<Unit> {
     try {
       val path = photoTaskData.remoteFilename
-      val photoFile = userMediaRepository.getLocalFileFromRemotePath(path)
+      val photoFile = File(userMediaRepository.getLocalFileFromRemotePath(path))
       Timber.d("Starting photo upload. local path: ${photoFile.path}, remote path: $path")
       if (!photoFile.exists()) {
         throw FileNotFoundException(photoFile.path)

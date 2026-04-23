@@ -16,7 +16,6 @@
 package org.groundplatform.android.data.sync
 
 import android.content.Context
-import android.graphics.Bitmap
 import androidx.test.core.app.ApplicationProvider
 import androidx.work.ListenableWorker
 import androidx.work.WorkerFactory
@@ -24,6 +23,7 @@ import androidx.work.WorkerParameters
 import androidx.work.testing.TestListenableWorkerBuilder
 import com.google.common.truth.Truth.assertWithMessage
 import dagger.hilt.android.testing.HiltAndroidTest
+import java.io.File
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
@@ -193,15 +193,12 @@ class MediaUploadWorkerTest : BaseHiltTest() {
     localSubmissionStore.applyAndEnqueue(createSubmissionMutation().copy(syncStatus = status))
 
   private suspend fun createSubmissionMutation(photoName: String? = null): SubmissionMutation {
-    val photo =
-      userMediaRepository.savePhoto(
-        Bitmap.createBitmap(1, 1, Bitmap.Config.HARDWARE),
-        TEST_PHOTO_TASK.id,
-      )
+    val photo = userMediaRepository.createImageFile(TEST_PHOTO_TASK.id)
+    File(photo).writeBytes(ByteArray(0))
 
     return SUBMISSION_MUTATION.copy(
       job = TEST_JOB,
-      deltas = listOf(ValueDelta(PHOTO_TASK_ID, PHOTO, PhotoTaskData(photoName ?: photo.name))),
+      deltas = listOf(ValueDelta(PHOTO_TASK_ID, PHOTO, PhotoTaskData(photoName ?: photo))),
     )
   }
 

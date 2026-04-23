@@ -20,6 +20,7 @@ import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.net.Uri
 import android.os.Build
 import android.os.Build.VERSION_CODES
+import androidx.core.net.toUri
 import androidx.lifecycle.viewModelScope
 import java.io.File
 import javax.inject.Inject
@@ -63,7 +64,7 @@ constructor(
     taskTaskData
       .map { taskData ->
         if (taskData is PhotoTaskData && taskData.isNotNullOrEmpty()) {
-          userMediaRepository.getDownloadUrl(taskData.remoteFilename)
+          userMediaRepository.getDownloadUrl(taskData.remoteFilename).toUri()
         } else {
           Uri.EMPTY
         }
@@ -91,10 +92,10 @@ constructor(
 
   private suspend fun launchPhotoCapture() {
     try {
-      val file = userMediaRepository.createImageFile(task.id)
-      tempPhotoFilePath = file.absolutePath
-      val uri = userMediaRepository.getUriForFile(file)
-      _events.send(PhotoTaskEvent.LaunchCamera(uri))
+      val mediaFilePath = userMediaRepository.createImageFile(task.id)
+      tempPhotoFilePath = mediaFilePath
+      val mediaUri = userMediaRepository.getUriForFile(mediaFilePath)
+      _events.send(PhotoTaskEvent.LaunchCamera(mediaUri.toUri()))
       Timber.d("Capture photo intent sent")
     } catch (e: IllegalArgumentException) {
       _isAwaitingPhotoCapture.value = false
