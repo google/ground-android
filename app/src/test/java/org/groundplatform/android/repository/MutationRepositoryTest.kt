@@ -34,6 +34,10 @@ import org.groundplatform.domain.model.mutation.Mutation.SyncStatus.MEDIA_UPLOAD
 import org.groundplatform.domain.model.mutation.Mutation.SyncStatus.MEDIA_UPLOAD_PENDING
 import org.groundplatform.domain.model.mutation.Mutation.SyncStatus.PENDING
 import org.groundplatform.domain.model.mutation.SubmissionMutation
+import org.groundplatform.domain.model.submission.ValueDelta
+import org.groundplatform.domain.model.task.PhotoTaskData
+import org.groundplatform.domain.model.task.Task
+import org.groundplatform.domain.repository.MutationRepositoryInterface.MutationResult
 import org.groundplatform.domain.repository.UserRepositoryInterface
 import org.groundplatform.testing.FakeDataGenerator
 import org.junit.Before
@@ -41,8 +45,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.never
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
@@ -155,49 +161,117 @@ class MutationRepositoryTest {
   }
 
   @Test
-  fun `finalizePendingMutationsForMediaUpload marks non-delete mutations for media upload`() =
+  fun `processMutations uploads, marks non-media mutations as COMPLETED, and reports no media`() =
     runTest {
+      setupMocks()
       val loi = FakeDataGenerator.newLoiMutation(id = 1, collectionId = "a")
       val submission = FakeDataGenerator.newSubmissionMutation(id = 2, collectionId = "a")
 
-      repository.finalizePendingMutationsForMediaUpload(listOf(loi, submission))
+      val result = repository.processMutations(listOf(loi, submission))
 
+      assertThat(result).isEqualTo(MutationResult.Success(hasPendingMediaUploads = false))
+      verify(remoteDataStore).applyMutations(listOf(loi, submission), TEST_USER)
+      // Stores are touched twice: once for IN_PROGRESS, once for COMPLETED.
       val loiCaptor = argumentCaptor<List<LocationOfInterestMutation>>()
       val submissionCaptor = argumentCaptor<List<SubmissionMutation>>()
-      verify(localLoiStore).updateAll(loiCaptor.capture())
-      verify(localSubmissionStore).updateAll(submissionCaptor.capture())
-      assertThat(loiCaptor.firstValue.map { it.syncStatus }).containsExactly(MEDIA_UPLOAD_PENDING)
-      assertThat(submissionCaptor.firstValue.map { it.syncStatus })
-        .containsExactly(MEDIA_UPLOAD_PENDING)
+      verify(localLoiStore, times(2)).updateAll(loiCaptor.capture())
+      verify(localSubmissionStore, times(2)).updateAll(submissionCaptor.capture())
+      assertThat(loiCaptor.allValues.map { it.single().syncStatus })
+        .containsExactly(IN_PROGRESS, COMPLETED)
+        .inOrder()
+      assertThat(submissionCaptor.allValues.map { it.single().syncStatus })
+        .containsExactly(IN_PROGRESS, COMPLETED)
+        .inOrder()
     }
 
   @Test
-  fun `finalizePendingMutationsForMediaUpload deletes LOI and submission for DELETE mutations`() =
+  fun `processMutations marks submissions with photos for media upload and signals pending media`() =
     runTest {
-      val loi = FakeDataGenerator.newLoiMutation(id = 1, mutationType = Mutation.Type.DELETE)
-      val submission =
-        FakeDataGenerator.newSubmissionMutation(
-          id = 2,
-          collectionId = "a",
-          mutationType = Mutation.Type.DELETE,
-          submissionId = "submission-to-delete",
-        )
+      setupMocks()
+      val loi = FakeDataGenerator.newLoiMutation(id = 1, collectionId = "a")
+      val submissionWithPhoto =
+        FakeDataGenerator.newSubmissionMutation(id = 2, collectionId = "a")
+          .copy(
+            deltas =
+              listOf(ValueDelta("photoTaskId", Task.Type.PHOTO, PhotoTaskData("some/photo.jpg")))
+          )
 
-      repository.finalizePendingMutationsForMediaUpload(listOf(loi, submission))
+      val result = repository.processMutations(listOf(loi, submissionWithPhoto))
 
-      verify(localLoiStore).deleteLocationOfInterest(loi.locationOfInterestId)
-      verify(localSubmissionStore).deleteSubmission("submission-to-delete")
+      assertThat(result).isEqualTo(MutationResult.Success(hasPendingMediaUploads = true))
+      val loiCaptor = argumentCaptor<List<LocationOfInterestMutation>>()
+      val submissionCaptor = argumentCaptor<List<SubmissionMutation>>()
+      // Stores are touched twice: once for IN_PROGRESS, once for COMPLETED/MEDIA_UPLOAD_PENDING.
+      verify(localLoiStore, times(2)).updateAll(loiCaptor.capture())
+      verify(localSubmissionStore, times(2)).updateAll(submissionCaptor.capture())
+      assertThat(loiCaptor.allValues.last().single().syncStatus).isEqualTo(COMPLETED)
+      assertThat(submissionCaptor.allValues.last().single().syncStatus)
+        .isEqualTo(MEDIA_UPLOAD_PENDING)
     }
 
   @Test
-  fun `markAsInProgress saves mutations with IN_PROGRESS status`() = runTest {
-    val mutation = FakeDataGenerator.newLoiMutation(syncStatus = PENDING)
+  fun `processMutations deletes local LOI and submission for DELETE mutations`() = runTest {
+    setupMocks()
+    val loiDelete =
+      FakeDataGenerator.newLoiMutation(
+        id = 1,
+        collectionId = "a",
+        mutationType = Mutation.Type.DELETE,
+      )
+    val submissionDelete =
+      FakeDataGenerator.newSubmissionMutation(
+        id = 2,
+        collectionId = "a",
+        submissionId = "submission-to-delete",
+        mutationType = Mutation.Type.DELETE,
+      )
 
-    repository.markAsInProgress(listOf(mutation))
+    val result = repository.processMutations(listOf(loiDelete, submissionDelete))
 
-    val captor = argumentCaptor<List<LocationOfInterestMutation>>()
-    verify(localLoiStore).updateAll(captor.capture())
-    assertThat(captor.firstValue.single().syncStatus).isEqualTo(IN_PROGRESS)
+    assertThat(result).isEqualTo(MutationResult.Success(hasPendingMediaUploads = false))
+    verify(localLoiStore).deleteLocationOfInterest(loiDelete.locationOfInterestId)
+    verify(localSubmissionStore).deleteSubmission("submission-to-delete")
+  }
+
+  @Test
+  fun `processMutations marks all mutations FAILED and returns Failure when remote upload throws`() =
+    runTest {
+      setupMocks()
+      val loi = FakeDataGenerator.newLoiMutation(id = 1, collectionId = "a", retryCount = 1)
+      val submission =
+        FakeDataGenerator.newSubmissionMutation(id = 2, collectionId = "a", retryCount = 0)
+      whenever(remoteDataStore.applyMutations(any(), any())).thenThrow(RuntimeException("boom"))
+
+      val result = repository.processMutations(listOf(loi, submission))
+
+      assertThat(result).isEqualTo(MutationResult.Failure)
+      val loiCaptor = argumentCaptor<List<LocationOfInterestMutation>>()
+      val submissionCaptor = argumentCaptor<List<SubmissionMutation>>()
+      // Stores are touched twice: once for IN_PROGRESS, once for COMPLETED.
+      verify(localLoiStore, times(2)).updateAll(loiCaptor.capture())
+      verify(localSubmissionStore, times(2)).updateAll(submissionCaptor.capture())
+      with(loiCaptor.allValues.last().single()) {
+        assertThat(syncStatus).isEqualTo(FAILED)
+        assertThat(retryCount).isEqualTo(2)
+        assertThat(lastError).isEqualTo("boom")
+      }
+      with(submissionCaptor.allValues.last().single()) {
+        assertThat(syncStatus).isEqualTo(FAILED)
+        assertThat(retryCount).isEqualTo(1)
+        assertThat(lastError).isEqualTo("boom")
+      }
+    }
+
+  @Test
+  fun `processMutations does not do any deletions if there are no DELETE mutations`() = runTest {
+    setupMocks()
+    val loi = FakeDataGenerator.newLoiMutation(id = 1, collectionId = "a")
+    val submission = FakeDataGenerator.newSubmissionMutation(id = 2, collectionId = "a")
+
+    repository.processMutations(listOf(loi, submission))
+
+    verify(localLoiStore, never()).deleteLocationOfInterest(any())
+    verify(localSubmissionStore, never()).deleteSubmission(any())
   }
 
   @Test
@@ -228,22 +302,6 @@ class MutationRepositoryTest {
   }
 
   @Test
-  fun `markAsFailedMediaUpload increments retry count and records error message`() = runTest {
-    val mutation = FakeDataGenerator.newSubmissionMutation(retryCount = 0)
-    val error = RuntimeException("upload failed")
-
-    repository.markAsFailedMediaUpload(listOf(mutation), error)
-
-    val captor = argumentCaptor<List<SubmissionMutation>>()
-    verify(localSubmissionStore).updateAll(captor.capture())
-    with(captor.firstValue.single()) {
-      assertThat(syncStatus).isEqualTo(MEDIA_UPLOAD_AWAITING_RETRY)
-      assertThat(retryCount).isEqualTo(1)
-      assertThat(lastError).isEqualTo("upload failed")
-    }
-  }
-
-  @Test
   fun `markAsMediaUploadInProgress preserves retry count`() = runTest {
     val mutation = FakeDataGenerator.newSubmissionMutation(retryCount = 4, lastError = "last error")
 
@@ -256,24 +314,6 @@ class MutationRepositoryTest {
       assertThat(retryCount).isEqualTo(4)
       assertThat(lastError).isEqualTo("last error")
     }
-  }
-
-  @Test
-  fun `uploadMutations delegates to remote data store with authenticated user`() = runTest {
-    setupMocks()
-    val mutations = listOf(FakeDataGenerator.newLoiMutation())
-
-    repository.uploadMutations(mutations)
-
-    verify(remoteDataStore).applyMutations(mutations, TEST_USER)
-  }
-
-  @Test
-  fun `finalizePendingMutationsForMediaUpload with empty list does not touch stores`() = runTest {
-    repository.finalizePendingMutationsForMediaUpload(emptyList())
-
-    verify(localLoiStore, never()).deleteLocationOfInterest(org.mockito.kotlin.any())
-    verify(localSubmissionStore, never()).deleteSubmission(org.mockito.kotlin.any())
   }
 
   private suspend fun setupMocks(
