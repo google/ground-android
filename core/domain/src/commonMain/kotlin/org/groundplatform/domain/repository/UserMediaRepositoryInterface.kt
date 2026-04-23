@@ -15,14 +15,16 @@
  */
 package org.groundplatform.domain.repository
 
+import kotlin.jvm.JvmInline
+
 /**
  * Provides access to user-provided media stored locally and remotely. This currently includes only
  * photos.
  */
 interface UserMediaRepositoryInterface {
-  typealias MediaUri = String
+  @JvmInline value class MediaUri(val value: String)
 
-  typealias MediaFilePath = String
+  @JvmInline value class MediaFilePath(val value: String)
 
   suspend fun createImageFile(fieldId: String): MediaFilePath
 

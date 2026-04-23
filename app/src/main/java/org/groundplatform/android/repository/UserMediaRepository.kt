@@ -64,7 +64,8 @@ constructor(
    * @param path Final destination path of the uploaded file relative to Firestore
    */
   override suspend fun getDownloadUrl(path: String?): MediaUri =
-    if (path.isNullOrEmpty()) "" else getFileUriFromRemotePath(path).toMediaUri()
+    if (path.isNullOrEmpty()) Uri.EMPTY.toMediaUri()
+    else getFileUriFromRemotePath(path).toMediaUri()
 
   private suspend fun getFileUriFromRemotePath(destinationPath: String): Uri {
     val file = getLocalFileFromRemotePath(destinationPath).toFile()
@@ -94,13 +95,13 @@ constructor(
     FileProvider.getUriForFile(
         context,
         org.groundplatform.android.BuildConfig.APPLICATION_ID,
-        File(mediaFilePath),
+        mediaFilePath.toFile(),
       )
       .toMediaUri()
 
-  private fun File.toMediaFile(): MediaFilePath = absolutePath
+  private fun File.toMediaFile(): MediaFilePath = MediaFilePath(absolutePath)
 
-  private fun MediaFilePath.toFile(): File = File(this)
+  private fun MediaFilePath.toFile(): File = File(value)
 
-  private fun Uri.toMediaUri(): MediaUri = toString()
+  private fun Uri.toMediaUri(): MediaUri = MediaUri(toString())
 }

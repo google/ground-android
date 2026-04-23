@@ -35,7 +35,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.groundplatform.android.data.remote.firebase.FirebaseStorageManager
-import org.groundplatform.android.repository.UserMediaRepository
 import org.groundplatform.android.system.PermissionDeniedException
 import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
@@ -43,12 +42,13 @@ import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.submission.isNotNullOrEmpty
 import org.groundplatform.domain.model.task.PhotoTaskData
+import org.groundplatform.domain.repository.UserMediaRepositoryInterface
 import timber.log.Timber
 
 class PhotoTaskViewModel
 @Inject
 constructor(
-  private val userMediaRepository: UserMediaRepository,
+  private val userMediaRepository: UserMediaRepositoryInterface,
   private val permissionsManager: PermissionsManager,
 ) : AbstractTaskViewModel() {
 
@@ -64,7 +64,7 @@ constructor(
     taskTaskData
       .map { taskData ->
         if (taskData is PhotoTaskData && taskData.isNotNullOrEmpty()) {
-          userMediaRepository.getDownloadUrl(taskData.remoteFilename).toUri()
+          userMediaRepository.getDownloadUrl(taskData.remoteFilename).value.toUri()
         } else {
           Uri.EMPTY
         }
@@ -93,8 +93,8 @@ constructor(
   private suspend fun launchPhotoCapture() {
     try {
       val mediaFilePath = userMediaRepository.createImageFile(task.id)
-      tempPhotoFilePath = mediaFilePath
-      val mediaUri = userMediaRepository.getUriForFile(mediaFilePath)
+      tempPhotoFilePath = mediaFilePath.value
+      val mediaUri = userMediaRepository.getUriForFile(mediaFilePath).value
       _events.send(PhotoTaskEvent.LaunchCamera(mediaUri.toUri()))
       Timber.d("Capture photo intent sent")
     } catch (e: IllegalArgumentException) {

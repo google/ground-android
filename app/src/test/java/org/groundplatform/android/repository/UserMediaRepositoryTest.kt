@@ -20,6 +20,7 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import java.io.File
 import javax.inject.Inject
 import org.groundplatform.android.BaseHiltTest
+import org.groundplatform.domain.repository.UserMediaRepositoryInterface
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -29,7 +30,7 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class UserMediaRepositoryTest : BaseHiltTest() {
 
-  @Inject lateinit var userMediaRepository: UserMediaRepository
+  @Inject lateinit var userMediaRepository: UserMediaRepositoryInterface
 
   @Test
   fun `getLocalFileFromRemotePath handles invalid image filename`() {
@@ -58,7 +59,7 @@ class UserMediaRepositoryTest : BaseHiltTest() {
   @Test
   fun `createImageFile returns path with fieldId, uuid and jpg extension`() =
     runWithTestDispatcher {
-      val mediaFile = userMediaRepository.createImageFile("field1")
+      val mediaFile = userMediaRepository.createImageFile("field1").value
 
       assertThat(File(mediaFile).name).isEqualTo("field1-TEST UUID.jpg")
     }
@@ -73,25 +74,26 @@ class UserMediaRepositoryTest : BaseHiltTest() {
 
   @Test
   fun `getDownloadUrl returns empty when path is null`() = runWithTestDispatcher {
-    assertThat(userMediaRepository.getDownloadUrl(null)).isEmpty()
+    assertThat(userMediaRepository.getDownloadUrl(null).value).isEmpty()
   }
 
   @Test
   fun `getDownloadUrl returns empty when path is empty`() = runWithTestDispatcher {
-    assertThat(userMediaRepository.getDownloadUrl("")).isEmpty()
+    assertThat(userMediaRepository.getDownloadUrl("").value).isEmpty()
   }
 
   @Test
   fun `getDownloadUrl falls back to remote when local file is missing`() = runWithTestDispatcher {
-    assertThat(userMediaRepository.getDownloadUrl("remote/path/missing.jpg")).isEmpty()
+    assertThat(userMediaRepository.getDownloadUrl("remote/path/missing.jpg").value).isEmpty()
   }
 
   @Test
   fun `getDownloadUrl returns local file uri when file exists`() = runWithTestDispatcher {
-    val mediaFile = userMediaRepository.createImageFile("field1")
+    val mediaFile = userMediaRepository.createImageFile("field1").value
     File(mediaFile).writeBytes(ByteArray(0))
 
-    val downloadUrl = userMediaRepository.getDownloadUrl("remote/path/${File(mediaFile).name}")
+    val downloadUrl =
+      userMediaRepository.getDownloadUrl("remote/path/${File(mediaFile).name}").value
 
     assertThat(downloadUrl).startsWith("file://")
     assertThat(downloadUrl).endsWith(File(mediaFile).name.replace(" ", "%20"))
@@ -100,11 +102,11 @@ class UserMediaRepositoryTest : BaseHiltTest() {
   @Test
   fun `getUriForFile returns content uri backed by FileProvider`() = runWithTestDispatcher {
     val mediaFile = userMediaRepository.createImageFile("field1")
-    File(mediaFile).writeBytes(ByteArray(0))
+    File(mediaFile.value).writeBytes(ByteArray(0))
 
-    val uri = userMediaRepository.getUriForFile(mediaFile)
+    val uri = userMediaRepository.getUriForFile(mediaFile).value
 
     assertThat(uri).startsWith("content://org.groundplatform.android/")
-    assertThat(uri).endsWith(File(mediaFile).name.replace(" ", "%20"))
+    assertThat(uri).endsWith(File(mediaFile.value).name.replace(" ", "%20"))
   }
 }

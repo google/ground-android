@@ -36,7 +36,6 @@ import org.groundplatform.android.data.local.stores.LocalUserStore
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.data.remote.FakeRemoteStorageManager
 import org.groundplatform.android.di.coroutines.IoDispatcher
-import org.groundplatform.android.repository.UserMediaRepository
 import org.groundplatform.domain.model.mutation.Mutation
 import org.groundplatform.domain.model.mutation.Mutation.SyncStatus.COMPLETED
 import org.groundplatform.domain.model.mutation.Mutation.SyncStatus.FAILED
@@ -52,6 +51,7 @@ import org.groundplatform.domain.model.task.PhotoTaskData
 import org.groundplatform.domain.model.task.Task
 import org.groundplatform.domain.model.task.Task.Type.PHOTO
 import org.groundplatform.domain.repository.MutationRepositoryInterface
+import org.groundplatform.domain.repository.UserMediaRepositoryInterface
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -63,7 +63,7 @@ class MediaUploadWorkerTest : BaseHiltTest() {
   private lateinit var context: Context
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
   @Inject lateinit var mutationRepository: MutationRepositoryInterface
-  @Inject lateinit var userMediaRepository: UserMediaRepository
+  @Inject lateinit var userMediaRepository: UserMediaRepositoryInterface
   @Inject lateinit var fakeRemoteStorageManager: FakeRemoteStorageManager
   @Inject lateinit var localSubmissionStore: LocalSubmissionStore
   @Inject lateinit var localUserStore: LocalUserStore
@@ -193,7 +193,7 @@ class MediaUploadWorkerTest : BaseHiltTest() {
     localSubmissionStore.applyAndEnqueue(createSubmissionMutation().copy(syncStatus = status))
 
   private suspend fun createSubmissionMutation(photoName: String? = null): SubmissionMutation {
-    val photo = userMediaRepository.createImageFile(TEST_PHOTO_TASK.id)
+    val photo = userMediaRepository.createImageFile(TEST_PHOTO_TASK.id).value
     File(photo).writeBytes(ByteArray(0))
 
     return SUBMISSION_MUTATION.copy(

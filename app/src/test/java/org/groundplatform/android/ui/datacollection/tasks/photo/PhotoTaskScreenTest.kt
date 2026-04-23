@@ -26,7 +26,6 @@ import androidx.compose.ui.test.performClick
 import com.google.common.truth.Truth.assertThat
 import java.io.File
 import kotlinx.coroutines.runBlocking
-import org.groundplatform.android.repository.UserMediaRepository
 import org.groundplatform.android.system.PermissionDeniedException
 import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
@@ -39,12 +38,15 @@ import org.groundplatform.domain.model.job.Style
 import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.task.PhotoTaskData
 import org.groundplatform.domain.model.task.Task
+import org.groundplatform.domain.repository.UserMediaRepositoryInterface
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
@@ -54,7 +56,7 @@ class PhotoTaskScreenTest {
 
   @get:Rule val composeTestRule = createComposeRule()
 
-  @Mock private lateinit var userMediaRepository: UserMediaRepository
+  @Mock private lateinit var userMediaRepository: UserMediaRepositoryInterface
   @Mock private lateinit var permissionsManager: PermissionsManager
   private lateinit var viewModel: PhotoTaskViewModel
   private var lastButtonAction: ButtonAction? = null
@@ -111,8 +113,9 @@ class PhotoTaskScreenTest {
   @Test
   fun `shows photo preview when photo is present`() {
     runBlocking {
-      whenever(userMediaRepository.getDownloadUrl("test_file.jpg"))
-        .thenReturn("content://media/external/images/media/1")
+      doReturn(UserMediaRepositoryInterface.MediaUri("content://media/external/images/media/1"))
+        .whenever(userMediaRepository)
+        .getDownloadUrl("test_file.jpg")
     }
 
     setupTaskScreen(TASK, PhotoTaskData("test_file.jpg"))
@@ -125,10 +128,10 @@ class PhotoTaskScreenTest {
   fun `invokes onTakePhoto callback when capture button is clicked`() {
     setupTaskScreen(TASK)
 
-    val file = "test.jpg"
-    val dummyUri = "content://test"
-    runBlocking { whenever(userMediaRepository.createImageFile(TASK.id)).thenReturn(file) }
-    whenever(userMediaRepository.getUriForFile(file)).thenReturn(dummyUri)
+    val file = UserMediaRepositoryInterface.MediaFilePath("test.jpg")
+    val dummyUri = UserMediaRepositoryInterface.MediaUri("content://test")
+    runBlocking { doReturn(file).whenever(userMediaRepository).createImageFile(TASK.id) }
+    doReturn(dummyUri).whenever(userMediaRepository).getUriForFile(file)
 
     composeTestRule.onNodeWithText("Camera").performClick()
 
@@ -169,8 +172,9 @@ class PhotoTaskScreenTest {
   @Test
   fun `sets action buttons state when data is present`() {
     runBlocking {
-      whenever(userMediaRepository.getDownloadUrl("test_file.jpg"))
-        .thenReturn("content://media/external/images/media/1")
+      doReturn(UserMediaRepositoryInterface.MediaUri("content://media/external/images/media/1"))
+        .whenever(userMediaRepository)
+        .getDownloadUrl("test_file.jpg")
     }
     setupTaskScreen(TASK.copy(isRequired = true), PhotoTaskData("test_file.jpg"))
 
@@ -236,13 +240,16 @@ class PhotoTaskScreenTest {
 
     val file = File("test.jpg")
     val dummyUri = Uri.parse("content://test")
+    val mediaFilePath = UserMediaRepositoryInterface.MediaFilePath(file.absolutePath)
     runBlocking {
-      whenever(userMediaRepository.createImageFile(TASK.id)).thenReturn(file.absolutePath)
+      doReturn(mediaFilePath).whenever(userMediaRepository).createImageFile(TASK.id)
       whenever(userMediaRepository.addImageToGallery(file.absolutePath, file.name)).then {
         error("Save failed")
       }
     }
-    whenever(userMediaRepository.getUriForFile(file.absolutePath)).thenReturn(dummyUri.toString())
+    doReturn(UserMediaRepositoryInterface.MediaUri(dummyUri.toString()))
+      .whenever(userMediaRepository)
+      .getUriForFile(mediaFilePath)
 
     viewModel.onTakePhoto()
     viewModel.onCaptureResult(true)
@@ -255,9 +262,9 @@ class PhotoTaskScreenTest {
     setupTaskScreen(TASK)
 
     runBlocking {
-      whenever(userMediaRepository.createImageFile(TASK.id)).then {
-        throw IllegalArgumentException("Launch failed")
-      }
+      doThrow(IllegalArgumentException("Launch failed"))
+        .whenever(userMediaRepository)
+        .createImageFile(TASK.id)
     }
 
     viewModel.onTakePhoto()

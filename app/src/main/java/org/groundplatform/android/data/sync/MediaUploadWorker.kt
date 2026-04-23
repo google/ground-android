@@ -29,11 +29,11 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import org.groundplatform.android.data.remote.RemoteStorageManager
 import org.groundplatform.android.di.coroutines.IoDispatcher
-import org.groundplatform.android.repository.UserMediaRepository
 import org.groundplatform.android.util.priority
 import org.groundplatform.domain.model.mutation.SubmissionMutation
 import org.groundplatform.domain.model.task.PhotoTaskData
 import org.groundplatform.domain.repository.MutationRepositoryInterface
+import org.groundplatform.domain.repository.UserMediaRepositoryInterface
 import timber.log.Timber
 
 /**
@@ -53,7 +53,7 @@ constructor(
   @Assisted workerParams: WorkerParameters,
   private val remoteStorageManager: RemoteStorageManager,
   private val mutationRepository: MutationRepositoryInterface,
-  private val userMediaRepository: UserMediaRepository,
+  private val userMediaRepository: UserMediaRepositoryInterface,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : CoroutineWorker(context, workerParams) {
 
@@ -92,7 +92,7 @@ constructor(
   private suspend fun uploadPhotoMedia(photoTaskData: PhotoTaskData): kotlin.Result<Unit> {
     try {
       val path = photoTaskData.remoteFilename
-      val photoFile = File(userMediaRepository.getLocalFileFromRemotePath(path))
+      val photoFile = File(userMediaRepository.getLocalFileFromRemotePath(path).value)
       Timber.d("Starting photo upload. local path: ${photoFile.path}, remote path: $path")
       if (!photoFile.exists()) {
         throw FileNotFoundException(photoFile.path)
