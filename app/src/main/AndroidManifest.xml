@@ -36,7 +36,7 @@
 
   <application
     android:name="org.groundplatform.android.GroundApplication"
-                android:allowBackup="false"
+    android:allowBackup="false"
     android:fullBackupContent="@xml/backup_rules"
     android:dataExtractionRules="@xml/data_extraction_rules"
     android:icon="@mipmap/ic_launcher"
