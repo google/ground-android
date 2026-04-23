@@ -231,7 +231,7 @@ class DrawAreaTaskScreenTest : BaseHiltTest() {
 
   @Test
   fun `Instructions dialog is not shown if shown previously`() {
-    viewModel.instructionsDialogShown = true
+    viewModel.dismissDrawAreaInstructions()
 
     setupTaskScreen(TASK)
 

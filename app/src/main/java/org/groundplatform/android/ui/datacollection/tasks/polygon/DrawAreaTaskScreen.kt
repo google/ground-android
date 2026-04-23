@@ -101,19 +101,18 @@ private fun DrawAreaTaskContent(
     loiName = loiName,
     onFooterPositionUpdated = onFooterPositionUpdated,
     onAction = onAction,
-    taskBody = {
-      mapContent()
-      if (showSelfIntersectionDialog) {
-        ConfirmationDialog(
-          title = R.string.polygon_vertex_add_dialog_title,
-          description = R.string.polygon_vertex_add_dialog_message,
-          confirmButtonText = R.string.polygon_vertex_add_dialog_positive_button,
-          dismissButtonText = null,
-          onConfirmClicked = onDismissSelfIntersectionDialog,
-        )
-      }
-    },
+    taskBody = { mapContent() },
   )
+
+  if (showSelfIntersectionDialog) {
+    ConfirmationDialog(
+      title = R.string.polygon_vertex_add_dialog_title,
+      description = R.string.polygon_vertex_add_dialog_message,
+      confirmButtonText = R.string.polygon_vertex_add_dialog_positive_button,
+      dismissButtonText = null,
+      onConfirmClicked = onDismissSelfIntersectionDialog,
+    )
+  }
 }
 
 @Preview(showBackground = true)
