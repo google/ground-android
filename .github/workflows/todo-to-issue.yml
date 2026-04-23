@@ -24,14 +24,14 @@ on:
 
 jobs:
   build:
-    if: github.event.pull_request.head.repo.full_name == github.repository
-
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        if: github.event.pull_request.head.repo.full_name == github.repository
         with:
           ref: ${{ github.head_ref }}
       - name: "TODO to Issue"
+        if: github.event.pull_request.head.repo.full_name == github.repository
         uses: alstr/todo-to-issue-action@v5.1.14
         with:
           AUTO_ASSIGN: "true"
@@ -39,6 +39,7 @@ jobs:
           CLOSE_ISSUES: "false"
       - name: Set Git user
         # Use env to pass values from workflow expressions into the shell safely.
+        if: github.event.pull_request.head.repo.full_name == github.repository
         env:
           ACTOR: ${{ github.actor }}
           HEAD_REF: ${{ github.head_ref }}
@@ -46,6 +47,7 @@ jobs:
           git config --global user.name "$ACTOR"
           git config --global user.email "$(git log -n 1 --pretty=format:%ae -- "remotes/origin/$HEAD_REF")"
       - name: Commit and Push Changes
+        if: github.event.pull_request.head.repo.full_name == github.repository
         env:
           HEAD_REF: ${{ github.head_ref }}
         run: |
