@@ -29,7 +29,7 @@ import org.groundplatform.android.common.Constants
 import org.groundplatform.android.data.remote.RemoteStorageManager
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.domain.repository.UserMediaRepositoryInterface
-import org.groundplatform.domain.repository.UserMediaRepositoryInterface.MediaFile
+import org.groundplatform.domain.repository.UserMediaRepositoryInterface.MediaFilePath
 import org.groundplatform.domain.repository.UserMediaRepositoryInterface.MediaUri
 import timber.log.Timber
 
@@ -50,7 +50,7 @@ constructor(
   private suspend fun createImageFilename(fieldId: String): String =
     fieldId + "-" + uuidGenerator.generateUuid() + Constants.PHOTO_EXT
 
-  override suspend fun createImageFile(fieldId: String): MediaFile =
+  override suspend fun createImageFile(fieldId: String): MediaFilePath =
     File(rootDir, createImageFilename(fieldId)).toMediaFile()
 
   @Throws(FileNotFoundException::class)
@@ -80,7 +80,7 @@ constructor(
    * Returns the path of the file saved in the sdcard used for uploading to the provided destination
    * path.
    */
-  override fun getLocalFileFromRemotePath(destinationPath: String): MediaFile {
+  override fun getLocalFileFromRemotePath(destinationPath: String): MediaFilePath {
     val filename = destinationPath.split('/').last()
     require(filename.matches(strFilePattern)) { "Invalid filename $filename" }
     val file = File(rootDir, filename)
@@ -90,17 +90,17 @@ constructor(
     return file.toMediaFile()
   }
 
-  override fun getUriForFile(mediaFile: MediaFile): MediaUri =
+  override fun getUriForFile(mediaFilePath: MediaFilePath): MediaUri =
     FileProvider.getUriForFile(
         context,
         org.groundplatform.android.BuildConfig.APPLICATION_ID,
-        File(mediaFile),
+        File(mediaFilePath),
       )
       .toMediaUri()
 
-  private fun File.toMediaFile(): MediaFile = absolutePath
+  private fun File.toMediaFile(): MediaFilePath = absolutePath
 
-  private fun MediaFile.toFile(): File = File(this)
+  private fun MediaFilePath.toFile(): File = File(this)
 
   private fun Uri.toMediaUri(): MediaUri = toString()
 }

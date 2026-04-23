@@ -22,9 +22,9 @@ package org.groundplatform.domain.repository
 interface UserMediaRepositoryInterface {
   typealias MediaUri = String
 
-  typealias MediaFile = String
+  typealias MediaFilePath = String
 
-  suspend fun createImageFile(fieldId: String): MediaFile
+  suspend fun createImageFile(fieldId: String): MediaFilePath
 
   fun addImageToGallery(filePath: String, title: String): String
 
@@ -40,7 +40,7 @@ interface UserMediaRepositoryInterface {
    * Returns the path of the file saved in the sdcard used for uploading to the provided destination
    * path.
    */
-  fun getLocalFileFromRemotePath(destinationPath: String): MediaFile
+  fun getLocalFileFromRemotePath(destinationPath: String): MediaFilePath
 
-  fun getUriForFile(mediaFile: MediaFile): MediaUri
+  fun getUriForFile(mediaFilePath: MediaFilePath): MediaUri
 }
