@@ -220,7 +220,6 @@ class DrawAreaTaskScreenTest : BaseHiltTest() {
   @Test
   fun `Instructions dialog is shown`() {
     viewModel.instructionsDialogShown = false
-    viewModel.showInstructions()
 
     setupTaskScreen(TASK)
 

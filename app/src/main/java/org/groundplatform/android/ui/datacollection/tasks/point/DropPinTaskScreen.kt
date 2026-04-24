@@ -17,8 +17,12 @@ package org.groundplatform.android.ui.datacollection.tasks.point
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
@@ -51,6 +55,13 @@ fun DropPinTaskScreen(
 ) {
   val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
   val showInstructionsDialog by viewModel.showInstructionsDialog.collectAsStateWithLifecycle()
+
+  val lifecycleOwner = LocalLifecycleOwner.current
+  LaunchedEffect(lifecycleOwner) {
+    lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+      viewModel.maybeShowInstructions()
+    }
+  }
 
   DropPinTaskContent(
     taskLabel = viewModel.task.label,

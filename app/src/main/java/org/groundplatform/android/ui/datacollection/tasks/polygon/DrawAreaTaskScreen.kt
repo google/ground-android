@@ -23,7 +23,10 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.components.ConfirmationDialog
@@ -50,6 +53,13 @@ fun DrawAreaTaskScreen(
   val polygonArea by viewModel.polygonArea.observeAsState()
   val context = LocalContext.current
   val areaMessage = polygonArea?.let { stringResource(R.string.area_message, it) }
+
+  val lifecycleOwner = LocalLifecycleOwner.current
+  LaunchedEffect(lifecycleOwner) {
+    lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+      viewModel.maybeShowInstructions()
+    }
+  }
 
   LaunchedEffect(areaMessage) {
     areaMessage?.let { Toast.makeText(context, it, Toast.LENGTH_LONG).show() }

@@ -149,11 +149,7 @@ internal constructor(
       .stateIn(viewModelScope, WhileSubscribed(5_000), emptyList())
   }
 
-  init {
-    if (!instructionsDialogShown) {
-      showInstructions()
-    }
-  }
+
 
   override fun initialize(
     job: Job,
@@ -192,6 +188,12 @@ internal constructor(
   fun dismissDrawAreaInstructions() {
     instructionsDialogShown = true
     dismissInstructions()
+  }
+
+  fun maybeShowInstructions() {
+    if (!instructionsDialogShown) {
+      showInstructions()
+    }
   }
 
   fun isMarkedComplete(): Boolean = sessionState.value.isMarkedComplete
