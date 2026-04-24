@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.model.imagery
+package org.groundplatform.domain.model.imagery
 
-import org.groundplatform.android.ui.map.gms.mog.TileCoordinates
 import org.groundplatform.domain.model.map.Bounds
 
 /** An area is a contiguous set of tiles that task a geodesic rectangle. */

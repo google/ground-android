@@ -37,7 +37,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.groundplatform.android.data.sync.MediaUploadWorkManager
 import org.groundplatform.android.data.sync.MutationSyncWorkManager
-import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.common.SharedViewModel
 import org.groundplatform.domain.model.Survey
@@ -45,6 +44,7 @@ import org.groundplatform.domain.model.User
 import org.groundplatform.domain.model.auth.SignInState
 import org.groundplatform.domain.model.submission.DraftSubmission
 import org.groundplatform.domain.repository.MutationRepositoryInterface
+import org.groundplatform.domain.repository.OfflineAreaRepositoryInterface
 import org.groundplatform.domain.repository.SubmissionRepositoryInterface
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
@@ -58,7 +58,7 @@ private const val AWAITING_PHOTO_CAPTURE_KEY = "awaiting_photo_capture"
 class HomeScreenViewModel
 @Inject
 internal constructor(
-  private val offlineAreaRepository: OfflineAreaRepository,
+  private val offlineAreaRepository: OfflineAreaRepositoryInterface,
   private val submissionRepository: SubmissionRepositoryInterface,
   private val mutationRepository: MutationRepositoryInterface,
   private val mutationSyncWorkManager: MutationSyncWorkManager,

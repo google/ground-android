@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.ui.map.gms.mog
+package org.groundplatform.domain.model.imagery
 
-import com.google.android.gms.maps.model.LatLng
+import kotlin.math.PI
 import kotlin.math.ln
 import kotlin.math.tan
+import org.groundplatform.domain.model.geometry.Coordinates
 
 data class PixelCoordinates(val x: Int, val y: Int, val zoom: Int) {
   fun atZoom(targetZoom: Int): PixelCoordinates {
@@ -26,11 +27,11 @@ data class PixelCoordinates(val x: Int, val y: Int, val zoom: Int) {
   }
 }
 
-fun LatLng.toPixelCoordinates(zoom: Int): PixelCoordinates {
+fun Coordinates.toPixelCoordinates(zoom: Int): PixelCoordinates {
   val zoomFactor = 1 shl zoom
-  val latRad = this.latitude.toRadians()
-  val x = zoomFactor * (this.longitude + 180) / 360
-  val y = zoomFactor * (1 - (ln(tan(latRad) + sec(latRad)) / Math.PI)) / 2
+  val latRad = this.lat.toRadians()
+  val x = zoomFactor * (this.lng + 180) / 360
+  val y = zoomFactor * (1 - (ln(tan(latRad) + sec(latRad)) / PI)) / 2
   return PixelCoordinates((x * 256.0).toInt(), (y * 256.0).toInt(), zoom)
 }
 

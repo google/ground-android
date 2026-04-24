@@ -52,7 +52,7 @@ import org.groundplatform.android.data.local.room.relations.SurveyEntityAndRelat
 import org.groundplatform.android.data.local.room.relations.TaskEntityAndRelations
 import org.groundplatform.android.data.remote.firebase.protobuf.toModel
 import org.groundplatform.android.data.remote.firebase.protobuf.toProto
-import org.groundplatform.android.model.imagery.OfflineArea
+import org.groundplatform.domain.model.imagery.OfflineArea
 import org.groundplatform.android.proto.Survey as SurveyProto
 import org.groundplatform.android.proto.Survey.DataSharingTerms
 import org.groundplatform.domain.model.Survey
@@ -264,13 +264,13 @@ fun MultipleChoice.toLocalDataStoreObject(taskId: String): MultipleChoiceEntity 
 private fun OfflineAreaEntityState.toModelObject() =
   when (this) {
     OfflineAreaEntityState.PENDING ->
-      org.groundplatform.android.model.imagery.OfflineArea.State.PENDING
+      OfflineArea.State.PENDING
     OfflineAreaEntityState.IN_PROGRESS ->
-      org.groundplatform.android.model.imagery.OfflineArea.State.IN_PROGRESS
+      OfflineArea.State.IN_PROGRESS
     OfflineAreaEntityState.DOWNLOADED ->
-      org.groundplatform.android.model.imagery.OfflineArea.State.DOWNLOADED
+      OfflineArea.State.DOWNLOADED
     OfflineAreaEntityState.FAILED ->
-      org.groundplatform.android.model.imagery.OfflineArea.State.FAILED
+      OfflineArea.State.FAILED
     else -> throw IllegalArgumentException("Unknown area state: $this")
   }
 

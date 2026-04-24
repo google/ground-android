@@ -31,6 +31,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.groundplatform.android.data.remote.RemoteStorageManager
+import org.groundplatform.domain.model.imagery.TileCoordinates
 import org.groundplatform.domain.model.map.Bounds
 import timber.log.Timber
 

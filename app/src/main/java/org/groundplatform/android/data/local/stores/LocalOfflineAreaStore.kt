@@ -16,7 +16,7 @@
 package org.groundplatform.android.data.local.stores
 
 import kotlinx.coroutines.flow.Flow
-import org.groundplatform.android.model.imagery.OfflineArea
+import org.groundplatform.domain.model.imagery.OfflineArea
 
 interface LocalOfflineAreaStore {
   /**

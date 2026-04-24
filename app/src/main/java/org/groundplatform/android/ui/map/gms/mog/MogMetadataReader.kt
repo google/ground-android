@@ -17,6 +17,8 @@
 package org.groundplatform.android.ui.map.gms.mog
 
 import com.google.common.io.LittleEndianDataInputStream
+import org.groundplatform.domain.model.imagery.TiffTag
+import org.groundplatform.domain.model.imagery.TiffTagDataType
 import java.io.DataInput
 import java.io.DataInputStream
 import java.nio.charset.StandardCharsets
