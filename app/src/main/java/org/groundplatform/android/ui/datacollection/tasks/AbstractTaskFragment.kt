@@ -15,40 +15,26 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks
 
-import android.os.Bundle
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
-import kotlin.properties.Delegates
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.datacollection.DataCollectionUiState
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
-import org.groundplatform.domain.model.task.Task
 
 abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragment() {
 
   protected val dataCollectionViewModel: DataCollectionViewModel by
     hiltNavGraphViewModels(R.id.data_collection)
 
-  /** ID of the associated task in the Job. Used for instantiating the [viewModel]. */
-  var taskId by Delegates.notNull<String>()
+  protected val taskId: String by lazy {
+    arguments?.getString(TASK_ID) ?: error("taskId not found in arguments")
+  }
 
   protected val viewModel: T by lazy {
     @Suppress("UNCHECKED_CAST")
     dataCollectionViewModel.getTaskViewModel(taskId) as? T
       ?: error("ViewModel for taskId:$taskId not found.")
-  }
-
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    if (savedInstanceState != null) {
-      taskId = requireNotNull(savedInstanceState.getString(TASK_ID))
-    }
-  }
-
-  override fun onSaveInstanceState(outState: Bundle) {
-    super.onSaveInstanceState(outState)
-    outState.putString(TASK_ID, taskId)
   }
 
   private fun onSkip() {
@@ -61,12 +47,12 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     dataCollectionViewModel.onPreviousClicked(viewModel)
   }
 
-  fun moveToNext() {
+  private fun moveToNext() {
     dataCollectionViewModel.onNextClicked(viewModel)
   }
 
   private fun handleNext() {
-    if (getTask().isAddLoiTask) {
+    if (viewModel.task.isAddLoiTask) {
       dataCollectionViewModel.openLoiNameDialog()
     } else {
       moveToNext()
@@ -103,8 +89,8 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
         dataCollectionViewModel.confirmLoiName(screenAction.name)
         moveToNext()
       }
-      else -> {
-        // Remaining actions are task specific and are handled within the task screen.
+      is TaskScreenAction.OnInstructionsDismiss -> {
+        error("OnInstructionsDismiss action should be handled within the task screen")
       }
     }
   }
@@ -120,8 +106,6 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
       else -> viewModel.onButtonClick(action)
     }
   }
-
-  private fun getTask(): Task = viewModel.task
 
   companion object {
     const val TASK_ID = "taskId"

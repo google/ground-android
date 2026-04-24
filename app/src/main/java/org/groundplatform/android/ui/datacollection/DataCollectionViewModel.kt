@@ -173,8 +173,6 @@ internal constructor(
     clearDraft()
   }
 
-  fun requireSurveyId(): String = withReady { it.surveyId }
-
   fun saveCurrentState() {
     if (!isReady() || !draftsEnabled) return
 
