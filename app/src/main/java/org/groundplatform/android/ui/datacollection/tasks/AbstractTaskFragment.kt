@@ -16,38 +16,13 @@
 package org.groundplatform.android.ui.datacollection.tasks
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.isImeVisible
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInWindow
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlin.properties.Delegates
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.datacollection.DataCollectionUiState
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
-import org.groundplatform.android.ui.datacollection.components.InstructionData
-import org.groundplatform.android.ui.datacollection.components.InstructionsDialog
-import org.groundplatform.android.ui.datacollection.components.LoiNameDialog
-import org.groundplatform.android.ui.datacollection.components.TaskFooter
-import org.groundplatform.android.ui.datacollection.components.TaskHeader
-import org.groundplatform.android.ui.datacollection.components.TaskViewLayout
-import org.groundplatform.android.util.createComposeView
 import org.groundplatform.domain.model.task.Task
 
 abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragment() {
@@ -64,14 +39,6 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
       ?: error("ViewModel for taskId:$taskId not found.")
   }
 
-  /** Represents the content to be shown in the task header, if any. */
-  open val taskHeader: TaskHeader? by lazy {
-    TaskHeader(label = viewModel.task.label, iconResId = R.drawable.ic_question_answer)
-  }
-
-  /** Represents the content to be shown in the task instructions, if any. */
-  open val instructionData: InstructionData? = null
-
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     if (savedInstanceState != null) {
@@ -83,38 +50,6 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     super.onSaveInstanceState(outState)
     outState.putString(TASK_ID, taskId)
   }
-
-  override fun onCreateView(
-    inflater: LayoutInflater,
-    container: ViewGroup?,
-    savedInstanceState: Bundle?,
-  ): View = createComposeView {
-    TaskViewLayout(header = taskHeader, footer = { TaskFooter() }, content = { TaskBody() })
-
-    if (getTask().isAddLoiTask) {
-      LoiNameDialog()
-    }
-
-    instructionData?.let { InstructionsDialog(it) }
-  }
-
-  override fun onResume() {
-    super.onResume()
-    onTaskResume()
-  }
-
-  /** Renders the body of the task. */
-  @Composable
-  open fun TaskBody() {
-    // This method should be moved within the respective compose screen. Remove once all tasks have
-    // been migrated to compose layout using [TaskScreen].
-  }
-
-  /** Invoked when the instruction dialog is dismissed. */
-  open fun onInstructionDialogDismissed() {}
-
-  /** Invoked when the task fragment is visible to the user. */
-  open fun onTaskResume() {}
 
   private fun onSkip() {
     check(viewModel.hasNoData()) { "User should not be able to skip a task with data." }
@@ -138,39 +73,6 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     }
   }
 
-  private fun handleLoiNameSet(loiName: String) {
-    if (loiName != "") {
-      dataCollectionViewModel.setLoiName(loiName)
-      moveToNext()
-    }
-  }
-
-  /** Adds the action buttons to the UI. */
-  @OptIn(ExperimentalLayoutApi::class)
-  @Composable
-  internal fun TaskFooter() {
-    val isKeyboardOpen = WindowInsets.isImeVisible
-    var layoutCoordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
-    val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
-
-    // Update footer position whenever layout changes or keyboard is toggled.
-    LaunchedEffect(isKeyboardOpen, layoutCoordinates) {
-      layoutCoordinates?.let { saveFooterPosition(it.positionInWindow().y) }
-    }
-
-    TaskFooter(
-      modifier = Modifier.onGloballyPositioned { layoutCoordinates = it },
-      content =
-        if (shouldShowHeader()) {
-          { HeaderCard() }
-        } else {
-          null
-        },
-      buttonActionStates = taskActionButtonsStates,
-      onButtonClicked = { handleButtonClick(it) },
-    )
-  }
-
   /**
    * Updates the [DataCollectionViewModel] with the current vertical position of the task footer.
    * Only updates if this task is the currently active (visible) task, preventing off-screen
@@ -178,7 +80,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
    */
   fun saveFooterPosition(top: Float) {
     val isActive =
-      (dataCollectionViewModel.uiState?.value as? DataCollectionUiState.Ready)?.currentTaskId ==
+      (dataCollectionViewModel.uiState.value as? DataCollectionUiState.Ready)?.currentTaskId ==
         taskId
     if (isActive) {
       dataCollectionViewModel.updateFooterPosition(top)
@@ -219,53 +121,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     }
   }
 
-  // This function can allow any task to show a Header card on top of the Button row.
-  open fun shouldShowHeader() = false
-
-  @Composable open fun HeaderCard() {}
-
   private fun getTask(): Task = viewModel.task
-
-  @Composable
-  protected fun LoiNameDialog() {
-    var openAlertDialog by dataCollectionViewModel.loiNameDialogOpen
-
-    if (openAlertDialog) {
-      val uiState by dataCollectionViewModel.uiState.collectAsStateWithLifecycle()
-      val initialNameValue =
-        (uiState as? DataCollectionUiState.Ready)?.loiName
-          ?: dataCollectionViewModel.getTypedLoiNameOrEmpty()
-      var name by rememberSaveable(initialNameValue) { mutableStateOf(initialNameValue) }
-
-      LoiNameDialog(
-        textFieldValue = name,
-        onConfirmRequest = {
-          openAlertDialog = false
-          handleLoiNameSet(name)
-        },
-        onDismissRequest = {
-          name = initialNameValue
-          openAlertDialog = false
-        },
-        onTextFieldChange = { name = it },
-      )
-    }
-  }
-
-  @Composable
-  private fun InstructionsDialog(instructionData: InstructionData) {
-    val showInstructionsDialog by viewModel.showInstructionsDialog.collectAsStateWithLifecycle()
-
-    if (showInstructionsDialog) {
-      InstructionsDialog(
-        data = instructionData,
-        onDismissed = {
-          viewModel.dismissInstructions()
-          onInstructionDialogDismissed()
-        },
-      )
-    }
-  }
 
   companion object {
     const val TASK_ID = "taskId"

@@ -123,7 +123,7 @@ internal constructor(
     }
   }
 
-  fun setLoiName(name: String) {
+  private fun setLoiName(name: String) {
     savedStateHandle[TASK_LOI_NAME_KEY] = name
     _uiState.update { state ->
       (state as? DataCollectionUiState.Ready)?.copy(loiName = name) ?: state
