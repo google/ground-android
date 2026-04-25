@@ -17,10 +17,12 @@ package org.groundplatform.android.ui.tos
 
 import android.text.Html
 import android.text.Spanned
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.stateIn
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.TimeoutCancellationException
@@ -46,9 +48,9 @@ constructor(
   private val popups: EphemeralPopups,
   private val authManager: AuthenticationManager,
 ) : AbstractViewModel() {
-  val agreeCheckboxChecked: MutableLiveData<Boolean> = MutableLiveData()
+  val agreeCheckboxChecked = MutableStateFlow(false)
 
-  val termsOfServiceText: LiveData<Spanned> = liveData {
+  val termsOfServiceText: StateFlow<Spanned> = flow {
     try {
       val tos = termsOfServiceRepository.getTermsOfService()?.text ?: ""
       val flavor = CommonMarkFlavourDescriptor()
@@ -63,8 +65,9 @@ constructor(
         Timber.e(e, "Failed to load Terms of Service")
       }
       onGetTosFailure()
+      emit(android.text.SpannedString(""))
     }
-  }
+  }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), android.text.SpannedString(""))
 
   private val _navigateToSurveySelector = MutableSharedFlow<Unit>(replay = 0)
   val navigateToSurveySelector = _navigateToSurveySelector.asSharedFlow()
