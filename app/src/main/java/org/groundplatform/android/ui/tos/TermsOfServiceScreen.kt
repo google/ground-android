@@ -16,7 +16,6 @@
 package org.groundplatform.android.ui.tos
 
 import android.text.Spanned
-import android.text.SpannedString
 import android.text.method.LinkMovementMethod
 import android.text.util.Linkify
 import android.widget.TextView
@@ -39,7 +38,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -47,6 +45,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.components.Toolbar
@@ -56,33 +55,38 @@ fun TermsOfServiceScreen(
   isViewOnly: Boolean,
   onNavigateUp: () -> Unit,
   onNavigateToSurveySelector: () -> Unit,
+  onError: (String) -> Unit,
   viewModel: TermsOfServiceViewModel = hiltViewModel(),
 ) {
-  val termsText by viewModel.termsOfServiceText.collectAsStateWithLifecycle()
-  val agreeChecked by viewModel.agreeCheckboxChecked.collectAsStateWithLifecycle()
+  val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
   LaunchedEffect(Unit) {
-    viewModel.navigateToSurveySelector.collect { onNavigateToSurveySelector() }
+    viewModel.events.collect { event ->
+      when (event) {
+        is TosEvent.NavigateToSurveySelector -> onNavigateToSurveySelector()
+        is TosEvent.ShowError -> onError(event.message)
+      }
+    }
   }
 
   TermsOfServiceContent(
     isViewOnly = isViewOnly,
-    termsText = termsText,
-    agreeChecked = agreeChecked,
-    onAgreeCheckedChange = { viewModel.agreeCheckboxChecked.value = it },
-    onAgreeClick = { viewModel.onButtonClicked() },
+    uiState = uiState,
+    onAgreeCheckedChange = { viewModel.setAgreeCheckboxChecked(it) },
+    onAgreeClick = { viewModel.onAgreeButtonClicked() },
     onBackClick = onNavigateUp,
+    onError = onError,
   )
 }
 
 @Composable
 private fun TermsOfServiceContent(
   isViewOnly: Boolean,
-  termsText: Spanned,
-  agreeChecked: Boolean,
+  uiState: TosUiState,
   onAgreeCheckedChange: (Boolean) -> Unit,
   onAgreeClick: () -> Unit,
   onBackClick: () -> Unit,
+  onError: (String) -> Unit,
 ) {
   Scaffold(
     topBar = {
@@ -93,26 +97,27 @@ private fun TermsOfServiceContent(
       )
     }
   ) { innerPadding ->
-    val isLoading = termsText.isBlank()
-
     Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
-      if (isLoading) {
-        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-      } else {
-        Column(
-          modifier = Modifier.fillMaxSize().padding(16.dp).verticalScroll(rememberScrollState()),
-          horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-          Spacer(modifier = Modifier.height(16.dp))
-          TermsTextView(termsText)
-          Spacer(modifier = Modifier.height(16.dp))
+      when (uiState) {
+        is TosUiState.Loading -> {
+          CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+        }
+        is TosUiState.Success -> {
+          Column(
+            modifier = Modifier.fillMaxSize().padding(16.dp).verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally,
+          ) {
+            Spacer(modifier = Modifier.height(16.dp))
+            TermsTextView(uiState.termsText)
+            Spacer(modifier = Modifier.height(16.dp))
 
-          if (!isViewOnly) {
-            AgreeSection(
-              agreeChecked = agreeChecked,
-              onCheckedChange = onAgreeCheckedChange,
-              onClick = onAgreeClick,
-            )
+            if (!isViewOnly) {
+              AgreeSection(
+                agreeChecked = uiState.agreeChecked,
+                onCheckedChange = onAgreeCheckedChange,
+                onClick = onAgreeClick,
+              )
+            }
           }
         }
       }
@@ -167,11 +172,15 @@ private fun AgreeSection(
 private fun TermsOfServiceContentPreview() {
   TermsOfServiceContent(
     isViewOnly = false,
-    termsText = SpannedString("Sample Terms of Service content."),
-    agreeChecked = false,
+    uiState =
+      TosUiState.Success(
+        termsText = android.text.SpannedString("Sample Terms of Service content."),
+        agreeChecked = false,
+      ),
     onAgreeCheckedChange = {},
     onAgreeClick = {},
     onBackClick = {},
+    onError = {},
   )
 }
 
@@ -181,10 +190,14 @@ private fun TermsOfServiceContentPreview() {
 private fun TermsOfServiceContentIsViewOnlyPreview() {
   TermsOfServiceContent(
     isViewOnly = true,
-    termsText = SpannedString("Sample Terms of Service content."),
-    agreeChecked = false,
+    uiState =
+      TosUiState.Success(
+        termsText = android.text.SpannedString("Sample Terms of Service content."),
+        agreeChecked = false,
+      ),
     onAgreeCheckedChange = {},
     onAgreeClick = {},
     onBackClick = {},
+    onError = {},
   )
 }

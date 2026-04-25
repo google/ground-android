@@ -23,11 +23,15 @@ import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import org.groundplatform.android.common.Constants.SURVEY_PATH_SEGMENT
 import org.groundplatform.android.ui.common.AbstractFragment
+import org.groundplatform.android.ui.common.EphemeralPopups
 import org.groundplatform.android.ui.surveyselector.SurveySelectorFragmentDirections
 import org.groundplatform.android.util.createComposeView
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class TermsOfServiceFragment : AbstractFragment() {
+
+  @Inject lateinit var popups: EphemeralPopups
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -50,6 +54,7 @@ class TermsOfServiceFragment : AbstractFragment() {
           }
         } ?: run { openSurveySelector() }
       },
+      onError = { message -> popups.ErrorPopup().show(message) },
     )
   }
 

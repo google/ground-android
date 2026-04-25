@@ -15,75 +15,97 @@
  */
 package org.groundplatform.android.ui.tos
 
-import android.text.Html
+import android.text.Html.fromHtml
 import android.text.Spanned
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.stateIn
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.groundplatform.android.R
 import org.groundplatform.android.system.auth.AuthenticationManager
 import org.groundplatform.android.ui.common.AbstractViewModel
-import org.groundplatform.android.ui.common.EphemeralPopups
 import org.groundplatform.android.util.isPermissionDeniedException
 import org.groundplatform.domain.repository.TermsOfServiceRepositoryInterface
 import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
 import org.intellij.markdown.html.HtmlGenerator
 import org.intellij.markdown.parser.MarkdownParser
 import timber.log.Timber
+import javax.inject.Inject
+
+sealed interface TosUiState {
+  object Loading : TosUiState
+
+  data class Success(val termsText: Spanned, val agreeChecked: Boolean) : TosUiState
+}
+
+sealed interface TosEvent {
+  object NavigateToSurveySelector : TosEvent
+
+  data class ShowError(val message: String) : TosEvent
+}
 
 @HiltViewModel
 class TermsOfServiceViewModel
 @Inject
 constructor(
-  private val termsOfServiceRepository: TermsOfServiceRepositoryInterface,
-  private val popups: EphemeralPopups,
   private val authManager: AuthenticationManager,
+  private val termsOfServiceRepository: TermsOfServiceRepositoryInterface,
 ) : AbstractViewModel() {
-  val agreeCheckboxChecked = MutableStateFlow(false)
 
-  val termsOfServiceText: StateFlow<Spanned> = flow {
-    try {
-      val tos = termsOfServiceRepository.getTermsOfService()?.text ?: ""
-      val flavor = CommonMarkFlavourDescriptor()
-      val parser = MarkdownParser(flavor)
-      val html =
-        parser.buildMarkdownTreeFromString(tos).run {
-          HtmlGenerator(tos, this, CommonMarkFlavourDescriptor()).generateHtml()
-        }
-      emit(Html.fromHtml(html, 0))
-    } catch (e: Throwable) {
-      if (!e.isExpectedFailure()) {
-        Timber.e(e, "Failed to load Terms of Service")
+  private val _uiState = MutableStateFlow<TosUiState>(TosUiState.Loading)
+  val uiState: StateFlow<TosUiState> = _uiState.asStateFlow()
+
+  private val _events = Channel<TosEvent>()
+  val events = _events.receiveAsFlow()
+
+  init {
+    loadTermsOfService()
+  }
+
+  fun setAgreeCheckboxChecked(checked: Boolean) {
+    _uiState.update { state ->
+      if (state is TosUiState.Success) {
+        state.copy(agreeChecked = checked)
+      } else {
+        state
       }
-      onGetTosFailure()
-      emit(android.text.SpannedString(""))
     }
-  }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), android.text.SpannedString(""))
+  }
 
-  private val _navigateToSurveySelector = MutableSharedFlow<Unit>(replay = 0)
-  val navigateToSurveySelector = _navigateToSurveySelector.asSharedFlow()
+  fun onAgreeButtonClicked() {
+    viewModelScope.launch {
+      termsOfServiceRepository.isTermsOfServiceAccepted = true
+      _events.send(TosEvent.NavigateToSurveySelector)
+    }
+  }
+
+  private fun loadTermsOfService() {
+    viewModelScope.launch {
+      try {
+        val tos = termsOfServiceRepository.getTermsOfService()?.text ?: ""
+        val flavor = CommonMarkFlavourDescriptor()
+        val parser = MarkdownParser(flavor)
+        val html =
+          parser.buildMarkdownTreeFromString(text = tos).run {
+            HtmlGenerator(tos, this, flavor).generateHtml()
+          }
+        val spanned = fromHtml(html, 0)
+        _uiState.value = TosUiState.Success(spanned, false)
+      } catch (e: Throwable) {
+        if (!e.isExpectedFailure()) {
+          Timber.e(e, "Failed to load Terms of Service")
+        }
+        _events.send(TosEvent.ShowError(e.message ?: "Failed to load Terms of Service"))
+        authManager.signOut()
+      }
+    }
+  }
 
   private fun Throwable.isExpectedFailure() =
     this is TimeoutCancellationException || isPermissionDeniedException()
-
-  private fun onGetTosFailure() {
-    popups.ErrorPopup().show(R.string.load_tos_failed)
-    authManager.signOut()
-  }
-
-  fun onButtonClicked() {
-    viewModelScope.launch {
-      termsOfServiceRepository.isTermsOfServiceAccepted = true
-      _navigateToSurveySelector.emit(Unit)
-    }
-  }
 }
