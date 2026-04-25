@@ -15,10 +15,6 @@
  */
 package org.groundplatform.android.ui.tos
 
-import android.text.Spanned
-import android.text.method.LinkMovementMethod
-import android.text.util.Linkify
-import android.widget.TextView
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -43,7 +39,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.groundplatform.android.R
@@ -56,6 +51,7 @@ fun TermsOfServiceScreen(
   onNavigateUp: () -> Unit,
   onNavigateToSurveySelector: () -> Unit,
   onError: (String) -> Unit,
+  termsContent: @Composable (String) -> Unit,
   viewModel: TermsOfServiceViewModel = hiltViewModel(),
 ) {
   val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -75,6 +71,7 @@ fun TermsOfServiceScreen(
     onAgreeCheckedChange = { viewModel.setAgreeCheckboxChecked(it) },
     onAgreeClick = { viewModel.onAgreeButtonClicked() },
     onBackClick = onNavigateUp,
+    termsContent = termsContent,
   )
 }
 
@@ -85,6 +82,7 @@ private fun TermsOfServiceContent(
   onAgreeCheckedChange: (Boolean) -> Unit,
   onAgreeClick: () -> Unit,
   onBackClick: () -> Unit,
+  termsContent: @Composable (String) -> Unit,
 ) {
   Scaffold(
     topBar = {
@@ -106,7 +104,7 @@ private fun TermsOfServiceContent(
             horizontalAlignment = Alignment.CenterHorizontally,
           ) {
             Spacer(modifier = Modifier.height(16.dp))
-            TermsTextView(uiState.termsText)
+            termsContent(uiState.tosHtml)
             Spacer(modifier = Modifier.height(16.dp))
 
             if (!isViewOnly) {
@@ -121,24 +119,6 @@ private fun TermsOfServiceContent(
       }
     }
   }
-}
-
-@Composable
-private fun TermsTextView(termsText: Spanned) {
-  AndroidView(
-    factory = { context ->
-      TextView(context).apply {
-        movementMethod = LinkMovementMethod.getInstance()
-        autoLinkMask = Linkify.WEB_URLS
-        setTextAppearance(android.R.style.TextAppearance_Material_Body1)
-      }
-    },
-    update = { textView ->
-      textView.text = termsText
-      Linkify.addLinks(textView, Linkify.WEB_URLS)
-    },
-    modifier = Modifier.fillMaxWidth().padding(8.dp),
-  )
 }
 
 @Composable
@@ -171,13 +151,11 @@ private fun TermsOfServiceContentPreview() {
   TermsOfServiceContent(
     isViewOnly = false,
     uiState =
-      TosUiState.Success(
-        termsText = android.text.SpannedString("Sample Terms of Service content."),
-        agreeChecked = false,
-      ),
+      TosUiState.Success(tosHtml = "Sample Terms of Service content.", agreeChecked = false),
     onAgreeCheckedChange = {},
     onAgreeClick = {},
     onBackClick = {},
+    termsContent = { Text("Sample Terms") },
   )
 }
 
@@ -188,12 +166,10 @@ private fun TermsOfServiceContentIsViewOnlyPreview() {
   TermsOfServiceContent(
     isViewOnly = true,
     uiState =
-      TosUiState.Success(
-        termsText = android.text.SpannedString("Sample Terms of Service content."),
-        agreeChecked = false,
-      ),
+      TosUiState.Success(tosHtml = "Sample Terms of Service content.", agreeChecked = false),
     onAgreeCheckedChange = {},
     onAgreeClick = {},
     onBackClick = {},
+    termsContent = { Text("Sample Terms") },
   )
 }

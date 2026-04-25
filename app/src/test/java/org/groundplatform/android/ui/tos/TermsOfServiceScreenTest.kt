@@ -15,13 +15,13 @@
  */
 package org.groundplatform.android.ui.tos
 
-import androidx.activity.ComponentActivity
+import androidx.compose.material3.Text
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasText
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -44,7 +44,7 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class TermsOfServiceScreenTest {
 
-  @get:Rule val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+  @get:Rule val composeTestRule = createComposeRule()
 
   @Mock lateinit var authManager: AuthenticationManager
   private lateinit var fakeRepository: FakeTermsOfServiceRepository
@@ -74,6 +74,7 @@ class TermsOfServiceScreenTest {
         onNavigateUp = onNavigateUp,
         onNavigateToSurveySelector = onNavigateToSurveySelector,
         onError = onError,
+        termsContent = { html -> Text(html) },
         viewModel = viewModel,
       )
     }
@@ -99,10 +100,7 @@ class TermsOfServiceScreenTest {
       viewModel.uiState.value is TosUiState.Success
     }
 
-//    composeTestRule
-//      .onNode(hasText(TEST_TOS_TEXT, substring = true, ignoreCase = true))
-//      .assertIsDisplayed()
-    composeTestRule.onNodeWithText(TEST_TOS_TEXT + "\n\n").assertIsDisplayed()
+    composeTestRule.onNode(hasText(TEST_TOS_TEXT, substring = true)).assertIsDisplayed()
     composeTestRule.onNodeWithText(getString(R.string.agree_checkbox)).assertIsDisplayed()
     composeTestRule.onNodeWithText(getString(R.string.agree_terms)).assertIsDisplayed()
     composeTestRule.onNodeWithText(getString(R.string.agree_terms)).assertIsNotEnabled()

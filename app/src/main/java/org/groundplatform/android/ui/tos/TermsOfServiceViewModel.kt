@@ -15,8 +15,6 @@
  */
 package org.groundplatform.android.ui.tos
 
-import android.text.Html.fromHtml
-import android.text.Spanned
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.TimeoutCancellationException
@@ -40,7 +38,7 @@ import javax.inject.Inject
 sealed interface TosUiState {
   object Loading : TosUiState
 
-  data class Success(val termsText: Spanned, val agreeChecked: Boolean) : TosUiState
+  data class Success(val tosHtml: String, val agreeChecked: Boolean) : TosUiState
 }
 
 sealed interface TosEvent {
@@ -94,8 +92,7 @@ constructor(
           parser.buildMarkdownTreeFromString(text = tos).run {
             HtmlGenerator(tos, this, flavor).generateHtml()
           }
-        val spanned = fromHtml(html, 0)
-        _uiState.value = TosUiState.Success(spanned, false)
+        _uiState.value = TosUiState.Success(html, false)
       } catch (e: Throwable) {
         if (!e.isExpectedFailure()) {
           Timber.e(e, "Failed to load Terms of Service")
