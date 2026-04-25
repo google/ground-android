@@ -75,7 +75,6 @@ fun TermsOfServiceScreen(
     onAgreeCheckedChange = { viewModel.setAgreeCheckboxChecked(it) },
     onAgreeClick = { viewModel.onAgreeButtonClicked() },
     onBackClick = onNavigateUp,
-    onError = onError,
   )
 }
 
@@ -86,7 +85,6 @@ private fun TermsOfServiceContent(
   onAgreeCheckedChange: (Boolean) -> Unit,
   onAgreeClick: () -> Unit,
   onBackClick: () -> Unit,
-  onError: (String) -> Unit,
 ) {
   Scaffold(
     topBar = {
@@ -180,7 +178,6 @@ private fun TermsOfServiceContentPreview() {
     onAgreeCheckedChange = {},
     onAgreeClick = {},
     onBackClick = {},
-    onError = {},
   )
 }
 
@@ -198,6 +195,5 @@ private fun TermsOfServiceContentIsViewOnlyPreview() {
     onAgreeCheckedChange = {},
     onAgreeClick = {},
     onBackClick = {},
-    onError = {},
   )
 }
