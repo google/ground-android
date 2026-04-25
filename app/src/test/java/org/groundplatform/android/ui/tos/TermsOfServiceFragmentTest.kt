@@ -50,12 +50,19 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
       bundleOf(Pair("isViewOnly", false))
     )
 
-    composeTestRule.onNodeWithText("This is a heading\n\nSample terms of service\n\n").isDisplayed()
+    composeTestRule.onNodeWithText("""
+        This is a heading
+
+        Sample terms of service
+
+    """.trimIndent()).isDisplayed()
 
     composeTestRule
       .onNodeWithText(
-        "<p dir=\"ltr\"><span style=\"font-size:1.50em;\"><b>This is a heading</b></span></p>\n" +
-          "<p dir=\"ltr\">Sample terms of service</p>\n"
+        """
+            <p dir="ltr"><span style="font-size:1.50em;"><b>This is a heading</b></span></p>
+            <p dir="ltr">Sample terms of service</p>
+        """.trimIndent()
       )
       .isDisplayed()
   }

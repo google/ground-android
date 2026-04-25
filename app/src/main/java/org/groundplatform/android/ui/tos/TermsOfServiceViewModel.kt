@@ -44,7 +44,7 @@ sealed interface TosUiState {
 sealed interface TosEvent {
   object NavigateToSurveySelector : TosEvent
 
-  data class ShowError(val message: String) : TosEvent
+  object LoadError : TosEvent
 }
 
 @HiltViewModel
@@ -97,7 +97,7 @@ constructor(
         if (!e.isExpectedFailure()) {
           Timber.e(e, "Failed to load Terms of Service")
         }
-        _events.send(TosEvent.ShowError(e.message ?: "Failed to load Terms of Service"))
+        _events.send(TosEvent.LoadError)
         authManager.signOut()
       }
     }

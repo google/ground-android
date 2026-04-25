@@ -66,14 +66,14 @@ class TermsOfServiceScreenTest {
     isViewOnly: Boolean = false,
     onNavigateUp: () -> Unit = {},
     onNavigateToSurveySelector: () -> Unit = {},
-    onError: (String) -> Unit = {},
+    onError: () -> Unit = {},
   ) {
     composeTestRule.setContent {
       TermsOfServiceScreen(
         isViewOnly = isViewOnly,
         onNavigateUp = onNavigateUp,
         onNavigateToSurveySelector = onNavigateToSurveySelector,
-        onError = onError,
+        onLoadError = onError,
         termsContent = { html -> Text(html) },
         viewModel = viewModel,
       )

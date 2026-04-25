@@ -50,7 +50,7 @@ fun TermsOfServiceScreen(
   isViewOnly: Boolean,
   onNavigateUp: () -> Unit,
   onNavigateToSurveySelector: () -> Unit,
-  onError: (String) -> Unit,
+  onLoadError: () -> Unit,
   termsContent: @Composable (String) -> Unit,
   viewModel: TermsOfServiceViewModel = hiltViewModel(),
 ) {
@@ -60,7 +60,7 @@ fun TermsOfServiceScreen(
     viewModel.events.collect { event ->
       when (event) {
         is TosEvent.NavigateToSurveySelector -> onNavigateToSurveySelector()
-        is TosEvent.ShowError -> onError(event.message)
+        is TosEvent.LoadError -> onLoadError()
       }
     }
   }

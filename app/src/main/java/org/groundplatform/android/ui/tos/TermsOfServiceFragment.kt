@@ -15,7 +15,6 @@
  */
 package org.groundplatform.android.ui.tos
 
-import android.R
 import android.os.Bundle
 import android.text.Html.fromHtml
 import android.text.Spanned
@@ -33,6 +32,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import org.groundplatform.android.R
 import org.groundplatform.android.common.Constants.SURVEY_PATH_SEGMENT
 import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.common.EphemeralPopups
@@ -65,7 +65,7 @@ class TermsOfServiceFragment : AbstractFragment() {
           }
         } ?: run { openSurveySelector() }
       },
-      onError = { message -> popups.ErrorPopup().show(message) },
+      onLoadError = { popups.ErrorPopup().show(R.string.load_tos_failed) },
       termsContent = { html -> TermsTextView(fromHtml(html, 0)) },
     )
   }
@@ -83,7 +83,7 @@ class TermsOfServiceFragment : AbstractFragment() {
         TextView(context).apply {
           movementMethod = LinkMovementMethod.getInstance()
           autoLinkMask = Linkify.WEB_URLS
-          setTextAppearance(R.style.TextAppearance_Material_Body1)
+          setTextAppearance(android.R.style.TextAppearance_Material_Body1)
         }
       },
       update = { textView ->
