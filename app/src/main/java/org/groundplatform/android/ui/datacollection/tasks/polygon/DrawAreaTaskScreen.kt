@@ -13,11 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.ui.datacollection.tasks.point
+package org.groundplatform.android.ui.datacollection.tasks.polygon
 
+import android.widget.Toast
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -25,6 +29,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
+import org.groundplatform.android.ui.components.ConfirmationDialog
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.components.InstructionData
@@ -33,20 +38,9 @@ import org.groundplatform.android.ui.datacollection.tasks.TaskScreen
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreenAction
 import org.groundplatform.ui.theme.AppTheme
 
-/**
- * A screen for dropping a pin on the map.
- *
- * This is the stateful wrapper that collects state from [DropPinTaskViewModel] and handles event
- * routing.
- *
- * @param viewModel The view model for this task.
- * @param onFooterPositionUpdated Callback when the footer position changes.
- * @param onAction Callback for screen actions (e.g., navigation).
- * @param mapContent Composable for rendering the map.
- */
 @Composable
-fun DropPinTaskScreen(
-  viewModel: DropPinTaskViewModel,
+fun DrawAreaTaskScreen(
+  viewModel: DrawAreaTaskViewModel,
   onFooterPositionUpdated: (Float) -> Unit,
   shouldShowLoiNameDialog: Boolean,
   loiName: String,
@@ -54,7 +48,11 @@ fun DropPinTaskScreen(
   mapContent: @Composable () -> Unit,
 ) {
   val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
+  val showSelfIntersectionDialog by viewModel.showSelfIntersectionDialog
   val showInstructionsDialog by viewModel.showInstructionsDialog.collectAsStateWithLifecycle()
+  val polygonArea by viewModel.polygonArea.observeAsState()
+  val context = LocalContext.current
+  val areaMessage = polygonArea?.let { stringResource(R.string.area_message, it) }
 
   val lifecycleOwner = LocalLifecycleOwner.current
   LaunchedEffect(lifecycleOwner) {
@@ -63,79 +61,121 @@ fun DropPinTaskScreen(
     }
   }
 
-  DropPinTaskContent(
+  LaunchedEffect(areaMessage) {
+    areaMessage?.let { Toast.makeText(context, it, Toast.LENGTH_LONG).show() }
+  }
+
+  DrawAreaTaskContent(
     taskLabel = viewModel.task.label,
     taskActionButtonsStates = taskActionButtonsStates,
     showInstructionsDialog = showInstructionsDialog,
+    showSelfIntersectionDialog = showSelfIntersectionDialog,
     shouldShowLoiNameDialog = shouldShowLoiNameDialog,
     loiName = loiName,
     onFooterPositionUpdated = onFooterPositionUpdated,
     onAction = { action ->
       if (action is TaskScreenAction.OnInstructionsDismiss) {
-        viewModel.dismissDropPinInstructions()
+        viewModel.dismissDrawAreaInstructions()
       } else {
         onAction(action)
       }
     },
+    onDismissSelfIntersectionDialog = { viewModel.showSelfIntersectionDialog.value = false },
     mapContent = mapContent,
   )
 }
 
-/**
- * The stateless content of the drop pin task screen.
- *
- * @param taskLabel The label of the task.
- * @param taskActionButtonsStates The states of the action buttons.
- * @param showInstructionsDialog Whether to show the instructions' dialog.
- * @param onFooterPositionUpdated Callback when the footer position changes.
- * @param onAction Callback for screen actions.
- * @param mapContent Composable for rendering the map.
- */
 @Composable
-private fun DropPinTaskContent(
+private fun DrawAreaTaskContent(
   taskLabel: String,
   taskActionButtonsStates: List<ButtonActionState>,
   showInstructionsDialog: Boolean,
+  showSelfIntersectionDialog: Boolean,
   shouldShowLoiNameDialog: Boolean,
   loiName: String,
   onFooterPositionUpdated: (Float) -> Unit,
   onAction: (TaskScreenAction) -> Unit,
+  onDismissSelfIntersectionDialog: () -> Unit,
   mapContent: @Composable () -> Unit,
 ) {
   TaskScreen(
-    taskHeader = TaskHeader(taskLabel, R.drawable.outline_pin_drop),
+    taskHeader = TaskHeader(taskLabel, R.drawable.outline_draw),
     instructionData =
-      InstructionData(iconId = R.drawable.swipe_24, stringId = R.string.drop_a_pin_tooltip_text),
+      InstructionData(
+        iconId = R.drawable.touch_app_24,
+        stringId = R.string.draw_area_task_instruction,
+      ),
     taskActionButtonsStates = taskActionButtonsStates,
     showInstructionsDialog = showInstructionsDialog,
     shouldShowLoiNameDialog = shouldShowLoiNameDialog,
     loiName = loiName,
     onFooterPositionUpdated = onFooterPositionUpdated,
     onAction = onAction,
-    taskBody = mapContent,
+    taskBody = { mapContent() },
   )
+
+  if (showSelfIntersectionDialog) {
+    ConfirmationDialog(
+      title = R.string.polygon_vertex_add_dialog_title,
+      description = R.string.polygon_vertex_add_dialog_message,
+      confirmButtonText = R.string.polygon_vertex_add_dialog_positive_button,
+      dismissButtonText = null,
+      onConfirmClicked = onDismissSelfIntersectionDialog,
+    )
+  }
 }
 
 @Preview(showBackground = true)
 @Composable
 @ExcludeFromJacocoGeneratedReport
-private fun DropPinTaskScreenPreview() {
+private fun DrawAreaTaskScreenInstructionsPreview() {
   AppTheme {
-    DropPinTaskContent(
-      taskLabel = "Task for dropping a pin",
+    DrawAreaTaskContent(
+      taskLabel = "Task for drawing a polygon",
       taskActionButtonsStates =
         listOf(
           ButtonActionState(ButtonAction.PREVIOUS, isEnabled = true, isVisible = true),
           ButtonActionState(ButtonAction.SKIP, isEnabled = true, isVisible = true),
-          ButtonActionState(ButtonAction.UNDO, isEnabled = false, isVisible = false),
-          ButtonActionState(ButtonAction.DROP_PIN, isEnabled = true, isVisible = true),
-          ButtonActionState(ButtonAction.NEXT, isEnabled = false, isVisible = false),
+          ButtonActionState(ButtonAction.UNDO, isEnabled = false, isVisible = true),
+          ButtonActionState(ButtonAction.REDO, isEnabled = false, isVisible = true),
+          ButtonActionState(ButtonAction.ADD_POINT, isEnabled = true, isVisible = true),
+          ButtonActionState(ButtonAction.COMPLETE, isEnabled = false, isVisible = false),
         ),
       showInstructionsDialog = true,
+      showSelfIntersectionDialog = false,
       shouldShowLoiNameDialog = false,
       loiName = "",
       onFooterPositionUpdated = {},
       onAction = {},
+      onDismissSelfIntersectionDialog = {},
+      mapContent = {},
+    )
+  }
+}
+
+@Preview(showBackground = true)
+@Composable
+@ExcludeFromJacocoGeneratedReport
+private fun DrawAreaTaskScreenSelfIntersectionPreview() {
+  AppTheme {
+    DrawAreaTaskContent(
+      taskLabel = "Task for drawing a polygon",
+      taskActionButtonsStates =
+        listOf(
+          ButtonActionState(ButtonAction.PREVIOUS, isEnabled = true, isVisible = true),
+          ButtonActionState(ButtonAction.SKIP, isEnabled = true, isVisible = true),
+          ButtonActionState(ButtonAction.UNDO, isEnabled = false, isVisible = true),
+          ButtonActionState(ButtonAction.REDO, isEnabled = false, isVisible = true),
+          ButtonActionState(ButtonAction.ADD_POINT, isEnabled = true, isVisible = true),
+          ButtonActionState(ButtonAction.COMPLETE, isEnabled = false, isVisible = false),
+        ),
+      showInstructionsDialog = false,
+      showSelfIntersectionDialog = true,
+      shouldShowLoiNameDialog = false,
+      loiName = "",
+      onFooterPositionUpdated = {},
+      onAction = {},
+      onDismissSelfIntersectionDialog = {},
       mapContent = {},
     )
   }

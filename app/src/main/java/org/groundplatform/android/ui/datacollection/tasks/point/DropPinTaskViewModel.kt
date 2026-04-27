@@ -50,11 +50,7 @@ constructor(
   /** Whether the instructions dialog has been shown or not. */
   internal var instructionsDialogShown: Boolean by localValueStore::dropPinInstructionsShown
 
-  init {
-    if (!instructionsDialogShown) {
-      showInstructions()
-    }
-  }
+
 
   override fun initialize(
     job: Job,
@@ -103,6 +99,12 @@ constructor(
   fun dismissDropPinInstructions() {
     instructionsDialogShown = true
     dismissInstructions()
+  }
+
+  fun maybeShowInstructions() {
+    if (!instructionsDialogShown) {
+      showInstructions()
+    }
   }
 
   private fun placeMarker(point: Point) = viewModelScope.launch {
