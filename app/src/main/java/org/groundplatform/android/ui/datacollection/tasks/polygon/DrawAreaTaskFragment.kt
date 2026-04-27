@@ -15,66 +15,42 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.polygon
 
-import android.widget.Toast
-import androidx.compose.runtime.Composable
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.ViewGroup
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import javax.inject.Provider
-import org.groundplatform.android.R
-import org.groundplatform.android.ui.components.ConfirmationDialog
-import org.groundplatform.android.ui.datacollection.components.InstructionData
-import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.groundplatform.android.ui.datacollection.components.TaskMapFragmentContainer
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
+import org.groundplatform.android.util.createComposeView
 
 @AndroidEntryPoint
 class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawAreaTaskViewModel>() {
   @Inject lateinit var drawAreaTaskMapFragmentProvider: Provider<DrawAreaTaskMapFragment>
 
-  override val taskHeader: TaskHeader by lazy {
-    TaskHeader(viewModel.task.label, R.drawable.outline_draw)
-  }
+  override fun onCreateView(
+    inflater: LayoutInflater,
+    container: ViewGroup?,
+    savedInstanceState: Bundle?,
+  ) = createComposeView {
+    val shouldShowLoiNameDialog by dataCollectionViewModel.loiNameDialogOpen
+    val loiName by dataCollectionViewModel.loiNameDraft.collectAsStateWithLifecycle()
 
-  override val instructionData =
-    InstructionData(
-      iconId = R.drawable.touch_app_24,
-      stringId = R.string.draw_area_task_instruction,
-    )
-
-  @Composable
-  override fun TaskBody() {
-    var showSelfIntersectionDialog by viewModel.showSelfIntersectionDialog
-
-    TaskMapFragmentContainer(
-      taskId = viewModel.task.id,
-      fragmentManager = childFragmentManager,
-      fragmentProvider = drawAreaTaskMapFragmentProvider,
-    )
-
-    if (showSelfIntersectionDialog) {
-      ConfirmationDialog(
-        title = R.string.polygon_vertex_add_dialog_title,
-        description = R.string.polygon_vertex_add_dialog_message,
-        confirmButtonText = R.string.polygon_vertex_add_dialog_positive_button,
-        dismissButtonText = null,
-        onConfirmClicked = { showSelfIntersectionDialog = false },
+    DrawAreaTaskScreen(
+      viewModel = viewModel,
+      onFooterPositionUpdated = { saveFooterPosition(it) },
+      shouldShowLoiNameDialog = shouldShowLoiNameDialog,
+      loiName = loiName,
+      onAction = { action -> handleTaskScreenAction(action) },
+    ) {
+      TaskMapFragmentContainer(
+        taskId = viewModel.task.id,
+        fragmentManager = childFragmentManager,
+        fragmentProvider = drawAreaTaskMapFragmentProvider,
       )
     }
-  }
-
-  override fun onTaskResume() {
-    if (isVisible && !viewModel.instructionsDialogShown) {
-      viewModel.showInstructions()
-    }
-    viewModel.polygonArea.observe(viewLifecycleOwner) { area ->
-      Toast.makeText(requireContext(), getString(R.string.area_message, area), Toast.LENGTH_LONG)
-        .show()
-    }
-  }
-
-  override fun onInstructionDialogDismissed() {
-    viewModel.instructionsDialogShown = true
   }
 }
