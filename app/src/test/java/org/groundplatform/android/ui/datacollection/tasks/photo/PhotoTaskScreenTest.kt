@@ -24,7 +24,6 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.google.common.truth.Truth.assertThat
-import java.io.File
 import kotlinx.coroutines.runBlocking
 import org.groundplatform.android.system.PermissionDeniedException
 import org.groundplatform.android.system.PermissionsManager
@@ -32,7 +31,6 @@ import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.ButtonActionStateChecker
 import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
-import org.groundplatform.android.ui.datacollection.tasks.TaskScreenAction
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.job.Style
 import org.groundplatform.domain.model.submission.TaskData
@@ -50,6 +48,7 @@ import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
+import java.io.File
 
 @RunWith(RobolectricTestRunner::class)
 class PhotoTaskScreenTest {
@@ -92,11 +91,7 @@ class PhotoTaskScreenTest {
       PhotoTaskScreen(
         viewModel = viewModel,
         onFooterPositionUpdated = {},
-        onAction = {
-          if (it is TaskScreenAction.OnButtonClicked) {
-            lastButtonAction = it.action
-          }
-        },
+        onButtonClicked = { lastButtonAction = it },
         onAwaitingPhotoCapture = {},
       )
     }

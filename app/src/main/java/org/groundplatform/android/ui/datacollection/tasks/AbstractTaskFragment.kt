@@ -73,29 +73,7 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     }
   }
 
-  /** Handles actions triggered from the task screen UI. */
-  fun handleTaskScreenAction(screenAction: TaskScreenAction) {
-    when (screenAction) {
-      is TaskScreenAction.OnButtonClicked -> {
-        handleButtonClick(screenAction.action)
-      }
-      is TaskScreenAction.OnLoiNameChanged -> {
-        dataCollectionViewModel.setLoiNameDraft(screenAction.name)
-      }
-      is TaskScreenAction.OnLoiNameDismiss -> {
-        dataCollectionViewModel.dismissLoiNameDialog(dataCollectionViewModel.getLoiName())
-      }
-      is TaskScreenAction.OnLoiNameConfirm -> {
-        dataCollectionViewModel.confirmLoiName(screenAction.name)
-        moveToNext()
-      }
-      is TaskScreenAction.OnInstructionsDismiss -> {
-        error("OnInstructionsDismiss action should be handled within the task screen")
-      }
-    }
-  }
-
-  private fun handleButtonClick(action: ButtonAction) {
+  protected fun handleButtonClick(action: ButtonAction) {
     when (action) {
       // Navigation actions
       ButtonAction.PREVIOUS -> moveToPrevious()
@@ -105,6 +83,22 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
       // Task-specific actions - delegate to ViewModel
       else -> viewModel.onButtonClick(action)
     }
+  }
+
+  /** Handles the confirmation of the LOI name. */
+  protected fun onLoiNameConfirm(name: String) {
+    dataCollectionViewModel.confirmLoiName(name)
+    dataCollectionViewModel.onNextClicked(viewModel)
+  }
+
+  /** Handles the dismissal of the LOI name dialog. Resets the draft name to the initial value. */
+  protected fun onLoiNameDismiss() {
+    dataCollectionViewModel.dismissLoiNameDialog(dataCollectionViewModel.getLoiName())
+  }
+
+  /** Handles changes to the LOI name draft. */
+  protected fun onLoiNameChanged(name: String) {
+    dataCollectionViewModel.setLoiNameDraft(name)
   }
 
   companion object {

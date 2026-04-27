@@ -21,7 +21,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
-import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.JOB
@@ -32,7 +31,6 @@ import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.ButtonActionStateChecker
 import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
-import org.groundplatform.android.ui.datacollection.tasks.TaskScreenAction
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.map.CameraPosition
@@ -45,6 +43,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
@@ -56,7 +55,7 @@ class DropPinTaskScreenTest : BaseHiltTest() {
   @Inject lateinit var viewModel: DropPinTaskViewModel
   @Inject lateinit var localValueStore: LocalValueStore
   private lateinit var buttonActionStateChecker: ButtonActionStateChecker
-  private var lastScreenAction: TaskScreenAction? = null
+  private var lastButtonAction: ButtonAction? = null
 
   @Before
   override fun setUp() {
@@ -167,7 +166,7 @@ class DropPinTaskScreenTest : BaseHiltTest() {
     taskData: TaskData? = null,
     viewModelToUse: DropPinTaskViewModel = viewModel,
   ) {
-    lastScreenAction = null
+    lastButtonAction = null
     viewModelToUse.initialize(
       job = JOB,
       task = task,
@@ -182,12 +181,13 @@ class DropPinTaskScreenTest : BaseHiltTest() {
         onFooterPositionUpdated = {},
         shouldShowLoiNameDialog = false,
         loiName = "",
-        onAction = { action ->
-          lastScreenAction = action
-          if (action is TaskScreenAction.OnButtonClicked) {
-            viewModelToUse.onButtonClick(action.action)
-          }
+        onButtonClicked = { action ->
+          lastButtonAction = action
+          viewModelToUse.onButtonClick(action)
         },
+        onLoiNameConfirm = {},
+        onLoiNameDismiss = {},
+        onLoiNameChanged = {},
         mapContent = { /* Dummy content */ },
       )
     }

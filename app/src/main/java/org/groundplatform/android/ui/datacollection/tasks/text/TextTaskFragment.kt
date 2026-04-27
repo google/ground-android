@@ -34,7 +34,7 @@ class TextTaskFragment : AbstractTaskFragment<TextTaskViewModel>() {
     TextTaskScreen(
       viewModel = viewModel,
       onFooterPositionUpdated = { saveFooterPosition(it) },
-      onAction = { handleTaskScreenAction(it) },
+      onButtonClicked = { handleButtonClick(it) },
     )
   }
 }

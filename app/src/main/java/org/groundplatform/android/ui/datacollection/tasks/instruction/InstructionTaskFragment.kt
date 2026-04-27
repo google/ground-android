@@ -33,7 +33,7 @@ class InstructionTaskFragment : AbstractTaskFragment<InstructionTaskViewModel>()
     InstructionTaskScreen(
       viewModel = viewModel,
       onFooterPositionUpdated = { saveFooterPosition(it) },
-      onAction = { handleTaskScreenAction(it) },
+      onButtonClicked = { handleButtonClick(it) },
     )
   }
 }

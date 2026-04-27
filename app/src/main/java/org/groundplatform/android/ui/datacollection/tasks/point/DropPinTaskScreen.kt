@@ -16,8 +16,8 @@
 package org.groundplatform.android.ui.datacollection.tasks.point
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -30,7 +30,6 @@ import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.components.InstructionData
 import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreen
-import org.groundplatform.android.ui.datacollection.tasks.TaskScreenAction
 import org.groundplatform.ui.theme.AppTheme
 
 /**
@@ -50,7 +49,10 @@ fun DropPinTaskScreen(
   onFooterPositionUpdated: (Float) -> Unit,
   shouldShowLoiNameDialog: Boolean,
   loiName: String,
-  onAction: (TaskScreenAction) -> Unit,
+  onButtonClicked: (ButtonAction) -> Unit,
+  onLoiNameConfirm: (String) -> Unit,
+  onLoiNameDismiss: () -> Unit,
+  onLoiNameChanged: (String) -> Unit,
   mapContent: @Composable () -> Unit,
 ) {
   val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
@@ -58,9 +60,7 @@ fun DropPinTaskScreen(
 
   val lifecycleOwner = LocalLifecycleOwner.current
   LaunchedEffect(lifecycleOwner) {
-    lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-      viewModel.maybeShowInstructions()
-    }
+    lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) { viewModel.maybeShowInstructions() }
   }
 
   DropPinTaskContent(
@@ -70,13 +70,11 @@ fun DropPinTaskScreen(
     shouldShowLoiNameDialog = shouldShowLoiNameDialog,
     loiName = loiName,
     onFooterPositionUpdated = onFooterPositionUpdated,
-    onAction = { action ->
-      if (action is TaskScreenAction.OnInstructionsDismiss) {
-        viewModel.dismissDropPinInstructions()
-      } else {
-        onAction(action)
-      }
-    },
+    onButtonClicked = onButtonClicked,
+    onLoiNameConfirm = onLoiNameConfirm,
+    onLoiNameDismiss = onLoiNameDismiss,
+    onLoiNameChanged = onLoiNameChanged,
+    onInstructionsDismiss = { viewModel.dismissDropPinInstructions() },
     mapContent = mapContent,
   )
 }
@@ -88,7 +86,6 @@ fun DropPinTaskScreen(
  * @param taskActionButtonsStates The states of the action buttons.
  * @param showInstructionsDialog Whether to show the instructions' dialog.
  * @param onFooterPositionUpdated Callback when the footer position changes.
- * @param onAction Callback for screen actions.
  * @param mapContent Composable for rendering the map.
  */
 @Composable
@@ -99,7 +96,11 @@ private fun DropPinTaskContent(
   shouldShowLoiNameDialog: Boolean,
   loiName: String,
   onFooterPositionUpdated: (Float) -> Unit,
-  onAction: (TaskScreenAction) -> Unit,
+  onButtonClicked: (ButtonAction) -> Unit,
+  onLoiNameConfirm: (String) -> Unit,
+  onLoiNameDismiss: () -> Unit,
+  onLoiNameChanged: (String) -> Unit,
+  onInstructionsDismiss: () -> Unit,
   mapContent: @Composable () -> Unit,
 ) {
   TaskScreen(
@@ -111,7 +112,11 @@ private fun DropPinTaskContent(
     shouldShowLoiNameDialog = shouldShowLoiNameDialog,
     loiName = loiName,
     onFooterPositionUpdated = onFooterPositionUpdated,
-    onAction = onAction,
+    onButtonClicked = onButtonClicked,
+    onLoiNameConfirm = onLoiNameConfirm,
+    onLoiNameDismiss = onLoiNameDismiss,
+    onLoiNameChanged = onLoiNameChanged,
+    onInstructionsDismiss = onInstructionsDismiss,
     taskBody = mapContent,
   )
 }
@@ -135,7 +140,11 @@ private fun DropPinTaskScreenPreview() {
       shouldShowLoiNameDialog = false,
       loiName = "",
       onFooterPositionUpdated = {},
-      onAction = {},
+      onButtonClicked = {},
+      onLoiNameConfirm = {},
+      onLoiNameDismiss = {},
+      onLoiNameChanged = {},
+      onInstructionsDismiss = {},
       mapContent = {},
     )
   }

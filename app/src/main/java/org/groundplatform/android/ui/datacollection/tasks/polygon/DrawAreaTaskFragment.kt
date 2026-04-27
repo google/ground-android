@@ -21,11 +21,11 @@ import android.view.ViewGroup
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
-import javax.inject.Provider
 import org.groundplatform.android.ui.datacollection.components.TaskMapFragmentContainer
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.util.createComposeView
+import javax.inject.Inject
+import javax.inject.Provider
 
 @AndroidEntryPoint
 class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawAreaTaskViewModel>() {
@@ -44,7 +44,10 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
       onFooterPositionUpdated = { saveFooterPosition(it) },
       shouldShowLoiNameDialog = shouldShowLoiNameDialog,
       loiName = loiName,
-      onAction = { action -> handleTaskScreenAction(action) },
+      onButtonClicked = { handleButtonClick(it) },
+      onLoiNameConfirm = { onLoiNameConfirm(it) },
+      onLoiNameDismiss = { onLoiNameDismiss() },
+      onLoiNameChanged = { onLoiNameChanged(it) },
     ) {
       TaskMapFragmentContainer(
         taskId = viewModel.task.id,

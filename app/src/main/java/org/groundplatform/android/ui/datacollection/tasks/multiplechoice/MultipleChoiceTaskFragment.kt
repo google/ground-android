@@ -39,7 +39,7 @@ class MultipleChoiceTaskFragment : AbstractTaskFragment<MultipleChoiceTaskViewMo
     MultipleChoiceTaskScreen(
       viewModel = viewModel,
       onFooterPositionUpdated = { saveFooterPosition(it) },
-      onAction = { handleTaskScreenAction(it) },
+      onButtonClicked = { handleButtonClick(it) },
     )
   }
 }

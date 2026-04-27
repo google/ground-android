@@ -30,7 +30,6 @@ import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.ButtonActionStateChecker
 import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
-import org.groundplatform.android.ui.datacollection.tasks.TaskScreenAction
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.submission.TextTaskData
@@ -69,11 +68,7 @@ class TextTaskScreenTest {
       TextTaskScreen(
         viewModel = viewModel,
         onFooterPositionUpdated = {},
-        onAction = {
-          if (it is TaskScreenAction.OnButtonClicked) {
-            lastButtonAction = it.action
-          }
-        },
+        onButtonClicked = { lastButtonAction = it },
       )
     }
   }

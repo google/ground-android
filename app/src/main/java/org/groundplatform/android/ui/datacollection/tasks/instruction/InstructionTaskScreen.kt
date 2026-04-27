@@ -31,15 +31,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
+import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreen
-import org.groundplatform.android.ui.datacollection.tasks.TaskScreenAction
 import org.groundplatform.ui.theme.sizes
 
 @Composable
 fun InstructionTaskScreen(
   viewModel: InstructionTaskViewModel,
   onFooterPositionUpdated: (Float) -> Unit,
-  onAction: (TaskScreenAction) -> Unit,
+  onButtonClicked: (ButtonAction) -> Unit,
 ) {
   val taskActionButtonStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
 
@@ -47,7 +47,7 @@ fun InstructionTaskScreen(
     taskHeader = null,
     taskActionButtonsStates = taskActionButtonStates,
     onFooterPositionUpdated = onFooterPositionUpdated,
-    onAction = onAction,
+    onButtonClicked = onButtonClicked,
     taskBody = { InstructionTaskContent(viewModel.task.label) },
   )
 }

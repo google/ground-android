@@ -34,7 +34,7 @@ class NumberTaskFragment : AbstractTaskFragment<NumberTaskViewModel>() {
     NumberTaskScreen(
       viewModel = viewModel,
       onFooterPositionUpdated = { saveFooterPosition(it) },
-      onAction = { handleTaskScreenAction(it) },
+      onButtonClicked = { handleButtonClick(it) },
     )
   }
 }

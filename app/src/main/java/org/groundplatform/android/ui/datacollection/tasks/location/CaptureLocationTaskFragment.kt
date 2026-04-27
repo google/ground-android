@@ -22,11 +22,11 @@ import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
-import javax.inject.Provider
 import org.groundplatform.android.ui.datacollection.components.TaskMapFragmentContainer
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.util.createComposeView
+import javax.inject.Inject
+import javax.inject.Provider
 
 @AndroidEntryPoint
 class CaptureLocationTaskFragment @Inject constructor() :
@@ -42,7 +42,7 @@ class CaptureLocationTaskFragment @Inject constructor() :
     CaptureLocationTaskScreen(
       viewModel = viewModel,
       onFooterPositionUpdated = { saveFooterPosition(it) },
-      onAction = { handleTaskScreenAction(it) },
+      onButtonClicked = { handleButtonClick(it) },
       onOpenSettings = { openAppSettings() },
     ) {
       TaskMapFragmentContainer(

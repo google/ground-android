@@ -33,7 +33,7 @@ class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
     DateTaskScreen(
       viewModel = viewModel,
       onFooterPositionUpdated = { saveFooterPosition(it) },
-      onAction = { handleTaskScreenAction(it) },
+      onButtonClicked = { handleButtonClick(it) },
     )
   }
 }

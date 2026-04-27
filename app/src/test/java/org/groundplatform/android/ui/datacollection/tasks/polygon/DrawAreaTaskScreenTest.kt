@@ -22,7 +22,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
-import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.JOB
@@ -33,7 +32,6 @@ import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.ButtonActionStateChecker
 import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
-import org.groundplatform.android.ui.datacollection.tasks.TaskScreenAction
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.LineString
 import org.groundplatform.domain.model.geometry.LinearRing
@@ -48,6 +46,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
@@ -59,7 +58,7 @@ class DrawAreaTaskScreenTest : BaseHiltTest() {
   @Inject lateinit var viewModel: DrawAreaTaskViewModel
   @Inject lateinit var localValueStore: LocalValueStore
   private lateinit var buttonActionStateChecker: ButtonActionStateChecker
-  private var lastScreenAction: TaskScreenAction? = null
+  private var lastButtonAction: ButtonAction? = null
 
   @Before
   override fun setUp() {
@@ -246,7 +245,7 @@ class DrawAreaTaskScreenTest : BaseHiltTest() {
     taskData: TaskData? = null,
     viewModelToUse: DrawAreaTaskViewModel = viewModel,
   ) {
-    lastScreenAction = null
+    lastButtonAction = null
     viewModelToUse.initialize(
       job = JOB,
       task = task,
@@ -261,12 +260,13 @@ class DrawAreaTaskScreenTest : BaseHiltTest() {
         onFooterPositionUpdated = {},
         shouldShowLoiNameDialog = false,
         loiName = "",
-        onAction = { action ->
-          lastScreenAction = action
-          if (action is TaskScreenAction.OnButtonClicked) {
-            viewModelToUse.onButtonClick(action.action)
-          }
+        onButtonClicked = { action ->
+          lastButtonAction = action
+          viewModelToUse.onButtonClick(action)
         },
+        onLoiNameConfirm = {},
+        onLoiNameDismiss = {},
+        onLoiNameChanged = {},
         mapContent = { /* Dummy content */ },
       )
     }
@@ -294,8 +294,10 @@ class DrawAreaTaskScreenTest : BaseHiltTest() {
     val threshold = PolygonDrawingSession.DISTANCE_THRESHOLD_DP.toDouble()
     viewModel.updateLastVertexAndMaybeCompletePolygon(coordinate) { _, _ -> threshold }
   }
+
   companion object {
-    private val TASK = newTask(type = Task.Type.DRAW_AREA).copy(label = "Task for drawing a polygon")
+    private val TASK =
+      newTask(type = Task.Type.DRAW_AREA).copy(label = "Task for drawing a polygon")
     private val COORDINATE_1 = Coordinates(0.0, 0.0)
     private val COORDINATE_2 = Coordinates(10.0, 10.0)
     private val COORDINATE_3 = Coordinates(20.0, 20.0)
