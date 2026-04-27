@@ -22,6 +22,7 @@ import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
+import dagger.hilt.android.testing.UninstallModules
 import java.io.File
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
@@ -31,7 +32,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import org.groundplatform.android.BaseHiltTest
-import org.groundplatform.android.repository.UserMediaRepository
+import org.groundplatform.android.di.UserMediaRepositoryModule
 import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 import org.groundplatform.domain.model.job.Job
@@ -39,21 +40,24 @@ import org.groundplatform.domain.model.job.Style
 import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.task.PhotoTaskData
 import org.groundplatform.domain.model.task.Task
+import org.groundplatform.domain.repository.UserMediaRepositoryInterface
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
 @HiltAndroidTest
+@UninstallModules(UserMediaRepositoryModule::class)
 @RunWith(RobolectricTestRunner::class)
 class PhotoTaskViewModelTest : BaseHiltTest() {
 
-  @BindValue @Mock lateinit var userMediaRepository: UserMediaRepository
+  @BindValue @Mock lateinit var userMediaRepository: UserMediaRepositoryInterface
   @BindValue @Mock lateinit var permissionsManager: PermissionsManager
   @Inject lateinit var viewModel: PhotoTaskViewModel
 
@@ -72,10 +76,10 @@ class PhotoTaskViewModelTest : BaseHiltTest() {
   fun `onCaptureResult saves photo when result is true`() = runWithTestDispatcher {
     whenever(permissionsManager.obtainPermission(any())).thenReturn(Unit)
     val mockFile = mock<File>()
-    whenever(userMediaRepository.createImageFile(any())).thenReturn(mockFile)
-    whenever(userMediaRepository.getUriForFile(mockFile)).thenReturn(mock<Uri>())
-    whenever(mockFile.absolutePath).thenReturn("/path/to/file.jpg")
-    whenever(mockFile.name).thenReturn("file.jpg")
+    doReturn(TEST_FILE_PATH).whenever(userMediaRepository).createImageFile(any())
+    doReturn(TEST_URI).whenever(userMediaRepository).getUriForFile(TEST_FILE_PATH)
+    whenever(mockFile.absolutePath).thenReturn(TEST_FILE_PATH.value)
+    whenever(mockFile.name).thenReturn(TEST_FILE_NAME)
 
     viewModel.onTakePhoto()
     advanceUntilIdle()
@@ -101,10 +105,10 @@ class PhotoTaskViewModelTest : BaseHiltTest() {
     runWithTestDispatcher {
       whenever(permissionsManager.obtainPermission(any())).thenReturn(Unit)
       val mockFile = mock<File>()
-      whenever(userMediaRepository.createImageFile(any())).thenReturn(mockFile)
-      whenever(userMediaRepository.getUriForFile(mockFile)).thenReturn(mock<Uri>())
-      whenever(mockFile.absolutePath).thenReturn("/path/to/file.jpg")
-      whenever(mockFile.name).thenReturn("file.jpg")
+      doReturn(TEST_FILE_PATH).whenever(userMediaRepository).createImageFile(any())
+      doReturn(TEST_URI).whenever(userMediaRepository).getUriForFile(TEST_FILE_PATH)
+      whenever(mockFile.absolutePath).thenReturn(TEST_FILE_PATH.value)
+      whenever(mockFile.name).thenReturn(TEST_FILE_NAME)
 
       viewModel.events.test {
         viewModel.onTakePhoto()
@@ -123,10 +127,10 @@ class PhotoTaskViewModelTest : BaseHiltTest() {
   @Test
   fun `onTakePhoto emits LaunchCamera event`() = runWithTestDispatcher {
     whenever(permissionsManager.obtainPermission(any())).thenReturn(Unit)
-    val mockFile = mock<File>()
-    whenever(userMediaRepository.createImageFile(any())).thenReturn(mockFile)
+    doReturn(TEST_FILE_PATH).whenever(userMediaRepository).createImageFile(any())
     val mockUri = mock<Uri>()
-    whenever(userMediaRepository.getUriForFile(mockFile)).thenReturn(mockUri)
+    whenever(mockUri.toString()).thenReturn(TEST_URI.value)
+    doReturn(TEST_URI).whenever(userMediaRepository).getUriForFile(TEST_FILE_PATH)
 
     viewModel.events.test {
       viewModel.onTakePhoto()
@@ -138,8 +142,7 @@ class PhotoTaskViewModelTest : BaseHiltTest() {
 
   @Test
   fun clearResponse_clearsUriFlow() = runWithTestDispatcher {
-    val mockUri = mock<Uri>()
-    whenever(userMediaRepository.getDownloadUrl(any())).thenReturn(mockUri)
+    doReturn(TEST_URI).whenever(userMediaRepository).getDownloadUrl(any())
 
     viewModel.setValue(PhotoTaskData("path/photo.jpg"))
     advanceUntilIdle()
@@ -169,8 +172,8 @@ class PhotoTaskViewModelTest : BaseHiltTest() {
     )
   }
 
-  companion object {
-    private val TASK =
+  private companion object {
+    val TASK =
       Task(
         id = "task_1",
         index = 0,
@@ -178,6 +181,10 @@ class PhotoTaskViewModelTest : BaseHiltTest() {
         label = "Task for capturing a photo",
         isRequired = false,
       )
-    private val JOB = Job("job", Style("#112233"))
+    val JOB = Job("job", Style("#112233"))
+
+    val TEST_FILE_PATH = UserMediaRepositoryInterface.MediaFilePath("/path/to/file.jpg")
+    const val TEST_FILE_NAME = "file.jpg"
+    val TEST_URI = UserMediaRepositoryInterface.MediaUri("content://test")
   }
 }
