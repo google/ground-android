@@ -64,7 +64,7 @@ fun LoiNameDialog(
       Button(
         onClick = { onLoiNameAction(LoiNameAction.Confirmed(textFieldValue)) },
         contentPadding = PaddingValues(25.dp, 0.dp),
-        enabled = textFieldValue != "",
+        enabled = textFieldValue.isNotBlank(),
       ) {
         Text(stringResource(R.string.save))
       }

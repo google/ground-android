@@ -655,7 +655,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun `LOI name dialog validation prevents saving with empty name`() {
+  fun `LOI name dialog validation prevents saving with empty or blank name`() {
     setupFragmentWithNoLoi()
 
     runner()
@@ -663,6 +663,9 @@ class DataCollectionFragmentTest : BaseHiltTest() {
       .clickNextButton()
       .assertLoiNameDialogIsDisplayed()
       .assertButtonIsDisabled("Save")
+
+    // Input blank name
+    runner().inputLoiName("   ").assertButtonIsDisabled("Save")
 
     // Input valid name
     runner().inputLoiName("Valid Name").assertButtonIsEnabled("Save")

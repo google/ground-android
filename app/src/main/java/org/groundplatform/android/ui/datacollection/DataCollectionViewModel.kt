@@ -157,8 +157,10 @@ internal constructor(
   fun handleLoiNameAction(action: LoiNameAction, taskViewModel: AbstractTaskViewModel) {
     when (action) {
       is LoiNameAction.Confirmed -> {
-        confirmLoiName(action.name)
-        onNextClicked(taskViewModel)
+        if (action.name.isNotBlank()) {
+          confirmLoiName(action.name)
+          onNextClicked(taskViewModel)
+        }
       }
       is LoiNameAction.Dismissed -> {
         dismissLoiNameDialog(getLoiName())
