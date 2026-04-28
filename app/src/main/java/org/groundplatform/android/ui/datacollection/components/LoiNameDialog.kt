@@ -32,18 +32,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import org.groundplatform.android.R
+import org.groundplatform.android.ui.datacollection.LoiNameAction
 
 const val LOI_NAME_TEXT_FIELD_TEST_TAG: String = "loi name text field test tag"
 
 @Composable
 fun LoiNameDialog(
   textFieldValue: String,
-  onConfirmRequest: () -> Unit,
-  onDismissRequest: () -> Unit,
-  onTextFieldChange: (String) -> Unit,
+  onLoiNameAction: (LoiNameAction) -> Unit,
 ) {
   AlertDialog(
-    onDismissRequest = onDismissRequest,
+    onDismissRequest = { onLoiNameAction(LoiNameAction.Dismissed) },
     title = {
       Column(modifier = Modifier.fillMaxWidth()) {
         Text(text = stringResource(R.string.loi_name_dialog_title), fontSize = 5.em)
@@ -55,7 +54,7 @@ fun LoiNameDialog(
         Spacer(Modifier.height(16.dp))
         TextField(
           value = textFieldValue,
-          onValueChange = onTextFieldChange,
+          onValueChange = { onLoiNameAction(LoiNameAction.Changed(it)) },
           singleLine = true,
           modifier = Modifier.testTag(LOI_NAME_TEXT_FIELD_TEST_TAG),
         )
@@ -63,7 +62,7 @@ fun LoiNameDialog(
     },
     confirmButton = {
       Button(
-        onClick = onConfirmRequest,
+        onClick = { onLoiNameAction(LoiNameAction.Confirmed(textFieldValue)) },
         contentPadding = PaddingValues(25.dp, 0.dp),
         enabled = textFieldValue != "",
       ) {
@@ -71,7 +70,7 @@ fun LoiNameDialog(
       }
     },
     dismissButton = {
-      OutlinedButton(onClick = { onDismissRequest() }) {
+      OutlinedButton(onClick = { onLoiNameAction(LoiNameAction.Dismissed) }) {
         Text(text = stringResource(R.string.cancel))
       }
     },

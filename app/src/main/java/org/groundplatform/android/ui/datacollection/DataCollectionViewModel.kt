@@ -154,6 +154,21 @@ internal constructor(
     setLoiNameDraft(initialName)
   }
 
+  fun handleLoiNameAction(action: LoiNameAction, taskViewModel: AbstractTaskViewModel) {
+    when (action) {
+      is LoiNameAction.Confirmed -> {
+        confirmLoiName(action.name)
+        onNextClicked(taskViewModel)
+      }
+      is LoiNameAction.Dismissed -> {
+        dismissLoiNameDialog(getLoiName())
+      }
+      is LoiNameAction.Changed -> {
+        setLoiNameDraft(action.name)
+      }
+    }
+  }
+
   private fun isFirstPosition(taskId: String): Boolean =
     withReadyOrNull { taskSequenceHandler.isFirstPosition(taskId) } ?: false
 

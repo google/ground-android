@@ -264,9 +264,7 @@ class DrawAreaTaskScreenTest : BaseHiltTest() {
           lastButtonAction = action
           viewModelToUse.onButtonClick(action)
         },
-        onLoiNameConfirm = {},
-        onLoiNameDismiss = {},
-        onLoiNameChanged = {},
+        onLoiNameAction = {},
         mapContent = { /* Dummy content */ },
       )
     }

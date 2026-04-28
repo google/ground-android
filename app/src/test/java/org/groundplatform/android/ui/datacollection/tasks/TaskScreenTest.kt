@@ -34,6 +34,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.groundplatform.android.ui.datacollection.LoiNameAction
 
 @RunWith(RobolectricTestRunner::class)
 class TaskScreenTest {
@@ -136,9 +137,13 @@ class TaskScreenTest {
         showInstructionsDialog = false,
         loiName = "My Custom LOI",
         onFooterPositionUpdated = {},
-        onLoiNameConfirm = { confirmedName = it },
-        onLoiNameDismiss = { dismissed = true },
-        onLoiNameChanged = { changedName = it },
+        onLoiNameAction = { action ->
+          when (action) {
+            is LoiNameAction.Confirmed -> confirmedName = action.name
+            is LoiNameAction.Dismissed -> dismissed = true
+            is LoiNameAction.Changed -> changedName = action.name
+          }
+        },
         footerContent = null,
         taskBody = {},
       )

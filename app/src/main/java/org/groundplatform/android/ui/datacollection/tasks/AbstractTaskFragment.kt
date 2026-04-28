@@ -85,22 +85,6 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     }
   }
 
-  /** Handles the confirmation of the LOI name. */
-  protected fun onLoiNameConfirm(name: String) {
-    dataCollectionViewModel.confirmLoiName(name)
-    dataCollectionViewModel.onNextClicked(viewModel)
-  }
-
-  /** Handles the dismissal of the LOI name dialog. Resets the draft name to the initial value. */
-  protected fun onLoiNameDismiss() {
-    dataCollectionViewModel.dismissLoiNameDialog(dataCollectionViewModel.getLoiName())
-  }
-
-  /** Handles changes to the LOI name draft. */
-  protected fun onLoiNameChanged(name: String) {
-    dataCollectionViewModel.setLoiNameDraft(name)
-  }
-
   companion object {
     const val TASK_ID = "taskId"
   }

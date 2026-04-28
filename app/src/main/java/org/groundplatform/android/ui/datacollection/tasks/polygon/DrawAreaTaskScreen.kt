@@ -34,6 +34,7 @@ import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.components.InstructionData
 import org.groundplatform.android.ui.datacollection.components.TaskHeader
+import org.groundplatform.android.ui.datacollection.LoiNameAction
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreen
 import org.groundplatform.ui.theme.AppTheme
 
@@ -44,9 +45,7 @@ fun DrawAreaTaskScreen(
   shouldShowLoiNameDialog: Boolean,
   loiName: String,
   onButtonClicked: (ButtonAction) -> Unit,
-  onLoiNameConfirm: (String) -> Unit,
-  onLoiNameDismiss: () -> Unit,
-  onLoiNameChanged: (String) -> Unit,
+  onLoiNameAction: (LoiNameAction) -> Unit,
   mapContent: @Composable () -> Unit,
 ) {
   val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
@@ -74,9 +73,7 @@ fun DrawAreaTaskScreen(
     loiName = loiName,
     onFooterPositionUpdated = onFooterPositionUpdated,
     onButtonClicked = onButtonClicked,
-    onLoiNameConfirm = onLoiNameConfirm,
-    onLoiNameDismiss = onLoiNameDismiss,
-    onLoiNameChanged = onLoiNameChanged,
+    onLoiNameAction = onLoiNameAction,
     onInstructionsDismiss = { viewModel.dismissDrawAreaInstructions() },
     onDismissSelfIntersectionDialog = { viewModel.showSelfIntersectionDialog.value = false },
     mapContent = mapContent,
@@ -104,9 +101,7 @@ private fun DrawAreaTaskContent(
   loiName: String,
   onFooterPositionUpdated: (Float) -> Unit,
   onButtonClicked: (ButtonAction) -> Unit,
-  onLoiNameConfirm: (String) -> Unit,
-  onLoiNameDismiss: () -> Unit,
-  onLoiNameChanged: (String) -> Unit,
+  onLoiNameAction: (LoiNameAction) -> Unit,
   onInstructionsDismiss: () -> Unit,
   onDismissSelfIntersectionDialog: () -> Unit,
   mapContent: @Composable () -> Unit,
@@ -124,9 +119,7 @@ private fun DrawAreaTaskContent(
     loiName = loiName,
     onFooterPositionUpdated = onFooterPositionUpdated,
     onButtonClicked = onButtonClicked,
-    onLoiNameConfirm = onLoiNameConfirm,
-    onLoiNameDismiss = onLoiNameDismiss,
-    onLoiNameChanged = onLoiNameChanged,
+    onLoiNameAction = onLoiNameAction,
     onInstructionsDismiss = onInstructionsDismiss,
     taskBody = { mapContent() },
   )
@@ -164,9 +157,7 @@ private fun DrawAreaTaskScreenInstructionsPreview() {
       loiName = "",
       onFooterPositionUpdated = {},
       onButtonClicked = {},
-      onLoiNameConfirm = {},
-      onLoiNameDismiss = {},
-      onLoiNameChanged = {},
+      onLoiNameAction = {},
       onInstructionsDismiss = {},
       onDismissSelfIntersectionDialog = {},
       mapContent = {},
@@ -196,9 +187,7 @@ private fun DrawAreaTaskScreenSelfIntersectionPreview() {
       loiName = "",
       onFooterPositionUpdated = {},
       onButtonClicked = {},
-      onLoiNameConfirm = {},
-      onLoiNameDismiss = {},
-      onLoiNameChanged = {},
+      onLoiNameAction = {},
       onInstructionsDismiss = {},
       onDismissSelfIntersectionDialog = {},
       mapContent = {},

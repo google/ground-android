@@ -45,9 +45,7 @@ class DropPinTaskFragment @Inject constructor() : AbstractTaskFragment<DropPinTa
       shouldShowLoiNameDialog = shouldShowLoiNameDialog,
       loiName = loiName,
       onButtonClicked = { handleButtonClick(it) },
-      onLoiNameConfirm = { onLoiNameConfirm(it) },
-      onLoiNameDismiss = { onLoiNameDismiss() },
-      onLoiNameChanged = { onLoiNameChanged(it) },
+      onLoiNameAction = { dataCollectionViewModel.handleLoiNameAction(it, viewModel) },
     ) {
       TaskMapFragmentContainer(
         taskId = viewModel.task.id,

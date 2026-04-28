@@ -29,6 +29,7 @@ import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.components.InstructionData
 import org.groundplatform.android.ui.datacollection.components.TaskHeader
+import org.groundplatform.android.ui.datacollection.LoiNameAction
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreen
 import org.groundplatform.ui.theme.AppTheme
 
@@ -50,9 +51,7 @@ fun DropPinTaskScreen(
   shouldShowLoiNameDialog: Boolean,
   loiName: String,
   onButtonClicked: (ButtonAction) -> Unit,
-  onLoiNameConfirm: (String) -> Unit,
-  onLoiNameDismiss: () -> Unit,
-  onLoiNameChanged: (String) -> Unit,
+  onLoiNameAction: (LoiNameAction) -> Unit,
   mapContent: @Composable () -> Unit,
 ) {
   val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
@@ -71,9 +70,7 @@ fun DropPinTaskScreen(
     loiName = loiName,
     onFooterPositionUpdated = onFooterPositionUpdated,
     onButtonClicked = onButtonClicked,
-    onLoiNameConfirm = onLoiNameConfirm,
-    onLoiNameDismiss = onLoiNameDismiss,
-    onLoiNameChanged = onLoiNameChanged,
+    onLoiNameAction = onLoiNameAction,
     onInstructionsDismiss = { viewModel.dismissDropPinInstructions() },
     mapContent = mapContent,
   )
@@ -97,9 +94,7 @@ private fun DropPinTaskContent(
   loiName: String,
   onFooterPositionUpdated: (Float) -> Unit,
   onButtonClicked: (ButtonAction) -> Unit,
-  onLoiNameConfirm: (String) -> Unit,
-  onLoiNameDismiss: () -> Unit,
-  onLoiNameChanged: (String) -> Unit,
+  onLoiNameAction: (LoiNameAction) -> Unit,
   onInstructionsDismiss: () -> Unit,
   mapContent: @Composable () -> Unit,
 ) {
@@ -113,9 +108,7 @@ private fun DropPinTaskContent(
     loiName = loiName,
     onFooterPositionUpdated = onFooterPositionUpdated,
     onButtonClicked = onButtonClicked,
-    onLoiNameConfirm = onLoiNameConfirm,
-    onLoiNameDismiss = onLoiNameDismiss,
-    onLoiNameChanged = onLoiNameChanged,
+    onLoiNameAction = onLoiNameAction,
     onInstructionsDismiss = onInstructionsDismiss,
     taskBody = mapContent,
   )
@@ -141,9 +134,7 @@ private fun DropPinTaskScreenPreview() {
       loiName = "",
       onFooterPositionUpdated = {},
       onButtonClicked = {},
-      onLoiNameConfirm = {},
-      onLoiNameDismiss = {},
-      onLoiNameChanged = {},
+      onLoiNameAction = {},
       onInstructionsDismiss = {},
       mapContent = {},
     )

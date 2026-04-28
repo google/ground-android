@@ -27,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
+import org.groundplatform.android.ui.datacollection.LoiNameAction
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.components.InstructionData
@@ -48,9 +49,7 @@ fun TaskScreen(
   loiName: String = "",
   onFooterPositionUpdated: (Float) -> Unit,
   onButtonClicked: (ButtonAction) -> Unit = {},
-  onLoiNameConfirm: (String) -> Unit = {},
-  onLoiNameDismiss: () -> Unit = {},
-  onLoiNameChanged: (String) -> Unit = {},
+  onLoiNameAction: (LoiNameAction) -> Unit = {},
   onInstructionsDismiss: () -> Unit = {},
   footerContent: @Composable (() -> Unit)? = null,
   taskBody: @Composable () -> Unit,
@@ -77,9 +76,7 @@ fun TaskScreen(
   if (shouldShowLoiNameDialog) {
     LoiNameDialog(
       textFieldValue = loiName,
-      onConfirmRequest = { onLoiNameConfirm(loiName) },
-      onDismissRequest = onLoiNameDismiss,
-      onTextFieldChange = onLoiNameChanged,
+      onLoiNameAction = onLoiNameAction,
     )
   }
 
