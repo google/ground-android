@@ -15,6 +15,7 @@
  */
 package org.groundplatform.testing
 
+import kotlinx.coroutines.delay
 import org.groundplatform.domain.model.TermsOfService
 import org.groundplatform.domain.repository.TermsOfServiceRepositoryInterface
 
@@ -27,7 +28,7 @@ class FakeTermsOfServiceRepository : TermsOfServiceRepositoryInterface {
   var delayMs: Long = 0
 
   override suspend fun getTermsOfService(): TermsOfService? {
-    kotlinx.coroutines.delay(delayMs)
+    delay(delayMs)
     return termsOfService.getOrThrow()
   }
 }

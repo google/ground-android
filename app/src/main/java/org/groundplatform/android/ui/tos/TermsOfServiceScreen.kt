@@ -47,7 +47,6 @@ import org.groundplatform.android.ui.components.Toolbar
 
 @Composable
 fun TermsOfServiceScreen(
-  isViewOnly: Boolean,
   onNavigateUp: () -> Unit,
   onNavigateToSurveySelector: () -> Unit,
   onLoadError: () -> Unit,
@@ -66,7 +65,6 @@ fun TermsOfServiceScreen(
   }
 
   TermsOfServiceContent(
-    isViewOnly = isViewOnly,
     uiState = uiState,
     onAgreeCheckedChange = { viewModel.setAgreeCheckboxChecked(it) },
     onAgreeClick = { viewModel.onAgreeButtonClicked() },
@@ -77,7 +75,6 @@ fun TermsOfServiceScreen(
 
 @Composable
 private fun TermsOfServiceContent(
-  isViewOnly: Boolean,
   uiState: TosUiState,
   onAgreeCheckedChange: (Boolean) -> Unit,
   onAgreeClick: () -> Unit,
@@ -88,7 +85,7 @@ private fun TermsOfServiceContent(
     topBar = {
       Toolbar(
         stringRes = R.string.tos_title,
-        showNavigationIcon = isViewOnly,
+        showNavigationIcon = uiState.isViewOnly,
         iconClick = onBackClick,
       )
     }
@@ -107,7 +104,7 @@ private fun TermsOfServiceContent(
             termsContent(uiState.tosHtml)
             Spacer(modifier = Modifier.height(16.dp))
 
-            if (!isViewOnly) {
+            if (!uiState.isViewOnly) {
               AgreeSection(
                 agreeChecked = uiState.agreeChecked,
                 onCheckedChange = onAgreeCheckedChange,
@@ -149,9 +146,12 @@ private fun AgreeSection(
 @ExcludeFromJacocoGeneratedReport
 private fun TermsOfServiceContentPreview() {
   TermsOfServiceContent(
-    isViewOnly = false,
     uiState =
-      TosUiState.Success(tosHtml = "Sample Terms of Service content.", agreeChecked = false),
+      TosUiState.Success(
+        tosHtml = "Sample Terms of Service content.",
+        agreeChecked = false,
+        isViewOnly = false,
+      ),
     onAgreeCheckedChange = {},
     onAgreeClick = {},
     onBackClick = {},
@@ -164,9 +164,12 @@ private fun TermsOfServiceContentPreview() {
 @ExcludeFromJacocoGeneratedReport
 private fun TermsOfServiceContentIsViewOnlyPreview() {
   TermsOfServiceContent(
-    isViewOnly = true,
     uiState =
-      TosUiState.Success(tosHtml = "Sample Terms of Service content.", agreeChecked = false),
+      TosUiState.Success(
+        tosHtml = "Sample Terms of Service content.",
+        agreeChecked = false,
+        isViewOnly = true,
+      ),
     onAgreeCheckedChange = {},
     onAgreeClick = {},
     onBackClick = {},

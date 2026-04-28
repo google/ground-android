@@ -50,7 +50,6 @@ class TermsOfServiceFragment : AbstractFragment() {
     savedInstanceState: Bundle?,
   ): View = createComposeView {
     TermsOfServiceScreen(
-      isViewOnly = TermsOfServiceFragmentArgs.fromBundle(requireArguments()).isViewOnly,
       onNavigateUp = { findNavController().navigateUp() },
       onNavigateToSurveySelector = {
         activity?.intent?.data?.let { uri ->

@@ -15,8 +15,10 @@
  */
 package org.groundplatform.android.ui.tos
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,12 +35,17 @@ import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
 import org.intellij.markdown.html.HtmlGenerator
 import org.intellij.markdown.parser.MarkdownParser
 import timber.log.Timber
-import javax.inject.Inject
 
 sealed interface TosUiState {
-  object Loading : TosUiState
+  val isViewOnly: Boolean
 
-  data class Success(val tosHtml: String, val agreeChecked: Boolean) : TosUiState
+  data class Loading(override val isViewOnly: Boolean) : TosUiState
+
+  data class Success(
+    val tosHtml: String,
+    val agreeChecked: Boolean,
+    override val isViewOnly: Boolean,
+  ) : TosUiState
 }
 
 sealed interface TosEvent {
@@ -53,9 +60,12 @@ class TermsOfServiceViewModel
 constructor(
   private val authManager: AuthenticationManager,
   private val termsOfServiceRepository: TermsOfServiceRepositoryInterface,
+  savedStateHandle: SavedStateHandle,
 ) : AbstractViewModel() {
 
-  private val _uiState = MutableStateFlow<TosUiState>(TosUiState.Loading)
+  private val isViewOnly: Boolean = savedStateHandle["isViewOnly"] ?: false
+
+  private val _uiState = MutableStateFlow<TosUiState>(TosUiState.Loading(isViewOnly))
   val uiState: StateFlow<TosUiState> = _uiState.asStateFlow()
 
   private val _events = Channel<TosEvent>()
@@ -92,7 +102,7 @@ constructor(
           parser.buildMarkdownTreeFromString(text = tos).run {
             HtmlGenerator(tos, this, flavor).generateHtml()
           }
-        _uiState.value = TosUiState.Success(html, false)
+        _uiState.value = TosUiState.Success(html, agreeChecked = false, isViewOnly)
       } catch (e: Throwable) {
         if (!e.isExpectedFailure()) {
           Timber.e(e, "Failed to load Terms of Service")

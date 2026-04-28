@@ -17,6 +17,7 @@ package org.groundplatform.android.ui.tos
 
 import androidx.compose.material3.Text
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.lifecycle.SavedStateHandle
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -57,20 +58,22 @@ class TermsOfServiceScreenTest {
     fakeRepository.delayMs = 0
   }
 
-  private fun setupViewModel(result: Result<TermsOfService?> = Result.success(TEST_TOS)) {
+  private fun setupViewModel(
+    result: Result<TermsOfService?> = Result.success(TEST_TOS),
+    isViewOnly: Boolean = false
+  ) {
     fakeRepository.termsOfService = result
-    viewModel = TermsOfServiceViewModel(authManager, fakeRepository)
+    val savedStateHandle = SavedStateHandle(mapOf("isViewOnly" to isViewOnly))
+    viewModel = TermsOfServiceViewModel(authManager, fakeRepository, savedStateHandle)
   }
 
   private fun setScreenContent(
-    isViewOnly: Boolean = false,
     onNavigateUp: () -> Unit = {},
     onNavigateToSurveySelector: () -> Unit = {},
     onError: () -> Unit = {},
   ) {
     composeTestRule.setContent {
       TermsOfServiceScreen(
-        isViewOnly = isViewOnly,
         onNavigateUp = onNavigateUp,
         onNavigateToSurveySelector = onNavigateToSurveySelector,
         onLoadError = onError,
@@ -149,18 +152,18 @@ class TermsOfServiceScreenTest {
 
   @Test
   fun `Toolbar Back Arrow is displayed in View-Only mode`() = runTest {
-    setupViewModel()
+    setupViewModel(isViewOnly = true)
 
-    setScreenContent(isViewOnly = true)
+    setScreenContent()
 
     composeTestRule.onNodeWithContentDescription("Back").assertIsDisplayed()
   }
 
   @Test
   fun `View only mode hides controls`() = runTest {
-    setupViewModel()
+    setupViewModel(isViewOnly = true)
 
-    setScreenContent(isViewOnly = true)
+    setScreenContent()
 
     composeTestRule.onNodeWithText(getString(R.string.agree_checkbox)).assertIsNotDisplayed()
     composeTestRule.onNodeWithText(getString(R.string.agree_terms)).assertIsNotDisplayed()
