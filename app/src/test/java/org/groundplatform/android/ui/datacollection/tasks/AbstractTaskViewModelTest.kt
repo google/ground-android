@@ -17,6 +17,7 @@
 
 package org.groundplatform.android.ui.datacollection.tasks
 
+import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -37,6 +38,8 @@ import org.robolectric.RobolectricTestRunner
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class AbstractTaskViewModelTest : BaseHiltTest() {
+
+  private val reportedEvents = mutableListOf<DataCollectionEvent>()
 
   private val viewModel =
     object : AbstractTaskViewModel() {
@@ -161,7 +164,7 @@ class AbstractTaskViewModelTest : BaseHiltTest() {
   }
 
   @Test
-  fun `onButtonClick UNDO clears the task data`() = runWithTestDispatcher {
+  fun `onButtonClick UNDO clears the task data and reports NoOp`() = runWithTestDispatcher {
     setupViewModel()
     viewModel.setValue(TextTaskData.fromString("test"))
     advanceUntilIdle()
@@ -172,16 +175,74 @@ class AbstractTaskViewModelTest : BaseHiltTest() {
     advanceUntilIdle()
 
     assertEquals(null, viewModel.taskTaskData.value)
+    assertThat(reportedEvents).isEmpty()
+  }
+
+  @Test
+  fun `onButtonClick SKIP reports NavigateNext`() = runWithTestDispatcher {
+    setupViewModel()
+    advanceUntilIdle()
+
+    viewModel.onButtonClick(ButtonAction.SKIP)
+    advanceUntilIdle()
+
+    assertThat(reportedEvents).containsExactly(DataCollectionEvent.NavigateNext)
+  }
+
+  @Test
+  fun `onButtonClick PREVIOUS reports NavigatePrevious`() = runWithTestDispatcher {
+    setupViewModel()
+    advanceUntilIdle()
+
+    viewModel.onButtonClick(ButtonAction.PREVIOUS)
+    advanceUntilIdle()
+
+    assertThat(reportedEvents).containsExactly(DataCollectionEvent.NavigatePrevious)
+  }
+
+  @Test
+  fun `onButtonClick NEXT reports NavigateNext`() = runWithTestDispatcher {
+    setupViewModel()
+    advanceUntilIdle()
+
+    viewModel.onButtonClick(ButtonAction.NEXT)
+    advanceUntilIdle()
+
+    assertThat(reportedEvents).containsExactly(DataCollectionEvent.NavigateNext)
+  }
+
+  @Test
+  fun `onButtonClick DONE reports NavigateNext`() = runWithTestDispatcher {
+    setupViewModel()
+    advanceUntilIdle()
+
+    viewModel.onButtonClick(ButtonAction.DONE)
+    advanceUntilIdle()
+
+    assertThat(reportedEvents).containsExactly(DataCollectionEvent.NavigateNext)
+  }
+
+  @Test
+  fun `onButtonClick NEXT on Add LOI task reports ConfirmLoiName`() = runWithTestDispatcher {
+    setupViewModel(isAddLoiTask = true)
+    advanceUntilIdle()
+
+    viewModel.onButtonClick(ButtonAction.NEXT)
+    advanceUntilIdle()
+
+    assertThat(reportedEvents).containsExactly(DataCollectionEvent.ConfirmLoiName)
   }
 
   private fun setupViewModel(
     isTaskRequired: Boolean = false,
     isFirstTask: Boolean = false,
     isLastTaskWithValue: Boolean = false,
+    isAddLoiTask: Boolean = false,
   ) {
+    reportedEvents.clear()
     viewModel.initialize(
       job = JOB,
-      task = newTask(isRequired = isTaskRequired),
+      task = newTask(isRequired = isTaskRequired, isAddLoiTask = isAddLoiTask),
       taskData = null,
       taskPositionInterface =
         object : TaskPositionInterface {
@@ -190,7 +251,7 @@ class AbstractTaskViewModelTest : BaseHiltTest() {
           override fun isLastWithValue(taskData: TaskData?): Boolean = isLastTaskWithValue
         },
       surveyId = "survey_id",
-      eventReporter = {},
+      eventReporter = { reportedEvents.add(it) },
     )
   }
 }
