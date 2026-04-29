@@ -23,12 +23,9 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.printToLog
-import androidx.lifecycle.MutableLiveData
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.groundplatform.android.R
-import org.groundplatform.android.ui.main.MainViewModel
 import org.groundplatform.domain.model.job.Job
 import org.junit.Before
 import org.junit.Rule
@@ -45,27 +42,23 @@ class DataCollectionScreenTest {
   @get:Rule val composeTestRule = createComposeRule()
 
   private lateinit var mockViewModel: DataCollectionViewModel
-  private lateinit var mockMainViewModel: MainViewModel
   private lateinit var mockFragment: DataCollectionFragment
   private lateinit var mockAdapterFactory: DataCollectionViewPagerAdapterFactory
   private lateinit var mockAdapter: DataCollectionViewPagerAdapter
 
   private val uiState = MutableStateFlow<DataCollectionUiState>(DataCollectionUiState.Loading)
   private val footerVerticalPosition = MutableStateFlow(0f)
-  private val windowInsets = MutableLiveData<androidx.core.view.WindowInsetsCompat>()
   private val showExitWarning = MutableStateFlow(false)
 
   @Before
   fun setUp() {
     mockViewModel = mock(DataCollectionViewModel::class.java)
-    mockMainViewModel = mock(MainViewModel::class.java)
     mockFragment = mock(DataCollectionFragment::class.java)
     mockAdapterFactory = mock(DataCollectionViewPagerAdapterFactory::class.java)
     mockAdapter = mock(DataCollectionViewPagerAdapter::class.java)
 
     `when`(mockViewModel.uiState).thenReturn(uiState)
     `when`(mockViewModel.footerVerticalPosition).thenReturn(footerVerticalPosition)
-    `when`(mockMainViewModel.windowInsets).thenReturn(windowInsets)
     `when`(mockViewModel.showExitWarning).thenReturn(showExitWarning)
 
     `when`(mockAdapterFactory.create(any(), any())).thenReturn(mockAdapter)
@@ -87,12 +80,7 @@ class DataCollectionScreenTest {
       )
 
     composeTestRule.setContent {
-      DataCollectionScreen(
-        viewModel = mockViewModel,
-        mainViewModel = mockMainViewModel,
-        fragment = mockFragment,
-        onExitConfirmed = {},
-      )
+      DataCollectionScreen(viewModel = mockViewModel, fragment = mockFragment, onExitConfirmed = {})
     }
 
     composeTestRule.onNodeWithText("Test Job").assertIsDisplayed()
@@ -105,12 +93,7 @@ class DataCollectionScreenTest {
     uiState.value = DataCollectionUiState.TaskSubmitted(null)
 
     composeTestRule.setContent {
-      DataCollectionScreen(
-        viewModel = mockViewModel,
-        mainViewModel = mockMainViewModel,
-        fragment = mockFragment,
-        onExitConfirmed = {},
-      )
+      DataCollectionScreen(viewModel = mockViewModel, fragment = mockFragment, onExitConfirmed = {})
     }
 
     val context = ApplicationProvider.getApplicationContext<Context>()
@@ -134,12 +117,7 @@ class DataCollectionScreenTest {
       )
 
     composeTestRule.setContent {
-      DataCollectionScreen(
-        viewModel = mockViewModel,
-        mainViewModel = mockMainViewModel,
-        fragment = mockFragment,
-        onExitConfirmed = {},
-      )
+      DataCollectionScreen(viewModel = mockViewModel, fragment = mockFragment, onExitConfirmed = {})
     }
     composeTestRule.waitForIdle()
 

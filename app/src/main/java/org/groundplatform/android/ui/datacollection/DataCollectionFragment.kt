@@ -26,7 +26,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.common.BackPressListener
-import org.groundplatform.android.ui.main.MainViewModel
 import org.groundplatform.android.util.createComposeView
 import javax.inject.Inject
 
@@ -36,7 +35,6 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   @Inject lateinit var viewPagerAdapterFactory: DataCollectionViewPagerAdapterFactory
 
   val viewModel: DataCollectionViewModel by hiltNavGraphViewModels(R.id.data_collection)
-  private val mainViewModel: MainViewModel by lazy { getViewModel(MainViewModel::class.java) }
 
   private var isNavigatingUp = false
 
@@ -48,7 +46,6 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     val composeView = createComposeView {
       DataCollectionScreen(
         viewModel = viewModel,
-        mainViewModel = mainViewModel,
         fragment = this,
         onExitConfirmed = { navigateBack() },
       )

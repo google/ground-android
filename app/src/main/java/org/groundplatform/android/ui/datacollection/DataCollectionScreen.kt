@@ -18,9 +18,11 @@ package org.groundplatform.android.ui.datacollection
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
@@ -32,41 +34,34 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnLayout
-import androidx.lifecycle.asFlow
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.viewpager2.widget.ViewPager2
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.components.ConfirmationDialog
 import org.groundplatform.android.ui.components.Toolbar
-import org.groundplatform.android.ui.main.MainViewModel
-import org.groundplatform.android.util.systemInsets
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.ui.theme.AppTheme
 
 @Composable
 fun DataCollectionScreen(
   viewModel: DataCollectionViewModel,
-  mainViewModel: MainViewModel,
   fragment: DataCollectionFragment,
   onExitConfirmed: () -> Unit,
 ) {
   val footerVerticalPosition by viewModel.footerVerticalPosition.collectAsStateWithLifecycle()
   val showExitWarningDialog by viewModel.showExitWarning.collectAsStateWithLifecycle()
   val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-  val windowInsets by
-    mainViewModel.windowInsets.asFlow().collectAsStateWithLifecycle(initialValue = null)
 
   DataCollectionContent(
     uiState = uiState,
     footerVerticalPosition = footerVerticalPosition,
-    windowInsets = windowInsets,
     onCloseClicked = {
       if (uiState is DataCollectionUiState.TaskSubmitted) {
         onExitConfirmed()
@@ -121,7 +116,6 @@ private fun DataCollectionViewPager(
 fun DataCollectionContent(
   uiState: DataCollectionUiState,
   footerVerticalPosition: Float,
-  windowInsets: WindowInsetsCompat?,
   onCloseClicked: () -> Unit,
   pagerContent: @Composable () -> Unit,
 ) {
@@ -130,7 +124,7 @@ fun DataCollectionContent(
 
     Box(modifier = Modifier.weight(1f)) {
       pagerContent()
-      DataCollectionProgressBar(uiState, footerVerticalPosition, windowInsets)
+      DataCollectionProgressBar(uiState, footerVerticalPosition)
     }
   }
 }
@@ -165,12 +159,12 @@ private fun DataCollectionToolbar(uiState: DataCollectionUiState, onCloseClicked
 private fun DataCollectionProgressBar(
   uiState: DataCollectionUiState,
   footerVerticalPosition: Float,
-  windowInsets: WindowInsetsCompat?,
 ) {
   if (uiState is DataCollectionUiState.Ready) {
     val progress = uiState.position.relativeIndex.toFloat() / (uiState.position.sequenceSize - 1)
-    val topInset = windowInsets?.systemInsets()?.top ?: 0
-    val offset = footerVerticalPosition - topInset
+    val density = LocalDensity.current
+    val topInsetPx = WindowInsets.statusBars.getTop(density)
+    val offset = footerVerticalPosition - topInsetPx
 
     LinearProgressIndicator(
       progress = { progress },
@@ -196,7 +190,6 @@ private fun DataCollectionContentPreview() {
           position = TaskPosition(0, 1, 2),
         ),
       footerVerticalPosition = 100f,
-      windowInsets = null,
       onCloseClicked = {},
     ) {
       Box(modifier = Modifier.fillMaxSize().background(Color.LightGray)) {
