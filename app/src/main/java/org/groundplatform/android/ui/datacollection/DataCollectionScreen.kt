@@ -25,9 +25,11 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -144,9 +146,25 @@ fun DataCollectionContent(
   Column(modifier = Modifier.fillMaxSize()) {
     DataCollectionToolbar(uiState, onCloseClicked)
 
-    Box(modifier = Modifier.weight(1f)) {
-      pagerContent()
-      DataCollectionProgressBar(uiState, footerVerticalPosition)
+    Box(modifier = Modifier.weight(1f).align(Alignment.CenterHorizontally)) {
+      when (uiState) {
+        is DataCollectionUiState.Loading -> {
+          CircularProgressIndicator(
+            modifier = Modifier.align(Alignment.Center).testTag("loading_indicator")
+          )
+        }
+        is DataCollectionUiState.Error -> {
+          Text(
+            text = "Error: ${uiState.code}",
+            modifier = Modifier.align(Alignment.Center).testTag("error_message"),
+            color = MaterialTheme.colorScheme.error,
+          )
+        }
+        else -> {
+          pagerContent()
+          DataCollectionProgressBar(uiState, footerVerticalPosition)
+        }
+      }
     }
   }
 }
@@ -205,6 +223,42 @@ private fun DataCollectionProgressBar(
       modifier =
         Modifier.fillMaxWidth().offset { IntOffset(0, offset.toInt()) }.testTag("progress_bar"),
     )
+  }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun DataCollectionContentLoadingPreview() {
+  AppTheme {
+    DataCollectionContent(
+      uiState = DataCollectionUiState.Loading,
+      footerVerticalPosition = 100f,
+      onCloseClicked = {},
+    ) {
+      Box(modifier = Modifier.fillMaxSize().background(Color.LightGray)) {
+        Text(text = "Pager Content Area", modifier = Modifier.align(Alignment.Center))
+      }
+    }
+  }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun DataCollectionContentErrorPreview() {
+  AppTheme {
+    DataCollectionContent(
+      uiState =
+        DataCollectionUiState.Error(
+          code = DataCollectionErrorCode.NO_VALID_TASKS,
+          cause = Error("Some error"),
+        ),
+      footerVerticalPosition = 100f,
+      onCloseClicked = {},
+    ) {
+      Box(modifier = Modifier.fillMaxSize().background(Color.LightGray)) {
+        Text(text = "Pager Content Area", modifier = Modifier.align(Alignment.Center))
+      }
+    }
   }
 }
 

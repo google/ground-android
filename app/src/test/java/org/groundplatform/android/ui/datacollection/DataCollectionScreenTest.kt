@@ -145,4 +145,28 @@ class DataCollectionScreenTest {
       .onNodeWithTag("progress_bar")
       .assertRangeInfoEquals(ProgressBarRangeInfo(1.0f, 0.0f..1.0f))
   }
+
+  @Test
+  fun `Displays loading indicator when loading`() {
+    uiState.value = DataCollectionUiState.Loading
+
+    composeTestRule.setContent {
+      DataCollectionScreen(viewModel = mockViewModel, fragment = mockFragment, onExitConfirmed = {})
+    }
+
+    composeTestRule.onNodeWithTag("loading_indicator").assertIsDisplayed()
+  }
+
+  @Test
+  fun `Displays error message when error`() {
+    val errorCode = DataCollectionErrorCode.SURVEY_LOAD_FAILED
+    uiState.value = DataCollectionUiState.Error(errorCode)
+
+    composeTestRule.setContent {
+      DataCollectionScreen(viewModel = mockViewModel, fragment = mockFragment, onExitConfirmed = {})
+    }
+
+    composeTestRule.onNodeWithTag("error_message").assertIsDisplayed()
+    composeTestRule.onNodeWithText("Error: $errorCode").assertIsDisplayed()
+  }
 }
