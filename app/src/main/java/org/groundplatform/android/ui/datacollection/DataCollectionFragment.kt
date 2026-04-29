@@ -19,7 +19,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
@@ -42,16 +41,14 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     inflater: LayoutInflater,
     container: ViewGroup?,
     savedInstanceState: Bundle?,
-  ): View {
-    val composeView = createComposeView {
+  ): View =
+    createComposeView {
       DataCollectionScreen(
         viewModel = viewModel,
         fragment = this,
         onExitConfirmed = { navigateBack() },
       )
     }
-    return FrameLayout(requireContext()).apply { addView(composeView) }
-  }
 
   override fun onResume() {
     super.onResume()
