@@ -21,6 +21,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,11 +35,14 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.groundplatform.android.di.coroutines.ApplicationScope
 import org.groundplatform.android.di.coroutines.IoDispatcher
+import org.groundplatform.android.system.GmsQrCodeScanner
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
 import org.groundplatform.android.usecases.survey.ListAvailableSurveysUseCase
 import org.groundplatform.android.usecases.survey.RemoveOfflineSurveyUseCase
+import org.groundplatform.domain.usecases.survey.ParseSurveyQrCodeUseCase
 import org.groundplatform.domain.model.SurveyListItem
+import org.groundplatform.domain.model.qrscanner.QrScanResult
 import org.groundplatform.domain.repository.UserRepositoryInterface
 import timber.log.Timber
 
@@ -51,6 +55,8 @@ internal constructor(
   @ApplicationScope private val externalScope: CoroutineScope,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
   listAvailableSurveysUseCase: ListAvailableSurveysUseCase,
+  private val gmsQrCodeScanner: GmsQrCodeScanner,
+  private val parseSurveyQrCodeUseCase: ParseSurveyQrCodeUseCase,
   private val removeOfflineSurveyUseCase: RemoveOfflineSurveyUseCase,
   private val userRepository: UserRepositoryInterface,
   savedStateHandle: SavedStateHandle,
@@ -68,7 +74,7 @@ internal constructor(
       .map { surveys -> surveys.sortedWith(compareBy({ !it.availableOffline }, { it.title })) }
       .catch { error ->
         Timber.e(error, "Failed to load available surveys")
-        _events.send(SurveySelectorEvent.ShowError(error))
+        _events.send(SurveySelectorEvent.ShowError(error.toSurveySelectorError()))
         emit(emptyList())
       }
 
@@ -106,15 +112,42 @@ internal constructor(
             if (result) {
               _events.send(SurveySelectorEvent.NavigateToHome)
             } else {
-              _events.send(SurveySelectorEvent.ShowError(Exception("Survey activation failed")))
+              _events.send(
+                SurveySelectorEvent.ShowError(
+                  Exception("Survey activation failed").toSurveySelectorError()
+                )
+              )
             }
           },
           onFailure = {
             Timber.e(it, "Failed to activate survey")
             _isActivating.value = false
-            _events.send(SurveySelectorEvent.ShowError(it))
+            _events.send(SurveySelectorEvent.ShowError(it.toSurveySelectorError()))
           },
         )
+    }
+  }
+
+  /** Launches the QR scanner and, on success, activates the encoded survey. */
+  fun scanQrCodeAndActivateSurvey() {
+    viewModelScope.launch {
+      when (val result = gmsQrCodeScanner.scan()) {
+        is QrScanResult.Success -> {
+          val surveyId = parseSurveyQrCodeUseCase(result.text)
+          if (surveyId == null) {
+            _events.send(SurveySelectorEvent.ShowError(SurveySelectorEvent.ErrorType.InvalidQrCode))
+          } else {
+            activateSurvey(surveyId)
+          }
+        }
+        is QrScanResult.Cancelled -> {
+          /* Nothing to do */
+        }
+        is QrScanResult.Error -> {
+          Timber.e(result.cause, "QR scan failed")
+          _events.send(SurveySelectorEvent.ShowError(result.cause.toSurveySelectorError()))
+        }
+      }
     }
   }
 
@@ -131,10 +164,8 @@ internal constructor(
   fun confirmDelete(surveyId: String) {
     externalScope.launch(ioDispatcher) { removeOfflineSurveyUseCase(surveyId) }
   }
-}
 
-sealed interface SurveySelectorEvent {
-  object NavigateToHome : SurveySelectorEvent
-
-  data class ShowError(val error: Throwable) : SurveySelectorEvent
+  private fun Throwable.toSurveySelectorError(): SurveySelectorEvent.ErrorType =
+    if (this is TimeoutCancellationException) SurveySelectorEvent.ErrorType.Timeout
+    else SurveySelectorEvent.ErrorType.Generic(this)
 }

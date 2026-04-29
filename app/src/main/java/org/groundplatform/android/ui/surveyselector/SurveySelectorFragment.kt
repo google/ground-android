@@ -24,7 +24,6 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
-import kotlinx.coroutines.TimeoutCancellationException
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.common.BackPressListener
@@ -53,10 +52,13 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
               findNavController().navigate(HomeScreenFragmentDirections.showHomeScreen())
             },
             onError = { error ->
-              if (error is TimeoutCancellationException) {
-                ephemeralPopups.ErrorPopup().show(R.string.survey_load_timeout_error)
-              } else {
-                ephemeralPopups.ErrorPopup().unknownError()
+              when (error) {
+                SurveySelectorEvent.ErrorType.Timeout ->
+                  ephemeralPopups.ErrorPopup().show(R.string.survey_load_timeout_error)
+                is SurveySelectorEvent.ErrorType.Generic ->
+                  ephemeralPopups.ErrorPopup().unknownError()
+                SurveySelectorEvent.ErrorType.InvalidQrCode ->
+                  ephemeralPopups.ErrorPopup().show(R.string.invalid_survey_qr_code)
               }
             },
           )

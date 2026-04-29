@@ -25,11 +25,14 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.TestScope
 import org.groundplatform.android.BaseHiltTest
+import org.groundplatform.android.system.GmsQrCodeScanner
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
 import org.groundplatform.android.usecases.survey.ListAvailableSurveysUseCase
 import org.groundplatform.android.usecases.survey.RemoveOfflineSurveyUseCase
+import org.groundplatform.domain.usecases.survey.ParseSurveyQrCodeUseCase
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.SurveyListItem
+import org.groundplatform.domain.model.qrscanner.QrScanResult
 import org.groundplatform.domain.repository.UserRepositoryInterface
 import org.junit.Before
 import org.junit.Test
@@ -45,6 +48,8 @@ class SurveySelectorViewModelTest : BaseHiltTest() {
 
   @Mock lateinit var activateSurveyUseCase: ActivateSurveyUseCase
   @Mock lateinit var listAvailableSurveysUseCase: ListAvailableSurveysUseCase
+  @Mock lateinit var parseSurveyQrCodeUseCase: ParseSurveyQrCodeUseCase
+  @Mock lateinit var qrCodeScanner: GmsQrCodeScanner
   @Mock lateinit var removeOfflineSurveyUseCase: RemoveOfflineSurveyUseCase
   @Mock lateinit var userRepository: UserRepositoryInterface
 
@@ -68,6 +73,8 @@ class SurveySelectorViewModelTest : BaseHiltTest() {
         externalScope,
         ioDispatcher,
         listAvailableSurveysUseCase,
+        qrCodeScanner,
+        parseSurveyQrCodeUseCase,
         removeOfflineSurveyUseCase,
         userRepository,
         savedStateHandle,
@@ -104,7 +111,8 @@ class SurveySelectorViewModelTest : BaseHiltTest() {
 
     viewModel.events.test {
       viewModel.activateSurvey("1")
-      assertThat(awaitItem()).isEqualTo(SurveySelectorEvent.ShowError(error))
+      assertThat(awaitItem())
+        .isEqualTo(SurveySelectorEvent.ShowError(SurveySelectorEvent.ErrorType.Generic(error)))
     }
   }
 
@@ -118,6 +126,57 @@ class SurveySelectorViewModelTest : BaseHiltTest() {
   }
 
   @Test
+  fun `scanQrCodeAndActivateSurvey activates parsed survey`() = runWithTestDispatcher {
+    createViewModel()
+    val payload = "https://groundplatform.org/android/survey/xyz"
+    whenever(qrCodeScanner.scan()).thenReturn(QrScanResult.Success(payload))
+    whenever(parseSurveyQrCodeUseCase(payload)).thenReturn("xyz")
+    whenever(activateSurveyUseCase("xyz")).thenReturn(true)
+
+    viewModel.events.test {
+      viewModel.scanQrCodeAndActivateSurvey()
+      assertThat(awaitItem()).isEqualTo(SurveySelectorEvent.NavigateToHome)
+    }
+  }
+
+  @Test
+  fun `scanQrCodeAndActivateSurvey emits invalid event for bad payload`() = runWithTestDispatcher {
+    createViewModel()
+    whenever(qrCodeScanner.scan()).thenReturn(QrScanResult.Success("not a url"))
+    whenever(parseSurveyQrCodeUseCase("not a url")).thenReturn(null)
+
+    viewModel.events.test {
+      viewModel.scanQrCodeAndActivateSurvey()
+      assertThat(awaitItem())
+        .isEqualTo(SurveySelectorEvent.ShowError(SurveySelectorEvent.ErrorType.InvalidQrCode))
+    }
+  }
+
+  @Test
+  fun `scanQrCodeAndActivateSurvey is silent on cancellation`() = runWithTestDispatcher {
+    createViewModel()
+    whenever(qrCodeScanner.scan()).thenReturn(QrScanResult.Cancelled)
+
+    viewModel.events.test {
+      viewModel.scanQrCodeAndActivateSurvey()
+      expectNoEvents()
+    }
+  }
+
+  @Test
+  fun `scanQrCodeAndActivateSurvey surfaces scanner error`() = runWithTestDispatcher {
+    createViewModel()
+    val error = RuntimeException("camera unavailable")
+    whenever(qrCodeScanner.scan()).thenReturn(QrScanResult.Error(error))
+
+    viewModel.events.test {
+      viewModel.scanQrCodeAndActivateSurvey()
+      assertThat(awaitItem())
+        .isEqualTo(SurveySelectorEvent.ShowError(SurveySelectorEvent.ErrorType.Generic(error)))
+    }
+  }
+
+  @Test
   fun `activateSurvey from deeplink shows error on failure`() = runWithTestDispatcher {
     val savedState = SavedStateHandle(mapOf("surveyId" to "bad-id"))
     val error = RuntimeException("activation failed")
@@ -125,7 +184,8 @@ class SurveySelectorViewModelTest : BaseHiltTest() {
     createViewModel(savedStateHandle = savedState)
 
     viewModel.events.test {
-      assertThat(awaitItem()).isEqualTo(SurveySelectorEvent.ShowError(error))
+      assertThat(awaitItem())
+        .isEqualTo(SurveySelectorEvent.ShowError(SurveySelectorEvent.ErrorType.Generic(error)))
     }
   }
 
