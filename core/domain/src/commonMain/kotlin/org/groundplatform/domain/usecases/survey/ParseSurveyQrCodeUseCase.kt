@@ -19,11 +19,7 @@ package org.groundplatform.domain.usecases.survey
  * Parses a scanned QR code and returns the encoded survey ID, or `null` if there isn't a valid
  * survey deep link.
  */
-class ParseSurveyQrCodeUseCase(
-  private val deepLinkHost: String,
-  private val deepLinkPath: String,
-) {
-
+class ParseSurveyQrCodeUseCase(private val deepLinkHost: String, private val deepLinkPath: String) {
   operator fun invoke(payload: String): String? {
     val regex =
       Regex(

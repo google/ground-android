@@ -25,10 +25,7 @@ class ParseSurveyQrCodeUseCaseTest {
 
   @Test
   fun `extracts survey id from canonical https url`() {
-    assertEquals(
-      "testId",
-      parseSurveyQrCode("https://groundplatform.org/android/survey/testId"),
-    )
+    assertEquals("testId", parseSurveyQrCode("https://groundplatform.org/android/survey/testId"))
   }
 
   @Test

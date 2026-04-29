@@ -20,6 +20,6 @@
 
   <string name="app_name" translatable="false">Ground</string>
   <string name="ground_website" translatable="false">https://groundplatform.org/</string>
-  <string name="deeplink_host" translatable="false">groundplatform.org</string>
+  <string name="deeplink_host" translatable="false">ground-dev-sig.web.app</string>
   <string name="survey_deeplink_path" translatable="false">/android/survey/</string>
 </resources>
