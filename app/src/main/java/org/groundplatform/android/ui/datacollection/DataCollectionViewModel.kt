@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
@@ -91,6 +92,9 @@ internal constructor(
   val uiState: StateFlow<DataCollectionUiState> = _uiState
 
   val loiNameDialogOpen = mutableStateOf(false)
+
+  private val _showExitWarning = MutableStateFlow(false)
+  val showExitWarning: StateFlow<Boolean> = _showExitWarning.asStateFlow()
 
   private val _loiNameDraft = MutableStateFlow("")
   val loiNameDraft: StateFlow<String> = _loiNameDraft
@@ -171,6 +175,14 @@ internal constructor(
   fun dismissLoiNameDialog(initialName: String) {
     loiNameDialogOpen.value = false
     setLoiNameDraft(initialName)
+  }
+
+  fun showExitWarning() {
+    _showExitWarning.value = true
+  }
+
+  fun dismissExitWarning() {
+    _showExitWarning.value = false
   }
 
   fun handleLoiNameAction(action: LoiNameAction, taskId: String) {

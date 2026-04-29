@@ -16,25 +16,57 @@
 package org.groundplatform.android.ui.components
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Toolbar(@StringRes stringRes: Int, showNavigationIcon: Boolean = true, iconClick: () -> Unit) {
+  Toolbar(
+    title = stringResource(stringRes),
+    showNavigationIcon = showNavigationIcon,
+    iconClick = iconClick,
+  )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun Toolbar(
+  modifier: Modifier = Modifier,
+  title: String,
+  subtitle: String? = null,
+  showNavigationIcon: Boolean = true,
+  navigationIcon: @Composable (() -> Unit)? = null,
+  iconClick: () -> Unit = {},
+) {
   TopAppBar(
-    title = { Text(text = stringResource(stringRes)) },
+    modifier = modifier,
+    title = {
+      Column {
+        Text(text = title)
+        if (!subtitle.isNullOrEmpty()) {
+          Text(text = subtitle, style = MaterialTheme.typography.bodySmall)
+        }
+      }
+    },
     navigationIcon = {
       if (showNavigationIcon) {
-        IconButton(onClick = iconClick) {
-          Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+        if (navigationIcon != null) {
+          navigationIcon()
+        } else {
+          IconButton(onClick = iconClick) {
+            Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+          }
         }
       }
     },
