@@ -233,6 +233,7 @@ class CaptureLocationTaskScreenTest {
       taskData = null,
       taskPositionInterface = createTaskPositionInterface(isFirst, isLastWithValue),
       surveyId = "survey_id",
+      eventReporter = {},
     )
 
     if (location != null) {

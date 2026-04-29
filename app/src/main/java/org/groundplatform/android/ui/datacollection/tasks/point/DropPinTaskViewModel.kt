@@ -26,6 +26,7 @@ import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.AbstractMapTaskViewModel
+import org.groundplatform.android.ui.datacollection.tasks.DataCollectionEvent
 import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.util.getDefaultColor
@@ -58,8 +59,9 @@ constructor(
     taskData: TaskData?,
     taskPositionInterface: TaskPositionInterface,
     surveyId: String,
+    eventReporter: (DataCollectionEvent) -> Unit,
   ) {
-    super.initialize(job, task, taskData, taskPositionInterface, surveyId)
+    super.initialize(job, task, taskData, taskPositionInterface, surveyId, eventReporter)
     pinColor = job.getDefaultColor()
 
     // Drop a marker for current value

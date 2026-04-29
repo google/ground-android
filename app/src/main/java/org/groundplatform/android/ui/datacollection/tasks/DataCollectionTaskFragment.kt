@@ -99,7 +99,7 @@ class DataCollectionTaskFragment @Inject constructor() : AbstractFragment() {
     val showLoiNameDialog by dataCollectionViewModel.loiNameDialogOpen
 
     val onButtonClicked = { action: ButtonAction ->
-      dataCollectionViewModel.handleButtonClick(action, viewModel)
+      viewModel.onButtonClick(action)
     }
 
     val onFooterPositionUpdated = { top: Float ->
@@ -107,7 +107,7 @@ class DataCollectionTaskFragment @Inject constructor() : AbstractFragment() {
     }
 
     val onLoiNameAction = { action: LoiNameAction ->
-      dataCollectionViewModel.handleLoiNameAction(action, viewModel)
+      dataCollectionViewModel.handleLoiNameAction(action, taskId)
     }
 
     when (val vm = viewModel) {

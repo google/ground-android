@@ -190,6 +190,7 @@ class AbstractTaskViewModelTest : BaseHiltTest() {
           override fun isLastWithValue(taskData: TaskData?): Boolean = isLastTaskWithValue
         },
       surveyId = "survey_id",
+      eventReporter = {},
     )
   }
 }
