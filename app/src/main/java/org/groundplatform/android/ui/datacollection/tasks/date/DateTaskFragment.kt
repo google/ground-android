@@ -32,8 +32,8 @@ class DateTaskFragment : AbstractTaskFragment<DateTaskViewModel>() {
   ) = createComposeView {
     DateTaskScreen(
       viewModel = viewModel,
-      onFooterPositionUpdated = { saveFooterPosition(it) },
-      onButtonClicked = { handleButtonClick(it) },
+      onFooterPositionUpdated = { dataCollectionViewModel.updateFooterPosition(taskId, it) },
+      onButtonClicked = { dataCollectionViewModel.handleButtonClick(it, viewModel) },
     )
   }
 }

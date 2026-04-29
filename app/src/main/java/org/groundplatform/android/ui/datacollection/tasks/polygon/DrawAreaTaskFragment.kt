@@ -41,10 +41,10 @@ class DrawAreaTaskFragment @Inject constructor() : AbstractTaskFragment<DrawArea
 
     DrawAreaTaskScreen(
       viewModel = viewModel,
-      onFooterPositionUpdated = { saveFooterPosition(it) },
+      onFooterPositionUpdated = { dataCollectionViewModel.updateFooterPosition(taskId, it) },
       shouldShowLoiNameDialog = shouldShowLoiNameDialog,
       loiName = loiName,
-      onButtonClicked = { handleButtonClick(it) },
+      onButtonClicked = { dataCollectionViewModel.handleButtonClick(it, viewModel) },
       onLoiNameAction = { dataCollectionViewModel.handleLoiNameAction(it, viewModel) },
     ) {
       TaskMapFragmentContainer(

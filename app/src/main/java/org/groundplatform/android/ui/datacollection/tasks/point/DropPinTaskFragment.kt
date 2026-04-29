@@ -41,10 +41,10 @@ class DropPinTaskFragment @Inject constructor() : AbstractTaskFragment<DropPinTa
 
     DropPinTaskScreen(
       viewModel = viewModel,
-      onFooterPositionUpdated = { saveFooterPosition(it) },
+      onFooterPositionUpdated = { dataCollectionViewModel.updateFooterPosition(taskId, it) },
       shouldShowLoiNameDialog = shouldShowLoiNameDialog,
       loiName = loiName,
-      onButtonClicked = { handleButtonClick(it) },
+      onButtonClicked = { dataCollectionViewModel.handleButtonClick(it, viewModel) },
       onLoiNameAction = { dataCollectionViewModel.handleLoiNameAction(it, viewModel) },
     ) {
       TaskMapFragmentContainer(

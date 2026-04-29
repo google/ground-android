@@ -18,9 +18,7 @@ package org.groundplatform.android.ui.datacollection.tasks
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.AbstractFragment
-import org.groundplatform.android.ui.datacollection.DataCollectionUiState
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
-import org.groundplatform.android.ui.datacollection.components.ButtonAction
 
 abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragment() {
 
@@ -35,54 +33,6 @@ abstract class AbstractTaskFragment<T : AbstractTaskViewModel> : AbstractFragmen
     @Suppress("UNCHECKED_CAST")
     dataCollectionViewModel.getTaskViewModel(taskId) as? T
       ?: error("ViewModel for taskId:$taskId not found.")
-  }
-
-  private fun onSkip() {
-    check(viewModel.hasNoData()) { "User should not be able to skip a task with data." }
-    viewModel.setSkipped()
-    moveToNext()
-  }
-
-  private fun moveToPrevious() {
-    dataCollectionViewModel.onPreviousClicked(viewModel)
-  }
-
-  private fun moveToNext() {
-    dataCollectionViewModel.onNextClicked(viewModel)
-  }
-
-  private fun handleNext() {
-    if (viewModel.task.isAddLoiTask) {
-      dataCollectionViewModel.openLoiNameDialog()
-    } else {
-      moveToNext()
-    }
-  }
-
-  /**
-   * Updates the [DataCollectionViewModel] with the current vertical position of the task footer.
-   * Only updates if this task is the currently active (visible) task, preventing off-screen
-   * preloaded pages from overwriting the position.
-   */
-  fun saveFooterPosition(top: Float) {
-    val isActive =
-      (dataCollectionViewModel.uiState.value as? DataCollectionUiState.Ready)?.currentTaskId ==
-        taskId
-    if (isActive) {
-      dataCollectionViewModel.updateFooterPosition(top)
-    }
-  }
-
-  protected fun handleButtonClick(action: ButtonAction) {
-    when (action) {
-      // Navigation actions
-      ButtonAction.PREVIOUS -> moveToPrevious()
-      ButtonAction.NEXT,
-      ButtonAction.DONE -> handleNext()
-      ButtonAction.SKIP -> onSkip()
-      // Task-specific actions - delegate to ViewModel
-      else -> viewModel.onButtonClick(action)
-    }
   }
 
   companion object {

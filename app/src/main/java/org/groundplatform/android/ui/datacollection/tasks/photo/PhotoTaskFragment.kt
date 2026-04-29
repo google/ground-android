@@ -38,8 +38,8 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
   ) = createComposeView {
     PhotoTaskScreen(
       viewModel = viewModel,
-      onFooterPositionUpdated = { saveFooterPosition(it) },
-      onButtonClicked = { handleButtonClick(it) },
+      onFooterPositionUpdated = { dataCollectionViewModel.updateFooterPosition(taskId, it) },
+      onButtonClicked = { dataCollectionViewModel.handleButtonClick(it, viewModel) },
       onAwaitingPhotoCapture = { homeScreenViewModel.awaitingPhotoCapture = it },
     )
   }

@@ -19,8 +19,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
-import javax.inject.Provider
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -37,6 +35,7 @@ import org.groundplatform.android.di.coroutines.IoDispatcher
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.common.EphemeralPopups
 import org.groundplatform.android.ui.common.ViewModelFactory
+import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 import org.groundplatform.android.ui.datacollection.tasks.date.DateTaskViewModel
@@ -58,6 +57,8 @@ import org.groundplatform.domain.repository.SubmissionRepositoryInterface
 import org.groundplatform.domain.usecases.GetLoiReportUseCase
 import org.groundplatform.domain.usecases.submission.SubmitDataUseCase
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Provider
 
 /** View model for the Data Collection fragment. */
 @HiltViewModel
@@ -243,6 +244,28 @@ internal constructor(
     } else {
       updateDataAndInvalidateTasks(task, taskValue)
       moveToPreviousTask()
+    }
+  }
+
+  fun handleButtonClick(action: ButtonAction, taskViewModel: AbstractTaskViewModel) {
+    when (action) {
+      ButtonAction.PREVIOUS -> onPreviousClicked(taskViewModel)
+      ButtonAction.NEXT,
+      ButtonAction.DONE -> {
+        if (taskViewModel.task.isAddLoiTask) {
+          openLoiNameDialog()
+        } else {
+          onNextClicked(taskViewModel)
+        }
+      }
+
+      ButtonAction.SKIP -> {
+        check(taskViewModel.hasNoData()) { "User should not be able to skip a task with data." }
+        taskViewModel.setSkipped()
+        onNextClicked(taskViewModel)
+      }
+
+      else -> taskViewModel.onButtonClick(action)
     }
   }
 
@@ -432,8 +455,10 @@ internal constructor(
       .map { (it as? DataCollectionUiState.Ready)?.currentTaskId == taskId }
       .distinctUntilChanged()
 
-  fun updateFooterPosition(top: Float) {
-    _footerVerticalPosition.value = top
+  fun updateFooterPosition(taskId: String, top: Float) {
+    if (withReadyOrNull { it.currentTaskId } == taskId) {
+      _footerVerticalPosition.value = top
+    }
   }
 
   companion object {
