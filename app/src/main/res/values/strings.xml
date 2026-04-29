@@ -244,4 +244,7 @@
   <string name="share_location">Share location</string>
   <string name="scan_this_qr_to_download_geojson">Scan this QR code to view the GeoJson</string>
   <string name="share">Share</string>
+
+  <string name="join_survey">Join survey</string>
+  <string name="invalid_survey_qr_code">Invalid survey QR code</string>
 </resources>

@@ -63,6 +63,11 @@
       android:name="com.google.android.geo.API_KEY"
       android:value="${MAPS_API_KEY}" />
 
+    <!-- Pre-installs the ML Kit barcode scanner module so the first QR scan has no download delay. -->
+    <meta-data
+      android:name="com.google.mlkit.vision.DEPENDENCIES"
+      android:value="barcode_ui" />
+
     <activity
       android:name="org.groundplatform.android.ui.main.MainActivity"
       android:exported="true"
@@ -78,9 +83,9 @@
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <data
-          android:scheme="https"
-          android:host="groundplatform.org"
-          android:pathPrefix="/android/survey/" />
+          android:host="@string/deeplink_host"
+          android:pathPrefix="@string/survey_deeplink_path"
+          android:scheme="https" />
       </intent-filter>
     </activity>
     <activity
