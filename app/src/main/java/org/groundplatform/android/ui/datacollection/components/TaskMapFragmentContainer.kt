@@ -22,7 +22,7 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.FragmentManager
 import org.groundplatform.android.ui.common.AbstractMapContainerFragment
-import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
+import org.groundplatform.android.ui.datacollection.tasks.DataCollectionTaskFragment
 import javax.inject.Provider
 
 /**
@@ -41,7 +41,7 @@ fun TaskMapFragmentContainer(
     factory = { context -> FragmentContainerView(context).apply { id = View.generateViewId() } },
     update = { view ->
       with(fragmentProvider.get()) {
-        arguments = bundleOf(Pair(AbstractTaskFragment.TASK_ID, taskId))
+        arguments = bundleOf(Pair(DataCollectionTaskFragment.TASK_ID, taskId))
         fragmentManager.beginTransaction().replace(view.id, this).commit()
       }
     },

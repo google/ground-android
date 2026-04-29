@@ -38,6 +38,8 @@ import org.groundplatform.domain.model.task.Option
 import org.groundplatform.ui.theme.AppTheme
 import org.groundplatform.ui.theme.sizes
 
+const val MULTIPLE_CHOICE_LIST_TEST_TAG = "multiple choice items test tag"
+
 @Composable
 fun MultipleChoiceTaskScreen(
   viewModel: MultipleChoiceTaskViewModel,

@@ -249,7 +249,9 @@ internal constructor(
 
   fun handleButtonClick(action: ButtonAction, taskViewModel: AbstractTaskViewModel) {
     when (action) {
-      ButtonAction.PREVIOUS -> onPreviousClicked(taskViewModel)
+      ButtonAction.PREVIOUS -> {
+        onPreviousClicked(taskViewModel)
+      }
       ButtonAction.NEXT,
       ButtonAction.DONE -> {
         if (taskViewModel.task.isAddLoiTask) {
@@ -258,14 +260,14 @@ internal constructor(
           onNextClicked(taskViewModel)
         }
       }
-
       ButtonAction.SKIP -> {
         check(taskViewModel.hasNoData()) { "User should not be able to skip a task with data." }
         taskViewModel.setSkipped()
         onNextClicked(taskViewModel)
       }
-
-      else -> taskViewModel.onButtonClick(action)
+      else -> {
+        taskViewModel.onButtonClick(action)
+      }
     }
   }
 

@@ -71,7 +71,7 @@ abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
   private lateinit var viewModel: BaseMapViewModel
 
   protected val taskId: String by lazy {
-    arguments?.getString(AbstractTaskFragment.TASK_ID) ?: error("null taskId fragment arg")
+    arguments?.getString(DataCollectionTaskFragment.TASK_ID) ?: error("null taskId fragment arg")
   }
 
   override fun onCreate(savedInstanceState: Bundle?) {
