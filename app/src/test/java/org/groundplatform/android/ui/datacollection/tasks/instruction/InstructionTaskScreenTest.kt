@@ -26,7 +26,6 @@ import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.components.TEST_TAG_TASK_VIEW_HEADER
 import org.groundplatform.android.ui.datacollection.tasks.ButtonActionStateChecker
 import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
-import org.groundplatform.android.ui.datacollection.tasks.TaskScreenAction
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.task.Task
@@ -40,7 +39,7 @@ class InstructionTaskScreenTest {
 
   @get:Rule val composeTestRule = createComposeRule()
 
-  private var lastScreenAction: TaskScreenAction? = null
+  private var lastButtonAction: ButtonAction? = null
   private val buttonActionStateChecker = ButtonActionStateChecker(composeTestRule)
 
   private fun setupTaskScreen(
@@ -49,7 +48,7 @@ class InstructionTaskScreenTest {
     isFirst: Boolean = false,
     isLastWithValue: Boolean = false,
   ) {
-    lastScreenAction = null
+    lastButtonAction = null
     val viewModel =
       InstructionTaskViewModel().apply {
         initialize(
@@ -70,7 +69,7 @@ class InstructionTaskScreenTest {
       InstructionTaskScreen(
         viewModel = viewModel,
         onFooterPositionUpdated = {},
-        onAction = { lastScreenAction = it },
+        onButtonClicked = { lastButtonAction = it },
       )
     }
   }
@@ -98,7 +97,7 @@ class InstructionTaskScreenTest {
 
     buttonActionStateChecker.getNode(ButtonAction.NEXT).performClick()
 
-    assertThat(lastScreenAction).isEqualTo(TaskScreenAction.OnButtonClicked(ButtonAction.NEXT))
+    assertThat(lastButtonAction).isEqualTo(ButtonAction.NEXT)
   }
 
   @Test
@@ -107,7 +106,7 @@ class InstructionTaskScreenTest {
 
     buttonActionStateChecker.getNode(ButtonAction.PREVIOUS).performClick()
 
-    assertThat(lastScreenAction).isEqualTo(TaskScreenAction.OnButtonClicked(ButtonAction.PREVIOUS))
+    assertThat(lastButtonAction).isEqualTo(ButtonAction.PREVIOUS)
   }
 
   @Test

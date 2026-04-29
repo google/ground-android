@@ -123,7 +123,7 @@ internal constructor(
     }
   }
 
-  fun setLoiName(name: String) {
+  private fun setLoiName(name: String) {
     savedStateHandle[TASK_LOI_NAME_KEY] = name
     _uiState.update { state ->
       (state as? DataCollectionUiState.Ready)?.copy(loiName = name) ?: state
@@ -154,6 +154,23 @@ internal constructor(
     setLoiNameDraft(initialName)
   }
 
+  fun handleLoiNameAction(action: LoiNameAction, taskViewModel: AbstractTaskViewModel) {
+    when (action) {
+      is LoiNameAction.Confirmed -> {
+        if (action.name.isNotBlank()) {
+          confirmLoiName(action.name)
+          onNextClicked(taskViewModel)
+        }
+      }
+      is LoiNameAction.Dismissed -> {
+        dismissLoiNameDialog(getLoiName())
+      }
+      is LoiNameAction.Changed -> {
+        setLoiNameDraft(action.name)
+      }
+    }
+  }
+
   private fun isFirstPosition(taskId: String): Boolean =
     withReadyOrNull { taskSequenceHandler.isFirstPosition(taskId) } ?: false
 
@@ -172,8 +189,6 @@ internal constructor(
     suppressDrafts()
     clearDraft()
   }
-
-  fun requireSurveyId(): String = withReady { it.surveyId }
 
   fun saveCurrentState() {
     if (!isReady() || !draftsEnabled) return

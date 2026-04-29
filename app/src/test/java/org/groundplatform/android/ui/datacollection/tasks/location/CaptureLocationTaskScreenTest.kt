@@ -31,7 +31,6 @@ import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.ButtonActionStateChecker
 import org.groundplatform.android.ui.datacollection.tasks.LocationLockEnabledState
 import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
-import org.groundplatform.android.ui.datacollection.tasks.TaskScreenAction
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.submission.CaptureLocationTaskData
@@ -50,7 +49,7 @@ class CaptureLocationTaskScreenTest {
 
   @get:Rule val composeTestRule = createComposeRule()
 
-  private var lastScreenAction: TaskScreenAction? = null
+  private var lastScreenAction: ButtonAction? = null
   private var openSettingsCalled = false
   private lateinit var viewModel: CaptureLocationTaskViewModel
   private lateinit var buttonActionStateChecker: ButtonActionStateChecker
@@ -244,11 +243,9 @@ class CaptureLocationTaskScreenTest {
       CaptureLocationTaskScreen(
         viewModel = viewModel,
         onFooterPositionUpdated = {},
-        onAction = { action ->
+        onButtonClicked = { action ->
           lastScreenAction = action
-          if (action is TaskScreenAction.OnButtonClicked) {
-            viewModel.onButtonClick(action.action)
-          }
+          viewModel.onButtonClick(action)
         },
         onOpenSettings = { openSettingsCalled = true },
         mapContent = { /* Dummy content */ },

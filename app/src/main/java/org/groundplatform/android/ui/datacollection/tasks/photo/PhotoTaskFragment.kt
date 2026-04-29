@@ -39,7 +39,7 @@ class PhotoTaskFragment : AbstractTaskFragment<PhotoTaskViewModel>() {
     PhotoTaskScreen(
       viewModel = viewModel,
       onFooterPositionUpdated = { saveFooterPosition(it) },
-      onAction = { handleTaskScreenAction(it) },
+      onButtonClicked = { handleButtonClick(it) },
       onAwaitingPhotoCapture = { homeScreenViewModel.awaitingPhotoCapture = it },
     )
   }

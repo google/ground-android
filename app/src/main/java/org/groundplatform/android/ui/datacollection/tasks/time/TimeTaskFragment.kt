@@ -33,7 +33,7 @@ class TimeTaskFragment : AbstractTaskFragment<TimeTaskViewModel>() {
     TimeTaskScreen(
       viewModel = viewModel,
       onFooterPositionUpdated = { saveFooterPosition(it) },
-      onAction = { handleTaskScreenAction(it) },
+      onButtonClicked = { handleButtonClick(it) },
     )
   }
 }

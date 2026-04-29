@@ -34,8 +34,8 @@ import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.components.InstructionData
 import org.groundplatform.android.ui.datacollection.components.TaskHeader
+import org.groundplatform.android.ui.datacollection.LoiNameAction
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreen
-import org.groundplatform.android.ui.datacollection.tasks.TaskScreenAction
 import org.groundplatform.ui.theme.AppTheme
 
 @Composable
@@ -44,7 +44,8 @@ fun DrawAreaTaskScreen(
   onFooterPositionUpdated: (Float) -> Unit,
   shouldShowLoiNameDialog: Boolean,
   loiName: String,
-  onAction: (TaskScreenAction) -> Unit,
+  onButtonClicked: (ButtonAction) -> Unit,
+  onLoiNameAction: (LoiNameAction) -> Unit,
   mapContent: @Composable () -> Unit,
 ) {
   val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
@@ -56,9 +57,7 @@ fun DrawAreaTaskScreen(
 
   val lifecycleOwner = LocalLifecycleOwner.current
   LaunchedEffect(lifecycleOwner) {
-    lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-      viewModel.maybeShowInstructions()
-    }
+    lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) { viewModel.maybeShowInstructions() }
   }
 
   LaunchedEffect(areaMessage) {
@@ -73,18 +72,30 @@ fun DrawAreaTaskScreen(
     shouldShowLoiNameDialog = shouldShowLoiNameDialog,
     loiName = loiName,
     onFooterPositionUpdated = onFooterPositionUpdated,
-    onAction = { action ->
-      if (action is TaskScreenAction.OnInstructionsDismiss) {
-        viewModel.dismissDrawAreaInstructions()
-      } else {
-        onAction(action)
-      }
-    },
+    onButtonClicked = onButtonClicked,
+    onLoiNameAction = onLoiNameAction,
+    onInstructionsDismiss = { viewModel.dismissDrawAreaInstructions() },
     onDismissSelfIntersectionDialog = { viewModel.showSelfIntersectionDialog.value = false },
     mapContent = mapContent,
   )
 }
 
+/**
+ * The stateless content of the draw area task screen.
+ *
+ * @param taskLabel The label of the task.
+ * @param taskActionButtonsStates The states of the action buttons.
+ * @param showInstructionsDialog Whether to show the instructions' dialog.
+ * @param showSelfIntersectionDialog Whether to show the self-intersection warning dialog.
+ * @param shouldShowLoiNameDialog Whether to show the dialog for setting the LOI name.
+ * @param loiName Value to be prepopulated in the LOI name dialog.
+ * @param onFooterPositionUpdated Callback when the footer position changes.
+ * @param onButtonClicked Callback when a button with a [ButtonAction] is clicked.
+ * @param onLoiNameAction Callback when user interacts with the LOI name dialog.
+ * @param onInstructionsDismiss Callback when user dismisses the instructions dialog.
+ * @param onDismissSelfIntersectionDialog Callback when the self-intersection dialog is dismissed.
+ * @param mapContent Composable for rendering the map.
+ */
 @Composable
 private fun DrawAreaTaskContent(
   taskLabel: String,
@@ -94,7 +105,9 @@ private fun DrawAreaTaskContent(
   shouldShowLoiNameDialog: Boolean,
   loiName: String,
   onFooterPositionUpdated: (Float) -> Unit,
-  onAction: (TaskScreenAction) -> Unit,
+  onButtonClicked: (ButtonAction) -> Unit,
+  onLoiNameAction: (LoiNameAction) -> Unit,
+  onInstructionsDismiss: () -> Unit,
   onDismissSelfIntersectionDialog: () -> Unit,
   mapContent: @Composable () -> Unit,
 ) {
@@ -110,7 +123,9 @@ private fun DrawAreaTaskContent(
     shouldShowLoiNameDialog = shouldShowLoiNameDialog,
     loiName = loiName,
     onFooterPositionUpdated = onFooterPositionUpdated,
-    onAction = onAction,
+    onButtonClicked = onButtonClicked,
+    onLoiNameAction = onLoiNameAction,
+    onInstructionsDismiss = onInstructionsDismiss,
     taskBody = { mapContent() },
   )
 
@@ -146,7 +161,9 @@ private fun DrawAreaTaskScreenInstructionsPreview() {
       shouldShowLoiNameDialog = false,
       loiName = "",
       onFooterPositionUpdated = {},
-      onAction = {},
+      onButtonClicked = {},
+      onLoiNameAction = {},
+      onInstructionsDismiss = {},
       onDismissSelfIntersectionDialog = {},
       mapContent = {},
     )
@@ -174,7 +191,9 @@ private fun DrawAreaTaskScreenSelfIntersectionPreview() {
       shouldShowLoiNameDialog = false,
       loiName = "",
       onFooterPositionUpdated = {},
-      onAction = {},
+      onButtonClicked = {},
+      onLoiNameAction = {},
+      onInstructionsDismiss = {},
       onDismissSelfIntersectionDialog = {},
       mapContent = {},
     )

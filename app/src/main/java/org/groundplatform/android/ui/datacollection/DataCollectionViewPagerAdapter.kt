@@ -15,11 +15,13 @@
  */
 package org.groundplatform.android.ui.datacollection
 
+import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import javax.inject.Provider
+import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.date.DateTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.instruction.InstructionTaskFragment
 import org.groundplatform.android.ui.datacollection.tasks.location.CaptureLocationTaskFragment
@@ -65,6 +67,10 @@ constructor(
           throw UnsupportedOperationException("Unsupported task type: ${task.type}")
       }
 
-    return taskFragment.also { it.taskId = task.id }
+    return taskFragment.also {
+      val bundle = it.arguments ?: Bundle()
+      bundle.putString(AbstractTaskFragment.TASK_ID, task.id)
+      it.arguments = bundle
+    }
   }
 }
