@@ -64,6 +64,7 @@ orchestratorVersion = "1.6.1"
 ossLicensesPluginVersion = "0.11.0"
 perfPluginVersion = "2.0.2"
 playServicesAuthVersion = "21.3.0"
+playServicesCodeScannerVersion = "16.1.0"
 playServicesMapsVersion = "20.0.0"
 playServicesOssLicensesVersion = "17.5.1"
 preferenceKtx = "1.2.1"
@@ -171,6 +172,7 @@ mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "
 oss-licenses-plugin = { module = "com.google.android.gms:oss-licenses-plugin", version.ref = "ossLicensesPluginVersion" }
 perf-plugin = { module = "com.google.firebase:perf-plugin", version.ref = "perfPluginVersion" }
 play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuthVersion" }
+play-services-code-scanner = { module = "com.google.android.gms:play-services-code-scanner", version.ref = "playServicesCodeScannerVersion" }
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesAuthVersion" }
 play-services-maps = { module = "com.google.android.gms:play-services-maps", version.ref = "playServicesMapsVersion" }
 play-services-oss-licenses = { module = "com.google.android.gms:play-services-oss-licenses", version.ref = "playServicesOssLicensesVersion" }
