@@ -78,9 +78,9 @@
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <data
-          android:scheme="https"
-          android:host="groundplatform.org"
-          android:pathPrefix="/android/survey/" />
+          android:host="@string/deeplink_host"
+          android:pathPrefix="@string/survey_deeplink_path"
+          android:scheme="https" />
       </intent-filter>
     </activity>
     <activity
