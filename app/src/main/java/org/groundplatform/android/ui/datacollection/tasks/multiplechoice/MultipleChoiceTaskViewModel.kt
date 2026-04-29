@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.update
 import org.groundplatform.android.R
 import org.groundplatform.android.common.Constants
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
+import org.groundplatform.android.ui.datacollection.tasks.DataCollectionEvent
 import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.submission.MultipleChoiceTaskData
@@ -48,8 +49,9 @@ class MultipleChoiceTaskViewModel @Inject constructor() : AbstractTaskViewModel(
     taskData: TaskData?,
     taskPositionInterface: TaskPositionInterface,
     surveyId: String,
+    eventReporter: (DataCollectionEvent) -> Unit,
   ) {
-    super.initialize(job, task, taskData, taskPositionInterface, surveyId)
+    super.initialize(job, task, taskData, taskPositionInterface, surveyId, eventReporter)
     loadPendingSelections()
     updateMultipleChoiceItems()
   }

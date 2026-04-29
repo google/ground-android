@@ -169,6 +169,7 @@ class PhotoTaskViewModelTest : BaseHiltTest() {
         override fun isLastWithValue(taskData: TaskData?) = isLastTaskWithValue
       },
       "survey_1",
+      eventReporter = {},
     )
   }
 

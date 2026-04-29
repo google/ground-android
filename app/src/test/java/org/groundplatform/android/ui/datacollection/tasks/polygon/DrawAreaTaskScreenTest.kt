@@ -252,6 +252,7 @@ class DrawAreaTaskScreenTest : BaseHiltTest() {
       taskData = taskData,
       taskPositionInterface = createTaskPositionInterface(isFirst, isLastWithValue),
       surveyId = "survey_id",
+      eventReporter = {},
     )
 
     composeTestRule.setContent {

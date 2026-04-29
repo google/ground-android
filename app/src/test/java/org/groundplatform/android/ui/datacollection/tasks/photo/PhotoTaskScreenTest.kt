@@ -85,6 +85,7 @@ class PhotoTaskScreenTest {
           override fun isLastWithValue(taskData: TaskData?) = isLastWithValue
         },
       surveyId = "survey_1",
+      eventReporter = {},
     )
 
     composeTestRule.setContent {

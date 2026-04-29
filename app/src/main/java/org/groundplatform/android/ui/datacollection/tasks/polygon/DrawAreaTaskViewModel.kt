@@ -40,6 +40,7 @@ import org.groundplatform.android.ui.common.SharedViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.AbstractMapTaskViewModel
+import org.groundplatform.android.ui.datacollection.tasks.DataCollectionEvent
 import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.util.LocaleAwareMeasureFormatter
@@ -157,8 +158,9 @@ internal constructor(
     taskData: TaskData?,
     taskPositionInterface: TaskPositionInterface,
     surveyId: String,
+    eventReporter: (DataCollectionEvent) -> Unit,
   ) {
-    super.initialize(job, task, taskData, taskPositionInterface, surveyId)
+    super.initialize(job, task, taskData, taskPositionInterface, surveyId, eventReporter)
     viewModelScope.launch { measurementUnits = getUserSettingsUseCase.invoke().measurementUnits }
     featureStyle = Feature.Style(job.getDefaultColor(), Feature.VertexStyle.CIRCLE)
 

@@ -20,19 +20,9 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import javax.inject.Provider
-import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskFragment
-import org.groundplatform.android.ui.datacollection.tasks.date.DateTaskFragment
-import org.groundplatform.android.ui.datacollection.tasks.instruction.InstructionTaskFragment
-import org.groundplatform.android.ui.datacollection.tasks.location.CaptureLocationTaskFragment
-import org.groundplatform.android.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskFragment
-import org.groundplatform.android.ui.datacollection.tasks.number.NumberTaskFragment
-import org.groundplatform.android.ui.datacollection.tasks.photo.PhotoTaskFragment
-import org.groundplatform.android.ui.datacollection.tasks.point.DropPinTaskFragment
-import org.groundplatform.android.ui.datacollection.tasks.polygon.DrawAreaTaskFragment
-import org.groundplatform.android.ui.datacollection.tasks.text.TextTaskFragment
-import org.groundplatform.android.ui.datacollection.tasks.time.TimeTaskFragment
+import org.groundplatform.android.ui.datacollection.tasks.DataCollectionTaskFragment
 import org.groundplatform.domain.model.task.Task
+import javax.inject.Provider
 
 /**
  * A simple pager adapter that presents the [Task]s associated with a given Submission, in sequence.
@@ -40,9 +30,7 @@ import org.groundplatform.domain.model.task.Task
 class DataCollectionViewPagerAdapter
 @AssistedInject
 constructor(
-  private val drawAreaTaskFragmentProvider: Provider<DrawAreaTaskFragment>,
-  private val captureLocationTaskFragmentProvider: Provider<CaptureLocationTaskFragment>,
-  private val dropPinTaskFragmentProvider: Provider<DropPinTaskFragment>,
+  private val taskFragmentProvider: Provider<DataCollectionTaskFragment>,
   @Assisted fragment: Fragment,
   @Assisted val tasks: List<Task>,
 ) : FragmentStateAdapter(fragment) {
@@ -53,23 +41,23 @@ constructor(
 
     val taskFragment =
       when (task.type) {
-        Task.Type.TEXT -> TextTaskFragment()
-        Task.Type.MULTIPLE_CHOICE -> MultipleChoiceTaskFragment()
-        Task.Type.PHOTO -> PhotoTaskFragment()
-        Task.Type.DROP_PIN -> dropPinTaskFragmentProvider.get()
-        Task.Type.DRAW_AREA -> drawAreaTaskFragmentProvider.get()
-        Task.Type.NUMBER -> NumberTaskFragment()
-        Task.Type.DATE -> DateTaskFragment()
-        Task.Type.TIME -> TimeTaskFragment()
-        Task.Type.CAPTURE_LOCATION -> captureLocationTaskFragmentProvider.get()
-        Task.Type.INSTRUCTIONS -> InstructionTaskFragment()
+        Task.Type.TEXT,
+        Task.Type.NUMBER,
+        Task.Type.DATE,
+        Task.Type.TIME,
+        Task.Type.INSTRUCTIONS,
+        Task.Type.MULTIPLE_CHOICE,
+        Task.Type.PHOTO,
+        Task.Type.DROP_PIN,
+        Task.Type.DRAW_AREA,
+        Task.Type.CAPTURE_LOCATION -> taskFragmentProvider.get()
         Task.Type.UNKNOWN ->
           throw UnsupportedOperationException("Unsupported task type: ${task.type}")
       }
 
     return taskFragment.also {
       val bundle = it.arguments ?: Bundle()
-      bundle.putString(AbstractTaskFragment.TASK_ID, task.id)
+      bundle.putString(DataCollectionTaskFragment.TASK_ID, task.id)
       it.arguments = bundle
     }
   }
