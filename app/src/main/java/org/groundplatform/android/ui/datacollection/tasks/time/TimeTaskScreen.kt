@@ -16,8 +16,6 @@
 package org.groundplatform.android.ui.datacollection.tasks.time
 
 import android.text.format.DateFormat
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -32,7 +30,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -157,9 +154,7 @@ private fun TimeSelectionDialog(
     dismissButton = { TextButton(onClick = onClear) { Text(stringResource(R.string.clear)) } },
     title = {},
   ) {
-    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-      TimePicker(state = timePickerState)
-    }
+    TimePicker(state = timePickerState)
   }
 }
 
