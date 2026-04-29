@@ -49,6 +49,13 @@ import org.groundplatform.android.ui.components.Toolbar
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.ui.theme.AppTheme
 
+/**
+ * The main screen for data collection, coordinating the task sequence and host UI.
+ *
+ * @param viewModel The view model for data collection.
+ * @param fragment The fragment hosting this screen (retained for ViewPager2 adapter creation).
+ * @param onExitConfirmed Callback when the user confirms exiting the data collection flow.
+ */
 @Composable
 fun DataCollectionScreen(
   viewModel: DataCollectionViewModel,
@@ -87,6 +94,12 @@ fun DataCollectionScreen(
   }
 }
 
+/**
+ * Hosts the ViewPager2 that renders individual task screens.
+ *
+ * @param uiState The current UI state.
+ * @param fragment The fragment hosting this screen.
+ */
 @Composable
 private fun DataCollectionViewPager(
   uiState: DataCollectionUiState,
@@ -112,6 +125,15 @@ private fun DataCollectionViewPager(
   )
 }
 
+/**
+ * The layout content of the data collection screen, including toolbar, pager content, and progress
+ * bar.
+ *
+ * @param uiState The current UI state.
+ * @param footerVerticalPosition The vertical position of the footer.
+ * @param onCloseClicked Callback when the close button is clicked.
+ * @param pagerContent The content Composable for the pager area.
+ */
 @Composable
 fun DataCollectionContent(
   uiState: DataCollectionUiState,
@@ -129,6 +151,12 @@ fun DataCollectionContent(
   }
 }
 
+/**
+ * The toolbar for data collection, displaying title and subtitle based on state.
+ *
+ * @param uiState The current UI state.
+ * @param onCloseClicked Callback when the close button is clicked.
+ */
 @Composable
 private fun DataCollectionToolbar(uiState: DataCollectionUiState, onCloseClicked: () -> Unit) {
   val title =
@@ -155,6 +183,12 @@ private fun DataCollectionToolbar(uiState: DataCollectionUiState, onCloseClicked
   )
 }
 
+/**
+ * Renders the progress bar with dynamic offset based on footer position.
+ *
+ * @param uiState The current UI state.
+ * @param footerVerticalPosition The vertical position of the footer.
+ */
 @Composable
 private fun DataCollectionProgressBar(
   uiState: DataCollectionUiState,
