@@ -96,7 +96,7 @@ class DataCollectionTaskFragment @Inject constructor() : AbstractFragment() {
     savedInstanceState: Bundle?,
   ) = createComposeView {
     val loiName by dataCollectionViewModel.loiNameDraft.collectAsStateWithLifecycle()
-    val showLoiNameDialog by dataCollectionViewModel.loiNameDialogOpen
+    val showLoiNameDialog by dataCollectionViewModel.loiNameDialogOpen.collectAsStateWithLifecycle()
 
     val onButtonClicked = { action: ButtonAction ->
       viewModel.onButtonClick(action)

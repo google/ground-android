@@ -15,7 +15,6 @@
  */
 package org.groundplatform.android.ui.datacollection
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -91,7 +90,8 @@ internal constructor(
   private val _uiState = MutableStateFlow<DataCollectionUiState>(DataCollectionUiState.Loading)
   val uiState: StateFlow<DataCollectionUiState> = _uiState
 
-  val loiNameDialogOpen = mutableStateOf(false)
+  private val _loiNameDialogOpen = MutableStateFlow(false)
+  val loiNameDialogOpen: StateFlow<Boolean> = _loiNameDialogOpen.asStateFlow()
 
   private val _showExitWarning = MutableStateFlow(false)
   val showExitWarning: StateFlow<Boolean> = _showExitWarning.asStateFlow()
@@ -135,13 +135,14 @@ internal constructor(
 
     viewModelScope.launch {
       _dataCollectionEvents.collect { event ->
-        withReadyOrNull { it.currentTaskId }?.let { taskId ->
-          when (event) {
-            DataCollectionEvent.NavigatePrevious -> onPreviousClicked(taskId)
-            DataCollectionEvent.NavigateNext -> onNextClicked(taskId)
-            DataCollectionEvent.ShowLoiDialog -> openLoiNameDialog()
+        withReadyOrNull { it.currentTaskId }
+          ?.let { taskId ->
+            when (event) {
+              DataCollectionEvent.NavigatePrevious -> onPreviousClicked(taskId)
+              DataCollectionEvent.NavigateNext -> onNextClicked(taskId)
+              DataCollectionEvent.ShowLoiDialog -> openLoiNameDialog()
+            }
           }
-        }
       }
     }
   }
@@ -164,16 +165,16 @@ internal constructor(
 
   fun openLoiNameDialog() {
     setLoiNameDraft(getLoiName())
-    loiNameDialogOpen.value = true
+    _loiNameDialogOpen.value = true
   }
 
   fun confirmLoiName(name: String) {
-    loiNameDialogOpen.value = false
+    _loiNameDialogOpen.value = false
     setLoiName(name)
   }
 
   fun dismissLoiNameDialog(initialName: String) {
-    loiNameDialogOpen.value = false
+    _loiNameDialogOpen.value = false
     setLoiNameDraft(initialName)
   }
 
