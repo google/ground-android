@@ -24,5 +24,5 @@ sealed interface DataCollectionEvent {
   data object NavigateNext : DataCollectionEvent
 
   /** Show the LOI Name Dialog before proceeding. */
-  data object ConfirmLoiName : DataCollectionEvent
+  data object ShowLoiDialog : DataCollectionEvent
 }

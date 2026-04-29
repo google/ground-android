@@ -171,7 +171,7 @@ abstract class AbstractTaskViewModel internal constructor() : AbstractViewModel(
       ButtonAction.DONE,
       ButtonAction.NEXT -> {
         if (task.isAddLoiTask) {
-          eventReporter(DataCollectionEvent.ConfirmLoiName)
+          eventReporter(DataCollectionEvent.ShowLoiDialog)
         } else {
           eventReporter(DataCollectionEvent.NavigateNext)
         }

@@ -135,7 +135,7 @@ internal constructor(
           when (event) {
             DataCollectionEvent.NavigatePrevious -> onPreviousClicked(taskId)
             DataCollectionEvent.NavigateNext -> onNextClicked(taskId)
-            DataCollectionEvent.ConfirmLoiName -> openLoiNameDialog()
+            DataCollectionEvent.ShowLoiDialog -> openLoiNameDialog()
           }
         }
       }

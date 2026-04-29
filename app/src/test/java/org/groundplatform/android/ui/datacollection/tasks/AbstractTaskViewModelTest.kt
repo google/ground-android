@@ -223,14 +223,14 @@ class AbstractTaskViewModelTest : BaseHiltTest() {
   }
 
   @Test
-  fun `onButtonClick NEXT on Add LOI task reports ConfirmLoiName`() = runWithTestDispatcher {
+  fun `onButtonClick NEXT on Add LOI task reports ShowLoiDialog`() = runWithTestDispatcher {
     setupViewModel(isAddLoiTask = true)
     advanceUntilIdle()
 
     viewModel.onButtonClick(ButtonAction.NEXT)
     advanceUntilIdle()
 
-    assertThat(reportedEvents).containsExactly(DataCollectionEvent.ConfirmLoiName)
+    assertThat(reportedEvents).containsExactly(DataCollectionEvent.ShowLoiDialog)
   }
 
   private fun setupViewModel(
