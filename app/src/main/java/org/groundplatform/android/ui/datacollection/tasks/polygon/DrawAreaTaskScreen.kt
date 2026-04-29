@@ -87,7 +87,12 @@ fun DrawAreaTaskScreen(
  * @param taskActionButtonsStates The states of the action buttons.
  * @param showInstructionsDialog Whether to show the instructions' dialog.
  * @param showSelfIntersectionDialog Whether to show the self-intersection warning dialog.
+ * @param shouldShowLoiNameDialog Whether to show the dialog for setting the LOI name.
+ * @param loiName Value to be prepopulated in the LOI name dialog.
  * @param onFooterPositionUpdated Callback when the footer position changes.
+ * @param onButtonClicked Callback when a button with a [ButtonAction] is clicked.
+ * @param onLoiNameAction Callback when user interacts with the LOI name dialog.
+ * @param onInstructionsDismiss Callback when user dismisses the instructions dialog.
  * @param onDismissSelfIntersectionDialog Callback when the self-intersection dialog is dismissed.
  * @param mapContent Composable for rendering the map.
  */
