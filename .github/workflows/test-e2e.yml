@@ -54,10 +54,10 @@ jobs:
         with:
           platform-repository: google/ground-platform
 
-      - name: Restore workflow repository
+      - name: Checkout PR
         uses: actions/checkout@v6
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.ref }}
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Run Android tests on e2eTest module
         uses: ./.github/actions/submit-test
