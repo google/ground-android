@@ -1,0 +1,42 @@
+# Copyright 2024 The Ground Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Dispatches the e2e workflow for every PR while keeping the CodeQL
+# "untrusted checkout in privileged context" rule satisfied:
+#   - This file holds the privileged trigger (pull_request_target) but
+#     no checkout of fork code.
+#   - test-e2e.yml does the checkout of the PR head SHA but is only
+#     reachable via workflow_call, never directly from a privileged trigger.
+# Same-repo PRs are routed via pull_request (head's workflow file applies);
+# fork PRs are routed via pull_request_target (base's workflow file applies,
+# secrets gated by the e2e-approval environment in test-e2e.yml).
+name: CI
+
+on:
+  pull_request:
+    branches: [ "master" ]
+  pull_request_target:
+    branches: [ "master" ]
+
+permissions:
+  contents: read
+
+jobs:
+  instrumentation-tests:
+    if: |
+      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) ||
+      (github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository)
+    uses: ./.github/workflows/test-e2e.yml
+    secrets:
+      MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
