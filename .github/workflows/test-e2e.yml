@@ -56,6 +56,8 @@ jobs:
 
       - name: Restore workflow repository
         uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.ref }}
 
       - name: Run Android tests on e2eTest module
         uses: ./.github/actions/submit-test
