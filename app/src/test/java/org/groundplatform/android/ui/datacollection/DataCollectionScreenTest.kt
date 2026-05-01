@@ -22,29 +22,35 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.test.runTest
+import org.groundplatform.android.FakeData
 import org.groundplatform.android.R
 import org.groundplatform.android.getString
-import org.groundplatform.domain.model.job.Job
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.`when`
+import org.mockito.Mock
+import org.mockito.junit.MockitoJUnit
+import org.mockito.junit.MockitoRule
 import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
 class DataCollectionScreenTest {
 
   @get:Rule val composeTestRule = createComposeRule()
+  @get:Rule val mockitoRule: MockitoRule = MockitoJUnit.rule()
 
-  private lateinit var mockViewModel: DataCollectionViewModel
-  private lateinit var mockFragment: DataCollectionFragment
-  private lateinit var mockAdapterFactory: DataCollectionViewPagerAdapterFactory
-  private lateinit var mockAdapter: DataCollectionViewPagerAdapter
+  @Mock private lateinit var mockViewModel: DataCollectionViewModel
+  @Mock private lateinit var mockFragment: DataCollectionFragment
+  @Mock private lateinit var mockAdapterFactory: DataCollectionViewPagerAdapterFactory
+  @Mock private lateinit var mockAdapter: DataCollectionViewPagerAdapter
 
   private val uiState = MutableStateFlow<DataCollectionUiState>(DataCollectionUiState.Loading)
   private val footerVerticalPosition = MutableStateFlow(0f)
@@ -53,134 +59,133 @@ class DataCollectionScreenTest {
 
   @Before
   fun setUp() {
-    mockViewModel = mock(DataCollectionViewModel::class.java)
-    mockFragment = mock(DataCollectionFragment::class.java)
-    mockAdapterFactory = mock(DataCollectionViewPagerAdapterFactory::class.java)
-    mockAdapter = mock(DataCollectionViewPagerAdapter::class.java)
+    whenever(mockViewModel.uiState).doReturn(uiState)
+    whenever(mockViewModel.footerVerticalPosition).doReturn(footerVerticalPosition)
+    whenever(mockViewModel.showExitWarning).doReturn(showExitWarning)
+    whenever(mockViewModel.uiEffects).doReturn(uiEffects)
 
-    `when`(mockViewModel.uiState).thenReturn(uiState)
-    `when`(mockViewModel.footerVerticalPosition).thenReturn(footerVerticalPosition)
-    `when`(mockViewModel.showExitWarning).thenReturn(showExitWarning)
-    `when`(mockViewModel.uiEffects).thenReturn(uiEffects)
-
-    `when`(mockAdapterFactory.create(any(), any())).thenReturn(mockAdapter)
-    `when`(mockFragment.viewPagerAdapterFactory).thenReturn(mockAdapterFactory)
+    whenever(mockAdapterFactory.create(any(), any())).doReturn(mockAdapter)
+    whenever(mockFragment.viewPagerAdapterFactory).doReturn(mockAdapterFactory)
   }
 
-  @Test
-  fun `Displays toolbar title when ready`() {
-    val job = Job(id = "job1", name = "Test Job")
-    uiState.value =
-      DataCollectionUiState.Ready(
-        "survey1",
-        job,
-        "Test LOI",
-        emptyList(),
-        false,
-        "task1",
-        TaskPosition(0, 1, 1),
+  private fun setContent(onValidationError: (Int) -> Unit = {}, onExitConfirmed: () -> Unit = {}) {
+    composeTestRule.setContent {
+      DataCollectionScreen(
+        viewModel = mockViewModel,
+        fragment = mockFragment,
+        onValidationError = onValidationError,
+        onExitConfirmed = onExitConfirmed,
       )
-
-    composeTestRule.setContent {
-      DataCollectionScreen(viewModel = mockViewModel, fragment = mockFragment, onExitConfirmed = {})
     }
+  }
 
-    composeTestRule.onNodeWithText("Test Job").assertIsDisplayed()
-    composeTestRule.onNodeWithText("Test LOI").assertIsDisplayed()
+  @Test
+  fun `Displays toolbar title and subtitle when ready`() {
+    uiState.value = READY_STATE
+
+    setContent()
+
+    composeTestRule.onNodeWithText(JOB.name!!).assertIsDisplayed()
+    composeTestRule.onNodeWithText(LOI_NAME).assertIsDisplayed()
     composeTestRule.onNodeWithContentDescription("Close").assertIsDisplayed()
   }
 
   @Test
-  fun `Displays toolbar title when submitted`() {
+  fun `Displays confirmation screen on submission`() {
     uiState.value = DataCollectionUiState.TaskSubmitted(null)
 
-    composeTestRule.setContent {
-      DataCollectionScreen(viewModel = mockViewModel, fragment = mockFragment, onExitConfirmed = {})
-    }
-    composeTestRule.waitForIdle()
+    setContent()
 
-    val expectedTitle = getString(R.string.data_collection_complete)
-    composeTestRule.onNodeWithText(expectedTitle).assertIsDisplayed()
-    composeTestRule.onNodeWithContentDescription("Close").assertIsDisplayed()
-  }
+    // Verify Toolbar
+    composeTestRule.onNodeWithText(getString(R.string.data_collection_complete)).assertIsDisplayed()
 
-  @Test
-  fun `Displays confirmation screen when submitted`() {
-    uiState.value = DataCollectionUiState.TaskSubmitted(null)
-
-    composeTestRule.setContent {
-      DataCollectionScreen(viewModel = mockViewModel, fragment = mockFragment, onExitConfirmed = {})
-    }
-
-    val expectedText = getString(R.string.data_collection_complete_details)
-    composeTestRule.onNodeWithText(expectedText).assertIsDisplayed()
+    // Verify Content
+    composeTestRule
+      .onNodeWithText(getString(R.string.data_collection_complete_details))
+      .assertIsDisplayed()
   }
 
   @Test
   fun `Progress bar updates correctly when navigating between tasks`() {
-    val job = Job(id = "job1", name = "Test Job")
-    uiState.value =
-      DataCollectionUiState.Ready(
-        "survey1",
-        job,
-        "Test LOI",
-        emptyList(),
-        false,
-        "task1",
-        TaskPosition(0, 0, 2),
-      )
+    uiState.value = READY_STATE.copy(position = TaskPosition(0, 0, 2))
 
-    composeTestRule.setContent {
-      DataCollectionScreen(viewModel = mockViewModel, fragment = mockFragment, onExitConfirmed = {})
-    }
-    composeTestRule.waitForIdle()
+    setContent()
 
-    // First task (0/1 progress)
-
+    // First task (0% progress)
     composeTestRule
-      .onNodeWithTag("progress_bar")
+      .onNodeWithTag(DataCollectionScreenTestTags.PROGRESS_BAR)
       .assertRangeInfoEquals(ProgressBarRangeInfo(0.0f, 0.0f..1.0f))
 
     // Update state to next task
-    uiState.value =
-      DataCollectionUiState.Ready(
-        "survey1",
-        job,
-        "Test LOI",
-        emptyList(),
-        false,
-        "task1",
-        TaskPosition(1, 1, 2),
-      )
+    uiState.value = READY_STATE.copy(position = TaskPosition(1, 1, 2))
     composeTestRule.waitForIdle()
 
-    // Second task (1/1 progress = 1.0f)
+    // Second task (100% progress)
     composeTestRule
-      .onNodeWithTag("progress_bar")
+      .onNodeWithTag(DataCollectionScreenTestTags.PROGRESS_BAR)
       .assertRangeInfoEquals(ProgressBarRangeInfo(1.0f, 0.0f..1.0f))
+  }
+
+  @Test
+  fun `Displays exit warning dialog when triggered`() {
+    uiState.value = READY_STATE
+    showExitWarning.value = true
+
+    setContent()
+
+    composeTestRule
+      .onNodeWithText(getString(R.string.data_collection_cancellation_title))
+      .assertIsDisplayed()
+    composeTestRule
+      .onNodeWithText(getString(R.string.data_collection_cancellation_confirm_button))
+      .assertIsDisplayed()
+  }
+
+  @Test
+  fun `Calls onExitConfirmed when Exit effect is emitted`() = runTest {
+    var exitConfirmedCalled = false
+    setContent(onExitConfirmed = { exitConfirmedCalled = true })
+
+    uiEffects.emit(DataCollectionUiEffect.Exit)
+    composeTestRule.waitForIdle()
+
+    assertThat(exitConfirmedCalled).isTrue()
   }
 
   @Test
   fun `Displays loading indicator when loading`() {
     uiState.value = DataCollectionUiState.Loading
 
-    composeTestRule.setContent {
-      DataCollectionScreen(viewModel = mockViewModel, fragment = mockFragment, onExitConfirmed = {})
-    }
+    setContent()
 
-    composeTestRule.onNodeWithTag("loading_indicator").assertIsDisplayed()
+    composeTestRule
+      .onNodeWithTag(DataCollectionScreenTestTags.LOADING_INDICATOR)
+      .assertIsDisplayed()
   }
 
   @Test
-  fun `Displays error message when error`() {
+  fun `Displays error message when error occurs`() {
     val errorCode = DataCollectionErrorCode.SURVEY_LOAD_FAILED
     uiState.value = DataCollectionUiState.Error(errorCode)
 
-    composeTestRule.setContent {
-      DataCollectionScreen(viewModel = mockViewModel, fragment = mockFragment, onExitConfirmed = {})
-    }
+    setContent()
 
-    composeTestRule.onNodeWithTag("error_message").assertIsDisplayed()
+    composeTestRule.onNodeWithTag(DataCollectionScreenTestTags.ERROR_MESSAGE).assertIsDisplayed()
     composeTestRule.onNodeWithText("Error: $errorCode").assertIsDisplayed()
+  }
+
+  companion object {
+    private val JOB = FakeData.JOB.copy(name = "Test Job")
+    private const val LOI_NAME = "Test LOI"
+    private val READY_STATE =
+      DataCollectionUiState.Ready(
+        surveyId = FakeData.SURVEY_ID,
+        job = JOB,
+        loiName = LOI_NAME,
+        tasks = emptyList(),
+        isAddLoiFlow = false,
+        currentTaskId = "task1",
+        position = TaskPosition(0, 0, 1),
+      )
   }
 }
