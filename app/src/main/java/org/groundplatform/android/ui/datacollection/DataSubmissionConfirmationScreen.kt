@@ -57,14 +57,16 @@ import org.groundplatform.domain.model.locationofinterest.LoiReport
 import org.groundplatform.ui.components.qrcode.GroundQrCode
 import org.groundplatform.ui.theme.AppTheme
 
-private val DEFAULT_TOOLBAR_HEIGHT = 56.dp
-
 @Composable
-fun DataSubmissionConfirmationScreen(loiReport: LoiReport? = null, onDismissed: () -> Unit) {
+fun DataSubmissionConfirmationScreen(
+  modifier: Modifier = Modifier,
+  loiReport: LoiReport? = null,
+  onDismissed: () -> Unit,
+) {
   val baseModifier =
-    Modifier.fillMaxSize()
+    modifier
+      .fillMaxSize()
       .background(MaterialTheme.colorScheme.surface)
-      .padding(top = DEFAULT_TOOLBAR_HEIGHT)
       .systemBarsPadding()
       .verticalScroll(rememberScrollState())
       .padding(horizontal = 48.dp)
