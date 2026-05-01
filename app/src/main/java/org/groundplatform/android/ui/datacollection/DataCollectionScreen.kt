@@ -173,17 +173,15 @@ fun DataCollectionContent(
               color = MaterialTheme.colorScheme.error,
             )
           }
+          is DataCollectionUiState.Ready -> {
+            pagerContent()
+            DataCollectionProgressBar(
+              uiState.position,
+              progressPositionY = footerVerticalPosition - boxPositionY,
+            )
+          }
           is DataCollectionUiState.TaskSubmitted -> {
             DataSubmissionConfirmationScreen(loiReport = uiState.loiReport) { onCloseClicked() }
-          }
-          else -> {
-            pagerContent()
-            if (uiState is DataCollectionUiState.Ready) {
-              DataCollectionProgressBar(
-                uiState.position,
-                progressPositionY = footerVerticalPosition - boxPositionY,
-              )
-            }
           }
         }
       }

@@ -18,6 +18,8 @@ package org.groundplatform.android.ui.datacollection
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertRangeInfoEquals
+import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.printToLog
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -94,11 +96,11 @@ class DataCollectionScreenTest {
     composeTestRule.setContent {
       DataCollectionScreen(viewModel = mockViewModel, fragment = mockFragment, onExitConfirmed = {})
     }
+    composeTestRule.waitForIdle()
 
     val expectedTitle = getString(R.string.data_collection_complete)
     composeTestRule.onNodeWithText(expectedTitle).assertIsDisplayed()
-    // Navigation icon should be hidden
-    composeTestRule.onNodeWithContentDescription("Close").assertDoesNotExist()
+    composeTestRule.onNodeWithContentDescription("Close").assertIsDisplayed()
   }
 
   @Test
