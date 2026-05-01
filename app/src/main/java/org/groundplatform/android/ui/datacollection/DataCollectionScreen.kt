@@ -15,14 +15,14 @@
  */
 package org.groundplatform.android.ui.datacollection
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.CircularProgressIndicator
@@ -30,13 +30,18 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -143,26 +148,38 @@ fun DataCollectionContent(
   onCloseClicked: () -> Unit,
   pagerContent: @Composable () -> Unit,
 ) {
-  Column(modifier = Modifier.fillMaxSize()) {
-    DataCollectionToolbar(uiState, onCloseClicked)
+  Scaffold(topBar = { DataCollectionToolbar(uiState, onCloseClicked) }) { innerPadding ->
+    Column(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
+      var boxPositionY by remember { mutableFloatStateOf(0f) }
 
-    Box(modifier = Modifier.weight(1f).align(Alignment.CenterHorizontally)) {
-      when (uiState) {
-        is DataCollectionUiState.Loading -> {
-          CircularProgressIndicator(
-            modifier = Modifier.align(Alignment.Center).testTag("loading_indicator")
-          )
-        }
-        is DataCollectionUiState.Error -> {
-          Text(
-            text = "Error: ${uiState.code}",
-            modifier = Modifier.align(Alignment.Center).testTag("error_message"),
-            color = MaterialTheme.colorScheme.error,
-          )
-        }
-        else -> {
-          pagerContent()
-          DataCollectionProgressBar(uiState, footerVerticalPosition)
+      Box(
+        modifier =
+          Modifier.weight(1f).align(Alignment.CenterHorizontally).onGloballyPositioned {
+            boxPositionY = it.positionInWindow().y
+          }
+      ) {
+        when (uiState) {
+          is DataCollectionUiState.Loading -> {
+            CircularProgressIndicator(
+              modifier = Modifier.align(Alignment.Center).testTag("loading_indicator")
+            )
+          }
+          is DataCollectionUiState.Error -> {
+            Text(
+              text = "Error: ${uiState.code}",
+              modifier = Modifier.align(Alignment.Center).testTag("error_message"),
+              color = MaterialTheme.colorScheme.error,
+            )
+          }
+          else -> {
+            pagerContent()
+            if (uiState is DataCollectionUiState.Ready) {
+              DataCollectionProgressBar(
+                uiState.position,
+                progressPositionY = footerVerticalPosition - boxPositionY,
+              )
+            }
+          }
         }
       }
     }
@@ -204,26 +221,21 @@ private fun DataCollectionToolbar(uiState: DataCollectionUiState, onCloseClicked
 /**
  * Renders the progress bar with dynamic offset based on footer position.
  *
- * @param uiState The current UI state.
- * @param footerVerticalPosition The vertical position of the footer.
+ * @param position Current task position.
+ * @param progressPositionY The vertical position of the linear progress bar.
  */
 @Composable
-private fun DataCollectionProgressBar(
-  uiState: DataCollectionUiState,
-  footerVerticalPosition: Float,
-) {
-  if (uiState is DataCollectionUiState.Ready) {
-    val progress = uiState.position.relativeIndex.toFloat() / (uiState.position.sequenceSize - 1)
-    val density = LocalDensity.current
-    val topInsetPx = WindowInsets.statusBars.getTop(density)
-    val offset = footerVerticalPosition - topInsetPx
+private fun DataCollectionProgressBar(position: TaskPosition, progressPositionY: Float) {
+  val targetProgress = position.relativeIndex.toFloat() / (position.sequenceSize - 1)
+  val progress by animateFloatAsState(targetValue = targetProgress)
 
-    LinearProgressIndicator(
-      progress = { progress },
-      modifier =
-        Modifier.fillMaxWidth().offset { IntOffset(0, offset.toInt()) }.testTag("progress_bar"),
-    )
-  }
+  LinearProgressIndicator(
+    progress = { progress },
+    modifier =
+      Modifier.fillMaxWidth()
+        .offset { IntOffset(0, progressPositionY.toInt()) }
+        .testTag("progress_bar"),
+  )
 }
 
 @Preview(showBackground = true)
@@ -277,7 +289,7 @@ private fun DataCollectionContentPreview() {
           currentTaskId = "task1",
           position = TaskPosition(0, 1, 2),
         ),
-      footerVerticalPosition = 100f,
+      footerVerticalPosition = 2000f,
       onCloseClicked = {},
     ) {
       Box(modifier = Modifier.fillMaxSize().background(Color.LightGray)) {
