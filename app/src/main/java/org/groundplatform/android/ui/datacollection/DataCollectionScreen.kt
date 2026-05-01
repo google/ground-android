@@ -25,7 +25,9 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -44,11 +46,11 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.components.ConfirmationDialog
-import org.groundplatform.android.ui.components.Toolbar
 
 object DataCollectionScreenTestTags {
   const val TOOLBAR = "data_collection_toolbar"
@@ -154,12 +156,19 @@ fun DataCollectionContent(
   }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DataCollectionToolbar(uiState: DataCollectionUiState, onCloseClicked: () -> Unit) {
-  Toolbar(
-    title = uiState.getTitle(),
-    subtitle = uiState.getSubtitle(),
+  CenterAlignedTopAppBar(
     modifier = Modifier.testTag(DataCollectionScreenTestTags.TOOLBAR),
+    title = {
+      Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(text = uiState.getTitle(), textAlign = TextAlign.Center)
+        uiState.getSubtitle()?.let {
+          Text(text = it, style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center)
+        }
+      }
+    },
     navigationIcon = {
       IconButton(onClick = onCloseClicked) {
         Icon(imageVector = Icons.Default.Close, contentDescription = "Close")
