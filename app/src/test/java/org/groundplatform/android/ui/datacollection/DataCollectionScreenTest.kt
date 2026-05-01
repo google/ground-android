@@ -67,23 +67,22 @@ class DataCollectionScreenTest {
     `when`(mockFragment.viewPagerAdapterFactory).thenReturn(mockAdapterFactory)
   }
 
+  private fun setContent() {
+    composeTestRule.setContent {
+      DataCollectionScreen(
+        viewModel = mockViewModel,
+        fragment = mockFragment,
+        onValidationError = {},
+        onExitConfirmed = {},
+      )
+    }
+  }
+
   @Test
   fun `Displays toolbar title when ready`() {
-    val job = Job(id = "job1", name = "Test Job")
-    uiState.value =
-      DataCollectionUiState.Ready(
-        "survey1",
-        job,
-        "Test LOI",
-        emptyList(),
-        false,
-        "task1",
-        TaskPosition(0, 1, 1),
-      )
+    uiState.value = READY_STATE
 
-    composeTestRule.setContent {
-      DataCollectionScreen(viewModel = mockViewModel, fragment = mockFragment, onExitConfirmed = {})
-    }
+    setContent()
 
     composeTestRule.onNodeWithText("Test Job").assertIsDisplayed()
     composeTestRule.onNodeWithText("Test LOI").assertIsDisplayed()
@@ -94,9 +93,7 @@ class DataCollectionScreenTest {
   fun `Displays toolbar title when submitted`() {
     uiState.value = DataCollectionUiState.TaskSubmitted(null)
 
-    composeTestRule.setContent {
-      DataCollectionScreen(viewModel = mockViewModel, fragment = mockFragment, onExitConfirmed = {})
-    }
+    setContent()
     composeTestRule.waitForIdle()
 
     val expectedTitle = getString(R.string.data_collection_complete)
@@ -108,9 +105,7 @@ class DataCollectionScreenTest {
   fun `Displays confirmation screen when submitted`() {
     uiState.value = DataCollectionUiState.TaskSubmitted(null)
 
-    composeTestRule.setContent {
-      DataCollectionScreen(viewModel = mockViewModel, fragment = mockFragment, onExitConfirmed = {})
-    }
+    setContent()
 
     val expectedText = getString(R.string.data_collection_complete_details)
     composeTestRule.onNodeWithText(expectedText).assertIsDisplayed()
@@ -118,45 +113,24 @@ class DataCollectionScreenTest {
 
   @Test
   fun `Progress bar updates correctly when navigating between tasks`() {
-    val job = Job(id = "job1", name = "Test Job")
-    uiState.value =
-      DataCollectionUiState.Ready(
-        "survey1",
-        job,
-        "Test LOI",
-        emptyList(),
-        false,
-        "task1",
-        TaskPosition(0, 0, 2),
-      )
+    uiState.value = READY_STATE.copy(position = TaskPosition(0, 0, 2))
 
-    composeTestRule.setContent {
-      DataCollectionScreen(viewModel = mockViewModel, fragment = mockFragment, onExitConfirmed = {})
-    }
+    setContent()
     composeTestRule.waitForIdle()
 
     // First task (0/1 progress)
 
     composeTestRule
-      .onNodeWithTag("progress_bar")
+      .onNodeWithTag(DataCollectionScreenTestTags.PROGRESS_BAR)
       .assertRangeInfoEquals(ProgressBarRangeInfo(0.0f, 0.0f..1.0f))
 
     // Update state to next task
-    uiState.value =
-      DataCollectionUiState.Ready(
-        "survey1",
-        job,
-        "Test LOI",
-        emptyList(),
-        false,
-        "task1",
-        TaskPosition(1, 1, 2),
-      )
+    uiState.value = READY_STATE.copy(position = TaskPosition(1, 1, 2))
     composeTestRule.waitForIdle()
 
     // Second task (1/1 progress = 1.0f)
     composeTestRule
-      .onNodeWithTag("progress_bar")
+      .onNodeWithTag(DataCollectionScreenTestTags.PROGRESS_BAR)
       .assertRangeInfoEquals(ProgressBarRangeInfo(1.0f, 0.0f..1.0f))
   }
 
@@ -164,11 +138,11 @@ class DataCollectionScreenTest {
   fun `Displays loading indicator when loading`() {
     uiState.value = DataCollectionUiState.Loading
 
-    composeTestRule.setContent {
-      DataCollectionScreen(viewModel = mockViewModel, fragment = mockFragment, onExitConfirmed = {})
-    }
+    setContent()
 
-    composeTestRule.onNodeWithTag("loading_indicator").assertIsDisplayed()
+    composeTestRule
+      .onNodeWithTag(DataCollectionScreenTestTags.LOADING_INDICATOR)
+      .assertIsDisplayed()
   }
 
   @Test
@@ -176,11 +150,23 @@ class DataCollectionScreenTest {
     val errorCode = DataCollectionErrorCode.SURVEY_LOAD_FAILED
     uiState.value = DataCollectionUiState.Error(errorCode)
 
-    composeTestRule.setContent {
-      DataCollectionScreen(viewModel = mockViewModel, fragment = mockFragment, onExitConfirmed = {})
-    }
+    setContent()
 
-    composeTestRule.onNodeWithTag("error_message").assertIsDisplayed()
+    composeTestRule.onNodeWithTag(DataCollectionScreenTestTags.ERROR_MESSAGE).assertIsDisplayed()
     composeTestRule.onNodeWithText("Error: $errorCode").assertIsDisplayed()
+  }
+
+  companion object {
+    private val JOB = Job(id = "job1", name = "Test Job")
+    private val READY_STATE =
+      DataCollectionUiState.Ready(
+        surveyId = "survey1",
+        job = JOB,
+        loiName = "Test LOI",
+        tasks = emptyList(),
+        isAddLoiFlow = false,
+        currentTaskId = "task1",
+        position = TaskPosition(0, 1, 1),
+      )
   }
 }

@@ -50,6 +50,13 @@ import org.groundplatform.android.R
 import org.groundplatform.android.ui.components.ConfirmationDialog
 import org.groundplatform.android.ui.components.Toolbar
 
+object DataCollectionScreenTestTags {
+  const val TOOLBAR = "data_collection_toolbar"
+  const val LOADING_INDICATOR = "loading_indicator"
+  const val ERROR_MESSAGE = "error_message"
+  const val PROGRESS_BAR = "progress_bar"
+}
+
 /**
  * The main screen for data collection, coordinating the task sequence and host UI.
  *
@@ -152,7 +159,7 @@ private fun DataCollectionToolbar(uiState: DataCollectionUiState, onCloseClicked
   Toolbar(
     title = uiState.getTitle(),
     subtitle = uiState.getSubtitle(),
-    modifier = Modifier.testTag("data_collection_toolbar"),
+    modifier = Modifier.testTag(DataCollectionScreenTestTags.TOOLBAR),
     navigationIcon = {
       IconButton(onClick = onCloseClicked) {
         Icon(imageVector = Icons.Default.Close, contentDescription = "Close")
@@ -163,14 +170,16 @@ private fun DataCollectionToolbar(uiState: DataCollectionUiState, onCloseClicked
 
 @Composable
 private fun LoadingContent(modifier: Modifier = Modifier) {
-  CircularProgressIndicator(modifier = modifier.testTag("loading_indicator"))
+  CircularProgressIndicator(
+    modifier = modifier.testTag(DataCollectionScreenTestTags.LOADING_INDICATOR)
+  )
 }
 
 @Composable
 private fun ErrorContent(code: DataCollectionErrorCode, modifier: Modifier = Modifier) {
   Text(
     text = "Error: $code",
-    modifier = modifier.testTag("error_message"),
+    modifier = modifier.testTag(DataCollectionScreenTestTags.ERROR_MESSAGE),
     color = MaterialTheme.colorScheme.error,
   )
 }
@@ -220,6 +229,6 @@ private fun DataCollectionProgressBar(
       modifier
         .fillMaxWidth()
         .offset { IntOffset(0, progressPositionY.toInt()) }
-        .testTag("progress_bar"),
+        .testTag(DataCollectionScreenTestTags.PROGRESS_BAR),
   )
 }
