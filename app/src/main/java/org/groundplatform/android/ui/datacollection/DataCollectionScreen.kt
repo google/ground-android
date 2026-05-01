@@ -50,10 +50,12 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.doOnLayout
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.viewpager2.widget.ViewPager2
+import kotlinx.serialization.json.JsonObject
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.components.ConfirmationDialog
 import org.groundplatform.android.ui.components.Toolbar
 import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.locationofinterest.LoiReport
 import org.groundplatform.ui.theme.AppTheme
 
 /**
@@ -170,6 +172,9 @@ fun DataCollectionContent(
               modifier = Modifier.align(Alignment.Center).testTag("error_message"),
               color = MaterialTheme.colorScheme.error,
             )
+          }
+          is DataCollectionUiState.TaskSubmitted -> {
+            DataSubmissionConfirmationScreen(loiReport = uiState.loiReport) { onCloseClicked() }
           }
           else -> {
             pagerContent()
@@ -288,6 +293,25 @@ private fun DataCollectionContentPreview() {
           isAddLoiFlow = false,
           currentTaskId = "task1",
           position = TaskPosition(0, 1, 2),
+        ),
+      footerVerticalPosition = 2000f,
+      onCloseClicked = {},
+    ) {
+      Box(modifier = Modifier.fillMaxSize().background(Color.LightGray)) {
+        Text(text = "Pager Content Area", modifier = Modifier.align(Alignment.Center))
+      }
+    }
+  }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun DataCollectionContentCompletePreview() {
+  AppTheme {
+    DataCollectionContent(
+      uiState =
+        DataCollectionUiState.TaskSubmitted(
+          loiReport = LoiReport(loiName = "Point A", geoJson = JsonObject(mapOf()))
         ),
       footerVerticalPosition = 2000f,
       onCloseClicked = {},

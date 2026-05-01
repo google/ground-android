@@ -15,7 +15,6 @@
  */
 package org.groundplatform.android.ui.datacollection
 
-import android.content.Context
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertRangeInfoEquals
@@ -23,9 +22,9 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
-import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.groundplatform.android.R
+import org.groundplatform.android.getString
 import org.groundplatform.domain.model.job.Job
 import org.junit.Before
 import org.junit.Rule
@@ -96,10 +95,22 @@ class DataCollectionScreenTest {
       DataCollectionScreen(viewModel = mockViewModel, fragment = mockFragment, onExitConfirmed = {})
     }
 
-    val context = ApplicationProvider.getApplicationContext<Context>()
-    val expectedTitle = context.getString(R.string.data_collection_complete)
+    val expectedTitle = getString(R.string.data_collection_complete)
     composeTestRule.onNodeWithText(expectedTitle).assertIsDisplayed()
-    composeTestRule.onNodeWithContentDescription("Close").assertIsDisplayed()
+    // Navigation icon should be hidden
+    composeTestRule.onNodeWithContentDescription("Close").assertDoesNotExist()
+  }
+
+  @Test
+  fun `Displays confirmation screen when submitted`() {
+    uiState.value = DataCollectionUiState.TaskSubmitted(null)
+
+    composeTestRule.setContent {
+      DataCollectionScreen(viewModel = mockViewModel, fragment = mockFragment, onExitConfirmed = {})
+    }
+
+    val expectedText = getString(R.string.data_collection_complete_details)
+    composeTestRule.onNodeWithText(expectedText).assertIsDisplayed()
   }
 
   @Test
