@@ -17,6 +17,7 @@ package org.groundplatform.android.ui.datacollection
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -117,14 +118,15 @@ fun DataCollectionContent(
         modifier =
           Modifier.weight(1f).align(Alignment.CenterHorizontally).onGloballyPositioned {
             boxPositionY = it.positionInWindow().y
-          }
+          },
+        contentAlignment = Alignment.Center,
       ) {
         when (uiState) {
           is DataCollectionUiState.Loading -> {
-            LoadingContent(Modifier.align(Alignment.Center))
+            LoadingContent()
           }
           is DataCollectionUiState.Error -> {
-            ErrorContent(uiState.code, Modifier.align(Alignment.Center))
+            ErrorContent(uiState.code)
           }
           is DataCollectionUiState.Ready -> {
             ReadyContent(
@@ -172,14 +174,18 @@ private fun ErrorContent(code: DataCollectionErrorCode, modifier: Modifier = Mod
 }
 
 @Composable
-private fun ReadyContent(
+private fun BoxScope.ReadyContent(
   position: TaskPosition,
   footerVerticalPosition: Float,
   boxPositionY: Float,
   pagerContent: @Composable () -> Unit,
 ) {
   pagerContent()
-  DataCollectionProgressBar(position, progressPositionY = footerVerticalPosition - boxPositionY)
+  DataCollectionProgressBar(
+    position,
+    progressPositionY = footerVerticalPosition - boxPositionY,
+    modifier = Modifier.align(Alignment.TopCenter),
+  )
 }
 
 @Composable
@@ -198,14 +204,19 @@ private fun DataCollectionUiState.getSubtitle(): String? =
   }
 
 @Composable
-private fun DataCollectionProgressBar(position: TaskPosition, progressPositionY: Float) {
+private fun DataCollectionProgressBar(
+  position: TaskPosition,
+  progressPositionY: Float,
+  modifier: Modifier = Modifier,
+) {
   val targetProgress = position.relativeIndex.toFloat() / (position.sequenceSize - 1)
   val progress by animateFloatAsState(targetValue = targetProgress)
 
   LinearProgressIndicator(
     progress = { progress },
     modifier =
-      Modifier.fillMaxWidth()
+      modifier
+        .fillMaxWidth()
         .offset { IntOffset(0, progressPositionY.toInt()) }
         .testTag("progress_bar"),
   )
