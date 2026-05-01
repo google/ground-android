@@ -16,13 +16,13 @@
 
 package org.groundplatform.android.ui.datacollection
 
+import android.content.Context
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.test.core.app.ApplicationProvider
-import android.content.Context
 import androidx.navigation.fragment.findNavController
+import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -90,22 +90,6 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   @BindValue @Mock lateinit var mutationSyncWorkManager: MutationSyncWorkManager
 
   lateinit var fragment: DataCollectionFragment
-
-  @Test
-  fun `Job and LOI names are displayed correctly`() {
-    setupFragment()
-
-    runner().validateTextIsDisplayed(TASK_1_NAME).validateTextIsDisplayed(requireNotNull(JOB.name))
-  }
-
-  @Test
-  fun `Only job name is displayed when LOI is not provided`() {
-    setupFragmentWithNoLoi()
-
-    runner()
-      .validateTextDoesNotExist("Unnamed point")
-      .validateTextIsDisplayed(requireNotNull(JOB.name))
-  }
 
   @Test
   fun `First task is loaded and is visible`() {

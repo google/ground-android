@@ -91,6 +91,16 @@ class DataCollectionScreenTest {
   }
 
   @Test
+  fun `Displays only toolbar title when LOI name is missing`() {
+    uiState.value = READY_STATE.copy(loiName = "")
+
+    setContent()
+
+    composeTestRule.onNodeWithText(JOB.name!!).assertIsDisplayed()
+    composeTestRule.onNodeWithText(LOI_NAME).assertDoesNotExist()
+  }
+
+  @Test
   fun `Displays confirmation screen on submission`() {
     uiState.value = DataCollectionUiState.TaskSubmitted(null)
 
@@ -150,6 +160,18 @@ class DataCollectionScreenTest {
     composeTestRule.waitForIdle()
 
     assertThat(exitConfirmedCalled).isTrue()
+  }
+
+  @Test
+  fun `Calls onValidationError when ShowValidationError effect is emitted`() = runTest {
+    var validationErrorResId: Int? = null
+    setContent(onValidationError = { validationErrorResId = it })
+
+    val errorResId = R.string.close
+    uiEffects.emit(DataCollectionUiEffect.ShowValidationError(errorResId))
+    composeTestRule.waitForIdle()
+
+    assertThat(validationErrorResId).isEqualTo(errorResId)
   }
 
   @Test
