@@ -33,6 +33,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
@@ -60,22 +61,26 @@ import org.groundplatform.android.ui.components.Toolbar
 fun DataCollectionScreen(
   viewModel: DataCollectionViewModel,
   fragment: DataCollectionFragment,
+  onValidationError: (resId: Int) -> Unit,
   onExitConfirmed: () -> Unit,
 ) {
   val footerVerticalPosition by viewModel.footerVerticalPosition.collectAsStateWithLifecycle()
   val showExitWarningDialog by viewModel.showExitWarning.collectAsStateWithLifecycle()
   val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+  LaunchedEffect(Unit) {
+    viewModel.uiEffects.collect { effect ->
+      when (effect) {
+        is DataCollectionUiEffect.Exit -> onExitConfirmed()
+        is DataCollectionUiEffect.ShowValidationError -> onValidationError(effect.errorResId)
+      }
+    }
+  }
+
   DataCollectionContent(
     uiState = uiState,
     footerVerticalPosition = footerVerticalPosition,
-    onCloseClicked = {
-      if (uiState is DataCollectionUiState.TaskSubmitted) {
-        onExitConfirmed()
-      } else {
-        viewModel.showExitWarning()
-      }
-    },
+    onCloseClicked = { viewModel.onCloseClicked() },
   ) {
     DataCollectionViewPager(uiState, fragment)
   }
@@ -85,10 +90,7 @@ fun DataCollectionScreen(
       title = R.string.data_collection_cancellation_title,
       description = R.string.data_collection_cancellation_description,
       confirmButtonText = R.string.data_collection_cancellation_confirm_button,
-      onConfirmClicked = {
-        viewModel.dismissExitWarning()
-        onExitConfirmed()
-      },
+      onConfirmClicked = { viewModel.confirmExit() },
       onDismiss = { viewModel.dismissExitWarning() },
     )
   }

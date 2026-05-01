@@ -18,12 +18,11 @@ package org.groundplatform.android.ui.datacollection
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertRangeInfoEquals
-import androidx.compose.ui.test.onRoot
-import androidx.compose.ui.test.printToLog
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.groundplatform.android.R
 import org.groundplatform.android.getString
@@ -50,6 +49,7 @@ class DataCollectionScreenTest {
   private val uiState = MutableStateFlow<DataCollectionUiState>(DataCollectionUiState.Loading)
   private val footerVerticalPosition = MutableStateFlow(0f)
   private val showExitWarning = MutableStateFlow(false)
+  private val uiEffects = MutableSharedFlow<DataCollectionUiEffect>()
 
   @Before
   fun setUp() {
@@ -61,6 +61,7 @@ class DataCollectionScreenTest {
     `when`(mockViewModel.uiState).thenReturn(uiState)
     `when`(mockViewModel.footerVerticalPosition).thenReturn(footerVerticalPosition)
     `when`(mockViewModel.showExitWarning).thenReturn(showExitWarning)
+    `when`(mockViewModel.uiEffects).thenReturn(uiEffects)
 
     `when`(mockAdapterFactory.create(any(), any())).thenReturn(mockAdapter)
     `when`(mockFragment.viewPagerAdapterFactory).thenReturn(mockAdapterFactory)

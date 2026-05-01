@@ -18,9 +18,11 @@ package org.groundplatform.android.ui.datacollection
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,6 +30,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.groundplatform.android.data.local.room.converter.SubmissionDeltasConverter
@@ -35,7 +38,6 @@ import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.android.di.coroutines.ApplicationScope
 import org.groundplatform.android.di.coroutines.IoDispatcher
 import org.groundplatform.android.ui.common.AbstractViewModel
-import org.groundplatform.android.ui.common.EphemeralPopups
 import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.DataCollectionEvent
@@ -59,8 +61,12 @@ import org.groundplatform.domain.repository.SubmissionRepositoryInterface
 import org.groundplatform.domain.usecases.GetLoiReportUseCase
 import org.groundplatform.domain.usecases.submission.SubmitDataUseCase
 import timber.log.Timber
-import javax.inject.Inject
-import javax.inject.Provider
+
+sealed interface DataCollectionUiEffect {
+  data object Exit : DataCollectionUiEffect
+
+  data class ShowValidationError(val errorResId: Int) : DataCollectionUiEffect
+}
 
 /** View model for the Data Collection fragment. */
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -74,11 +80,13 @@ internal constructor(
   private val submissionRepository: SubmissionRepositoryInterface,
   private val submitDataUseCase: SubmitDataUseCase,
   private val offlineUuidGenerator: OfflineUuidGenerator,
-  private val popups: Provider<EphemeralPopups>,
   private val viewModelFactory: ViewModelFactory,
   private val dataCollectionInitializer: DataCollectionInitializer,
   private val getLoiReportUseCase: GetLoiReportUseCase,
 ) : AbstractViewModel() {
+
+  private val _uiEffects = Channel<DataCollectionUiEffect>(Channel.BUFFERED)
+  val uiEffects = _uiEffects.receiveAsFlow()
 
   private val _dataCollectionEvents =
     MutableSharedFlow<DataCollectionEvent>(extraBufferCapacity = 1)
@@ -186,6 +194,19 @@ internal constructor(
     _showExitWarning.value = false
   }
 
+  fun onCloseClicked() {
+    if (uiState.value is DataCollectionUiState.TaskSubmitted) {
+      viewModelScope.launch { _uiEffects.send(DataCollectionUiEffect.Exit) }
+    } else {
+      showExitWarning()
+    }
+  }
+
+  fun confirmExit() {
+    dismissExitWarning()
+    viewModelScope.launch { _uiEffects.send(DataCollectionUiEffect.Exit) }
+  }
+
   fun handleLoiNameAction(action: LoiNameAction, taskId: String) {
     when (action) {
       is LoiNameAction.Confirmed -> {
@@ -273,7 +294,9 @@ internal constructor(
       if (taskValue?.isNotNullOrEmpty() == true) taskViewModel.validate() else null
 
     if (validationError != null) {
-      popups.get().ErrorPopup().show(validationError)
+      viewModelScope.launch {
+        _uiEffects.send(DataCollectionUiEffect.ShowValidationError(validationError))
+      }
     } else {
       updateDataAndInvalidateTasks(task, taskValue)
       moveToPreviousTask()
@@ -456,7 +479,7 @@ internal constructor(
   private inline fun validateOrShow(taskVm: AbstractTaskViewModel, onValid: () -> Unit) {
     val error = taskVm.validate()
     if (error != null) {
-      popups.get().ErrorPopup().show(error)
+      viewModelScope.launch { _uiEffects.send(DataCollectionUiEffect.ShowValidationError(error)) }
     } else {
       onValid()
     }
