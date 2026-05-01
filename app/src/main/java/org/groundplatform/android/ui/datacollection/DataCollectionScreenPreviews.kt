@@ -30,6 +30,8 @@ import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.locationofinterest.LoiReport
 import org.groundplatform.ui.theme.AppTheme
 
+private const val PAGER_CONTENT_TEXT = "Pager Content Area"
+
 @Preview(showBackground = true)
 @Composable
 @ExcludeFromJacocoGeneratedReport
@@ -41,7 +43,7 @@ private fun DataCollectionContentLoadingPreview() {
       onCloseClicked = {},
     ) {
       Box(modifier = Modifier.fillMaxSize().background(Color.LightGray)) {
-        Text(text = "Pager Content Area", modifier = Modifier.align(Alignment.Center))
+        Text(text = PAGER_CONTENT_TEXT, modifier = Modifier.align(Alignment.Center))
       }
     }
   }
@@ -62,7 +64,7 @@ private fun DataCollectionContentErrorPreview() {
       onCloseClicked = {},
     ) {
       Box(modifier = Modifier.fillMaxSize().background(Color.LightGray)) {
-        Text(text = "Pager Content Area", modifier = Modifier.align(Alignment.Center))
+        Text(text = PAGER_CONTENT_TEXT, modifier = Modifier.align(Alignment.Center))
       }
     }
   }
@@ -88,7 +90,7 @@ private fun DataCollectionContentPreview() {
       onCloseClicked = {},
     ) {
       Box(modifier = Modifier.fillMaxSize().background(Color.LightGray)) {
-        Text(text = "Pager Content Area", modifier = Modifier.align(Alignment.Center))
+        Text(text = PAGER_CONTENT_TEXT, modifier = Modifier.align(Alignment.Center))
       }
     }
   }
@@ -102,13 +104,13 @@ private fun DataCollectionContentCompletePreview() {
     DataCollectionContent(
       uiState =
         DataCollectionUiState.TaskSubmitted(
-          loiReport = LoiReport(loiName = "Point A", geoJson = JsonObject(mapOf()))
+          loiReport = LoiReport(loiName = "Point A", geoJson = JsonObject(mapOf())),
         ),
       footerVerticalPosition = 2000f,
       onCloseClicked = {},
     ) {
       Box(modifier = Modifier.fillMaxSize().background(Color.LightGray)) {
-        Text(text = "Pager Content Area", modifier = Modifier.align(Alignment.Center))
+        Text(text = PAGER_CONTENT_TEXT, modifier = Modifier.align(Alignment.Center))
       }
     }
   }

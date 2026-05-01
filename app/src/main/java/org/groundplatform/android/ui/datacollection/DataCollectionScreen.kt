@@ -52,13 +52,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.components.ConfirmationDialog
 
-object DataCollectionScreenTestTags {
-  const val TOOLBAR = "data_collection_toolbar"
-  const val LOADING_INDICATOR = "loading_indicator"
-  const val ERROR_MESSAGE = "error_message"
-  const val PROGRESS_BAR = "progress_bar"
-}
-
 /**
  * The main screen for data collection, coordinating the task sequence and host UI.
  *
@@ -103,6 +96,13 @@ fun DataCollectionScreen(
       onDismiss = { viewModel.dismissExitWarning() },
     )
   }
+}
+
+object DataCollectionScreenTestTags {
+  const val TOOLBAR = "data_collection_toolbar"
+  const val LOADING_INDICATOR = "loading_indicator"
+  const val ERROR_MESSAGE = "error_message"
+  const val PROGRESS_BAR = "progress_bar"
 }
 
 /**
@@ -218,10 +218,7 @@ private fun DataCollectionUiState.getTitle(): String =
 
 @Composable
 private fun DataCollectionUiState.getSubtitle(): String? =
-  when (this) {
-    is DataCollectionUiState.Ready -> loiName
-    else -> null
-  }
+  if (this is DataCollectionUiState.Ready) loiName else null
 
 @Composable
 private fun DataCollectionProgressBar(
