@@ -144,6 +144,20 @@ fun DataCollectionContent(
 }
 
 @Composable
+private fun DataCollectionToolbar(uiState: DataCollectionUiState, onCloseClicked: () -> Unit) {
+  Toolbar(
+    title = uiState.getTitle(),
+    subtitle = uiState.getSubtitle(),
+    modifier = Modifier.testTag("data_collection_toolbar"),
+    navigationIcon = {
+      IconButton(onClick = onCloseClicked) {
+        Icon(imageVector = Icons.Default.Close, contentDescription = "Close")
+      }
+    },
+  )
+}
+
+@Composable
 private fun LoadingContent(modifier: Modifier = Modifier) {
   CircularProgressIndicator(modifier = modifier.testTag("loading_indicator"))
 }
@@ -168,44 +182,21 @@ private fun ReadyContent(
   DataCollectionProgressBar(position, progressPositionY = footerVerticalPosition - boxPositionY)
 }
 
-/**
- * The toolbar for data collection, displaying title and subtitle based on state.
- *
- * @param uiState The current UI state.
- * @param onCloseClicked Callback when the close button is clicked.
- */
 @Composable
-private fun DataCollectionToolbar(uiState: DataCollectionUiState, onCloseClicked: () -> Unit) {
-  val title =
-    when (uiState) {
-      is DataCollectionUiState.TaskSubmitted -> stringResource(R.string.data_collection_complete)
-      is DataCollectionUiState.Ready -> uiState.job.name ?: ""
-      else -> ""
-    }
-  val subtitle =
-    when (uiState) {
-      is DataCollectionUiState.Ready -> uiState.loiName
-      else -> null
-    }
+private fun DataCollectionUiState.getTitle(): String =
+  when (this) {
+    is DataCollectionUiState.TaskSubmitted -> stringResource(R.string.data_collection_complete)
+    is DataCollectionUiState.Ready -> job.name ?: ""
+    else -> ""
+  }
 
-  Toolbar(
-    title = title,
-    subtitle = subtitle,
-    modifier = Modifier.testTag("data_collection_toolbar"),
-    navigationIcon = {
-      IconButton(onClick = onCloseClicked) {
-        Icon(imageVector = Icons.Default.Close, contentDescription = "Close")
-      }
-    },
-  )
-}
+@Composable
+private fun DataCollectionUiState.getSubtitle(): String? =
+  when (this) {
+    is DataCollectionUiState.Ready -> loiName
+    else -> null
+  }
 
-/**
- * Renders the progress bar with dynamic offset based on footer position.
- *
- * @param position Current task position.
- * @param progressPositionY The vertical position of the linear progress bar.
- */
 @Composable
 private fun DataCollectionProgressBar(position: TaskPosition, progressPositionY: Float) {
   val targetProgress = position.relativeIndex.toFloat() / (position.sequenceSize - 1)
