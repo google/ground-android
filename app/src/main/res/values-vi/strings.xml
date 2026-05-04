@@ -219,4 +219,7 @@
   <string name="share_location">Chia sẻ vị trí</string>
   <string name="scan_this_qr_to_download_geojson">Quét mã QR này để xem GeoJSON</string>
   <string name="share">Chia sẻ</string>
+
+  <string name="join_survey">Tham gia khảo sát</string>
+  <string name="invalid_survey_qr_code">Không nhận diện được mã QR khảo sát</string>
 </resources>

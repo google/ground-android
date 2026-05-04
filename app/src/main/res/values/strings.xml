@@ -246,5 +246,5 @@
   <string name="share">Share</string>
 
   <string name="join_survey">Join survey</string>
-  <string name="invalid_survey_qr_code">Invalid survey QR code</string>
+  <string name="invalid_survey_qr_code">Unrecognized survey QR code</string>
 </resources>

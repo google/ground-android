@@ -215,4 +215,7 @@
   <string name="share_location">ແບ່ງປັນຕຳແໜ່ງ</string>
   <string name="scan_this_qr_to_download_geojson">ສະແກນ QR ນີ້ເພື່ອເບິ່ງ GeoJSON</string>
   <string name="share">ແບ່ງປັນ</string>
+
+  <string name="join_survey">ເຂົ້າຮ່ວມແບບສຳຫຼວດ</string>
+  <string name="invalid_survey_qr_code">ບໍ່ຮັບຮູ້ລະຫັດ QR ແບບສຳຫຼວດນີ້</string>
 </resources>
