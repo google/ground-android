@@ -113,7 +113,7 @@ class GetLoiReportUseCase(
     return JsonArray(rings)
   }
 
-  /** Renders this [Double] as a JSON number with exactly 6 decimal digits */
+  /** Renders this [Double] as a JSON number with exactly 6 decimal digits. */
   private fun Double.roundTo6Decimals(): JsonPrimitive {
     val scaled = round(this * DECIMAL_SCALE).toLong()
     val sign = if (scaled < 0) "-" else ""
