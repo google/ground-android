@@ -16,34 +16,38 @@
 package org.groundplatform.android.system
 
 import android.content.Context
-import com.google.mlkit.common.MlKitException
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.tasks.await
-import org.groundplatform.domain.model.qrscanner.QrScanResult
+import kotlin.coroutines.resume
+import kotlinx.coroutines.suspendCancellableCoroutine
 
 @Singleton
 class GmsQrCodeScanner @Inject constructor(@ApplicationContext private val context: Context) {
 
-  suspend fun scan(): QrScanResult {
+  suspend fun scan(): Result = suspendCancellableCoroutine { coroutine ->
     val options =
       GmsBarcodeScannerOptions.Builder().setBarcodeFormats(Barcode.FORMAT_QR_CODE).build()
-    return runCatching { GmsBarcodeScanning.getClient(context, options).startScan().await() }
-      .fold(
-        onSuccess = { barcode ->
-          barcode.rawValue?.let(QrScanResult::Success) ?: QrScanResult.Cancelled
-        },
-        onFailure = { error ->
-          if (error is MlKitException && error.errorCode == MlKitException.CODE_SCANNER_CANCELLED) {
-            QrScanResult.Cancelled
-          } else {
-            QrScanResult.Error(error)
-          }
-        },
-      )
+    GmsBarcodeScanning.getClient(context, options)
+      .startScan()
+      .addOnSuccessListener { barcode ->
+        coroutine.resume(barcode.rawValue?.let(Result::Success) ?: Result.Cancelled)
+      }
+      .addOnCanceledListener { coroutine.resume(Result.Cancelled) }
+      .addOnFailureListener { e -> coroutine.resume(Result.Error(e)) }
+  }
+
+  sealed interface Result {
+    /** The scanner returned a decoded payload. */
+    data class Success(val text: String) : Result
+
+    /** The user dismissed the scanner without a successful scan. */
+    data object Cancelled : Result
+
+    /** The scan failed (camera unavailable, module install failure, etc.). */
+    data class Error(val cause: Throwable) : Result
   }
 }
