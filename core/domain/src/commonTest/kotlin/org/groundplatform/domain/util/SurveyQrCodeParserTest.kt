@@ -35,10 +35,7 @@ class SurveyQrCodeParserTest {
 
   @Test
   fun `tolerates surrounding whitespace`() {
-    assertEquals(
-      "testId",
-      parser("  https://groundplatform.org/android/survey/testId  "),
-    )
+    assertEquals("testId", parser("  https://groundplatform.org/android/survey/testId  "))
   }
 
   @Test
@@ -85,4 +82,3 @@ class SurveyQrCodeParserTest {
     assertNull(customParser("https://groundplatform.org/android/survey/testId"))
   }
 }
-
