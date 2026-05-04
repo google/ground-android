@@ -15,9 +15,8 @@
  */
 package org.groundplatform.domain.usecases
 
-import kotlin.math.abs
+import kotlin.math.absoluteValue
 import kotlin.math.round
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
@@ -34,7 +33,6 @@ import org.groundplatform.domain.model.locationofinterest.LOI_NAME_PROPERTY
 import org.groundplatform.domain.model.locationofinterest.LoiProperties
 import org.groundplatform.domain.model.locationofinterest.LoiReport
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
-import kotlin.math.absoluteValue
 
 /**
  * Use case that generates a [LoiReport] containing the LOI geometry and properties as a GeoJSON.
@@ -102,7 +100,7 @@ class GetLoiReportUseCase(
 
   /** Converts a single [Coordinates] to a GeoJSON position: [lng, lat]. */
   private fun coordinatesToPosition(coordinates: Coordinates): JsonArray =
-    JsonArray(listOf(coordinates.lng.toFixed6Json(), coordinates.lat.toFixed6Json()))
+    JsonArray(listOf(coordinates.lng.roundTo6Decimals(), coordinates.lat.roundTo6Decimals()))
 
   /** Converts a list of [Coordinates] to a GeoJSON array of positions. */
   private fun coordinatesToPositions(coordinates: List<Coordinates>): JsonArray =
@@ -116,7 +114,7 @@ class GetLoiReportUseCase(
   }
 
   /** Renders this [Double] as a JSON number with exactly 6 decimal digits */
-  private fun Double.toFixed6Json(): JsonPrimitive {
+  private fun Double.roundTo6Decimals(): JsonPrimitive {
     val scaled = round(this * DECIMAL_SCALE).toLong()
     val sign = if (scaled < 0) "-" else ""
     val absScaled = scaled.absoluteValue
