@@ -40,10 +40,9 @@ import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
 import org.groundplatform.android.usecases.survey.ListAvailableSurveysUseCase
 import org.groundplatform.android.usecases.survey.RemoveOfflineSurveyUseCase
-import org.groundplatform.domain.usecases.survey.ParseSurveyQrCodeUseCase
 import org.groundplatform.domain.model.SurveyListItem
-import org.groundplatform.domain.model.qrscanner.QrScanResult
 import org.groundplatform.domain.repository.UserRepositoryInterface
+import org.groundplatform.domain.util.SurveyQrCodeParser
 import timber.log.Timber
 
 /** Represents view state and behaviors of the survey selector dialog. */
@@ -56,7 +55,7 @@ internal constructor(
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
   listAvailableSurveysUseCase: ListAvailableSurveysUseCase,
   private val gmsQrCodeScanner: GmsQrCodeScanner,
-  private val parseSurveyQrCodeUseCase: ParseSurveyQrCodeUseCase,
+  private val parseSurveyQrCodeUseCase: SurveyQrCodeParser,
   private val removeOfflineSurveyUseCase: RemoveOfflineSurveyUseCase,
   private val userRepository: UserRepositoryInterface,
   savedStateHandle: SavedStateHandle,
@@ -132,7 +131,7 @@ internal constructor(
   fun scanQrCodeAndActivateSurvey() {
     viewModelScope.launch {
       when (val result = gmsQrCodeScanner.scan()) {
-        is QrScanResult.Success -> {
+        is GmsQrCodeScanner.Result.Success -> {
           val surveyId = parseSurveyQrCodeUseCase(result.text)
           if (surveyId == null) {
             _events.send(SurveySelectorEvent.ShowError(SurveySelectorEvent.ErrorType.InvalidQrCode))
@@ -140,10 +139,10 @@ internal constructor(
             activateSurvey(surveyId)
           }
         }
-        is QrScanResult.Cancelled -> {
+        is GmsQrCodeScanner.Result.Cancelled -> {
           /* Nothing to do */
         }
-        is QrScanResult.Error -> {
+        is GmsQrCodeScanner.Result.Error -> {
           Timber.e(result.cause, "QR scan failed")
           _events.send(SurveySelectorEvent.ShowError(result.cause.toSurveySelectorError()))
         }

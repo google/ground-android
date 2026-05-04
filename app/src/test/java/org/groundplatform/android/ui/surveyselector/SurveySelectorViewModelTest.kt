@@ -29,11 +29,10 @@ import org.groundplatform.android.system.GmsQrCodeScanner
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
 import org.groundplatform.android.usecases.survey.ListAvailableSurveysUseCase
 import org.groundplatform.android.usecases.survey.RemoveOfflineSurveyUseCase
-import org.groundplatform.domain.usecases.survey.ParseSurveyQrCodeUseCase
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.SurveyListItem
-import org.groundplatform.domain.model.qrscanner.QrScanResult
 import org.groundplatform.domain.repository.UserRepositoryInterface
+import org.groundplatform.domain.util.SurveyQrCodeParser
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,7 +47,7 @@ class SurveySelectorViewModelTest : BaseHiltTest() {
 
   @Mock lateinit var activateSurveyUseCase: ActivateSurveyUseCase
   @Mock lateinit var listAvailableSurveysUseCase: ListAvailableSurveysUseCase
-  @Mock lateinit var parseSurveyQrCodeUseCase: ParseSurveyQrCodeUseCase
+  @Mock lateinit var parseSurveyQrCodeUseCase: SurveyQrCodeParser
   @Mock lateinit var qrCodeScanner: GmsQrCodeScanner
   @Mock lateinit var removeOfflineSurveyUseCase: RemoveOfflineSurveyUseCase
   @Mock lateinit var userRepository: UserRepositoryInterface
@@ -129,7 +128,7 @@ class SurveySelectorViewModelTest : BaseHiltTest() {
   fun `scanQrCodeAndActivateSurvey activates parsed survey`() = runWithTestDispatcher {
     createViewModel()
     val payload = "https://groundplatform.org/android/survey/xyz"
-    whenever(qrCodeScanner.scan()).thenReturn(QrScanResult.Success(payload))
+    whenever(qrCodeScanner.scan()).thenReturn(GmsQrCodeScanner.Result.Success(payload))
     whenever(parseSurveyQrCodeUseCase(payload)).thenReturn("xyz")
     whenever(activateSurveyUseCase("xyz")).thenReturn(true)
 
@@ -142,7 +141,7 @@ class SurveySelectorViewModelTest : BaseHiltTest() {
   @Test
   fun `scanQrCodeAndActivateSurvey emits invalid event for bad payload`() = runWithTestDispatcher {
     createViewModel()
-    whenever(qrCodeScanner.scan()).thenReturn(QrScanResult.Success("not a url"))
+    whenever(qrCodeScanner.scan()).thenReturn(GmsQrCodeScanner.Result.Success("not a url"))
     whenever(parseSurveyQrCodeUseCase("not a url")).thenReturn(null)
 
     viewModel.events.test {
@@ -155,7 +154,7 @@ class SurveySelectorViewModelTest : BaseHiltTest() {
   @Test
   fun `scanQrCodeAndActivateSurvey is silent on cancellation`() = runWithTestDispatcher {
     createViewModel()
-    whenever(qrCodeScanner.scan()).thenReturn(QrScanResult.Cancelled)
+    whenever(qrCodeScanner.scan()).thenReturn(GmsQrCodeScanner.Result.Cancelled)
 
     viewModel.events.test {
       viewModel.scanQrCodeAndActivateSurvey()
@@ -167,7 +166,7 @@ class SurveySelectorViewModelTest : BaseHiltTest() {
   fun `scanQrCodeAndActivateSurvey surfaces scanner error`() = runWithTestDispatcher {
     createViewModel()
     val error = RuntimeException("camera unavailable")
-    whenever(qrCodeScanner.scan()).thenReturn(QrScanResult.Error(error))
+    whenever(qrCodeScanner.scan()).thenReturn(GmsQrCodeScanner.Result.Error(error))
 
     viewModel.events.test {
       viewModel.scanQrCodeAndActivateSurvey()
