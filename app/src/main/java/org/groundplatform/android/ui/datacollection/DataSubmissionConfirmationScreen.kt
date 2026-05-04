@@ -67,7 +67,6 @@ fun DataSubmissionConfirmationScreen(
     modifier
       .fillMaxSize()
       .background(MaterialTheme.colorScheme.surface)
-      .systemBarsPadding()
       .verticalScroll(rememberScrollState())
       .padding(horizontal = 48.dp)
   if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE) {

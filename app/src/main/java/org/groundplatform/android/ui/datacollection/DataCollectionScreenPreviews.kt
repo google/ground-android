@@ -32,7 +32,7 @@ import org.groundplatform.ui.theme.AppTheme
 
 private const val PAGER_CONTENT_TEXT = "Pager Content Area"
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
 @ExcludeFromJacocoGeneratedReport
 private fun DataCollectionContentLoadingPreview() {
@@ -49,7 +49,7 @@ private fun DataCollectionContentLoadingPreview() {
   }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
 @ExcludeFromJacocoGeneratedReport
 private fun DataCollectionContentErrorPreview() {
@@ -70,7 +70,7 @@ private fun DataCollectionContentErrorPreview() {
   }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
 @ExcludeFromJacocoGeneratedReport
 private fun DataCollectionContentPreview() {
@@ -84,9 +84,9 @@ private fun DataCollectionContentPreview() {
           tasks = emptyList(),
           isAddLoiFlow = false,
           currentTaskId = "task1",
-          position = TaskPosition(0, 1, 2),
+          position = TaskPosition(0, 1, 3),
         ),
-      footerVerticalPosition = 2000f,
+      footerVerticalPosition = 2100f,
       onCloseClicked = {},
     ) {
       Box(modifier = Modifier.fillMaxSize().background(Color.LightGray)) {
@@ -96,7 +96,7 @@ private fun DataCollectionContentPreview() {
   }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
 @ExcludeFromJacocoGeneratedReport
 private fun DataCollectionContentCompletePreview() {
@@ -104,7 +104,7 @@ private fun DataCollectionContentCompletePreview() {
     DataCollectionContent(
       uiState =
         DataCollectionUiState.TaskSubmitted(
-          loiReport = LoiReport(loiName = "Point A", geoJson = JsonObject(mapOf())),
+          loiReport = LoiReport(loiName = "Point A", geoJson = JsonObject(mapOf()))
         ),
       footerVerticalPosition = 2000f,
       onCloseClicked = {},

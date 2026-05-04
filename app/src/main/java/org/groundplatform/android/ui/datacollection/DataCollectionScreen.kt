@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android.ui.datacollection
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -98,6 +99,7 @@ fun DataCollectionScreen(
   }
 }
 
+@VisibleForTesting
 object DataCollectionScreenTestTags {
   const val TOOLBAR = "data_collection_toolbar"
   const val LOADING_INDICATOR = "loading_indicator"
@@ -137,7 +139,7 @@ fun DataCollectionContent(
             LoadingContent()
           }
           is DataCollectionUiState.Error -> {
-            ErrorContent(uiState.code)
+            ErrorContent()
           }
           is DataCollectionUiState.Ready -> {
             ReadyContent(
@@ -185,9 +187,9 @@ private fun LoadingContent(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun ErrorContent(code: DataCollectionErrorCode, modifier: Modifier = Modifier) {
+private fun ErrorContent(modifier: Modifier = Modifier) {
   Text(
-    text = "Error: $code",
+    text = stringResource(R.string.unexpected_error),
     modifier = modifier.testTag(DataCollectionScreenTestTags.ERROR_MESSAGE),
     color = MaterialTheme.colorScheme.error,
   )
