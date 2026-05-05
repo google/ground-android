@@ -24,6 +24,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.resume
 import kotlinx.coroutines.suspendCancellableCoroutine
+import timber.log.Timber
 
 @Singleton
 class GmsQrCodeScanner @Inject constructor(@ApplicationContext private val context: Context) {
@@ -34,10 +35,17 @@ class GmsQrCodeScanner @Inject constructor(@ApplicationContext private val conte
     GmsBarcodeScanning.getClient(context, options)
       .startScan()
       .addOnSuccessListener { barcode ->
+        Timber.d("Scanned QR code with raw value: ${barcode.rawValue}")
         coroutine.resume(barcode.rawValue?.let(Result::Success) ?: Result.Cancelled)
       }
-      .addOnCanceledListener { coroutine.resume(Result.Cancelled) }
-      .addOnFailureListener { e -> coroutine.resume(Result.Error(e)) }
+      .addOnCanceledListener {
+        Timber.d("QR code scan cancelled by user")
+        coroutine.resume(Result.Cancelled)
+      }
+      .addOnFailureListener { e ->
+        Timber.e(e, "QR code scan failed with exception")
+        coroutine.resume(Result.Error(e))
+      }
   }
 
   sealed interface Result {
