@@ -137,8 +137,13 @@ private fun DataCollectionToolbar(uiState: DataCollectionUiState, onCloseClicked
     title = {
       Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(text = uiState.getTitle(), textAlign = TextAlign.Center)
-        uiState.getSubtitle()?.let {
-          Text(text = it, style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center)
+        val subtitle = uiState.getSubtitle()
+        if (!subtitle.isNullOrBlank()) {
+          Text(
+            text = subtitle,
+            style = MaterialTheme.typography.bodySmall,
+            textAlign = TextAlign.Center,
+          )
         }
       }
     },
