@@ -18,7 +18,6 @@ package org.groundplatform.android.ui.datacollection
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -61,6 +60,7 @@ import org.groundplatform.domain.repository.SubmissionRepositoryInterface
 import org.groundplatform.domain.usecases.GetLoiReportUseCase
 import org.groundplatform.domain.usecases.submission.SubmitDataUseCase
 import timber.log.Timber
+import javax.inject.Inject
 
 sealed interface DataCollectionUiEffect {
   data object Exit : DataCollectionUiEffect
@@ -90,10 +90,6 @@ internal constructor(
 
   private val _dataCollectionEvents =
     MutableSharedFlow<DataCollectionEvent>(extraBufferCapacity = 1)
-
-  /** The current vertical position of the task view footer. */
-  private val _footerVerticalPosition = MutableStateFlow(0.0f)
-  val footerVerticalPosition: StateFlow<Float> = _footerVerticalPosition
 
   private val _uiState = MutableStateFlow<DataCollectionUiState>(DataCollectionUiState.Loading)
   val uiState: StateFlow<DataCollectionUiState> = _uiState
@@ -489,12 +485,6 @@ internal constructor(
     uiState
       .map { (it as? DataCollectionUiState.Ready)?.currentTaskId == taskId }
       .distinctUntilChanged()
-
-  fun updateFooterPosition(taskId: String, top: Float) {
-    if (withReadyOrNull { it.currentTaskId } == taskId) {
-      _footerVerticalPosition.value = top
-    }
-  }
 
   companion object {
     private const val TASK_JOB_ID_KEY = "jobId"

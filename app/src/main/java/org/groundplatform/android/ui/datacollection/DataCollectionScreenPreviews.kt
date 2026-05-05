@@ -37,11 +37,7 @@ private const val PAGER_CONTENT_TEXT = "Pager Content Area"
 @ExcludeFromJacocoGeneratedReport
 private fun DataCollectionContentLoadingPreview() {
   AppTheme {
-    DataCollectionContent(
-      uiState = DataCollectionUiState.Loading,
-      footerVerticalPosition = 100f,
-      onCloseClicked = {},
-    ) {
+    DataCollectionContent(uiState = DataCollectionUiState.Loading, onCloseClicked = {}) {
       Box(modifier = Modifier.fillMaxSize().background(Color.LightGray)) {
         Text(text = PAGER_CONTENT_TEXT, modifier = Modifier.align(Alignment.Center))
       }
@@ -60,7 +56,6 @@ private fun DataCollectionContentErrorPreview() {
           code = DataCollectionErrorCode.NO_VALID_TASKS,
           cause = Error("Some error"),
         ),
-      footerVerticalPosition = 100f,
       onCloseClicked = {},
     ) {
       Box(modifier = Modifier.fillMaxSize().background(Color.LightGray)) {
@@ -86,7 +81,6 @@ private fun DataCollectionContentPreview() {
           currentTaskId = "task1",
           position = TaskPosition(0, 1, 3),
         ),
-      footerVerticalPosition = 2100f,
       onCloseClicked = {},
     ) {
       Box(modifier = Modifier.fillMaxSize().background(Color.LightGray)) {
@@ -106,7 +100,6 @@ private fun DataCollectionContentCompletePreview() {
         DataCollectionUiState.TaskSubmitted(
           loiReport = LoiReport(loiName = "Point A", geoJson = JsonObject(mapOf()))
         ),
-      footerVerticalPosition = 2000f,
       onCloseClicked = {},
     ) {
       Box(modifier = Modifier.fillMaxSize().background(Color.LightGray)) {

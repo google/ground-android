@@ -16,13 +16,9 @@
 package org.groundplatform.android.ui.datacollection
 
 import androidx.annotation.VisibleForTesting
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -31,24 +27,17 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.components.ConfirmationDialog
@@ -67,7 +56,6 @@ fun DataCollectionScreen(
   onValidationError: (resId: Int) -> Unit,
   onExitConfirmed: () -> Unit,
 ) {
-  val footerVerticalPosition by viewModel.footerVerticalPosition.collectAsStateWithLifecycle()
   val showExitWarningDialog by viewModel.showExitWarning.collectAsStateWithLifecycle()
   val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -80,11 +68,7 @@ fun DataCollectionScreen(
     }
   }
 
-  DataCollectionContent(
-    uiState = uiState,
-    footerVerticalPosition = footerVerticalPosition,
-    onCloseClicked = { viewModel.onCloseClicked() },
-  ) {
+  DataCollectionContent(uiState = uiState, onCloseClicked = { viewModel.onCloseClicked() }) {
     DataCollectionViewPager(uiState, fragment)
   }
 
@@ -112,26 +96,19 @@ object DataCollectionScreenTestTags {
  * bar.
  *
  * @param uiState The current UI state.
- * @param footerVerticalPosition The vertical position of the footer.
  * @param onCloseClicked Callback when the close button is clicked.
  * @param pagerContent The content Composable for the pager area.
  */
 @Composable
 fun DataCollectionContent(
   uiState: DataCollectionUiState,
-  footerVerticalPosition: Float,
   onCloseClicked: () -> Unit,
   pagerContent: @Composable () -> Unit,
 ) {
   Scaffold(topBar = { DataCollectionToolbar(uiState, onCloseClicked) }) { innerPadding ->
     Column(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
-      var boxPositionY by remember { mutableFloatStateOf(0f) }
-
       Box(
-        modifier =
-          Modifier.weight(1f).align(Alignment.CenterHorizontally).onGloballyPositioned {
-            boxPositionY = it.positionInWindow().y
-          },
+        modifier = Modifier.weight(1f).align(Alignment.CenterHorizontally),
         contentAlignment = Alignment.Center,
       ) {
         when (uiState) {
@@ -142,12 +119,7 @@ fun DataCollectionContent(
             ErrorContent()
           }
           is DataCollectionUiState.Ready -> {
-            ReadyContent(
-              position = uiState.position,
-              footerVerticalPosition = footerVerticalPosition,
-              boxPositionY = boxPositionY,
-              pagerContent = pagerContent,
-            )
+            ReadyContent(pagerContent = pagerContent)
           }
           is DataCollectionUiState.TaskSubmitted -> {
             DataSubmissionConfirmationScreen(loiReport = uiState.loiReport) { onCloseClicked() }
@@ -188,26 +160,17 @@ private fun LoadingContent(modifier: Modifier = Modifier) {
 
 @Composable
 private fun ErrorContent(modifier: Modifier = Modifier) {
-  Text(
-    text = stringResource(R.string.unexpected_error),
+  Column(
     modifier = modifier.testTag(DataCollectionScreenTestTags.ERROR_MESSAGE),
-    color = MaterialTheme.colorScheme.error,
-  )
+    horizontalAlignment = Alignment.CenterHorizontally,
+  ) {
+    Text(text = stringResource(R.string.unexpected_error), color = MaterialTheme.colorScheme.error)
+  }
 }
 
 @Composable
-private fun BoxScope.ReadyContent(
-  position: TaskPosition,
-  footerVerticalPosition: Float,
-  boxPositionY: Float,
-  pagerContent: @Composable () -> Unit,
-) {
+private fun ReadyContent(pagerContent: @Composable () -> Unit) {
   pagerContent()
-  DataCollectionProgressBar(
-    position,
-    progressPositionY = footerVerticalPosition - boxPositionY,
-    modifier = Modifier.align(Alignment.TopCenter),
-  )
 }
 
 @Composable
@@ -221,22 +184,3 @@ private fun DataCollectionUiState.getTitle(): String =
 @Composable
 private fun DataCollectionUiState.getSubtitle(): String? =
   if (this is DataCollectionUiState.Ready) loiName else null
-
-@Composable
-private fun DataCollectionProgressBar(
-  position: TaskPosition,
-  progressPositionY: Float,
-  modifier: Modifier = Modifier,
-) {
-  val targetProgress = position.relativeIndex.toFloat() / (position.sequenceSize - 1)
-  val progress by animateFloatAsState(targetValue = targetProgress)
-
-  LinearProgressIndicator(
-    progress = { progress },
-    modifier =
-      modifier
-        .fillMaxWidth()
-        .offset { IntOffset(0, progressPositionY.toInt()) }
-        .testTag(DataCollectionScreenTestTags.PROGRESS_BAR),
-  )
-}

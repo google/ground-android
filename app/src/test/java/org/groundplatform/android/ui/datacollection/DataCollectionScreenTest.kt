@@ -15,9 +15,7 @@
  */
 package org.groundplatform.android.ui.datacollection
 
-import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertRangeInfoEquals
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -53,14 +51,12 @@ class DataCollectionScreenTest {
   @Mock private lateinit var mockAdapter: DataCollectionViewPagerAdapter
 
   private val uiState = MutableStateFlow<DataCollectionUiState>(DataCollectionUiState.Loading)
-  private val footerVerticalPosition = MutableStateFlow(0f)
   private val showExitWarning = MutableStateFlow(false)
   private val uiEffects = MutableSharedFlow<DataCollectionUiEffect>()
 
   @Before
   fun setUp() {
     whenever(mockViewModel.uiState).doReturn(uiState)
-    whenever(mockViewModel.footerVerticalPosition).doReturn(footerVerticalPosition)
     whenever(mockViewModel.showExitWarning).doReturn(showExitWarning)
     whenever(mockViewModel.uiEffects).doReturn(uiEffects)
 
@@ -113,27 +109,6 @@ class DataCollectionScreenTest {
     composeTestRule
       .onNodeWithText(getString(R.string.data_collection_complete_details))
       .assertIsDisplayed()
-  }
-
-  @Test
-  fun `Progress bar updates correctly when navigating between tasks`() {
-    uiState.value = READY_STATE.copy(position = TaskPosition(0, 0, 2))
-
-    setContent()
-
-    // First task (0% progress)
-    composeTestRule
-      .onNodeWithTag(DataCollectionScreenTestTags.PROGRESS_BAR)
-      .assertRangeInfoEquals(ProgressBarRangeInfo(0.0f, 0.0f..1.0f))
-
-    // Update state to next task
-    uiState.value = READY_STATE.copy(position = TaskPosition(1, 1, 2))
-    composeTestRule.waitForIdle()
-
-    // Second task (100% progress)
-    composeTestRule
-      .onNodeWithTag(DataCollectionScreenTestTags.PROGRESS_BAR)
-      .assertRangeInfoEquals(ProgressBarRangeInfo(1.0f, 0.0f..1.0f))
   }
 
   @Test

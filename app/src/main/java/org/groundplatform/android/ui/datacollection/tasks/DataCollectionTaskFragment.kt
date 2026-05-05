@@ -24,6 +24,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.AbstractFragment
+import org.groundplatform.android.ui.datacollection.DataCollectionUiState
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.datacollection.LoiNameAction
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
@@ -69,13 +70,12 @@ class DataCollectionTaskFragment @Inject constructor() : AbstractFragment() {
   @Inject
   lateinit var captureLocationTaskMapFragmentProvider: Provider<CaptureLocationTaskMapFragment>
 
-  @Inject
-  lateinit var dropPinTaskMapFragmentProvider: Provider<DropPinTaskMapFragment>
+  @Inject lateinit var dropPinTaskMapFragmentProvider: Provider<DropPinTaskMapFragment>
 
-  @Inject
-  lateinit var drawAreaTaskMapFragmentProvider: Provider<DrawAreaTaskMapFragment>
+  @Inject lateinit var drawAreaTaskMapFragmentProvider: Provider<DrawAreaTaskMapFragment>
 
-  private val dataCollectionViewModel: DataCollectionViewModel by hiltNavGraphViewModels(R.id.data_collection)
+  private val dataCollectionViewModel: DataCollectionViewModel by
+    hiltNavGraphViewModels(R.id.data_collection)
 
   private val homeScreenViewModel: HomeScreenViewModel by lazy {
     getViewModel(HomeScreenViewModel::class.java)
@@ -97,14 +97,10 @@ class DataCollectionTaskFragment @Inject constructor() : AbstractFragment() {
   ) = createComposeView {
     val loiName by dataCollectionViewModel.loiNameDraft.collectAsStateWithLifecycle()
     val showLoiNameDialog by dataCollectionViewModel.loiNameDialogOpen.collectAsStateWithLifecycle()
+    val uiState by dataCollectionViewModel.uiState.collectAsStateWithLifecycle()
+    val taskPosition = (uiState as? DataCollectionUiState.Ready)?.position
 
-    val onButtonClicked = { action: ButtonAction ->
-      viewModel.onButtonClick(action)
-    }
-
-    val onFooterPositionUpdated = { top: Float ->
-      dataCollectionViewModel.updateFooterPosition(taskId, top)
-    }
+    val onButtonClicked = { action: ButtonAction -> viewModel.onButtonClick(action) }
 
     val onLoiNameAction = { action: LoiNameAction ->
       dataCollectionViewModel.handleLoiNameAction(action, taskId)
@@ -114,8 +110,8 @@ class DataCollectionTaskFragment @Inject constructor() : AbstractFragment() {
       is CaptureLocationTaskViewModel ->
         CaptureLocationTaskScreen(
           viewModel = vm,
+          taskPosition = taskPosition,
           onButtonClicked = onButtonClicked,
-          onFooterPositionUpdated = onFooterPositionUpdated,
           onOpenSettings = { requireActivity().openAppSettings() },
         ) {
           TaskMapFragmentContainer(
@@ -125,17 +121,18 @@ class DataCollectionTaskFragment @Inject constructor() : AbstractFragment() {
           )
         }
 
-      is DateTaskViewModel -> DateTaskScreen(
-        viewModel = vm,
-        onButtonClicked = onButtonClicked,
-        onFooterPositionUpdated = onFooterPositionUpdated,
-      )
+      is DateTaskViewModel ->
+        DateTaskScreen(
+          viewModel = vm,
+          taskPosition = taskPosition,
+          onButtonClicked = onButtonClicked,
+        )
 
       is DrawAreaTaskViewModel ->
         DrawAreaTaskScreen(
           viewModel = vm,
+          taskPosition = taskPosition,
           onButtonClicked = onButtonClicked,
-          onFooterPositionUpdated = onFooterPositionUpdated,
           onLoiNameAction = onLoiNameAction,
           loiName = loiName,
           shouldShowLoiNameDialog = showLoiNameDialog,
@@ -150,8 +147,8 @@ class DataCollectionTaskFragment @Inject constructor() : AbstractFragment() {
       is DropPinTaskViewModel ->
         DropPinTaskScreen(
           viewModel = vm,
+          taskPosition = taskPosition,
           onButtonClicked = onButtonClicked,
-          onFooterPositionUpdated = onFooterPositionUpdated,
           onLoiNameAction = onLoiNameAction,
           loiName = loiName,
           shouldShowLoiNameDialog = showLoiNameDialog,
@@ -163,43 +160,48 @@ class DataCollectionTaskFragment @Inject constructor() : AbstractFragment() {
           )
         }
 
-      is InstructionTaskViewModel -> InstructionTaskScreen(
-        viewModel = vm,
-        onButtonClicked = onButtonClicked,
-        onFooterPositionUpdated = onFooterPositionUpdated,
-      )
+      is InstructionTaskViewModel ->
+        InstructionTaskScreen(
+          viewModel = vm,
+          taskPosition = taskPosition,
+          onButtonClicked = onButtonClicked,
+        )
 
-      is MultipleChoiceTaskViewModel -> MultipleChoiceTaskScreen(
-        viewModel = vm,
-        onButtonClicked = onButtonClicked,
-        onFooterPositionUpdated = onFooterPositionUpdated,
-      )
+      is MultipleChoiceTaskViewModel ->
+        MultipleChoiceTaskScreen(
+          viewModel = vm,
+          taskPosition = taskPosition,
+          onButtonClicked = onButtonClicked,
+        )
 
       is PhotoTaskViewModel ->
         PhotoTaskScreen(
           viewModel = vm,
+          taskPosition = taskPosition,
           onButtonClicked = onButtonClicked,
-          onFooterPositionUpdated = onFooterPositionUpdated,
           onAwaitingPhotoCapture = { homeScreenViewModel.awaitingPhotoCapture = it },
         )
 
-      is NumberTaskViewModel -> NumberTaskScreen(
-        viewModel = vm,
-        onButtonClicked = onButtonClicked,
-        onFooterPositionUpdated = onFooterPositionUpdated,
-      )
+      is NumberTaskViewModel ->
+        NumberTaskScreen(
+          viewModel = vm,
+          taskPosition = taskPosition,
+          onButtonClicked = onButtonClicked,
+        )
 
-      is TextTaskViewModel -> TextTaskScreen(
-        viewModel = vm,
-        onButtonClicked = onButtonClicked,
-        onFooterPositionUpdated = onFooterPositionUpdated,
-      )
+      is TextTaskViewModel ->
+        TextTaskScreen(
+          viewModel = vm,
+          taskPosition = taskPosition,
+          onButtonClicked = onButtonClicked,
+        )
 
-      is TimeTaskViewModel -> TimeTaskScreen(
-        viewModel = vm,
-        onButtonClicked = onButtonClicked,
-        onFooterPositionUpdated = onFooterPositionUpdated,
-      )
+      is TimeTaskViewModel ->
+        TimeTaskScreen(
+          viewModel = vm,
+          taskPosition = taskPosition,
+          onButtonClicked = onButtonClicked,
+        )
 
       else -> error("Unsupported task type: ${viewModel.task.type}")
     }
