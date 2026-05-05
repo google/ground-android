@@ -55,7 +55,7 @@ internal constructor(
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
   listAvailableSurveysUseCase: ListAvailableSurveysUseCase,
   private val gmsQrCodeScanner: GmsQrCodeScanner,
-  private val parseSurveyQrCodeUseCase: SurveyQrCodeParser,
+  private val surveyQrCodeParser: SurveyQrCodeParser,
   private val removeOfflineSurveyUseCase: RemoveOfflineSurveyUseCase,
   private val userRepository: UserRepositoryInterface,
   savedStateHandle: SavedStateHandle,
@@ -63,7 +63,7 @@ internal constructor(
 
   private val surveyIdToActivate: String? = savedStateHandle["surveyId"]
 
-  private val _events = Channel<SurveySelectorEvent>()
+  private val _events = Channel<SurveySelectorEvent>(Channel.BUFFERED)
   val events = _events.receiveAsFlow()
 
   private val _isActivating = MutableStateFlow(false)
@@ -132,7 +132,7 @@ internal constructor(
     viewModelScope.launch {
       when (val result = gmsQrCodeScanner.scan()) {
         is GmsQrCodeScanner.Result.Success -> {
-          val surveyId = parseSurveyQrCodeUseCase(result.text)
+          val surveyId = surveyQrCodeParser(result.text)
           if (surveyId == null) {
             _events.send(SurveySelectorEvent.ShowError(SurveySelectorEvent.ErrorType.InvalidQrCode))
           } else {
@@ -143,7 +143,6 @@ internal constructor(
           /* Nothing to do */
         }
         is GmsQrCodeScanner.Result.Error -> {
-          Timber.e(result.cause, "QR scan failed")
           _events.send(SurveySelectorEvent.ShowError(result.cause.toSurveySelectorError()))
         }
       }

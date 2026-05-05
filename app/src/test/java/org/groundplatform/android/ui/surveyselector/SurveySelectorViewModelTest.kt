@@ -19,11 +19,16 @@ import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.withTimeout
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.system.GmsQrCodeScanner
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
@@ -116,12 +121,54 @@ class SurveySelectorViewModelTest : BaseHiltTest() {
   }
 
   @Test
+  fun `activateSurvey emits Generic error when use case returns false`() = runWithTestDispatcher {
+    createViewModel()
+    whenever(activateSurveyUseCase("1")).thenReturn(false)
+
+    viewModel.events.test {
+      viewModel.activateSurvey("1")
+      val event = awaitItem()
+      assertThat(event).isInstanceOf(SurveySelectorEvent.ShowError::class.java)
+      val errorType = (event as SurveySelectorEvent.ShowError).errorType
+      assertThat(errorType).isInstanceOf(SurveySelectorEvent.ErrorType.Generic::class.java)
+      assertThat((errorType as SurveySelectorEvent.ErrorType.Generic).cause)
+    }
+  }
+
+  @Test
+  fun `activateSurvey emits Timeout when use case throws TimeoutCancellationException`() =
+    runWithTestDispatcher {
+      createViewModel()
+      val timeout = assertFailsWith<TimeoutCancellationException> { withTimeout(1) { delay(2) } }
+      whenever(activateSurveyUseCase("1")).thenThrow(timeout)
+
+      viewModel.events.test {
+        viewModel.activateSurvey("1")
+        assertThat(awaitItem())
+          .isEqualTo(SurveySelectorEvent.ShowError(SurveySelectorEvent.ErrorType.Timeout))
+      }
+    }
+
+  @Test
   fun `activateSurvey from deeplink works correctly`() = runWithTestDispatcher {
     val savedState = SavedStateHandle(mapOf("surveyId" to "deeplink-id"))
     whenever(activateSurveyUseCase("deeplink-id")).thenReturn(true)
     createViewModel(savedStateHandle = savedState)
 
     viewModel.events.test { assertThat(awaitItem()).isEqualTo(SurveySelectorEvent.NavigateToHome) }
+  }
+
+  @Test
+  fun `activateSurvey from deeplink shows error on failure`() = runWithTestDispatcher {
+    val savedState = SavedStateHandle(mapOf("surveyId" to "bad-id"))
+    val error = RuntimeException("activation failed")
+    whenever(activateSurveyUseCase("bad-id")).thenThrow(error)
+    createViewModel(savedStateHandle = savedState)
+
+    viewModel.events.test {
+      assertThat(awaitItem())
+        .isEqualTo(SurveySelectorEvent.ShowError(SurveySelectorEvent.ErrorType.Generic(error)))
+    }
   }
 
   @Test
@@ -163,26 +210,30 @@ class SurveySelectorViewModelTest : BaseHiltTest() {
   }
 
   @Test
-  fun `scanQrCodeAndActivateSurvey surfaces scanner error`() = runWithTestDispatcher {
-    createViewModel()
-    val error = RuntimeException("camera unavailable")
-    whenever(qrCodeScanner.scan()).thenReturn(GmsQrCodeScanner.Result.Error(error))
+  fun `scanQrCodeAndActivateSurvey emits generic error when there's a problem scanning`() =
+    runWithTestDispatcher {
+      createViewModel()
+      val error = RuntimeException("camera unavailable")
+      whenever(qrCodeScanner.scan()).thenReturn(GmsQrCodeScanner.Result.Error(error))
 
-    viewModel.events.test {
-      viewModel.scanQrCodeAndActivateSurvey()
-      assertThat(awaitItem())
-        .isEqualTo(SurveySelectorEvent.ShowError(SurveySelectorEvent.ErrorType.Generic(error)))
+      viewModel.events.test {
+        viewModel.scanQrCodeAndActivateSurvey()
+        assertThat(awaitItem())
+          .isEqualTo(SurveySelectorEvent.ShowError(SurveySelectorEvent.ErrorType.Generic(error)))
+      }
     }
-  }
 
   @Test
-  fun `activateSurvey from deeplink shows error on failure`() = runWithTestDispatcher {
-    val savedState = SavedStateHandle(mapOf("surveyId" to "bad-id"))
-    val error = RuntimeException("activation failed")
-    whenever(activateSurveyUseCase("bad-id")).thenThrow(error)
-    createViewModel(savedStateHandle = savedState)
+  fun `surveyList failure emits Generic error event`() = runWithTestDispatcher {
+    val error = RuntimeException()
+    whenever(listAvailableSurveysUseCase()).thenReturn(flow { throw error })
+    createViewModel()
 
     viewModel.events.test {
+      viewModel.uiState.test {
+        awaitItem()
+        cancelAndIgnoreRemainingEvents()
+      }
       assertThat(awaitItem())
         .isEqualTo(SurveySelectorEvent.ShowError(SurveySelectorEvent.ErrorType.Generic(error)))
     }
