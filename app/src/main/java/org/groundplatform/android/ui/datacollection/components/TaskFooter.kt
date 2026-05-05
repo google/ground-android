@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android.ui.datacollection.components
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -34,6 +35,8 @@ import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.datacollection.TaskPosition
 import org.groundplatform.android.ui.datacollection.tasks.location.LocationAccuracyCard
 import org.groundplatform.ui.theme.AppTheme
+
+@VisibleForTesting const val PROGRESS_BAR_TAG = "task_footer_progress_bar"
 
 @Composable
 fun TaskFooter(
@@ -68,7 +71,7 @@ private fun TaskProgressBar(position: TaskPosition) {
 
   LinearProgressIndicator(
     progress = { progress },
-    modifier = Modifier.fillMaxWidth().testTag("progress_bar"),
+    modifier = Modifier.fillMaxWidth().testTag(PROGRESS_BAR_TAG),
   )
 }
 

@@ -88,7 +88,6 @@ object DataCollectionScreenTestTags {
   const val TOOLBAR = "data_collection_toolbar"
   const val LOADING_INDICATOR = "loading_indicator"
   const val ERROR_MESSAGE = "error_message"
-  const val PROGRESS_BAR = "progress_bar"
 }
 
 /**

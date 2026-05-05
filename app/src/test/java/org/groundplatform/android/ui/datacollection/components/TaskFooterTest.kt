@@ -85,7 +85,7 @@ class TaskFooterTest {
       )
     }
 
-    composeTestRule.onNodeWithTag("progress_bar").assertIsDisplayed()
+    composeTestRule.onNodeWithTag(PROGRESS_BAR_TAG).assertIsDisplayed()
   }
 
   @Test
@@ -100,6 +100,6 @@ class TaskFooterTest {
       )
     }
 
-    composeTestRule.onNodeWithTag("progress_bar").assertDoesNotExist()
+    composeTestRule.onNodeWithTag(PROGRESS_BAR_TAG).assertDoesNotExist()
   }
 }
