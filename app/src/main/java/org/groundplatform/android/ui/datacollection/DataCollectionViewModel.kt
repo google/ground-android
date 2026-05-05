@@ -19,11 +19,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
-import javax.inject.Provider
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -38,6 +38,7 @@ import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.common.EphemeralPopups
 import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
+import org.groundplatform.android.ui.datacollection.tasks.DataCollectionEvent
 import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 import org.groundplatform.android.ui.datacollection.tasks.date.DateTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.instruction.InstructionTaskViewModel
@@ -58,8 +59,11 @@ import org.groundplatform.domain.repository.SubmissionRepositoryInterface
 import org.groundplatform.domain.usecases.GetLoiReportUseCase
 import org.groundplatform.domain.usecases.submission.SubmitDataUseCase
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Provider
 
 /** View model for the Data Collection fragment. */
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class DataCollectionViewModel
 @Inject
@@ -75,6 +79,9 @@ internal constructor(
   private val dataCollectionInitializer: DataCollectionInitializer,
   private val getLoiReportUseCase: GetLoiReportUseCase,
 ) : AbstractViewModel() {
+
+  private val _dataCollectionEvents =
+    MutableSharedFlow<DataCollectionEvent>(extraBufferCapacity = 1)
 
   /** The current vertical position of the task view footer. */
   private val _footerVerticalPosition = MutableStateFlow(0.0f)
@@ -121,9 +128,21 @@ internal constructor(
       }
       _uiState.value = initResult
     }
+
+    viewModelScope.launch {
+      _dataCollectionEvents.collect { event ->
+        withReadyOrNull { it.currentTaskId }?.let { taskId ->
+          when (event) {
+            DataCollectionEvent.NavigatePrevious -> onPreviousClicked(taskId)
+            DataCollectionEvent.NavigateNext -> onNextClicked(taskId)
+            DataCollectionEvent.ShowLoiDialog -> openLoiNameDialog()
+          }
+        }
+      }
+    }
   }
 
-  fun setLoiName(name: String) {
+  private fun setLoiName(name: String) {
     savedStateHandle[TASK_LOI_NAME_KEY] = name
     _uiState.update { state ->
       (state as? DataCollectionUiState.Ready)?.copy(loiName = name) ?: state
@@ -134,7 +153,7 @@ internal constructor(
     _loiNameDraft.value = name
   }
 
-  fun getLoiName(): String {
+  private fun getLoiName(): String {
     val state = uiState.value
     return (state as? DataCollectionUiState.Ready)?.loiName ?: getTypedLoiNameOrEmpty()
   }
@@ -152,6 +171,23 @@ internal constructor(
   fun dismissLoiNameDialog(initialName: String) {
     loiNameDialogOpen.value = false
     setLoiNameDraft(initialName)
+  }
+
+  fun handleLoiNameAction(action: LoiNameAction, taskId: String) {
+    when (action) {
+      is LoiNameAction.Confirmed -> {
+        if (action.name.isNotBlank()) {
+          confirmLoiName(action.name)
+          onNextClicked(taskId)
+        }
+      }
+      is LoiNameAction.Dismissed -> {
+        dismissLoiNameDialog(getLoiName())
+      }
+      is LoiNameAction.Changed -> {
+        setLoiNameDraft(action.name)
+      }
+    }
   }
 
   private fun isFirstPosition(taskId: String): Boolean =
@@ -173,8 +209,6 @@ internal constructor(
     clearDraft()
   }
 
-  fun requireSurveyId(): String = withReady { it.surveyId }
-
   fun saveCurrentState() {
     if (!isReady() || !draftsEnabled) return
 
@@ -192,7 +226,8 @@ internal constructor(
     moveToTask(withReady { taskSequenceHandler.getPreviousTask(it.currentTaskId) })
   }
 
-  fun onNextClicked(taskViewModel: AbstractTaskViewModel) = withReady { st ->
+  fun onNextClicked(taskId: String) = withReady { uiState ->
+    val taskViewModel = getTaskViewModel(taskId) ?: return@withReady
     validateOrShow(taskViewModel) {
       val task = taskViewModel.task
       val value = taskViewModel.taskTaskData.value
@@ -203,12 +238,12 @@ internal constructor(
       } else {
         clearDraft()
         externalScope.launch(ioDispatcher) {
-          val submittedLoiId = saveChanges(st, getDeltas())
+          val submittedLoiId = saveChanges(uiState, getDeltas())
           val loiReport =
             getLoiReportUseCase.invoke(
               loiName = getTypedLoiNameOrEmpty(),
               loiId = submittedLoiId,
-              surveyId = st.surveyId,
+              surveyId = uiState.surveyId,
             )
           _uiState.value = DataCollectionUiState.TaskSubmitted(loiReport)
         }
@@ -216,7 +251,8 @@ internal constructor(
     }
   }
 
-  fun onPreviousClicked(taskViewModel: AbstractTaskViewModel) = withReady { _ ->
+  fun onPreviousClicked(taskId: String) = withReady { _ ->
+    val taskViewModel = getTaskViewModel(taskId) ?: return@withReady
     val task = taskViewModel.task
     val taskValue = taskViewModel.taskTaskData.value
 
@@ -264,6 +300,7 @@ internal constructor(
               isLastPositionWithValue(task, taskData)
           },
         surveyId = state.surveyId,
+        eventReporter = { _dataCollectionEvents.tryEmit(it) },
       )
       updateDataAndInvalidateTasks(task, taskData)
       taskViewModels.value[task.id] = created
@@ -417,8 +454,10 @@ internal constructor(
       .map { (it as? DataCollectionUiState.Ready)?.currentTaskId == taskId }
       .distinctUntilChanged()
 
-  fun updateFooterPosition(top: Float) {
-    _footerVerticalPosition.value = top
+  fun updateFooterPosition(taskId: String, top: Float) {
+    if (withReadyOrNull { it.currentTaskId } == taskId) {
+      _footerVerticalPosition.value = top
+    }
   }
 
   companion object {

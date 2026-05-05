@@ -655,6 +655,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
           override fun isLastWithValue(taskData: TaskData?) = false
         },
       surveyId = "survey_id",
+      eventReporter = {},
     )
   }
 

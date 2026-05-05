@@ -40,6 +40,7 @@ import org.groundplatform.android.ui.common.SharedViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.AbstractMapTaskViewModel
+import org.groundplatform.android.ui.datacollection.tasks.DataCollectionEvent
 import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.util.LocaleAwareMeasureFormatter
@@ -112,7 +113,7 @@ internal constructor(
   val cameraMoveEvents = _cameraMoveEvents.receiveAsFlow()
 
   /** Whether the instructions dialog has been shown or not. */
-  var instructionsDialogShown: Boolean by localValueStore::drawAreaInstructionsShown
+  internal var instructionsDialogShown: Boolean by localValueStore::drawAreaInstructionsShown
 
   private val _polygonArea = MutableLiveData<String>()
   val polygonArea: LiveData<String> = _polygonArea
@@ -149,14 +150,17 @@ internal constructor(
       .stateIn(viewModelScope, WhileSubscribed(5_000), emptyList())
   }
 
+
+
   override fun initialize(
     job: Job,
     task: Task,
     taskData: TaskData?,
     taskPositionInterface: TaskPositionInterface,
     surveyId: String,
+    eventReporter: (DataCollectionEvent) -> Unit,
   ) {
-    super.initialize(job, task, taskData, taskPositionInterface, surveyId)
+    super.initialize(job, task, taskData, taskPositionInterface, surveyId, eventReporter)
     viewModelScope.launch { measurementUnits = getUserSettingsUseCase.invoke().measurementUnits }
     featureStyle = Feature.Style(job.getDefaultColor(), Feature.VertexStyle.CIRCLE)
 
@@ -180,6 +184,17 @@ internal constructor(
           updateVertices(listOf())
         }
       }
+    }
+  }
+
+  fun dismissDrawAreaInstructions() {
+    instructionsDialogShown = true
+    dismissInstructions()
+  }
+
+  fun maybeShowInstructions() {
+    if (!instructionsDialogShown) {
+      showInstructions()
     }
   }
 
@@ -358,11 +373,7 @@ internal constructor(
   }
 
   private fun getRedoButton(): ButtonActionState =
-    ButtonActionState(
-      action = ButtonAction.REDO,
-      isEnabled = session.canRedo(),
-      isVisible = true,
-    )
+    ButtonActionState(action = ButtonAction.REDO, isEnabled = session.canRedo(), isVisible = true)
 
   private fun getAddPointButton(isPolygonClosed: Boolean, isTooClose: Boolean): ButtonActionState =
     ButtonActionState(

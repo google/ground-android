@@ -42,7 +42,6 @@ import org.groundplatform.android.ui.offlineareas.OfflineAreasViewModel
 import org.groundplatform.android.ui.offlineareas.selector.OfflineAreaSelectorViewModel
 import org.groundplatform.android.ui.offlineareas.viewer.OfflineAreaViewerViewModel
 import org.groundplatform.android.ui.syncstatus.SyncStatusViewModel
-import org.groundplatform.android.ui.tos.TermsOfServiceViewModel
 
 @InstallIn(SingletonComponent::class)
 @Module
@@ -81,11 +80,6 @@ abstract class ViewModelModule {
   @IntoMap
   @ViewModelKey(MainViewModel::class)
   abstract fun bindMainViewModel(viewModel: MainViewModel): ViewModel
-
-  @Binds
-  @IntoMap
-  @ViewModelKey(TermsOfServiceViewModel::class)
-  abstract fun bindTermsViewModel(viewModel: TermsOfServiceViewModel): ViewModel
 
   @Binds
   @IntoMap

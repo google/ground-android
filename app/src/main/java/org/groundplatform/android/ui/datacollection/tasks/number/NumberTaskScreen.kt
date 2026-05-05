@@ -27,10 +27,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
+import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.groundplatform.android.ui.datacollection.components.TextTaskInput
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreen
-import org.groundplatform.android.ui.datacollection.tasks.TaskScreenAction
 import org.groundplatform.domain.model.submission.NumberTaskData.Companion.fromNumber
 import org.groundplatform.ui.theme.AppTheme
 import org.groundplatform.ui.theme.sizes
@@ -41,7 +41,7 @@ const val INPUT_NUMBER_TEST_TAG: String = "number task input test tag"
 fun NumberTaskScreen(
   viewModel: NumberTaskViewModel,
   onFooterPositionUpdated: (Float) -> Unit,
-  onAction: (TaskScreenAction) -> Unit,
+  onButtonClicked: (ButtonAction) -> Unit,
 ) {
   val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
   val userResponse by viewModel.responseText.observeAsState("")
@@ -51,7 +51,7 @@ fun NumberTaskScreen(
       TaskHeader(label = viewModel.task.label, iconResId = R.drawable.ic_question_answer),
     taskActionButtonsStates = taskActionButtonsStates,
     onFooterPositionUpdated = onFooterPositionUpdated,
-    onAction = onAction,
+    onButtonClicked = onButtonClicked,
     taskBody = {
       NumberTaskContent(
         userResponse = userResponse,

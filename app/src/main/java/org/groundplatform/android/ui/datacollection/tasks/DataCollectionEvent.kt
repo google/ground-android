@@ -15,20 +15,14 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks
 
-import org.groundplatform.android.ui.datacollection.components.ButtonAction
+/** Represents high-level UI events triggered by task ViewModels during data collection. */
+sealed interface DataCollectionEvent {
+  /** Navigate to the previous task. */
+  data object NavigatePrevious : DataCollectionEvent
 
-/**
- * Defines the set of actions that can be triggered from a task-specific screen in the data
- * collection flow.
- */
-sealed interface TaskScreenAction {
-  data class OnButtonClicked(val action: ButtonAction) : TaskScreenAction
+  /** Navigate to the next task (includes validation and submission check). */
+  data object NavigateNext : DataCollectionEvent
 
-  data class OnLoiNameConfirm(val name: String) : TaskScreenAction
-
-  data object OnLoiNameDismiss : TaskScreenAction
-
-  data class OnLoiNameChanged(val name: String) : TaskScreenAction
-
-  data object OnInstructionsDismiss : TaskScreenAction
+  /** Show the LOI Name Dialog before proceeding. */
+  data object ShowLoiDialog : DataCollectionEvent
 }

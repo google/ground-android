@@ -57,12 +57,3 @@ jobs:
           files: "**/build/reports/jacoco/**/*.xml"
           flags: service
           fail_ci_if_error: false
-
-  instrumentation-tests:
-    needs: build
-    if: github.event_name == 'pull_request'
-    uses: ./.github/workflows/test-e2e.yml
-    secrets:
-      MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
-    permissions:
-      contents: read

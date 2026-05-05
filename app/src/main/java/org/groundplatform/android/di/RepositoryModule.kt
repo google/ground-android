@@ -27,6 +27,7 @@ import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.android.repository.SubmissionRepository
 import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.repository.TermsOfServiceRepository
+import org.groundplatform.android.repository.UserMediaRepository
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import org.groundplatform.domain.repository.MapStateRepositoryInterface
@@ -35,6 +36,7 @@ import org.groundplatform.domain.repository.OfflineAreaRepositoryInterface
 import org.groundplatform.domain.repository.SubmissionRepositoryInterface
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.repository.TermsOfServiceRepositoryInterface
+import org.groundplatform.domain.repository.UserMediaRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
 
 @Module
@@ -103,4 +105,12 @@ abstract class OfflineAreaRepositoryModule {
   abstract fun bindOfflineAreaRepositoryRepository(
     impl: OfflineAreaRepository
   ): OfflineAreaRepositoryInterface
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class UserMediaRepositoryModule {
+  @Binds
+  @Singleton
+  abstract fun bindUserMediaRepository(impl: UserMediaRepository): UserMediaRepositoryInterface
 }

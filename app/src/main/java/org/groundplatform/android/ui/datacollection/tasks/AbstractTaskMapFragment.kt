@@ -30,8 +30,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import java.math.RoundingMode
-import java.text.DecimalFormat
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
@@ -52,6 +50,8 @@ import org.groundplatform.android.util.setComposableContent
 import org.groundplatform.android.util.toDmsFormat
 import org.groundplatform.domain.model.map.CameraPosition
 import org.jetbrains.annotations.MustBeInvokedByOverriders
+import java.math.RoundingMode
+import java.text.DecimalFormat
 
 abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
   AbstractMapContainerFragment() {
@@ -71,7 +71,7 @@ abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
   private lateinit var viewModel: BaseMapViewModel
 
   protected val taskId: String by lazy {
-    arguments?.getString(TASK_ID_FRAGMENT_ARG_KEY) ?: error("null taskId fragment arg")
+    arguments?.getString(DataCollectionTaskFragment.TASK_ID) ?: error("null taskId fragment arg")
   }
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -207,9 +207,5 @@ abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
       return
     }
     updateLocationInfoCard(R.string.map_location, position.coordinates.toDmsFormat())
-  }
-
-  companion object {
-    const val TASK_ID_FRAGMENT_ARG_KEY = "taskId"
   }
 }

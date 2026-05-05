@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.multiplechoice
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -30,19 +31,22 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
+import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreen
-import org.groundplatform.android.ui.datacollection.tasks.TaskScreenAction
 import org.groundplatform.domain.model.task.MultipleChoice.Cardinality
 import org.groundplatform.domain.model.task.Option
 import org.groundplatform.ui.theme.AppTheme
 import org.groundplatform.ui.theme.sizes
 
+@VisibleForTesting
+const val MULTIPLE_CHOICE_LIST_TEST_TAG = "multiple choice items test tag"
+
 @Composable
 fun MultipleChoiceTaskScreen(
   viewModel: MultipleChoiceTaskViewModel,
   onFooterPositionUpdated: (Float) -> Unit,
-  onAction: (TaskScreenAction) -> Unit,
+  onButtonClicked: (ButtonAction) -> Unit,
 ) {
   val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
   val list by viewModel.items.collectAsStateWithLifecycle()
@@ -52,7 +56,7 @@ fun MultipleChoiceTaskScreen(
       TaskHeader(label = viewModel.task.label, iconResId = R.drawable.ic_question_answer),
     taskActionButtonsStates = taskActionButtonsStates,
     onFooterPositionUpdated = onFooterPositionUpdated,
-    onAction = onAction,
+    onButtonClicked = onButtonClicked,
     taskBody = {
       MultipleChoiceTaskContent(
         list = list,

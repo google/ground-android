@@ -21,9 +21,9 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.os.bundleOf
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.FragmentManager
-import javax.inject.Provider
 import org.groundplatform.android.ui.common.AbstractMapContainerFragment
-import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment.Companion.TASK_ID_FRAGMENT_ARG_KEY
+import org.groundplatform.android.ui.datacollection.tasks.DataCollectionTaskFragment
+import javax.inject.Provider
 
 /**
  * A Composable that hosts a fragment-based map container for a specific task.
@@ -41,7 +41,7 @@ fun TaskMapFragmentContainer(
     factory = { context -> FragmentContainerView(context).apply { id = View.generateViewId() } },
     update = { view ->
       with(fragmentProvider.get()) {
-        arguments = bundleOf(Pair(TASK_ID_FRAGMENT_ARG_KEY, taskId))
+        arguments = bundleOf(Pair(DataCollectionTaskFragment.TASK_ID, taskId))
         fragmentManager.beginTransaction().replace(view.id, this).commit()
       }
     },
