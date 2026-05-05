@@ -168,7 +168,7 @@ class DataCollectionScreenTest {
     setContent()
 
     composeTestRule.onNodeWithTag(DataCollectionScreenTestTags.ERROR_MESSAGE).assertIsDisplayed()
-    composeTestRule.onNodeWithText("Error: $errorCode").assertIsDisplayed()
+    composeTestRule.onNodeWithText(getString(R.string.unexpected_error)).assertIsDisplayed()
   }
 
   companion object {
