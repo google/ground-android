@@ -32,7 +32,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.flowWithLifecycle
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.components.LoadingDialog
@@ -62,9 +65,9 @@ fun SurveySelectorScreen(
 ) {
   val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-  // Collect and handle one-shot events in a LaunchedEffect
-  LaunchedEffect(Unit) {
-    viewModel.events.collect { event ->
+  val lifecycle = LocalLifecycleOwner.current.lifecycle
+  LaunchedEffect(lifecycle) {
+    viewModel.events.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect { event ->
       when (event) {
         is SurveySelectorEvent.NavigateToHome -> onNavigateToHomeScreen()
         is SurveySelectorEvent.ShowError -> onError(event.errorType)
