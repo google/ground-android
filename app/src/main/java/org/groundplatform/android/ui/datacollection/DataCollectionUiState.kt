@@ -28,7 +28,6 @@ import org.groundplatform.domain.model.task.Task
  * Typical transitions:
  * - [Loading] → [Ready] (happy path)
  * - [Loading] → [Error] (boot failures)
- * - [Ready] → [TaskUpdated] → [Ready] (when task sequence/position changes)
  * - [Ready] → [TaskSubmitted] (on successful submission)
  */
 sealed interface DataCollectionUiState {
@@ -71,15 +70,6 @@ sealed interface DataCollectionUiState {
    */
   data class Error(val code: DataCollectionErrorCode, val cause: Throwable? = null) :
     DataCollectionUiState
-
-  /**
-   * Ephemeral state emitted when a task update causes navigation or sequence changes (e.g.,
-   * next/previous validation alters the current position). The view can react (animate/scroll) and
-   * then immediately transition back to [Ready] with the new position.
-   *
-   * @property position Updated navigation/position metadata after the change.
-   */
-  data class TaskUpdated(val position: TaskPosition) : DataCollectionUiState
 
   /**
    * Terminal state indicating that submission succeeded. The view should display a success

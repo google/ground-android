@@ -36,24 +36,25 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
+import org.groundplatform.android.ui.datacollection.TaskPosition
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreen
 import org.groundplatform.domain.model.submission.DateTimeTaskData
 import org.groundplatform.ui.theme.AppTheme
 import org.groundplatform.ui.theme.sizes
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Date
 
 const val TIME_PICKER_TEST_TAG: String = "time picker test tag"
 
 @Composable
 fun TimeTaskScreen(
   viewModel: TimeTaskViewModel,
-  onFooterPositionUpdated: (Float) -> Unit,
+  taskPosition: TaskPosition? = null,
   onButtonClicked: (ButtonAction) -> Unit,
 ) {
   val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
@@ -62,8 +63,8 @@ fun TimeTaskScreen(
   TaskScreen(
     taskHeader =
       TaskHeader(label = viewModel.task.label, iconResId = R.drawable.ic_question_answer),
+    taskPosition = taskPosition,
     taskActionButtonsStates = taskActionButtonsStates,
-    onFooterPositionUpdated = onFooterPositionUpdated,
     onButtonClicked = onButtonClicked,
     taskBody = {
       TimeTaskContent(

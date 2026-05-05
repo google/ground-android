@@ -18,9 +18,11 @@ package org.groundplatform.android.ui.datacollection.components
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.google.common.truth.Truth.assertThat
+import org.groundplatform.android.ui.datacollection.TaskPosition
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -68,5 +70,36 @@ class TaskFooterTest {
     composeTestRule.onNodeWithText("Next").performClick()
 
     assertThat(clickedAction).isEqualTo(ButtonAction.NEXT)
+  }
+
+  @Test
+  fun `Should display progress bar when taskPosition is provided`() {
+    val states = listOf(ButtonActionState(action = ButtonAction.NEXT, isVisible = true))
+    val taskPosition = TaskPosition(0, 0, 5)
+
+    composeTestRule.setContent {
+      TaskFooter(
+        buttonActionStates = states,
+        onButtonClicked = {},
+        taskPosition = taskPosition,
+      )
+    }
+
+    composeTestRule.onNodeWithTag(PROGRESS_BAR_TAG).assertIsDisplayed()
+  }
+
+  @Test
+  fun `Should not display progress bar when taskPosition is null`() {
+    val states = listOf(ButtonActionState(action = ButtonAction.NEXT, isVisible = true))
+
+    composeTestRule.setContent {
+      TaskFooter(
+        buttonActionStates = states,
+        onButtonClicked = {},
+        taskPosition = null,
+      )
+    }
+
+    composeTestRule.onNodeWithTag(PROGRESS_BAR_TAG).assertDoesNotExist()
   }
 }

@@ -16,11 +16,13 @@
 
 package org.groundplatform.android.ui.datacollection
 
+import android.content.Context
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.navigation.fragment.findNavController
+import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -88,22 +90,6 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   @BindValue @Mock lateinit var mutationSyncWorkManager: MutationSyncWorkManager
 
   lateinit var fragment: DataCollectionFragment
-
-  @Test
-  fun `Job and LOI names are displayed correctly`() {
-    setupFragment()
-
-    runner().validateTextIsDisplayed(TASK_1_NAME).validateTextIsDisplayed(requireNotNull(JOB.name))
-  }
-
-  @Test
-  fun `Only job name is displayed when LOI is not provided`() {
-    setupFragmentWithNoLoi()
-
-    runner()
-      .validateTextDoesNotExist("Unnamed point")
-      .validateTextIsDisplayed(requireNotNull(JOB.name))
-  }
 
   @Test
   fun `First task is loaded and is visible`() {
@@ -353,31 +339,6 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Displays close button on first task`() = runWithTestDispatcher {
-    setupFragment()
-
-    assertThat(getToolbar()?.navigationIcon).isNotNull()
-  }
-
-  @Test
-  fun `Clicking done on final task displays the close button and title`() = runWithTestDispatcher {
-    setupFragment()
-
-    runner()
-      .inputText(TASK_1_RESPONSE)
-      .clickNextButton()
-      .validateTextIsNotDisplayed(TASK_1_NAME)
-      .validateTextIsDisplayed(TASK_2_NAME)
-      .selectOption(TASK_2_OPTION_LABEL)
-      .clickDoneButton() // Click "done" on final task
-
-    advanceUntilIdle()
-
-    assertThat(getToolbar()?.navigationIcon).isNotNull()
-    assertThat(getToolbar()?.title).isEqualTo(getString(R.string.data_collection_complete))
-  }
-
-  @Test
   fun `Back navigation at the end of data collection exits the screen`() = runWithTestDispatcher {
     setupFragment()
 
@@ -430,8 +391,10 @@ class DataCollectionFragmentTest : BaseHiltTest() {
       runner().pressBackButton()
 
       // Assert that confirmation dialog is shown
+      composeTestRule.waitForIdle()
+      val context = ApplicationProvider.getApplicationContext<Context>()
       composeTestRule
-        .onNodeWithText(fragment.getString(R.string.data_collection_cancellation_title))
+        .onNodeWithText(context.getString(R.string.data_collection_cancellation_title))
         .assertIsDisplayed()
 
       // Click confirm button
@@ -508,8 +471,10 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     runner().pressBackButton()
 
     // Assert that confirmation dialog is shown
+    composeTestRule.waitForIdle()
+    val context = ApplicationProvider.getApplicationContext<Context>()
     composeTestRule
-      .onNodeWithText(fragment.getString(R.string.data_collection_cancellation_title))
+      .onNodeWithText(context.getString(R.string.data_collection_cancellation_title))
       .assertIsDisplayed()
 
     // Click cancel button instead of confirm
@@ -532,8 +497,10 @@ class DataCollectionFragmentTest : BaseHiltTest() {
       fragment.onBack()
 
       // Assert that confirmation dialog is shown
+      composeTestRule.waitForIdle()
+      val context = ApplicationProvider.getApplicationContext<Context>()
       composeTestRule
-        .onNodeWithText(fragment.getString(R.string.data_collection_cancellation_title))
+        .onNodeWithText(context.getString(R.string.data_collection_cancellation_title))
         .assertIsDisplayed()
     }
 
@@ -616,23 +583,6 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Progress bar updates correctly when navigating between tasks`() {
-    setupFragment()
-
-    val progressBar = fragment.view?.findViewById<android.widget.ProgressBar>(R.id.progress_bar)!!
-
-    // First task (0/1 progress)
-    assertThat(progressBar.progress).isEqualTo(0)
-    assertThat(progressBar.max).isEqualTo(100) // (2-1) * 100
-
-    runner().inputText(TASK_1_RESPONSE).clickNextButton()
-    composeTestRule.waitForIdle()
-
-    // Second task (1/1 progress = 100)
-    assertThat(progressBar.progress).isEqualTo(100)
-  }
-
-  @Test
   fun `Loading tasks from draft with invalid data handles gracefully`() = runWithTestDispatcher {
     setupFragment(shouldLoadFromDraft = true, draftValues = "invalid-json-data")
 
@@ -686,8 +636,10 @@ class DataCollectionFragmentTest : BaseHiltTest() {
       .validateTextIsDisplayed(TASK_0_NAME)
       .pressBackButton() // Should show confirmation dialog on first task
 
+    composeTestRule.waitForIdle()
+    val context = ApplicationProvider.getApplicationContext<Context>()
     composeTestRule
-      .onNodeWithText(fragment.getString(R.string.data_collection_cancellation_title))
+      .onNodeWithText(context.getString(R.string.data_collection_cancellation_title))
       .assertIsDisplayed()
   }
 
@@ -902,11 +854,6 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   }
 
   private fun runner() = TaskFragmentRunner(this, composeTestRule, fragment)
-
-  private fun getToolbar() =
-    fragment.view?.findViewById<com.google.android.material.appbar.MaterialToolbar>(
-      R.id.data_collection_toolbar
-    )
 
   companion object {
     private const val TASK_ID_0 = "0"

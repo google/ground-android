@@ -25,11 +25,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
+import org.groundplatform.android.ui.datacollection.LoiNameAction
+import org.groundplatform.android.ui.datacollection.TaskPosition
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.components.InstructionData
 import org.groundplatform.android.ui.datacollection.components.TaskHeader
-import org.groundplatform.android.ui.datacollection.LoiNameAction
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreen
 import org.groundplatform.ui.theme.AppTheme
 
@@ -40,14 +41,12 @@ import org.groundplatform.ui.theme.AppTheme
  * routing.
  *
  * @param viewModel The view model for this task.
- * @param onFooterPositionUpdated Callback when the footer position changes.
- * @param onAction Callback for screen actions (e.g., navigation).
  * @param mapContent Composable for rendering the map.
  */
 @Composable
 fun DropPinTaskScreen(
   viewModel: DropPinTaskViewModel,
-  onFooterPositionUpdated: (Float) -> Unit,
+  taskPosition: TaskPosition? = null,
   shouldShowLoiNameDialog: Boolean,
   loiName: String,
   onButtonClicked: (ButtonAction) -> Unit,
@@ -64,11 +63,11 @@ fun DropPinTaskScreen(
 
   DropPinTaskContent(
     taskLabel = viewModel.task.label,
+    taskPosition = taskPosition,
     taskActionButtonsStates = taskActionButtonsStates,
     showInstructionsDialog = showInstructionsDialog,
     shouldShowLoiNameDialog = shouldShowLoiNameDialog,
     loiName = loiName,
-    onFooterPositionUpdated = onFooterPositionUpdated,
     onButtonClicked = onButtonClicked,
     onLoiNameAction = onLoiNameAction,
     onInstructionsDismiss = { viewModel.dismissDropPinInstructions() },
@@ -80,19 +79,19 @@ fun DropPinTaskScreen(
  * The stateless content of the drop pin task screen.
  *
  * @param taskLabel The label of the task.
+ * @param taskPosition The position of the task in the sequence.
  * @param taskActionButtonsStates The states of the action buttons.
  * @param showInstructionsDialog Whether to show the instructions' dialog.
- * @param onFooterPositionUpdated Callback when the footer position changes.
  * @param mapContent Composable for rendering the map.
  */
 @Composable
 private fun DropPinTaskContent(
   taskLabel: String,
+  taskPosition: TaskPosition? = null,
   taskActionButtonsStates: List<ButtonActionState>,
   showInstructionsDialog: Boolean,
   shouldShowLoiNameDialog: Boolean,
   loiName: String,
-  onFooterPositionUpdated: (Float) -> Unit,
   onButtonClicked: (ButtonAction) -> Unit,
   onLoiNameAction: (LoiNameAction) -> Unit,
   onInstructionsDismiss: () -> Unit,
@@ -100,13 +99,13 @@ private fun DropPinTaskContent(
 ) {
   TaskScreen(
     taskHeader = TaskHeader(taskLabel, R.drawable.outline_pin_drop),
+    taskPosition = taskPosition,
     instructionData =
       InstructionData(iconId = R.drawable.swipe_24, stringId = R.string.drop_a_pin_tooltip_text),
     taskActionButtonsStates = taskActionButtonsStates,
     showInstructionsDialog = showInstructionsDialog,
     shouldShowLoiNameDialog = shouldShowLoiNameDialog,
     loiName = loiName,
-    onFooterPositionUpdated = onFooterPositionUpdated,
     onButtonClicked = onButtonClicked,
     onLoiNameAction = onLoiNameAction,
     onInstructionsDismiss = onInstructionsDismiss,
@@ -132,7 +131,6 @@ private fun DropPinTaskScreenPreview() {
       showInstructionsDialog = true,
       shouldShowLoiNameDialog = false,
       loiName = "",
-      onFooterPositionUpdated = {},
       onButtonClicked = {},
       onLoiNameAction = {},
       onInstructionsDismiss = {},

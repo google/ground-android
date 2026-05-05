@@ -91,7 +91,6 @@ class PhotoTaskScreenTest {
     composeTestRule.setContent {
       PhotoTaskScreen(
         viewModel = viewModel,
-        onFooterPositionUpdated = {},
         onButtonClicked = { lastButtonAction = it },
         onAwaitingPhotoCapture = {},
       )
