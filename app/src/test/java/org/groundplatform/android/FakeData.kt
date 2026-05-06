@@ -18,8 +18,8 @@ package org.groundplatform.android
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.JsonUnquotedLiteral
 import kotlinx.serialization.json.buildJsonObject
-import org.groundplatform.domain.model.imagery.OfflineArea
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.gms.features.FeatureClusterItem
 import org.groundplatform.domain.model.Survey
@@ -30,6 +30,7 @@ import org.groundplatform.domain.model.geometry.LinearRing
 import org.groundplatform.domain.model.geometry.MultiPolygon
 import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.geometry.Polygon
+import org.groundplatform.domain.model.imagery.OfflineArea
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.job.Style
 import org.groundplatform.domain.model.locationofinterest.AuditInfo
@@ -120,7 +121,10 @@ object FakeData {
               JsonObject(
                 mapOf(
                   "type" to JsonPrimitive("Point"),
-                  "coordinates" to JsonArray(listOf(JsonPrimitive(0.0), JsonPrimitive(0.0))),
+                  "coordinates" to
+                    JsonArray(
+                      listOf(JsonUnquotedLiteral("0.000000"), JsonUnquotedLiteral("0.000000"))
+                    ),
                 )
               ),
           )

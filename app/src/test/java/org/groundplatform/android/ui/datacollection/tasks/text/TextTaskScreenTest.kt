@@ -68,7 +68,6 @@ class TextTaskScreenTest {
     composeTestRule.setContent {
       TextTaskScreen(
         viewModel = viewModel,
-        onFooterPositionUpdated = {},
         onButtonClicked = { lastButtonAction = it },
       )
     }

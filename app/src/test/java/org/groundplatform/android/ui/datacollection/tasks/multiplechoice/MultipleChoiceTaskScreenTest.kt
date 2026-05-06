@@ -75,7 +75,6 @@ class MultipleChoiceTaskScreenTest {
     composeTestRule.setContent {
       MultipleChoiceTaskScreen(
         viewModel = viewModel,
-        onFooterPositionUpdated = {},
         onButtonClicked = { lastButtonAction = it },
       )
     }

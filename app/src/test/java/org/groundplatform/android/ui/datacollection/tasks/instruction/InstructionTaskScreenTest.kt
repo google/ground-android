@@ -69,7 +69,6 @@ class InstructionTaskScreenTest {
     composeTestRule.setContent {
       InstructionTaskScreen(
         viewModel = viewModel,
-        onFooterPositionUpdated = {},
         onButtonClicked = { lastButtonAction = it },
       )
     }

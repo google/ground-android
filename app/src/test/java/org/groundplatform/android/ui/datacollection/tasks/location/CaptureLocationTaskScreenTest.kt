@@ -243,7 +243,6 @@ class CaptureLocationTaskScreenTest {
     composeTestRule.setContent {
       CaptureLocationTaskScreen(
         viewModel = viewModel,
-        onFooterPositionUpdated = {},
         onButtonClicked = { action ->
           lastScreenAction = action
           viewModel.onButtonClick(action)

@@ -258,7 +258,6 @@ class DrawAreaTaskScreenTest : BaseHiltTest() {
     composeTestRule.setContent {
       DrawAreaTaskScreen(
         viewModel = viewModelToUse,
-        onFooterPositionUpdated = {},
         shouldShowLoiNameDialog = false,
         loiName = "",
         onButtonClicked = { action ->

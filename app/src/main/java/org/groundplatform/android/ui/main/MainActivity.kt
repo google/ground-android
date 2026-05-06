@@ -23,7 +23,6 @@ import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.NavHostFragment
@@ -126,11 +125,6 @@ class MainActivity : AbstractActivity() {
         navigateTo(action)
       }
     }
-  }
-
-  override fun onWindowInsetChanged(insets: WindowInsetsCompat) {
-    super.onWindowInsetChanged(insets)
-    viewModel.windowInsets.postValue(insets)
   }
 
   /**

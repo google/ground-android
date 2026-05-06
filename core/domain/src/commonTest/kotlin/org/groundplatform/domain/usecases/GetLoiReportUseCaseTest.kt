@@ -52,7 +52,7 @@ class GetLoiReportUseCaseTest {
         "properties": {"name": "Point test"},
         "geometry": {
           "type": "Point",
-          "coordinates": [-89.0, 41.0]
+          "coordinates": [-89.000000, 41.000000]
         }
       }
       """
@@ -82,7 +82,7 @@ class GetLoiReportUseCaseTest {
         "geometry": {
           "type": "Polygon",
           "coordinates": [
-            [[0.0, 0.0], [0.0, 1.0], [1.0, 1.0], [0.0, 0.0]]
+            [[0.000000, 0.000000], [0.000000, 1.000000], [1.000000, 1.000000], [0.000000, 0.000000]]
           ]
         }
       }
@@ -125,8 +125,8 @@ class GetLoiReportUseCaseTest {
         "geometry": {
           "type": "Polygon",
           "coordinates": [
-            [[0.0, 0.0], [0.0, 10.0], [10.0, 10.0], [0.0, 0.0]],
-            [[2.0, 2.0], [2.0, 3.0], [3.0, 3.0], [2.0, 2.0]]
+            [[0.000000, 0.000000], [0.000000, 10.000000], [10.000000, 10.000000], [0.000000, 0.000000]],
+            [[2.000000, 2.000000], [2.000000, 3.000000], [3.000000, 3.000000], [2.000000, 2.000000]]
           ]
         }
       }
@@ -169,8 +169,8 @@ class GetLoiReportUseCaseTest {
         "geometry": {
           "type": "MultiPolygon",
           "coordinates": [
-            [[[0.0, 0.0], [0.0, 1.0], [1.0, 1.0], [0.0, 0.0]]],
-            [[[5.0, 5.0], [5.0, 6.0], [6.0, 6.0], [5.0, 5.0]]]
+            [[[0.000000, 0.000000], [0.000000, 1.000000], [1.000000, 1.000000], [0.000000, 0.000000]]],
+            [[[5.000000, 5.000000], [5.000000, 6.000000], [6.000000, 6.000000], [5.000000, 5.000000]]]
           ]
         }
       }
@@ -193,7 +193,7 @@ class GetLoiReportUseCaseTest {
         "properties": {"name": "LineString test"},
         "geometry": {
           "type": "LineString",
-          "coordinates": [[20.0, 10.0], [40.0, 30.0], [60.0, 50.0]]
+          "coordinates": [[20.000000, 10.000000], [40.000000, 30.000000], [60.000000, 50.000000]]
         }
       }
       """
@@ -216,7 +216,7 @@ class GetLoiReportUseCaseTest {
         "properties": {},
         "geometry": {
           "type": "Point",
-          "coordinates": [0.0, 0.0]
+          "coordinates": [0.000000, 0.000000]
         }
       }
       """
@@ -291,7 +291,7 @@ class GetLoiReportUseCaseTest {
         "properties": {"name": "Name test"},
         "geometry": {
           "type": "Point",
-          "coordinates": [0.0, 0.0]
+          "coordinates": [0.000000, 0.000000]
         }
       }
       """

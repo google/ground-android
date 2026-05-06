@@ -14,18 +14,22 @@
  * limitations under the License.
  */
 
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-parcelize'
-apply plugin: 'kotlinx-serialization'
-apply plugin: 'com.google.dagger.hilt.android'
-apply plugin: 'com.google.devtools.ksp'
-apply plugin: 'androidx.room'
-apply plugin: 'com.google.firebase.firebase-perf'
-apply plugin: 'com.google.firebase.crashlytics'
-apply plugin: 'com.google.android.gms.oss-licenses-plugin'
-apply plugin: 'com.google.protobuf'
-apply plugin: 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
-apply plugin: 'org.jetbrains.kotlin.plugin.compose'
+plugins {
+    alias libs.plugins.android.application
+    alias libs.plugins.kotlin.parcelize
+    alias libs.plugins.kotlin.serialization
+    alias libs.plugins.hilt.android
+    alias libs.plugins.ksp
+    alias libs.plugins.room
+    alias libs.plugins.firebase.perf
+    alias libs.plugins.firebase.crashlytics
+    alias libs.plugins.oss.licenses
+    alias libs.plugins.protobuf
+    alias libs.plugins.androidx.navigation.safeargs
+    alias libs.plugins.secrets.gradle.plugin
+    alias libs.plugins.compose.compiler
+    alias libs.plugins.google.services
+}
 
 apply from: '../config/checkstyle/checkstyle.gradle'
 apply from: '../config/lint/lint.gradle'
@@ -88,6 +92,10 @@ android {
         buildConfigField "int", "AUTH_EMULATOR_PORT", "9099"
         buildConfigField "String", "SIGNUP_FORM_LINK", "\"\""
         manifestPlaceholders.usesCleartextTraffic = true
+
+        def secretsFile = rootProject.file('secrets.properties')
+        def secretProps = new Properties()
+        if (secretsFile.exists()) secretsFile.withInputStream { secretProps.load(it) }
     }
 
     // Use flag -PtestBuildType with desired variant to change default behavior.
@@ -363,12 +371,6 @@ task extractGroundProtoJar(type: Copy) {
     into extractedGroundProtoPath
     include "**/*.proto"
 }
-
-apply plugin: 'androidx.navigation.safeargs'
-
-// This must be last to avoid dependency collisions.
-// https://developers.google.com/android/guides/google-services-plugin#introduction
-apply plugin: 'com.google.gms.google-services'
 
 kotlin {
     jvmToolchain libs.versions.jvmToolchainVersion.get().toInteger()
