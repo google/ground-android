@@ -29,18 +29,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
+import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.SurveyListItem
+import org.groundplatform.ui.theme.AppTheme
 
 @Composable
 fun SurveyCardItem(
   item: SurveyListItem,
   modifier: Modifier = Modifier,
-  onCardClick: (String) -> Unit,
-  menuClick: (String) -> Unit,
+  onCardClick: ((String) -> Unit)? = null,
+  menuClick: ((String) -> Unit)? = null,
+  descriptionMaxLines: Int = 1,
 ) {
   Card(
-    modifier = modifier.fillMaxWidth().clickable { onCardClick(item.id) },
+    modifier =
+      modifier.fillMaxWidth().let {
+        if (onCardClick != null) it.clickable { onCardClick(item.id) } else it
+      },
     shape = MaterialTheme.shapes.medium,
     colors =
       CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLowest),
@@ -62,10 +70,19 @@ fun SurveyCardItem(
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Normal,
             color = MaterialTheme.colorScheme.outline,
-            maxLines = 1,
+            maxLines = descriptionMaxLines,
             overflow = TextOverflow.Ellipsis,
           )
         }
     }
   }
+}
+
+@Preview
+@Composable
+@ExcludeFromJacocoGeneratedReport
+private fun PreviewSurveyCardItem() {
+  val item =
+    SurveyListItem("1", "Tree Survey", "Track tree growth", true, Survey.GeneralAccess.PUBLIC)
+  AppTheme { SurveyCardItem(item = item, onCardClick = {}, menuClick = {}) }
 }
