@@ -40,6 +40,7 @@ import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.components.LoadingDialog
 import org.groundplatform.android.ui.components.Toolbar
+import org.groundplatform.android.ui.surveyselector.components.JoinSurveyDialog
 import org.groundplatform.android.ui.surveyselector.components.SurveyEmptyState
 import org.groundplatform.android.ui.surveyselector.components.SurveySectionList
 import org.groundplatform.domain.model.Survey
@@ -81,7 +82,13 @@ fun SurveySelectorScreen(
     onSignOut = viewModel::signOut,
     onConfirmDelete = viewModel::confirmDelete,
     onCardClick = viewModel::activateSurvey,
-    onScanQrCode = viewModel::scanQrCodeAndActivateSurvey,
+    onQrJoinAction = { action ->
+      when (action) {
+        QrJoinAction.ScanQrCode -> viewModel.joinSurveyByQrCode()
+        QrJoinAction.Confirm -> viewModel.confirmJoinSurvey()
+        QrJoinAction.Dismiss -> viewModel.dismissJoinSurveyConfirmation()
+      }
+    },
   )
 }
 
@@ -93,7 +100,8 @@ fun SurveySelectorScreen(
  * @param onSignOut Callback when the user attempts to sign out from the empty state.
  * @param onConfirmDelete Callback when a local survey deletion is confirmed.
  * @param onCardClick Callback when a survey card is clicked to activate it.
- * @param onScanQrCode Callback when the user taps the scan-QR action.
+ * @param onQrJoinAction Callback when the user triggers any of the actions in the flow of joining a
+ *   survey by QR code
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -103,7 +111,7 @@ private fun SurveySelectorScreen(
   onSignOut: () -> Unit,
   onConfirmDelete: (String) -> Unit,
   onCardClick: (String) -> Unit,
-  onScanQrCode: () -> Unit,
+  onQrJoinAction: (QrJoinAction) -> Unit,
 ) {
   Scaffold(
     topBar = {
@@ -112,7 +120,7 @@ private fun SurveySelectorScreen(
     floatingActionButton = {
       if (!uiState.isLoading) {
         ExtendedFloatingActionButton(
-          onClick = onScanQrCode,
+          onClick = { onQrJoinAction(QrJoinAction.ScanQrCode) },
           icon = {
             Icon(
               painter = painterResource(id = R.drawable.ic_qr_code_scanner),
@@ -142,8 +150,25 @@ private fun SurveySelectorScreen(
       if (uiState.isLoading) {
         LoadingDialog(R.string.loading)
       }
+
+      uiState.pendingJoinSurvey?.let { pending ->
+        JoinSurveyDialog(
+          surveyListItem = pending,
+          onDismiss = { onQrJoinAction(QrJoinAction.Dismiss) },
+          onConfirm = { onQrJoinAction(QrJoinAction.Confirm) },
+        )
+      }
     }
   }
+}
+
+/** Actions emitted during scanning a survey QR code -> confirm -> join flow. */
+sealed interface QrJoinAction {
+  data object ScanQrCode : QrJoinAction
+
+  data object Confirm : QrJoinAction
+
+  data object Dismiss : QrJoinAction
 }
 
 @Composable
@@ -157,7 +182,7 @@ private fun PreviewSurveySelectorScreenEmpty() {
       onSignOut = {},
       onConfirmDelete = {},
       onCardClick = {},
-      onScanQrCode = {},
+      onQrJoinAction = {},
     )
   }
 }
@@ -192,7 +217,7 @@ private fun PreviewSurveySelectorScreenWithSurveys() {
       onSignOut = {},
       onConfirmDelete = {},
       onCardClick = {},
-      onScanQrCode = {},
+      onQrJoinAction = {},
     )
   }
 }
@@ -208,7 +233,7 @@ private fun PreviewSurveySelectorScreenLoading() {
       onSignOut = {},
       onConfirmDelete = {},
       onCardClick = {},
-      onScanQrCode = {},
+      onQrJoinAction = {},
     )
   }
 }

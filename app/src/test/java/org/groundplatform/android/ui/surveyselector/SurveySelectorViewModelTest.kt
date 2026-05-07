@@ -25,6 +25,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.TestScope
@@ -37,6 +38,7 @@ import org.groundplatform.android.usecases.survey.RemoveOfflineSurveyUseCase
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.SurveyListItem
 import org.groundplatform.domain.repository.UserRepositoryInterface
+import org.groundplatform.domain.usecases.survey.GetSurveyListItemUseCase
 import org.groundplatform.domain.util.SurveyQrCodeParser
 import org.junit.Before
 import org.junit.Test
@@ -55,6 +57,7 @@ class SurveySelectorViewModelTest : BaseHiltTest() {
   @Mock lateinit var parseSurveyQrCodeUseCase: SurveyQrCodeParser
   @Mock lateinit var qrCodeScanner: GmsQrCodeScanner
   @Mock lateinit var removeOfflineSurveyUseCase: RemoveOfflineSurveyUseCase
+  @Mock lateinit var getSurveyListItemUseCase: GetSurveyListItemUseCase
   @Mock lateinit var userRepository: UserRepositoryInterface
 
   private lateinit var externalScope: CoroutineScope
@@ -80,6 +83,7 @@ class SurveySelectorViewModelTest : BaseHiltTest() {
         qrCodeScanner,
         parseSurveyQrCodeUseCase,
         removeOfflineSurveyUseCase,
+        getSurveyListItemUseCase,
         userRepository,
         savedStateHandle,
       )
@@ -172,52 +176,101 @@ class SurveySelectorViewModelTest : BaseHiltTest() {
   }
 
   @Test
-  fun `scanQrCodeAndActivateSurvey activates parsed survey`() = runWithTestDispatcher {
-    createViewModel()
+  fun `joinSurveyByQrCode requests confirmation for parsed survey`() = runWithTestDispatcher {
     val payload = "https://groundplatform.org/android/survey/xyz"
+    whenever(getSurveyListItemUseCase(TEST_SURVEY.id)).thenReturn(TEST_SURVEY)
+    createViewModel()
     whenever(qrCodeScanner.scan()).thenReturn(GmsQrCodeScanner.Result.Success(payload))
-    whenever(parseSurveyQrCodeUseCase(payload)).thenReturn("xyz")
-    whenever(activateSurveyUseCase("xyz")).thenReturn(true)
+    whenever(parseSurveyQrCodeUseCase(payload)).thenReturn(TEST_SURVEY.id)
 
-    viewModel.events.test {
-      viewModel.scanQrCodeAndActivateSurvey()
-      assertThat(awaitItem()).isEqualTo(SurveySelectorEvent.NavigateToHome)
-    }
+    viewModel.joinSurveyByQrCode()
+    val state = viewModel.uiState.first { it.pendingJoinSurvey != null }
+    assertThat(state.pendingJoinSurvey).isEqualTo(TEST_SURVEY)
   }
 
   @Test
-  fun `scanQrCodeAndActivateSurvey emits invalid event for bad payload`() = runWithTestDispatcher {
+  fun `confirmJoinSurvey activates pending survey and clears confirmation`() =
+    runWithTestDispatcher {
+      val payload = "https://groundplatform.org/android/survey/xyz"
+      whenever(getSurveyListItemUseCase(TEST_SURVEY.id)).thenReturn(TEST_SURVEY)
+      createViewModel()
+      whenever(qrCodeScanner.scan()).thenReturn(GmsQrCodeScanner.Result.Success(payload))
+      whenever(parseSurveyQrCodeUseCase(payload)).thenReturn(TEST_SURVEY.id)
+      whenever(activateSurveyUseCase(TEST_SURVEY.id)).thenReturn(true)
+
+      viewModel.events.test {
+        viewModel.joinSurveyByQrCode()
+        viewModel.confirmJoinSurvey()
+        assertThat(awaitItem()).isEqualTo(SurveySelectorEvent.NavigateToHome)
+      }
+      assertThat(viewModel.uiState.value.pendingJoinSurvey).isNull()
+    }
+
+  @Test
+  fun `dismissJoinSurveyConfirmation clears pending survey without activating`() =
+    runWithTestDispatcher {
+      val payload = "https://groundplatform.org/android/survey/xyz"
+      whenever(getSurveyListItemUseCase(TEST_SURVEY.id)).thenReturn(TEST_SURVEY)
+      createViewModel()
+      whenever(qrCodeScanner.scan()).thenReturn(GmsQrCodeScanner.Result.Success(payload))
+      whenever(parseSurveyQrCodeUseCase(payload)).thenReturn(TEST_SURVEY.id)
+
+      viewModel.events.test {
+        viewModel.joinSurveyByQrCode()
+        viewModel.dismissJoinSurveyConfirmation()
+        expectNoEvents()
+      }
+      assertThat(viewModel.uiState.value.pendingJoinSurvey).isNull()
+    }
+
+  @Test
+  fun `joinSurveyByQrCode emits invalid event when survey cannot be loaded`() =
+    runWithTestDispatcher {
+      val payload = "https://groundplatform.org/android/survey/missing"
+      createViewModel()
+      whenever(qrCodeScanner.scan()).thenReturn(GmsQrCodeScanner.Result.Success(payload))
+      whenever(parseSurveyQrCodeUseCase(payload)).thenReturn("missing")
+
+      viewModel.events.test {
+        viewModel.joinSurveyByQrCode()
+        assertThat(awaitItem())
+          .isEqualTo(SurveySelectorEvent.ShowError(SurveySelectorEvent.ErrorType.InvalidQrCode))
+      }
+    }
+
+  @Test
+  fun `joinSurveyByQrCode emits invalid event for bad payload`() = runWithTestDispatcher {
     createViewModel()
     whenever(qrCodeScanner.scan()).thenReturn(GmsQrCodeScanner.Result.Success("not a url"))
     whenever(parseSurveyQrCodeUseCase("not a url")).thenReturn(null)
 
     viewModel.events.test {
-      viewModel.scanQrCodeAndActivateSurvey()
+      viewModel.joinSurveyByQrCode()
       assertThat(awaitItem())
         .isEqualTo(SurveySelectorEvent.ShowError(SurveySelectorEvent.ErrorType.InvalidQrCode))
     }
   }
 
   @Test
-  fun `scanQrCodeAndActivateSurvey is silent on cancellation`() = runWithTestDispatcher {
+  fun `joinSurveyByQrCode is silent on cancellation`() = runWithTestDispatcher {
     createViewModel()
     whenever(qrCodeScanner.scan()).thenReturn(GmsQrCodeScanner.Result.Cancelled)
 
     viewModel.events.test {
-      viewModel.scanQrCodeAndActivateSurvey()
+      viewModel.joinSurveyByQrCode()
       expectNoEvents()
     }
   }
 
   @Test
-  fun `scanQrCodeAndActivateSurvey emits generic error when there's a problem scanning`() =
+  fun `joinSurveyByQrCode emits generic error when there's a problem scanning`() =
     runWithTestDispatcher {
       createViewModel()
       val error = RuntimeException("camera unavailable")
       whenever(qrCodeScanner.scan()).thenReturn(GmsQrCodeScanner.Result.Error(error))
 
       viewModel.events.test {
-        viewModel.scanQrCodeAndActivateSurvey()
+        viewModel.joinSurveyByQrCode()
         assertThat(awaitItem())
           .isEqualTo(SurveySelectorEvent.ShowError(SurveySelectorEvent.ErrorType.Generic(error)))
       }

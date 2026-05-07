@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -42,6 +43,7 @@ import org.groundplatform.android.usecases.survey.ListAvailableSurveysUseCase
 import org.groundplatform.android.usecases.survey.RemoveOfflineSurveyUseCase
 import org.groundplatform.domain.model.SurveyListItem
 import org.groundplatform.domain.repository.UserRepositoryInterface
+import org.groundplatform.domain.usecases.survey.GetSurveyListItemUseCase
 import org.groundplatform.domain.util.SurveyQrCodeParser
 import timber.log.Timber
 
@@ -57,6 +59,7 @@ internal constructor(
   private val gmsQrCodeScanner: GmsQrCodeScanner,
   private val surveyQrCodeParser: SurveyQrCodeParser,
   private val removeOfflineSurveyUseCase: RemoveOfflineSurveyUseCase,
+  private val getSurveyListItem: GetSurveyListItemUseCase,
   private val userRepository: UserRepositoryInterface,
   savedStateHandle: SavedStateHandle,
 ) : AbstractViewModel() {
@@ -66,7 +69,9 @@ internal constructor(
   private val _events = Channel<SurveySelectorEvent>(Channel.BUFFERED)
   val events = _events.receiveAsFlow()
 
-  private val _isActivating = MutableStateFlow(false)
+  private val _isLoadingSurvey = MutableStateFlow(false)
+
+  private val _pendingJoinSurvey = MutableStateFlow<SurveyListItem?>(null)
 
   private val surveyList: Flow<List<SurveyListItem>> =
     listAvailableSurveysUseCase()
@@ -78,12 +83,13 @@ internal constructor(
       }
 
   val uiState: StateFlow<SurveySelectorUiState> =
-    combine(surveyList, _isActivating) { surveys, isActivating ->
+    combine(surveyList, _isLoadingSurvey, _pendingJoinSurvey) { surveys, isLoading, pending ->
         SurveySelectorUiState(
-          isLoading = isActivating, // Initial loading handled by StateFlow initialValue
+          isLoading = isLoading, // Initial loading handled by StateFlow initialValue
           onDeviceSurveys = surveys.filter { it.isOnDevice() },
           sharedSurveys = surveys.filter { it.isShared() },
           publicSurveys = surveys.filter { it.isPublic() },
+          pendingJoinSurvey = pending,
         )
       }
       .stateIn(
@@ -100,14 +106,14 @@ internal constructor(
 
   /** Triggers the specified survey to be loaded and activated. */
   fun activateSurvey(surveyId: String) {
-    if (_isActivating.value) return
+    if (_isLoadingSurvey.value) return
 
-    _isActivating.value = true
+    _isLoadingSurvey.value = true
     viewModelScope.launch {
       runCatching { activateSurveyUseCase(surveyId) }
         .fold(
           onSuccess = { result ->
-            _isActivating.value = false
+            _isLoadingSurvey.value = false
             if (result) {
               _events.send(SurveySelectorEvent.NavigateToHome)
             } else {
@@ -120,15 +126,14 @@ internal constructor(
           },
           onFailure = {
             Timber.e(it, "Failed to activate survey")
-            _isActivating.value = false
+            _isLoadingSurvey.value = false
             _events.send(SurveySelectorEvent.ShowError(it.toSurveySelectorError()))
           },
         )
     }
   }
 
-  /** Launches the QR scanner and, on success, activates the encoded survey. */
-  fun scanQrCodeAndActivateSurvey() {
+  fun joinSurveyByQrCode() {
     viewModelScope.launch {
       when (val result = gmsQrCodeScanner.scan()) {
         is GmsQrCodeScanner.Result.Success -> {
@@ -136,7 +141,7 @@ internal constructor(
           if (surveyId == null) {
             _events.send(SurveySelectorEvent.ShowError(SurveySelectorEvent.ErrorType.InvalidQrCode))
           } else {
-            activateSurvey(surveyId)
+            requestJoinSurveyConfirmation(surveyId)
           }
         }
         is GmsQrCodeScanner.Result.Cancelled -> {
@@ -147,6 +152,32 @@ internal constructor(
         }
       }
     }
+  }
+
+  private suspend fun requestJoinSurveyConfirmation(surveyId: String) {
+    _isLoadingSurvey.value = true
+    val item =
+      surveyList.first().firstOrNull { it.id == surveyId }
+        ?: runCatching { getSurveyListItem(surveyId) }
+          .onFailure { Timber.e(it, "Failed to load survey $surveyId for confirmation") }
+          .getOrNull()
+    _isLoadingSurvey.value = false
+    if (item == null) {
+      _events.send(SurveySelectorEvent.ShowError(SurveySelectorEvent.ErrorType.InvalidQrCode))
+    } else {
+      _pendingJoinSurvey.value = item
+    }
+  }
+
+  fun confirmJoinSurvey() {
+    _pendingJoinSurvey.value?.let { pending ->
+      _pendingJoinSurvey.value = null
+      activateSurvey(pending.id)
+    }
+  }
+
+  fun dismissJoinSurveyConfirmation() {
+    _pendingJoinSurvey.value = null
   }
 
   /** Signs out the current user. */

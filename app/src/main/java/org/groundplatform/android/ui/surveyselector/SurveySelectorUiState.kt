@@ -28,12 +28,14 @@ data class SurveySection(val titleResId: Int, val surveys: List<SurveyListItem>)
  * @property onDeviceSurveys List of surveys available offline on the device.
  * @property sharedSurveys List of surveys shared with the user.
  * @property publicSurveys List of public surveys available.
+ * @property pendingJoinSurvey Survey awaiting user confirmation after a QR scan, or `null` if none.
  */
 data class SurveySelectorUiState(
   val isLoading: Boolean = false,
   private val onDeviceSurveys: List<SurveyListItem> = emptyList(),
   private val sharedSurveys: List<SurveyListItem> = emptyList(),
   private val publicSurveys: List<SurveyListItem> = emptyList(),
+  val pendingJoinSurvey: SurveyListItem? = null,
 ) {
 
   /** Returns true if the empty screen should be shown. */
