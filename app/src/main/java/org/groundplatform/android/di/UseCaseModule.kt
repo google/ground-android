@@ -27,6 +27,7 @@ import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
 import org.groundplatform.domain.usecases.GetLoiReportUseCase
 import org.groundplatform.domain.usecases.submission.SubmitDataUseCase
+import org.groundplatform.domain.usecases.survey.GetSurveyListItemUseCase
 import org.groundplatform.domain.usecases.survey.SyncSurveyUseCase
 import org.groundplatform.domain.usecases.user.GetUserSettingsUseCase
 import org.groundplatform.domain.usecases.user.UpdateUserSettingsUseCase
@@ -66,4 +67,8 @@ object UseCaseModule {
       deepLinkHost = resources.getString(R.string.deeplink_host),
       deepLinkPath = resources.getString(R.string.survey_deeplink_path),
     )
+
+  @Provides
+  fun providesGetSurveyListItemUseCase(surveyRepository: SurveyRepositoryInterface) =
+    GetSurveyListItemUseCase(surveyRepository)
 }
