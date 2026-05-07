@@ -47,6 +47,8 @@ jobs:
             build-mode: none
           - language: java-kotlin
             build-mode: manual
+          - language: python
+            build-mode: none
 
     steps:
       - name: Checkout repository
