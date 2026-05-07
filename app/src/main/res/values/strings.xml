@@ -247,4 +247,5 @@
 
   <string name="join_survey">Join survey</string>
   <string name="invalid_survey_qr_code">Unrecognized survey QR code</string>
+  <string name="join_survey_confirm_title">Join survey?</string>
 </resources>

@@ -222,4 +222,5 @@
 
   <string name="join_survey">Tham gia khảo sát</string>
   <string name="invalid_survey_qr_code">Không nhận diện được mã QR khảo sát</string>
+  <string name="join_survey_confirm_title">Tham gia khảo sát này?</string>
 </resources>

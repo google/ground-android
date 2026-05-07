@@ -220,4 +220,5 @@
 
   <string name="join_survey">เข้าร่วมแบบสำรวจ</string>
   <string name="invalid_survey_qr_code">ไม่รู้จักรหัสคิวอาร์ของแบบสำรวจนี้</string>
+  <string name="join_survey_confirm_title">เข้าร่วมแบบสำรวจนี้หรือไม่?</string>
 </resources>

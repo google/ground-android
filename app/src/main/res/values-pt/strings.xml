@@ -251,4 +251,5 @@
 
   <string name="join_survey">Aderir ao inquérito</string>
   <string name="invalid_survey_qr_code">Código QR de inquérito não reconhecido</string>
+  <string name="join_survey_confirm_title">Aderir a este inquérito?</string>
 </resources>

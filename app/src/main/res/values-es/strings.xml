@@ -249,4 +249,5 @@
 
   <string name="join_survey">Unirse a una encuesta</string>
   <string name="invalid_survey_qr_code">Código QR de encuesta no reconocido</string>
+  <string name="join_survey_confirm_title">¿Unirse a esta encuesta?</string>
 </resources>

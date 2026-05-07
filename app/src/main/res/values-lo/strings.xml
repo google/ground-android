@@ -218,4 +218,5 @@
 
   <string name="join_survey">ເຂົ້າຮ່ວມແບບສຳຫຼວດ</string>
   <string name="invalid_survey_qr_code">ບໍ່ຮັບຮູ້ລະຫັດ QR ແບບສຳຫຼວດນີ້</string>
+  <string name="join_survey_confirm_title">ເຂົ້າຮ່ວມແບບສຳຫຼວດນີ້ບໍ?</string>
 </resources>
