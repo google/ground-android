@@ -92,10 +92,6 @@ android {
         buildConfigField "int", "AUTH_EMULATOR_PORT", "9099"
         buildConfigField "String", "SIGNUP_FORM_LINK", "\"\""
         manifestPlaceholders.usesCleartextTraffic = true
-
-        def secretsFile = rootProject.file('secrets.properties')
-        def secretProps = new Properties()
-        if (secretsFile.exists()) secretsFile.withInputStream { secretProps.load(it) }
     }
 
     // Use flag -PtestBuildType with desired variant to change default behavior.
