@@ -21,7 +21,7 @@ androidXLifecycleVersion = "2.10.0"
 appcompatVersion = "1.7.1"
 autoValueVersion = "1.11.1"
 coilComposeVersion = "2.7.0"
-composeBom = "2026.04.01"
+composeBom = "2026.05.00"
 composeMultiplatformVersion = "1.10.3"
 constraintlayoutVersion = "2.2.1"
 coreKtxVersion = "1.18.0"
@@ -103,7 +103,6 @@ androidx-material-icons = { module = "androidx.compose.material:material-icons-c
 androidx-material3-android = { module = "androidx.compose.material3:material3-android" }
 androidx-multidex = { module = "androidx.multidex:multidex", version.ref = "multidex" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationKtxVersion" }
-androidx-navigation-safe-args-gradle-plugin = { module = "androidx.navigation:navigation-safe-args-gradle-plugin", version.ref = "navigationKtxVersion" }
 androidx-navigation-testing = { module = "androidx.navigation:navigation-testing", version.ref = "navigationKtxVersion" }
 androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationKtxVersion" }
 androidx-navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigationKtxVersion" }
@@ -130,7 +129,6 @@ firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "fir
 firebase-config = { module = "com.google.firebase:firebase-config" }
 firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
 firebase-auth = { module = "com.google.firebase:firebase-auth" }
-firebase-crashlytics-gradle = { module = "com.google.firebase:firebase-crashlytics-gradle", version.ref = "firebaseCrashlyticsGradleVersion" }
 firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-messaging = { module = "com.google.firebase:firebase-messaging" }
@@ -138,9 +136,7 @@ firebase-messaging-directboot = { module = "com.google.firebase:firebase-messagi
 firebase-storage = { module = "com.google.firebase:firebase-storage" }
 firebase-perf = { module = "com.google.firebase:firebase-perf" }
 firebase-functions = { module = "com.google.firebase:firebase-functions" }
-google-services = { module = "com.google.gms:google-services", version.ref = "googleServicesVersion" }
 google-zxing = { module = "com.google.zxing:core", version.ref = "googleZxingVersion" }
-gradle = { module = "com.android.tools.build:gradle", version.ref = "gradleVersion" }
 ground-platform = { module = "com.github.google:ground-platform", version.ref = "groundPlatformVersion" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gsonVersion" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltVersion" }
@@ -149,9 +145,7 @@ hilt-android-testing = { module = "com.google.dagger:hilt-android-testing", vers
 hilt-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "hiltJetpackVersion" }
 json = { module = "org.json:json", version.ref = "jsonVersion" }
 junit = { module = "junit:junit", version.ref = "junitVersion" }
-kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlinVersion" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlinVersion" }
-kotlin-serialization = { module = "org.jetbrains.kotlin:kotlin-serialization", version.ref = "kotlinVersion" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlinVersion" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlinVersion" }
 kotlinx-collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlinxCollectionsImmutable" }
@@ -169,8 +163,6 @@ mockito-android = { module = "org.mockito:mockito-android" }
 mockito-core = { module = "org.mockito:mockito-core" }
 mockito-inline = { module = "org.mockito:mockito-inline", version.ref = "mockitoInlineVersion" }
 mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitoKotlinVersion" }
-oss-licenses-plugin = { module = "com.google.android.gms:oss-licenses-plugin", version.ref = "ossLicensesPluginVersion" }
-perf-plugin = { module = "com.google.firebase:perf-plugin", version.ref = "perfPluginVersion" }
 play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuthVersion" }
 play-services-code-scanner = { module = "com.google.android.gms:play-services-code-scanner", version.ref = "playServicesCodeScannerVersion" }
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesAuthVersion" }
@@ -178,7 +170,6 @@ play-services-maps = { module = "com.google.android.gms:play-services-maps", ver
 play-services-oss-licenses = { module = "com.google.android.gms:play-services-oss-licenses", version.ref = "playServicesOssLicensesVersion" }
 protobuf-kotlin-lite = { module = "com.google.protobuf:protobuf-kotlin-lite", version.ref = "protobufKotlinLiteVersion" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectricVersion" }
-secrets-gradle-plugin = { module = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin:secrets-gradle-plugin", version.ref = "secretsGradlePluginVersion" }
 testing = { module = "com.jraska.livedata:testing", version.ref = "testingVersion" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timberVersion" }
 truth = { module = "com.google.truth:truth", version.ref = "truthVersion" }
@@ -195,6 +186,14 @@ compose-ui-tooling-preview = { module = "org.jetbrains.compose.ui:ui-tooling-pre
 kermit = { module = "co.touchlab:kermit", version.ref = "kermitVersion" }
 
 [plugins]
+android-application = { id = "com.android.application", version.ref = "gradleVersion" }
+androidx-navigation-safeargs = { id = "androidx.navigation.safeargs", version.ref = "navigationKtxVersion" }
+google-services = { id = "com.google.gms.google-services", version.ref = "googleServicesVersion" }
+firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlyticsGradleVersion" }
+firebase-perf = { id = "com.google.firebase.firebase-perf", version.ref = "perfPluginVersion" }
+kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlinVersion" }
+oss-licenses = { id = "com.google.android.gms.oss-licenses-plugin", version.ref = "ossLicensesPluginVersion" }
+secrets-gradle-plugin = { id = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin", version.ref = "secretsGradlePluginVersion" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlinVersion" }
 compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatformVersion" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinVersion" }

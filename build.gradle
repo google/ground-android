@@ -26,32 +26,16 @@ buildscript {
         gradlePluginPortal()
     }
     dependencies {
-        classpath libs.androidx.navigation.safe.args.gradle.plugin
-        classpath libs.gradle
-        classpath libs.google.services
-
-        // Performance Monitoring plugin: https://firebase.google.com/docs/perf-mon
-        classpath libs.perf.plugin
-
-        // Crashlytics plugin
-        classpath libs.firebase.crashlytics.gradle
-
-        // Kotlin
-        classpath libs.kotlin.gradle.plugin
-        classpath libs.kotlin.serialization
-
-        // OSS Licenses Plugin
-        classpath libs.oss.licenses.plugin
-
-        // To fetch Maps API key from secrets.properties.
-        classpath libs.secrets.gradle.plugin
-
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
 }
 
 plugins {
+    alias libs.plugins.android.application apply false
+    alias libs.plugins.androidx.navigation.safeargs apply false
+    alias libs.plugins.google.services apply false
+    alias libs.plugins.kotlin.parcelize apply false
     alias libs.plugins.kotlin.serialization apply false
     alias libs.plugins.compose.compiler apply false
     alias libs.plugins.ksp apply false
@@ -60,6 +44,10 @@ plugins {
     alias libs.plugins.hilt.android apply false
     alias libs.plugins.detekt
     alias libs.plugins.protobuf apply false
+    alias libs.plugins.firebase.perf apply false
+    alias libs.plugins.firebase.crashlytics apply false
+    alias libs.plugins.oss.licenses apply false
+    alias libs.plugins.secrets.gradle.plugin apply false
     alias libs.plugins.kotlin.multiplatform apply false
     alias libs.plugins.android.kotlin.multiplatform.library apply false
     alias libs.plugins.android.lint apply false

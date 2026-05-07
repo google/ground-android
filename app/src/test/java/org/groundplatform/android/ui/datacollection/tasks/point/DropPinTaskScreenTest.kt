@@ -179,7 +179,6 @@ class DropPinTaskScreenTest : BaseHiltTest() {
     composeTestRule.setContent {
       DropPinTaskScreen(
         viewModel = viewModelToUse,
-        onFooterPositionUpdated = {},
         shouldShowLoiNameDialog = false,
         loiName = "",
         onButtonClicked = { action ->

@@ -16,8 +16,6 @@
 package org.groundplatform.android.ui.main
 
 import android.net.Uri
-import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import javax.inject.Inject
@@ -58,9 +56,6 @@ constructor(
 
   private val _navigationRequests: MutableSharedFlow<MainUiState?> = MutableSharedFlow()
   var navigationRequests: SharedFlow<MainUiState?> = _navigationRequests.asSharedFlow()
-
-  /** The window insets determined by the activity. */
-  val windowInsets: MutableLiveData<WindowInsetsCompat> = MutableLiveData()
 
   private val _deepLinkUri = MutableStateFlow<Uri?>(null)
 

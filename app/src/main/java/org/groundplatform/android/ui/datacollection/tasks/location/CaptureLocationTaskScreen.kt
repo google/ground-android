@@ -26,6 +26,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.components.ConfirmationDialog
+import org.groundplatform.android.ui.datacollection.TaskPosition
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.components.TaskHeader
@@ -39,15 +40,13 @@ import org.groundplatform.ui.theme.AppTheme
  * event routing.
  *
  * @param viewModel The view model for this task.
- * @param onFooterPositionUpdated Callback when the footer position changes.
- * @param onAction Callback for screen actions (e.g., navigation).
  * @param onOpenSettings Callback to open app settings when permission is denied.
  * @param mapContent Composable for rendering the map.
  */
 @Composable
 fun CaptureLocationTaskScreen(
   viewModel: CaptureLocationTaskViewModel,
-  onFooterPositionUpdated: (Float) -> Unit,
+  taskPosition: TaskPosition? = null,
   onButtonClicked: (ButtonAction) -> Unit,
   onOpenSettings: () -> Unit,
   mapContent: @Composable () -> Unit,
@@ -61,13 +60,13 @@ fun CaptureLocationTaskScreen(
 
   CaptureLocationTaskContent(
     taskLabel = viewModel.task.label,
+    taskPosition = taskPosition,
     taskActionButtonsStates = taskActionButtonsStates,
     showAccuracyCard = showAccuracyCard,
     showPermissionDeniedDialog = showPermissionDeniedDialog,
     onDismissAccuracyCard = { viewModel.dismissAccuracyCard() },
     onAllowLocationClicked = { viewModel.onAllowLocationClicked() },
     onOpenSettings = onOpenSettings,
-    onFooterPositionUpdated = onFooterPositionUpdated,
     onButtonClicked = onButtonClicked,
     mapContent = mapContent,
   )
@@ -77,33 +76,33 @@ fun CaptureLocationTaskScreen(
  * The stateless content of the capture location task screen.
  *
  * @param taskLabel The label of the task.
+ * @param taskPosition The position of the task in the sequence.
  * @param taskActionButtonsStates The states of the action buttons.
  * @param showAccuracyCard Whether to show the accuracy warning card.
  * @param showPermissionDeniedDialog Whether to show the permission denied dialog.
  * @param onDismissAccuracyCard Callback when the accuracy card is dismissed.
  * @param onAllowLocationClicked Callback when the allow location button is clicked in the dialog.
  * @param onOpenSettings Callback to open app settings.
- * @param onFooterPositionUpdated Callback when the footer position changes.
  * @param onButtonClicked Callback when a button is clicked.
  * @param mapContent Composable for rendering the map.
  */
 @Composable
 private fun CaptureLocationTaskContent(
   taskLabel: String,
+  taskPosition: TaskPosition? = null,
   taskActionButtonsStates: List<ButtonActionState>,
   showAccuracyCard: Boolean,
   showPermissionDeniedDialog: Boolean,
   onDismissAccuracyCard: () -> Unit,
   onAllowLocationClicked: () -> Unit,
   onOpenSettings: () -> Unit,
-  onFooterPositionUpdated: (Float) -> Unit,
   onButtonClicked: (ButtonAction) -> Unit,
   mapContent: @Composable () -> Unit,
 ) {
   TaskScreen(
     taskHeader = TaskHeader(taskLabel, R.drawable.outline_pin_drop),
+    taskPosition = taskPosition,
     taskActionButtonsStates = taskActionButtonsStates,
-    onFooterPositionUpdated = onFooterPositionUpdated,
     onButtonClicked = onButtonClicked,
     footerContent = {
       if (showAccuracyCard) {
@@ -151,7 +150,6 @@ private fun CaptureLocationTaskScreenPreview() {
       onDismissAccuracyCard = {},
       onAllowLocationClicked = {},
       onOpenSettings = {},
-      onFooterPositionUpdated = {},
       onButtonClicked = {},
       mapContent = {},
     )

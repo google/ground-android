@@ -31,6 +31,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
+import org.groundplatform.android.ui.datacollection.TaskPosition
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreen
@@ -39,13 +40,12 @@ import org.groundplatform.domain.model.task.Option
 import org.groundplatform.ui.theme.AppTheme
 import org.groundplatform.ui.theme.sizes
 
-@VisibleForTesting
-const val MULTIPLE_CHOICE_LIST_TEST_TAG = "multiple choice items test tag"
+@VisibleForTesting const val MULTIPLE_CHOICE_LIST_TEST_TAG = "multiple choice items test tag"
 
 @Composable
 fun MultipleChoiceTaskScreen(
   viewModel: MultipleChoiceTaskViewModel,
-  onFooterPositionUpdated: (Float) -> Unit,
+  taskPosition: TaskPosition? = null,
   onButtonClicked: (ButtonAction) -> Unit,
 ) {
   val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
@@ -54,8 +54,8 @@ fun MultipleChoiceTaskScreen(
   TaskScreen(
     taskHeader =
       TaskHeader(label = viewModel.task.label, iconResId = R.drawable.ic_question_answer),
+    taskPosition = taskPosition,
     taskActionButtonsStates = taskActionButtonsStates,
-    onFooterPositionUpdated = onFooterPositionUpdated,
     onButtonClicked = onButtonClicked,
     taskBody = {
       MultipleChoiceTaskContent(
