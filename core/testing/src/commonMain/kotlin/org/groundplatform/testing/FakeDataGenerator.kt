@@ -17,6 +17,7 @@ package org.groundplatform.testing
 
 import kotlin.time.Clock
 import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.SurveyListItem
 import org.groundplatform.domain.model.User
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.Geometry
@@ -211,4 +212,12 @@ object FakeDataGenerator {
       lastError = lastError,
       deltas = deltas,
     )
+
+  fun newSurveyListItem(
+    id: String = "survey id",
+    title: String = "Survey title",
+    description: String = "Test survey description",
+    availableOffline: Boolean = false,
+    generalAccess: Survey.GeneralAccess = Survey.GeneralAccess.PUBLIC,
+  ) = SurveyListItem(id, title, description, availableOffline, generalAccess)
 }

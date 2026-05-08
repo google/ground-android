@@ -225,4 +225,8 @@
   <string name="share_location">Partager l&#8217;emplacement</string>
   <string name="scan_this_qr_to_download_geojson">Scannez ce code QR pour afficher le GeoJson</string>
   <string name="share">Partager</string>
+
+  <string name="join_survey">Rejoindre une enquête</string>
+  <string name="invalid_survey_qr_code">Code QR d&#8217;enquête non reconnu</string>
+  <string name="join_survey_confirm_title">Rejoindre cette enquête ?</string>
 </resources>

@@ -15,15 +15,20 @@
  */
 package org.groundplatform.android.ui.surveyselector.components
 
+import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.assertHasNoClickAction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import com.google.common.truth.Truth.assertThat
 import org.groundplatform.android.R
 import org.groundplatform.android.getString
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.SurveyListItem
+import org.groundplatform.testing.FakeDataGenerator.newSurveyListItem
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,85 +41,117 @@ class SurveyCardItemTest {
 
   @Test
   fun `Displays restricted survey correctly`() {
-    val item =
-      SurveyListItem(
-        id = "1",
-        title = "Test Survey",
-        description = "Description",
-        availableOffline = false,
-        generalAccess = Survey.GeneralAccess.RESTRICTED,
-      )
-    composeTestRule.setContent { SurveyCardItem(item = item, onCardClick = {}, menuClick = {}) }
+    val item = newSurveyListItem(generalAccess = Survey.GeneralAccess.RESTRICTED)
+    setContent(item, onCardClick = {}, menuClick = {})
 
     composeTestRule.onNodeWithText(getString(R.string.access_restricted)).assertIsDisplayed()
-
     assertAvailableOffline(false)
   }
 
   @Test
   fun `Displays unspecified access survey correctly`() {
-    val item =
-      SurveyListItem(
-        id = "2",
-        title = "Test Survey",
-        description = "Description",
-        availableOffline = false,
-        generalAccess = Survey.GeneralAccess.GENERAL_ACCESS_UNSPECIFIED,
-      )
-    composeTestRule.setContent { SurveyCardItem(item = item, onCardClick = {}, menuClick = {}) }
+    val item = newSurveyListItem(generalAccess = Survey.GeneralAccess.GENERAL_ACCESS_UNSPECIFIED)
+    setContent(item, onCardClick = {}, menuClick = {})
 
     composeTestRule.onNodeWithText(getString(R.string.access_restricted)).assertIsDisplayed()
-
     assertAvailableOffline(false)
   }
 
   @Test
   fun `Displays unlisted survey correctly`() {
-    val item =
-      SurveyListItem(
-        id = "3",
-        title = "Test Survey",
-        description = "Description",
-        availableOffline = false,
-        generalAccess = Survey.GeneralAccess.UNLISTED,
-      )
-    composeTestRule.setContent { SurveyCardItem(item = item, onCardClick = {}, menuClick = {}) }
+    val item = newSurveyListItem(generalAccess = Survey.GeneralAccess.UNLISTED)
+    setContent(item, onCardClick = {}, menuClick = {})
 
     composeTestRule.onNodeWithText(getString(R.string.access_unlisted)).assertIsDisplayed()
-
     assertAvailableOffline(false)
   }
 
   @Test
   fun `Displays public survey correctly`() {
-    val item =
-      SurveyListItem(
-        id = "4",
-        title = "Test Survey",
-        description = "Description",
-        availableOffline = false,
-        generalAccess = Survey.GeneralAccess.PUBLIC,
-      )
-    composeTestRule.setContent { SurveyCardItem(item = item, onCardClick = {}, menuClick = {}) }
+    val item = newSurveyListItem(generalAccess = Survey.GeneralAccess.PUBLIC)
+    setContent(item, onCardClick = {}, menuClick = {})
 
     composeTestRule.onNodeWithText(getString(R.string.access_public)).assertIsDisplayed()
-
     assertAvailableOffline(false)
   }
 
   @Test
   fun `Displays offline survey correctly`() {
-    val item =
-      SurveyListItem(
-        id = "1",
-        title = "Test Survey",
-        description = "Description",
-        availableOffline = true,
-        generalAccess = Survey.GeneralAccess.RESTRICTED,
-      )
-    composeTestRule.setContent { SurveyCardItem(item = item, onCardClick = {}, menuClick = {}) }
+    val item = newSurveyListItem(availableOffline = true)
+    setContent(item, onCardClick = {}, menuClick = {})
 
     assertAvailableOffline(true)
+  }
+
+  @Test
+  fun `Card click invokes onCardClick with survey id`() {
+    val item = newSurveyListItem()
+    var clickedId: String? = null
+    setContent(item, onCardClick = { clickedId = it })
+
+    composeTestRule.onNodeWithText(item.title).performClick()
+
+    assertThat(clickedId).isEqualTo(item.id)
+  }
+
+  @Test
+  fun `Card has no click action when onCardClick is null`() {
+    val item = newSurveyListItem()
+    setContent(item, onCardClick = null)
+
+    composeTestRule.onNodeWithText(item.title).assertHasNoClickAction()
+  }
+
+  @Test
+  fun `Card has click action when onCardClick is provided`() {
+    val item = newSurveyListItem()
+    setContent(item, onCardClick = {})
+
+    composeTestRule.onNodeWithText(item.title).assertHasClickAction()
+  }
+
+  @Test
+  fun `Menu icon is hidden when menuClick is null even if available offline`() {
+    val item = newSurveyListItem(availableOffline = true)
+    setContent(item, menuClick = null)
+
+    composeTestRule
+      .onNodeWithContentDescription(getString(R.string.more_options_icon_description))
+      .assertIsNotDisplayed()
+  }
+
+  @Test
+  fun `Menu icon click invokes menuClick with survey id`() {
+    val item = newSurveyListItem(availableOffline = true)
+    var clickedId: String? = null
+    setContent(item, menuClick = { clickedId = it })
+
+    composeTestRule
+      .onNodeWithContentDescription(getString(R.string.more_options_icon_description))
+      .performClick()
+
+    assertThat(clickedId).isEqualTo(item.id)
+  }
+
+  @Test
+  fun `Both callbacks null renders card without click actions or menu`() {
+    val item = newSurveyListItem(availableOffline = true)
+    setContent(item, onCardClick = null, menuClick = null)
+
+    composeTestRule.onNodeWithText(item.title).assertHasNoClickAction()
+    composeTestRule
+      .onNodeWithContentDescription(getString(R.string.more_options_icon_description))
+      .assertIsNotDisplayed()
+  }
+
+  private fun setContent(
+    item: SurveyListItem,
+    onCardClick: ((String) -> Unit)? = null,
+    menuClick: ((String) -> Unit)? = null,
+  ) {
+    composeTestRule.setContent {
+      SurveyCardItem(item = item, onCardClick = onCardClick, menuClick = menuClick)
+    }
   }
 
   private fun assertAvailableOffline(isAvailable: Boolean) {

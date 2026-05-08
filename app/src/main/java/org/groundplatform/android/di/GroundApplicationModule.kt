@@ -25,6 +25,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import java.util.Locale
 import javax.inject.Singleton
+import org.groundplatform.android.R
+import org.groundplatform.android.util.SurveyDeepLinkParser
 
 @InstallIn(SingletonComponent::class)
 @Module(includes = [ViewModelModule::class])
@@ -38,4 +40,11 @@ object GroundApplicationModule {
   fun provideResources(@ApplicationContext context: Context): Resources = context.resources
 
   @Provides fun provideLocale(): Locale = Locale.getDefault()
+
+  @Provides
+  fun providesSurveyDeepLinkParser(resources: Resources) =
+    SurveyDeepLinkParser(
+      deepLinkHost = resources.getString(R.string.deeplink_host),
+      deepLinkPath = resources.getString(R.string.survey_deeplink_path),
+    )
 }

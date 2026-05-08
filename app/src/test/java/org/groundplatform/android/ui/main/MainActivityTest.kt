@@ -17,7 +17,7 @@ package org.groundplatform.android.ui.main
 
 import android.content.Intent
 import android.net.Uri
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.navigation.fragment.NavHostFragment
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
@@ -54,7 +54,7 @@ class MainActivityTest : BaseHiltTest() {
   fun `Launch app with survey ID navigates to survey selector when user is logged in`() =
     runWithTestDispatcher {
       tosRepository.isTermsOfServiceAccepted = true
-      val uri = Uri.parse("https://groundplatform.org/android/survey/surveyId")
+      val uri = Uri.parse("https://ground-dev-sig.web.app/android/survey/surveyId")
       val intent = Intent(Intent.ACTION_VIEW, uri)
 
       Robolectric.buildActivity(MainActivity::class.java, intent).use { controller ->
