@@ -41,10 +41,10 @@ import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
 import org.groundplatform.android.usecases.survey.ListAvailableSurveysUseCase
 import org.groundplatform.android.usecases.survey.RemoveOfflineSurveyUseCase
+import org.groundplatform.android.util.SurveyDeepLinkParser
 import org.groundplatform.domain.model.SurveyListItem
 import org.groundplatform.domain.repository.UserRepositoryInterface
 import org.groundplatform.domain.usecases.survey.GetSurveyListItemUseCase
-import org.groundplatform.domain.util.SurveyQrCodeParser
 import timber.log.Timber
 
 /** Represents view state and behaviors of the survey selector dialog. */
@@ -57,7 +57,7 @@ internal constructor(
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
   listAvailableSurveysUseCase: ListAvailableSurveysUseCase,
   private val gmsQrCodeScanner: GmsQrCodeScanner,
-  private val surveyQrCodeParser: SurveyQrCodeParser,
+  private val surveyDeepLinkParser: SurveyDeepLinkParser,
   private val removeOfflineSurveyUseCase: RemoveOfflineSurveyUseCase,
   private val getSurveyListItem: GetSurveyListItemUseCase,
   private val userRepository: UserRepositoryInterface,
@@ -137,7 +137,7 @@ internal constructor(
     viewModelScope.launch {
       when (val result = gmsQrCodeScanner.scan()) {
         is GmsQrCodeScanner.Result.Success -> {
-          val surveyId = surveyQrCodeParser(result.text)
+          val surveyId = surveyDeepLinkParser.parse(result.text)
           if (surveyId == null) {
             _events.send(SurveySelectorEvent.ShowError(SurveySelectorEvent.ErrorType.InvalidQrCode))
           } else {

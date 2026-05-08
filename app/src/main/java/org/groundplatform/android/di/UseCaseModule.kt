@@ -15,12 +15,10 @@
  */
 package org.groundplatform.android.di
 
-import android.content.res.Resources
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import org.groundplatform.android.R
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import org.groundplatform.domain.repository.SubmissionRepositoryInterface
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
@@ -31,7 +29,6 @@ import org.groundplatform.domain.usecases.survey.GetSurveyListItemUseCase
 import org.groundplatform.domain.usecases.survey.SyncSurveyUseCase
 import org.groundplatform.domain.usecases.user.GetUserSettingsUseCase
 import org.groundplatform.domain.usecases.user.UpdateUserSettingsUseCase
-import org.groundplatform.domain.util.SurveyQrCodeParser
 
 @InstallIn(SingletonComponent::class)
 @Module
@@ -60,13 +57,6 @@ object UseCaseModule {
     loiRepository: LocationOfInterestRepositoryInterface,
     submissionRepository: SubmissionRepositoryInterface,
   ) = SubmitDataUseCase(loiRepository, submissionRepository)
-
-  @Provides
-  fun providesSurveyQrCodeParser(resources: Resources) =
-    SurveyQrCodeParser(
-      deepLinkHost = resources.getString(R.string.deeplink_host),
-      deepLinkPath = resources.getString(R.string.survey_deeplink_path),
-    )
 
   @Provides
   fun providesGetSurveyListItemUseCase(surveyRepository: SurveyRepositoryInterface) =

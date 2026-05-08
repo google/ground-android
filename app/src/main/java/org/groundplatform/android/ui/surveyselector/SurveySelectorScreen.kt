@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android.ui.surveyselector
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -105,7 +106,8 @@ fun SurveySelectorScreen(
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SurveySelectorScreen(
+@VisibleForTesting
+fun SurveySelectorScreen(
   uiState: SurveySelectorUiState,
   onBack: () -> Unit,
   onSignOut: () -> Unit,

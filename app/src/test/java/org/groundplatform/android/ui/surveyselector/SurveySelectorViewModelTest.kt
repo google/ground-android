@@ -35,11 +35,11 @@ import org.groundplatform.android.system.GmsQrCodeScanner
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
 import org.groundplatform.android.usecases.survey.ListAvailableSurveysUseCase
 import org.groundplatform.android.usecases.survey.RemoveOfflineSurveyUseCase
+import org.groundplatform.android.util.SurveyDeepLinkParser
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.SurveyListItem
 import org.groundplatform.domain.repository.UserRepositoryInterface
 import org.groundplatform.domain.usecases.survey.GetSurveyListItemUseCase
-import org.groundplatform.domain.util.SurveyQrCodeParser
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -54,7 +54,7 @@ class SurveySelectorViewModelTest : BaseHiltTest() {
 
   @Mock lateinit var activateSurveyUseCase: ActivateSurveyUseCase
   @Mock lateinit var listAvailableSurveysUseCase: ListAvailableSurveysUseCase
-  @Mock lateinit var parseSurveyQrCodeUseCase: SurveyQrCodeParser
+  @Mock lateinit var surveyDeepLinkParser: SurveyDeepLinkParser
   @Mock lateinit var qrCodeScanner: GmsQrCodeScanner
   @Mock lateinit var removeOfflineSurveyUseCase: RemoveOfflineSurveyUseCase
   @Mock lateinit var getSurveyListItemUseCase: GetSurveyListItemUseCase
@@ -81,7 +81,7 @@ class SurveySelectorViewModelTest : BaseHiltTest() {
         ioDispatcher,
         listAvailableSurveysUseCase,
         qrCodeScanner,
-        parseSurveyQrCodeUseCase,
+        surveyDeepLinkParser,
         removeOfflineSurveyUseCase,
         getSurveyListItemUseCase,
         userRepository,
@@ -181,7 +181,7 @@ class SurveySelectorViewModelTest : BaseHiltTest() {
     whenever(getSurveyListItemUseCase(TEST_SURVEY.id)).thenReturn(TEST_SURVEY)
     createViewModel()
     whenever(qrCodeScanner.scan()).thenReturn(GmsQrCodeScanner.Result.Success(payload))
-    whenever(parseSurveyQrCodeUseCase(payload)).thenReturn(TEST_SURVEY.id)
+    whenever(surveyDeepLinkParser.parse(payload)).thenReturn(TEST_SURVEY.id)
 
     viewModel.joinSurveyByQrCode()
     val state = viewModel.uiState.first { it.pendingJoinSurvey != null }
@@ -195,7 +195,7 @@ class SurveySelectorViewModelTest : BaseHiltTest() {
       whenever(getSurveyListItemUseCase(TEST_SURVEY.id)).thenReturn(TEST_SURVEY)
       createViewModel()
       whenever(qrCodeScanner.scan()).thenReturn(GmsQrCodeScanner.Result.Success(payload))
-      whenever(parseSurveyQrCodeUseCase(payload)).thenReturn(TEST_SURVEY.id)
+      whenever(surveyDeepLinkParser.parse(payload)).thenReturn(TEST_SURVEY.id)
       whenever(activateSurveyUseCase(TEST_SURVEY.id)).thenReturn(true)
 
       viewModel.events.test {
@@ -213,7 +213,7 @@ class SurveySelectorViewModelTest : BaseHiltTest() {
       whenever(getSurveyListItemUseCase(TEST_SURVEY.id)).thenReturn(TEST_SURVEY)
       createViewModel()
       whenever(qrCodeScanner.scan()).thenReturn(GmsQrCodeScanner.Result.Success(payload))
-      whenever(parseSurveyQrCodeUseCase(payload)).thenReturn(TEST_SURVEY.id)
+      whenever(surveyDeepLinkParser.parse(payload)).thenReturn(TEST_SURVEY.id)
 
       viewModel.events.test {
         viewModel.joinSurveyByQrCode()
@@ -229,7 +229,7 @@ class SurveySelectorViewModelTest : BaseHiltTest() {
       val payload = "https://groundplatform.org/android/survey/missing"
       createViewModel()
       whenever(qrCodeScanner.scan()).thenReturn(GmsQrCodeScanner.Result.Success(payload))
-      whenever(parseSurveyQrCodeUseCase(payload)).thenReturn("missing")
+      whenever(surveyDeepLinkParser.parse(payload)).thenReturn("missing")
 
       viewModel.events.test {
         viewModel.joinSurveyByQrCode()
@@ -242,7 +242,7 @@ class SurveySelectorViewModelTest : BaseHiltTest() {
   fun `joinSurveyByQrCode emits invalid event for bad payload`() = runWithTestDispatcher {
     createViewModel()
     whenever(qrCodeScanner.scan()).thenReturn(GmsQrCodeScanner.Result.Success("not a url"))
-    whenever(parseSurveyQrCodeUseCase("not a url")).thenReturn(null)
+    whenever(surveyDeepLinkParser.parse("not a url")).thenReturn(null)
 
     viewModel.events.test {
       viewModel.joinSurveyByQrCode()

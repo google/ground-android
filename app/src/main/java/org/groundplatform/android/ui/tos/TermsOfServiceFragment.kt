@@ -33,16 +33,17 @@ import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import org.groundplatform.android.R
-import org.groundplatform.android.common.Constants.SURVEY_PATH_SEGMENT
 import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.common.EphemeralPopups
 import org.groundplatform.android.ui.surveyselector.SurveySelectorFragmentDirections
+import org.groundplatform.android.util.SurveyDeepLinkParser
 import org.groundplatform.android.util.createComposeView
 
 @AndroidEntryPoint
 class TermsOfServiceFragment : AbstractFragment() {
 
   @Inject lateinit var popups: EphemeralPopups
+  @Inject lateinit var surveyDeepLinkParser: SurveyDeepLinkParser
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -52,17 +53,7 @@ class TermsOfServiceFragment : AbstractFragment() {
     TermsOfServiceScreen(
       onNavigateUp = { findNavController().navigateUp() },
       onNavigateToSurveySelector = {
-        activity?.intent?.data?.let { uri ->
-          val pathSegments = uri.pathSegments
-
-          if (SURVEY_PATH_SEGMENT in pathSegments) {
-            val index = pathSegments.indexOf(SURVEY_PATH_SEGMENT)
-            val surveyId = pathSegments.getOrNull(index + 1)
-            openSurveySelector(surveyId)
-          } else {
-            openSurveySelector()
-          }
-        } ?: run { openSurveySelector() }
+        openSurveySelector(activity?.intent?.data?.let { surveyDeepLinkParser.parse(it) })
       },
       onLoadError = { popups.ErrorPopup().show(R.string.load_tos_failed) },
       termsContent = { html -> TermsTextView(fromHtml(html, 0)) },
