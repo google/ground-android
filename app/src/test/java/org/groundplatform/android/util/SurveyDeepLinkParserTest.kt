@@ -28,8 +28,7 @@ class SurveyDeepLinkParserTest {
 
   @Test
   fun `extracts survey id from raw string payload`() {
-    assertThat(parser.parse("https://groundplatform.org/android/survey/testId"))
-      .isEqualTo("testId")
+    assertThat(parser.parse("https://groundplatform.org/android/survey/testId")).isEqualTo("testId")
   }
 
   @Test

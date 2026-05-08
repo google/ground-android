@@ -17,7 +17,7 @@ package org.groundplatform.android.ui.main
 
 import android.content.Intent
 import android.net.Uri
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.navigation.fragment.NavHostFragment
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
@@ -29,7 +29,6 @@ import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.R
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
-import org.groundplatform.android.util.SurveyDeepLinkParser
 import org.groundplatform.domain.model.auth.SignInState
 import org.groundplatform.domain.repository.TermsOfServiceRepositoryInterface
 import org.junit.Rule
