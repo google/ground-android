@@ -30,6 +30,8 @@ data class Size(
   val progressIndicatorSize: Dp = 24.dp,
   val progressIndicatorStrokeWidth: Dp = 2.dp,
   val taskViewPadding: Dp = 16.dp,
+  val settingsTrailingIconSize: Dp = 24.dp,
+  val settingsTrailingIconEndPadding: Dp = 16.dp
 )
 
 internal val LocalSizes = compositionLocalOf { Size() }

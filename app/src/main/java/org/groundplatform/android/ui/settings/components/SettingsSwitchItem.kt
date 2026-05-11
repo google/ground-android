@@ -15,27 +15,35 @@
  */
 package org.groundplatform.android.ui.settings.components
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.ui.theme.AppTheme
+import org.groundplatform.ui.theme.sizes
 
 /**
  * A reusable settings item component with a title, optional summary, and a switch toggle.
  *
+ * @param modifier The [Modifier] to be applied to the root of this item.
+ * @param trailingIcon Drawable resource for the icon shown next to the title.
  * @param title The primary text to be displayed for the setting.
  * @param summary Optional secondary text providing additional details about the setting.
  * @param checked Whether the switch is currently in the "on" position.
@@ -43,6 +51,8 @@ import org.groundplatform.ui.theme.AppTheme
  */
 @Composable
 internal fun SettingsSwitchItem(
+  modifier: Modifier = Modifier,
+  @DrawableRes trailingIcon: Int,
   title: String,
   summary: String? = null,
   checked: Boolean,
@@ -50,11 +60,20 @@ internal fun SettingsSwitchItem(
 ) {
   Row(
     modifier =
-      Modifier.fillMaxWidth()
+      modifier
+        .fillMaxWidth()
         .toggleable(value = checked, onValueChange = onCheckedChange, role = Role.Switch)
         .padding(16.dp),
     verticalAlignment = Alignment.CenterVertically,
   ) {
+    Icon(
+      modifier =
+        Modifier.padding(end = MaterialTheme.sizes.settingsTrailingIconEndPadding)
+          .size(MaterialTheme.sizes.settingsTrailingIconSize),
+      painter = painterResource(trailingIcon),
+      contentDescription = null,
+      tint = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
     Column(modifier = Modifier.weight(1f)) {
       Text(text = title, style = MaterialTheme.typography.titleMedium)
       if (summary != null) {
@@ -75,8 +94,20 @@ internal fun SettingsSwitchItem(
 private fun Preview() {
   AppTheme {
     Column(verticalArrangement = Arrangement.SpaceEvenly) {
-      SettingsSwitchItem(title = "Name", summary = "Value", checked = true, onCheckedChange = {})
-      SettingsSwitchItem(title = "Name", summary = null, checked = false, onCheckedChange = {})
+      SettingsSwitchItem(
+        trailingIcon = R.drawable.ic_cloud_upload,
+        title = "Name",
+        summary = "Value",
+        checked = true,
+        onCheckedChange = {},
+      )
+      SettingsSwitchItem(
+        trailingIcon = R.drawable.ic_cloud_upload,
+        title = "Name",
+        summary = null,
+        checked = false,
+        onCheckedChange = {},
+      )
     }
   }
 }

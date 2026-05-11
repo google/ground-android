@@ -15,38 +15,60 @@
  */
 package org.groundplatform.android.ui.settings.components
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.ui.theme.AppTheme
+import org.groundplatform.ui.theme.sizes
 
 /**
  * A reusable UI component representing a single row in a settings screen.
  *
+ * @param modifier The [Modifier] to be applied to the root of this item.
+ * @param trailingIcon Drawable resource for the icon shown next to the title.
  * @param title The primary text to be displayed for the setting.
  * @param summary Optional secondary text to be displayed below the title, providing more detail.
  * @param onClick The callback to be invoked when the item is clicked.
  */
 @Composable
-internal fun SettingsItem(title: String, summary: String? = null, onClick: () -> Unit) {
+internal fun SettingsItem(
+  modifier: Modifier = Modifier,
+  @DrawableRes trailingIcon: Int,
+  title: String,
+  summary: String? = null,
+  onClick: () -> Unit,
+) {
   Row(
     modifier =
-      Modifier.fillMaxWidth().clickable(onClick = onClick, role = Role.Button).padding(16.dp),
+      modifier.fillMaxWidth().clickable(onClick = onClick, role = Role.Button).padding(16.dp),
     verticalAlignment = Alignment.CenterVertically,
   ) {
-    Column(modifier = Modifier.weight(1f)) {
+    Icon(
+      modifier =
+        Modifier.padding(end = MaterialTheme.sizes.settingsTrailingIconEndPadding)
+          .size(MaterialTheme.sizes.settingsTrailingIconSize),
+      painter = painterResource(trailingIcon),
+      contentDescription = null,
+      tint = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+    Column {
       Text(text = title, style = MaterialTheme.typography.titleMedium)
       if (summary != null) {
         Text(
@@ -65,8 +87,24 @@ internal fun SettingsItem(title: String, summary: String? = null, onClick: () ->
 private fun Preview() {
   AppTheme {
     Column(verticalArrangement = Arrangement.SpaceEvenly) {
-      SettingsItem(title = "Name", summary = "Summary", onClick = {})
-      SettingsItem(title = "Name", summary = null, onClick = {})
+      SettingsItem(
+        trailingIcon = R.drawable.ic_language,
+        title = "Name",
+        summary = "Summary",
+        onClick = {},
+      )
+      SettingsItem(
+        trailingIcon = R.drawable.ic_language,
+        title = "Name",
+        summary = null,
+        onClick = {},
+      )
+      SettingsItem(
+        trailingIcon = R.drawable.ic_language,
+        title = "Language",
+        summary = "English",
+        onClick = {},
+      )
     }
   }
 }
