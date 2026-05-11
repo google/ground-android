@@ -22,11 +22,11 @@
   <string name="ground_website" translatable="false">https://groundplatform.org/</string>
   <string name="deeplink_host" translatable="false">ground-dev-sig.web.app</string>
   <string name="survey_deeplink_path" translatable="false">/android/survey/</string>
-  <string name="lang_english">English</string>
-  <string name="lang_french">Français</string>
-  <string name="lang_spanish">Español</string>
-  <string name="lang_lao">ພາສາລາວ</string>
-  <string name="lang_portuguese">Português</string>
-  <string name="lang_thai">ไทย</string>
-  <string name="lang_vietnamese">Tiếng Việt</string>
+  <string name="lang_english" translatable="false">English</string>
+  <string name="lang_french" translatable="false">Français</string>
+  <string name="lang_spanish" translatable="false">Español</string>
+  <string name="lang_lao" translatable="false">ພາສາລາວ</string>
+  <string name="lang_portuguese" translatable="false">Português</string>
+  <string name="lang_thai" translatable="false">ไทย</string>
+  <string name="lang_vietnamese" translatable="false">Tiếng Việt</string>
 </resources>
