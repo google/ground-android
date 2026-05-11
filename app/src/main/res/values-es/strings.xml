@@ -205,14 +205,6 @@
   <string name="text_task_data_character_limit">Máx. 255 caracteres</string>
   <string name="area_message">Área: %s</string>
 
-  <string name="lang_english">Inglés</string>
-  <string name="lang_french">Francés</string>
-  <string name="lang_spanish">Español</string>
-  <string name="lang_portuguese">Portugués</string>
-
-  <string name="lang_vietnamese">Vietnamita</string>
-  <string name="lang_thai">Tailandés</string>
-  <string name="lang_lao">Lao</string>
   <string name="access_restricted">Restringido</string>
   <string name="access_unlisted">No listado</string>
   <string name="access_public">Público</string>
