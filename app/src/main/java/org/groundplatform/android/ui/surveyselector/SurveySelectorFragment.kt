@@ -59,6 +59,8 @@ class SurveySelectorFragment : AbstractFragment(), BackPressListener {
                   ephemeralPopups.ErrorPopup().unknownError()
                 SurveySelectorEvent.ErrorType.InvalidQrCode ->
                   ephemeralPopups.ErrorPopup().show(R.string.invalid_survey_qr_code)
+                SurveySelectorEvent.ErrorType.ScannerUnavailable ->
+                  ephemeralPopups.ErrorPopup().show(R.string.google_api_install_failed)
               }
             },
           )

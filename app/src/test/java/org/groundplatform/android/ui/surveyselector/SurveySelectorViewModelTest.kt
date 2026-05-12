@@ -18,6 +18,8 @@ package org.groundplatform.android.ui.surveyselector
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
+import com.google.firebase.firestore.FirebaseFirestoreException
+import com.google.mlkit.common.MlKitException
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.CoroutineDispatcher
@@ -44,6 +46,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
+import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
@@ -152,6 +155,19 @@ class SurveySelectorViewModelTest : BaseHiltTest() {
           .isEqualTo(SurveySelectorEvent.ShowError(SurveySelectorEvent.ErrorType.Timeout))
       }
     }
+
+  @Test
+  fun `activateSurvey emits Timeout on Firestore UNAVAILABLE`() = runWithTestDispatcher {
+    createViewModel()
+    val error = FirebaseFirestoreException("offline", FirebaseFirestoreException.Code.UNAVAILABLE)
+    doAnswer { throw error }.whenever(activateSurveyUseCase).invoke("1")
+
+    viewModel.events.test {
+      viewModel.activateSurvey("1")
+      assertThat(awaitItem())
+        .isEqualTo(SurveySelectorEvent.ShowError(SurveySelectorEvent.ErrorType.Timeout))
+    }
+  }
 
   @Test
   fun `activateSurvey from deeplink works correctly`() = runWithTestDispatcher {
@@ -275,6 +291,35 @@ class SurveySelectorViewModelTest : BaseHiltTest() {
           .isEqualTo(SurveySelectorEvent.ShowError(SurveySelectorEvent.ErrorType.Generic(error)))
       }
     }
+
+  @Test
+  fun `joinSurveyByQrCode emits ScannerUnavailable when scanner module is unavailable`() =
+    runWithTestDispatcher {
+      createViewModel()
+      val error = MlKitException("scanner unavailable", MlKitException.CODE_SCANNER_UNAVAILABLE)
+      whenever(qrCodeScanner.scan()).thenReturn(GmsQrCodeScanner.Result.Error(error))
+
+      viewModel.events.test {
+        viewModel.joinSurveyByQrCode()
+        assertThat(awaitItem())
+          .isEqualTo(
+            SurveySelectorEvent.ShowError(SurveySelectorEvent.ErrorType.ScannerUnavailable)
+          )
+      }
+    }
+
+  @Test
+  fun `joinSurveyByQrCode emits Timeout on MlKit NETWORK_ISSUE`() = runWithTestDispatcher {
+    createViewModel()
+    val error = MlKitException("network issue", MlKitException.NETWORK_ISSUE)
+    whenever(qrCodeScanner.scan()).thenReturn(GmsQrCodeScanner.Result.Error(error))
+
+    viewModel.events.test {
+      viewModel.joinSurveyByQrCode()
+      assertThat(awaitItem())
+        .isEqualTo(SurveySelectorEvent.ShowError(SurveySelectorEvent.ErrorType.Timeout))
+    }
+  }
 
   @Test
   fun `surveyList failure emits Generic error event`() = runWithTestDispatcher {
