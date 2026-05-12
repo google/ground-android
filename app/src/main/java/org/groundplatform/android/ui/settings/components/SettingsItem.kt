@@ -68,7 +68,7 @@ internal fun SettingsItem(
       contentDescription = null,
       tint = MaterialTheme.colorScheme.onSurfaceVariant,
     )
-    Column {
+    Column(modifier = Modifier.weight(1f)) {
       Text(text = title, style = MaterialTheme.typography.titleMedium)
       if (summary != null) {
         Text(
@@ -87,18 +87,8 @@ internal fun SettingsItem(
 private fun Preview() {
   AppTheme {
     Column(verticalArrangement = Arrangement.SpaceEvenly) {
-      SettingsItem(
-        icon = R.drawable.ic_language,
-        title = "Name",
-        summary = "Summary",
-        onClick = {},
-      )
-      SettingsItem(
-        icon = R.drawable.ic_language,
-        title = "Name",
-        summary = null,
-        onClick = {},
-      )
+      SettingsItem(icon = R.drawable.ic_language, title = "Name", summary = "Summary", onClick = {})
+      SettingsItem(icon = R.drawable.ic_language, title = "Name", summary = null, onClick = {})
       SettingsItem(
         icon = R.drawable.ic_language,
         title = "Language",
