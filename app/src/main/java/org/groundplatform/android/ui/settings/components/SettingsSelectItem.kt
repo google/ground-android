@@ -43,7 +43,7 @@ import org.groundplatform.ui.theme.AppTheme
  *
  * When clicked, it displays a dropdown menu with options populated from the provided resource IDs.
  *
- * @param trailingIcon Drawable resource for the icon shown next to the title.
+ * @param icon Drawable resource for the icon shown next to the title.
  * @param title The title of the settings item.
  * @param entriesResId The resource ID of the string array containing the display labels.
  * @param entryValues The resource ID of the string array containing the underlying values.
@@ -52,7 +52,7 @@ import org.groundplatform.ui.theme.AppTheme
  */
 @Composable
 internal fun SettingsSelectItem(
-  @DrawableRes trailingIcon: Int,
+  @DrawableRes icon: Int,
   title: String,
   @ArrayRes entriesResId: Int,
   @ArrayRes entryValues: Int,
@@ -74,7 +74,7 @@ internal fun SettingsSelectItem(
 
   Box(modifier = Modifier.fillMaxWidth()) {
     SettingsItem(
-      trailingIcon = trailingIcon,
+      icon = icon,
       title = title,
       summary = selectedOption?.label ?: "",
       onClick = { expanded = true },
@@ -107,7 +107,7 @@ internal data class Option(val label: String, val value: String)
 private fun PreviewSelectItem() {
   AppTheme {
     SettingsSelectItem(
-      trailingIcon = R.drawable.ic_language,
+      icon = R.drawable.ic_language,
       title = "Language",
       entriesResId = R.array.language_entries,
       entryValues = R.array.language_entry_values,

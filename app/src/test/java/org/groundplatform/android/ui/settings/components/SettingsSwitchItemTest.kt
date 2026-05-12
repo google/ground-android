@@ -38,7 +38,7 @@ class SettingsSwitchItemTest {
     composeTestRule.setContent {
       AppTheme {
         SettingsSwitchItem(
-          trailingIcon = R.drawable.ic_cloud_upload,
+          icon = R.drawable.ic_cloud_upload,
           title = "Title",
           summary = "Summary",
           checked = true,
@@ -56,7 +56,7 @@ class SettingsSwitchItemTest {
     composeTestRule.setContent {
       AppTheme {
         SettingsSwitchItem(
-          trailingIcon = R.drawable.ic_cloud_upload,
+          icon = R.drawable.ic_cloud_upload,
           title = "Title",
           summary = null,
           checked = false,
@@ -74,7 +74,7 @@ class SettingsSwitchItemTest {
     composeTestRule.setContent {
       AppTheme {
         SettingsSwitchItem(
-          trailingIcon = R.drawable.ic_cloud_upload,
+          icon = R.drawable.ic_cloud_upload,
           title = "Title",
           checked = true,
           onCheckedChange = {},
@@ -90,7 +90,7 @@ class SettingsSwitchItemTest {
     composeTestRule.setContent {
       AppTheme {
         SettingsSwitchItem(
-          trailingIcon = R.drawable.ic_cloud_upload,
+          icon = R.drawable.ic_cloud_upload,
           title = "Title",
           checked = false,
           onCheckedChange = {},
@@ -108,7 +108,7 @@ class SettingsSwitchItemTest {
     composeTestRule.setContent {
       AppTheme {
         SettingsSwitchItem(
-          trailingIcon = R.drawable.ic_cloud_upload,
+          icon = R.drawable.ic_cloud_upload,
           title = "Title",
           checked = false,
           onCheckedChange = { newValue = it },

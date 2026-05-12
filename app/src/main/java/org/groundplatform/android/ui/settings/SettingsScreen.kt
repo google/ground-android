@@ -99,7 +99,7 @@ internal fun SettingsScreen(
       SettingsCategory(stringResource(R.string.general_title)) {
         // Upload Media
         SettingsSwitchItem(
-          trailingIcon = R.drawable.ic_cloud_upload,
+          icon = R.drawable.ic_cloud_upload,
           title = stringResource(R.string.upload_media_title),
           summary = stringResource(R.string.over_wifi_summary),
           checked = settings.shouldUploadPhotosOnWifiOnly,
@@ -108,7 +108,7 @@ internal fun SettingsScreen(
 
         // Language
         SettingsSelectItem(
-          trailingIcon = R.drawable.ic_language,
+          icon = R.drawable.ic_language,
           title = stringResource(R.string.select_language_title),
           entriesResId = R.array.language_entries,
           entryValues = R.array.language_entry_values,
@@ -118,7 +118,7 @@ internal fun SettingsScreen(
 
         // Measurement Units
         SettingsSelectItem(
-          trailingIcon = R.drawable.ic_measurement,
+          icon = R.drawable.ic_measurement,
           title = stringResource(R.string.select_length_title),
           entriesResId = R.array.length_entries,
           entryValues = R.array.length_entry_values,
@@ -132,7 +132,7 @@ internal fun SettingsScreen(
       // Help Section
       SettingsCategory(stringResource(R.string.help_title)) {
         SettingsItem(
-          trailingIcon = R.drawable.ic_open_in_new,
+          icon = R.drawable.ic_open_in_new,
           title = stringResource(R.string.visit_website_title),
           summary = stringResource(R.string.ground_website),
           onClick = onVisitWebsiteClick,

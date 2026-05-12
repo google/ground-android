@@ -36,7 +36,7 @@ class SettingsItemTest {
     composeTestRule.setContent {
       AppTheme {
         SettingsItem(
-          trailingIcon = R.drawable.ic_language,
+          icon = R.drawable.ic_language,
           title = "Title",
           summary = "Summary",
           onClick = {},
@@ -53,7 +53,7 @@ class SettingsItemTest {
     composeTestRule.setContent {
       AppTheme {
         SettingsItem(
-          trailingIcon = R.drawable.ic_language,
+          icon = R.drawable.ic_language,
           title = "Title",
           summary = null,
           onClick = {},
@@ -72,7 +72,7 @@ class SettingsItemTest {
     composeTestRule.setContent {
       AppTheme {
         SettingsItem(
-          trailingIcon = R.drawable.ic_language,
+          icon = R.drawable.ic_language,
           title = "Title",
           summary = "Summary",
           onClick = { clicked = true },

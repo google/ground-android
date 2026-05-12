@@ -42,7 +42,7 @@ import org.groundplatform.ui.theme.sizes
  * A reusable UI component representing a single row in a settings screen.
  *
  * @param modifier The [Modifier] to be applied to the root of this item.
- * @param trailingIcon Drawable resource for the icon shown next to the title.
+ * @param icon Drawable resource for the icon shown next to the title.
  * @param title The primary text to be displayed for the setting.
  * @param summary Optional secondary text to be displayed below the title, providing more detail.
  * @param onClick The callback to be invoked when the item is clicked.
@@ -50,7 +50,7 @@ import org.groundplatform.ui.theme.sizes
 @Composable
 internal fun SettingsItem(
   modifier: Modifier = Modifier,
-  @DrawableRes trailingIcon: Int,
+  @DrawableRes icon: Int,
   title: String,
   summary: String? = null,
   onClick: () -> Unit,
@@ -62,9 +62,9 @@ internal fun SettingsItem(
   ) {
     Icon(
       modifier =
-        Modifier.padding(end = MaterialTheme.sizes.settingsTrailingIconEndPadding)
-          .size(MaterialTheme.sizes.settingsTrailingIconSize),
-      painter = painterResource(trailingIcon),
+        Modifier.padding(end = MaterialTheme.sizes.settingsItemIconEndPadding)
+          .size(MaterialTheme.sizes.settingsItemIconSize),
+      painter = painterResource(icon),
       contentDescription = null,
       tint = MaterialTheme.colorScheme.onSurfaceVariant,
     )
@@ -88,19 +88,19 @@ private fun Preview() {
   AppTheme {
     Column(verticalArrangement = Arrangement.SpaceEvenly) {
       SettingsItem(
-        trailingIcon = R.drawable.ic_language,
+        icon = R.drawable.ic_language,
         title = "Name",
         summary = "Summary",
         onClick = {},
       )
       SettingsItem(
-        trailingIcon = R.drawable.ic_language,
+        icon = R.drawable.ic_language,
         title = "Name",
         summary = null,
         onClick = {},
       )
       SettingsItem(
-        trailingIcon = R.drawable.ic_language,
+        icon = R.drawable.ic_language,
         title = "Language",
         summary = "English",
         onClick = {},

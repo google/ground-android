@@ -43,7 +43,7 @@ import org.groundplatform.ui.theme.sizes
  * A reusable settings item component with a title, optional summary, and a switch toggle.
  *
  * @param modifier The [Modifier] to be applied to the root of this item.
- * @param trailingIcon Drawable resource for the icon shown next to the title.
+ * @param icon Drawable resource for the icon shown next to the title.
  * @param title The primary text to be displayed for the setting.
  * @param summary Optional secondary text providing additional details about the setting.
  * @param checked Whether the switch is currently in the "on" position.
@@ -52,7 +52,7 @@ import org.groundplatform.ui.theme.sizes
 @Composable
 internal fun SettingsSwitchItem(
   modifier: Modifier = Modifier,
-  @DrawableRes trailingIcon: Int,
+  @DrawableRes icon: Int,
   title: String,
   summary: String? = null,
   checked: Boolean,
@@ -68,9 +68,9 @@ internal fun SettingsSwitchItem(
   ) {
     Icon(
       modifier =
-        Modifier.padding(end = MaterialTheme.sizes.settingsTrailingIconEndPadding)
-          .size(MaterialTheme.sizes.settingsTrailingIconSize),
-      painter = painterResource(trailingIcon),
+        Modifier.padding(end = MaterialTheme.sizes.settingsItemIconEndPadding)
+          .size(MaterialTheme.sizes.settingsItemIconSize),
+      painter = painterResource(icon),
       contentDescription = null,
       tint = MaterialTheme.colorScheme.onSurfaceVariant,
     )
@@ -95,14 +95,14 @@ private fun Preview() {
   AppTheme {
     Column(verticalArrangement = Arrangement.SpaceEvenly) {
       SettingsSwitchItem(
-        trailingIcon = R.drawable.ic_cloud_upload,
+        icon = R.drawable.ic_cloud_upload,
         title = "Name",
         summary = "Value",
         checked = true,
         onCheckedChange = {},
       )
       SettingsSwitchItem(
-        trailingIcon = R.drawable.ic_cloud_upload,
+        icon = R.drawable.ic_cloud_upload,
         title = "Name",
         summary = null,
         checked = false,
