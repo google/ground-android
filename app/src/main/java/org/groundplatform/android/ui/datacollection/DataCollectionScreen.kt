@@ -42,6 +42,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.components.ConfirmationDialog
+import org.groundplatform.android.ui.datacollection.tasks.TaskScreenContainer
 
 /**
  * The main screen for data collection, coordinating the task sequence and host UI.
@@ -82,11 +83,23 @@ fun DataCollectionScreen(
       val currentTask = tasks[position.relativeIndex]
 
       key(currentTask.id) {
-        TaskScreenContainer(
-          task = currentTask,
-          taskPosition = position,
-          dataCollectionViewModel = viewModel,
-        )
+        viewModel.getTaskViewModel(currentTask.id)?.let { taskViewModel ->
+          val loiName by viewModel.loiNameDraft.collectAsStateWithLifecycle()
+          val showLoiNameDialog by viewModel.loiNameDialogOpen.collectAsStateWithLifecycle()
+
+          val onLoiNameAction = { action: LoiNameAction ->
+            viewModel.handleLoiNameAction(action, currentTask.id)
+          }
+
+          TaskScreenContainer(
+            task = currentTask,
+            taskViewModel = taskViewModel,
+            taskPosition = position,
+            loiName = loiName,
+            shouldShowLoiNameDialog = showLoiNameDialog,
+            onLoiNameAction = { onLoiNameAction(it) },
+          )
+        }
       }
     }
   }

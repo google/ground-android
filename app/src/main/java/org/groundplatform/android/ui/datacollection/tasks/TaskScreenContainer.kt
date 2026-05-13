@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.ui.datacollection
+package org.groundplatform.android.ui.datacollection.tasks
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.groundplatform.android.ui.datacollection.LoiNameAction
+import org.groundplatform.android.ui.datacollection.TaskPosition
 import org.groundplatform.android.ui.datacollection.tasks.date.DateTaskScreen
 import org.groundplatform.android.ui.datacollection.tasks.date.DateTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.instruction.InstructionTaskScreen
@@ -44,24 +44,21 @@ import org.groundplatform.domain.model.task.Task
  * A container that renders the appropriate task screen based on the provided [task] type.
  *
  * @param task the task to be displayed.
+ * @param taskViewModel the [AbstractTaskViewModel] for the task.
  * @param taskPosition the position of this task within the data collection flow.
- * @param dataCollectionViewModel the [DataCollectionViewModel] for the data collection flow.
+ * @param loiName the draft LOI name.
+ * @param shouldShowLoiNameDialog whether the LOI name dialog should be shown.
+ * @param onLoiNameAction callback for LOI name actions.
  */
 @Composable
 fun TaskScreenContainer(
   task: Task,
+  taskViewModel: AbstractTaskViewModel,
   taskPosition: TaskPosition,
-  dataCollectionViewModel: DataCollectionViewModel,
+  loiName: String = "",
+  shouldShowLoiNameDialog: Boolean = false,
+  onLoiNameAction: (LoiNameAction) -> Unit = {},
 ) {
-  val taskViewModel = dataCollectionViewModel.getTaskViewModel(task.id) ?: return
-
-  val loiName by dataCollectionViewModel.loiNameDraft.collectAsStateWithLifecycle()
-  val showLoiNameDialog by dataCollectionViewModel.loiNameDialogOpen.collectAsStateWithLifecycle()
-
-  val onLoiNameAction = { action: LoiNameAction ->
-    dataCollectionViewModel.handleLoiNameAction(action, task.id)
-  }
-
   when (task.type) {
     Task.Type.CAPTURE_LOCATION ->
       CaptureLocationTaskScreen(
@@ -78,7 +75,7 @@ fun TaskScreenContainer(
         taskPosition = taskPosition,
         onLoiNameAction = onLoiNameAction,
         loiName = loiName,
-        shouldShowLoiNameDialog = showLoiNameDialog,
+        shouldShowLoiNameDialog = shouldShowLoiNameDialog,
       )
 
     Task.Type.DROP_PIN ->
@@ -87,7 +84,7 @@ fun TaskScreenContainer(
         taskPosition = taskPosition,
         onLoiNameAction = onLoiNameAction,
         loiName = loiName,
-        shouldShowLoiNameDialog = showLoiNameDialog,
+        shouldShowLoiNameDialog = shouldShowLoiNameDialog,
       )
 
     Task.Type.INSTRUCTIONS ->
