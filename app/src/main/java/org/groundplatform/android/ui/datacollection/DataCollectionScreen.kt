@@ -47,15 +47,18 @@ import org.groundplatform.android.ui.components.ConfirmationDialog
  * The main screen for data collection, coordinating the task sequence and host UI.
  *
  * @param viewModel The view model for data collection.
- * @param fragment The fragment hosting this screen.
+ * @param onValidationError Callback when a validation error occurs.
  * @param onExitConfirmed Callback when the user confirms exiting the data collection flow.
+ * @param onOpenSettings Callback to open the app settings.
+ * @param onAwaitingPhotoCapture Callback to set whether the app is awaiting a photo capture.
  */
 @Composable
 fun DataCollectionScreen(
   viewModel: DataCollectionViewModel,
-  fragment: DataCollectionFragment,
   onValidationError: (resId: Int) -> Unit,
   onExitConfirmed: () -> Unit,
+  onOpenSettings: () -> Unit,
+  onAwaitingPhotoCapture: (Boolean) -> Unit,
 ) {
   val showExitWarningDialog by viewModel.showExitWarning.collectAsStateWithLifecycle()
   val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -76,7 +79,15 @@ fun DataCollectionScreen(
       val position = readyState.position
       val currentTask = tasks[position.relativeIndex]
 
-      key(currentTask.id) { TaskScreenContainer(currentTask, position, fragment) }
+      key(currentTask.id) {
+        TaskScreenContainer(
+          task = currentTask,
+          taskPosition = position,
+          dataCollectionViewModel = viewModel,
+          onOpenSettings = onOpenSettings,
+          onAwaitingPhotoCapture = onAwaitingPhotoCapture,
+        )
+      }
     }
   }
 

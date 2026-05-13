@@ -28,6 +28,7 @@ import org.groundplatform.android.ui.common.BackPressListener
 import org.groundplatform.android.ui.common.EphemeralPopups
 import org.groundplatform.android.ui.home.HomeScreenViewModel
 import org.groundplatform.android.util.createComposeView
+import org.groundplatform.android.util.openAppSettings
 import javax.inject.Inject
 
 /** Fragment allowing the user to collect data to complete a task. */
@@ -50,9 +51,10 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   ): View = createComposeView {
     DataCollectionScreen(
       viewModel = viewModel,
-      fragment = this,
       onValidationError = { resId -> popups.ErrorPopup().show(resId) },
       onExitConfirmed = { navigateBack() },
+      onOpenSettings = { requireActivity().openAppSettings() },
+      onAwaitingPhotoCapture = { homeScreenViewModel.awaitingPhotoCapture = it },
     )
   }
 

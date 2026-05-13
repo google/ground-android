@@ -85,7 +85,6 @@ fun CaptureLocationTaskScreen(
  * @param onAllowLocationClicked Callback when the allow location button is clicked in the dialog.
  * @param onOpenSettings Callback to open app settings.
  * @param onButtonClicked Callback when a button is clicked.
- * @param mapContent Composable for rendering the map.
  */
 @Composable
 private fun CaptureLocationTaskContent(

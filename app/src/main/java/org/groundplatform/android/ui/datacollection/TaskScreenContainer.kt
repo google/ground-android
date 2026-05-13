@@ -39,7 +39,6 @@ import org.groundplatform.android.ui.datacollection.tasks.text.TextTaskScreen
 import org.groundplatform.android.ui.datacollection.tasks.text.TextTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.time.TimeTaskScreen
 import org.groundplatform.android.ui.datacollection.tasks.time.TimeTaskViewModel
-import org.groundplatform.android.util.openAppSettings
 import org.groundplatform.domain.model.task.Task
 
 /**
@@ -47,11 +46,18 @@ import org.groundplatform.domain.model.task.Task
  *
  * @param task the task to be displayed.
  * @param taskPosition the position of this task within the data collection flow.
- * @param fragment the [DataCollectionFragment] hosting the task screens.
+ * @param dataCollectionViewModel the [DataCollectionViewModel] for the data collection flow.
+ * @param onOpenSettings callback to open the app settings.
+ * @param onAwaitingPhotoCapture callback to set whether the app is awaiting a photo capture.
  */
 @Composable
-fun TaskScreenContainer(task: Task, taskPosition: TaskPosition, fragment: DataCollectionFragment) {
-  val dataCollectionViewModel = fragment.viewModel
+fun TaskScreenContainer(
+  task: Task,
+  taskPosition: TaskPosition,
+  dataCollectionViewModel: DataCollectionViewModel,
+  onOpenSettings: () -> Unit,
+  onAwaitingPhotoCapture: (Boolean) -> Unit,
+) {
   val taskViewModel = dataCollectionViewModel.getTaskViewModel(task.id) ?: return
 
   val loiName by dataCollectionViewModel.loiNameDraft.collectAsStateWithLifecycle()
@@ -69,7 +75,7 @@ fun TaskScreenContainer(task: Task, taskPosition: TaskPosition, fragment: DataCo
         viewModel = taskViewModel,
         taskPosition = taskPosition,
         onButtonClicked = onButtonClicked,
-        onOpenSettings = { fragment.requireActivity().openAppSettings() },
+        onOpenSettings = onOpenSettings,
       )
 
     is DateTaskViewModel ->
@@ -118,7 +124,7 @@ fun TaskScreenContainer(task: Task, taskPosition: TaskPosition, fragment: DataCo
         viewModel = taskViewModel,
         taskPosition = taskPosition,
         onButtonClicked = onButtonClicked,
-        onAwaitingPhotoCapture = { fragment.homeScreenViewModel.awaitingPhotoCapture = it },
+        onAwaitingPhotoCapture = onAwaitingPhotoCapture,
       )
 
     is NumberTaskViewModel ->

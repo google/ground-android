@@ -45,7 +45,6 @@ class DataCollectionScreenTest {
   @get:Rule val mockitoRule: MockitoRule = MockitoJUnit.rule()
 
   @Mock private lateinit var mockViewModel: DataCollectionViewModel
-  @Mock private lateinit var mockFragment: DataCollectionFragment
 
   private val uiState = MutableStateFlow<DataCollectionUiState>(DataCollectionUiState.Loading)
   private val showExitWarning = MutableStateFlow(false)
@@ -56,16 +55,16 @@ class DataCollectionScreenTest {
     whenever(mockViewModel.uiState).doReturn(uiState)
     whenever(mockViewModel.showExitWarning).doReturn(showExitWarning)
     whenever(mockViewModel.uiEffects).doReturn(uiEffects)
-    whenever(mockFragment.viewModel).doReturn(mockViewModel)
   }
 
   private fun setContent(onValidationError: (Int) -> Unit = {}, onExitConfirmed: () -> Unit = {}) {
     composeTestRule.setContent {
       DataCollectionScreen(
         viewModel = mockViewModel,
-        fragment = mockFragment,
         onValidationError = onValidationError,
         onExitConfirmed = onExitConfirmed,
+        onOpenSettings = {},
+        onAwaitingPhotoCapture = {},
       )
     }
   }
