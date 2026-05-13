@@ -30,5 +30,8 @@ sealed interface SurveySelectorEvent {
 
     /** The scanned QR code did not encode a valid survey link. */
     data object InvalidQrCode : ErrorType
+
+    /** The QR code scanner module is unavailable or failed to install. */
+    data object ScannerUnavailable : ErrorType
   }
 }

@@ -17,6 +17,8 @@ package org.groundplatform.android.ui.surveyselector
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.firestore.FirebaseFirestoreException
+import com.google.mlkit.common.MlKitException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
@@ -59,7 +61,7 @@ internal constructor(
   private val gmsQrCodeScanner: GmsQrCodeScanner,
   private val surveyDeepLinkParser: SurveyDeepLinkParser,
   private val removeOfflineSurveyUseCase: RemoveOfflineSurveyUseCase,
-  private val getSurveyListItem: GetSurveyListItemUseCase,
+  private val getSurveyListItemUseCase: GetSurveyListItemUseCase,
   private val userRepository: UserRepositoryInterface,
   savedStateHandle: SavedStateHandle,
 ) : AbstractViewModel() {
@@ -156,17 +158,22 @@ internal constructor(
 
   private suspend fun requestJoinSurveyConfirmation(surveyId: String) {
     _isLoadingSurvey.value = true
-    val item =
-      surveyList.first().firstOrNull { it.id == surveyId }
-        ?: runCatching { getSurveyListItem(surveyId) }
-          .onFailure { Timber.e(it, "Failed to load survey $surveyId for confirmation") }
-          .getOrNull()
-    _isLoadingSurvey.value = false
-    if (item == null) {
-      _events.send(SurveySelectorEvent.ShowError(SurveySelectorEvent.ErrorType.InvalidQrCode))
-    } else {
-      _pendingJoinSurvey.value = item
+    val item = runCatching {
+      surveyList.first().firstOrNull { it.id == surveyId } ?: getSurveyListItemUseCase(surveyId)
     }
+    _isLoadingSurvey.value = false
+    item
+      .onSuccess { survey ->
+        if (survey == null) {
+          _events.send(SurveySelectorEvent.ShowError(SurveySelectorEvent.ErrorType.InvalidQrCode))
+        } else {
+          _pendingJoinSurvey.value = survey
+        }
+      }
+      .onFailure {
+        Timber.e(it, "Failed to load survey $surveyId for confirmation")
+        _events.send(SurveySelectorEvent.ShowError(it.toSurveySelectorError()))
+      }
   }
 
   fun confirmJoinSurvey() {
@@ -195,6 +202,16 @@ internal constructor(
   }
 
   private fun Throwable.toSurveySelectorError(): SurveySelectorEvent.ErrorType =
-    if (this is TimeoutCancellationException) SurveySelectorEvent.ErrorType.Timeout
-    else SurveySelectorEvent.ErrorType.Generic(this)
+    when {
+      this is TimeoutCancellationException ||
+        (this is FirebaseFirestoreException &&
+          code == FirebaseFirestoreException.Code.UNAVAILABLE) ||
+        (this is MlKitException && errorCode == MlKitException.NETWORK_ISSUE) ->
+        SurveySelectorEvent.ErrorType.Timeout
+      this is MlKitException &&
+        (errorCode == MlKitException.CODE_SCANNER_UNAVAILABLE ||
+          errorCode == MlKitException.CODE_SCANNER_GOOGLE_PLAY_SERVICES_VERSION_TOO_OLD) ->
+        SurveySelectorEvent.ErrorType.ScannerUnavailable
+      else -> SurveySelectorEvent.ErrorType.Generic(this)
+    }
 }
