@@ -34,7 +34,6 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.junit.MockitoJUnit
 import org.mockito.junit.MockitoRule
-import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
@@ -47,8 +46,6 @@ class DataCollectionScreenTest {
 
   @Mock private lateinit var mockViewModel: DataCollectionViewModel
   @Mock private lateinit var mockFragment: DataCollectionFragment
-  @Mock private lateinit var mockAdapterFactory: DataCollectionViewPagerAdapterFactory
-  @Mock private lateinit var mockAdapter: DataCollectionViewPagerAdapter
 
   private val uiState = MutableStateFlow<DataCollectionUiState>(DataCollectionUiState.Loading)
   private val showExitWarning = MutableStateFlow(false)
@@ -59,9 +56,7 @@ class DataCollectionScreenTest {
     whenever(mockViewModel.uiState).doReturn(uiState)
     whenever(mockViewModel.showExitWarning).doReturn(showExitWarning)
     whenever(mockViewModel.uiEffects).doReturn(uiEffects)
-
-    whenever(mockAdapterFactory.create(any(), any())).doReturn(mockAdapter)
-    whenever(mockFragment.viewPagerAdapterFactory).doReturn(mockAdapterFactory)
+    whenever(mockFragment.viewModel).doReturn(mockViewModel)
   }
 
   private fun setContent(onValidationError: (Int) -> Unit = {}, onExitConfirmed: () -> Unit = {}) {

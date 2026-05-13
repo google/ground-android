@@ -33,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -46,7 +47,7 @@ import org.groundplatform.android.ui.components.ConfirmationDialog
  * The main screen for data collection, coordinating the task sequence and host UI.
  *
  * @param viewModel The view model for data collection.
- * @param fragment The fragment hosting this screen (retained for ViewPager2 adapter creation).
+ * @param fragment The fragment hosting this screen.
  * @param onExitConfirmed Callback when the user confirms exiting the data collection flow.
  */
 @Composable
@@ -69,7 +70,12 @@ fun DataCollectionScreen(
   }
 
   DataCollectionContent(uiState = uiState, onCloseClicked = { viewModel.onCloseClicked() }) {
-    DataCollectionViewPager(uiState, fragment)
+    readyState ->
+    val tasks = readyState.tasks
+    val position = readyState.position
+    val currentTask = tasks[position.relativeIndex]
+
+    key(currentTask.id) { TaskScreenContainer(currentTask, position, fragment) }
   }
 
   if (showExitWarningDialog) {
@@ -102,7 +108,7 @@ object DataCollectionScreenTestTags {
 fun DataCollectionContent(
   uiState: DataCollectionUiState,
   onCloseClicked: () -> Unit,
-  pagerContent: @Composable () -> Unit,
+  pagerContent: @Composable (DataCollectionUiState.Ready) -> Unit,
 ) {
   Scaffold(topBar = { DataCollectionToolbar(uiState, onCloseClicked) }) { innerPadding ->
     Column(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
@@ -118,7 +124,7 @@ fun DataCollectionContent(
             ErrorContent()
           }
           is DataCollectionUiState.Ready -> {
-            ReadyContent(pagerContent = pagerContent)
+            ReadyContent { pagerContent(uiState) }
           }
           is DataCollectionUiState.TaskSubmitted -> {
             DataSubmissionConfirmationScreen(loiReport = uiState.loiReport) { onCloseClicked() }
