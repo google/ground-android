@@ -37,6 +37,7 @@ import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.task.PhotoTaskData
 import org.groundplatform.domain.model.task.Task
 import org.groundplatform.domain.repository.UserMediaRepositoryInterface
+import org.groundplatform.android.ui.datacollection.tasks.DataCollectionEvent
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -58,7 +59,7 @@ class PhotoTaskScreenTest {
   @Mock private lateinit var userMediaRepository: UserMediaRepositoryInterface
   @Mock private lateinit var permissionsManager: PermissionsManager
   private lateinit var viewModel: PhotoTaskViewModel
-  private var lastButtonAction: ButtonAction? = null
+  private var lastEvent: DataCollectionEvent? = null
   private val buttonActionStateChecker = ButtonActionStateChecker(composeTestRule)
 
   @Before
@@ -72,7 +73,7 @@ class PhotoTaskScreenTest {
     isFirst: Boolean = false,
     isLastWithValue: Boolean = false,
   ) {
-    lastButtonAction = null
+    lastEvent = null
     viewModel = PhotoTaskViewModel(userMediaRepository, permissionsManager)
     viewModel.initialize(
       job = JOB,
@@ -85,7 +86,7 @@ class PhotoTaskScreenTest {
           override fun isLastWithValue(taskData: TaskData?) = isLastWithValue
         },
       surveyId = "survey_1",
-      eventReporter = {},
+      eventReporter = { lastEvent = it },
     )
 
     composeTestRule.setContent {
@@ -205,7 +206,7 @@ class PhotoTaskScreenTest {
 
     buttonActionStateChecker.getNode(ButtonAction.PREVIOUS).performClick()
 
-    assertThat(lastButtonAction).isEqualTo(ButtonAction.PREVIOUS)
+    assertThat(lastEvent).isEqualTo(DataCollectionEvent.NavigatePrevious)
   }
 
   @Test

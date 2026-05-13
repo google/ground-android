@@ -52,6 +52,12 @@ fun DropPinTaskScreen(
   shouldShowLoiNameDialog: Boolean,
   loiName: String,
   onLoiNameAction: (LoiNameAction) -> Unit,
+  mapContent: @Composable () -> Unit = {
+    AndroidFragment(
+      clazz = DropPinTaskMapFragment::class.java,
+      arguments = bundleOf(Pair(DataCollectionFragment.TASK_ID, viewModel.task.id)),
+    )
+  }
 ) {
   val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
   val showInstructionsDialog by viewModel.showInstructionsDialog.collectAsStateWithLifecycle()
@@ -72,6 +78,7 @@ fun DropPinTaskScreen(
     onButtonClicked = { viewModel.onButtonClick(it) },
     onLoiNameAction = onLoiNameAction,
     onInstructionsDismiss = { viewModel.dismissDropPinInstructions() },
+    mapContent = mapContent,
   )
 }
 
@@ -95,6 +102,7 @@ private fun DropPinTaskContent(
   onButtonClicked: (ButtonAction) -> Unit,
   onLoiNameAction: (LoiNameAction) -> Unit,
   onInstructionsDismiss: () -> Unit,
+  mapContent: @Composable () -> Unit,
 ) {
   TaskScreen(
     taskHeader = TaskHeader(taskLabel, R.drawable.outline_pin_drop),
@@ -109,10 +117,7 @@ private fun DropPinTaskContent(
     onLoiNameAction = onLoiNameAction,
     onInstructionsDismiss = onInstructionsDismiss,
     taskBody = {
-      AndroidFragment(
-        clazz = DropPinTaskMapFragment::class.java,
-        arguments = bundleOf(Pair(DataCollectionFragment.TASK_ID, taskId)),
-      )
+      mapContent()
     },
   )
 }
@@ -139,6 +144,7 @@ private fun DropPinTaskScreenPreview() {
       onButtonClicked = {},
       onLoiNameAction = {},
       onInstructionsDismiss = {},
+      mapContent = {},
     )
   }
 }

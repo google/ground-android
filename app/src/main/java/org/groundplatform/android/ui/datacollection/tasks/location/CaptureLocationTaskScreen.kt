@@ -46,6 +46,12 @@ import org.groundplatform.ui.theme.AppTheme
 fun CaptureLocationTaskScreen(
   viewModel: CaptureLocationTaskViewModel,
   taskPosition: TaskPosition? = null,
+  mapContent: @Composable () -> Unit = {
+    AndroidFragment(
+      clazz = CaptureLocationTaskMapFragment::class.java,
+      arguments = bundleOf(Pair(DataCollectionFragment.TASK_ID, viewModel.task.id)),
+    )
+  }
 ) {
   val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
   val showAccuracyCard by viewModel.showAccuracyCard.collectAsStateWithLifecycle()
@@ -64,6 +70,7 @@ fun CaptureLocationTaskScreen(
     onDismissAccuracyCard = { viewModel.dismissAccuracyCard() },
     onAllowLocationClicked = { viewModel.onAllowLocationClicked() },
     onButtonClicked = { viewModel.onButtonClick(it) },
+    mapContent = mapContent,
   )
 }
 
@@ -90,6 +97,7 @@ private fun CaptureLocationTaskContent(
   onDismissAccuracyCard: () -> Unit,
   onAllowLocationClicked: () -> Unit,
   onButtonClicked: (ButtonAction) -> Unit,
+  mapContent: @Composable () -> Unit,
 ) {
   TaskScreen(
     taskHeader = TaskHeader(taskLabel, R.drawable.outline_pin_drop),
@@ -105,10 +113,7 @@ private fun CaptureLocationTaskContent(
       }
     },
     taskBody = {
-      AndroidFragment(
-        clazz = CaptureLocationTaskMapFragment::class.java,
-        arguments = bundleOf(Pair(DataCollectionFragment.TASK_ID, taskId)),
-      )
+      mapContent()
 
       if (showPermissionDeniedDialog) {
         ConfirmationDialog(
@@ -143,6 +148,7 @@ private fun CaptureLocationTaskScreenPreview() {
       onDismissAccuracyCard = {},
       onAllowLocationClicked = {},
       onButtonClicked = {},
+      mapContent = {},
     )
   }
 }

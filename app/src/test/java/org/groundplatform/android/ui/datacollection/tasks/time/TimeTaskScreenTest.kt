@@ -32,6 +32,7 @@ import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.submission.DateTimeTaskData
 import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.task.Task
+import org.groundplatform.android.ui.datacollection.tasks.DataCollectionEvent
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -45,11 +46,11 @@ class TimeTaskScreenTest {
   @get:Rule val composeTestRule = createComposeRule()
 
   private lateinit var viewModel: TimeTaskViewModel
-  private var lastButtonAction: ButtonAction? = null
+  private var lastEvent: DataCollectionEvent? = null
   private val buttonActionStateChecker = ButtonActionStateChecker(composeTestRule)
 
   private fun setupTaskScreen(task: Task, taskData: TaskData? = null) {
-    lastButtonAction = null
+    lastEvent = null
     viewModel = TimeTaskViewModel()
     viewModel.initialize(
       job = JOB,
@@ -62,7 +63,7 @@ class TimeTaskScreenTest {
           override fun isLastWithValue(taskData: TaskData?) = false
         },
       surveyId = "survey_id",
-      eventReporter = {},
+      eventReporter = { lastEvent = it },
     )
 
     composeTestRule.setContent {
@@ -169,7 +170,7 @@ class TimeTaskScreenTest {
 
     buttonActionStateChecker.getNode(ButtonAction.PREVIOUS).performClick()
 
-    assertThat(lastButtonAction).isEqualTo(ButtonAction.PREVIOUS)
+    assertThat(lastEvent).isEqualTo(DataCollectionEvent.NavigatePrevious)
   }
 
   private fun getExpectedTimeHint(): String {

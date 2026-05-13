@@ -29,6 +29,7 @@ import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.task.Task
+import org.groundplatform.android.ui.datacollection.tasks.DataCollectionEvent
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -39,7 +40,7 @@ class InstructionTaskScreenTest {
 
   @get:Rule val composeTestRule = createComposeRule()
 
-  private var lastButtonAction: ButtonAction? = null
+  private var lastEvent: DataCollectionEvent? = null
   private val buttonActionStateChecker = ButtonActionStateChecker(composeTestRule)
 
   private fun setupTaskScreen(
@@ -48,7 +49,7 @@ class InstructionTaskScreenTest {
     isFirst: Boolean = false,
     isLastWithValue: Boolean = false,
   ) {
-    lastButtonAction = null
+    lastEvent = null
     val viewModel =
       InstructionTaskViewModel().apply {
         initialize(
@@ -62,7 +63,7 @@ class InstructionTaskScreenTest {
               override fun isLastWithValue(taskData: TaskData?) = isLastWithValue
             },
           surveyId = "survey_id",
-          eventReporter = {},
+          eventReporter = { lastEvent = it },
         )
       }
 
@@ -96,7 +97,7 @@ class InstructionTaskScreenTest {
 
     buttonActionStateChecker.getNode(ButtonAction.NEXT).performClick()
 
-    assertThat(lastButtonAction).isEqualTo(ButtonAction.NEXT)
+    assertThat(lastEvent).isEqualTo(DataCollectionEvent.NavigateNext)
   }
 
   @Test
@@ -105,7 +106,7 @@ class InstructionTaskScreenTest {
 
     buttonActionStateChecker.getNode(ButtonAction.PREVIOUS).performClick()
 
-    assertThat(lastButtonAction).isEqualTo(ButtonAction.PREVIOUS)
+    assertThat(lastEvent).isEqualTo(DataCollectionEvent.NavigatePrevious)
   }
 
   @Test

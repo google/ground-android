@@ -49,6 +49,12 @@ fun DrawAreaTaskScreen(
   shouldShowLoiNameDialog: Boolean,
   loiName: String,
   onLoiNameAction: (LoiNameAction) -> Unit,
+  mapContent: @Composable () -> Unit = {
+    AndroidFragment(
+      clazz = DrawAreaTaskMapFragment::class.java,
+      arguments = bundleOf(Pair(DataCollectionFragment.TASK_ID, viewModel.task.id)),
+    )
+  }
 ) {
   val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
   val showSelfIntersectionDialog by viewModel.showSelfIntersectionDialog
@@ -79,6 +85,7 @@ fun DrawAreaTaskScreen(
     onLoiNameAction = onLoiNameAction,
     onInstructionsDismiss = { viewModel.dismissDrawAreaInstructions() },
     onDismissSelfIntersectionDialog = { viewModel.showSelfIntersectionDialog.value = false },
+    mapContent = mapContent,
   )
 }
 
@@ -111,6 +118,7 @@ private fun DrawAreaTaskContent(
   onLoiNameAction: (LoiNameAction) -> Unit,
   onInstructionsDismiss: () -> Unit,
   onDismissSelfIntersectionDialog: () -> Unit,
+  mapContent: @Composable () -> Unit,
 ) {
   TaskScreen(
     taskHeader = TaskHeader(taskLabel, R.drawable.outline_draw),
@@ -128,10 +136,7 @@ private fun DrawAreaTaskContent(
     onLoiNameAction = onLoiNameAction,
     onInstructionsDismiss = onInstructionsDismiss,
     taskBody = {
-      AndroidFragment(
-        clazz = DrawAreaTaskMapFragment::class.java,
-        arguments = bundleOf(Pair(DataCollectionFragment.TASK_ID, taskId)),
-      )
+      mapContent()
     },
   )
 
@@ -171,6 +176,7 @@ private fun DrawAreaTaskScreenInstructionsPreview() {
       onLoiNameAction = {},
       onInstructionsDismiss = {},
       onDismissSelfIntersectionDialog = {},
+      mapContent = {},
     )
   }
 }
@@ -200,6 +206,7 @@ private fun DrawAreaTaskScreenSelfIntersectionPreview() {
       onLoiNameAction = {},
       onInstructionsDismiss = {},
       onDismissSelfIntersectionDialog = {},
+      mapContent = {},
     )
   }
 }

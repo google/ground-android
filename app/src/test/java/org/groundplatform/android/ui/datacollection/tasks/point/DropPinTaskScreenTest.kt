@@ -23,6 +23,7 @@ import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.groundplatform.android.BaseHiltTest
+import org.groundplatform.android.HiltTestActivity
 import org.groundplatform.android.FakeData.JOB
 import org.groundplatform.android.R
 import org.groundplatform.android.data.local.LocalValueStore
@@ -182,6 +183,7 @@ class DropPinTaskScreenTest : BaseHiltTest() {
         shouldShowLoiNameDialog = false,
         loiName = "",
         onLoiNameAction = {},
+        mapContent = {}
       )
     }
   }

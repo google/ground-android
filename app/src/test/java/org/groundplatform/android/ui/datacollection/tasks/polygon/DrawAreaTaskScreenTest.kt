@@ -261,6 +261,7 @@ class DrawAreaTaskScreenTest : BaseHiltTest() {
         shouldShowLoiNameDialog = false,
         loiName = "",
         onLoiNameAction = {},
+        mapContent = {}
       )
     }
   }
