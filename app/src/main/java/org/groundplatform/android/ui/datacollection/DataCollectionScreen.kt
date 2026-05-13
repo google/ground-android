@@ -67,6 +67,8 @@ fun DataCollectionScreen(
     viewModel.uiEffects.collect { effect ->
       when (effect) {
         is DataCollectionUiEffect.Exit -> onExitConfirmed()
+        is DataCollectionUiEffect.OpenSettings -> onOpenSettings()
+        is DataCollectionUiEffect.SetAwaitingPhotoCapture -> onAwaitingPhotoCapture(effect.awaiting)
         is DataCollectionUiEffect.ShowValidationError -> onValidationError(effect.errorResId)
       }
     }
@@ -84,8 +86,6 @@ fun DataCollectionScreen(
           task = currentTask,
           taskPosition = position,
           dataCollectionViewModel = viewModel,
-          onOpenSettings = onOpenSettings,
-          onAwaitingPhotoCapture = onAwaitingPhotoCapture,
         )
       }
     }

@@ -32,7 +32,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -60,16 +59,11 @@ fun PhotoTaskScreen(
   viewModel: PhotoTaskViewModel,
   taskPosition: TaskPosition? = null,
   onButtonClicked: (ButtonAction) -> Unit,
-  onAwaitingPhotoCapture: (Boolean) -> Unit,
 ) {
   val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
   val uri by viewModel.uri.collectAsStateWithLifecycle(Uri.EMPTY)
-  val isAwaiting by viewModel.isAwaitingPhotoCapture.collectAsStateWithLifecycle()
 
   var activeError by rememberSaveable { mutableStateOf<PhotoTaskError?>(null) }
-
-  val currentOnAwaiting by rememberUpdatedState(onAwaitingPhotoCapture)
-  LaunchedEffect(isAwaiting) { currentOnAwaiting(isAwaiting) }
 
   val capturePhotoLauncher =
     rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { result ->

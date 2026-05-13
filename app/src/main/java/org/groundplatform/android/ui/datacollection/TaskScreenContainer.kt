@@ -47,16 +47,12 @@ import org.groundplatform.domain.model.task.Task
  * @param task the task to be displayed.
  * @param taskPosition the position of this task within the data collection flow.
  * @param dataCollectionViewModel the [DataCollectionViewModel] for the data collection flow.
- * @param onOpenSettings callback to open the app settings.
- * @param onAwaitingPhotoCapture callback to set whether the app is awaiting a photo capture.
  */
 @Composable
 fun TaskScreenContainer(
   task: Task,
   taskPosition: TaskPosition,
   dataCollectionViewModel: DataCollectionViewModel,
-  onOpenSettings: () -> Unit,
-  onAwaitingPhotoCapture: (Boolean) -> Unit,
 ) {
   val taskViewModel = dataCollectionViewModel.getTaskViewModel(task.id) ?: return
 
@@ -75,7 +71,6 @@ fun TaskScreenContainer(
         viewModel = taskViewModel,
         taskPosition = taskPosition,
         onButtonClicked = onButtonClicked,
-        onOpenSettings = onOpenSettings,
       )
 
     is DateTaskViewModel ->
@@ -124,7 +119,6 @@ fun TaskScreenContainer(
         viewModel = taskViewModel,
         taskPosition = taskPosition,
         onButtonClicked = onButtonClicked,
-        onAwaitingPhotoCapture = onAwaitingPhotoCapture,
       )
 
     is NumberTaskViewModel ->

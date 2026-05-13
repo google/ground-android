@@ -247,7 +247,6 @@ class CaptureLocationTaskScreenTest {
           lastScreenAction = action
           viewModel.onButtonClick(action)
         },
-        onOpenSettings = { openSettingsCalled = true },
       )
     }
   }

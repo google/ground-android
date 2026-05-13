@@ -22,14 +22,10 @@ import android.os.Build
 import android.os.Build.VERSION_CODES
 import androidx.core.net.toUri
 import androidx.lifecycle.viewModelScope
-import java.io.File
-import javax.inject.Inject
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -39,11 +35,14 @@ import org.groundplatform.android.system.PermissionDeniedException
 import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
+import org.groundplatform.android.ui.datacollection.tasks.DataCollectionEvent
 import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.submission.isNotNullOrEmpty
 import org.groundplatform.domain.model.task.PhotoTaskData
 import org.groundplatform.domain.repository.UserMediaRepositoryInterface
 import timber.log.Timber
+import java.io.File
+import javax.inject.Inject
 
 class PhotoTaskViewModel
 @Inject
@@ -53,9 +52,6 @@ constructor(
 ) : AbstractTaskViewModel() {
 
   private var tempPhotoFilePath: String? = null
-
-  private val _isAwaitingPhotoCapture = MutableStateFlow(false)
-  val isAwaitingPhotoCapture: StateFlow<Boolean> = _isAwaitingPhotoCapture.asStateFlow()
 
   private val _events = Channel<PhotoTaskEvent>()
   val events: Flow<PhotoTaskEvent> = _events.receiveAsFlow()
@@ -72,8 +68,7 @@ constructor(
       .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), Uri.EMPTY)
 
   fun onTakePhoto() {
-    if (_isAwaitingPhotoCapture.value) return
-    _isAwaitingPhotoCapture.value = true
+    eventReporter(DataCollectionEvent.SetAwaitingPhotoCapture(true))
     viewModelScope.launch { obtainCapturePhotoPermissions { launchPhotoCapture() } }
   }
 
@@ -85,8 +80,7 @@ constructor(
       permissionsManager.obtainPermission(CAMERA)
       onPermissionsGranted()
     } catch (_: PermissionDeniedException) {
-      _isAwaitingPhotoCapture.value = false
-      _events.send(PhotoTaskEvent.ShowError(PhotoTaskError.PERMISSION_DENIED))
+      onLaunchPhotoCaptureError(PhotoTaskError.PERMISSION_DENIED)
     }
   }
 
@@ -98,10 +92,14 @@ constructor(
       _events.send(PhotoTaskEvent.LaunchCamera(mediaUri.toUri()))
       Timber.d("Capture photo intent sent")
     } catch (e: IllegalArgumentException) {
-      _isAwaitingPhotoCapture.value = false
-      _events.send(PhotoTaskEvent.ShowError(PhotoTaskError.CAMERA_LAUNCH_FAILED))
       Timber.e(e, "Error launching photo capture")
+      onLaunchPhotoCaptureError(PhotoTaskError.CAMERA_LAUNCH_FAILED)
     }
+  }
+
+  private suspend fun onLaunchPhotoCaptureError(errorType: PhotoTaskError) {
+    eventReporter(DataCollectionEvent.SetAwaitingPhotoCapture(false))
+    _events.send(PhotoTaskEvent.ShowError(errorType))
   }
 
   override fun getButtonStates(taskData: TaskData?): List<ButtonActionState> =
@@ -113,13 +111,13 @@ constructor(
     )
 
   fun onCaptureResult(result: Boolean) {
+    eventReporter(DataCollectionEvent.SetAwaitingPhotoCapture(false))
     val filePath = tempPhotoFilePath
     tempPhotoFilePath = null // Clear to avoid reusing stale path
     viewModelScope.launch {
       if (result && filePath != null) {
         finalizePhotoCapture(File(filePath))
       }
-      _isAwaitingPhotoCapture.value = false
     }
   }
 

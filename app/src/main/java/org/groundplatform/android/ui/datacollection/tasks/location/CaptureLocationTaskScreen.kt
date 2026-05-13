@@ -41,16 +41,12 @@ import org.groundplatform.ui.theme.AppTheme
  *
  * This is the stateful wrapper that collects state from [CaptureLocationTaskViewModel] and handles
  * event routing.
- *
- * @param viewModel The view model for this task.
- * @param onOpenSettings Callback to open app settings when permission is denied.
  */
 @Composable
 fun CaptureLocationTaskScreen(
   viewModel: CaptureLocationTaskViewModel,
   taskPosition: TaskPosition? = null,
   onButtonClicked: (ButtonAction) -> Unit,
-  onOpenSettings: () -> Unit,
 ) {
   val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
   val showAccuracyCard by viewModel.showAccuracyCard.collectAsStateWithLifecycle()
@@ -68,7 +64,6 @@ fun CaptureLocationTaskScreen(
     showPermissionDeniedDialog = showPermissionDeniedDialog,
     onDismissAccuracyCard = { viewModel.dismissAccuracyCard() },
     onAllowLocationClicked = { viewModel.onAllowLocationClicked() },
-    onOpenSettings = onOpenSettings,
     onButtonClicked = onButtonClicked,
   )
 }
@@ -83,7 +78,6 @@ fun CaptureLocationTaskScreen(
  * @param showPermissionDeniedDialog Whether to show the permission denied dialog.
  * @param onDismissAccuracyCard Callback when the accuracy card is dismissed.
  * @param onAllowLocationClicked Callback when the allow location button is clicked in the dialog.
- * @param onOpenSettings Callback to open app settings.
  * @param onButtonClicked Callback when a button is clicked.
  */
 @Composable
@@ -96,7 +90,6 @@ private fun CaptureLocationTaskContent(
   showPermissionDeniedDialog: Boolean,
   onDismissAccuracyCard: () -> Unit,
   onAllowLocationClicked: () -> Unit,
-  onOpenSettings: () -> Unit,
   onButtonClicked: (ButtonAction) -> Unit,
 ) {
   TaskScreen(
@@ -123,10 +116,7 @@ private fun CaptureLocationTaskContent(
           title = R.string.allow_location_title,
           description = R.string.allow_location_description,
           confirmButtonText = R.string.allow_location_confirmation,
-          onConfirmClicked = {
-            onAllowLocationClicked()
-            onOpenSettings()
-          },
+          onConfirmClicked = onAllowLocationClicked,
         )
       }
     },
@@ -153,7 +143,6 @@ private fun CaptureLocationTaskScreenPreview() {
       showPermissionDeniedDialog = true,
       onDismissAccuracyCard = {},
       onAllowLocationClicked = {},
-      onOpenSettings = {},
       onButtonClicked = {},
     )
   }

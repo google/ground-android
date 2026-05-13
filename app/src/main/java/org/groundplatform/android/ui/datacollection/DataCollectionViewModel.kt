@@ -65,6 +65,10 @@ import javax.inject.Inject
 sealed interface DataCollectionUiEffect {
   data object Exit : DataCollectionUiEffect
 
+  data object OpenSettings : DataCollectionUiEffect
+
+  data class SetAwaitingPhotoCapture(val awaiting: Boolean) : DataCollectionUiEffect
+
   data class ShowValidationError(val errorResId: Int) : DataCollectionUiEffect
 }
 
@@ -145,6 +149,12 @@ internal constructor(
               DataCollectionEvent.NavigatePrevious -> onPreviousClicked(taskId)
               DataCollectionEvent.NavigateNext -> onNextClicked(taskId)
               DataCollectionEvent.ShowLoiDialog -> openLoiNameDialog()
+              DataCollectionEvent.OpenSettings ->
+                viewModelScope.launch { _uiEffects.send(DataCollectionUiEffect.OpenSettings) }
+              is DataCollectionEvent.SetAwaitingPhotoCapture ->
+                viewModelScope.launch {
+                  _uiEffects.send(DataCollectionUiEffect.SetAwaitingPhotoCapture(event.awaiting))
+                }
             }
           }
       }
