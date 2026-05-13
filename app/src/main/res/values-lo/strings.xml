@@ -182,13 +182,6 @@
   <string name="clear">ລ້າງ</string>
   <string name="text_task_data_character_limit">ສູງສຸດ 255 ຕົວອັກສອນ</string>
   <string name="area_message">ພື້ນທີ່: %s</string>
-  <string name="lang_english">ພາສາອັງກິດ</string>
-  <string name="lang_french">ພາສາຝຣັ່ງ</string>
-  <string name="lang_spanish">ພາສາສະແປນ</string>
-  <string name="lang_portuguese">ພາສາໂປຣຕຸເກດ</string>
-  <string name="lang_vietnamese">ພາສາຫວຽດນາມ</string>
-  <string name="lang_thai">ພາສາໄທ</string>
-  <string name="lang_lao">ພາສາລາວ</string>
   <string name="access_restricted">ຈຳກັດການເຂົ້າເຖິງ</string>
   <string name="access_unlisted">ບໍ່ສະແດງໃນລາຍການ</string>
   <string name="access_public">ສາທາລະນະ</string>

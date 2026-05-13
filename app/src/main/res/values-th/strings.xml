@@ -184,13 +184,6 @@
   <string name="clear">ล้างข้อมูล</string>
   <string name="text_task_data_character_limit">สูงสุด 255 ตัวอักษร</string>
   <string name="area_message">พื้นที่: %s</string>
-  <string name="lang_english">อังกฤษ</string>
-  <string name="lang_french">ฝรั่งเศส</string>
-  <string name="lang_spanish">สเปน</string>
-  <string name="lang_portuguese">โปรตุเกส</string>
-  <string name="lang_vietnamese">เวียดนาม</string>
-  <string name="lang_thai">ไทย</string>
-  <string name="lang_lao">ลาว</string>
   <string name="access_restricted">จำกัดสิทธิ์</string>
   <string name="access_unlisted">ไม่แสดงสาธารณะ</string>
   <string name="access_public">สาธารณะ</string>
