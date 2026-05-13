@@ -18,12 +18,12 @@ package org.groundplatform.android.ui.datacollection
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -60,7 +60,6 @@ import org.groundplatform.domain.repository.SubmissionRepositoryInterface
 import org.groundplatform.domain.usecases.GetLoiReportUseCase
 import org.groundplatform.domain.usecases.submission.SubmitDataUseCase
 import timber.log.Timber
-import javax.inject.Inject
 
 sealed interface DataCollectionUiEffect {
   data object Exit : DataCollectionUiEffect
@@ -91,9 +90,6 @@ internal constructor(
 
   private val _uiEffects = Channel<DataCollectionUiEffect>(Channel.BUFFERED)
   val uiEffects = _uiEffects.receiveAsFlow()
-
-  private val _dataCollectionEvents =
-    MutableSharedFlow<DataCollectionEvent>(extraBufferCapacity = 1)
 
   private val _uiState = MutableStateFlow<DataCollectionUiState>(DataCollectionUiState.Loading)
   val uiState: StateFlow<DataCollectionUiState> = _uiState
@@ -139,25 +135,6 @@ internal constructor(
         Timber.e(initResult.cause, "Initialization failed code=%s", initResult.code)
       }
       _uiState.value = initResult
-    }
-
-    viewModelScope.launch {
-      _dataCollectionEvents.collect { event ->
-        withReadyOrNull { it.currentTaskId }
-          ?.let { taskId ->
-            when (event) {
-              DataCollectionEvent.NavigatePrevious -> onPreviousClicked(taskId)
-              DataCollectionEvent.NavigateNext -> onNextClicked(taskId)
-              DataCollectionEvent.ShowLoiDialog -> openLoiNameDialog()
-              DataCollectionEvent.OpenSettings ->
-                viewModelScope.launch { _uiEffects.send(DataCollectionUiEffect.OpenSettings) }
-              is DataCollectionEvent.SetAwaitingPhotoCapture ->
-                viewModelScope.launch {
-                  _uiEffects.send(DataCollectionUiEffect.SetAwaitingPhotoCapture(event.awaiting))
-                }
-            }
-          }
-      }
     }
   }
 
@@ -342,7 +319,22 @@ internal constructor(
               isLastPositionWithValue(task, taskData)
           },
         surveyId = state.surveyId,
-        eventReporter = { _dataCollectionEvents.tryEmit(it) },
+        eventReporter = { event ->
+          withReadyOrNull { it.currentTaskId }
+            ?.let { taskId ->
+              when (event) {
+                DataCollectionEvent.NavigatePrevious -> onPreviousClicked(taskId)
+                DataCollectionEvent.NavigateNext -> onNextClicked(taskId)
+                DataCollectionEvent.ShowLoiDialog -> openLoiNameDialog()
+                DataCollectionEvent.OpenSettings ->
+                  viewModelScope.launch { _uiEffects.send(DataCollectionUiEffect.OpenSettings) }
+                is DataCollectionEvent.SetAwaitingPhotoCapture ->
+                  viewModelScope.launch {
+                    _uiEffects.send(DataCollectionUiEffect.SetAwaitingPhotoCapture(event.awaiting))
+                  }
+              }
+            }
+        },
       )
       updateDataAndInvalidateTasks(task, taskData)
       taskViewModels.value[task.id] = created
