@@ -66,7 +66,7 @@ class DateTaskScreenTest {
     )
 
     composeTestRule.setContent {
-      DateTaskScreen(viewModel = viewModel, onButtonClicked = { lastButtonAction = it })
+      DateTaskScreen(viewModel = viewModel)
     }
   }
 

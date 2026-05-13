@@ -68,7 +68,6 @@ class TimeTaskScreenTest {
     composeTestRule.setContent {
       TimeTaskScreen(
         viewModel = viewModel,
-        onButtonClicked = { lastButtonAction = it },
       )
     }
   }

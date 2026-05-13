@@ -46,7 +46,6 @@ import org.groundplatform.ui.theme.AppTheme
 fun CaptureLocationTaskScreen(
   viewModel: CaptureLocationTaskViewModel,
   taskPosition: TaskPosition? = null,
-  onButtonClicked: (ButtonAction) -> Unit,
 ) {
   val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
   val showAccuracyCard by viewModel.showAccuracyCard.collectAsStateWithLifecycle()
@@ -64,7 +63,7 @@ fun CaptureLocationTaskScreen(
     showPermissionDeniedDialog = showPermissionDeniedDialog,
     onDismissAccuracyCard = { viewModel.dismissAccuracyCard() },
     onAllowLocationClicked = { viewModel.onAllowLocationClicked() },
-    onButtonClicked = onButtonClicked,
+    onButtonClicked = { viewModel.onButtonClick(it) },
   )
 }
 

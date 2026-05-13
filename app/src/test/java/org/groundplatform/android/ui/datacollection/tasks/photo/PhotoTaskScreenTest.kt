@@ -89,7 +89,7 @@ class PhotoTaskScreenTest {
     )
 
     composeTestRule.setContent {
-      PhotoTaskScreen(viewModel = viewModel, onButtonClicked = { lastButtonAction = it })
+      PhotoTaskScreen(viewModel = viewModel)
     }
   }
 

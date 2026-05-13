@@ -48,7 +48,6 @@ fun DrawAreaTaskScreen(
   taskPosition: TaskPosition? = null,
   shouldShowLoiNameDialog: Boolean,
   loiName: String,
-  onButtonClicked: (ButtonAction) -> Unit,
   onLoiNameAction: (LoiNameAction) -> Unit,
 ) {
   val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
@@ -76,7 +75,7 @@ fun DrawAreaTaskScreen(
     showSelfIntersectionDialog = showSelfIntersectionDialog,
     shouldShowLoiNameDialog = shouldShowLoiNameDialog,
     loiName = loiName,
-    onButtonClicked = onButtonClicked,
+    onButtonClicked = { viewModel.onButtonClick(it) },
     onLoiNameAction = onLoiNameAction,
     onInstructionsDismiss = { viewModel.dismissDrawAreaInstructions() },
     onDismissSelfIntersectionDialog = { viewModel.showSelfIntersectionDialog.value = false },

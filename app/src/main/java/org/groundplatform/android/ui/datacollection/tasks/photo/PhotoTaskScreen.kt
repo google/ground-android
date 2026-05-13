@@ -48,18 +48,13 @@ import androidx.lifecycle.flowWithLifecycle
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.components.ConfirmationDialog
 import org.groundplatform.android.ui.datacollection.TaskPosition
-import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.groundplatform.android.ui.datacollection.components.UriImage
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreen
 import org.groundplatform.ui.theme.sizes
 
 @Composable
-fun PhotoTaskScreen(
-  viewModel: PhotoTaskViewModel,
-  taskPosition: TaskPosition? = null,
-  onButtonClicked: (ButtonAction) -> Unit,
-) {
+fun PhotoTaskScreen(viewModel: PhotoTaskViewModel, taskPosition: TaskPosition? = null) {
   val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
   val uri by viewModel.uri.collectAsStateWithLifecycle(Uri.EMPTY)
 
@@ -86,7 +81,7 @@ fun PhotoTaskScreen(
       TaskHeader(label = viewModel.task.label, iconResId = R.drawable.ic_question_answer),
     taskPosition = taskPosition,
     taskActionButtonsStates = taskActionButtonsStates,
-    onButtonClicked = onButtonClicked,
+    onButtonClicked = { viewModel.onButtonClick(it) },
     taskBody = {
       PhotoTaskContent(
         uri = uri,

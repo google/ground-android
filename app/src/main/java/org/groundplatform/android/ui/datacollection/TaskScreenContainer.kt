@@ -18,7 +18,6 @@ package org.groundplatform.android.ui.datacollection
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.tasks.date.DateTaskScreen
 import org.groundplatform.android.ui.datacollection.tasks.date.DateTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.instruction.InstructionTaskScreen
@@ -59,88 +58,64 @@ fun TaskScreenContainer(
   val loiName by dataCollectionViewModel.loiNameDraft.collectAsStateWithLifecycle()
   val showLoiNameDialog by dataCollectionViewModel.loiNameDialogOpen.collectAsStateWithLifecycle()
 
-  val onButtonClicked = { action: ButtonAction -> taskViewModel.onButtonClick(action) }
-
   val onLoiNameAction = { action: LoiNameAction ->
     dataCollectionViewModel.handleLoiNameAction(action, task.id)
   }
 
-  when (taskViewModel) {
-    is CaptureLocationTaskViewModel ->
+  when (task.type) {
+    Task.Type.CAPTURE_LOCATION ->
       CaptureLocationTaskScreen(
-        viewModel = taskViewModel,
+        viewModel = taskViewModel as CaptureLocationTaskViewModel,
         taskPosition = taskPosition,
-        onButtonClicked = onButtonClicked,
       )
 
-    is DateTaskViewModel ->
-      DateTaskScreen(
-        viewModel = taskViewModel,
-        taskPosition = taskPosition,
-        onButtonClicked = onButtonClicked,
-      )
+    Task.Type.DATE ->
+      DateTaskScreen(viewModel = taskViewModel as DateTaskViewModel, taskPosition = taskPosition)
 
-    is DrawAreaTaskViewModel ->
+    Task.Type.DRAW_AREA ->
       DrawAreaTaskScreen(
-        viewModel = taskViewModel,
+        viewModel = taskViewModel as DrawAreaTaskViewModel,
         taskPosition = taskPosition,
-        onButtonClicked = onButtonClicked,
         onLoiNameAction = onLoiNameAction,
         loiName = loiName,
         shouldShowLoiNameDialog = showLoiNameDialog,
       )
 
-    is DropPinTaskViewModel ->
+    Task.Type.DROP_PIN ->
       DropPinTaskScreen(
-        viewModel = taskViewModel,
+        viewModel = taskViewModel as DropPinTaskViewModel,
         taskPosition = taskPosition,
-        onButtonClicked = onButtonClicked,
         onLoiNameAction = onLoiNameAction,
         loiName = loiName,
         shouldShowLoiNameDialog = showLoiNameDialog,
       )
 
-    is InstructionTaskViewModel ->
+    Task.Type.INSTRUCTIONS ->
       InstructionTaskScreen(
-        viewModel = taskViewModel,
+        viewModel = taskViewModel as InstructionTaskViewModel,
         taskPosition = taskPosition,
-        onButtonClicked = onButtonClicked,
       )
 
-    is MultipleChoiceTaskViewModel ->
+    Task.Type.MULTIPLE_CHOICE ->
       MultipleChoiceTaskScreen(
-        viewModel = taskViewModel,
+        viewModel = taskViewModel as MultipleChoiceTaskViewModel,
         taskPosition = taskPosition,
-        onButtonClicked = onButtonClicked,
       )
 
-    is PhotoTaskViewModel ->
-      PhotoTaskScreen(
-        viewModel = taskViewModel,
-        taskPosition = taskPosition,
-        onButtonClicked = onButtonClicked,
-      )
+    Task.Type.PHOTO ->
+      PhotoTaskScreen(viewModel = taskViewModel as PhotoTaskViewModel, taskPosition = taskPosition)
 
-    is NumberTaskViewModel ->
+    Task.Type.NUMBER ->
       NumberTaskScreen(
-        viewModel = taskViewModel,
+        viewModel = taskViewModel as NumberTaskViewModel,
         taskPosition = taskPosition,
-        onButtonClicked = onButtonClicked,
       )
 
-    is TextTaskViewModel ->
-      TextTaskScreen(
-        viewModel = taskViewModel,
-        taskPosition = taskPosition,
-        onButtonClicked = onButtonClicked,
-      )
+    Task.Type.TEXT ->
+      TextTaskScreen(viewModel = taskViewModel as TextTaskViewModel, taskPosition = taskPosition)
 
-    is TimeTaskViewModel ->
-      TimeTaskScreen(
-        viewModel = taskViewModel,
-        taskPosition = taskPosition,
-        onButtonClicked = onButtonClicked,
-      )
+    Task.Type.TIME ->
+      TimeTaskScreen(viewModel = taskViewModel as TimeTaskViewModel, taskPosition = taskPosition)
 
     else -> error("Unsupported task type: ${task.type}")
   }

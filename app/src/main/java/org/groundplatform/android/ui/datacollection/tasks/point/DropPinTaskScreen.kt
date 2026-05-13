@@ -51,7 +51,6 @@ fun DropPinTaskScreen(
   taskPosition: TaskPosition? = null,
   shouldShowLoiNameDialog: Boolean,
   loiName: String,
-  onButtonClicked: (ButtonAction) -> Unit,
   onLoiNameAction: (LoiNameAction) -> Unit,
 ) {
   val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
@@ -70,7 +69,7 @@ fun DropPinTaskScreen(
     showInstructionsDialog = showInstructionsDialog,
     shouldShowLoiNameDialog = shouldShowLoiNameDialog,
     loiName = loiName,
-    onButtonClicked = onButtonClicked,
+    onButtonClicked = { viewModel.onButtonClick(it) },
     onLoiNameAction = onLoiNameAction,
     onInstructionsDismiss = { viewModel.dismissDropPinInstructions() },
   )

@@ -260,10 +260,6 @@ class DrawAreaTaskScreenTest : BaseHiltTest() {
         viewModel = viewModelToUse,
         shouldShowLoiNameDialog = false,
         loiName = "",
-        onButtonClicked = { action ->
-          lastButtonAction = action
-          viewModelToUse.onButtonClick(action)
-        },
         onLoiNameAction = {},
       )
     }
