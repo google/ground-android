@@ -17,15 +17,12 @@ package org.groundplatform.android.ui.datacollection
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.core.os.bundleOf
-import androidx.fragment.compose.AndroidFragment
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.tasks.date.DateTaskScreen
 import org.groundplatform.android.ui.datacollection.tasks.date.DateTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.instruction.InstructionTaskScreen
 import org.groundplatform.android.ui.datacollection.tasks.instruction.InstructionTaskViewModel
-import org.groundplatform.android.ui.datacollection.tasks.location.CaptureLocationTaskMapFragment
 import org.groundplatform.android.ui.datacollection.tasks.location.CaptureLocationTaskScreen
 import org.groundplatform.android.ui.datacollection.tasks.location.CaptureLocationTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.multiplechoice.MultipleChoiceTaskScreen
@@ -34,10 +31,8 @@ import org.groundplatform.android.ui.datacollection.tasks.number.NumberTaskScree
 import org.groundplatform.android.ui.datacollection.tasks.number.NumberTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.photo.PhotoTaskScreen
 import org.groundplatform.android.ui.datacollection.tasks.photo.PhotoTaskViewModel
-import org.groundplatform.android.ui.datacollection.tasks.point.DropPinTaskMapFragment
 import org.groundplatform.android.ui.datacollection.tasks.point.DropPinTaskScreen
 import org.groundplatform.android.ui.datacollection.tasks.point.DropPinTaskViewModel
-import org.groundplatform.android.ui.datacollection.tasks.polygon.DrawAreaTaskMapFragment
 import org.groundplatform.android.ui.datacollection.tasks.polygon.DrawAreaTaskScreen
 import org.groundplatform.android.ui.datacollection.tasks.polygon.DrawAreaTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.text.TextTaskScreen
@@ -75,12 +70,7 @@ fun TaskScreenContainer(task: Task, taskPosition: TaskPosition, fragment: DataCo
         taskPosition = taskPosition,
         onButtonClicked = onButtonClicked,
         onOpenSettings = { fragment.requireActivity().openAppSettings() },
-      ) {
-        AndroidFragment(
-          clazz = CaptureLocationTaskMapFragment::class.java,
-          arguments = bundleOf(Pair(DataCollectionFragment.TASK_ID, task.id)),
-        )
-      }
+      )
 
     is DateTaskViewModel ->
       DateTaskScreen(
@@ -97,12 +87,7 @@ fun TaskScreenContainer(task: Task, taskPosition: TaskPosition, fragment: DataCo
         onLoiNameAction = onLoiNameAction,
         loiName = loiName,
         shouldShowLoiNameDialog = showLoiNameDialog,
-      ) {
-        AndroidFragment(
-          clazz = DrawAreaTaskMapFragment::class.java,
-          arguments = bundleOf(Pair(DataCollectionFragment.TASK_ID, task.id)),
-        )
-      }
+      )
 
     is DropPinTaskViewModel ->
       DropPinTaskScreen(
@@ -112,12 +97,7 @@ fun TaskScreenContainer(task: Task, taskPosition: TaskPosition, fragment: DataCo
         onLoiNameAction = onLoiNameAction,
         loiName = loiName,
         shouldShowLoiNameDialog = showLoiNameDialog,
-      ) {
-        AndroidFragment(
-          clazz = DropPinTaskMapFragment::class.java,
-          arguments = bundleOf(Pair(DataCollectionFragment.TASK_ID, task.id)),
-        )
-      }
+      )
 
     is InstructionTaskViewModel ->
       InstructionTaskScreen(

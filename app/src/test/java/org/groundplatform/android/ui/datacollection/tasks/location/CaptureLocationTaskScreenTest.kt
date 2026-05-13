@@ -248,7 +248,6 @@ class CaptureLocationTaskScreenTest {
           viewModel.onButtonClick(action)
         },
         onOpenSettings = { openSettingsCalled = true },
-        mapContent = { /* Dummy content */ },
       )
     }
   }

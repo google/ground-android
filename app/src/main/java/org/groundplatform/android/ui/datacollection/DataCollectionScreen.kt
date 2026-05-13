@@ -72,10 +72,12 @@ fun DataCollectionScreen(
   DataCollectionContent(uiState = uiState, onCloseClicked = { viewModel.onCloseClicked() }) {
     readyState ->
     val tasks = readyState.tasks
-    val position = readyState.position
-    val currentTask = tasks[position.relativeIndex]
+    if (tasks.isNotEmpty()) {
+      val position = readyState.position
+      val currentTask = tasks[position.relativeIndex]
 
-    key(currentTask.id) { TaskScreenContainer(currentTask, position, fragment) }
+      key(currentTask.id) { TaskScreenContainer(currentTask, position, fragment) }
+    }
   }
 
   if (showExitWarningDialog) {

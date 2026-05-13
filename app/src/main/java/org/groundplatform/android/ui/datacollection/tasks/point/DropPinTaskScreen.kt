@@ -19,12 +19,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.os.bundleOf
+import androidx.fragment.compose.AndroidFragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
+import org.groundplatform.android.ui.datacollection.DataCollectionFragment
 import org.groundplatform.android.ui.datacollection.LoiNameAction
 import org.groundplatform.android.ui.datacollection.TaskPosition
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
@@ -41,7 +44,6 @@ import org.groundplatform.ui.theme.AppTheme
  * routing.
  *
  * @param viewModel The view model for this task.
- * @param mapContent Composable for rendering the map.
  */
 @Composable
 fun DropPinTaskScreen(
@@ -51,7 +53,6 @@ fun DropPinTaskScreen(
   loiName: String,
   onButtonClicked: (ButtonAction) -> Unit,
   onLoiNameAction: (LoiNameAction) -> Unit,
-  mapContent: @Composable () -> Unit,
 ) {
   val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
   val showInstructionsDialog by viewModel.showInstructionsDialog.collectAsStateWithLifecycle()
@@ -62,6 +63,7 @@ fun DropPinTaskScreen(
   }
 
   DropPinTaskContent(
+    taskId = viewModel.task.id,
     taskLabel = viewModel.task.label,
     taskPosition = taskPosition,
     taskActionButtonsStates = taskActionButtonsStates,
@@ -71,7 +73,6 @@ fun DropPinTaskScreen(
     onButtonClicked = onButtonClicked,
     onLoiNameAction = onLoiNameAction,
     onInstructionsDismiss = { viewModel.dismissDropPinInstructions() },
-    mapContent = mapContent,
   )
 }
 
@@ -82,10 +83,10 @@ fun DropPinTaskScreen(
  * @param taskPosition The position of the task in the sequence.
  * @param taskActionButtonsStates The states of the action buttons.
  * @param showInstructionsDialog Whether to show the instructions' dialog.
- * @param mapContent Composable for rendering the map.
  */
 @Composable
 private fun DropPinTaskContent(
+  taskId: String,
   taskLabel: String,
   taskPosition: TaskPosition? = null,
   taskActionButtonsStates: List<ButtonActionState>,
@@ -95,7 +96,6 @@ private fun DropPinTaskContent(
   onButtonClicked: (ButtonAction) -> Unit,
   onLoiNameAction: (LoiNameAction) -> Unit,
   onInstructionsDismiss: () -> Unit,
-  mapContent: @Composable () -> Unit,
 ) {
   TaskScreen(
     taskHeader = TaskHeader(taskLabel, R.drawable.outline_pin_drop),
@@ -109,7 +109,12 @@ private fun DropPinTaskContent(
     onButtonClicked = onButtonClicked,
     onLoiNameAction = onLoiNameAction,
     onInstructionsDismiss = onInstructionsDismiss,
-    taskBody = mapContent,
+    taskBody = {
+      AndroidFragment(
+        clazz = DropPinTaskMapFragment::class.java,
+        arguments = bundleOf(Pair(DataCollectionFragment.TASK_ID, taskId)),
+      )
+    },
   )
 }
 
@@ -119,6 +124,7 @@ private fun DropPinTaskContent(
 private fun DropPinTaskScreenPreview() {
   AppTheme {
     DropPinTaskContent(
+      taskId = "task_id",
       taskLabel = "Task for dropping a pin",
       taskActionButtonsStates =
         listOf(
@@ -134,7 +140,6 @@ private fun DropPinTaskScreenPreview() {
       onButtonClicked = {},
       onLoiNameAction = {},
       onInstructionsDismiss = {},
-      mapContent = {},
     )
   }
 }

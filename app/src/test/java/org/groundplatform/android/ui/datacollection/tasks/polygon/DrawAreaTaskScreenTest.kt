@@ -265,7 +265,6 @@ class DrawAreaTaskScreenTest : BaseHiltTest() {
           viewModelToUse.onButtonClick(action)
         },
         onLoiNameAction = {},
-        mapContent = { /* Dummy content */ },
       )
     }
   }
