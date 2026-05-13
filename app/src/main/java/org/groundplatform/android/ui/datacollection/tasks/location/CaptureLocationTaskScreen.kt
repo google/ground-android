@@ -61,7 +61,6 @@ fun CaptureLocationTaskScreen(
   LaunchedEffect(Unit) { viewModel.enableLocationLock() }
 
   CaptureLocationTaskContent(
-    taskId = viewModel.task.id,
     taskLabel = viewModel.task.label,
     taskPosition = taskPosition,
     taskActionButtonsStates = taskActionButtonsStates,
@@ -88,7 +87,6 @@ fun CaptureLocationTaskScreen(
  */
 @Composable
 private fun CaptureLocationTaskContent(
-  taskId: String,
   taskLabel: String,
   taskPosition: TaskPosition? = null,
   taskActionButtonsStates: List<ButtonActionState>,
@@ -133,7 +131,6 @@ private fun CaptureLocationTaskContent(
 private fun CaptureLocationTaskScreenPreview() {
   AppTheme {
     CaptureLocationTaskContent(
-      taskId = "task_id",
       taskLabel = "Task for capturing current location",
       taskActionButtonsStates =
         listOf(

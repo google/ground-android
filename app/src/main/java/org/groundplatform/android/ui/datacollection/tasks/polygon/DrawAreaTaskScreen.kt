@@ -73,7 +73,6 @@ fun DrawAreaTaskScreen(
   }
 
   DrawAreaTaskContent(
-    taskId = viewModel.task.id,
     taskLabel = viewModel.task.label,
     taskPosition = taskPosition,
     taskActionButtonsStates = taskActionButtonsStates,
@@ -106,7 +105,6 @@ fun DrawAreaTaskScreen(
  */
 @Composable
 private fun DrawAreaTaskContent(
-  taskId: String,
   taskLabel: String,
   taskPosition: TaskPosition? = null,
   taskActionButtonsStates: List<ButtonActionState>,
@@ -157,7 +155,6 @@ private fun DrawAreaTaskContent(
 private fun DrawAreaTaskScreenInstructionsPreview() {
   AppTheme {
     DrawAreaTaskContent(
-      taskId = "task_id",
       taskLabel = "Task for drawing a polygon",
       taskActionButtonsStates =
         listOf(
@@ -187,7 +184,6 @@ private fun DrawAreaTaskScreenInstructionsPreview() {
 private fun DrawAreaTaskScreenSelfIntersectionPreview() {
   AppTheme {
     DrawAreaTaskContent(
-      taskId = "task_id",
       taskLabel = "Task for drawing a polygon",
       taskActionButtonsStates =
         listOf(

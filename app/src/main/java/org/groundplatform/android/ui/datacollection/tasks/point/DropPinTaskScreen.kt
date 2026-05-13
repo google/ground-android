@@ -68,7 +68,6 @@ fun DropPinTaskScreen(
   }
 
   DropPinTaskContent(
-    taskId = viewModel.task.id,
     taskLabel = viewModel.task.label,
     taskPosition = taskPosition,
     taskActionButtonsStates = taskActionButtonsStates,
@@ -92,7 +91,6 @@ fun DropPinTaskScreen(
  */
 @Composable
 private fun DropPinTaskContent(
-  taskId: String,
   taskLabel: String,
   taskPosition: TaskPosition? = null,
   taskActionButtonsStates: List<ButtonActionState>,
@@ -128,7 +126,6 @@ private fun DropPinTaskContent(
 private fun DropPinTaskScreenPreview() {
   AppTheme {
     DropPinTaskContent(
-      taskId = "task_id",
       taskLabel = "Task for dropping a pin",
       taskActionButtonsStates =
         listOf(
