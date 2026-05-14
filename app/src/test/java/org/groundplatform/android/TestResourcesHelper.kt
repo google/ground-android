@@ -18,6 +18,11 @@ package org.groundplatform.android
 import android.content.Context
 import androidx.annotation.StringRes
 import androidx.test.core.app.ApplicationProvider
+import kotlinx.coroutines.runBlocking
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.getString as multiplatformGetString
 
 fun getString(@StringRes id: Int, vararg formatArgs: Any): String =
   ApplicationProvider.getApplicationContext<Context>().getString(id, *formatArgs)
+
+fun getString(resource: StringResource): String = runBlocking { multiplatformGetString(resource) }

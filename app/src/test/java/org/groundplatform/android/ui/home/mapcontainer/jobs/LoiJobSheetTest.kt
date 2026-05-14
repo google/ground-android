@@ -19,7 +19,8 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
-import org.junit.Test
+import ground_android.core.ui.generated.resources.Res
+import ground_android.core.ui.generated.resources.share
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -36,6 +37,7 @@ import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
 import org.groundplatform.domain.model.locationofinterest.LoiReport
 import org.groundplatform.domain.model.task.Task
 import org.junit.Rule
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
@@ -89,14 +91,14 @@ class LoiJobSheetTest {
   fun `share button is shown when there is a LoiReport`() {
     setContent(FREE_FORM_LOI)
 
-    composeTestRule.onNodeWithText(getString(R.string.share)).assertIsDisplayed()
+    composeTestRule.onNodeWithText(getString(Res.string.share)).assertIsDisplayed()
   }
 
   @Test
   fun `share button is not shown when there is no LoiReport`() {
     setContent(FREE_FORM_LOI, loiReport = null)
 
-    composeTestRule.onNodeWithText(getString(R.string.share)).assertIsNotDisplayed()
+    composeTestRule.onNodeWithText(getString(Res.string.share)).assertIsNotDisplayed()
   }
 
   private fun setContent(
@@ -123,7 +125,10 @@ class LoiJobSheetTest {
 
   private fun getLoiReport(name: String): LoiReport =
     LoiReport(
+      surveyName = "Test Survey",
       loiName = name,
+      userName = "John Doe",
+      dateMillis = 987654321L,
       geoJson =
         JsonObject(
           mapOf(
@@ -138,6 +143,7 @@ class LoiJobSheetTest {
               ),
           )
         ),
+      submissions = null,
     )
 
   companion object {
