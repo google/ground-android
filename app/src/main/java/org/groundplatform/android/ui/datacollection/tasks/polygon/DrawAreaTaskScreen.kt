@@ -42,6 +42,19 @@ import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreen
 import org.groundplatform.ui.theme.AppTheme
 
+/**
+ * A screen for drawing an area (polygon) on the map.
+ *
+ * This is the stateful wrapper that collects state from [DrawAreaTaskViewModel] and handles event
+ * routing.
+ *
+ * @param viewModel The view model for this task.
+ * @param taskPosition The position of the task in the sequence.
+ * @param shouldShowLoiNameDialog Whether to show the dialog for setting the LOI name.
+ * @param loiName Value to be prepopulated in the LOI name dialog.
+ * @param onLoiNameAction Callback when user interacts with the LOI name dialog.
+ * @param mapContent Composable for rendering the map.
+ */
 @Composable
 fun DrawAreaTaskScreen(
   viewModel: DrawAreaTaskViewModel,
@@ -54,7 +67,7 @@ fun DrawAreaTaskScreen(
       clazz = DrawAreaTaskMapFragment::class.java,
       arguments = bundleOf(Pair(DataCollectionFragment.TASK_ID, viewModel.task.id)),
     )
-  }
+  },
 ) {
   val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
   val showSelfIntersectionDialog by viewModel.showSelfIntersectionDialog
@@ -100,8 +113,9 @@ fun DrawAreaTaskScreen(
  * @param loiName Value to be prepopulated in the LOI name dialog.
  * @param onButtonClicked Callback when a button with a [ButtonAction] is clicked.
  * @param onLoiNameAction Callback when user interacts with the LOI name dialog.
- * @param onInstructionsDismiss Callback when user dismisses the instructions dialog.
+ * @param onInstructionsDismiss Callback when user dismisses the instructions' dialog.
  * @param onDismissSelfIntersectionDialog Callback when the self-intersection dialog is dismissed.
+ * @param mapContent Composable for rendering the map.
  */
 @Composable
 private fun DrawAreaTaskContent(
@@ -133,9 +147,7 @@ private fun DrawAreaTaskContent(
     onButtonClicked = onButtonClicked,
     onLoiNameAction = onLoiNameAction,
     onInstructionsDismiss = onInstructionsDismiss,
-    taskBody = {
-      mapContent()
-    },
+    taskBody = { mapContent() },
   )
 
   if (showSelfIntersectionDialog) {

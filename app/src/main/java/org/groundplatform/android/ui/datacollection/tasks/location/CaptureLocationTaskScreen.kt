@@ -84,6 +84,7 @@ fun CaptureLocationTaskScreen(
  * @param onDismissAccuracyCard Callback when the accuracy card is dismissed.
  * @param onAllowLocationClicked Callback when the allow location button is clicked in the dialog.
  * @param onButtonClicked Callback when a button is clicked.
+ * @param mapContent Composable for rendering the map.
  */
 @Composable
 private fun CaptureLocationTaskContent(

@@ -18,7 +18,6 @@ package org.groundplatform.android.ui.datacollection
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -60,6 +59,7 @@ import org.groundplatform.domain.repository.SubmissionRepositoryInterface
 import org.groundplatform.domain.usecases.GetLoiReportUseCase
 import org.groundplatform.domain.usecases.submission.SubmitDataUseCase
 import timber.log.Timber
+import javax.inject.Inject
 
 sealed interface DataCollectionUiEffect {
   data object Exit : DataCollectionUiEffect
@@ -188,6 +188,16 @@ internal constructor(
   fun confirmExit() {
     dismissExitWarning()
     viewModelScope.launch { _uiEffects.send(DataCollectionUiEffect.Exit) }
+  }
+
+  private fun openSettings() {
+    viewModelScope.launch { _uiEffects.send(DataCollectionUiEffect.OpenSettings) }
+  }
+
+  private fun setAwaitingPhotoCapture(awaiting: Boolean) {
+    viewModelScope.launch {
+      _uiEffects.send(DataCollectionUiEffect.SetAwaitingPhotoCapture(awaiting))
+    }
   }
 
   fun handleLoiNameAction(action: LoiNameAction, taskId: String) {
@@ -323,15 +333,12 @@ internal constructor(
           withReadyOrNull { it.currentTaskId }
             ?.let { taskId ->
               when (event) {
-                DataCollectionEvent.NavigatePrevious -> onPreviousClicked(taskId)
-                DataCollectionEvent.NavigateNext -> onNextClicked(taskId)
-                DataCollectionEvent.ShowLoiDialog -> openLoiNameDialog()
-                DataCollectionEvent.OpenSettings ->
-                  viewModelScope.launch { _uiEffects.send(DataCollectionUiEffect.OpenSettings) }
+                is DataCollectionEvent.NavigatePrevious -> onPreviousClicked(taskId)
+                is DataCollectionEvent.NavigateNext -> onNextClicked(taskId)
+                is DataCollectionEvent.ShowLoiDialog -> openLoiNameDialog()
+                is DataCollectionEvent.OpenSettings -> openSettings()
                 is DataCollectionEvent.SetAwaitingPhotoCapture ->
-                  viewModelScope.launch {
-                    _uiEffects.send(DataCollectionUiEffect.SetAwaitingPhotoCapture(event.awaiting))
-                  }
+                  setAwaitingPhotoCapture(event.awaiting)
               }
             }
         },
