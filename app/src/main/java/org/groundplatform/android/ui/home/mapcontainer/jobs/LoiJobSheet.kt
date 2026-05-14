@@ -23,12 +23,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -62,6 +59,7 @@ import org.groundplatform.domain.model.job.Style
 import org.groundplatform.domain.model.locationofinterest.AuditInfo
 import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
 import org.groundplatform.domain.model.task.Task
+import org.groundplatform.ui.components.ShareButton
 import org.groundplatform.ui.theme.AppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -194,14 +192,7 @@ private fun SubmissionRow(
       horizontalArrangement = Arrangement.End,
     ) {
       if (showShareButton) {
-        FilledTonalButton(onClick = onShareClicked) {
-          Icon(
-            modifier = Modifier.padding(end = 8.dp),
-            imageVector = Icons.Outlined.Share,
-            contentDescription = "Share",
-          )
-          Text(stringResource(R.string.share), modifier = Modifier.padding(4.dp))
-        }
+        ShareButton(onClick = onShareClicked)
       }
 
       // NOTE(#2539): Avoid crash when there are no non-LOI tasks.
