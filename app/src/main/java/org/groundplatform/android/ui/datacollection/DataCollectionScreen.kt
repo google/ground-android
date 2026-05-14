@@ -80,7 +80,7 @@ fun DataCollectionScreen(
     val tasks = readyState.tasks
     if (tasks.isNotEmpty()) {
       val position = readyState.position
-      val currentTask = tasks[position.relativeIndex]
+      val currentTask = tasks[position.absoluteIndex]
 
       key(currentTask.id) {
         viewModel.getTaskViewModel(currentTask.id)?.let { taskViewModel ->

@@ -20,6 +20,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.lifecycle.MutableLiveData
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,11 +28,16 @@ import kotlinx.coroutines.test.runTest
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.R
 import org.groundplatform.android.getString
+import org.groundplatform.android.ui.datacollection.components.ButtonActionState
+import org.groundplatform.android.ui.datacollection.tasks.text.INPUT_TEXT_TEST_TAG
+import org.groundplatform.android.ui.datacollection.tasks.text.TextTaskViewModel
+import org.groundplatform.domain.model.task.Task
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
+import org.mockito.Mockito.mock
 import org.mockito.junit.MockitoJUnit
 import org.mockito.junit.MockitoRule
 import org.mockito.kotlin.doReturn
@@ -49,12 +55,16 @@ class DataCollectionScreenTest {
   private val uiState = MutableStateFlow<DataCollectionUiState>(DataCollectionUiState.Loading)
   private val showExitWarning = MutableStateFlow(false)
   private val uiEffects = MutableSharedFlow<DataCollectionUiEffect>()
+  private val loiNameDraft = MutableStateFlow("")
+  private val loiNameDialogOpen = MutableStateFlow(false)
 
   @Before
   fun setUp() {
     whenever(mockViewModel.uiState).doReturn(uiState)
     whenever(mockViewModel.showExitWarning).doReturn(showExitWarning)
     whenever(mockViewModel.uiEffects).doReturn(uiEffects)
+    whenever(mockViewModel.loiNameDraft).doReturn(loiNameDraft)
+    whenever(mockViewModel.loiNameDialogOpen).doReturn(loiNameDialogOpen)
   }
 
   private fun setContent(onValidationError: (Int) -> Unit = {}, onExitConfirmed: () -> Unit = {}) {
@@ -163,6 +173,41 @@ class DataCollectionScreenTest {
 
     composeTestRule.onNodeWithTag(DataCollectionScreenTestTags.ERROR_MESSAGE).assertIsDisplayed()
     composeTestRule.onNodeWithText(getString(R.string.unexpected_error)).assertIsDisplayed()
+  }
+
+  @Test
+  fun `Displays correct task when absoluteIndex differs from relativeIndex`() {
+    val task1 =
+      Task(
+        id = "task1",
+        index = 0,
+        type = Task.Type.INSTRUCTIONS,
+        label = "Instructions Task",
+        isRequired = false,
+      )
+    val task2 =
+      Task(id = "task2", index = 1, type = Task.Type.TEXT, label = "Text Task", isRequired = true)
+
+    val mockTextTaskViewModel = mock(TextTaskViewModel::class.java)
+    val mockTaskActionButtonStates = MutableStateFlow<List<ButtonActionState>>(emptyList())
+    val mockResponseText = MutableLiveData("")
+
+    whenever(mockTextTaskViewModel.taskActionButtonStates).thenReturn(mockTaskActionButtonStates)
+    whenever(mockTextTaskViewModel.responseText).thenReturn(mockResponseText)
+    whenever(mockTextTaskViewModel.task).thenReturn(task2)
+
+    whenever(mockViewModel.getTaskViewModel("task2")).thenReturn(mockTextTaskViewModel)
+
+    uiState.value =
+      READY_STATE.copy(
+        tasks = listOf(task1, task2),
+        currentTaskId = "task2",
+        position = TaskPosition(absoluteIndex = 1, relativeIndex = 0, sequenceSize = 1),
+      )
+
+    setContent()
+
+    composeTestRule.onNodeWithTag(INPUT_TEXT_TEST_TAG).assertIsDisplayed()
   }
 
   companion object {
