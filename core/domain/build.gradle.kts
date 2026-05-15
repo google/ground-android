@@ -29,7 +29,6 @@ kotlin {
   jvm()
   jvmToolchain(libs.versions.jvmToolchainVersion.get().toInt())
 
-  iosX64()
   iosArm64()
   iosSimulatorArm64()
 
