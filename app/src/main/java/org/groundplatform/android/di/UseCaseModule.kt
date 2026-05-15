@@ -35,8 +35,10 @@ import org.groundplatform.domain.usecases.user.UpdateUserSettingsUseCase
 object UseCaseModule {
   @Provides
   fun provideGetLoiReportUseCase(
-    locationOfInterestRepository: LocationOfInterestRepositoryInterface
-  ) = GetLoiReportUseCase(locationOfInterestRepository)
+    locationOfInterestRepository: LocationOfInterestRepositoryInterface,
+    userRepository: UserRepositoryInterface,
+    surveyRepository: SurveyRepositoryInterface,
+  ) = GetLoiReportUseCase(locationOfInterestRepository, userRepository, surveyRepository)
 
   @Provides
   fun providesUpdateUserSettingsUseCase(userRepository: UserRepositoryInterface) =

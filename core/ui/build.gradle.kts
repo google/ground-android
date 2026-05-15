@@ -21,6 +21,8 @@ plugins {
   alias(libs.plugins.compose.compiler)
 }
 
+compose.resources { publicResClass = true }
+
 kotlin {
   jvmToolchain(libs.versions.jvmToolchainVersion.get().toInt())
   androidLibrary {
