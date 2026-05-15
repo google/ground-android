@@ -53,13 +53,18 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import org.groundplatform.android.R
 import org.groundplatform.domain.model.locationofinterest.LoiReport
+import org.groundplatform.ui.components.loireport.LoiReportAction
 import org.groundplatform.ui.components.loireport.SubmissionPdfItem
 import org.groundplatform.ui.components.qrcode.GroundQrCode
 import org.groundplatform.ui.theme.AppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ShareLocationModal(loiReport: LoiReport, onDismiss: () -> Unit) {
+fun ShareLocationModal(
+  loiReport: LoiReport,
+  onDismiss: () -> Unit,
+  onLoiReportAction: (LoiReportAction) -> Unit,
+) {
   val context = LocalContext.current
 
   Dialog(
@@ -102,12 +107,8 @@ fun ShareLocationModal(loiReport: LoiReport, onDismiss: () -> Unit) {
             loiName = loiReport.loiName,
             userName = loiReport.userName,
             date = DateFormat.getDateFormat(context).format(Date(loiReport.dateMillis)),
-            onItemClick = {
-              /* To be implemented in a follow-up on https://github.com/google/ground-android/issues/3715 */
-            },
-            onShareClick = {
-              /* To be implemented in a follow-up on https://github.com/google/ground-android/issues/3715 */
-            },
+            onItemClick = { onLoiReportAction(LoiReportAction.OnPdfItemClicked(loiReport)) },
+            onShareClick = { onLoiReportAction(LoiReportAction.OnShareClicked(loiReport)) },
           )
         }
 
@@ -150,7 +151,7 @@ private fun ShareLocationModalPreview() {
 
   AppTheme {
     Surface(modifier = Modifier.fillMaxSize()) {
-      ShareLocationModal(loiReport = testLoiReport, onDismiss = {})
+      ShareLocationModal(loiReport = testLoiReport, onDismiss = {}, onLoiReportAction = {})
     }
   }
 }

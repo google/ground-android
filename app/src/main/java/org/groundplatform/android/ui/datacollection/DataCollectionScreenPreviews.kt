@@ -38,7 +38,11 @@ private const val PAGER_CONTENT_TEXT = "Pager Content Area"
 @ExcludeFromJacocoGeneratedReport
 private fun DataCollectionContentLoadingPreview() {
   AppTheme {
-    DataCollectionContent(uiState = DataCollectionUiState.Loading, onCloseClicked = {}) {
+    DataCollectionContent(
+      uiState = DataCollectionUiState.Loading,
+      onCloseClicked = {},
+      onLoiReportAction = {},
+    ) {
       Box(modifier = Modifier.fillMaxSize().background(Color.LightGray)) {
         Text(text = PAGER_CONTENT_TEXT, modifier = Modifier.align(Alignment.Center))
       }
@@ -58,6 +62,7 @@ private fun DataCollectionContentErrorPreview() {
           cause = Error("Some error"),
         ),
       onCloseClicked = {},
+      onLoiReportAction = {},
     ) {
       Box(modifier = Modifier.fillMaxSize().background(Color.LightGray)) {
         Text(text = PAGER_CONTENT_TEXT, modifier = Modifier.align(Alignment.Center))
@@ -83,6 +88,7 @@ private fun DataCollectionContentPreview() {
           position = TaskPosition(0, 1, 3),
         ),
       onCloseClicked = {},
+      onLoiReportAction = {},
     ) {
       Box(modifier = Modifier.fillMaxSize().background(Color.LightGray)) {
         Text(text = PAGER_CONTENT_TEXT, modifier = Modifier.align(Alignment.Center))
@@ -106,10 +112,11 @@ private fun DataCollectionContentCompletePreview() {
               dateMillis = Clock.System.now().toEpochMilliseconds(),
               loiName = "Point A",
               geoJson = JsonObject(mapOf()),
-              submissions = emptyList()
+              submissions = emptyList(),
             )
         ),
       onCloseClicked = {},
+      onLoiReportAction = {},
     ) {
       Box(modifier = Modifier.fillMaxSize().background(Color.LightGray)) {
         Text(text = PAGER_CONTENT_TEXT, modifier = Modifier.align(Alignment.Center))

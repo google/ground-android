@@ -42,8 +42,10 @@ import org.groundplatform.android.ui.map.MapFragment
 import org.groundplatform.android.usecases.datasharingterms.GetDataSharingTermsUseCase
 import org.groundplatform.android.util.renderComposableDialog
 import org.groundplatform.android.util.setComposableContent
+import org.groundplatform.android.util.shareLoiReportPdf
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.locationofinterest.LOI_NAME_PROPERTY
+import org.groundplatform.ui.components.loireport.LoiReportAction
 import timber.log.Timber
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
@@ -160,6 +162,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
           onJobComponentAction = {
             handleJobMapComponentAction(jobMapComponentState = jobMapComponentState, action = it)
           },
+          onLoiReportAction = { handleLoiReportAction(it) },
         )
       }
     }
@@ -206,6 +209,17 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
       }
       JobMapComponentAction.OnJobSelectionModalDismissed -> {
         mapContainerViewModel.setJobSelectionModalVisibility(false)
+      }
+    }
+  }
+
+  private fun handleLoiReportAction(action: LoiReportAction) {
+    when (action) {
+      is LoiReportAction.OnShareClicked -> {
+        /* TODO */
+      }
+      is LoiReportAction.OnPdfItemClicked -> {
+        /* TODO() */
       }
     }
   }

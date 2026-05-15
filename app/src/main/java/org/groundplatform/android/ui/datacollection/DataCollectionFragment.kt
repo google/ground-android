@@ -22,6 +22,7 @@ import android.view.ViewGroup
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.common.BackPressListener
@@ -29,7 +30,8 @@ import org.groundplatform.android.ui.common.EphemeralPopups
 import org.groundplatform.android.ui.home.HomeScreenViewModel
 import org.groundplatform.android.util.createComposeView
 import org.groundplatform.android.util.openAppSettings
-import javax.inject.Inject
+import org.groundplatform.android.util.shareLoiReportPdf
+import org.groundplatform.ui.components.loireport.LoiReportAction
 
 /** Fragment allowing the user to collect data to complete a task. */
 @AndroidEntryPoint
@@ -55,6 +57,17 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
       onExitConfirmed = { navigateBack() },
       onOpenSettings = { requireActivity().openAppSettings() },
       onAwaitingPhotoCapture = { homeScreenViewModel.awaitingPhotoCapture = it },
+      onLoiReportAction = { loiReportAction ->
+        when (loiReportAction) {
+          is LoiReportAction.OnShareClicked ->
+          {
+            /* TODO */
+          }
+          is LoiReportAction.OnPdfItemClicked -> {
+            /* TODO */
+          }
+        }
+      },
     )
   }
 
