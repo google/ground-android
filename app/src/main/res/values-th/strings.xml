@@ -209,7 +209,6 @@
   <string name="photo_save_failed_desc">ไม่สามารถบันทึกรูปภาพที่ถ่ายได้ โปรดลองอีกครั้ง</string>
   <string name="share_location">แชร์ตำแหน่ง</string>
   <string name="scan_this_qr_to_download_geojson">สแกนคิวอาร์โค้ดนี้เพื่อดู GeoJSON</string>
-  <string name="share">แชร์</string>
 
   <string name="join_survey">เข้าร่วมแบบสำรวจ</string>
   <string name="invalid_survey_qr_code">ไม่รู้จักรหัสคิวอาร์ของแบบสำรวจนี้</string>

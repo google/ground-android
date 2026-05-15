@@ -33,6 +33,8 @@ import org.groundplatform.domain.model.locationofinterest.LOI_NAME_PROPERTY
 import org.groundplatform.domain.model.locationofinterest.LoiProperties
 import org.groundplatform.domain.model.locationofinterest.LoiReport
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
+import org.groundplatform.domain.repository.SurveyRepositoryInterface
+import org.groundplatform.domain.repository.UserRepositoryInterface
 
 /**
  * Use case that generates a [LoiReport] containing the LOI geometry and properties as a GeoJSON.
@@ -40,7 +42,9 @@ import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterfac
  * Supported geometry types: [Point], [LineString], [Polygon], [MultiPolygon].
  */
 class GetLoiReportUseCase(
-  private val locationOfInterestRepository: LocationOfInterestRepositoryInterface
+  private val locationOfInterestRepository: LocationOfInterestRepositoryInterface,
+  private val userRepositoryInterface: UserRepositoryInterface,
+  private val surveyRepositoryInterface: SurveyRepositoryInterface,
 ) {
   /**
    * Returns a [LoiReport] for the given LOI, or `null` if it does not exist.
@@ -51,12 +55,21 @@ class GetLoiReportUseCase(
    */
   suspend operator fun invoke(loiName: String, loiId: String, surveyId: String): LoiReport? {
     val loi = locationOfInterestRepository.getOfflineLoi(surveyId, loiId)
+    val user = userRepositoryInterface.getAuthenticatedUser()
+    val surveyName = surveyRepositoryInterface.getOfflineSurvey(surveyId)?.title.orEmpty()
+    val submissions = null // To be implemented in a follow-up on
+    // https://github.com/google/ground-android/issues/3715
     return loi?.let {
       LoiReport(
-        loiName,
-        it.geometry.toGeoJson(
-          it.properties.filter { property -> property.key == LOI_NAME_PROPERTY }
-        ),
+        surveyName = surveyName,
+        loiName = loiName,
+        userName = user.displayName,
+        dateMillis = it.lastModified.clientTimestamp,
+        geoJson =
+          it.geometry.toGeoJson(
+            it.properties.filter { property -> property.key == LOI_NAME_PROPERTY }
+          ),
+        submissions = submissions,
       )
     }
   }
