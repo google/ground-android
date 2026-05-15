@@ -36,7 +36,7 @@ fun ShareButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
     Icon(
       modifier = Modifier.padding(end = 8.dp),
       imageVector = vectorResource(Res.drawable.ic_share),
-      contentDescription = "Share",
+      contentDescription = stringResource(Res.string.share),
     )
     Text(stringResource(Res.string.share), modifier = Modifier.padding(4.dp))
   }
