@@ -32,7 +32,7 @@ kotlin {
 
   val xcfName = "GroundUiKit"
 
-  listOf(iosX64(), iosArm64(), iosSimulatorArm64()).forEach {
+  listOf(iosArm64(), iosSimulatorArm64()).forEach {
     it.binaries.framework {
       baseName = xcfName
       isStatic = true
