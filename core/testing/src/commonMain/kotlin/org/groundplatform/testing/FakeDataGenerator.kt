@@ -34,6 +34,8 @@ import org.groundplatform.domain.model.mutation.SubmissionMutation
 import org.groundplatform.domain.model.settings.MeasurementUnits
 import org.groundplatform.domain.model.settings.UserSettings
 import org.groundplatform.domain.model.submission.DraftSubmission
+import org.groundplatform.domain.model.submission.Submission
+import org.groundplatform.domain.model.submission.SubmissionData
 import org.groundplatform.domain.model.submission.ValueDelta
 import org.groundplatform.domain.model.task.Condition
 import org.groundplatform.domain.model.task.MultipleChoice
@@ -130,6 +132,25 @@ object FakeDataGenerator {
       surveyId = surveyId,
       deltas = deltas,
       currentTaskId = currentTaskId,
+    )
+
+  fun newSubmission(
+    id: String = "submission id",
+    surveyId: String = "survey id",
+    locationOfInterest: LocationOfInterest = newLocationOfInterest(),
+    job: Job = newJob(),
+    created: AuditInfo = AuditInfo(newUser()),
+    lastModified: AuditInfo = AuditInfo(newUser()),
+    data: SubmissionData = SubmissionData(),
+  ): Submission =
+    Submission(
+      id = id,
+      surveyId = surveyId,
+      locationOfInterest = locationOfInterest,
+      job = job,
+      created = created,
+      lastModified = lastModified,
+      data = data,
     )
 
   fun newTask(

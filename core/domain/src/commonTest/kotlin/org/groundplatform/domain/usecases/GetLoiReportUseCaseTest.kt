@@ -33,6 +33,7 @@ import org.groundplatform.domain.model.locationofinterest.LoiReport
 import org.groundplatform.domain.model.locationofinterest.generateProperties
 import org.groundplatform.testing.FakeDataGenerator
 import org.groundplatform.testing.FakeLocationOfInterestRepository
+import org.groundplatform.testing.FakeSubmissionRepository
 import org.groundplatform.testing.FakeSurveyRepository
 import org.groundplatform.testing.FakeUserRepository
 
@@ -41,8 +42,9 @@ class GetLoiReportUseCaseTest {
   private val loiRepository = FakeLocationOfInterestRepository()
   private val userRepository = FakeUserRepository()
   private val surveyRepository = FakeSurveyRepository()
+  private val submissionRepository = FakeSubmissionRepository()
   private val getLoiReportUseCase =
-    GetLoiReportUseCase(loiRepository, userRepository, surveyRepository)
+    GetLoiReportUseCase(loiRepository, userRepository, surveyRepository, submissionRepository)
 
   @Test
   fun `Should get a report with the correct geoJson for a Point`() = runTest {
@@ -332,6 +334,41 @@ class GetLoiReportUseCaseTest {
       getLoiReportUseCase.invoke(loiName = "loiName", loiId = "loiId", surveyId = "surveyId")!!
 
     assertEquals("Restoration areas", loiReport.surveyName)
+  }
+
+  @Test
+  fun `Should return submissions ordered by lastModified clientTimestamp`() = runTest {
+    val older =
+      FakeDataGenerator.newSubmission(
+        id = "older",
+        lastModified = AuditInfo(FakeDataGenerator.newUser(), clientTimestamp = 100L),
+      )
+    val middle =
+      FakeDataGenerator.newSubmission(
+        id = "middle",
+        lastModified = AuditInfo(FakeDataGenerator.newUser(), clientTimestamp = 200L),
+      )
+    val newer =
+      FakeDataGenerator.newSubmission(
+        id = "newer",
+        lastModified = AuditInfo(FakeDataGenerator.newUser(), clientTimestamp = 300L),
+      )
+    submissionRepository.submissions = listOf(newer, older, middle)
+
+    val loiReport =
+      getLoiReportUseCase.invoke(loiName = "loiName", loiId = "loiId", surveyId = "surveyId")!!
+
+    assertEquals(listOf("older", "middle", "newer"), loiReport.submissions?.map { it.id })
+  }
+
+  @Test
+  fun `Should return an empty submissions list when no submissions exist`() = runTest {
+    submissionRepository.submissions = emptyList()
+
+    val loiReport =
+      getLoiReportUseCase.invoke(loiName = "loiName", loiId = "loiId", surveyId = "surveyId")!!
+
+    assertEquals(emptyList(), loiReport.submissions)
   }
 
   private suspend fun invokeUseCase(geometry: Geometry, properties: LoiProperties): LoiReport {
