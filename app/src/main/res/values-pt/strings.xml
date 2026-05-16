@@ -239,7 +239,6 @@
   <string name="photo_save_failed_desc">Falha ao salvar a foto capturada. Por favor, tente novamente.</string>
   <string name="share_location">Partilhar localização</string>
   <string name="scan_this_qr_to_download_geojson">Leia este código QR para visualizar o GeoJson</string>
-  <string name="share">Partilhar</string>
 
   <string name="join_survey">Aderir ao inquérito</string>
   <string name="invalid_survey_qr_code">Código QR de inquérito não reconhecido</string>

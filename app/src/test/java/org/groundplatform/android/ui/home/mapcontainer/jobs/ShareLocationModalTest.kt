@@ -21,17 +21,18 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import org.junit.Test
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import org.groundplatform.android.R
 import org.groundplatform.android.getString
 import org.groundplatform.domain.model.locationofinterest.LoiReport
+import org.groundplatform.ui.components.loireport.TEST_TAG_PDF_ITEM
 import org.groundplatform.ui.components.qrcode.TEST_TAG_GROUND_QR_CODE
 import org.groundplatform.ui.theme.AppTheme
 import org.junit.Assert.assertTrue
 import org.junit.Rule
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
@@ -42,7 +43,7 @@ class ShareLocationModalTest {
   @Test
   fun `Modal is displayed correctly and shows the QR code with the LOI geometry`() {
     composeTestRule.setContent {
-      AppTheme { ShareLocationModal(loiReport = LoiReport(LOI_NAME, LOI_GEO_JSON), onDismiss = {}) }
+      AppTheme { ShareLocationModal(loiReport = LOI_REPORT, onDismiss = {}) }
     }
     composeTestRule.onNodeWithText(getString(R.string.share_location)).assertIsDisplayed()
     composeTestRule.onNodeWithText(LOI_NAME).assertIsDisplayed()
@@ -55,14 +56,33 @@ class ShareLocationModalTest {
   }
 
   @Test
+  fun `Shows the PDF item when submissions is not null`() {
+    composeTestRule.setContent {
+      AppTheme {
+        ShareLocationModal(loiReport = LOI_REPORT.copy(submissions = emptyList()), onDismiss = {})
+      }
+    }
+
+    composeTestRule.onNodeWithTag(TEST_TAG_PDF_ITEM).performScrollTo().assertIsDisplayed()
+  }
+
+  @Test
+  fun `Does not show the PDF item when submissions is null`() {
+    composeTestRule.setContent {
+      AppTheme {
+        ShareLocationModal(loiReport = LOI_REPORT.copy(submissions = null), onDismiss = {})
+      }
+    }
+
+    composeTestRule.onNodeWithTag(TEST_TAG_PDF_ITEM).assertDoesNotExist()
+  }
+
+  @Test
   fun `onDismiss callback is triggered when close button is clicked`() {
     var dismissed = false
 
     composeTestRule.setContent {
-      ShareLocationModal(
-        loiReport = LoiReport(LOI_NAME, LOI_GEO_JSON),
-        onDismiss = { dismissed = true },
-      )
+      ShareLocationModal(loiReport = LOI_REPORT, onDismiss = { dismissed = true })
     }
 
     composeTestRule.onNodeWithText(getString(R.string.close)).performScrollTo().performClick()
@@ -72,19 +92,27 @@ class ShareLocationModalTest {
 
   private companion object {
     const val LOI_NAME = "Test Loi"
-    val LOI_GEO_JSON =
-      JsonObject(
-        mapOf(
-          "type" to JsonPrimitive("Feature"),
-          "properties" to JsonObject(mapOf("name" to JsonPrimitive(LOI_NAME))),
-          "geometry" to
-            JsonObject(
-              mapOf(
-                "type" to JsonPrimitive("Point"),
-                "coordinates" to JsonArray(listOf(JsonPrimitive(20.0), JsonPrimitive(20.0))),
-              )
-            ),
-        )
+    val LOI_REPORT =
+      LoiReport(
+        surveyName = "Test Survey",
+        loiName = LOI_NAME,
+        userName = "John Doe",
+        dateMillis = 987654321L,
+        geoJson =
+          JsonObject(
+            mapOf(
+              "type" to JsonPrimitive("Feature"),
+              "properties" to JsonObject(mapOf("name" to JsonPrimitive(LOI_NAME))),
+              "geometry" to
+                JsonObject(
+                  mapOf(
+                    "type" to JsonPrimitive("Point"),
+                    "coordinates" to JsonArray(listOf(JsonPrimitive(20.0), JsonPrimitive(20.0))),
+                  )
+                ),
+            )
+          ),
+        submissions = null,
       )
   }
 }
