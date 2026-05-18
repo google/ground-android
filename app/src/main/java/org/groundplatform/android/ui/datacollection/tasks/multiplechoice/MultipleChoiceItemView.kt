@@ -84,7 +84,9 @@ fun MultipleChoiceItemView(
     }
   }
 
-  Column(modifier = modifier.testTag(MULTIPLE_CHOICE_ITEM_TEST_TAG)) {
+  Column(
+    modifier = modifier.testTag(MULTIPLE_CHOICE_ITEM_TEST_TAG).clickable { toggleItem(item) }
+  ) {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
       when (item.cardinality) {
         MultipleChoice.Cardinality.SELECT_ONE -> {
@@ -104,11 +106,7 @@ fun MultipleChoiceItemView(
         }
       }
 
-      Text(
-        text = item.toTextLabel(),
-        modifier = Modifier.clickable(onClick = { toggleItem(item) }),
-        style = MaterialTheme.typography.bodyLarge,
-      )
+      Text(text = item.toTextLabel(), style = MaterialTheme.typography.bodyLarge)
     }
 
     if (item.isOtherOption) {
