@@ -16,7 +16,7 @@
 package org.groundplatform.android.ui.datacollection.tasks.multiplechoice
 
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -63,6 +63,20 @@ class MultipleChoiceItemViewTest {
 
     assertTrue(clicked)
     composeTestRule.onNodeWithTag(SELECT_MULTIPLE_RADIO_TEST_TAG).assertDoesNotExist()
+  }
+
+  @Test
+  fun `Clicking anywhere on the item row triggers toggleItem`() {
+    var clickCount = 0
+    val item = generateMultipleChoiceItem(MultipleChoice.Cardinality.SELECT_ONE)
+
+    composeTestRule.setContent {
+      MultipleChoiceItemView(item = item, toggleItem = { clickCount++ })
+    }
+
+    composeTestRule.onNodeWithTag(MULTIPLE_CHOICE_ITEM_TEST_TAG).performClick()
+
+    assertThat(clickCount).isEqualTo(1)
   }
 
   @Test
