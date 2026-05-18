@@ -23,6 +23,12 @@ sealed interface DataCollectionEvent {
   /** Navigate to the next task (includes validation and submission check). */
   data object NavigateNext : DataCollectionEvent
 
+  /** Open the app settings. */
+  data object OpenSettings : DataCollectionEvent
+
+  /** Notify whether the app is awaiting a photo capture. */
+  data class SetAwaitingPhotoCapture(val awaiting: Boolean) : DataCollectionEvent
+
   /** Show the LOI Name Dialog before proceeding. */
   data object ShowLoiDialog : DataCollectionEvent
 }

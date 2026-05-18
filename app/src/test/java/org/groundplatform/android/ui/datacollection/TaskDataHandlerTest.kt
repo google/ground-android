@@ -51,6 +51,22 @@ class TaskDataHandlerTest {
     assertThat(dataState[task]).isEqualTo(taskData)
   }
 
+  @Test
+  fun `setData with map updates dataState correctly`() = runTest {
+    val handler = TaskDataHandler()
+    val task1 = createTask("task1")
+    val taskData1 = createTaskData("data1")
+    val task2 = createTask("task2")
+    val taskData2 = createTaskData("data2")
+
+    handler.setData(mapOf(task1 to taskData1, task2 to taskData2))
+
+    val dataState = handler.dataState.first()
+    assertThat(dataState).hasSize(2)
+    assertThat(dataState[task1]).isEqualTo(taskData1)
+    assertThat(dataState[task2]).isEqualTo(taskData2)
+  }
+
   @OptIn(ExperimentalCoroutinesApi::class)
   @Test
   fun `dataState emits when value is updated`() = runTest {

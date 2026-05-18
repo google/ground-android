@@ -55,7 +55,7 @@ abstract class AbstractTaskViewModel internal constructor() : AbstractViewModel(
   lateinit var surveyId: String
   lateinit var task: Task
   private lateinit var taskPositionInterface: TaskPositionInterface
-  private lateinit var eventReporter: (DataCollectionEvent) -> Unit
+  protected lateinit var eventReporter: (DataCollectionEvent) -> Unit
 
   fun dismissInstructions() {
     _showInstructionsDialog.value = false

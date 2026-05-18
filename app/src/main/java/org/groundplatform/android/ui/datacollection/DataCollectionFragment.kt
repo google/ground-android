@@ -26,16 +26,21 @@ import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.common.BackPressListener
 import org.groundplatform.android.ui.common.EphemeralPopups
+import org.groundplatform.android.ui.home.HomeScreenViewModel
 import org.groundplatform.android.util.createComposeView
+import org.groundplatform.android.util.openAppSettings
 import javax.inject.Inject
 
 /** Fragment allowing the user to collect data to complete a task. */
 @AndroidEntryPoint
 class DataCollectionFragment : AbstractFragment(), BackPressListener {
   @Inject lateinit var popups: EphemeralPopups
-  @Inject lateinit var viewPagerAdapterFactory: DataCollectionViewPagerAdapterFactory
 
   val viewModel: DataCollectionViewModel by hiltNavGraphViewModels(R.id.data_collection)
+
+  val homeScreenViewModel: HomeScreenViewModel by lazy {
+    getViewModel(HomeScreenViewModel::class.java)
+  }
 
   private var isNavigatingUp = false
 
@@ -46,9 +51,10 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   ): View = createComposeView {
     DataCollectionScreen(
       viewModel = viewModel,
-      fragment = this,
       onValidationError = { resId -> popups.ErrorPopup().show(resId) },
       onExitConfirmed = { navigateBack() },
+      onOpenSettings = { requireActivity().openAppSettings() },
+      onAwaitingPhotoCapture = { homeScreenViewModel.awaitingPhotoCapture = it },
     )
   }
 
@@ -83,5 +89,9 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     isNavigatingUp = true
     viewModel.clearDraftBlocking()
     findNavController().navigateUp()
+  }
+
+  companion object {
+    const val TASK_ID: String = "taskId"
   }
 }

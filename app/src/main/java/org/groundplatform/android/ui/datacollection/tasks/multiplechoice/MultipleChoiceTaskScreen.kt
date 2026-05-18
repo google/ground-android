@@ -32,7 +32,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.datacollection.TaskPosition
-import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreen
 import org.groundplatform.domain.model.task.MultipleChoice.Cardinality
@@ -46,7 +45,6 @@ import org.groundplatform.ui.theme.sizes
 fun MultipleChoiceTaskScreen(
   viewModel: MultipleChoiceTaskViewModel,
   taskPosition: TaskPosition? = null,
-  onButtonClicked: (ButtonAction) -> Unit,
 ) {
   val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
   val list by viewModel.items.collectAsStateWithLifecycle()
@@ -56,7 +54,7 @@ fun MultipleChoiceTaskScreen(
       TaskHeader(label = viewModel.task.label, iconResId = R.drawable.ic_question_answer),
     taskPosition = taskPosition,
     taskActionButtonsStates = taskActionButtonsStates,
-    onButtonClicked = onButtonClicked,
+    onButtonClicked = { viewModel.onButtonClick(it) },
     taskBody = {
       MultipleChoiceTaskContent(
         list = list,

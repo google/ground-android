@@ -49,6 +49,20 @@ class TaskDataHandler {
   }
 
   /**
+   * Sets the [TaskData] for multiple [Task]s in a single transaction.
+   *
+   * Recreates the map and emits a state update exactly once.
+   *
+   * @param values A map of [Task] to [TaskData] to be updated.
+   */
+  fun setData(values: Map<Task, TaskData?>) {
+    val filteredValues = values.filter { (task, newValue) -> getData(task) != newValue }
+    if (filteredValues.isEmpty()) return
+    // Ensure that the map is recreated to ensure that the state flow is emitted.
+    _dataState.value = LinkedHashMap(_dataState.value).apply { putAll(filteredValues) }
+  }
+
+  /**
    * Retrieves the [TaskData] associated with a given [Task].
    *
    * @param task The [Task] to retrieve data for.

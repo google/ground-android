@@ -67,7 +67,6 @@ class NumberTaskScreenTest {
     composeTestRule.setContent {
       NumberTaskScreen(
         viewModel = viewModel,
-        onButtonClicked = { lastButtonAction = it },
       )
     }
   }

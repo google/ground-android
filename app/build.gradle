@@ -336,6 +336,7 @@ dependencies {
     }
 
     // Fragments
+    implementation libs.androidx.fragment.compose
     debugImplementation libs.androidx.fragment.testing.manifest
 
     // TODO: Move protos into shared module and set correct path here.

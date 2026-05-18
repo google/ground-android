@@ -181,12 +181,8 @@ class DropPinTaskScreenTest : BaseHiltTest() {
         viewModel = viewModelToUse,
         shouldShowLoiNameDialog = false,
         loiName = "",
-        onButtonClicked = { action ->
-          lastButtonAction = action
-          viewModelToUse.onButtonClick(action)
-        },
         onLoiNameAction = {},
-        mapContent = { /* Dummy content */ },
+        mapContent = {}
       )
     }
   }

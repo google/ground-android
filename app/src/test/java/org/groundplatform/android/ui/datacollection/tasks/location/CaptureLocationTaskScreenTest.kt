@@ -29,6 +29,7 @@ import org.groundplatform.android.getString
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.ButtonActionStateChecker
+import org.groundplatform.android.ui.datacollection.tasks.DataCollectionEvent
 import org.groundplatform.android.ui.datacollection.tasks.LocationLockEnabledState
 import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 import org.groundplatform.domain.model.geometry.Coordinates
@@ -49,8 +50,7 @@ class CaptureLocationTaskScreenTest {
 
   @get:Rule val composeTestRule = createComposeRule()
 
-  private var lastScreenAction: ButtonAction? = null
-  private var openSettingsCalled = false
+  private var lastEvent: DataCollectionEvent? = null
   private lateinit var viewModel: CaptureLocationTaskViewModel
   private lateinit var buttonActionStateChecker: ButtonActionStateChecker
 
@@ -175,7 +175,7 @@ class CaptureLocationTaskScreenTest {
 
     val title = getString(R.string.allow_location_title)
     composeTestRule.onNodeWithText(title).assertDoesNotExist()
-    assertThat(openSettingsCalled).isTrue()
+    assertThat(lastEvent).isEqualTo(DataCollectionEvent.OpenSettings)
   }
 
   @Test
@@ -225,15 +225,14 @@ class CaptureLocationTaskScreenTest {
     isLastWithValue: Boolean = false,
     location: Location? = GOOD_LOCATION,
   ) {
-    lastScreenAction = null
-    openSettingsCalled = false
+    lastEvent = null
     viewModel.initialize(
       job = JOB,
       task = task,
       taskData = null,
       taskPositionInterface = createTaskPositionInterface(isFirst, isLastWithValue),
       surveyId = "survey_id",
-      eventReporter = {},
+      eventReporter = { lastEvent = it },
     )
 
     if (location != null) {
@@ -243,12 +242,7 @@ class CaptureLocationTaskScreenTest {
     composeTestRule.setContent {
       CaptureLocationTaskScreen(
         viewModel = viewModel,
-        onButtonClicked = { action ->
-          lastScreenAction = action
-          viewModel.onButtonClick(action)
-        },
-        onOpenSettings = { openSettingsCalled = true },
-        mapContent = { /* Dummy content */ },
+        mapContent = {}
       )
     }
   }
