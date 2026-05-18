@@ -99,6 +99,7 @@ class ShareLocationModalTest {
         surveyName = "Test Survey",
         loiName = LOI_NAME,
         userName = "John Doe",
+        userEmail = "john.doe@example.com",
         dateMillis = 987654321L,
         geoJson =
           JsonObject(

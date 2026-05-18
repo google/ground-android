@@ -65,6 +65,7 @@ class GetLoiReportUseCase(
       surveyName = surveyName,
       loiName = loiName,
       userName = user.displayName,
+      userEmail = user.email,
       dateMillis = loi.lastModified.clientTimestamp,
       geoJson =
         loi.geometry.toGeoJson(

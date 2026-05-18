@@ -128,6 +128,7 @@ class LoiJobSheetTest {
       surveyName = "Test Survey",
       loiName = name,
       userName = "John Doe",
+      userEmail = "john.doe@example.com",
       dateMillis = 987654321L,
       geoJson =
         JsonObject(

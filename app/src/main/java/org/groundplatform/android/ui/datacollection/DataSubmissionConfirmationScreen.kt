@@ -193,6 +193,7 @@ private val testLoiReport =
   LoiReport(
     surveyName = "Test Survey",
     userName = "John Doe",
+    userEmail = "john.doe@example.com",
     dateMillis = Clock.System.now().toEpochMilliseconds(),
     loiName = "Test LOI",
     geoJson =

@@ -131,6 +131,7 @@ private fun ShareLocationModalPreview() {
       loiName = "Test LOI",
       surveyName = "Test Survey",
       userName = "John Doe",
+      userEmail = "john.doe@example.com",
       dateMillis = Clock.System.now().toEpochMilliseconds(),
       geoJson =
         JsonObject(

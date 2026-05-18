@@ -109,6 +109,7 @@ private fun DataCollectionContentCompletePreview() {
             LoiReport(
               surveyName = "Test Survey",
               userName = "John Doe",
+              userEmail = "john.doe@example.com",
               dateMillis = Clock.System.now().toEpochMilliseconds(),
               loiName = "Point A",
               geoJson = JsonObject(mapOf()),

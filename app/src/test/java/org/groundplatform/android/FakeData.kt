@@ -114,6 +114,7 @@ object FakeData {
       surveyName = SURVEY.title,
       loiName = "Unnamed point",
       userName = USER.displayName,
+      userEmail = USER.email,
       dateMillis = LOCATION_OF_INTEREST.lastModified.clientTimestamp,
       geoJson =
         JsonObject(

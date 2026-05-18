@@ -143,6 +143,7 @@ class DataSubmissionConfirmationScreenTest {
         surveyName = "Test Survey",
         loiName = "Test LOI",
         userName = "John Doe",
+        userEmail = "john.doe@example.com",
         dateMillis = 987654321L,
         geoJson =
           JsonObject(

@@ -23,6 +23,7 @@ data class LoiReport(
   val surveyName: String,
   val loiName: String,
   val userName: String,
+  val userEmail: String,
   val dateMillis: Long,
   val geoJson: JsonObject,
   val submissions: List<Submission>?,
