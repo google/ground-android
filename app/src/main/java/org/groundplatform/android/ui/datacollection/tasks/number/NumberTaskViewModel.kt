@@ -15,18 +15,28 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.number
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 import org.groundplatform.domain.model.submission.NumberTaskData
+import org.groundplatform.domain.model.submission.NumberTaskData.Companion.fromNumber
 import org.groundplatform.domain.model.submission.TaskData
 
 class NumberTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
 
   /** Transcoded text to be displayed for the current [TaskData]. */
-  val responseText: LiveData<String> =
-    taskTaskData.filterIsInstance<NumberTaskData?>().map { it?.number ?: "" }.asLiveData()
+  val responseText: StateFlow<String> =
+    taskTaskData
+      .filterIsInstance<NumberTaskData?>()
+      .map { it?.number ?: "" }
+      .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), "")
+
+  fun onInputChanged(raw: String) {
+    if (raw.isEmpty()) clearResponse() else fromNumber(raw)?.let { setValue(it) }
+  }
 }

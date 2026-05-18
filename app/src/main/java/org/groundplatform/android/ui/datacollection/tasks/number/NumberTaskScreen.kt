@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.KeyboardType
@@ -32,7 +31,6 @@ import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.groundplatform.android.ui.datacollection.components.TextTaskInput
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreen
-import org.groundplatform.domain.model.submission.NumberTaskData.Companion.fromNumber
 import org.groundplatform.ui.theme.AppTheme
 import org.groundplatform.ui.theme.sizes
 
@@ -45,7 +43,7 @@ fun NumberTaskScreen(
   onButtonClicked: (ButtonAction) -> Unit,
 ) {
   val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
-  val userResponse by viewModel.responseText.observeAsState("")
+  val userResponse by viewModel.responseText.collectAsStateWithLifecycle()
 
   TaskScreen(
     taskHeader =
@@ -54,10 +52,7 @@ fun NumberTaskScreen(
     taskActionButtonsStates = taskActionButtonsStates,
     onButtonClicked = onButtonClicked,
     taskBody = {
-      NumberTaskContent(
-        userResponse = userResponse,
-        onValueChanged = { viewModel.setValue(fromNumber(it)) },
-      )
+      NumberTaskContent(userResponse = userResponse, onValueChanged = viewModel::onInputChanged)
     },
   )
 }
