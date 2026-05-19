@@ -32,6 +32,8 @@ class PolygonDrawingSessionTest {
   @Test
   fun `Initial state is empty`() {
     assertThat(session.vertices).isEmpty()
+    assertThat(session.tentativeVertex).isNull()
+    assertThat(session.displayVertices).isEmpty()
     assertThat(session.redoVertexStack).isEmpty()
   }
 
@@ -40,19 +42,24 @@ class PolygonDrawingSessionTest {
     val newVertices = listOf(COORDINATE_1, COORDINATE_2)
     session.setVertices(newVertices)
     assertThat(session.vertices).containsExactlyElementsIn(newVertices).inOrder()
+    assertThat(session.displayVertices).containsExactlyElementsIn(newVertices).inOrder()
   }
 
   @Test
-  fun `updateTentativeVertex adds vertex when empty`() {
+  fun `updateTentativeVertex sets tentative vertex when empty`() {
     session.updateTentativeVertex(COORDINATE_1) { _, _ -> DISTANCE_ABOVE_THRESHOLD }
-    assertThat(session.vertices).containsExactly(COORDINATE_1)
+    assertThat(session.vertices).isEmpty()
+    assertThat(session.tentativeVertex).isEqualTo(COORDINATE_1)
+    assertThat(session.displayVertices).containsExactly(COORDINATE_1)
   }
 
   @Test
-  fun `updateTentativeVertex overwrites last vertex`() {
+  fun `updateTentativeVertex sets tentative vertex without changing committed list`() {
     session.setVertices(listOf(COORDINATE_1))
     session.updateTentativeVertex(COORDINATE_2) { _, _ -> DISTANCE_ABOVE_THRESHOLD }
-    assertThat(session.vertices).containsExactly(COORDINATE_2)
+    assertThat(session.vertices).containsExactly(COORDINATE_1)
+    assertThat(session.tentativeVertex).isEqualTo(COORDINATE_2)
+    assertThat(session.displayVertices).containsExactly(COORDINATE_1, COORDINATE_2).inOrder()
   }
 
   @Test
@@ -61,7 +68,11 @@ class PolygonDrawingSessionTest {
 
     // Target is close to COORDINATE_1
     session.updateTentativeVertex(COORDINATE_4) { _, _ -> DISTANCE_BELOW_THRESHOLD }
-    assertThat(session.vertices.last()).isEqualTo(COORDINATE_1)
+    assertThat(session.vertices).containsExactly(COORDINATE_1, COORDINATE_2, COORDINATE_3).inOrder()
+    assertThat(session.tentativeVertex).isEqualTo(COORDINATE_1)
+    assertThat(session.displayVertices)
+      .containsExactly(COORDINATE_1, COORDINATE_2, COORDINATE_3, COORDINATE_1)
+      .inOrder()
   }
 
   @Test
@@ -70,7 +81,11 @@ class PolygonDrawingSessionTest {
 
     // Target is far from COORDINATE_1
     session.updateTentativeVertex(COORDINATE_4) { _, _ -> DISTANCE_ABOVE_THRESHOLD }
-    assertThat(session.vertices.last()).isEqualTo(COORDINATE_4)
+    assertThat(session.vertices).containsExactly(COORDINATE_1, COORDINATE_2, COORDINATE_3).inOrder()
+    assertThat(session.tentativeVertex).isEqualTo(COORDINATE_4)
+    assertThat(session.displayVertices)
+      .containsExactly(COORDINATE_1, COORDINATE_2, COORDINATE_3, COORDINATE_4)
+      .inOrder()
   }
 
   @Test
@@ -102,9 +117,11 @@ class PolygonDrawingSessionTest {
   }
 
   @Test
-  fun `commitTentativeVertex adds vertex to committed list`() {
-    session.commitTentativeVertex(COORDINATE_1)
+  fun `commitTentativeVertex adds tentative vertex to committed list`() {
+    session.updateTentativeVertex(COORDINATE_1) { _, _ -> DISTANCE_ABOVE_THRESHOLD }
+    session.commitTentativeVertex(null)
     assertThat(session.vertices).containsExactly(COORDINATE_1)
+    assertThat(session.tentativeVertex).isNull()
   }
 
   @Test
@@ -125,11 +142,23 @@ class PolygonDrawingSessionTest {
   }
 
   @Test
+  fun `removeLastVertex clears tentative vertex when committed list is empty`() {
+    session.updateTentativeVertex(COORDINATE_1) { _, _ -> DISTANCE_ABOVE_THRESHOLD }
+    assertThat(session.tentativeVertex).isEqualTo(COORDINATE_1)
+
+    assertThat(session.removeLastVertex()).isTrue()
+    assertThat(session.vertices).isEmpty()
+    assertThat(session.tentativeVertex).isNull()
+  }
+
+  @Test
   fun `removeLastVertex removes last vertex and adds to redo stack`() {
     session.setVertices(listOf(COORDINATE_1, COORDINATE_2))
 
     assertThat(session.removeLastVertex()).isTrue()
     assertThat(session.vertices).containsExactly(COORDINATE_1)
+    assertThat(session.tentativeVertex).isNull()
+    assertThat(session.displayVertices).containsExactly(COORDINATE_1)
     assertThat(session.redoVertexStack).containsExactly(COORDINATE_2)
   }
 
@@ -139,6 +168,7 @@ class PolygonDrawingSessionTest {
 
     assertThat(session.removeLastVertex()).isTrue()
     assertThat(session.vertices).isEmpty()
+    assertThat(session.tentativeVertex).isNull()
     assertThat(session.redoVertexStack).containsExactly(COORDINATE_1)
   }
 
@@ -154,6 +184,8 @@ class PolygonDrawingSessionTest {
 
     assertThat(session.redoLastVertex()).isEqualTo(COORDINATE_2)
     assertThat(session.vertices).containsExactly(COORDINATE_1, COORDINATE_2).inOrder()
+    assertThat(session.tentativeVertex).isNull()
+    assertThat(session.displayVertices).containsExactly(COORDINATE_1, COORDINATE_2).inOrder()
     assertThat(session.redoVertexStack).isEmpty()
   }
 
@@ -172,31 +204,36 @@ class PolygonDrawingSessionTest {
   }
 
   @Test
-  fun `validatePolygonCompletion returns false when size less than 3`() {
+  fun `validatePolygonCompletion returns false when distinct size less than 3`() {
     session.setVertices(listOf(C1, C2))
+    session.updateTentativeVertex(C1) { _, _ -> DISTANCE_BELOW_THRESHOLD }
     assertThat(session.isValidPolygon()).isFalse()
   }
 
   @Test
   fun `validatePolygonCompletion returns false when self-intersecting`() {
-    session.setVertices(listOf(C1, C2, C3, C4))
+    // Setup a square and then add a vertex that intersects it
+    session.setVertices(listOf(C1, C2, C3))
+    session.updateTentativeVertex(C4) { _, _ -> DISTANCE_ABOVE_THRESHOLD }
     assertThat(session.isValidPolygon()).isFalse()
     assertThat(session.hasSelfIntersection).isTrue()
   }
 
   @Test
   fun `validatePolygonCompletion returns true when valid`() {
-    session.setVertices(listOf(C1, C3, C2, C4, C1))
+    session.setVertices(listOf(C1, C3, C2, C4))
+    session.updateTentativeVertex(C1) { _, _ -> DISTANCE_BELOW_THRESHOLD }
     assertThat(session.isValidPolygon()).isTrue()
     assertThat(session.hasSelfIntersection).isFalse()
   }
 
   @Test
   fun `hasSelfIntersection updates dynamically when vertices change`() {
-    session.setVertices(listOf(C1, C2, C3, C4))
+    session.setVertices(listOf(C1, C2, C3))
+    session.updateTentativeVertex(C4) { _, _ -> DISTANCE_ABOVE_THRESHOLD }
     assertThat(session.hasSelfIntersection).isTrue()
 
-    session.removeLastVertex()
+    session.updateTentativeVertex(Coordinates(50.0, 50.0)) { _, _ -> DISTANCE_ABOVE_THRESHOLD }
     assertThat(session.hasSelfIntersection).isFalse()
   }
 
@@ -208,14 +245,18 @@ class PolygonDrawingSessionTest {
 
   @Test
   fun `complete() marks session as complete`() {
-    session.setVertices(listOf(C1, C3, C2, C4, C1))
+    session.setVertices(listOf(C1, C3, C2, C4))
+    session.updateTentativeVertex(C1) { _, _ -> DISTANCE_BELOW_THRESHOLD }
     session.complete()
     assertThat(session.state.isMarkedComplete).isTrue()
+    assertThat(session.vertices).containsExactly(C1, C3, C2, C4, C1).inOrder()
+    assertThat(session.tentativeVertex).isNull()
   }
 
   @Test
   fun `removeLastVertex resets completion state`() {
-    session.setVertices(listOf(C1, C3, C2, C4, C1))
+    session.setVertices(listOf(C1, C3, C2, C4))
+    session.updateTentativeVertex(C1) { _, _ -> DISTANCE_BELOW_THRESHOLD }
     session.complete()
     assertThat(session.state.isMarkedComplete).isTrue()
 
@@ -225,12 +266,23 @@ class PolygonDrawingSessionTest {
 
   @Test
   fun `redoLastVertex resets completion state`() {
-    session.setVertices(listOf(C1, C3, C2, C4, C1))
+    session.setVertices(listOf(C1, C3, C2, C4))
+    session.updateTentativeVertex(C1) { _, _ -> DISTANCE_BELOW_THRESHOLD }
     session.complete()
     session.removeLastVertex()
 
     session.redoLastVertex()
     assertThat(session.state.isMarkedComplete).isFalse()
+  }
+
+  @Test
+  fun `updateTentativeVertex does nothing when polygon is closed`() {
+    session.setVertices(listOf(C1, C3, C2, C4, C1))
+    session.updateTentativeVertex(Coordinates(50.0, 50.0)) { _, _ -> DISTANCE_ABOVE_THRESHOLD }
+
+    assertThat(session.vertices).containsExactly(C1, C3, C2, C4, C1).inOrder()
+    assertThat(session.tentativeVertex).isNull()
+    assertThat(session.state.isTooClose).isTrue()
   }
 
   companion object {

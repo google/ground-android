@@ -150,8 +150,6 @@ internal constructor(
       .stateIn(viewModelScope, WhileSubscribed(5_000), emptyList())
   }
 
-
-
   override fun initialize(
     job: Job,
     task: Task,
@@ -326,7 +324,7 @@ internal constructor(
    * This coroutine runs on [viewModelScope] to ensure lifecycle safety.
    */
   private fun refreshMap() = viewModelScope.launch {
-    if (session.vertices.isEmpty()) {
+    if (session.displayVertices.isEmpty()) {
       _draftArea.emit(null)
       draftTag = null
     } else {
@@ -345,7 +343,7 @@ internal constructor(
     Feature(
       id = id ?: uuidGenerator.generateUuid(),
       type = Feature.Type.USER_POLYGON,
-      geometry = LineString(session.vertices),
+      geometry = LineString(session.displayVertices),
       style = featureStyle,
       clusterable = false,
       selected = true,
@@ -354,8 +352,8 @@ internal constructor(
 
   /** Returns the distance in meters between the last two vertices for displaying in the tooltip. */
   private fun getDistanceTooltipText(): String? {
-    if (sessionState.value.isMarkedComplete || session.vertices.size <= 1) return null
-    val distance = session.vertices.penult().distanceTo(session.vertices.last())
+    if (sessionState.value.isMarkedComplete || session.displayVertices.size <= 1) return null
+    val distance = session.displayVertices.penult().distanceTo(session.displayVertices.last())
     if (distance < TOOLTIP_MIN_DISTANCE_METERS) return null
     return localeAwareMeasureFormatter.formatDistance(distance, measurementUnits)
   }

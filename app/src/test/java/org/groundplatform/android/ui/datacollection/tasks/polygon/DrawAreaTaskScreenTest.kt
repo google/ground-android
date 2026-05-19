@@ -119,7 +119,6 @@ class DrawAreaTaskScreenTest : BaseHiltTest() {
               Coordinates(0.0, 0.0),
               Coordinates(10.0, 10.0),
               Coordinates(20.0, 20.0),
-              Coordinates(20.0, 20.0),
             )
           )
         )

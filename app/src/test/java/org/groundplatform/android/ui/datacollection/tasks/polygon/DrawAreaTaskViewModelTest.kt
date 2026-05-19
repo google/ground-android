@@ -115,7 +115,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
 
     viewModel.removeLastVertex()
 
-    assertGeometry(3, isLineString = true)
+    assertGeometry(2, isLineString = true)
   }
 
   @Test
@@ -199,11 +199,11 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
 
     viewModel.removeLastVertex()
 
-    assertThat(featureTestObserver.value()?.tooltipText).isEqualTo("1,565,109 m")
+    assertThat(featureTestObserver.value()?.tooltipText).isNull()
 
     viewModel.removeLastVertex()
 
-    assertThat(featureTestObserver.value()?.tooltipText).isEqualTo(null)
+    assertThat(featureTestObserver.value()?.tooltipText).isNull()
   }
 
   @Test
@@ -568,10 +568,10 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     updateLastVertexAndAdd(COORDINATE_2)
 
     viewModel.removeLastVertex()
-    assertGeometry(2, isLineString = true)
+    assertGeometry(1, isLineString = true)
 
     viewModel.redoLastVertex()
-    assertGeometry(3, isLineString = true)
+    assertGeometry(2, isLineString = true)
   }
 
   @Test

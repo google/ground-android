@@ -28,6 +28,12 @@ interface PolygonDrawingSession {
   /** The list of committed vertices in the current drawing session. */
   val vertices: List<Coordinates>
 
+  /** The tentative vertex that tracks the uncommitted active position (e.g. camera target). */
+  val tentativeVertex: Coordinates?
+
+  /** The complete list of vertices (committed + tentative) to display on the map. */
+  val displayVertices: List<Coordinates>
+
   /** Whether the current polygon geometry self-intersects. */
   val hasSelfIntersection: Boolean
 
