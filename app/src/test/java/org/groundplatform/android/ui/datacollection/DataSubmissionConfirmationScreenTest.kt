@@ -140,11 +140,7 @@ class DataSubmissionConfirmationScreenTest {
   private companion object {
     private val LOI_REPORT =
       LoiReport(
-        surveyName = "Test Survey",
         loiName = "Test LOI",
-        userName = "John Doe",
-        userEmail = "john.doe@example.com",
-        dateMillis = 987654321L,
         geoJson =
           JsonObject(
             mapOf(
@@ -159,7 +155,14 @@ class DataSubmissionConfirmationScreenTest {
                 ),
             )
           ),
-        submissions = emptyList(),
+        submissionDetails =
+          LoiReport.SubmissionDetails(
+            surveyName = "Test Survey",
+            userName = "John Doe",
+            userEmail = "john.doe@example.com",
+            dateMillis = 987654321L,
+            submissions = emptyList(),
+          ),
       )
   }
 }

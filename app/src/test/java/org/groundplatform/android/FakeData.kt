@@ -111,11 +111,7 @@ object FakeData {
 
   val LOCATION_OF_INTEREST_LOI_REPORT =
     LoiReport(
-      surveyName = SURVEY.title,
       loiName = "Unnamed point",
-      userName = USER.displayName,
-      userEmail = USER.email,
-      dateMillis = LOCATION_OF_INTEREST.lastModified.clientTimestamp,
       geoJson =
         JsonObject(
           mapOf(
@@ -133,7 +129,7 @@ object FakeData {
               ),
           )
         ),
-      submissions = null,
+      submissionDetails = null,
     )
   val LOCATION_OF_INTEREST_FEATURE =
     Feature(

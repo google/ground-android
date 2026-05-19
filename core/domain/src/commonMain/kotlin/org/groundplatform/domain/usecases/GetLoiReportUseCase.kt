@@ -57,21 +57,27 @@ class GetLoiReportUseCase(
    */
   suspend operator fun invoke(loiName: String, loiId: String, surveyId: String): LoiReport? {
     val loi = locationOfInterestRepository.getOfflineLoi(surveyId, loiId) ?: return null
-    val user = userRepositoryInterface.getAuthenticatedUser()
-    val surveyName = surveyRepositoryInterface.getOfflineSurvey(surveyId)?.title.orEmpty()
     val submissions =
       submissionRepositoryInterface.getSubmissions(loi).sortedBy { it.lastModified.clientTimestamp }
+    val submissionDetails =
+      if (submissions.isNotEmpty()) {
+        val user = userRepositoryInterface.getAuthenticatedUser()
+        val surveyName = surveyRepositoryInterface.getOfflineSurvey(surveyId)?.title.orEmpty()
+        LoiReport.SubmissionDetails(
+          surveyName = surveyName,
+          userName = user.displayName,
+          userEmail = user.email,
+          dateMillis = loi.lastModified.clientTimestamp,
+          submissions = submissions,
+        )
+      } else null
     return LoiReport(
-      surveyName = surveyName,
       loiName = loiName,
-      userName = user.displayName,
-      userEmail = user.email,
-      dateMillis = loi.lastModified.clientTimestamp,
       geoJson =
         loi.geometry.toGeoJson(
           loi.properties.filter { property -> property.key == LOI_NAME_PROPERTY }
         ),
-      submissions = submissions,
+      submissionDetails = submissionDetails,
     )
   }
 

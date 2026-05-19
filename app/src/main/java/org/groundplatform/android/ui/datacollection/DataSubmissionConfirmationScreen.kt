@@ -174,13 +174,13 @@ private fun ShareableContent(
         )
       }
 
-      loiReport.submissions?.let {
+      loiReport.submissionDetails?.let {
         SubmissionPdfItem(
           modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
-          title = loiReport.surveyName,
+          title = it.surveyName,
           loiName = loiReport.loiName,
-          userName = loiReport.userName,
-          date = DateFormat.getDateFormat(context).format(Date(loiReport.dateMillis)),
+          userName = it.userName,
+          date = DateFormat.getDateFormat(context).format(Date(it.dateMillis)),
           onItemClick = { onLoiReportAction(LoiReportAction.OnPdfItemClicked(loiReport)) },
           onShareClick = { onLoiReportAction(LoiReportAction.OnShareClicked(loiReport)) },
         )
@@ -191,10 +191,6 @@ private fun ShareableContent(
 
 private val testLoiReport =
   LoiReport(
-    surveyName = "Test Survey",
-    userName = "John Doe",
-    userEmail = "john.doe@example.com",
-    dateMillis = Clock.System.now().toEpochMilliseconds(),
     loiName = "Test LOI",
     geoJson =
       JsonObject(
@@ -210,7 +206,14 @@ private val testLoiReport =
             ),
         )
       ),
-    submissions = emptyList(),
+    submissionDetails =
+      LoiReport.SubmissionDetails(
+        surveyName = "Test Survey",
+        userName = "John Doe",
+        userEmail = "john.doe@example.com",
+        dateMillis = Clock.System.now().toEpochMilliseconds(),
+        submissions = emptyList(),
+      ),
   )
 
 @Composable

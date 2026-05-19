@@ -100,13 +100,13 @@ fun ShareLocationModal(
           )
         }
 
-        loiReport.submissions?.let {
+        loiReport.submissionDetails?.let {
           SubmissionPdfItem(
             modifier = Modifier.fillMaxWidth(),
-            title = loiReport.surveyName,
+            title = it.surveyName,
             loiName = loiReport.loiName,
-            userName = loiReport.userName,
-            date = DateFormat.getDateFormat(context).format(Date(loiReport.dateMillis)),
+            userName = it.userName,
+            date = DateFormat.getDateFormat(context).format(Date(it.dateMillis)),
             onItemClick = { onLoiReportAction(LoiReportAction.OnPdfItemClicked(loiReport)) },
             onShareClick = { onLoiReportAction(LoiReportAction.OnShareClicked(loiReport)) },
           )
@@ -129,10 +129,6 @@ private fun ShareLocationModalPreview() {
   val testLoiReport =
     LoiReport(
       loiName = "Test LOI",
-      surveyName = "Test Survey",
-      userName = "John Doe",
-      userEmail = "john.doe@example.com",
-      dateMillis = Clock.System.now().toEpochMilliseconds(),
       geoJson =
         JsonObject(
           mapOf(
@@ -147,7 +143,14 @@ private fun ShareLocationModalPreview() {
               ),
           )
         ),
-      submissions = emptyList(),
+      submissionDetails =
+        LoiReport.SubmissionDetails(
+          surveyName = "Test Survey",
+          userName = "John Doe",
+          userEmail = "john.doe@example.com",
+          dateMillis = Clock.System.now().toEpochMilliseconds(),
+          submissions = emptyList(),
+        ),
     )
 
   AppTheme {
