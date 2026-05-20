@@ -324,36 +324,37 @@ internal constructor(
    * This coroutine runs on [viewModelScope] to ensure lifecycle safety.
    */
   private fun refreshMap() = viewModelScope.launch {
-    if (session.displayVertices.isEmpty()) {
+    val vertices = session.displayVertices
+    if (vertices.isEmpty()) {
       _draftArea.emit(null)
       draftTag = null
     } else {
       if (draftTag == null) {
-        val feature = buildPolygonFeature()
+        val feature = buildPolygonFeature(vertices)
         draftTag = feature.tag
         _draftArea.emit(feature)
       } else {
-        val feature = buildPolygonFeature(id = draftTag!!.id)
+        val feature = buildPolygonFeature(vertices, id = draftTag!!.id)
         _draftUpdates.tryEmit(feature)
       }
     }
   }
 
-  private suspend fun buildPolygonFeature(id: String? = null) =
+  private suspend fun buildPolygonFeature(vertices: List<Coordinates>, id: String? = null) =
     Feature(
       id = id ?: uuidGenerator.generateUuid(),
       type = Feature.Type.USER_POLYGON,
-      geometry = LineString(session.displayVertices),
+      geometry = LineString(vertices),
       style = featureStyle,
       clusterable = false,
       selected = true,
-      tooltipText = getDistanceTooltipText(),
+      tooltipText = getDistanceTooltipText(vertices),
     )
 
   /** Returns the distance in meters between the last two vertices for displaying in the tooltip. */
-  private fun getDistanceTooltipText(): String? {
-    if (sessionState.value.isMarkedComplete || session.displayVertices.size <= 1) return null
-    val distance = session.displayVertices.penult().distanceTo(session.displayVertices.last())
+  private fun getDistanceTooltipText(vertices: List<Coordinates>): String? {
+    if (sessionState.value.isMarkedComplete || vertices.size <= 1) return null
+    val distance = vertices.penult().distanceTo(vertices.last())
     if (distance < TOOLTIP_MIN_DISTANCE_METERS) return null
     return localeAwareMeasureFormatter.formatDistance(distance, measurementUnits)
   }
