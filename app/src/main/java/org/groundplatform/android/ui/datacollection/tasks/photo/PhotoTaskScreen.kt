@@ -106,7 +106,7 @@ internal fun PhotoTaskContent(
     if (uri == Uri.EMPTY) {
       CaptureButton(onTakePhoto)
     } else {
-      UriImage(uri = uri, modifier = Modifier.fillMaxWidth().padding(top = 4.dp))
+      UriImage(uri = uri, modifier = Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 8.dp))
     }
   }
 
