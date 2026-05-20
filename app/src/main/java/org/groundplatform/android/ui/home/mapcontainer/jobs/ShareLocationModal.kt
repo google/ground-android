@@ -107,8 +107,8 @@ fun ShareLocationModal(
             loiName = loiReport.loiName,
             userName = it.userName,
             date = DateFormat.getDateFormat(context).format(Date(it.dateMillis)),
-            onItemClick = { onLoiReportAction(LoiReportAction.OnPdfItemClicked(loiReport)) },
-            onShareClick = { onLoiReportAction(LoiReportAction.OnShareClicked(loiReport)) },
+            onItemClick = { onLoiReportAction(LoiReportAction.OnPdfItemClicked) },
+            onShareClick = { onLoiReportAction(LoiReportAction.OnShareClicked) },
           )
         }
 

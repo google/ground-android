@@ -15,9 +15,8 @@
  */
 package org.groundplatform.ui.components.loireport
 
-import org.groundplatform.domain.model.locationofinterest.LoiReport
-
 sealed interface LoiReportAction {
-  data class OnShareClicked(val loiReport: LoiReport) : LoiReportAction
-  data class OnPdfItemClicked(val loiReport: LoiReport) : LoiReportAction
+  data object OnShareClicked : LoiReportAction
+
+  data object OnPdfItemClicked : LoiReportAction
 }
