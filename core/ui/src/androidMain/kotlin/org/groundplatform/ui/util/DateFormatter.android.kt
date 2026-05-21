@@ -13,25 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.ui.components.loireport
+package org.groundplatform.ui.util
 
-data class SubmissionPdfDocument(val header: Header, val rows: List<Row>) {
+import java.text.DateFormat
+import java.util.Date
+import java.util.Locale
 
-  data class Header(
-    val survey: String,
-    val job: String,
-    val site: String,
-    val dataCollector: String,
-    val userEmail: String,
-    val timestamp: String,
-    val scanCaption: String,
-  )
+actual fun formatDate(millis: Long): String =
+  DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault()).format(Date(millis))
 
-  data class Row(val question: String, val answer: Answer)
-
-  sealed interface Answer {
-    data class Text(val lines: List<String>) : Answer
-
-    data class Photo(val remoteFilename: String) : Answer
-  }
-}
+actual fun formatTime(millis: Long): String =
+  DateFormat.getTimeInstance(DateFormat.SHORT, Locale.getDefault()).format(Date(millis))
