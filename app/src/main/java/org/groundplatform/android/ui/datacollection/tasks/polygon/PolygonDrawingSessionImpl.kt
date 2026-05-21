@@ -37,9 +37,6 @@ class PolygonDrawingSessionImpl : PolygonDrawingSession {
 
   private var _tentativeVertex: Coordinates? = null
 
-  override val tentativeVertex: Coordinates?
-    get() = _tentativeVertex
-
   override val displayVertices: List<Coordinates>
     get() = _tentativeVertex?.let { _vertices + it } ?: _vertices
 
@@ -101,9 +98,10 @@ class PolygonDrawingSessionImpl : PolygonDrawingSession {
     return intersected
   }
 
-  override fun isValidPolygon(): Boolean = LineString(displayVertices).isClosed() &&
-    !isSelfIntersecting(displayVertices) &&
-    displayVertices.distinct().size >= 3
+  override fun isValidPolygon(): Boolean =
+    LineString(displayVertices).isClosed() &&
+      !isSelfIntersecting(displayVertices) &&
+      displayVertices.distinct().size >= 3
 
   override fun complete() {
     check(isValidPolygon()) { "Polygon is not valid" }
