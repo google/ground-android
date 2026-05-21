@@ -124,7 +124,6 @@
   <string name="read_only_data_collection_hint">L&#8217;enquête est en lecture seule</string>
   <string name="no_submissions">Aucune soumission</string>
   <string name="dismiss_info_popup">Rejeter</string>
-  <string name="other">Autres</string>
   <plurals name="submission_count">
     <item quantity="one">%d soumission</item>
     <item quantity="other">%d soumissions</item>
@@ -217,7 +216,6 @@
   <string name="photo_save_failed_title">Erreur d&#8217;enregistrement</string>
   <string name="photo_save_failed_desc">Impossible d&#8217;enregistrer la photo capturée. Veuillez réessayer.</string>
   <string name="share_location">Partager l&#8217;emplacement</string>
-  <string name="scan_this_qr_to_download_geojson">Scannez ce code QR pour afficher le GeoJson</string>
 
   <string name="join_survey">Rejoindre une enquête</string>
   <string name="invalid_survey_qr_code">Code QR d&#8217;enquête non reconnu</string>

@@ -124,7 +124,6 @@
   <string name="read_only_data_collection_hint">Khảo sát chỉ được phép xem</string>
   <string name="no_submissions">Chưa có bài gửi nào</string>
   <string name="dismiss_info_popup">Đóng lại</string>
-  <string name="other">Khác</string>
   <plurals name="submission_count">
     <item quantity="other">%d bài gửi</item>
   </plurals>
@@ -210,7 +209,6 @@
   <string name="photo_save_failed_title">Lỗi lưu</string>
   <string name="photo_save_failed_desc">Không thể lưu ảnh đã chụp. Vui lòng thử lại.</string>
   <string name="share_location">Chia sẻ vị trí</string>
-  <string name="scan_this_qr_to_download_geojson">Quét mã QR này để xem GeoJSON</string>
 
   <string name="join_survey">Tham gia khảo sát</string>
   <string name="invalid_survey_qr_code">Không nhận diện được mã QR khảo sát</string>

@@ -19,4 +19,6 @@
   <string name="share">ແບ່ງປັນ</string>
   <string name="pdf_details_site">ຈຸດເກັບຂໍ້ມູນ: %1$s</string>
   <string name="pdf_details_data_collector">ຜູ້ເກັບຂໍ້ມູນ: %1$s</string>
+  <string name="scan_this_qr_to_download_geojson">ສະແກນ QR ນີ້ເພື່ອເບິ່ງ GeoJSON</string>
+  <string name="other">ອື່ນໆ</string>
 </resources>

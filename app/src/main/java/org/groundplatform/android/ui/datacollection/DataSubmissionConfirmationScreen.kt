@@ -45,6 +45,9 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import ground_android.core.ui.generated.resources.Res
+import ground_android.core.ui.generated.resources.scan_this_qr_to_download_geojson
+import org.jetbrains.compose.resources.stringResource as multiplatformStringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -154,7 +157,7 @@ private fun ShareableContent(modifier: Modifier = Modifier, loiReport: LoiReport
         GroundQrCode(
           modifier = Modifier.align(Alignment.Center),
           title = loiReport.loiName,
-          footer = stringResource(R.string.scan_this_qr_to_download_geojson),
+          footer = multiplatformStringResource(Res.string.scan_this_qr_to_download_geojson),
           content = loiReport.geoJson.toString(),
           contentDescription = "QR code with LOI Geometry",
           centerLogoPainter = painterResource(R.drawable.ground_logo),

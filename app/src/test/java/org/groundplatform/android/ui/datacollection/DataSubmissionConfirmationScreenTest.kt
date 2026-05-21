@@ -24,6 +24,8 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import ground_android.core.ui.generated.resources.Res
+import ground_android.core.ui.generated.resources.scan_this_qr_to_download_geojson
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -55,7 +57,7 @@ class DataSubmissionConfirmationScreenTest {
     composeTestRule.onNodeWithText(LOI_REPORT.loiName).assertIsDisplayed()
     composeTestRule.onNodeWithTag(TEST_TAG_GROUND_QR_CODE).assertIsDisplayed()
     composeTestRule
-      .onNodeWithText(getString(R.string.scan_this_qr_to_download_geojson))
+      .onNodeWithText(getString(Res.string.scan_this_qr_to_download_geojson))
       .performScrollTo()
       .assertIsDisplayed()
     composeTestRule.onNodeWithText(getString(R.string.close)).performScrollTo().assertIsDisplayed()
@@ -79,7 +81,7 @@ class DataSubmissionConfirmationScreenTest {
     composeTestRule.onNodeWithText(LOI_REPORT.loiName).assertIsDisplayed()
     composeTestRule.onNodeWithTag(TEST_TAG_GROUND_QR_CODE).assertIsDisplayed()
     composeTestRule
-      .onNodeWithText(getString(R.string.scan_this_qr_to_download_geojson))
+      .onNodeWithText(getString(Res.string.scan_this_qr_to_download_geojson))
       .assertIsDisplayed()
     composeTestRule.onNodeWithText(getString(R.string.close)).assertIsDisplayed()
   }

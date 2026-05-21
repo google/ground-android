@@ -19,4 +19,6 @@
   <string name="share">แชร์</string>
   <string name="pdf_details_site">ไซต์: %1$s</string>
   <string name="pdf_details_data_collector">ผู้เก็บข้อมูล: %1$s</string>
+  <string name="scan_this_qr_to_download_geojson">สแกนคิวอาร์โค้ดนี้เพื่อดู GeoJSON</string>
+  <string name="other">อื่น ๆ</string>
 </resources>

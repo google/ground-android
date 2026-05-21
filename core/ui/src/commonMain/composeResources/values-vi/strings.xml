@@ -19,4 +19,6 @@
   <string name="share">Chia sẻ</string>
   <string name="pdf_details_site">Địa điểm: %1$s</string>
   <string name="pdf_details_data_collector">Người thu thập dữ liệu: %1$s</string>
+  <string name="scan_this_qr_to_download_geojson">Quét mã QR này để xem GeoJSON</string>
+  <string name="other">Khác</string>
 </resources>

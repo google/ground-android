@@ -20,4 +20,7 @@
   <string name="share">Share</string>
   <string name="pdf_details_site">Site: %1$s</string>
   <string name="pdf_details_data_collector">Data collector: %1$s</string>
+  <string name="scan_this_qr_to_download_geojson">Scan this QR code to view the GeoJson</string>
+  <string name="skipped">Skipped</string>
+  <string name="other">Other</string>
 </resources>
