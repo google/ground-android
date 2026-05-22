@@ -23,6 +23,8 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.os.bundleOf
+import androidx.fragment.compose.AndroidFragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -30,6 +32,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.components.ConfirmationDialog
+import org.groundplatform.android.ui.datacollection.DataCollectionFragment
 import org.groundplatform.android.ui.datacollection.LoiNameAction
 import org.groundplatform.android.ui.datacollection.TaskPosition
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
@@ -39,15 +42,32 @@ import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreen
 import org.groundplatform.ui.theme.AppTheme
 
+/**
+ * A screen for drawing an area (polygon) on the map.
+ *
+ * This is the stateful wrapper that collects state from [DrawAreaTaskViewModel] and handles event
+ * routing.
+ *
+ * @param viewModel The view model for this task.
+ * @param taskPosition The position of the task in the sequence.
+ * @param shouldShowLoiNameDialog Whether to show the dialog for setting the LOI name.
+ * @param loiName Value to be prepopulated in the LOI name dialog.
+ * @param onLoiNameAction Callback when user interacts with the LOI name dialog.
+ * @param mapContent Composable for rendering the map.
+ */
 @Composable
 fun DrawAreaTaskScreen(
   viewModel: DrawAreaTaskViewModel,
   taskPosition: TaskPosition? = null,
   shouldShowLoiNameDialog: Boolean,
   loiName: String,
-  onButtonClicked: (ButtonAction) -> Unit,
   onLoiNameAction: (LoiNameAction) -> Unit,
-  mapContent: @Composable () -> Unit,
+  mapContent: @Composable () -> Unit = {
+    AndroidFragment(
+      clazz = DrawAreaTaskMapFragment::class.java,
+      arguments = bundleOf(Pair(DataCollectionFragment.TASK_ID, viewModel.task.id)),
+    )
+  },
 ) {
   val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
   val showSelfIntersectionDialog by viewModel.showSelfIntersectionDialog
@@ -73,7 +93,7 @@ fun DrawAreaTaskScreen(
     showSelfIntersectionDialog = showSelfIntersectionDialog,
     shouldShowLoiNameDialog = shouldShowLoiNameDialog,
     loiName = loiName,
-    onButtonClicked = onButtonClicked,
+    onButtonClicked = { viewModel.onButtonClick(it) },
     onLoiNameAction = onLoiNameAction,
     onInstructionsDismiss = { viewModel.dismissDrawAreaInstructions() },
     onDismissSelfIntersectionDialog = { viewModel.showSelfIntersectionDialog.value = false },
@@ -93,7 +113,7 @@ fun DrawAreaTaskScreen(
  * @param loiName Value to be prepopulated in the LOI name dialog.
  * @param onButtonClicked Callback when a button with a [ButtonAction] is clicked.
  * @param onLoiNameAction Callback when user interacts with the LOI name dialog.
- * @param onInstructionsDismiss Callback when user dismisses the instructions dialog.
+ * @param onInstructionsDismiss Callback when user dismisses the instructions' dialog.
  * @param onDismissSelfIntersectionDialog Callback when the self-intersection dialog is dismissed.
  * @param mapContent Composable for rendering the map.
  */

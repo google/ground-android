@@ -32,7 +32,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -49,27 +48,17 @@ import androidx.lifecycle.flowWithLifecycle
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.components.ConfirmationDialog
 import org.groundplatform.android.ui.datacollection.TaskPosition
-import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.groundplatform.android.ui.datacollection.components.UriImage
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreen
 import org.groundplatform.ui.theme.sizes
 
 @Composable
-fun PhotoTaskScreen(
-  viewModel: PhotoTaskViewModel,
-  taskPosition: TaskPosition? = null,
-  onButtonClicked: (ButtonAction) -> Unit,
-  onAwaitingPhotoCapture: (Boolean) -> Unit,
-) {
+fun PhotoTaskScreen(viewModel: PhotoTaskViewModel, taskPosition: TaskPosition? = null) {
   val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
   val uri by viewModel.uri.collectAsStateWithLifecycle(Uri.EMPTY)
-  val isAwaiting by viewModel.isAwaitingPhotoCapture.collectAsStateWithLifecycle()
 
   var activeError by rememberSaveable { mutableStateOf<PhotoTaskError?>(null) }
-
-  val currentOnAwaiting by rememberUpdatedState(onAwaitingPhotoCapture)
-  LaunchedEffect(isAwaiting) { currentOnAwaiting(isAwaiting) }
 
   val capturePhotoLauncher =
     rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { result ->
@@ -92,7 +81,7 @@ fun PhotoTaskScreen(
       TaskHeader(label = viewModel.task.label, iconResId = R.drawable.ic_question_answer),
     taskPosition = taskPosition,
     taskActionButtonsStates = taskActionButtonsStates,
-    onButtonClicked = onButtonClicked,
+    onButtonClicked = { viewModel.onButtonClick(it) },
     taskBody = {
       PhotoTaskContent(
         uri = uri,
@@ -117,7 +106,7 @@ internal fun PhotoTaskContent(
     if (uri == Uri.EMPTY) {
       CaptureButton(onTakePhoto)
     } else {
-      UriImage(uri = uri, modifier = Modifier.fillMaxWidth().padding(top = 4.dp))
+      UriImage(uri = uri, modifier = Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 8.dp))
     }
   }
 

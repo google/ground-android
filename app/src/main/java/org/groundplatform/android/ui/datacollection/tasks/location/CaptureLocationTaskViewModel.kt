@@ -31,6 +31,7 @@ import org.groundplatform.android.common.Constants.ACCURACY_THRESHOLD_IN_M
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.AbstractMapTaskViewModel
+import org.groundplatform.android.ui.datacollection.tasks.DataCollectionEvent
 import org.groundplatform.android.ui.datacollection.tasks.LocationLockEnabledState
 import org.groundplatform.android.ui.map.gms.getAccuracyOrNull
 import org.groundplatform.android.ui.map.gms.getAltitudeOrNull
@@ -103,6 +104,7 @@ class CaptureLocationTaskViewModel @Inject constructor() : AbstractMapTaskViewMo
 
   fun onAllowLocationClicked() {
     dismissPermissionDeniedDialog()
+    eventReporter(DataCollectionEvent.OpenSettings)
   }
 
   fun updateLocation(location: Location) {

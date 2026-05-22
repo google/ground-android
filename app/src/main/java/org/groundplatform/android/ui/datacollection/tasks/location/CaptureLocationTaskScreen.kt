@@ -22,10 +22,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.os.bundleOf
+import androidx.fragment.compose.AndroidFragment
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.components.ConfirmationDialog
+import org.groundplatform.android.ui.datacollection.DataCollectionFragment
 import org.groundplatform.android.ui.datacollection.TaskPosition
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
@@ -38,18 +41,17 @@ import org.groundplatform.ui.theme.AppTheme
  *
  * This is the stateful wrapper that collects state from [CaptureLocationTaskViewModel] and handles
  * event routing.
- *
- * @param viewModel The view model for this task.
- * @param onOpenSettings Callback to open app settings when permission is denied.
- * @param mapContent Composable for rendering the map.
  */
 @Composable
 fun CaptureLocationTaskScreen(
   viewModel: CaptureLocationTaskViewModel,
   taskPosition: TaskPosition? = null,
-  onButtonClicked: (ButtonAction) -> Unit,
-  onOpenSettings: () -> Unit,
-  mapContent: @Composable () -> Unit,
+  mapContent: @Composable () -> Unit = {
+    AndroidFragment(
+      clazz = CaptureLocationTaskMapFragment::class.java,
+      arguments = bundleOf(Pair(DataCollectionFragment.TASK_ID, viewModel.task.id)),
+    )
+  }
 ) {
   val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
   val showAccuracyCard by viewModel.showAccuracyCard.collectAsStateWithLifecycle()
@@ -66,8 +68,7 @@ fun CaptureLocationTaskScreen(
     showPermissionDeniedDialog = showPermissionDeniedDialog,
     onDismissAccuracyCard = { viewModel.dismissAccuracyCard() },
     onAllowLocationClicked = { viewModel.onAllowLocationClicked() },
-    onOpenSettings = onOpenSettings,
-    onButtonClicked = onButtonClicked,
+    onButtonClicked = { viewModel.onButtonClick(it) },
     mapContent = mapContent,
   )
 }
@@ -82,7 +83,6 @@ fun CaptureLocationTaskScreen(
  * @param showPermissionDeniedDialog Whether to show the permission denied dialog.
  * @param onDismissAccuracyCard Callback when the accuracy card is dismissed.
  * @param onAllowLocationClicked Callback when the allow location button is clicked in the dialog.
- * @param onOpenSettings Callback to open app settings.
  * @param onButtonClicked Callback when a button is clicked.
  * @param mapContent Composable for rendering the map.
  */
@@ -95,7 +95,6 @@ private fun CaptureLocationTaskContent(
   showPermissionDeniedDialog: Boolean,
   onDismissAccuracyCard: () -> Unit,
   onAllowLocationClicked: () -> Unit,
-  onOpenSettings: () -> Unit,
   onButtonClicked: (ButtonAction) -> Unit,
   mapContent: @Composable () -> Unit,
 ) {
@@ -120,10 +119,7 @@ private fun CaptureLocationTaskContent(
           title = R.string.allow_location_title,
           description = R.string.allow_location_description,
           confirmButtonText = R.string.allow_location_confirmation,
-          onConfirmClicked = {
-            onAllowLocationClicked()
-            onOpenSettings()
-          },
+          onConfirmClicked = onAllowLocationClicked,
         )
       }
     },
@@ -149,7 +145,6 @@ private fun CaptureLocationTaskScreenPreview() {
       showPermissionDeniedDialog = true,
       onDismissAccuracyCard = {},
       onAllowLocationClicked = {},
-      onOpenSettings = {},
       onButtonClicked = {},
       mapContent = {},
     )

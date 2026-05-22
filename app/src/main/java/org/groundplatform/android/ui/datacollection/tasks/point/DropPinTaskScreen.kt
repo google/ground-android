@@ -19,12 +19,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.os.bundleOf
+import androidx.fragment.compose.AndroidFragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
+import org.groundplatform.android.ui.datacollection.DataCollectionFragment
 import org.groundplatform.android.ui.datacollection.LoiNameAction
 import org.groundplatform.android.ui.datacollection.TaskPosition
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
@@ -41,6 +44,10 @@ import org.groundplatform.ui.theme.AppTheme
  * routing.
  *
  * @param viewModel The view model for this task.
+ * @param taskPosition The position of the task in the sequence.
+ * @param shouldShowLoiNameDialog Whether to show the dialog for setting the LOI name.
+ * @param loiName Value to be prepopulated in the LOI name dialog.
+ * @param onLoiNameAction Callback when user interacts with the LOI name dialog.
  * @param mapContent Composable for rendering the map.
  */
 @Composable
@@ -49,9 +56,13 @@ fun DropPinTaskScreen(
   taskPosition: TaskPosition? = null,
   shouldShowLoiNameDialog: Boolean,
   loiName: String,
-  onButtonClicked: (ButtonAction) -> Unit,
   onLoiNameAction: (LoiNameAction) -> Unit,
-  mapContent: @Composable () -> Unit,
+  mapContent: @Composable () -> Unit = {
+    AndroidFragment(
+      clazz = DropPinTaskMapFragment::class.java,
+      arguments = bundleOf(Pair(DataCollectionFragment.TASK_ID, viewModel.task.id)),
+    )
+  },
 ) {
   val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
   val showInstructionsDialog by viewModel.showInstructionsDialog.collectAsStateWithLifecycle()
@@ -68,7 +79,7 @@ fun DropPinTaskScreen(
     showInstructionsDialog = showInstructionsDialog,
     shouldShowLoiNameDialog = shouldShowLoiNameDialog,
     loiName = loiName,
-    onButtonClicked = onButtonClicked,
+    onButtonClicked = { viewModel.onButtonClick(it) },
     onLoiNameAction = onLoiNameAction,
     onInstructionsDismiss = { viewModel.dismissDropPinInstructions() },
     mapContent = mapContent,
@@ -82,6 +93,11 @@ fun DropPinTaskScreen(
  * @param taskPosition The position of the task in the sequence.
  * @param taskActionButtonsStates The states of the action buttons.
  * @param showInstructionsDialog Whether to show the instructions' dialog.
+ * @param shouldShowLoiNameDialog Whether to show the dialog for setting the LOI name.
+ * @param loiName Value to be prepopulated in the LOI name dialog.
+ * @param onButtonClicked Callback when a button with a [ButtonAction] is clicked.
+ * @param onLoiNameAction Callback when user interacts with the LOI name dialog.
+ * @param onInstructionsDismiss Callback when user dismisses the instructions' dialog.
  * @param mapContent Composable for rendering the map.
  */
 @Composable
@@ -109,7 +125,7 @@ private fun DropPinTaskContent(
     onButtonClicked = onButtonClicked,
     onLoiNameAction = onLoiNameAction,
     onInstructionsDismiss = onInstructionsDismiss,
-    taskBody = mapContent,
+    taskBody = { mapContent() },
   )
 }
 

@@ -39,7 +39,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.datacollection.TaskPosition
-import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.TaskHeader
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreen
 import org.groundplatform.domain.model.submission.DateTimeTaskData
@@ -51,11 +50,7 @@ import java.util.Date
 const val DATE_PICKER_TEST_TAG: String = "date picker test tag"
 
 @Composable
-fun DateTaskScreen(
-  viewModel: DateTaskViewModel,
-  taskPosition: TaskPosition? = null,
-  onButtonClicked: (ButtonAction) -> Unit,
-) {
+fun DateTaskScreen(viewModel: DateTaskViewModel, taskPosition: TaskPosition? = null) {
   val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
   val taskData by viewModel.taskTaskData.collectAsStateWithLifecycle()
 
@@ -64,7 +59,7 @@ fun DateTaskScreen(
       TaskHeader(label = viewModel.task.label, iconResId = R.drawable.ic_question_answer),
     taskPosition = taskPosition,
     taskActionButtonsStates = taskActionButtonsStates,
-    onButtonClicked = onButtonClicked,
+    onButtonClicked = { viewModel.onButtonClick(it) },
     taskBody = {
       DateTaskContent(
         taskData as? DateTimeTaskData,

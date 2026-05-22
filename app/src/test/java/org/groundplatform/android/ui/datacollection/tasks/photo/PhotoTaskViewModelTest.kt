@@ -97,7 +97,6 @@ class PhotoTaskViewModelTest : BaseHiltTest() {
     }
 
     verify(userMediaRepository).addImageToGallery("/path/to/file.jpg", "file.jpg")
-    assertThat(viewModel.isAwaitingPhotoCapture.value).isFalse()
   }
 
   @Test

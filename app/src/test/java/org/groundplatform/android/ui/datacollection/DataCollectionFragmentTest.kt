@@ -305,6 +305,35 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     }
 
   @Test
+  fun `Resuming draft on adhoc survey with conditional task and submitting does not crash`() =
+    runWithTestDispatcher {
+      val expectedDeltas =
+        listOf(
+          ValueDelta(TASK_ID_0, Task.Type.DROP_PIN, TASK_0_VALUE),
+          TASK_1_VALUE_DELTA,
+          TASK_2_VALUE_DELTA,
+        )
+
+      setupFragment(
+        loiId = null,
+        loiName = null,
+        shouldLoadFromDraft = true,
+        draftValues = SubmissionDeltasConverter.toString(expectedDeltas),
+        currentTaskId = TASK_ID_2,
+      )
+
+      runner()
+        .validateTextIsDisplayed(TASK_2_NAME)
+        .assertOptionsDisplayed(TASK_2_OPTION_LABEL)
+        .clickDoneButton()
+
+      assertSubmissionSaved(
+        loiId = "TEST UUID",
+        valueDeltas = listOf(TASK_1_VALUE_DELTA, TASK_2_VALUE_DELTA),
+      )
+    }
+
+  @Test
   fun `Does not load draft if it references missing job`() = runWithTestDispatcher {
     setupFragment()
 
@@ -830,6 +859,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     tasks: List<Task> = TASKS,
     shouldLoadFromDraft: Boolean = false,
     draftValues: String? = null,
+    currentTaskId: String = "",
   ) {
     setupSubmission(tasks)
 
@@ -840,7 +870,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
           JOB.id,
           shouldLoadFromDraft,
           draftValues,
-          /* currentTaskId */ "",
+          currentTaskId,
         )
         .build()
         .toBundle()

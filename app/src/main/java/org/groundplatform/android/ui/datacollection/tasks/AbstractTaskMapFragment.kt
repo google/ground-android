@@ -41,6 +41,7 @@ import org.groundplatform.android.ui.common.BaseMapViewModel
 import org.groundplatform.android.ui.components.MapFloatingActionButton
 import org.groundplatform.android.ui.components.MapFloatingActionButtonType
 import org.groundplatform.android.ui.components.RecenterButton
+import org.groundplatform.android.ui.datacollection.DataCollectionFragment
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.MapFragment
@@ -71,7 +72,7 @@ abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
   private lateinit var viewModel: BaseMapViewModel
 
   protected val taskId: String by lazy {
-    arguments?.getString(DataCollectionTaskFragment.TASK_ID) ?: error("null taskId fragment arg")
+    arguments?.getString(DataCollectionFragment.TASK_ID) ?: error("null taskId fragment arg")
   }
 
   override fun onCreate(savedInstanceState: Bundle?) {

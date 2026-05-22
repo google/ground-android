@@ -33,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -41,20 +42,24 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.components.ConfirmationDialog
+import org.groundplatform.android.ui.datacollection.tasks.TaskScreenContainer
 
 /**
  * The main screen for data collection, coordinating the task sequence and host UI.
  *
  * @param viewModel The view model for data collection.
- * @param fragment The fragment hosting this screen (retained for ViewPager2 adapter creation).
+ * @param onValidationError Callback when a validation error occurs.
  * @param onExitConfirmed Callback when the user confirms exiting the data collection flow.
+ * @param onOpenSettings Callback to open the app settings.
+ * @param onAwaitingPhotoCapture Callback to set whether the app is awaiting a photo capture.
  */
 @Composable
 fun DataCollectionScreen(
   viewModel: DataCollectionViewModel,
-  fragment: DataCollectionFragment,
   onValidationError: (resId: Int) -> Unit,
   onExitConfirmed: () -> Unit,
+  onOpenSettings: () -> Unit,
+  onAwaitingPhotoCapture: (Boolean) -> Unit,
 ) {
   val showExitWarningDialog by viewModel.showExitWarning.collectAsStateWithLifecycle()
   val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -63,13 +68,40 @@ fun DataCollectionScreen(
     viewModel.uiEffects.collect { effect ->
       when (effect) {
         is DataCollectionUiEffect.Exit -> onExitConfirmed()
+        is DataCollectionUiEffect.OpenSettings -> onOpenSettings()
+        is DataCollectionUiEffect.SetAwaitingPhotoCapture -> onAwaitingPhotoCapture(effect.awaiting)
         is DataCollectionUiEffect.ShowValidationError -> onValidationError(effect.errorResId)
       }
     }
   }
 
   DataCollectionContent(uiState = uiState, onCloseClicked = { viewModel.onCloseClicked() }) {
-    DataCollectionViewPager(uiState, fragment)
+    readyState ->
+    val tasks = readyState.tasks
+    if (tasks.isNotEmpty()) {
+      val position = readyState.position
+      val currentTask = tasks[position.absoluteIndex]
+
+      key(currentTask.id) {
+        viewModel.getTaskViewModel(currentTask.id)?.let { taskViewModel ->
+          val loiName by viewModel.loiNameDraft.collectAsStateWithLifecycle()
+          val showLoiNameDialog by viewModel.loiNameDialogOpen.collectAsStateWithLifecycle()
+
+          val onLoiNameAction = { action: LoiNameAction ->
+            viewModel.handleLoiNameAction(action, currentTask.id)
+          }
+
+          TaskScreenContainer(
+            task = currentTask,
+            taskViewModel = taskViewModel,
+            taskPosition = position,
+            loiName = loiName,
+            shouldShowLoiNameDialog = showLoiNameDialog,
+            onLoiNameAction = { onLoiNameAction(it) },
+          )
+        }
+      }
+    }
   }
 
   if (showExitWarningDialog) {
@@ -102,7 +134,7 @@ object DataCollectionScreenTestTags {
 fun DataCollectionContent(
   uiState: DataCollectionUiState,
   onCloseClicked: () -> Unit,
-  pagerContent: @Composable () -> Unit,
+  pagerContent: @Composable (DataCollectionUiState.Ready) -> Unit,
 ) {
   Scaffold(topBar = { DataCollectionToolbar(uiState, onCloseClicked) }) { innerPadding ->
     Column(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
@@ -118,7 +150,7 @@ fun DataCollectionContent(
             ErrorContent()
           }
           is DataCollectionUiState.Ready -> {
-            ReadyContent(pagerContent = pagerContent)
+            ReadyContent { pagerContent(uiState) }
           }
           is DataCollectionUiState.TaskSubmitted -> {
             DataSubmissionConfirmationScreen(loiReport = uiState.loiReport) { onCloseClicked() }
