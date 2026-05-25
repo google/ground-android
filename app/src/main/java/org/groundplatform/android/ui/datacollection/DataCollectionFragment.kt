@@ -20,9 +20,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.common.BackPressListener
@@ -30,13 +32,15 @@ import org.groundplatform.android.ui.common.EphemeralPopups
 import org.groundplatform.android.ui.home.HomeScreenViewModel
 import org.groundplatform.android.util.createComposeView
 import org.groundplatform.android.util.openAppSettings
-import org.groundplatform.android.util.shareLoiReportPdf
 import org.groundplatform.ui.components.loireport.LoiReportAction
+import org.groundplatform.ui.mapper.LoiReportMapper
+import org.groundplatform.ui.system.pdf.PdfExportService
 
 /** Fragment allowing the user to collect data to complete a task. */
 @AndroidEntryPoint
 class DataCollectionFragment : AbstractFragment(), BackPressListener {
   @Inject lateinit var popups: EphemeralPopups
+  @Inject lateinit var pdfExportService: PdfExportService
 
   val viewModel: DataCollectionViewModel by hiltNavGraphViewModels(R.id.data_collection)
 
@@ -57,17 +61,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
       onExitConfirmed = { navigateBack() },
       onOpenSettings = { requireActivity().openAppSettings() },
       onAwaitingPhotoCapture = { homeScreenViewModel.awaitingPhotoCapture = it },
-      onLoiReportAction = { loiReportAction ->
-        when (loiReportAction) {
-          is LoiReportAction.OnShareClicked ->
-          {
-            /* TODO */
-          }
-          is LoiReportAction.OnPdfItemClicked -> {
-            /* TODO */
-          }
-        }
-      },
+      onLoiReportAction = { handleLoiReportAction(it) },
     )
   }
 
@@ -102,6 +96,35 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
     isNavigatingUp = true
     viewModel.clearDraftBlocking()
     findNavController().navigateUp()
+  }
+
+  private fun handleLoiReportAction(action: LoiReportAction) {
+    val loiReport =
+      (viewModel.uiState.value as? DataCollectionUiState.TaskSubmitted)?.loiReport
+        ?: run {
+          popups.ErrorPopup().unknownError()
+          return
+        }
+    val submission =
+      loiReport.submissionDetails?.submissions?.firstOrNull()
+        ?: run {
+          popups.ErrorPopup().unknownError()
+          return
+        }
+
+    lifecycleScope.launch {
+      val request = LoiReportMapper.map(loiReport, submission)
+      if (request == null) {
+        popups.ErrorPopup().unknownError()
+        return@launch
+      }
+      val pdfAction =
+        when (action) {
+          is LoiReportAction.OnShareClicked -> PdfExportService.Action.Share
+          is LoiReportAction.OnPdfItemClicked -> PdfExportService.Action.Open
+        }
+      pdfExportService.export(request, pdfAction)
+    }
   }
 
   companion object {

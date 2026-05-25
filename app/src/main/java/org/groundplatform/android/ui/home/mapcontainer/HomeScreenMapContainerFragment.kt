@@ -22,9 +22,11 @@ import android.view.ViewGroup
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.databinding.BasemapLayoutBinding
 import org.groundplatform.android.ui.common.AbstractMapContainerFragment
@@ -42,10 +44,11 @@ import org.groundplatform.android.ui.map.MapFragment
 import org.groundplatform.android.usecases.datasharingterms.GetDataSharingTermsUseCase
 import org.groundplatform.android.util.renderComposableDialog
 import org.groundplatform.android.util.setComposableContent
-import org.groundplatform.android.util.shareLoiReportPdf
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.locationofinterest.LOI_NAME_PROPERTY
 import org.groundplatform.ui.components.loireport.LoiReportAction
+import org.groundplatform.ui.mapper.LoiReportMapper
+import org.groundplatform.ui.system.pdf.PdfExportService
 import timber.log.Timber
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
@@ -53,6 +56,7 @@ import timber.log.Timber
 class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
   @Inject lateinit var ephemeralPopups: EphemeralPopups
+  @Inject lateinit var pdfExportService: PdfExportService
 
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
   private lateinit var homeScreenViewModel: HomeScreenViewModel
@@ -214,13 +218,33 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   }
 
   private fun handleLoiReportAction(action: LoiReportAction) {
-    when (action) {
-      is LoiReportAction.OnShareClicked -> {
-        /* TODO */
+    val loiReport =
+      (mapContainerViewModel.jobMapComponentState.value as? JobMapComponentState.LoiSelected)
+        ?.loi
+        ?.loiReport
+        ?: run {
+          ephemeralPopups.ErrorPopup().unknownError()
+          return
+        }
+    val submission =
+      loiReport.submissionDetails?.submissions?.firstOrNull()
+        ?: run {
+          ephemeralPopups.ErrorPopup().unknownError()
+          return
+        }
+
+    lifecycleScope.launch {
+      val request = LoiReportMapper.map(loiReport, submission)
+      if (request == null) {
+        ephemeralPopups.ErrorPopup().unknownError()
+        return@launch
       }
-      is LoiReportAction.OnPdfItemClicked -> {
-        /* TODO() */
-      }
+      val pdfAction =
+        when (action) {
+          is LoiReportAction.OnShareClicked -> PdfExportService.Action.Share
+          is LoiReportAction.OnPdfItemClicked -> PdfExportService.Action.Open
+        }
+      pdfExportService.export(request, pdfAction)
     }
   }
 
