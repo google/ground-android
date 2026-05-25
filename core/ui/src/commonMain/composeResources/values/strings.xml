@@ -29,4 +29,8 @@
   <string name="south">S</string>
   <string name="east">E</string>
   <string name="west">W</string>
+  <string name="submission">Submission</string>
+  <string name="survey">Survey</string>
+  <string name="job">Job</string>
+  <string name="pdf_details_data_collector_label">Data collector</string>
 </resources>
