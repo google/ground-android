@@ -49,23 +49,6 @@ import org.groundplatform.ui.theme.sizes
 @VisibleForTesting const val TEST_TAG_GROUND_QR_CODE = "TEST_TAG_GROUND_QR_CODE"
 
 /**
- * Maximum content size (in UTF-8 bytes) for which a center logo is displayed.
- *
- * Adding a logo in the center of a QR code covers part of the data pattern, so the QR must rely on
- * error correction to remain scannable. A limit of 1,000 bytes is used as a conservative threshold
- * to ensure the QR code remains reliably scannable even with a logo applied.
- */
-private const val MAX_QR_BYTES_WITH_LOGO = 1000
-
-/**
- * The relative size of the center logo as a fraction of the QR code's total rendered size.
- *
- * Set to 15% to ensure the logo is clearly visible while remaining within the recovery capacity of
- * high error correction (ECC level H), which can tolerate approximately 30% data loss.
- */
-private const val LOGO_SIZE_FRACTION = 0.15f
-
-/**
  * Displays a QR code generated from the given [content] string.
  *
  * The composable is intentionally generic, it accepts any string payload, making it reusable for
@@ -85,7 +68,7 @@ fun GroundQrCode(
 
   val qrBitmap by
     produceState<ImageBitmap?>(initialValue = null, key1 = content, key2 = showLogo) {
-      value = withContext(Dispatchers.Default) { generateQrBitmap(content, showLogo) }
+      value = withContext(Dispatchers.Default) { encodeQrBitmap(content, showLogo) }
     }
 
   Column(
