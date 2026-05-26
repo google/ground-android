@@ -36,31 +36,30 @@ import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.submission.TextTaskData
 import org.groundplatform.domain.model.task.Task
 import org.groundplatform.domain.util.toFixedDecimals
-import org.groundplatform.ui.util.formatDate
-import org.groundplatform.ui.util.formatTime
+import org.groundplatform.ui.util.DateFormatter
 import org.jetbrains.compose.resources.getString
 
 object TaskValueMapper {
   private const val DEGREES_DECIMALS = 6
 
   /** Renders a [TaskData] value as plain text. */
-  suspend fun map(task: Task, value: TaskData): String =
+  suspend fun map(task: Task, value: TaskData, dateFormatter: DateFormatter): String =
     when (value) {
       is SkippedTaskData -> getString(Res.string.skipped)
       is TextTaskData -> value.text
       is NumberTaskData -> value.number
-      is DateTimeTaskData -> formatTaskDateTime(task, value.timeInMillis)
+      is DateTimeTaskData -> formatTaskDateTime(task, value.timeInMillis, dateFormatter)
       is MultipleChoiceTaskData -> formatMultipleChoice(task, value)
       is CaptureLocationTaskData -> formatCaptureLocation(value)
       else -> ""
     }
 
   /** Date for DATE tasks, time for TIME, date + time otherwise. */
-  private fun formatTaskDateTime(task: Task, millis: Long): String =
+  private fun formatTaskDateTime(task: Task, millis: Long, dateFormatter: DateFormatter): String =
     when (task.type) {
-      Task.Type.DATE -> formatDate(millis)
-      Task.Type.TIME -> formatTime(millis)
-      else -> "${formatDate(millis)} ${formatTime(millis)}"
+      Task.Type.DATE -> dateFormatter.formatDate(millis)
+      Task.Type.TIME -> dateFormatter.formatTime(millis)
+      else -> "${dateFormatter.formatDate(millis)} ${dateFormatter.formatTime(millis)}"
     }
 
   private suspend fun formatMultipleChoice(task: Task, value: MultipleChoiceTaskData): String {
