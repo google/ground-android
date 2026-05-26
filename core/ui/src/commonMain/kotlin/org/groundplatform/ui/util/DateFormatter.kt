@@ -16,12 +16,13 @@
 package org.groundplatform.ui.util
 
 /**
- * Locale-aware date/time formatting primitives. Implemented per-platform because locale-aware
- * formatting needs `java.text.DateFormat` on Android and `NSDateFormatter` on iOS.
+ * Locale-aware date and time formatting. Implemented as an interface so it can be injected in tests and provided per platform.
  */
+interface DateFormatter {
 
-/** Formats just the date portion of [millis] in the user's locale. */
-expect fun formatDate(millis: Long): String
+  /** Formats just the date portion of [millis] in the user's locale (medium style). */
+  fun formatDate(millis: Long): String
 
-/** Formats just the time portion of [millis] in the user's locale (short style, no seconds). */
-expect fun formatTime(millis: Long): String
+  /** Formats just the time portion of [millis] in the user's locale (short style, no seconds). */
+  fun formatTime(millis: Long): String
+}

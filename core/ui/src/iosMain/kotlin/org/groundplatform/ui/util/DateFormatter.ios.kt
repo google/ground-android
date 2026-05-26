@@ -23,20 +23,25 @@ import platform.Foundation.NSDateFormatterNoStyle
 import platform.Foundation.NSDateFormatterShortStyle
 import platform.Foundation.dateWithTimeIntervalSince1970
 
+/** iOS [DateFormatter] backed by [NSDateFormatter], which is locale- and settings-aware. */
 @OptIn(ExperimentalForeignApi::class)
-actual fun formatDate(millis: Long): String =
-  NSDateFormatter()
-    .apply {
-      dateStyle = NSDateFormatterMediumStyle
-      timeStyle = NSDateFormatterNoStyle
-    }
-    .stringFromDate(NSDate.dateWithTimeIntervalSince1970(millis / 1000.0))
+class IosDateFormatter : DateFormatter {
 
-@OptIn(ExperimentalForeignApi::class)
-actual fun formatTime(millis: Long): String =
-  NSDateFormatter()
-    .apply {
-      dateStyle = NSDateFormatterNoStyle
-      timeStyle = NSDateFormatterShortStyle
-    }
-    .stringFromDate(NSDate.dateWithTimeIntervalSince1970(millis / 1000.0))
+  override fun formatDate(millis: Long): String =
+    NSDateFormatter()
+      .apply {
+        dateStyle = NSDateFormatterMediumStyle
+        timeStyle = NSDateFormatterNoStyle
+      }
+      .stringFromDate(millis.toNSDate())
+
+  override fun formatTime(millis: Long): String =
+    NSDateFormatter()
+      .apply {
+        dateStyle = NSDateFormatterNoStyle
+        timeStyle = NSDateFormatterShortStyle
+      }
+      .stringFromDate(millis.toNSDate())
+
+  private fun Long.toNSDate(): NSDate = NSDate.dateWithTimeIntervalSince1970(this / 1000.0)
+}
