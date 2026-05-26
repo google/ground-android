@@ -15,12 +15,19 @@
  */
 package org.groundplatform.ui.util
 
-import java.text.DateFormat
+import android.content.Context
+import android.text.format.DateFormat
 import java.util.Date
-import java.util.Locale
 
-actual fun formatDate(millis: Long): String =
-  DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault()).format(Date(millis))
+/**
+ * Android [DateFormatter] backed by [DateFormat], which respects system date/time settings (such as
+ * the user's 24-hour preference) in addition to locale rules.
+ */
+class AndroidDateFormatter(private val context: Context) : DateFormatter {
 
-actual fun formatTime(millis: Long): String =
-  DateFormat.getTimeInstance(DateFormat.SHORT, Locale.getDefault()).format(Date(millis))
+  override fun formatDate(millis: Long): String =
+    DateFormat.getDateFormat(context).format(Date(millis))
+
+  override fun formatTime(millis: Long): String =
+    DateFormat.getTimeFormat(context).format(Date(millis))
+}
