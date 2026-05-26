@@ -15,15 +15,15 @@
  */
 package org.groundplatform.ui.util
 
+import org.jetbrains.compose.resources.StringResource
+
 /**
- * Locale-aware date and time formatting. Implemented as an interface so it can be injected in tests
- * and provided per platform.
+ * [StringResolver] for tests so display logic can be asserted without a Compose resource runtime.
  */
-interface DateFormatter {
+object FakeStringResolver : StringResolver {
 
-  /** Formats just the date portion of [millis] in the user's locale (medium style). */
-  fun formatDate(millis: Long): String
+  override suspend fun resolve(resource: StringResource): String = resource.key
 
-  /** Formats just the time portion of [millis] in the user's locale (short style, no seconds). */
-  fun formatTime(millis: Long): String
+  override suspend fun resolve(resource: StringResource, vararg formatArgs: Any): String =
+    "${resource.key}(${formatArgs.joinToString()})"
 }

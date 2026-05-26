@@ -32,8 +32,9 @@ kotlin {
     androidResources.enable = true
   }
 
-  val xcfName = "GroundUiKit"
+  jvm()
 
+  val xcfName = "GroundUiKit"
   listOf(iosArm64(), iosSimulatorArm64()).forEach {
     it.binaries.framework {
       baseName = xcfName
@@ -56,7 +57,12 @@ kotlin {
       }
     }
 
-    commonTest { dependencies { implementation(libs.kotlin.test) } }
+    commonTest {
+      dependencies {
+        implementation(libs.kotlin.test)
+        implementation(libs.kotlinx.coroutines.test)
+      }
+    }
 
     androidMain { dependencies { implementation(libs.google.zxing) } }
 

@@ -16,14 +16,12 @@
 package org.groundplatform.ui.util
 
 /**
- * Locale-aware date and time formatting. Implemented as an interface so it can be injected in tests
- * and provided per platform.
+ * [DateFormatter] for tests, so assertions don't depend on the host locale or time
+ * zone.
  */
-interface DateFormatter {
+object FakeDateFormatter : DateFormatter {
 
-  /** Formats just the date portion of [millis] in the user's locale (medium style). */
-  fun formatDate(millis: Long): String
+  override fun formatDate(millis: Long): String = "DATE($millis)"
 
-  /** Formats just the time portion of [millis] in the user's locale (short style, no seconds). */
-  fun formatTime(millis: Long): String
+  override fun formatTime(millis: Long): String = "TIME($millis)"
 }

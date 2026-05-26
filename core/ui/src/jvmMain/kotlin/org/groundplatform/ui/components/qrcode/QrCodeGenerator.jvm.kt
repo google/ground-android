@@ -13,17 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.ui.util
+package org.groundplatform.ui.components.qrcode
 
-/**
- * Locale-aware date and time formatting. Implemented as an interface so it can be injected in tests
- * and provided per platform.
- */
-interface DateFormatter {
+import androidx.compose.ui.graphics.ImageBitmap
 
-  /** Formats just the date portion of [millis] in the user's locale (medium style). */
-  fun formatDate(millis: Long): String
-
-  /** Formats just the time portion of [millis] in the user's locale (short style, no seconds). */
-  fun formatTime(millis: Long): String
-}
+actual fun generateQrBitmap(content: String, useHighEcc: Boolean): ImageBitmap =
+  // The JVM target exists only to unit-test platform-independent logic, so QR generation is
+  // intentionally unimplemented here.
+  throw UnsupportedOperationException("QR code generation is not supported on the JVM target")
