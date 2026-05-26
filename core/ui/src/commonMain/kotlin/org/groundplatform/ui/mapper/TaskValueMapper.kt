@@ -16,11 +16,11 @@
 package org.groundplatform.ui.mapper
 
 import ground_android.core.ui.generated.resources.Res
-import ground_android.core.ui.generated.resources.accuracy
-import ground_android.core.ui.generated.resources.altitude
 import ground_android.core.ui.generated.resources.east
 import ground_android.core.ui.generated.resources.north
 import ground_android.core.ui.generated.resources.other
+import ground_android.core.ui.generated.resources.pdf_accuracy
+import ground_android.core.ui.generated.resources.pdf_altitude
 import ground_android.core.ui.generated.resources.skipped
 import ground_android.core.ui.generated.resources.south
 import ground_android.core.ui.generated.resources.west
@@ -79,8 +79,8 @@ object TaskValueMapper {
 
   private suspend fun formatCaptureLocation(value: CaptureLocationTaskData): String {
     val lines = mutableListOf(formatPoint(value.location))
-    value.altitude?.let { lines.add(getString(Res.string.altitude, formatMeters(it))) }
-    value.accuracy?.let { lines.add(getString(Res.string.accuracy, formatMeters(it))) }
+    value.altitude?.let { lines.add(getString(Res.string.pdf_altitude, formatMeters(it))) }
+    value.accuracy?.let { lines.add(getString(Res.string.pdf_accuracy, formatMeters(it))) }
     return lines.joinToString("\n")
   }
 

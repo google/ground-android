@@ -23,4 +23,10 @@
   <string name="scan_this_qr_to_download_geojson">Scan this QR code to view the GeoJson</string>
   <string name="skipped">Skipped</string>
   <string name="other">Other</string>
+  <string name="pdf_altitude">Altitude: %1$sm</string>
+  <string name="pdf_accuracy">Accuracy: %1$sm</string>
+  <string name="north">N</string>
+  <string name="south">S</string>
+  <string name="east">E</string>
+  <string name="west">W</string>
 </resources>

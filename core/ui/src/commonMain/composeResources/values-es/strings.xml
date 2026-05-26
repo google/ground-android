@@ -22,4 +22,10 @@
   <string name="pdf_details_data_collector">Recolector de datos: %1$s</string>
   <string name="scan_this_qr_to_download_geojson">Escanea este código QR para ver el GeoJSON</string>
   <string name="other">Otro</string>
+  <string name="pdf_altitude">Altitud: %1$sm</string>
+  <string name="pdf_accuracy">Precisión: %1$sm</string>
+  <string name="north">N</string>
+  <string name="south">S</string>
+  <string name="east">E</string>
+  <string name="west">O</string>
 </resources>
