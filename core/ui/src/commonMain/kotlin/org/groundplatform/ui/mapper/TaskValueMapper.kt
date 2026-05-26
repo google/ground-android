@@ -15,6 +15,7 @@
  */
 package org.groundplatform.ui.mapper
 
+import androidx.annotation.VisibleForTesting
 import ground_android.core.ui.generated.resources.Res
 import ground_android.core.ui.generated.resources.east
 import ground_android.core.ui.generated.resources.north
@@ -34,66 +35,84 @@ import org.groundplatform.domain.model.submission.NumberTaskData
 import org.groundplatform.domain.model.submission.SkippedTaskData
 import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.submission.TextTaskData
+import org.groundplatform.domain.model.task.PhotoTaskData
 import org.groundplatform.domain.model.task.Task
 import org.groundplatform.domain.util.toFixedDecimals
+import org.groundplatform.ui.model.SubmissionPdfDocument.Answer
 import org.groundplatform.ui.util.DateFormatter
-import org.jetbrains.compose.resources.getString
+import org.groundplatform.ui.util.StringResolver
 
 object TaskValueMapper {
   private const val DEGREES_DECIMALS = 6
 
-  /** Renders a [TaskData] value as plain text. */
-  suspend fun map(task: Task, value: TaskData, dateFormatter: DateFormatter): String =
+  /** Maps a [TaskData] value to the [Answer] to be rendered in the submission PDF. */
+  suspend fun map(
+    task: Task,
+    value: TaskData,
+    dateFormatter: DateFormatter,
+    strings: StringResolver,
+  ): Answer =
     when (value) {
-      is SkippedTaskData -> getString(Res.string.skipped)
-      is TextTaskData -> value.text
-      is NumberTaskData -> value.number
-      is DateTimeTaskData -> formatTaskDateTime(task, value.timeInMillis, dateFormatter)
-      is MultipleChoiceTaskData -> formatMultipleChoice(task, value)
-      is CaptureLocationTaskData -> formatCaptureLocation(value)
-      else -> ""
+      is SkippedTaskData -> Answer.Text(listOf(strings.resolve(Res.string.skipped)))
+      is TextTaskData -> Answer.Text(listOf(value.text))
+      is NumberTaskData -> Answer.Text(listOf(value.number))
+      is DateTimeTaskData ->
+        Answer.Text(listOfNotNull(formatTaskDateTime(task, value.timeInMillis, dateFormatter)))
+      is MultipleChoiceTaskData -> Answer.Text(formatMultipleChoice(task, value, strings))
+      is CaptureLocationTaskData -> Answer.Text(formatCaptureLocation(value, strings))
+      is PhotoTaskData -> Answer.Photo(value.remoteFilename)
+      else -> Answer.Text(emptyList())
     }
 
-  /** Date for DATE tasks, time for TIME, date + time otherwise. */
-  private fun formatTaskDateTime(task: Task, millis: Long, dateFormatter: DateFormatter): String =
+  private fun formatTaskDateTime(task: Task, millis: Long, dateFormatter: DateFormatter): String? =
     when (task.type) {
       Task.Type.DATE -> dateFormatter.formatDate(millis)
       Task.Type.TIME -> dateFormatter.formatTime(millis)
-      else -> "${dateFormatter.formatDate(millis)} ${dateFormatter.formatTime(millis)}"
+      else -> null
     }
 
-  private suspend fun formatMultipleChoice(task: Task, value: MultipleChoiceTaskData): String {
+  private suspend fun formatMultipleChoice(
+    task: Task,
+    value: MultipleChoiceTaskData,
+    strings: StringResolver,
+  ): List<String> {
     val options = task.multipleChoice?.options.orEmpty()
     val selectedLabels =
       value.getSelectedOptionsIdsExceptOther().map { id ->
         options.firstOrNull { it.id == id }?.label ?: id
       }
-    val withOther =
-      if (value.isOtherTextSelected()) {
-        selectedLabels + "${getString(Res.string.other)}: ${value.getOtherText()}"
-      } else {
-        selectedLabels
-      }
-    return withOther.joinToString("; ")
+    return if (value.isOtherTextSelected()) {
+      selectedLabels + "${strings.resolve(Res.string.other)}: ${value.getOtherText()}"
+    } else {
+      selectedLabels
+    }
   }
 
-  private suspend fun formatCaptureLocation(value: CaptureLocationTaskData): String {
-    val lines = mutableListOf(formatPoint(value.location))
-    value.altitude?.let { lines.add(getString(Res.string.pdf_altitude, formatMeters(it))) }
-    value.accuracy?.let { lines.add(getString(Res.string.pdf_accuracy, formatMeters(it))) }
-    return lines.joinToString("\n")
+  /** Coordinates first, then optional altitude and accuracy lines. */
+  private suspend fun formatCaptureLocation(
+    value: CaptureLocationTaskData,
+    strings: StringResolver,
+  ): List<String> {
+    val lines = mutableListOf(formatPoint(value.location, strings))
+    value.altitude?.let { lines.add(strings.resolve(Res.string.pdf_altitude, formatMeters(it))) }
+    value.accuracy?.let { lines.add(strings.resolve(Res.string.pdf_accuracy, formatMeters(it))) }
+    return lines
   }
 
-  private suspend fun formatPoint(point: Point): String {
+  private suspend fun formatPoint(point: Point, strings: StringResolver): String {
     val lat = point.coordinates.lat
     val lng = point.coordinates.lng
-    val latDir = if (lat >= 0) getString(Res.string.north) else getString(Res.string.south)
-    val lngDir = if (lng >= 0) getString(Res.string.east) else getString(Res.string.west)
+    val latDir =
+      if (lat >= 0) strings.resolve(Res.string.north) else strings.resolve(Res.string.south)
+    val lngDir =
+      if (lng >= 0) strings.resolve(Res.string.east) else strings.resolve(Res.string.west)
     return "${formatDegrees(lat)} $latDir, ${formatDegrees(lng)} $lngDir"
   }
 
-  private fun formatDegrees(value: Double): String =
+  @VisibleForTesting
+  fun formatDegrees(value: Double): String =
     "${value.absoluteValue.toFixedDecimals(DEGREES_DECIMALS)}°"
 
-  private fun formatMeters(value: Double): String = round(value).toLong().toString()
+  @VisibleForTesting
+  fun formatMeters(value: Double): String = round(value).toLong().toString()
 }
