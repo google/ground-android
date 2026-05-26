@@ -113,6 +113,5 @@ object TaskValueMapper {
   fun formatDegrees(value: Double): String =
     "${value.absoluteValue.toFixedDecimals(DEGREES_DECIMALS)}°"
 
-  @VisibleForTesting
-  fun formatMeters(value: Double): String = round(value).toLong().toString()
+  @VisibleForTesting fun formatMeters(value: Double): String = round(value).toLong().toString()
 }

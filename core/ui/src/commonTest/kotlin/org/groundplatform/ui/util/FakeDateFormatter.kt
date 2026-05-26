@@ -15,10 +15,7 @@
  */
 package org.groundplatform.ui.util
 
-/**
- * [DateFormatter] for tests, so assertions don't depend on the host locale or time
- * zone.
- */
+/** [DateFormatter] for tests, so assertions don't depend on the host locale or time zone. */
 object FakeDateFormatter : DateFormatter {
 
   override fun formatDate(millis: Long): String = "DATE($millis)"
