@@ -55,8 +55,9 @@ class TaskValueMapper(
       is NumberTaskData -> Answer.Text(listOf(value.number))
       is DateTimeTaskData ->
         Answer.Text(listOfNotNull(formatTaskDateTime(task, value.timeInMillis, dateFormatter)))
-      is MultipleChoiceTaskData -> Answer.Text(formatMultipleChoice(task, value))
-      is CaptureLocationTaskData -> Answer.Text(formatCaptureLocation(value))
+      is MultipleChoiceTaskData -> Answer.Text(formatMultipleChoice(task, value, strings)))
+      is CaptureLocationTaskData -> Answer.Text(formatCaptureLocation(value, strings))
+      is PhotoTaskData -> Answer.Photo(value.remoteFilename))
       is PhotoTaskData -> Answer.Photo(value.remoteFilename)
       else -> Answer.Text(emptyList())
     }
@@ -92,7 +93,7 @@ class TaskValueMapper(
     return lines
   }
 
-  private suspend fun formatPoint(point: Point): String {
+  private suspend fun formatPoint(point: Point, strings: StringResolver): String {
     val lat = point.coordinates.lat
     val lng = point.coordinates.lng
     val latDir =
@@ -106,9 +107,8 @@ class TaskValueMapper(
   fun formatDegrees(value: Double): String =
     "${value.absoluteValue.toFixedDecimals(DEGREES_DECIMALS)}°"
 
-  @VisibleForTesting fun formatMeters(value: Double): String = round(value).toLong().toString()
-
-  companion object {
+  @VisibleForTesting
+  fun formatMeters(value: Double): String = round(value).toLong().toString()companion object {
     private const val DEGREES_DECIMALS = 6
   }
 }
