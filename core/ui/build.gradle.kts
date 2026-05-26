@@ -30,6 +30,8 @@ kotlin {
     compileSdk = libs.versions.androidCompileSdk.get().toInt()
     minSdk = libs.versions.androidMinSdk.get().toInt()
     androidResources.enable = true
+
+    withHostTest { isIncludeAndroidResources = true }
   }
 
   jvm()
@@ -59,12 +61,20 @@ kotlin {
 
     commonTest {
       dependencies {
+        implementation(project(":core:testing"))
         implementation(libs.kotlin.test)
         implementation(libs.kotlinx.coroutines.test)
       }
     }
 
     androidMain { dependencies { implementation(libs.google.zxing) } }
+
+    val androidHostTest by getting {
+      dependencies {
+        implementation(libs.junit)
+        implementation(libs.robolectric)
+      }
+    }
 
     iosMain { dependencies {} }
   }

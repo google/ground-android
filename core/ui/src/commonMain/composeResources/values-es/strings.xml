@@ -21,6 +21,7 @@
   <string name="pdf_details_site">Sitio: %1$s</string>
   <string name="pdf_details_data_collector">Recolector de datos: %1$s</string>
   <string name="scan_this_qr_to_download_geojson">Escanea este código QR para ver el GeoJSON</string>
+  <string name="skipped">Omitido</string>
   <string name="other">Otro</string>
   <string name="pdf_altitude">Altitud: %1$sm</string>
   <string name="pdf_accuracy">Precisión: %1$sm</string>

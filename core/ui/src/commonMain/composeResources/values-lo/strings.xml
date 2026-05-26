@@ -21,6 +21,7 @@
   <string name="pdf_details_data_collector">ຜູ້ເກັບຂໍ້ມູນ: %1$s</string>
   <string name="scan_this_qr_to_download_geojson">ສະແກນ QR ນີ້ເພື່ອເບິ່ງ GeoJSON</string>
   <string name="other">ອື່ນໆ</string>
+  <string name="skipped">ຂ້າມໄປແລ້ວ</string>
   <string name="pdf_altitude">ຄວາມສູງ: %1$s ແມັດ</string>
   <string name="pdf_accuracy">ຄວາມແມ່ນຍຳ: %1$s ແມັດ</string>
   <string name="north">ນ</string>
