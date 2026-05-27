@@ -27,7 +27,6 @@ import org.groundplatform.domain.model.submission.DropPinTaskData
 import org.groundplatform.domain.model.submission.MultipleChoiceTaskData
 import org.groundplatform.domain.model.submission.NumberTaskData
 import org.groundplatform.domain.model.submission.SkippedTaskData
-import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.submission.TextTaskData
 import org.groundplatform.domain.model.task.MultipleChoice
 import org.groundplatform.domain.model.task.Option
@@ -42,37 +41,44 @@ class TaskValueMapperTest {
 
   private val dateFormatter = FakeDateFormatter
   private val stringResolver = FakeStringResolver
+  private val mapper = TaskValueMapper(strings = stringResolver, dateFormatter = dateFormatter)
 
   @Test
   fun `TEXT task maps to the same value`() = runTest {
     assertEquals(
       Answer.Text(listOf("free text")),
-      map(task(Task.Type.TEXT), TextTaskData("free text")),
+      mapper.map(task(Task.Type.TEXT), TextTaskData("free text")),
     )
   }
 
   @Test
   fun `NUMBER task maps to the same value`() = runTest {
-    assertEquals(Answer.Text(listOf("42")), map(task(Task.Type.NUMBER), NumberTaskData("42")))
+    assertEquals(
+      Answer.Text(listOf("42")),
+      mapper.map(task(Task.Type.NUMBER), NumberTaskData("42")),
+    )
   }
 
   @Test
   fun `Skipped value renders the skipped label`() = runTest {
-    assertEquals(Answer.Text(listOf("skipped")), map(task(Task.Type.TEXT), SkippedTaskData()))
+    assertEquals(
+      Answer.Text(listOf("skipped")),
+      mapper.map(task(Task.Type.TEXT), SkippedTaskData()),
+    )
   }
 
   @Test
   fun `PHOTO task maps to a photo answer`() = runTest {
     assertEquals(
       Answer.Photo("path/to/photo.jpg"),
-      map(task(Task.Type.PHOTO), PhotoTaskData("path/to/photo.jpg")),
+      mapper.map(task(Task.Type.PHOTO), PhotoTaskData("path/to/photo.jpg")),
     )
   }
 
   @Test
   fun `unsupported value maps to an empty answer`() = runTest {
     val value = DropPinTaskData(Point(Coordinates(1.0, 2.0)))
-    assertEquals(Answer.Text(emptyList()), map(task(Task.Type.DROP_PIN), value))
+    assertEquals(Answer.Text(emptyList()), mapper.map(task(Task.Type.DROP_PIN), value))
   }
 
   @Test
@@ -80,7 +86,7 @@ class TaskValueMapperTest {
     val millis = 987654321L
     assertEquals(
       Answer.Text(listOf(dateFormatter.formatDate(millis))),
-      map(task(Task.Type.DATE), DateTimeTaskData(millis)),
+      mapper.map(task(Task.Type.DATE), DateTimeTaskData(millis)),
     )
   }
 
@@ -89,14 +95,17 @@ class TaskValueMapperTest {
     val millis = 987654321L
     assertEquals(
       Answer.Text(listOf(dateFormatter.formatTime(millis))),
-      map(task(Task.Type.TIME), DateTimeTaskData(millis)),
+      mapper.map(task(Task.Type.TIME), DateTimeTaskData(millis)),
     )
   }
 
   @Test
   fun `non date or time task renders empty answer`() = runTest {
     val millis = 987654321L
-    assertEquals(Answer.Text(emptyList()), map(task(Task.Type.NUMBER), DateTimeTaskData(millis)))
+    assertEquals(
+      Answer.Text(emptyList()),
+      mapper.map(task(Task.Type.NUMBER), DateTimeTaskData(millis)),
+    )
   }
 
   @Test
@@ -104,7 +113,7 @@ class TaskValueMapperTest {
     val value = MultipleChoiceTaskData(multipleChoice(), selectedOptionIds = listOf("a", "b"))
     assertEquals(
       Answer.Text(listOf("Apple", "Banana")),
-      map(task(Task.Type.MULTIPLE_CHOICE, multipleChoice()), value),
+      mapper.map(task(Task.Type.MULTIPLE_CHOICE, multipleChoice()), value),
     )
   }
 
@@ -114,7 +123,7 @@ class TaskValueMapperTest {
     val value = MultipleChoiceTaskData(multipleChoice(), selectedOptionIds = listOf("a", other))
     assertEquals(
       Answer.Text(listOf("Apple", "other: custom")),
-      map(task(Task.Type.MULTIPLE_CHOICE, multipleChoice()), value),
+      mapper.map(task(Task.Type.MULTIPLE_CHOICE, multipleChoice()), value),
     )
   }
 
@@ -123,14 +132,14 @@ class TaskValueMapperTest {
     val value =
       CaptureLocationTaskData(Point(Coordinates(1.5, -2.25)), altitude = 10.0, accuracy = 3.0)
 
-    val result = map(task(Task.Type.CAPTURE_LOCATION), value)
+    val result = mapper.map(task(Task.Type.CAPTURE_LOCATION), value)
 
     val expected =
       Answer.Text(
         listOf(
-          "${TaskValueMapper.formatDegrees(1.5)} north, ${TaskValueMapper.formatDegrees(2.25)} west",
-          "pdf_altitude(${TaskValueMapper.formatMeters(10.0)})",
-          "pdf_accuracy(${TaskValueMapper.formatMeters(3.0)})",
+          "${mapper.formatDegrees(1.5)} north, ${mapper.formatDegrees(2.25)} west",
+          "pdf_altitude(${mapper.formatMeters(10.0)})",
+          "pdf_accuracy(${mapper.formatMeters(3.0)})",
         )
       )
     assertEquals(expected, result)
@@ -141,20 +150,13 @@ class TaskValueMapperTest {
     val value =
       CaptureLocationTaskData(Point(Coordinates(-1.0, 2.0)), altitude = null, accuracy = null)
 
-    val result = map(task(Task.Type.CAPTURE_LOCATION), value)
+    val result = mapper.map(task(Task.Type.CAPTURE_LOCATION), value)
 
     assertEquals(
-      Answer.Text(
-        listOf(
-          "${TaskValueMapper.formatDegrees(1.0)} south, ${TaskValueMapper.formatDegrees(2.0)} east"
-        )
-      ),
+      Answer.Text(listOf("${mapper.formatDegrees(1.0)} south, ${mapper.formatDegrees(2.0)} east")),
       result,
     )
   }
-
-  private suspend fun map(task: Task, value: TaskData) =
-    TaskValueMapper.map(task, value, dateFormatter, stringResolver)
 
   private fun task(type: Task.Type, multipleChoice: MultipleChoice? = null) =
     FakeDataGenerator.newTask(type = type, multipleChoice = multipleChoice)

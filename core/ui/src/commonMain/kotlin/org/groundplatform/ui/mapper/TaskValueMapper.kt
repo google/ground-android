@@ -42,29 +42,26 @@ import org.groundplatform.ui.model.SubmissionPdfDocument.Answer
 import org.groundplatform.ui.util.DateFormatter
 import org.groundplatform.ui.util.StringResolver
 
-object TaskValueMapper {
-  private const val DEGREES_DECIMALS = 6
+class TaskValueMapper(
+  private val strings: StringResolver,
+  private val dateFormatter: DateFormatter,
+) {
 
-  /** Maps a [TaskData] value to the [Answer] to be rendered in the submission PDF. */
-  suspend fun map(
-    task: Task,
-    value: TaskData,
-    dateFormatter: DateFormatter,
-    strings: StringResolver,
-  ): Answer =
+  /** Maps [Task] and [TaskData] values to the [Answer] to be rendered in the submission PDF. */
+  suspend fun map(task: Task, value: TaskData): Answer =
     when (value) {
       is SkippedTaskData -> Answer.Text(listOf(strings.resolve(Res.string.skipped)))
       is TextTaskData -> Answer.Text(listOf(value.text))
       is NumberTaskData -> Answer.Text(listOf(value.number))
       is DateTimeTaskData ->
-        Answer.Text(listOfNotNull(formatTaskDateTime(task, value.timeInMillis, dateFormatter)))
-      is MultipleChoiceTaskData -> Answer.Text(formatMultipleChoice(task, value, strings))
-      is CaptureLocationTaskData -> Answer.Text(formatCaptureLocation(value, strings))
+        Answer.Text(listOfNotNull(formatTaskDateTime(task, value.timeInMillis)))
+      is MultipleChoiceTaskData -> Answer.Text(formatMultipleChoice(task, value))
+      is CaptureLocationTaskData -> Answer.Text(formatCaptureLocation(value))
       is PhotoTaskData -> Answer.Photo(value.remoteFilename)
       else -> Answer.Text(emptyList())
     }
 
-  private fun formatTaskDateTime(task: Task, millis: Long, dateFormatter: DateFormatter): String? =
+  private fun formatTaskDateTime(task: Task, millis: Long): String? =
     when (task.type) {
       Task.Type.DATE -> dateFormatter.formatDate(millis)
       Task.Type.TIME -> dateFormatter.formatTime(millis)
@@ -74,7 +71,6 @@ object TaskValueMapper {
   private suspend fun formatMultipleChoice(
     task: Task,
     value: MultipleChoiceTaskData,
-    strings: StringResolver,
   ): List<String> {
     val options = task.multipleChoice?.options.orEmpty()
     val selectedLabels =
@@ -89,17 +85,14 @@ object TaskValueMapper {
   }
 
   /** Coordinates first, then optional altitude and accuracy lines. */
-  private suspend fun formatCaptureLocation(
-    value: CaptureLocationTaskData,
-    strings: StringResolver,
-  ): List<String> {
-    val lines = mutableListOf(formatPoint(value.location, strings))
+  private suspend fun formatCaptureLocation(value: CaptureLocationTaskData): List<String> {
+    val lines = mutableListOf(formatPoint(value.location))
     value.altitude?.let { lines.add(strings.resolve(Res.string.pdf_altitude, formatMeters(it))) }
     value.accuracy?.let { lines.add(strings.resolve(Res.string.pdf_accuracy, formatMeters(it))) }
     return lines
   }
 
-  private suspend fun formatPoint(point: Point, strings: StringResolver): String {
+  private suspend fun formatPoint(point: Point): String {
     val lat = point.coordinates.lat
     val lng = point.coordinates.lng
     val latDir =
@@ -114,4 +107,8 @@ object TaskValueMapper {
     "${value.absoluteValue.toFixedDecimals(DEGREES_DECIMALS)}°"
 
   @VisibleForTesting fun formatMeters(value: Double): String = round(value).toLong().toString()
+
+  companion object {
+    private const val DEGREES_DECIMALS = 6
+  }
 }
