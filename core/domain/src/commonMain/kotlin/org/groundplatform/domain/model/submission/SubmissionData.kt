@@ -36,8 +36,9 @@ data class SubmissionData(private val data: Map<String, TaskData?> = mapOf()) {
   fun copyWithDeltas(deltas: List<ValueDelta>): SubmissionData {
     val newData = data.toMutableMap()
     deltas.forEach {
-      if (it.newTaskData.isNotNullOrEmpty()) {
-        newData[it.taskId] = it.newTaskData
+      val newTaskData = it.newTaskData
+      if (newTaskData is SkippedTaskData || newTaskData.isNotNullOrEmpty()) {
+        newData[it.taskId] = newTaskData
       } else {
         newData.remove(it.taskId)
       }

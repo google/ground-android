@@ -15,18 +15,24 @@
  */
 package org.groundplatform.ui.system.pdf
 
+import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
-import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.Typeface
 import android.graphics.pdf.PdfDocument
 import android.text.Layout
+import android.text.SpannableString
+import android.text.Spanned
 import android.text.StaticLayout
 import android.text.TextPaint
 import android.text.TextUtils
+import android.text.style.StyleSpan
 import android.util.SizeF
+import androidx.core.graphics.scale
 import androidx.core.graphics.withTranslation
+import kotlin.math.roundToInt
 import org.groundplatform.ui.model.SubmissionPdfDocument
 import org.groundplatform.ui.model.SubmissionPdfDocument.Answer
 import org.groundplatform.ui.model.SubmissionPdfDocument.Footer
@@ -39,7 +45,7 @@ import org.groundplatform.ui.system.pdf.PdfConfig.CELL_PADDING
 import org.groundplatform.ui.system.pdf.PdfConfig.FOOTER_TOP_GAP
 import org.groundplatform.ui.system.pdf.PdfConfig.HEADER_BOTTOM_GAP
 import org.groundplatform.ui.system.pdf.PdfConfig.HEADER_COLUMN_GAP
-import org.groundplatform.ui.system.pdf.PdfConfig.HEADER_SIZE
+import org.groundplatform.ui.system.pdf.PdfConfig.IMAGE_RENDER_DPI
 import org.groundplatform.ui.system.pdf.PdfConfig.LINE_SPACING
 import org.groundplatform.ui.system.pdf.PdfConfig.MARGIN
 import org.groundplatform.ui.system.pdf.PdfConfig.MAX_FOOTER_LINES
@@ -48,7 +54,8 @@ import org.groundplatform.ui.system.pdf.PdfConfig.PAGE_HEIGHT
 import org.groundplatform.ui.system.pdf.PdfConfig.PAGE_WIDTH
 import org.groundplatform.ui.system.pdf.PdfConfig.PHOTO_MAX_HEIGHT
 import org.groundplatform.ui.system.pdf.PdfConfig.QR_SIZE
-import org.groundplatform.ui.system.pdf.PdfConfig.TABLE_QUESTION_RATIO
+import org.groundplatform.ui.system.pdf.PdfConfig.TITLE_SIZE
+import org.groundplatform.ui.system.pdf.PdfConfig.USABLE_WIDTH
 import org.groundplatform.ui.system.pdf.image.PdfImage
 import org.groundplatform.ui.system.pdf.image.PdfImageSet
 
@@ -56,9 +63,15 @@ import org.groundplatform.ui.system.pdf.image.PdfImageSet
  * Draws a [SubmissionPdfDocument] onto a [PdfDocument], one section at a time, paginating top-down.
  * Holds the mutable drawing state (current page, [Cursor], shared paints) shared by all sections.
  */
-internal class PdfWriter(private val pdf: PdfDocument, private val images: PdfImageSet) {
-  private val headerPaint = textPaint(HEADER_SIZE, bold = true)
+internal class PdfWriter(
+  private val pdf: PdfDocument,
+  private val images: PdfImageSet,
+  private val totalPages: Int? = null,
+) {
+  private val titlePaint = textPaint(TITLE_SIZE, bold = false)
   private val bodyPaint = textPaint(BODY_SIZE, bold = false)
+  private val metaTitlePaint = textPaint(CAPTION_SIZE, bold = true, textColor = Color.GRAY)
+  private val metaPaint = textPaint(CAPTION_SIZE, bold = false, textColor = Color.GRAY)
   private val captionPaint = textPaint(CAPTION_SIZE, bold = false)
   private val strokePaint =
     Paint().apply {
@@ -83,39 +96,38 @@ internal class PdfWriter(private val pdf: PdfDocument, private val images: PdfIm
   private var tableTopOnPage: Float? = null
 
   private var header: Header? = null
-  private var footerLayouts: FooterLayouts? = null
+  private var footerLayout: StaticLayout? = null
+  private val headerLayout: HeaderLayout
+    get() {
+      val columnWidth = (USABLE_WIDTH - 2 * HEADER_COLUMN_GAP) / 3
+      val startX = MARGIN.toFloat()
+
+      return HeaderLayout(
+        leftColumnX = startX,
+        centerColumnX = startX + columnWidth + HEADER_COLUMN_GAP,
+        rightColumnX = startX + 2 * (columnWidth + HEADER_COLUMN_GAP),
+        columnWidth = columnWidth,
+      )
+    }
+
+  val pageCount: Int
+    get() = pageIndex
 
   fun setHeader(header: Header) {
     this.header = header
   }
 
-  /** Pre-lays out the footer columns so its height is known up front. */
+  /** Pre-lays out the footer line so its height is known up front. */
   fun setFooter(footer: Footer) {
-    val cols = threeColumnLayout()
-    footerLayouts =
-      FooterLayouts(
-        label = staticLayout(footer.dataCollectorLabel, headerPaint, cols.colWidth, maxLines = 1),
-        name =
-          staticLayout(
-            footer.dataCollectorName,
-            bodyPaint,
-            cols.colWidth,
-            Layout.Alignment.ALIGN_CENTER,
-            MAX_FOOTER_LINES,
-          ),
-        email =
-          staticLayout(
-            footer.userEmail,
-            bodyPaint,
-            cols.colWidth,
-            Layout.Alignment.ALIGN_OPPOSITE,
-            MAX_FOOTER_LINES,
-          ),
-        leftX = cols.leftX,
-        centerX = cols.centerX,
-        rightX = cols.rightX,
-      )
-    cursor.footerReserve = footerLayouts!!.height + FOOTER_TOP_GAP
+    val label = footer.dataCollectorLabel
+    val text =
+      SpannableString("$label: ${footer.dataCollectorName}, ${footer.userEmail}").apply {
+        setSpan(StyleSpan(Typeface.BOLD), 0, label.length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
+      }
+    val layout =
+      staticLayout(text, metaPaint, PAGE_WIDTH - (2 * MARGIN), maxLines = MAX_FOOTER_LINES)
+    footerLayout = layout
+    cursor.footerReserve = layout.height + FOOTER_TOP_GAP
   }
 
   fun finalizePage() {
@@ -150,51 +162,58 @@ internal class PdfWriter(private val pdf: PdfDocument, private val images: PdfIm
   /** Survey | Job | Timestamp drawn at the top of every page. */
   private fun drawHeader() {
     val header = header ?: return
-    val cols = threeColumnLayout()
     val top = cursor.y
-    val surveyBottom =
-      drawLabeledColumn(header.surveyLabel, header.surveyName, cols.leftX, cols.colWidth, top)
-    val jobBottom =
-      drawLabeledColumn(
-        header.jobLabel,
-        header.jobName,
-        cols.centerX,
-        cols.colWidth,
+    val surveyLabel =
+      drawText(
+        header.surveyLabel,
+        headerLayout.leftColumnX,
         top,
+        headerLayout.columnWidth,
+        metaTitlePaint,
+        Layout.Alignment.ALIGN_NORMAL,
+      )
+    val surveyValue =
+      drawText(
+        header.surveyName,
+        headerLayout.leftColumnX,
+        surveyLabel + LINE_SPACING,
+        headerLayout.columnWidth,
+        metaPaint,
+        Layout.Alignment.ALIGN_NORMAL,
+        MAX_HEADER_VALUE_LINES,
+      )
+
+    val jobLabel =
+      drawText(
+        header.jobLabel,
+        headerLayout.centerColumnX,
+        top,
+        headerLayout.columnWidth,
+        metaTitlePaint,
         Layout.Alignment.ALIGN_CENTER,
       )
+    val jobValue =
+      drawText(
+        header.jobName,
+        headerLayout.centerColumnX,
+        jobLabel + LINE_SPACING,
+        headerLayout.columnWidth,
+        metaPaint,
+        Layout.Alignment.ALIGN_CENTER,
+        MAX_HEADER_VALUE_LINES,
+      )
+
     val timestampBottom =
       drawText(
         header.timestamp,
-        cols.rightX,
+        headerLayout.rightColumnX,
         top,
-        cols.colWidth,
-        bodyPaint,
+        headerLayout.columnWidth,
+        metaPaint,
         Layout.Alignment.ALIGN_OPPOSITE,
         MAX_HEADER_VALUE_LINES,
       )
-    cursor.moveTo(maxOf(surveyBottom, jobBottom, timestampBottom) + HEADER_BOTTOM_GAP)
-  }
-
-  /** Draws a bold [label] above its [value] in one header column; returns the column's bottom Y. */
-  private fun drawLabeledColumn(
-    label: String,
-    value: String,
-    x: Float,
-    width: Int,
-    top: Float,
-    alignment: Layout.Alignment = Layout.Alignment.ALIGN_NORMAL,
-  ): Float {
-    val afterLabel = drawText(label, x, top, width, headerPaint, alignment)
-    return drawText(
-      value,
-      x,
-      afterLabel + LINE_SPACING,
-      width,
-      bodyPaint,
-      alignment,
-      MAX_HEADER_VALUE_LINES,
-    )
+    cursor.moveTo(maxOf(surveyValue, jobValue, timestampBottom) + HEADER_BOTTOM_GAP)
   }
 
   /** QR code + scan caption, right-aligned. */
@@ -211,51 +230,38 @@ internal class PdfWriter(private val pdf: PdfDocument, private val images: PdfIm
     cursor.moveTo(y + LINE_SPACING * 2)
   }
 
-  /** Data Collector | Name | Email anchored to the bottom of every page. */
   private fun drawFooter() {
-    val footer = footerLayouts ?: return
-    val top = PAGE_HEIGHT - MARGIN - footer.height
-    drawStaticLayout(footer.label, footer.leftX, top)
-    drawStaticLayout(footer.name, footer.centerX, top)
-    drawStaticLayout(footer.email, footer.rightX, top)
+    val footer = footerLayout ?: return
+    val top = PAGE_HEIGHT - MARGIN - footer.height.toFloat()
+    drawStaticLayout(footer, MARGIN.toFloat(), top)
+    totalPages?.let { total ->
+      drawText(
+        text = "$pageIndex/$total",
+        x = MARGIN.toFloat(),
+        y = top,
+        maxWidth = USABLE_WIDTH,
+        paint = metaPaint,
+        alignment = Layout.Alignment.ALIGN_OPPOSITE,
+        maxLines = 1,
+      )
+    }
   }
-
-  /** Pre-laid-out footer columns and their X positions, sized once in [setFooter]. */
-  private class FooterLayouts(
-    val label: StaticLayout,
-    val name: StaticLayout,
-    val email: StaticLayout,
-    val leftX: Float,
-    val centerX: Float,
-    val rightX: Float,
-  ) {
-    val height: Float = maxOf(label.height, name.height, email.height).toFloat()
-  }
-
-  private fun threeColumnLayout(): ThreeColumns {
-    val usable = PAGE_WIDTH - 2 * MARGIN
-    val colWidth = (usable - 2 * HEADER_COLUMN_GAP) / 3
-    val leftX = MARGIN.toFloat()
-    val centerX = leftX + colWidth + HEADER_COLUMN_GAP
-    val rightX = centerX + colWidth + HEADER_COLUMN_GAP
-    return ThreeColumns(leftX, centerX, rightX, colWidth)
-  }
-
-  private data class ThreeColumns(
-    val leftX: Float,
-    val centerX: Float,
-    val rightX: Float,
-    val colWidth: Int,
-  )
 
   fun drawTable(table: SubmissionPdfDocument.Table) {
     val rows = table.rows.takeIf { it.isNotEmpty() } ?: return
     ensurePage()
-    val width = PAGE_WIDTH - 2 * MARGIN
     val x = MARGIN.toFloat()
     cursor.advance(LINE_SPACING * 2)
-    val label = "${table.submissionLabel}: ${table.loiName}"
-    cursor.moveTo(drawText(label, x, cursor.y, width, headerPaint))
+    val label =
+      SpannableString("${table.submissionLabel}: ${table.loiName}").apply {
+        setSpan(
+          StyleSpan(Typeface.BOLD),
+          0,
+          table.submissionLabel.length,
+          Spanned.SPAN_INCLUSIVE_EXCLUSIVE,
+        )
+      }
+    cursor.moveTo(drawText(label, x, cursor.y, USABLE_WIDTH, titlePaint))
     cursor.advance(LINE_SPACING)
     rows.forEach { row ->
       when (val answer = row.answer) {
@@ -272,27 +278,36 @@ internal class PdfWriter(private val pdf: PdfDocument, private val images: PdfIm
   }
 
   private fun drawTableRow(questionText: String, answerText: String, photo: PdfImage?) {
-    val questionLayout = staticLayout(questionText, bodyPaint, TABLE.questionTextWidth)
+    val questionLayout = staticLayout(questionText, bodyPaint, PdfConfig.TABLE_TASK_TEXT_WIDTH)
     val answerLayout =
-      if (answerText.isEmpty()) null else staticLayout(answerText, bodyPaint, TABLE.answerTextWidth)
-    val photoSize = photo?.let { fitInside(it, TABLE.answerTextWidth, PHOTO_MAX_HEIGHT) }
+      if (answerText.isEmpty()) null
+      else staticLayout(answerText, bodyPaint, PdfConfig.TABLE_ANSWER_TEXT_WIDTH)
+    val photoSize = photo?.let {
+      val scale =
+        minOf(
+          PdfConfig.TABLE_ANSWER_TEXT_WIDTH.toFloat() / it.width,
+          PHOTO_MAX_HEIGHT.toFloat() / it.height,
+          1f,
+        )
+      SizeF(it.width * scale, it.height * scale)
+    }
     val rowHeight = computeRowHeight(questionLayout, answerLayout, photoSize)
 
     newPageIfShort(rowHeight)
     val left = MARGIN.toFloat()
     if (tableTopOnPage == null) {
       tableTopOnPage = cursor.y
-      canvas().drawLine(left, cursor.y, left + TABLE.width, cursor.y, strokePaint)
+      canvas().drawLine(left, cursor.y, left + USABLE_WIDTH, cursor.y, strokePaint)
     }
 
     val top = cursor.y
-    val midX = left + TABLE.questionColWidth
+    val midX = left + PdfConfig.TABLE_TASK_COLUMN_WIDTH
 
     drawStaticLayout(questionLayout, left + CELL_PADDING, top + CELL_PADDING)
     drawAnswerCell(midX, top, answerLayout, photo, photoSize)
     cursor.advance(rowHeight)
 
-    canvas().drawLine(left, cursor.y, left + TABLE.width, cursor.y, strokePaint)
+    canvas().drawLine(left, cursor.y, left + USABLE_WIDTH, cursor.y, strokePaint)
   }
 
   private fun computeRowHeight(
@@ -310,7 +325,7 @@ internal class PdfWriter(private val pdf: PdfDocument, private val images: PdfIm
   /** Draws the single vertical divider for the current page's table slice and clears the marker. */
   private fun flushTableDivider() {
     val top = tableTopOnPage ?: return
-    val midX = MARGIN + TABLE.questionColWidth.toFloat()
+    val midX = MARGIN + PdfConfig.TABLE_TASK_COLUMN_WIDTH.toFloat()
     canvas().drawLine(midX, top, midX, cursor.y, strokePaint)
     tableTopOnPage = null
   }
@@ -329,20 +344,22 @@ internal class PdfWriter(private val pdf: PdfDocument, private val images: PdfIm
       y += it.height + LINE_SPACING
     }
     if (photo != null && photoSize != null) {
-      // Centre horizontally within the answer cell.
-      val photoX = cellLeft + (TABLE.answerTextWidth - photoSize.width) / 2f
       canvas()
         .drawImage(
           photo,
-          RectF(photoX, y, photoX + photoSize.width, y + photoSize.height),
+          RectF(cellLeft, y, cellLeft + photoSize.width, y + photoSize.height),
           photoPaint,
         )
     }
   }
 
-  /** Lays out [text] and draws it at ([x], [y]); returns the Y just below the drawn text. */
+  /**
+   * Lays out [text] and draws it at ([x], [y])
+   *
+   * @return the Y just below the drawn text.
+   */
   private fun drawText(
-    text: String,
+    text: CharSequence,
     x: Float,
     y: Float,
     maxWidth: Int,
@@ -360,10 +377,10 @@ internal class PdfWriter(private val pdf: PdfDocument, private val images: PdfIm
     canvas().withTranslation(x, y) { layout.draw(this) }
   }
 
-  /** A text paint at [size] points, [bold] for labels. */
-  private fun textPaint(size: Float, bold: Boolean): TextPaint =
+  private fun textPaint(size: Float, bold: Boolean, textColor: Int = Color.BLACK): TextPaint =
     TextPaint().apply {
       textSize = size
+      color = textColor
       isAntiAlias = true
       if (bold) typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
     }
@@ -373,7 +390,7 @@ internal class PdfWriter(private val pdf: PdfDocument, private val images: PdfIm
    * single long value can't grow the layout unboundedly.
    */
   private fun staticLayout(
-    text: String,
+    text: CharSequence,
     paint: TextPaint,
     maxWidth: Int,
     alignment: Layout.Alignment = Layout.Alignment.ALIGN_NORMAL,
@@ -391,27 +408,48 @@ internal class PdfWriter(private val pdf: PdfDocument, private val images: PdfIm
       .build()
 
   /**
-   * Scales [image] to fit within [maxWidth] x [maxHeight], keeping aspect ratio, never upscaling.
+   * Draws [image] scaled to fill [frame], scaling it down beforehand to avoid embedding
+   * full-resolution bitmaps into the PDF.
    */
-  private fun fitInside(image: PdfImage, maxWidth: Int, maxHeight: Int): SizeF {
-    val scale = minOf(maxWidth.toFloat() / image.width, maxHeight.toFloat() / image.height, 1f)
-    return SizeF(image.width * scale, image.height * scale)
+  private fun Canvas.drawImage(image: PdfImage, frame: RectF, paint: Paint?) {
+    val bitmap = image.bitmap.downscaledFor(frame.width(), frame.height())
+    drawBitmap(bitmap, null, frame, paint)
   }
 
-  /** Draws [image] scaled to fill [dst]. */
-  private fun Canvas.drawImage(image: PdfImage, dst: RectF, paint: Paint?) {
-    drawBitmap(image.bitmap, Rect(0, 0, image.bitmap.width, image.bitmap.height), dst, paint)
-  }
-}
+  /**
+   * Returns a bitmap scaled down to fit [widthPt] × [heightPt] at [IMAGE_RENDER_DPI], preserving
+   * aspect ratio and never upscaling.
+   *
+   * Uses progressive halving (mipmap-like downsampling) for better quality and efficiency.
+   * Intermediate bitmaps are recycled; the returned bitmap may be reused later by PDF rendering.
+   */
+  private fun Bitmap.downscaledFor(widthPt: Float, heightPt: Float): Bitmap {
+    val maxWidth = PdfConfig.pointsToRenderPixels(widthPt)
+    val maxHeight = PdfConfig.pointsToRenderPixels(heightPt)
+    if (width <= maxWidth && height <= maxHeight) return this
+    val ratio = minOf(maxWidth.toFloat() / width, maxHeight.toFloat() / height)
+    val targetWidth = (width * ratio).roundToInt().coerceAtLeast(1)
+    val targetHeight = (height * ratio).roundToInt().coerceAtLeast(1)
 
-/** Column widths for the question/answer table. */
-private val TABLE = run {
-  val tableWidth = PAGE_WIDTH - 2 * MARGIN
-  val questionColWidth = (tableWidth * TABLE_QUESTION_RATIO).toInt()
-  object {
-    val width = tableWidth
-    val questionColWidth = questionColWidth
-    val questionTextWidth = questionColWidth - 2 * CELL_PADDING
-    val answerTextWidth = tableWidth - questionColWidth - 2 * CELL_PADDING
+    var current = this
+    var w = width
+    var h = height
+    while (w / 2 >= targetWidth && h / 2 >= targetHeight) {
+      w /= 2
+      h /= 2
+      val halved = current.scale(w, h)
+      if (current !== this) current.recycle()
+      current = halved
+    }
+    val result = current.scale(targetWidth, targetHeight)
+    if (current !== this) current.recycle()
+    return result
   }
+
+  private data class HeaderLayout(
+    val leftColumnX: Float,
+    val centerColumnX: Float,
+    val rightColumnX: Float,
+    val columnWidth: Int,
+  )
 }

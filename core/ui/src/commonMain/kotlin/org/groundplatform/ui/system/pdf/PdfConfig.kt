@@ -15,6 +15,8 @@
  */
 package org.groundplatform.ui.system.pdf
 
+import kotlin.math.roundToInt
+
 /**
  * Dimensional and type-scale constants shared by the Android and iOS PDF renderers. Keeping these
  * in commonMain prevents the two platforms from drifting on page size, margins, or type scale.
@@ -25,18 +27,28 @@ object PdfConfig {
   const val PAGE_WIDTH = 595
   const val PAGE_HEIGHT = 842
   const val MARGIN = 40
-  const val HEADER_SIZE = 11f
+  const val TITLE_SIZE = 11f
   const val BODY_SIZE = 11f
   const val CAPTION_SIZE = 9f
   const val LINE_SPACING = 4f
   const val QR_SIZE = 200
   const val HEADER_COLUMN_GAP = 16
-  const val TABLE_QUESTION_RATIO = 0.35f
+  const val TABLE_TASK_LABEL_RATIO = 0.35f
   const val CELL_PADDING = 6
   const val BORDER_WIDTH = 0.5f
-  const val PHOTO_MAX_HEIGHT = 360
+  const val PHOTO_MAX_HEIGHT_RATIO = 0.35f
   const val HEADER_BOTTOM_GAP = 28f
   const val FOOTER_TOP_GAP = 28f
-  const val MAX_HEADER_VALUE_LINES = 2
-  const val MAX_FOOTER_LINES = 2
+  const val MAX_HEADER_VALUE_LINES = 1
+  const val MAX_FOOTER_LINES = 1
+  const val IMAGE_RENDER_DPI = 300f
+  const val USABLE_WIDTH = PAGE_WIDTH - 2 * MARGIN
+  const val TABLE_TASK_COLUMN_WIDTH = (USABLE_WIDTH * TABLE_TASK_LABEL_RATIO).toInt()
+  const val TABLE_TASK_TEXT_WIDTH = TABLE_TASK_COLUMN_WIDTH - 2 * CELL_PADDING
+  const val TABLE_ANSWER_TEXT_WIDTH = USABLE_WIDTH - TABLE_TASK_COLUMN_WIDTH - 2 * CELL_PADDING
+  const val PHOTO_MAX_HEIGHT = ((PAGE_HEIGHT - 2 * MARGIN) * PHOTO_MAX_HEIGHT_RATIO).toInt()
+
+  fun pointsToRenderPixels(points: Float): Int =
+    // 1 point = 1/72 inch (standard PDF user-space unit)
+    (points / 72f * IMAGE_RENDER_DPI).roundToInt()
 }

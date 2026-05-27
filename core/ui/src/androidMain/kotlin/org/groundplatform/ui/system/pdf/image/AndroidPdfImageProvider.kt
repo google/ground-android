@@ -27,6 +27,9 @@ import androidx.exifinterface.media.ExifInterface
 import java.io.File
 import org.groundplatform.ui.components.qrcode.PDF_LOGO_SIZE_FRACTION
 import org.groundplatform.ui.components.qrcode.generateQrBitmap
+import org.groundplatform.ui.system.pdf.PdfConfig
+import org.groundplatform.ui.system.pdf.PdfConfig.PHOTO_MAX_HEIGHT
+import org.groundplatform.ui.system.pdf.PdfConfig.TABLE_ANSWER_TEXT_WIDTH
 
 /**
  * Android implementation of [PdfImageProvider].
@@ -79,9 +82,32 @@ class AndroidPdfImageProvider(
     val filename = remoteFilename.substringAfterLast('/')
     val file = File(rootDir, filename)
     if (!file.exists()) return null
-    val bitmap =
-      runCatching { BitmapFactory.decodeFile(file.absolutePath) }.getOrNull() ?: return null
+    val bitmap = runCatching { decodeSubsampled(file.absolutePath) }.getOrNull() ?: return null
     return applyExifOrientation(file, bitmap)
+  }
+
+  /** Decodes the photo subsampled to roughly the largest size it can occupy in the PDF */
+  private fun decodeSubsampled(path: String): Bitmap? {
+    val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+    BitmapFactory.decodeFile(path, bounds)
+    val photoMaxWidthPx = PdfConfig.pointsToRenderPixels(TABLE_ANSWER_TEXT_WIDTH.toFloat())
+    val photoMaxHeightPx = PdfConfig.pointsToRenderPixels(PHOTO_MAX_HEIGHT.toFloat())
+    // Orientation isn't known yet, so size against the larger target on both axes to be safe.
+    val target = maxOf(photoMaxWidthPx, photoMaxHeightPx)
+    val options =
+      BitmapFactory.Options().apply {
+        inSampleSize = calculateInSampleSize(bounds.outWidth, bounds.outHeight, target)
+      }
+    return BitmapFactory.decodeFile(path, options)
+  }
+
+  /** Largest power-of-two sample size that keeps both dimensions at or above [target] pixels. */
+  private fun calculateInSampleSize(width: Int, height: Int, target: Int): Int {
+    var sampleSize = 1
+    while (width / (sampleSize * 2) >= target && height / (sampleSize * 2) >= target) {
+      sampleSize *= 2
+    }
+    return sampleSize
   }
 
   /**
