@@ -57,6 +57,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
 
   @Inject lateinit var ephemeralPopups: EphemeralPopups
   @Inject lateinit var pdfExportService: PdfExportService
+  @Inject lateinit var loiReportMapper: LoiReportMapper
 
   private lateinit var mapContainerViewModel: HomeScreenMapContainerViewModel
   private lateinit var homeScreenViewModel: HomeScreenViewModel
@@ -234,7 +235,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
         }
 
     lifecycleScope.launch {
-      val request = LoiReportMapper.map(loiReport, submission)
+      val request = loiReportMapper.map(loiReport, submission)
       if (request == null) {
         ephemeralPopups.ErrorPopup().unknownError()
         return@launch

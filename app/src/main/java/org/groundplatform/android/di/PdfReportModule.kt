@@ -26,6 +26,8 @@ import kotlinx.coroutines.CoroutineDispatcher
 import org.groundplatform.android.BuildConfig
 import org.groundplatform.android.R
 import org.groundplatform.android.di.coroutines.IoDispatcher
+import org.groundplatform.ui.mapper.LoiReportMapper
+import org.groundplatform.ui.mapper.TaskValueMapper
 import org.groundplatform.ui.system.pdf.AndroidPdfRenderer
 import org.groundplatform.ui.system.pdf.PdfExportService
 import org.groundplatform.ui.system.pdf.PdfRenderer
@@ -35,6 +37,8 @@ import org.groundplatform.ui.system.pdf.io.AndroidPdfOutputProvider
 import org.groundplatform.ui.system.pdf.io.AndroidPdfReportLauncher
 import org.groundplatform.ui.system.pdf.io.PdfOutputProvider
 import org.groundplatform.ui.system.pdf.io.PdfReportLauncher
+import org.groundplatform.ui.util.DateFormatter
+import org.groundplatform.ui.util.StringResolver
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -51,6 +55,26 @@ object PdfReportModule {
     AndroidPdfOutputProvider(context)
 
   @Provides @Singleton fun providePdfRenderer(): PdfRenderer = AndroidPdfRenderer()
+
+  @Provides
+  @Singleton
+  fun provideTaskValueMapper(
+    strings: StringResolver,
+    dateFormatter: DateFormatter,
+  ): TaskValueMapper = TaskValueMapper(strings = strings, dateFormatter = dateFormatter)
+
+  @Provides
+  @Singleton
+  fun provideLoiReportMapper(
+    taskValueMapper: TaskValueMapper,
+    strings: StringResolver,
+    dateFormatter: DateFormatter,
+  ): LoiReportMapper =
+    LoiReportMapper(
+      taskValueMapper = taskValueMapper,
+      strings = strings,
+      dateFormatter = dateFormatter,
+    )
 
   @Provides
   @Singleton

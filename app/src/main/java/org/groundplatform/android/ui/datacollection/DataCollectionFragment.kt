@@ -41,6 +41,7 @@ import org.groundplatform.ui.system.pdf.PdfExportService
 class DataCollectionFragment : AbstractFragment(), BackPressListener {
   @Inject lateinit var popups: EphemeralPopups
   @Inject lateinit var pdfExportService: PdfExportService
+  @Inject lateinit var loiReportMapper: LoiReportMapper
 
   val viewModel: DataCollectionViewModel by hiltNavGraphViewModels(R.id.data_collection)
 
@@ -113,7 +114,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
         }
 
     lifecycleScope.launch {
-      val request = LoiReportMapper.map(loiReport, submission)
+      val request = loiReportMapper.map(loiReport, submission)
       if (request == null) {
         popups.ErrorPopup().unknownError()
         return@launch

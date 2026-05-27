@@ -23,19 +23,21 @@ import ground_android.core.ui.generated.resources.submission
 import ground_android.core.ui.generated.resources.survey
 import org.groundplatform.domain.model.locationofinterest.LoiReport
 import org.groundplatform.domain.model.submission.Submission
-import org.groundplatform.domain.model.task.PhotoTaskData
 import org.groundplatform.ui.model.SubmissionPdfDocument
-import org.groundplatform.ui.model.SubmissionPdfDocument.Answer
 import org.groundplatform.ui.model.SubmissionPdfDocument.Footer
 import org.groundplatform.ui.model.SubmissionPdfDocument.Header
 import org.groundplatform.ui.model.SubmissionPdfDocument.QrBlock
 import org.groundplatform.ui.model.SubmissionPdfDocument.Row
 import org.groundplatform.ui.system.pdf.PdfExportService
-import org.groundplatform.ui.util.formatDate
-import org.groundplatform.ui.util.formatTime
-import org.jetbrains.compose.resources.getString
+import org.groundplatform.ui.util.DateFormatter
+import org.groundplatform.ui.util.StringResolver
 
-object LoiReportMapper {
+/** Maps an [LoiReport] and its [Submission] to a [PdfExportService.Request]. */
+class LoiReportMapper(
+  private val taskValueMapper: TaskValueMapper,
+  private val strings: StringResolver,
+  private val dateFormatter: DateFormatter,
+) {
 
   suspend fun map(loiReport: LoiReport, submission: Submission): PdfExportService.Request? {
     val details = loiReport.submissionDetails ?: return null
@@ -47,7 +49,7 @@ object LoiReportMapper {
         footer = buildFooter(details),
         table =
           SubmissionPdfDocument.Table(
-            submissionLabel = getString(Res.string.submission),
+            submissionLabel = strings.resolve(Res.string.submission),
             loiName = loiReport.loiName,
             rows = rows,
           ),
@@ -69,19 +71,20 @@ object LoiReportMapper {
     submission: Submission,
   ): Header =
     Header(
-      surveyLabel = getString(Res.string.survey),
+      surveyLabel = strings.resolve(Res.string.survey),
       surveyName = details.surveyName,
-      jobLabel = getString(Res.string.job),
+      jobLabel = strings.resolve(Res.string.job),
       jobName = submission.job.name ?: submission.job.id,
-      timestamp = "${formatDate(details.dateMillis)} ${formatTime(details.dateMillis)}",
+      timestamp =
+        "${dateFormatter.formatDate(details.dateMillis)} ${dateFormatter.formatTime(details.dateMillis)}",
     )
 
   private suspend fun buildQrBlock(): QrBlock =
-    QrBlock(scanCaption = getString(Res.string.scan_this_qr_to_download_geojson))
+    QrBlock(scanCaption = strings.resolve(Res.string.scan_this_qr_to_download_geojson))
 
   private suspend fun buildFooter(details: LoiReport.SubmissionDetails): Footer =
     Footer(
-      dataCollectorLabel = getString(Res.string.pdf_details_data_collector_label),
+      dataCollectorLabel = strings.resolve(Res.string.pdf_details_data_collector_label),
       dataCollectorName = details.userName,
       userEmail = details.userEmail,
     )
@@ -92,14 +95,7 @@ object LoiReportMapper {
 
       val value = submission.data.getValue(task.id) ?: return@mapNotNull null
 
-      Row(
-        question = task.label,
-        answer =
-          when (value) {
-            is PhotoTaskData -> Answer.Photo(value.remoteFilename)
-            else -> Answer.Text(TaskValueMapper.map(task, value).split("\n"))
-          },
-      )
+      Row(question = task.label, answer = taskValueMapper.map(task, value))
     }
 
   private fun isSafeFileChar(c: Char): Boolean = c.isLetterOrDigit() || c in "_-"
