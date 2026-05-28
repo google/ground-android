@@ -125,7 +125,6 @@
   <string name="read_only_data_collection_hint">ແບບສຳຫຼວດເປັນແບບເບິ່ງຢ່າງດຽວ</string>
   <string name="no_submissions">ບໍ່ມີການສົ່ງຂໍ້ມູນ</string>
   <string name="dismiss_info_popup">ປິດແຈ້ງເຕືອນ</string>
-  <string name="other">ອື່ນໆ</string>
   <plurals name="submission_count">
     <item quantity="other">%d ການສົ່ງຂໍ້ມູນ</item>
   </plurals>
@@ -206,7 +205,6 @@
   <string name="photo_save_failed_title">ຂໍ້ຜິດພາດໃນການບັນທຶກ</string>
   <string name="photo_save_failed_desc">ບໍ່ສາມາດບັນທຶກຮູບພາບທີ່ຖ່າຍໄດ້. ກະລຸນາລອງໃໝ່ອີກຄັ້ງ.</string>
   <string name="share_location">ແບ່ງປັນຕຳແໜ່ງ</string>
-  <string name="scan_this_qr_to_download_geojson">ສະແກນ QR ນີ້ເພື່ອເບິ່ງ GeoJSON</string>
 
   <string name="join_survey">ເຂົ້າຮ່ວມແບບສຳຫຼວດ</string>
   <string name="invalid_survey_qr_code">ບໍ່ຮັບຮູ້ລະຫັດ QR ແບບສຳຫຼວດນີ້</string>

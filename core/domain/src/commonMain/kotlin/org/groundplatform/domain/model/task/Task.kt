@@ -49,4 +49,7 @@ data class Task(
     CAPTURE_LOCATION,
     INSTRUCTIONS,
   }
+
+  fun isOmittedFromDocExport(): Boolean =
+    type == Type.DROP_PIN || type == Type.DRAW_AREA || type == Type.INSTRUCTIONS
 }
