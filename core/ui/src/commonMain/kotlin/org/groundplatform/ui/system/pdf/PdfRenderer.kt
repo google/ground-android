@@ -13,11 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.ui.components.qrcode
+package org.groundplatform.ui.system.pdf
 
-import androidx.compose.ui.graphics.ImageBitmap
+import org.groundplatform.ui.model.SubmissionPdfDocument
+import org.groundplatform.ui.system.pdf.render.image.PdfImageSet
 
-actual fun generateQrBitmap(content: String, useHighEcc: Boolean): ImageBitmap =
-  // The JVM target exists only to unit-test platform-independent logic, so QR generation is
-  // intentionally unimplemented here.
-  throw UnsupportedOperationException("QR code generation is not supported on the JVM target")
+/**
+ * Rasterises a [SubmissionPdfDocument] to a PDF file. Each platform should use its native text
+ * layout and PDF APIs to handle wrapping, pagination, and drawing. Writes the result to the
+ * provided output path.
+ */
+interface PdfRenderer {
+  suspend fun render(document: SubmissionPdfDocument, images: PdfImageSet, outputPath: String)
+}
