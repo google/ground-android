@@ -19,4 +19,13 @@
   <string name="share">แชร์</string>
   <string name="pdf_details_site">ไซต์: %1$s</string>
   <string name="pdf_details_data_collector">ผู้เก็บข้อมูล: %1$s</string>
+  <string name="scan_this_qr_to_download_geojson">สแกนคิวอาร์โค้ดนี้เพื่อดู GeoJSON</string>
+  <string name="other">อื่น ๆ</string>
+  <string name="skipped">ข้าม</string>
+  <string name="pdf_altitude">ความสูง: %1$s ม.</string>
+  <string name="pdf_accuracy">ความแม่นยำ: %1$s ม.</string>
+  <string name="north">ท.เหนือ</string>
+  <string name="south">ท.ใต้</string>
+  <string name="east">ต.ออก</string>
+  <string name="west">ต.ตก</string>
 </resources>

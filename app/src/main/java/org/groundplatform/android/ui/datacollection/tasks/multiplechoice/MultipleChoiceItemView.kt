@@ -37,13 +37,14 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import org.groundplatform.android.R
+import ground_android.core.ui.generated.resources.Res
+import ground_android.core.ui.generated.resources.other
 import org.groundplatform.android.common.Constants
+import org.jetbrains.compose.resources.stringResource
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.domain.model.task.MultipleChoice
 import org.groundplatform.domain.model.task.Option
@@ -148,7 +149,7 @@ private fun OtherTextField(
 
 @Composable
 private fun MultipleChoiceItem.toTextLabel() =
-  AnnotatedString(if (isOtherOption) stringResource(id = R.string.other) else option.label)
+  AnnotatedString(if (isOtherOption) stringResource(Res.string.other) else option.label)
 
 @Preview(backgroundColor = 0xFFFFFFFF, showBackground = true)
 @Composable

@@ -30,10 +30,13 @@ kotlin {
     compileSdk = libs.versions.androidCompileSdk.get().toInt()
     minSdk = libs.versions.androidMinSdk.get().toInt()
     androidResources.enable = true
+
+    withHostTest { isIncludeAndroidResources = true }
   }
 
-  val xcfName = "GroundUiKit"
+  jvm()
 
+  val xcfName = "GroundUiKit"
   listOf(iosArm64(), iosSimulatorArm64()).forEach {
     it.binaries.framework {
       baseName = xcfName
@@ -44,6 +47,7 @@ kotlin {
   sourceSets {
     commonMain {
       dependencies {
+        implementation(project(":core:domain"))
         implementation(libs.compose.runtime)
         implementation(libs.compose.foundation)
         implementation(libs.compose.material3)
@@ -51,12 +55,26 @@ kotlin {
         implementation(libs.compose.ui.tooling.preview)
         implementation(libs.compose.components.resources)
         implementation(libs.androidx.lifecycle.runtime.compose)
+        implementation(libs.kotlinx.collections.immutable)
       }
     }
 
-    commonTest { dependencies { implementation(libs.kotlin.test) } }
+    commonTest {
+      dependencies {
+        implementation(project(":core:testing"))
+        implementation(libs.kotlin.test)
+        implementation(libs.kotlinx.coroutines.test)
+      }
+    }
 
     androidMain { dependencies { implementation(libs.google.zxing) } }
+
+    val androidHostTest by getting {
+      dependencies {
+        implementation(libs.junit)
+        implementation(libs.robolectric)
+      }
+    }
 
     iosMain { dependencies {} }
   }

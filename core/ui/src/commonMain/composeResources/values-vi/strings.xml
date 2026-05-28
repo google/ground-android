@@ -19,4 +19,13 @@
   <string name="share">Chia sẻ</string>
   <string name="pdf_details_site">Địa điểm: %1$s</string>
   <string name="pdf_details_data_collector">Người thu thập dữ liệu: %1$s</string>
+  <string name="scan_this_qr_to_download_geojson">Quét mã QR này để xem GeoJSON</string>
+  <string name="other">Khác</string>
+  <string name="skipped">Bỏ qua</string>
+  <string name="pdf_altitude">Độ cao: %1$sm</string>
+  <string name="pdf_accuracy">Độ chính xác: %1$sm</string>
+  <string name="north">Bắc</string>
+  <string name="south">Nam</string>
+  <string name="east">Đông</string>
+  <string name="west">Tây</string>
 </resources>
