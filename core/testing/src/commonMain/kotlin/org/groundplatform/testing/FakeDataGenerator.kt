@@ -264,9 +264,5 @@ object FakeDataGenerator {
     geoJson: JsonObject = JsonObject(emptyMap()),
     submissionDetails: LoiReport.SubmissionDetails? = newSubmissionDetails(),
   ): LoiReport =
-    LoiReport(
-      loiName = loiName,
-      geoJson = geoJson,
-      submissionDetails = submissionDetails,
-    )
+    LoiReport(loiName = loiName, geoJson = geoJson, submissionDetails = submissionDetails)
 }

@@ -24,7 +24,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import kotlin.time.Clock
 import kotlinx.serialization.json.JsonObject
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.domain.model.job.Job
@@ -100,11 +99,7 @@ private fun DataCollectionContentCompletePreview() {
       uiState =
         DataCollectionUiState.TaskSubmitted(
           loiReport =
-            LoiReport(
-              loiName = "Point A",
-              geoJson = JsonObject(mapOf()),
-              submissionDetails = null
-            )
+            LoiReport(loiName = "Point A", geoJson = JsonObject(mapOf()), submissionDetails = null)
         ),
       onCloseClicked = {},
     ) {
