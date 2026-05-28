@@ -18,7 +18,7 @@ package org.groundplatform.ui.system.pdf.image
 import android.graphics.Bitmap
 
 /** Android wraps a [Bitmap]. The renderer reads [bitmap] directly to draw on a Canvas. */
-actual class PdfImage(val bitmap: Bitmap) {
+actual data class PdfImage(val bitmap: Bitmap) {
   actual val width: Int
     get() = bitmap.width
 

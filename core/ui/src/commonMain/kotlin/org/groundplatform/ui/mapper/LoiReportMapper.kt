@@ -103,5 +103,5 @@ class LoiReportMapper(
     }
 
   private fun isSafeFileChar(c: Char): Boolean =
-    (c in 'a'..'z') || (c in 'A'..'Z') || (c in '0'..'9') || c in "_-"
+    c in 'a'..'z' || c in 'A'..'Z' || c in '0'..'9' || c in "_-"
 }

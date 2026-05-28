@@ -291,7 +291,7 @@ internal class PdfWriter(
   }
 
   /**
-   * Lays out [text] and draws it at ([x], [y])
+   * Lays out [text] and draws it at ([x], [y]).
    *
    * @return the Y just below the drawn text.
    */

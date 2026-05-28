@@ -21,7 +21,7 @@ import platform.CoreGraphics.CGImageGetWidth
 import platform.CoreGraphics.CGImageRef
 
 @OptIn(ExperimentalForeignApi::class)
-actual class PdfImage(val cgImage: CGImageRef) {
+actual data class PdfImage(val cgImage: CGImageRef) {
   actual val width: Int
     get() = CGImageGetWidth(cgImage).toInt()
 

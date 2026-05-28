@@ -48,16 +48,15 @@ class TaskValueMapper(
 ) {
 
   /** Maps [Task] and [TaskData] values to the [Answer] to be rendered in the submission PDF. */
-  suspend fun map(task: Task, value: TaskData, dateFormatter: DateFormatter): Answer =
+  suspend fun map(task: Task, value: TaskData): Answer =
     when (value) {
       is SkippedTaskData -> Answer.Text(listOf(strings.resolve(Res.string.skipped)))
       is TextTaskData -> Answer.Text(listOf(value.text))
       is NumberTaskData -> Answer.Text(listOf(value.number))
       is DateTimeTaskData ->
         Answer.Text(listOfNotNull(formatTaskDateTime(task, value.timeInMillis)))
-      is MultipleChoiceTaskData -> Answer.Text(formatMultipleChoice(task, value)))
+      is MultipleChoiceTaskData -> Answer.Text(formatMultipleChoice(task, value))
       is CaptureLocationTaskData -> Answer.Text(formatCaptureLocation(value))
-      is PhotoTaskData -> Answer.Photo(value.remoteFilename))
       is PhotoTaskData -> Answer.Photo(value.remoteFilename)
       else -> Answer.Text(emptyList())
     }

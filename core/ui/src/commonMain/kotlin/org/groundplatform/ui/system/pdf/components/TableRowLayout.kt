@@ -70,11 +70,10 @@ internal data class TableRowLayout(
 
       val rightTextOffset =
         if (rightTextHeight > 0f) PdfRenderer.Offset(rightCellLeft, contentTop) else null
-      val rightImageFrame =
-        if (rightImageSize != null) {
-          val y = contentTop + (rightTextOffset?.let { rightTextHeight + LINE_SPACING } ?: 0f)
-          PdfRenderer.Rect(rightCellLeft, y, rightImageSize.width, rightImageSize.height)
-        } else null
+      val rightImageFrame = rightImageSize?.let {
+        val y = contentTop + (rightTextOffset?.let { rightTextHeight + LINE_SPACING } ?: 0f)
+        PdfRenderer.Rect(rightCellLeft, y, rightImageSize.width, rightImageSize.height)
+      }
 
       return TableRowLayout(
         totalHeight = totalHeight,
