@@ -34,8 +34,6 @@ kotlin {
     withHostTest { isIncludeAndroidResources = true }
   }
 
-  jvm()
-
   val xcfName = "GroundUiKit"
   listOf(iosArm64(), iosSimulatorArm64()).forEach {
     it.binaries.framework {
@@ -56,6 +54,8 @@ kotlin {
         implementation(libs.compose.components.resources)
         implementation(libs.androidx.lifecycle.runtime.compose)
         implementation(libs.kotlinx.collections.immutable)
+        implementation(libs.kotlinx.coroutines.core)
+        implementation(libs.kotlinx.serialization.json)
       }
     }
 

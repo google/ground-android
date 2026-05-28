@@ -51,4 +51,11 @@ data class SubmissionPdfDocument(
     val dataCollectorName: String,
     val userEmail: String,
   )
+
+  /** The distinct, non-empty photo filenames referenced by the document's table rows. */
+  fun photoFilenames(): Set<String> =
+    table.rows
+      .mapNotNull { (it.answer as? Answer.Photo)?.remoteFilename }
+      .filter { it.isNotEmpty() }
+      .toSet()
 }
