@@ -15,17 +15,15 @@
  */
 package org.groundplatform.ui.system.pdf
 
-import kotlin.math.roundToInt
-
 /**
  * Dimensional and type-scale constants shared by the Android and iOS PDF renderers. Keeping these
  * in commonMain prevents the two platforms from drifting on page size, margins, or type scale.
  *
- * All measurements are in PDF points (1/72 inch); A4 is 595 × 842.
+ * All measurements are in PDF points (1/72 inch).
  */
-object PdfConfig {
-  const val PAGE_WIDTH = 595
-  const val PAGE_HEIGHT = 842
+internal object PdfConfig {
+  const val PAGE_WIDTH = 595 // A4 page width
+  const val PAGE_HEIGHT = 842 // A4 page height
   const val MARGIN = 40
   const val TITLE_SIZE = 11f
   const val BODY_SIZE = 11f
@@ -47,8 +45,7 @@ object PdfConfig {
   const val TABLE_TASK_TEXT_WIDTH = TABLE_TASK_COLUMN_WIDTH - 2 * CELL_PADDING
   const val TABLE_ANSWER_TEXT_WIDTH = USABLE_WIDTH - TABLE_TASK_COLUMN_WIDTH - 2 * CELL_PADDING
   const val PHOTO_MAX_HEIGHT = ((PAGE_HEIGHT - 2 * MARGIN) * PHOTO_MAX_HEIGHT_RATIO).toInt()
-
-  fun pointsToRenderPixels(points: Float): Int =
-    // 1 point = 1/72 inch (standard PDF user-space unit)
-    (points / 72f * IMAGE_RENDER_DPI).roundToInt()
+  const val PAGE_NUMBER_BAND_WIDTH = 60
+  const val FOOTER_PAGE_NUMBER_GAP = 8
+  const val FOOTER_TEXT_MAX_WIDTH = USABLE_WIDTH - PAGE_NUMBER_BAND_WIDTH - FOOTER_PAGE_NUMBER_GAP
 }

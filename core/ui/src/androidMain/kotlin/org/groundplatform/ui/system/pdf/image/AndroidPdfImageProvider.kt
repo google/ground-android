@@ -27,9 +27,9 @@ import androidx.exifinterface.media.ExifInterface
 import java.io.File
 import org.groundplatform.ui.components.qrcode.PDF_LOGO_SIZE_FRACTION
 import org.groundplatform.ui.components.qrcode.generateQrBitmap
-import org.groundplatform.ui.system.pdf.PdfConfig
 import org.groundplatform.ui.system.pdf.PdfConfig.PHOTO_MAX_HEIGHT
 import org.groundplatform.ui.system.pdf.PdfConfig.TABLE_ANSWER_TEXT_WIDTH
+import org.groundplatform.ui.system.pdf.PdfRenderer
 
 /**
  * Android implementation of [PdfImageProvider].
@@ -90,8 +90,8 @@ class AndroidPdfImageProvider(
   private fun decodeSubsampled(path: String): Bitmap? {
     val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
     BitmapFactory.decodeFile(path, bounds)
-    val photoMaxWidthPx = PdfConfig.pointsToRenderPixels(TABLE_ANSWER_TEXT_WIDTH.toFloat())
-    val photoMaxHeightPx = PdfConfig.pointsToRenderPixels(PHOTO_MAX_HEIGHT.toFloat())
+    val photoMaxWidthPx = PdfRenderer.pointsToRenderPixels(TABLE_ANSWER_TEXT_WIDTH.toFloat())
+    val photoMaxHeightPx = PdfRenderer.pointsToRenderPixels(PHOTO_MAX_HEIGHT.toFloat())
     // Orientation isn't known yet, so size against the larger target on both axes to be safe.
     val target = maxOf(photoMaxWidthPx, photoMaxHeightPx)
     val options =

@@ -15,11 +15,11 @@
  */
 package org.groundplatform.ui.system.pdf
 
-import org.groundplatform.ui.system.pdf.PdfConfig.MARGIN
-import org.groundplatform.ui.system.pdf.PdfConfig.PAGE_HEIGHT
-
 /** Tracks the current vertical draw position on a page and the space reserved for the footer. */
-internal class Cursor(private val pageHeight: Int = PAGE_HEIGHT, private val margin: Int = MARGIN) {
+internal class PdfCursor(
+  private val pageHeight: Int = PdfConfig.PAGE_HEIGHT,
+  private val margin: Int = PdfConfig.MARGIN,
+) {
   /** Space kept clear above the bottom margin for the footer; set once the footer is known. */
   var footerReserve: Float = 0f
 

@@ -54,10 +54,14 @@ class LoiReportMapper(
             rows = rows,
           ),
       )
+    val timestamp =
+      "${dateFormatter.formatDate(details.dateMillis)}_${dateFormatter.formatTime(details.dateMillis)}"
     val fileName =
-      listOf(loiReport.loiName, details.userName, details.dateMillis.toString())
-        .joinToString("_") { it.filter(::isSafeFileChar) }
-        .trim('_')
+      listOf(details.surveyName, loiReport.loiName, details.userName, timestamp)
+        .map { it.filter(::isSafeFileChar) }
+        .filter { it.isNotBlank() }
+        .joinToString("_")
+        .take(200)
 
     return PdfExportService.Request(
       document = document,
@@ -98,5 +102,6 @@ class LoiReportMapper(
       Row(question = task.label, answer = taskValueMapper.map(task, value))
     }
 
-  private fun isSafeFileChar(c: Char): Boolean = c.isLetterOrDigit() || c in "_-"
+  private fun isSafeFileChar(c: Char): Boolean =
+    (c in 'a'..'z') || (c in 'A'..'Z') || (c in '0'..'9') || c in "_-"
 }

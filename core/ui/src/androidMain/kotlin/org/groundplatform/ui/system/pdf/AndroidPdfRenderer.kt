@@ -32,12 +32,17 @@ class AndroidPdfRenderer : PdfRenderer {
     outputPath: String,
   ) {
     // First pass counts the pages so the footer can show "page/total"; the second renders for real.
-    // Pagination is identical across passes since the page number adds no height to the footer
-    // line.
     val totalPages = measurePageCount(document, images)
     val pdf = PdfDocument()
     try {
-      PdfWriter(pdf, images, totalPages).draw(document)
+      PdfWriter(
+          pdf = pdf,
+          images = images,
+          header = document.header,
+          footer = document.footer,
+          totalPages = totalPages,
+        )
+        .draw(document)
       File(outputPath).outputStream().use { pdf.writeTo(it) }
     } finally {
       pdf.close()
@@ -47,15 +52,15 @@ class AndroidPdfRenderer : PdfRenderer {
   private fun measurePageCount(document: SubmissionPdfDocument, images: PdfImageSet): Int {
     val pdf = PdfDocument()
     return try {
-      PdfWriter(pdf, images).draw(document).pageCount
+      PdfWriter(pdf = pdf, images = images, header = document.header, footer = document.footer)
+        .draw(document)
+        .pageCount
     } finally {
       pdf.close()
     }
   }
 
   private fun PdfWriter.draw(document: SubmissionPdfDocument): PdfWriter = apply {
-    setHeader(document.header)
-    setFooter(document.footer)
     drawQrBlock(document.qrBlock)
     drawTable(document.table)
     finalizePage()
