@@ -45,15 +45,13 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import ground_android.core.ui.generated.resources.Res
-import ground_android.core.ui.generated.resources.scan_this_qr_to_download_geojson
-import org.jetbrains.compose.resources.stringResource as multiplatformStringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import ground_android.core.ui.generated.resources.Res
+import ground_android.core.ui.generated.resources.scan_this_qr_to_download_geojson
 import java.util.Date
-import kotlin.time.Clock
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -63,6 +61,7 @@ import org.groundplatform.domain.model.locationofinterest.LoiReport
 import org.groundplatform.ui.components.loireport.SubmissionPdfItem
 import org.groundplatform.ui.components.qrcode.GroundQrCode
 import org.groundplatform.ui.theme.AppTheme
+import org.jetbrains.compose.resources.stringResource as multiplatformStringResource
 
 @Composable
 fun DataSubmissionConfirmationScreen(
@@ -164,13 +163,13 @@ private fun ShareableContent(modifier: Modifier = Modifier, loiReport: LoiReport
         )
       }
 
-      loiReport.submissions?.let {
+      loiReport.submissionDetails?.let {
         SubmissionPdfItem(
           modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
-          title = loiReport.surveyName,
+          title = it.surveyName,
           loiName = loiReport.loiName,
-          userName = loiReport.userName,
-          date = DateFormat.getDateFormat(context).format(Date(loiReport.dateMillis)),
+          userName = it.userName,
+          date = DateFormat.getDateFormat(context).format(Date(it.dateMillis)),
           onItemClick = {
             /* To be implemented in a follow-up on https://github.com/google/ground-android/issues/3715 */
           },
@@ -185,9 +184,6 @@ private fun ShareableContent(modifier: Modifier = Modifier, loiReport: LoiReport
 
 private val testLoiReport =
   LoiReport(
-    surveyName = "Test Survey",
-    userName = "John Doe",
-    dateMillis = Clock.System.now().toEpochMilliseconds(),
     loiName = "Test LOI",
     geoJson =
       JsonObject(
@@ -203,7 +199,7 @@ private val testLoiReport =
             ),
         )
       ),
-    submissions = emptyList(),
+    submissionDetails = null,
   )
 
 @Composable

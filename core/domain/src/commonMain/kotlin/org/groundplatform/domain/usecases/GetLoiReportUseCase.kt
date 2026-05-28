@@ -56,19 +56,15 @@ class GetLoiReportUseCase(
     val loi = locationOfInterestRepository.getOfflineLoi(surveyId, loiId)
     val user = userRepositoryInterface.getAuthenticatedUser()
     val surveyName = surveyRepositoryInterface.getOfflineSurvey(surveyId)?.title.orEmpty()
-    val submissions = null // To be implemented in a follow-up on
-    // https://github.com/google/ground-android/issues/3715
     return loi?.let {
       LoiReport(
-        surveyName = surveyName,
         loiName = loiName,
-        userName = user.displayName,
-        dateMillis = it.lastModified.clientTimestamp,
         geoJson =
           it.geometry.toGeoJson(
             it.properties.filter { property -> property.key == LOI_NAME_PROPERTY }
           ),
-        submissions = submissions,
+        submissionDetails = null, // To be implemented in a follow-up on
+        // https://github.com/google/ground-android/issues/3715
       )
     }
   }

@@ -32,6 +32,7 @@ import kotlinx.serialization.json.JsonPrimitive
 import org.groundplatform.android.R
 import org.groundplatform.android.getString
 import org.groundplatform.domain.model.locationofinterest.LoiReport
+import org.groundplatform.testing.FakeDataGenerator
 import org.groundplatform.ui.components.loireport.TEST_TAG_PDF_ITEM
 import org.groundplatform.ui.components.qrcode.TEST_TAG_GROUND_QR_CODE
 import org.junit.Assert.assertTrue
@@ -104,7 +105,7 @@ class DataSubmissionConfirmationScreenTest {
   fun `Shows the PDF item when submissions is not null`() {
     composeTestRule.setContent {
       DataSubmissionConfirmationScreen(
-        loiReport = LOI_REPORT.copy(submissions = emptyList()),
+        loiReport = LOI_REPORT.copy(submissionDetails = FakeDataGenerator.newSubmissionDetails()),
         onDismissed = {},
       )
     }
@@ -116,7 +117,7 @@ class DataSubmissionConfirmationScreenTest {
   fun `Does not show the PDF item when submissions is null`() {
     composeTestRule.setContent {
       DataSubmissionConfirmationScreen(
-        loiReport = LOI_REPORT.copy(submissions = null),
+        loiReport = LOI_REPORT.copy(submissionDetails = null),
         onDismissed = {},
       )
     }
@@ -140,10 +141,7 @@ class DataSubmissionConfirmationScreenTest {
   private companion object {
     private val LOI_REPORT =
       LoiReport(
-        surveyName = "Test Survey",
         loiName = "Test LOI",
-        userName = "John Doe",
-        dateMillis = 987654321L,
         geoJson =
           JsonObject(
             mapOf(
@@ -158,7 +156,7 @@ class DataSubmissionConfirmationScreenTest {
                 ),
             )
           ),
-        submissions = emptyList(),
+        submissionDetails = null,
       )
   }
 }

@@ -29,6 +29,7 @@ import kotlinx.serialization.json.JsonPrimitive
 import org.groundplatform.android.R
 import org.groundplatform.android.getString
 import org.groundplatform.domain.model.locationofinterest.LoiReport
+import org.groundplatform.testing.FakeDataGenerator
 import org.groundplatform.ui.components.loireport.TEST_TAG_PDF_ITEM
 import org.groundplatform.ui.components.qrcode.TEST_TAG_GROUND_QR_CODE
 import org.groundplatform.ui.theme.AppTheme
@@ -61,7 +62,10 @@ class ShareLocationModalTest {
   fun `Shows the PDF item when submissions is not null`() {
     composeTestRule.setContent {
       AppTheme {
-        ShareLocationModal(loiReport = LOI_REPORT.copy(submissions = emptyList()), onDismiss = {})
+        ShareLocationModal(
+          loiReport = LOI_REPORT.copy(submissionDetails = FakeDataGenerator.newSubmissionDetails()),
+          onDismiss = {},
+        )
       }
     }
 
@@ -72,7 +76,7 @@ class ShareLocationModalTest {
   fun `Does not show the PDF item when submissions is null`() {
     composeTestRule.setContent {
       AppTheme {
-        ShareLocationModal(loiReport = LOI_REPORT.copy(submissions = null), onDismiss = {})
+        ShareLocationModal(loiReport = LOI_REPORT.copy(submissionDetails = null), onDismiss = {})
       }
     }
 
@@ -96,10 +100,7 @@ class ShareLocationModalTest {
     const val LOI_NAME = "Test Loi"
     val LOI_REPORT =
       LoiReport(
-        surveyName = "Test Survey",
         loiName = LOI_NAME,
-        userName = "John Doe",
-        dateMillis = 987654321L,
         geoJson =
           JsonObject(
             mapOf(
@@ -114,7 +115,7 @@ class ShareLocationModalTest {
                 ),
             )
           ),
-        submissions = null,
+        submissionDetails = null,
       )
   }
 }

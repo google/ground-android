@@ -20,10 +20,15 @@ import org.groundplatform.domain.model.submission.Submission
 
 /** Represents the data collected for a specific LOI which can be downloaded and shared. */
 data class LoiReport(
-  val surveyName: String,
   val loiName: String,
-  val userName: String,
-  val dateMillis: Long,
   val geoJson: JsonObject,
-  val submissions: List<Submission>?,
-)
+  val submissionDetails: SubmissionDetails?,
+) {
+  data class SubmissionDetails(
+    val surveyName: String,
+    val userName: String,
+    val userEmail: String,
+    val dateMillis: Long,
+    val submissions: List<Submission>?,
+  )
+}

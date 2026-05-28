@@ -101,12 +101,9 @@ private fun DataCollectionContentCompletePreview() {
         DataCollectionUiState.TaskSubmitted(
           loiReport =
             LoiReport(
-              surveyName = "Test Survey",
-              userName = "John Doe",
-              dateMillis = Clock.System.now().toEpochMilliseconds(),
               loiName = "Point A",
               geoJson = JsonObject(mapOf()),
-              submissions = emptyList()
+              submissionDetails = null
             )
         ),
       onCloseClicked = {},
