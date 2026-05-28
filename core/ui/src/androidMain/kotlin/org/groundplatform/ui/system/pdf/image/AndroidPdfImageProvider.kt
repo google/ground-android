@@ -81,10 +81,9 @@ class AndroidPdfImageProvider(
     val rootDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES) ?: return null
     val filename = remoteFilename.substringAfterLast('/')
     val file = File(rootDir, filename)
-    val bitmap = runCatching { decodeSubsampled(file.absolutePath) }.getOrNull()
-    return if (file.exists() && bitmap != null) {
-      applyExifOrientation(file, bitmap)
-    } else null
+    val bitmap =
+      if (file.exists()) runCatching { decodeSubsampled(file.absolutePath) }.getOrNull() else null
+    return bitmap?.let { applyExifOrientation(file, bitmap) }
   }
 
   /** Decodes the photo subsampled to roughly the largest size it can occupy in the PDF. */

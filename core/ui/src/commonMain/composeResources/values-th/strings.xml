@@ -28,4 +28,8 @@
   <string name="south">ท.ใต้</string>
   <string name="east">ต.ออก</string>
   <string name="west">ต.ตก</string>
+  <string name="submission">การส่งข้อมูล</string>
+  <string name="survey">แบบสำรวจ</string>
+  <string name="job">งาน</string>
+  <string name="pdf_data_collector">ผู้เก็บข้อมูล</string>
 </resources>

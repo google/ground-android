@@ -34,8 +34,6 @@ kotlin {
     withHostTest { isIncludeAndroidResources = true }
   }
 
-  jvm()
-
   val xcfName = "GroundUiKit"
   listOf(iosArm64(), iosSimulatorArm64()).forEach {
     it.binaries.framework {

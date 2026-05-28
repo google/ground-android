@@ -27,8 +27,8 @@ import org.groundplatform.ui.system.pdf.PdfRenderer
  * may contain either text or an image.
  *
  * @param totalHeight Total height of the row including vertical padding.
- * @param rowLeft X coordinate of the row's left edge.
- * @param rowRight X coordinate of the row's right edge.
+ * @param leftRowX X coordinate of the row's left edge.
+ * @param rightRowX X coordinate of the row's right edge.
  * @param columnDividerX X coordinate of the vertical divider between the two columns.
  * @param leftTextOffset Top-left position where the left cell text should be drawn.
  * @param rightTextOffset Top-left position where the right cell text should be drawn, or null if
@@ -37,8 +37,8 @@ import org.groundplatform.ui.system.pdf.PdfRenderer
  */
 internal data class TableRowLayout(
   val totalHeight: Float,
-  val rowLeft: Float,
-  val rowRight: Float,
+  val leftRowX: Float,
+  val rightRowX: Float,
   val columnDividerX: Float,
   val leftTextOffset: PdfRenderer.Offset,
   val rightTextOffset: PdfRenderer.Offset?,
@@ -77,8 +77,8 @@ internal data class TableRowLayout(
 
       return TableRowLayout(
         totalHeight = totalHeight,
-        rowLeft = left,
-        rowRight = left + USABLE_WIDTH,
+        leftRowX = left,
+        rightRowX = left + USABLE_WIDTH,
         columnDividerX = midX,
         leftTextOffset = PdfRenderer.Offset(left + CELL_PADDING, contentTop),
         rightTextOffset = rightTextOffset,

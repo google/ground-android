@@ -16,6 +16,8 @@
 package org.groundplatform.ui.system.pdf
 
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.groundplatform.ui.model.SubmissionPdfDocument
 import org.groundplatform.ui.model.SubmissionPdfDocument.Answer
@@ -36,8 +38,10 @@ class PdfExportService(
   private val launcher: PdfReportLauncher,
   private val coroutineDispatcher: CoroutineDispatcher,
 ) {
+  private val mutex = Mutex()
+
   suspend fun export(request: Request, action: Action) {
-    val outputPath =
+    val outputPath = mutex.withLock {
       withContext(coroutineDispatcher) {
         outputProvider.pruneOldFiles()
         val path = outputProvider.newFilePath(request.fileName)
@@ -51,6 +55,7 @@ class PdfExportService(
         }
         path
       }
+    }
     when (action) {
       Action.Open -> launcher.open(outputPath)
       Action.Share -> launcher.share(outputPath)

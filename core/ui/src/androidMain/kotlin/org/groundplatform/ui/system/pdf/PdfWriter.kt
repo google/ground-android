@@ -126,19 +126,13 @@ internal class PdfWriter(
   }
 
   fun drawQrBlock(block: QrBlock) {
+    val qr = images[PdfImageSet.ImageRef.Qr] ?: return
     pageController.ensurePage()
-    val qr = images[PdfImageSet.ImageRef.Qr]
     val captionLayout =
       staticLayout(block.scanCaption, captionPaint, QR_SIZE, Layout.Alignment.ALIGN_CENTER)
     val layout =
-      QrBlockLayout.compute(
-        top = cursor.y,
-        hasQrImage = qr != null,
-        captionHeight = captionLayout.height.toFloat(),
-      )
-    if (qr != null && layout.qrFrame != null) {
-      drawImage(qr, layout.qrFrame, paint = null)
-    }
+      QrBlockLayout.compute(top = cursor.y, captionHeight = captionLayout.height.toFloat())
+    drawImage(qr, layout.qrFrame, paint = null)
     drawStaticLayoutAt(captionLayout, layout.captionOffset)
     cursor.moveTo(layout.nextCursorY)
   }
@@ -225,7 +219,7 @@ internal class PdfWriter(
 
   private fun drawPageFooter() {
     val layout = PageFooterLayout.compute(footerHeight = footerLayout.height.toFloat())
-    drawStaticLayoutAt(footerLayout, layout.footerOffset)
+    drawStaticLayoutAt(footerLayout, layout.footerTextOffset)
     totalPages?.let { total ->
       drawText(
         text = "${pageController.pageCount}/$total",
@@ -268,7 +262,7 @@ internal class PdfWriter(
 
     if (currentTableTopY == null) {
       currentTableTopY = cursor.y
-      canvas().drawLine(rowLayout.rowLeft, cursor.y, rowLayout.rowRight, cursor.y, strokePaint)
+      canvas().drawLine(rowLayout.leftRowX, cursor.y, rowLayout.rightRowX, cursor.y, strokePaint)
     }
 
     drawStaticLayoutAt(questionLayout, rowLayout.leftTextOffset)
@@ -280,7 +274,7 @@ internal class PdfWriter(
     }
     cursor.advance(rowLayout.totalHeight)
 
-    canvas().drawLine(rowLayout.rowLeft, cursor.y, rowLayout.rowRight, cursor.y, strokePaint)
+    canvas().drawLine(rowLayout.leftRowX, cursor.y, rowLayout.rightRowX, cursor.y, strokePaint)
   }
 
   private fun flushTableDivider() {

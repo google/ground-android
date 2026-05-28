@@ -17,7 +17,7 @@ package org.groundplatform.ui.mapper
 
 import ground_android.core.ui.generated.resources.Res
 import ground_android.core.ui.generated.resources.job
-import ground_android.core.ui.generated.resources.pdf_details_data_collector_label
+import ground_android.core.ui.generated.resources.pdf_data_collector
 import ground_android.core.ui.generated.resources.scan_this_qr_to_download_geojson
 import ground_android.core.ui.generated.resources.submission
 import ground_android.core.ui.generated.resources.survey
@@ -88,7 +88,7 @@ class LoiReportMapper(
 
   private suspend fun buildFooter(details: LoiReport.SubmissionDetails): Footer =
     Footer(
-      dataCollectorLabel = strings.resolve(Res.string.pdf_details_data_collector_label),
+      dataCollectorLabel = strings.resolve(Res.string.pdf_data_collector),
       dataCollectorName = details.userName,
       userEmail = details.userEmail,
     )

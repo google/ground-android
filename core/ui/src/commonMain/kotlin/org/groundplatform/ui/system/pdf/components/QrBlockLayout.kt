@@ -22,27 +22,26 @@ import org.groundplatform.ui.system.pdf.PdfConfig.QR_SIZE
 import org.groundplatform.ui.system.pdf.PdfRenderer
 
 /**
- * Pre-computed layout for a right-aligned QR code block with caption.
+ * Pre-computed layout for the right-aligned QR code block with its caption. Compute should only be
+ * called when a QR image is available; the caption is meaningless without it.
  *
- * @param qrFrame QR image frame, or null if unavailable.
- * @param captionOffset Top-left position of the caption text.
- * @param captionMaxWidth Maximum width for caption text.
+ * @param qrFrame Position and size of the QR image.
+ * @param captionOffset Top-left position of the caption text (centered under the QR).
+ * @param captionMaxWidth Maximum width for the caption.
  * @param nextCursorY Cursor Y position after this block.
  */
 internal data class QrBlockLayout(
-  val qrFrame: PdfRenderer.Rect?,
+  val qrFrame: PdfRenderer.Rect,
   val captionOffset: PdfRenderer.Offset,
   val captionMaxWidth: Int,
   val nextCursorY: Float,
 ) {
   companion object {
-    fun compute(top: Float, hasQrImage: Boolean, captionHeight: Float): QrBlockLayout {
+    fun compute(top: Float, captionHeight: Float): QrBlockLayout {
       val x = (PAGE_WIDTH - MARGIN - QR_SIZE).toFloat()
-      val qrFrame =
-        if (hasQrImage) PdfRenderer.Rect(x, top, QR_SIZE.toFloat(), QR_SIZE.toFloat()) else null
-      val captionTop = (if (hasQrImage) top + QR_SIZE else top) + LINE_SPACING
+      val captionTop = top + QR_SIZE + LINE_SPACING
       return QrBlockLayout(
-        qrFrame = qrFrame,
+        qrFrame = PdfRenderer.Rect(x, top, QR_SIZE.toFloat(), QR_SIZE.toFloat()),
         captionOffset = PdfRenderer.Offset(x, captionTop),
         captionMaxWidth = QR_SIZE,
         nextCursorY = captionTop + captionHeight + LINE_SPACING * 2,

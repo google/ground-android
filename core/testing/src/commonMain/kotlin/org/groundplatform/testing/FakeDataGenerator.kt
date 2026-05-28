@@ -24,9 +24,11 @@ import org.groundplatform.domain.model.geometry.Geometry
 import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.job.Style
+import kotlinx.serialization.json.JsonObject
 import org.groundplatform.domain.model.locationofinterest.AuditInfo
 import org.groundplatform.domain.model.locationofinterest.LOI_NAME_PROPERTY
 import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
+import org.groundplatform.domain.model.locationofinterest.LoiReport
 import org.groundplatform.domain.model.mutation.LocationOfInterestMutation
 import org.groundplatform.domain.model.mutation.Mutation
 import org.groundplatform.domain.model.mutation.Mutation.SyncStatus.PENDING
@@ -241,4 +243,26 @@ object FakeDataGenerator {
     availableOffline: Boolean = false,
     generalAccess: Survey.GeneralAccess = Survey.GeneralAccess.PUBLIC,
   ) = SurveyListItem(id, title, description, availableOffline, generalAccess)
+
+  fun newSubmissionDetails(
+    surveyName: String = "survey",
+    userName: String = "user",
+    userEmail: String = "user@email.com",
+    dateMillis: Long = 0L,
+    submissions: List<Submission> = listOf(newSubmission()),
+  ): LoiReport.SubmissionDetails =
+    LoiReport.SubmissionDetails(
+      surveyName = surveyName,
+      userName = userName,
+      userEmail = userEmail,
+      dateMillis = dateMillis,
+      submissions = submissions,
+    )
+
+  fun newLoiReport(
+    loiName: String = "loi",
+    geoJson: JsonObject = JsonObject(emptyMap()),
+    submissionDetails: LoiReport.SubmissionDetails? = newSubmissionDetails(),
+  ): LoiReport =
+    LoiReport(loiName = loiName, geoJson = geoJson, submissionDetails = submissionDetails)
 }

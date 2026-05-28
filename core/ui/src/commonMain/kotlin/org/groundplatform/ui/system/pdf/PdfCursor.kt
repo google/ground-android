@@ -26,6 +26,9 @@ internal class PdfCursor(
   var y: Float = margin.toFloat()
     private set
 
+  val isAtPageTop: Boolean
+    get() = y == margin.toFloat()
+
   fun reset() {
     y = margin.toFloat()
   }

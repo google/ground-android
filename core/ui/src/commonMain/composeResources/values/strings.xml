@@ -32,5 +32,5 @@
   <string name="submission">Submission</string>
   <string name="survey">Survey</string>
   <string name="job">Job</string>
-  <string name="pdf_details_data_collector_label">Data collector</string>
+  <string name="pdf_data_collector">Data collector</string>
 </resources>

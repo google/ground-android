@@ -44,7 +44,7 @@ internal class PdfPageController(
 
   fun newPageIfShort(spaceNeeded: Float) {
     ensurePage()
-    if (cursor.fits(spaceNeeded)) return
+    if (cursor.fits(spaceNeeded) || cursor.isAtPageTop) return
     finalizePage()
     beginPage()
   }
