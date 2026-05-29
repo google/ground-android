@@ -17,42 +17,32 @@ plugins {
   alias(libs.plugins.kotlin.multiplatform)
   alias(libs.plugins.android.kotlin.multiplatform.library)
   alias(libs.plugins.android.lint)
-  alias(libs.plugins.compose.multiplatform)
-  alias(libs.plugins.compose.compiler)
 }
 
-compose.resources { publicResClass = true }
-
 kotlin {
-  jvmToolchain(libs.versions.jvmToolchainVersion.get().toInt())
   androidLibrary {
-    namespace = "org.groundplatform.core.ui"
-    compileSdk = libs.versions.androidCompileSdk.get().toInt()
+    namespace = "org.groundplatform.feature.pdf"
+    compileSdk { version = release(libs.versions.androidCompileSdk.get().toInt()) }
     minSdk = libs.versions.androidMinSdk.get().toInt()
-    androidResources.enable = true
-
-    withHostTest { isIncludeAndroidResources = true }
+    withHostTest {}
   }
 
-  val xcfName = "GroundUiKit"
+  val xcfName = "GroundFeaturePdfKit"
   listOf(iosArm64(), iosSimulatorArm64()).forEach {
     it.binaries.framework {
       baseName = xcfName
       isStatic = true
     }
   }
-
   sourceSets {
     commonMain {
       dependencies {
         implementation(project(":core:domain"))
-        implementation(libs.compose.runtime)
-        implementation(libs.compose.foundation)
-        implementation(libs.compose.material3)
-        implementation(libs.compose.ui)
-        implementation(libs.compose.ui.tooling.preview)
-        api(libs.compose.components.resources)
+        implementation(project(":core:ui"))
+        implementation(libs.kotlin.stdlib)
+        implementation(libs.kotlinx.coroutines.core)
         implementation(libs.kotlinx.collections.immutable)
+        implementation(libs.kotlinx.serialization.json)
       }
     }
 
@@ -63,18 +53,5 @@ kotlin {
         implementation(libs.kotlinx.coroutines.test)
       }
     }
-
-    androidMain { dependencies { implementation(libs.google.zxing) } }
-
-    val androidHostTest by getting {
-      dependencies {
-        implementation(libs.junit)
-        implementation(libs.robolectric)
-      }
-    }
-
-    iosMain { dependencies {} }
   }
 }
-
-dependencies { androidRuntimeClasspath(libs.compose.ui.tooling) }

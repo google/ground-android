@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Google LLC
+ * Copyright 2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.groundplatform.feature.pdf.render.image
 
-pluginManagement {
-    repositories {
-        gradlePluginPortal()
-        google()
-        mavenCentral()
-    }
+import kotlinx.cinterop.ExperimentalForeignApi
+import platform.CoreGraphics.CGImageGetHeight
+import platform.CoreGraphics.CGImageGetWidth
+import platform.CoreGraphics.CGImageRef
+
+@OptIn(ExperimentalForeignApi::class)
+actual data class PdfImage(val cgImage: CGImageRef) {
+  actual val width: Int
+    get() = CGImageGetWidth(cgImage).toInt()
+
+  actual val height: Int
+    get() = CGImageGetHeight(cgImage).toInt()
 }
-
-plugins {
-    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
-}
-
-include ':app', ':e2eTest'
-include ':core:ui'
-include ':core:domain'
-include ':core:testing'
-include ':feature:pdf'

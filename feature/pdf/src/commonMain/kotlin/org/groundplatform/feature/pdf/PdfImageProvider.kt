@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Google LLC
+ * Copyright 2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.groundplatform.feature.pdf
 
-pluginManagement {
-    repositories {
-        gradlePluginPortal()
-        google()
-        mavenCentral()
-    }
+import org.groundplatform.feature.pdf.render.image.PdfImageSet
+
+/**
+ * Platform abstraction for images (QR code and photos) needed for PDF rendering. Implementations
+ * should handle bitmap decoding and resource lifecycle management.
+ */
+interface PdfImageProvider {
+  suspend fun load(qrContent: String?, photoFilenames: Set<String>): PdfImageSet
 }
-
-plugins {
-    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
-}
-
-include ':app', ':e2eTest'
-include ':core:ui'
-include ':core:domain'
-include ':core:testing'
-include ':feature:pdf'

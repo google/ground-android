@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Google LLC
+ * Copyright 2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.groundplatform.feature.pdf
 
-pluginManagement {
-    repositories {
-        gradlePluginPortal()
-        google()
-        mavenCentral()
-    }
+/**
+ * Presents the two terminal actions on a generated report: share via system share sheet, open in an
+ * external viewer.
+ */
+interface PdfReportLauncher {
+  fun share(path: String)
+
+  fun open(path: String)
 }
-
-plugins {
-    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
-}
-
-include ':app', ':e2eTest'
-include ':core:ui'
-include ':core:domain'
-include ':core:testing'
-include ':feature:pdf'

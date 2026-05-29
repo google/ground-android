@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Google LLC
+ * Copyright 2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.groundplatform.testing
 
-pluginManagement {
-    repositories {
-        gradlePluginPortal()
-        google()
-        mavenCentral()
-    }
+import org.groundplatform.ui.util.StringResolver
+import org.jetbrains.compose.resources.StringResource
+
+/**
+ * [StringResolver] for tests so display logic can be asserted without a Compose resource runtime.
+ */
+object FakeStringResolver : StringResolver {
+
+  override suspend fun resolve(resource: StringResource): String = resource.key
+
+  override suspend fun resolve(resource: StringResource, vararg formatArgs: Any): String =
+    "${resource.key}(${formatArgs.joinToString()})"
 }
-
-plugins {
-    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
-}
-
-include ':app', ':e2eTest'
-include ':core:ui'
-include ':core:domain'
-include ':core:testing'
-include ':feature:pdf'
