@@ -28,4 +28,8 @@
   <string name="south">ຕ</string>
   <string name="east">ຕ.ອ</string>
   <string name="west">ຕ.ຕ</string>
+  <string name="submission">ການສົ່ງຂໍ້ມູນ</string>
+  <string name="survey">ແບບສຳຫຼວດ</string>
+  <string name="job">ພາລະກິດ</string>
+  <string name="pdf_data_collector">ຜູ້ເກັບຂໍ້ມູນ</string>
 </resources>

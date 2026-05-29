@@ -16,6 +16,7 @@
 package org.groundplatform.testing
 
 import kotlin.time.Clock
+import kotlinx.serialization.json.JsonObject
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.SurveyListItem
 import org.groundplatform.domain.model.User
@@ -27,6 +28,7 @@ import org.groundplatform.domain.model.job.Style
 import org.groundplatform.domain.model.locationofinterest.AuditInfo
 import org.groundplatform.domain.model.locationofinterest.LOI_NAME_PROPERTY
 import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
+import org.groundplatform.domain.model.locationofinterest.LoiReport
 import org.groundplatform.domain.model.mutation.LocationOfInterestMutation
 import org.groundplatform.domain.model.mutation.Mutation
 import org.groundplatform.domain.model.mutation.Mutation.SyncStatus.PENDING
@@ -34,6 +36,8 @@ import org.groundplatform.domain.model.mutation.SubmissionMutation
 import org.groundplatform.domain.model.settings.MeasurementUnits
 import org.groundplatform.domain.model.settings.UserSettings
 import org.groundplatform.domain.model.submission.DraftSubmission
+import org.groundplatform.domain.model.submission.Submission
+import org.groundplatform.domain.model.submission.SubmissionData
 import org.groundplatform.domain.model.submission.ValueDelta
 import org.groundplatform.domain.model.task.Condition
 import org.groundplatform.domain.model.task.MultipleChoice
@@ -132,6 +136,25 @@ object FakeDataGenerator {
       currentTaskId = currentTaskId,
     )
 
+  fun newSubmission(
+    id: String = "submission id",
+    surveyId: String = "survey id",
+    locationOfInterest: LocationOfInterest = newLocationOfInterest(),
+    job: Job = newJob(),
+    created: AuditInfo = AuditInfo(newUser()),
+    lastModified: AuditInfo = AuditInfo(newUser()),
+    data: SubmissionData = SubmissionData(),
+  ): Submission =
+    Submission(
+      id = id,
+      surveyId = surveyId,
+      locationOfInterest = locationOfInterest,
+      job = job,
+      created = created,
+      lastModified = lastModified,
+      data = data,
+    )
+
   fun newTask(
     id: String = "taskId",
     type: Task.Type = Task.Type.TEXT,
@@ -220,4 +243,26 @@ object FakeDataGenerator {
     availableOffline: Boolean = false,
     generalAccess: Survey.GeneralAccess = Survey.GeneralAccess.PUBLIC,
   ) = SurveyListItem(id, title, description, availableOffline, generalAccess)
+
+  fun newSubmissionDetails(
+    surveyName: String = "survey",
+    userName: String = "user",
+    userEmail: String = "user@email.com",
+    dateMillis: Long = 0L,
+    submissions: List<Submission> = listOf(newSubmission()),
+  ): LoiReport.SubmissionDetails =
+    LoiReport.SubmissionDetails(
+      surveyName = surveyName,
+      userName = userName,
+      userEmail = userEmail,
+      dateMillis = dateMillis,
+      submissions = submissions,
+    )
+
+  fun newLoiReport(
+    loiName: String = "loi",
+    geoJson: JsonObject = JsonObject(emptyMap()),
+    submissionDetails: LoiReport.SubmissionDetails? = newSubmissionDetails(),
+  ): LoiReport =
+    LoiReport(loiName = loiName, geoJson = geoJson, submissionDetails = submissionDetails)
 }

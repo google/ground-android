@@ -319,8 +319,8 @@ class GetLoiReportUseCaseTest {
       getLoiReportUseCase.invoke(loiName = "Test LOI", loiId = "loiId", surveyId = "surveyId")!!
 
     assertEquals("Test LOI", loiReport.loiName)
-    assertEquals("John Doe", loiReport.userName)
-    assertEquals(987654321L, loiReport.dateMillis)
+    assertEquals("John Doe", loiReport.submissionDetails!!.userName)
+    assertEquals(987654321L, loiReport.submissionDetails.dateMillis)
   }
 
   @Test
@@ -331,7 +331,7 @@ class GetLoiReportUseCaseTest {
     val loiReport =
       getLoiReportUseCase.invoke(loiName = "loiName", loiId = "loiId", surveyId = "surveyId")!!
 
-    assertEquals("Restoration areas", loiReport.surveyName)
+    assertEquals("Restoration areas", loiReport.submissionDetails!!.surveyName)
   }
 
   private suspend fun invokeUseCase(geometry: Geometry, properties: LoiProperties): LoiReport {
