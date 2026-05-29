@@ -96,10 +96,7 @@ class ShareLocationModalTest {
     const val LOI_NAME = "Test Loi"
     val LOI_REPORT =
       LoiReport(
-        surveyName = "Test Survey",
         loiName = LOI_NAME,
-        userName = "John Doe",
-        dateMillis = 987654321L,
         geoJson =
           JsonObject(
             mapOf(
@@ -114,7 +111,14 @@ class ShareLocationModalTest {
                 ),
             )
           ),
-        submissions = null,
+        submissionDetails =
+          LoiReport.SubmissionDetails(
+            surveyName = "Test Survey",
+            userName = "John Doe",
+            userEmail = "john.doe@example.com",
+            dateMillis = 987654321L,
+            submissions = emptyList(),
+          ),
       )
   }
 }

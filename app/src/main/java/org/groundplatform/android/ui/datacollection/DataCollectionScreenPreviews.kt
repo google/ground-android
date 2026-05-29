@@ -24,7 +24,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import kotlin.time.Clock
 import kotlinx.serialization.json.JsonObject
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.domain.model.job.Job
@@ -38,7 +37,11 @@ private const val PAGER_CONTENT_TEXT = "Pager Content Area"
 @ExcludeFromJacocoGeneratedReport
 private fun DataCollectionContentLoadingPreview() {
   AppTheme {
-    DataCollectionContent(uiState = DataCollectionUiState.Loading, onCloseClicked = {}) {
+    DataCollectionContent(
+      uiState = DataCollectionUiState.Loading,
+      onCloseClicked = {},
+      onLoiReportAction = {},
+    ) {
       Box(modifier = Modifier.fillMaxSize().background(Color.LightGray)) {
         Text(text = PAGER_CONTENT_TEXT, modifier = Modifier.align(Alignment.Center))
       }
@@ -58,6 +61,7 @@ private fun DataCollectionContentErrorPreview() {
           cause = Error("Some error"),
         ),
       onCloseClicked = {},
+      onLoiReportAction = {},
     ) {
       Box(modifier = Modifier.fillMaxSize().background(Color.LightGray)) {
         Text(text = PAGER_CONTENT_TEXT, modifier = Modifier.align(Alignment.Center))
@@ -83,6 +87,7 @@ private fun DataCollectionContentPreview() {
           position = TaskPosition(0, 1, 3),
         ),
       onCloseClicked = {},
+      onLoiReportAction = {},
     ) {
       Box(modifier = Modifier.fillMaxSize().background(Color.LightGray)) {
         Text(text = PAGER_CONTENT_TEXT, modifier = Modifier.align(Alignment.Center))
@@ -101,15 +106,13 @@ private fun DataCollectionContentCompletePreview() {
         DataCollectionUiState.TaskSubmitted(
           loiReport =
             LoiReport(
-              surveyName = "Test Survey",
-              userName = "John Doe",
-              dateMillis = Clock.System.now().toEpochMilliseconds(),
               loiName = "Point A",
               geoJson = JsonObject(mapOf()),
-              submissions = emptyList()
+              submissionDetails = null,
             )
         ),
       onCloseClicked = {},
+      onLoiReportAction = {},
     ) {
       Box(modifier = Modifier.fillMaxSize().background(Color.LightGray)) {
         Text(text = PAGER_CONTENT_TEXT, modifier = Modifier.align(Alignment.Center))

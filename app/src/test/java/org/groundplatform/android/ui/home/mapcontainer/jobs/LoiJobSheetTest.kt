@@ -125,10 +125,7 @@ class LoiJobSheetTest {
 
   private fun getLoiReport(name: String): LoiReport =
     LoiReport(
-      surveyName = "Test Survey",
       loiName = name,
-      userName = "John Doe",
-      dateMillis = 987654321L,
       geoJson =
         JsonObject(
           mapOf(
@@ -143,7 +140,7 @@ class LoiJobSheetTest {
               ),
           )
         ),
-      submissions = null,
+      submissionDetails = null,
     )
 
   companion object {

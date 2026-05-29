@@ -53,13 +53,18 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import org.groundplatform.android.R
 import org.groundplatform.domain.model.locationofinterest.LoiReport
+import org.groundplatform.ui.components.loireport.LoiReportAction
 import org.groundplatform.ui.components.loireport.SubmissionPdfItem
 import org.groundplatform.ui.components.qrcode.GroundQrCode
 import org.groundplatform.ui.theme.AppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ShareLocationModal(loiReport: LoiReport, onDismiss: () -> Unit) {
+fun ShareLocationModal(
+  loiReport: LoiReport,
+  onDismiss: () -> Unit,
+  onLoiReportAction: (LoiReportAction) -> Unit,
+) {
   val context = LocalContext.current
 
   Dialog(
@@ -95,19 +100,15 @@ fun ShareLocationModal(loiReport: LoiReport, onDismiss: () -> Unit) {
           )
         }
 
-        loiReport.submissions?.let {
+        loiReport.submissionDetails?.let {
           SubmissionPdfItem(
             modifier = Modifier.fillMaxWidth(),
-            title = loiReport.surveyName,
+            title = it.surveyName,
             loiName = loiReport.loiName,
-            userName = loiReport.userName,
-            date = DateFormat.getDateFormat(context).format(Date(loiReport.dateMillis)),
-            onItemClick = {
-              /* To be implemented in a follow-up on https://github.com/google/ground-android/issues/3715 */
-            },
-            onShareClick = {
-              /* To be implemented in a follow-up on https://github.com/google/ground-android/issues/3715 */
-            },
+            userName = it.userName,
+            date = DateFormat.getDateFormat(context).format(Date(it.dateMillis)),
+            onItemClick = { onLoiReportAction(LoiReportAction.OnPdfItemClicked) },
+            onShareClick = { onLoiReportAction(LoiReportAction.OnShareClicked) },
           )
         }
 
@@ -128,9 +129,6 @@ private fun ShareLocationModalPreview() {
   val testLoiReport =
     LoiReport(
       loiName = "Test LOI",
-      surveyName = "Test Survey",
-      userName = "John Doe",
-      dateMillis = Clock.System.now().toEpochMilliseconds(),
       geoJson =
         JsonObject(
           mapOf(
@@ -145,12 +143,19 @@ private fun ShareLocationModalPreview() {
               ),
           )
         ),
-      submissions = emptyList(),
+      submissionDetails =
+        LoiReport.SubmissionDetails(
+          surveyName = "Test Survey",
+          userName = "John Doe",
+          userEmail = "john.doe@example.com",
+          dateMillis = Clock.System.now().toEpochMilliseconds(),
+          submissions = emptyList(),
+        ),
     )
 
   AppTheme {
     Surface(modifier = Modifier.fillMaxSize()) {
-      ShareLocationModal(loiReport = testLoiReport, onDismiss = {})
+      ShareLocationModal(loiReport = testLoiReport, onDismiss = {}, onLoiReportAction = {})
     }
   }
 }

@@ -28,4 +28,8 @@
   <string name="south">Nam</string>
   <string name="east">Đông</string>
   <string name="west">Tây</string>
+  <string name="submission">bài gửi</string>
+  <string name="survey">Khảo sát</string>
+  <string name="job">Công việc</string>
+  <string name="pdf_data_collector">Người thu thập dữ liệu</string>
 </resources>

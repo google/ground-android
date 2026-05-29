@@ -42,10 +42,15 @@ import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentActio
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentAction.OnJobSelected
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.job.Style
+import org.groundplatform.ui.components.loireport.LoiReportAction
 import org.groundplatform.ui.theme.AppTheme
 
 @Composable
-fun JobMapComponent(state: JobMapComponentState, onAction: (JobMapComponentAction) -> Unit) {
+fun JobMapComponent(
+  state: JobMapComponentState,
+  onAction: (JobMapComponentAction) -> Unit,
+  onLoiReportAction: (LoiReportAction) -> Unit,
+) {
   when (state) {
     is JobMapComponentState.LoiSelected -> {
       var showShareLoiModal by rememberSaveable { mutableStateOf(false) }
@@ -59,7 +64,11 @@ fun JobMapComponent(state: JobMapComponentState, onAction: (JobMapComponentActio
       )
 
       if (showShareLoiModal && state.loi.loiReport != null) {
-        ShareLocationModal(state.loi.loiReport) { showShareLoiModal = false }
+        ShareLocationModal(
+          loiReport = state.loi.loiReport,
+          onLoiReportAction = onLoiReportAction,
+          onDismiss = { showShareLoiModal = false },
+        )
       }
     }
     is JobMapComponentState.AddLoiButton -> {
@@ -136,7 +145,9 @@ private fun JobMapComponentPreview() {
                   ),
               )
             )
-        )
-    ) {}
+        ),
+      onAction = {},
+      onLoiReportAction = {},
+    )
   }
 }

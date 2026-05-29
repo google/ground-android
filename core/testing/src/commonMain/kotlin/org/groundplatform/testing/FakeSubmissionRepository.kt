@@ -18,6 +18,7 @@ package org.groundplatform.testing
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
 import org.groundplatform.domain.model.submission.DraftSubmission
+import org.groundplatform.domain.model.submission.Submission
 import org.groundplatform.domain.model.submission.ValueDelta
 import org.groundplatform.domain.repository.SubmissionRepositoryInterface
 
@@ -26,6 +27,7 @@ class FakeSubmissionRepository : SubmissionRepositoryInterface {
   var latestDraftSubmissionId: String = ""
   var pendingCreateCount: Int = 0
   var pendingDeleteCount: Int = 0
+  var submissions: List<Submission> = emptyList()
   var onSaveSubmissionCall = FakeCall<SaveSubmissionParams, Unit> {}
 
   override suspend fun saveSubmission(
@@ -74,6 +76,8 @@ class FakeSubmissionRepository : SubmissionRepositoryInterface {
     loi.submissionCount + getPendingCreateCount(loi.id) - pendingDeleteCount
 
   override suspend fun getPendingCreateCount(loiId: String): Int = pendingCreateCount
+
+  override suspend fun getSubmissions(loi: LocationOfInterest): List<Submission> = submissions
 
   data class SaveSubmissionParams(
     val surveyId: String,

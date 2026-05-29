@@ -27,6 +27,7 @@ import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
 import org.groundplatform.domain.model.mutation.Mutation
 import org.groundplatform.domain.model.mutation.SubmissionMutation
 import org.groundplatform.domain.model.submission.DraftSubmission
+import org.groundplatform.domain.model.submission.Submission
 import org.groundplatform.domain.model.submission.TextTaskData
 import org.groundplatform.domain.model.submission.ValueDelta
 import org.groundplatform.domain.model.task.Task
@@ -216,6 +217,21 @@ class SubmissionRepositoryTest {
     assertThat(repository.getPendingCreateCount(loi.id)).isEqualTo(7)
   }
 
+  @Test
+  fun `getSubmissions returns submissions for the LOI's job from the local store`() = runTest {
+    val expected = listOf(TEST_SUBMISSION)
+    whenever(localSubmissionStore.getSubmissions(TEST_LOI, TEST_JOB.id)).thenReturn(expected)
+
+    assertThat(repository.getSubmissions(TEST_LOI)).isEqualTo(expected)
+  }
+
+  @Test
+  fun `getSubmissions returns empty list when local store has no submissions`() = runTest {
+    whenever(localSubmissionStore.getSubmissions(TEST_LOI, TEST_JOB.id)).thenReturn(emptyList())
+
+    assertThat(repository.getSubmissions(TEST_LOI)).isEmpty()
+  }
+
   private suspend fun setupMocks(
     uuid: String = TEST_UUID,
     loi: LocationOfInterest? = TEST_LOI,
@@ -262,6 +278,14 @@ class SubmissionRepositoryTest {
         surveyId = TEST_SURVEY.id,
         deltas = TEST_DELTAS,
         currentTaskId = TEST_CURRENT_TASK_ID,
+      )
+    val TEST_SUBMISSION: Submission =
+      FakeDataGenerator.newSubmission(
+        surveyId = TEST_SURVEY.id,
+        locationOfInterest = TEST_LOI,
+        job = TEST_JOB,
+        created = AuditInfo(TEST_USER),
+        lastModified = AuditInfo(TEST_USER),
       )
   }
 }

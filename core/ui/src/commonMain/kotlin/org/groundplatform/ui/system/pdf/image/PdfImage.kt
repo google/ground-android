@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.ui.components.qrcode
+package org.groundplatform.ui.system.pdf.image
 
-import androidx.compose.ui.graphics.ImageBitmap
-
-actual fun generateQrBitmap(content: String, useHighEcc: Boolean): ImageBitmap =
-  // The JVM target exists only to unit-test platform-independent logic, so QR generation is
-  // intentionally unimplemented here.
-  throw UnsupportedOperationException("QR code generation is not supported on the JVM target")
+/**
+ * Opaque platform image handle (Android `Bitmap`, iOS `CGImageRef`). The renderer reads the
+ * platform value via the `actual` declaration.
+ */
+expect class PdfImage {
+  val width: Int
+  val height: Int
+}
