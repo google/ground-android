@@ -140,7 +140,6 @@
   <string name="read_only_data_collection_hint">Survey is read-only</string>
   <string name="no_submissions">No submissions</string>
   <string name="dismiss_info_popup">Dismiss</string>
-  <string name="other">Other</string>
   <plurals name="submission_count">
     <item quantity="one">%d submission</item>
     <item quantity="other">%d submissions</item>
@@ -234,7 +233,6 @@
 
   <string name="recenter">Re-center</string>
   <string name="share_location">Share location</string>
-  <string name="scan_this_qr_to_download_geojson">Scan this QR code to view the GeoJson</string>
 
   <string name="join_survey">Join survey</string>
   <string name="invalid_survey_qr_code">Unrecognized survey QR code</string>

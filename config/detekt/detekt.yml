@@ -348,7 +348,7 @@ naming:
         minimumFunctionNameLength: 3
     FunctionNaming:
         active: true
-        excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**' ]
+        excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**', '**/androidHostTest/**' ]
         functionPattern: '[a-zA-Z][a-zA-Z0-9]*'
         excludeClassPattern: '$^'
     FunctionParameterNaming:
