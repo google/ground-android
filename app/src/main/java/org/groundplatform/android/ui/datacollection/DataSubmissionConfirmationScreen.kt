@@ -164,19 +164,21 @@ private fun ShareableContent(modifier: Modifier = Modifier, loiReport: LoiReport
       }
 
       loiReport.submissionDetails?.let {
-        SubmissionPdfItem(
-          modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
-          title = it.surveyName,
-          loiName = loiReport.loiName,
-          userName = it.userName,
-          date = DateFormat.getDateFormat(context).format(Date(it.dateMillis)),
-          onItemClick = {
-            /* To be implemented in a follow-up on https://github.com/google/ground-android/issues/3715 */
-          },
-          onShareClick = {
-            /* To be implemented in a follow-up on https://github.com/google/ground-android/issues/3715 */
-          },
-        )
+        if (!it.submissions.isNullOrEmpty()) {
+          SubmissionPdfItem(
+            modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+            title = it.surveyName,
+            loiName = loiReport.loiName,
+            userName = it.userName,
+            date = DateFormat.getDateFormat(context).format(Date(it.dateMillis)),
+            onItemClick = {
+              /* To be implemented in a follow-up on https://github.com/google/ground-android/issues/3715 */
+            },
+            onShareClick = {
+              /* To be implemented in a follow-up on https://github.com/google/ground-android/issues/3715 */
+            },
+          )
+        }
       }
     }
   }

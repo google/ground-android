@@ -52,11 +52,12 @@ class GetLoiReportUseCase(
    * @param surveyId the identifier of the survey the LOI belongs to.
    * @throws IllegalStateException if the LOI geometry is a bare [LinearRing].
    */
-  @Suppress("UnusedPrivateProperty")
   suspend operator fun invoke(loiName: String, loiId: String, surveyId: String): LoiReport? {
     val loi = locationOfInterestRepository.getOfflineLoi(surveyId, loiId)
     val user = userRepositoryInterface.getAuthenticatedUser()
     val surveyName = surveyRepositoryInterface.getOfflineSurvey(surveyId)?.title.orEmpty()
+    val submissions = null // To be implemented in a follow-up on
+    // https://github.com/google/ground-android/issues/3715
     return loi?.let {
       LoiReport(
         loiName = loiName,
@@ -64,8 +65,14 @@ class GetLoiReportUseCase(
           it.geometry.toGeoJson(
             it.properties.filter { property -> property.key == LOI_NAME_PROPERTY }
           ),
-        submissionDetails = null, // To be implemented in a follow-up on
-        // https://github.com/google/ground-android/issues/3715
+        submissionDetails =
+          LoiReport.SubmissionDetails(
+            surveyName = surveyName,
+            userName = user.displayName,
+            userEmail = user.email,
+            dateMillis = loi.lastModified.clientTimestamp,
+            submissions = submissions,
+          ),
       )
     }
   }
