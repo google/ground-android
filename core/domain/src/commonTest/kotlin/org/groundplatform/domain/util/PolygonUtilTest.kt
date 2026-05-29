@@ -71,6 +71,12 @@ class PolygonUtilTest {
   }
 
   @Test
+  fun `closed triangle does not self intersect`() {
+    val closedTriangle = TRIANGLE + TRIANGLE.first()
+    assertFalse(isSelfIntersecting(closedTriangle))
+  }
+
+  @Test
   fun `empty list`() {
     assertFalse(isSelfIntersecting(emptyList()))
   }

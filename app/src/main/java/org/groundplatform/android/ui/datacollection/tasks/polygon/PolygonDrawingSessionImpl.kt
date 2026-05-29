@@ -20,6 +20,7 @@ import kotlinx.collections.immutable.toImmutableList
 import org.groundplatform.android.ui.datacollection.tasks.polygon.PolygonDrawingSession.Companion.DISTANCE_THRESHOLD_DP
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.LineString
+import org.groundplatform.domain.util.isClosed
 import org.groundplatform.domain.util.isSelfIntersecting
 
 class PolygonDrawingSessionImpl : PolygonDrawingSession {
@@ -34,35 +35,36 @@ class PolygonDrawingSessionImpl : PolygonDrawingSession {
   override val vertices: List<Coordinates>
     get() = _vertices
 
+  private var _tentativeVertex: Coordinates? = null
+
+  override val displayVertices: List<Coordinates>
+    get() = _tentativeVertex?.let { _vertices + it } ?: _vertices
+
   @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
   internal val redoVertexStack = mutableListOf<Coordinates>()
 
   override val hasSelfIntersection: Boolean
-    get() = isSelfIntersecting(_vertices)
-
-  private fun addVertex(vertex: Coordinates, shouldOverwriteLastVertex: Boolean) {
-    val updatedVertices = _vertices.toMutableList()
-
-    if (shouldOverwriteLastVertex && updatedVertices.isNotEmpty()) {
-      updatedVertices.removeAt(updatedVertices.lastIndex)
-    }
-
-    updatedVertices.add(vertex)
-
-    _vertices = updatedVertices.toImmutableList()
-  }
+    get() = isSelfIntersecting(displayVertices)
 
   override fun setVertices(newVertices: List<Coordinates>) {
     _vertices = newVertices.toImmutableList()
+    _tentativeVertex = null
+    redoVertexStack.clear()
   }
 
   override fun updateTentativeVertex(
     target: Coordinates,
     calculateDistance: (Coordinates, Coordinates) -> Double,
   ) {
+    if (isClosed(_vertices)) {
+      _tentativeVertex = null
+      _isTooClose = true
+      return
+    }
+
     val firstVertex = _vertices.firstOrNull()
     var updatedTarget = target
-    if (firstVertex != null && _vertices.size > 2) {
+    if (firstVertex != null && _vertices.size >= 3) {
       val distance = calculateDistance(firstVertex, target)
 
       if (distance <= DISTANCE_THRESHOLD_DP) {
@@ -70,20 +72,20 @@ class PolygonDrawingSessionImpl : PolygonDrawingSession {
       }
     }
 
-    val prev = _vertices.dropLast(1).lastOrNull()
+    val lastCommitted = _vertices.lastOrNull()
     _isTooClose =
-      _vertices.size > 1 &&
-        prev?.let { calculateDistance(it, target) <= DISTANCE_THRESHOLD_DP } == true
+      lastCommitted?.let { calculateDistance(it, target) <= DISTANCE_THRESHOLD_DP } == true
 
-    addVertex(updatedTarget, true)
+    _tentativeVertex = updatedTarget
   }
 
   override fun commitTentativeVertex(currentCameraTarget: Coordinates?): List<Coordinates>? {
     redoVertexStack.clear()
-    val vertex = _vertices.lastOrNull() ?: currentCameraTarget
+    val vertex = _tentativeVertex ?: currentCameraTarget
     return vertex?.let {
+      _vertices = (_vertices + it).toImmutableList()
+      _tentativeVertex = null
       _isTooClose = _vertices.size > 1
-      addVertex(it, false)
       _vertices
     }
   }
@@ -97,20 +99,30 @@ class PolygonDrawingSessionImpl : PolygonDrawingSession {
   }
 
   override fun isValidPolygon(): Boolean =
-    LineString(_vertices).isClosed() && !isSelfIntersecting(_vertices)
+    LineString(displayVertices).isClosed() &&
+      !isSelfIntersecting(displayVertices) &&
+      displayVertices.distinct().size >= 3
 
   override fun complete() {
     check(isValidPolygon()) { "Polygon is not valid" }
     check(!_isMarkedComplete) { "Already marked complete" }
+    if (_tentativeVertex != null) {
+      commitTentativeVertex(null)
+    }
     _isMarkedComplete = true
   }
 
   override fun removeLastVertex(): Boolean {
-    if (_vertices.isEmpty()) return false
+    if (_tentativeVertex == null && _vertices.isEmpty()) return false
 
     _isMarkedComplete = false
-    redoVertexStack.add(_vertices.last())
-    _vertices = _vertices.dropLast(1).toImmutableList()
+    _tentativeVertex = null
+
+    if (_vertices.isNotEmpty()) {
+      redoVertexStack.add(_vertices.last())
+      _vertices = _vertices.dropLast(1).toImmutableList()
+    }
+
     return true
   }
 
@@ -120,6 +132,7 @@ class PolygonDrawingSessionImpl : PolygonDrawingSession {
     _isMarkedComplete = false
     val redoVertex = redoVertexStack.removeAt(redoVertexStack.lastIndex)
     _vertices = (_vertices + redoVertex).toImmutableList()
+    _tentativeVertex = null
     return redoVertex
   }
 

@@ -115,7 +115,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
 
     viewModel.removeLastVertex()
 
-    assertGeometry(3, isLineString = true)
+    assertGeometry(2, isLineString = true)
   }
 
   @Test
@@ -199,11 +199,11 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
 
     viewModel.removeLastVertex()
 
-    assertThat(featureTestObserver.value()?.tooltipText).isEqualTo("1,565,109 m")
+    assertThat(featureTestObserver.value()?.tooltipText).isNull()
 
     viewModel.removeLastVertex()
 
-    assertThat(featureTestObserver.value()?.tooltipText).isEqualTo(null)
+    assertThat(featureTestObserver.value()?.tooltipText).isNull()
   }
 
   @Test
@@ -320,14 +320,34 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     assertThat(firstLine.coordinates.size).isEqualTo(1)
     assertThat(firstFeature.tooltipText).isNull()
 
-    updateLastVertexAndAdd(COORDINATE_2)
-    advanceUntilIdle()
-    val secondFeature = viewModel.draftArea.first()
-    val secondLine = secondFeature!!.geometry as LineString
-    assertThat(secondLine.coordinates.size).isEqualTo(1)
-    assertThat(secondFeature.tooltipText).isNull()
+    viewModel.draftUpdates.test {
+      updateLastVertexAndAdd(COORDINATE_2)
+      advanceUntilIdle()
 
-    viewModel.removeLastVertex()
+      // 1. Consume the transient active target update (from updateLastVertex)
+      val secondFeature = awaitItem()
+      val secondLine = secondFeature.geometry as LineString
+      assertThat(secondLine.coordinates.size).isEqualTo(2)
+      assertThat(secondFeature.tooltipText).isEqualTo("1,565,109 m")
+
+      // 2. Consume the committed vertex update (from addLastVertex)
+      val committedFeature = awaitItem()
+      val committedLine = committedFeature.geometry as LineString
+      assertThat(committedLine.coordinates.size).isEqualTo(2)
+      assertThat(committedFeature.tooltipText).isEqualTo("1,565,109 m")
+
+      // 3. Revert/Undo last vertex
+      viewModel.removeLastVertex()
+      advanceUntilIdle()
+
+      // 4. Consume the undo update (from removeLastVertex)
+      val thirdFeature = awaitItem()
+      val thirdLine = thirdFeature.geometry as LineString
+      assertThat(thirdLine.coordinates.size).isEqualTo(1)
+      assertThat(thirdFeature.tooltipText).isNull()
+
+      cancelAndIgnoreRemainingEvents()
+    }
   }
 
   @Test
@@ -568,10 +588,10 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     updateLastVertexAndAdd(COORDINATE_2)
 
     viewModel.removeLastVertex()
-    assertGeometry(2, isLineString = true)
+    assertGeometry(1, isLineString = true)
 
     viewModel.redoLastVertex()
-    assertGeometry(3, isLineString = true)
+    assertGeometry(2, isLineString = true)
   }
 
   @Test
