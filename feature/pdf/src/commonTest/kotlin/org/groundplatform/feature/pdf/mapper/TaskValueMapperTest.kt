@@ -32,10 +32,10 @@ import org.groundplatform.domain.model.task.MultipleChoice
 import org.groundplatform.domain.model.task.Option
 import org.groundplatform.domain.model.task.PhotoTaskData
 import org.groundplatform.domain.model.task.Task
+import org.groundplatform.feature.pdf.helpers.FakeDateFormatter
+import org.groundplatform.feature.pdf.helpers.FakeStringResolver
 import org.groundplatform.feature.pdf.model.SubmissionPdfDocument
 import org.groundplatform.testing.FakeDataGenerator
-import org.groundplatform.testing.FakeDateFormatter
-import org.groundplatform.testing.FakeStringResolver
 
 class TaskValueMapperTest {
 

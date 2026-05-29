@@ -19,9 +19,9 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlinx.coroutines.test.runTest
+import org.groundplatform.feature.pdf.helpers.FakeDateFormatter
+import org.groundplatform.feature.pdf.helpers.FakeStringResolver
 import org.groundplatform.testing.FakeDataGenerator
-import org.groundplatform.testing.FakeDateFormatter
-import org.groundplatform.testing.FakeStringResolver
 
 class LoiReportMapperTest {
 

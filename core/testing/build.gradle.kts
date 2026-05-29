@@ -36,12 +36,10 @@ kotlin {
     commonMain {
       dependencies {
         implementation(project(":core:domain"))
-        implementation(project(":core:ui"))
         implementation(libs.kotlin.stdlib)
         implementation(libs.kotlinx.collections.immutable)
         implementation(libs.kotlinx.coroutines.core)
         implementation(libs.kotlinx.serialization.json)
-        implementation(libs.compose.components.resources)
       }
     }
   }
