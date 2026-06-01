@@ -45,6 +45,11 @@ class PdfExportService(
           val images = imageProvider.load(request.qrContent, request.document.photoFilenames())
           try {
             renderer.render(request.document, images, path)
+          } catch (e: Throwable) {
+            // Delete the partially written or corrupted file so we never open/share a broken PDF,
+            // then re-throw so the failure can be handled upstream.
+            outputProvider.deleteReport(path)
+            throw e
           } finally {
             images.release()
           }
