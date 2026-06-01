@@ -71,10 +71,10 @@ class GmsQrCodeScannerTest {
     whenever(moduleInstallClient.installModules(any())).thenReturn(moduleInstallTask)
     whenever(moduleInstallTask.addOnFailureListener(any())).thenReturn(moduleInstallTask)
     doAnswer { invocation ->
-      @Suppress("UNCHECKED_CAST")
-      (invocation.arguments[0] as OnSuccessListener<ModuleInstallResponse>).onSuccess(mock())
-      moduleInstallTask
-    }
+        @Suppress("UNCHECKED_CAST")
+        (invocation.arguments[0] as OnSuccessListener<ModuleInstallResponse>).onSuccess(mock())
+        moduleInstallTask
+      }
       .whenever(moduleInstallTask)
       .addOnSuccessListener(any())
     scanner = GmsQrCodeScanner(context)
@@ -134,9 +134,9 @@ class GmsQrCodeScannerTest {
     val cause = RuntimeException()
     whenever(moduleInstallTask.addOnSuccessListener(any())).thenReturn(moduleInstallTask)
     doAnswer { invocation ->
-      (invocation.arguments[0] as OnFailureListener).onFailure(cause)
-      moduleInstallTask
-    }
+        (invocation.arguments[0] as OnFailureListener).onFailure(cause)
+        moduleInstallTask
+      }
       .whenever(moduleInstallTask)
       .addOnFailureListener(any())
 
