@@ -87,24 +87,42 @@ class LoiReportMapperTest {
   }
 
   @Test
-  fun `file name strips non-ASCII characters`() = runTest {
+  fun `file name preserves non-Latin characters`() = runTest {
+    val request =
+      mapper.map(
+        loiReport =
+          FakeDataGenerator.newLoiReport(
+            loiName = "ເພີ່ມຈຸດສຳຫຼວດ",
+            submissionDetails =
+              FakeDataGenerator.newSubmissionDetails(surveyName = "แบบสำรวจ", userName = "テスト"),
+          ),
+        submission = FakeDataGenerator.newSubmission(),
+      )
+
+    assertEquals("แบบสำรวจ_ເພີ່ມຈຸດສຳຫຼວດ_テスト_$timestampSegment", request!!.fileName)
+  }
+
+  @Test
+  fun `file name sanitizes reserved characters and preserves accented Latin letters`() = runTest {
     val request =
       mapper.map(
         loiReport =
           FakeDataGenerator.newLoiReport(
             loiName = "ß",
             submissionDetails =
-              FakeDataGenerator.newSubmissionDetails(surveyName = "café", userName = "José"),
+              FakeDataGenerator.newSubmissionDetails(
+                surveyName = "Café/São/José",
+                userName = "Test?",
+              ),
           ),
         submission = FakeDataGenerator.newSubmission(),
       )
 
-    // "café" -> "caf", "ß" -> "", "José" -> "Jos".
-    assertEquals("caf_Jos_$timestampSegment", request!!.fileName)
+    assertEquals("CaféSãoJosé_ß_Test_$timestampSegment", request!!.fileName)
   }
 
   @Test
-  fun `file name is capped at 200 characters`() = runTest {
+  fun `file name is capped at 100 characters`() = runTest {
     val request =
       mapper.map(
         loiReport =
@@ -116,7 +134,7 @@ class LoiReportMapperTest {
         submission = FakeDataGenerator.newSubmission(),
       )
 
-    assertEquals(200, request!!.fileName.length)
+    assertEquals(100, request!!.fileName.length)
   }
 
   @Test

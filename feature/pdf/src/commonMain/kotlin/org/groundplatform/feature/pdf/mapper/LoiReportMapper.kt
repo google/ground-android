@@ -62,7 +62,7 @@ class LoiReportMapper(
         .map { it.filter(::isSafeFileChar) }
         .filter { it.isNotBlank() }
         .joinToString("_")
-        .take(200)
+        .take(100)
 
     return PdfExportService.Request(
       document = document,
@@ -103,6 +103,19 @@ class LoiReportMapper(
         }
       }
 
+  /**
+   * Allows Unicode letters, digits, combining marks, hyphens, and underscores while rejecting
+   * characters reserved or unsafe in file paths.
+   */
   private fun isSafeFileChar(c: Char): Boolean =
-    c in 'a'..'z' || c in 'A'..'Z' || c in '0'..'9' || c in "_-"
+    c.isLetterOrDigit() || c.category in COMBINING_MARK_CATEGORIES || c in "_-"
+
+  private companion object {
+    val COMBINING_MARK_CATEGORIES =
+      setOf(
+        CharCategory.NON_SPACING_MARK,
+        CharCategory.COMBINING_SPACING_MARK,
+        CharCategory.ENCLOSING_MARK,
+      )
+  }
 }
