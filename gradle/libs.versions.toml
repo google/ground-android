@@ -31,6 +31,7 @@ coreTestingVersion = "1.1.1"
 coreVersion = "1.7.0"
 coroutinesVersion = "1.11.0"
 detektVersion = "1.23.8"
+exifInterfaceVersion = "1.4.2"
 espressoContribVersion = "3.7.0"
 firebaseBomVersion = "34.14.1"
 firebaseCrashlyticsGradleVersion = "3.0.7"
@@ -91,6 +92,7 @@ androidx-compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4
 androidx-core = { module = "androidx.test:core", version.ref = "coreVersion" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtxVersion" }
 androidx-core-testing = { module = "androidx.arch.core:core-testing", version.ref = "coreTesting" }
+androidx-exifinterface = { module = "androidx.exifinterface:exifinterface", version.ref = "exifInterfaceVersion" }
 androidx-espresso-contrib = { module = "androidx.test.espresso:espresso-contrib", version.ref = "espressoContribVersion" }
 androidx-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espressoContribVersion" }
 androidx-espresso-intents = { module = "androidx.test.espresso:espresso-intents", version.ref = "espressoContribVersion" }
