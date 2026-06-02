@@ -20,6 +20,7 @@ plugins {
 }
 
 kotlin {
+  jvmToolchain(libs.versions.jvmToolchainVersion.get().toInt())
   android {
     namespace = "org.groundplatform.feature.pdf"
     compileSdk {
@@ -48,6 +49,7 @@ kotlin {
         implementation(libs.kotlinx.coroutines.core)
         implementation(libs.kotlinx.collections.immutable)
         implementation(libs.kotlinx.serialization.json)
+        implementation(libs.compose.ui)
       }
     }
 
@@ -56,6 +58,20 @@ kotlin {
         implementation(project(":core:testing"))
         implementation(libs.kotlin.test)
         implementation(libs.kotlinx.coroutines.test)
+      }
+    }
+
+    androidMain {
+      dependencies {
+        implementation(libs.androidx.core.ktx)
+        implementation(libs.androidx.exifinterface)
+      }
+    }
+
+    val androidHostTest by getting {
+      dependencies {
+        implementation(libs.junit)
+        implementation(libs.robolectric)
       }
     }
   }
