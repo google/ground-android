@@ -30,6 +30,8 @@ internal data class PdfItemSize(val width: Float, val height: Float)
 
 internal data class PdfOffset(val x: Float, val y: Float)
 
+internal data class PdfLine(val startX: Float, val startY: Float, val endX: Float, val endY: Float)
+
 /** Platform-agnostic rectangle defined by its top-left corner and dimensions. */
 internal data class PdfRect(val x: Float, val y: Float, val width: Float, val height: Float) {
   val right: Float

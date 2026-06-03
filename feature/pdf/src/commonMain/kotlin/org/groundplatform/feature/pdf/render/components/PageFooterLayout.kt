@@ -16,6 +16,7 @@
 package org.groundplatform.feature.pdf.render.components
 
 import org.groundplatform.feature.pdf.render.PdfConfig.FOOTER_TEXT_MAX_WIDTH
+import org.groundplatform.feature.pdf.render.PdfConfig.FOOTER_TOP_GAP
 import org.groundplatform.feature.pdf.render.PdfConfig.MARGIN
 import org.groundplatform.feature.pdf.render.PdfConfig.PAGE_HEIGHT
 import org.groundplatform.feature.pdf.render.PdfConfig.PAGE_NUMBER_BAND_WIDTH
@@ -37,6 +38,13 @@ internal data class PageFooterLayout(
   val pageNumberMaxWidth: Int,
 ) {
   companion object {
+    /**
+     * Vertical space the footer occupies, including the [FOOTER_TOP_GAP] separating it from page
+     * content. Feed this to [org.groundplatform.feature.pdf.render.PdfCursor] so pagination keeps
+     * the footer clear of content.
+     */
+    fun reserve(footerHeight: Float): Float = footerHeight + FOOTER_TOP_GAP
+
     fun compute(footerHeight: Float): PageFooterLayout {
       val top = PAGE_HEIGHT - MARGIN - footerHeight
       val left = MARGIN.toFloat()

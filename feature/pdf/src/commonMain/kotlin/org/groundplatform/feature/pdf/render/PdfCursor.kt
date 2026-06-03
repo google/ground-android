@@ -17,12 +17,13 @@ package org.groundplatform.feature.pdf.render
 
 /** Tracks the current vertical draw position on a page and the space reserved for the footer. */
 internal class PdfCursor(
+  /**
+   * Space kept clear above the bottom margin for the footer.
+   */
+  private val footerReserve: Float,
   private val pageHeight: Int = PdfConfig.PAGE_HEIGHT,
   private val margin: Int = PdfConfig.MARGIN,
 ) {
-  /** Space kept clear above the bottom margin for the footer; set once the footer is known. */
-  var footerReserve: Float = 0f
-
   var y: Float = margin.toFloat()
     private set
 

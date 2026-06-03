@@ -88,4 +88,11 @@ class PageFooterLayoutTest {
 
     assertEquals(pageHeight.toFloat(), layout.footerTextOffset.y + footerHeight + margin)
   }
+
+  @Test
+  fun `reserve adds the top gap to the footer height`() {
+    val footerHeight = 12f
+
+    assertEquals(footerHeight + PdfConfig.FOOTER_TOP_GAP, PageFooterLayout.reserve(footerHeight))
+  }
 }

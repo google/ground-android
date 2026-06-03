@@ -24,7 +24,7 @@ class PdfCursorTest {
 
   @Test
   fun `fresh cursor starts at the top margin`() {
-    val cursor = PdfCursor()
+    val cursor = newCursor()
 
     assertEquals(PdfConfig.MARGIN.toFloat(), cursor.y)
     assertTrue(cursor.isAtPageTop)
@@ -32,7 +32,7 @@ class PdfCursorTest {
 
   @Test
   fun `advance moves the cursor down by the given delta`() {
-    val cursor = PdfCursor()
+    val cursor = newCursor()
     val start = cursor.y
 
     cursor.advance(75f)
@@ -43,7 +43,7 @@ class PdfCursorTest {
 
   @Test
   fun `moveTo sets the cursor to an absolute Y`() {
-    val cursor = PdfCursor()
+    val cursor = newCursor()
 
     cursor.moveTo(400f)
 
@@ -52,7 +52,7 @@ class PdfCursorTest {
 
   @Test
   fun `reset returns the cursor to the top margin`() {
-    val cursor = PdfCursor()
+    val cursor = newCursor()
     cursor.advance(300f)
 
     cursor.reset()
@@ -63,7 +63,7 @@ class PdfCursorTest {
 
   @Test
   fun `isAtPageTop reflects whether Y matches the top margin`() {
-    val cursor = PdfCursor()
+    val cursor = newCursor()
     assertTrue(cursor.isAtPageTop)
 
     cursor.advance(1f)
@@ -75,7 +75,7 @@ class PdfCursorTest {
 
   @Test
   fun `fits returns true when there is room above the bottom margin`() {
-    val cursor = PdfCursor()
+    val cursor = newCursor()
 
     val available = PdfConfig.PAGE_HEIGHT - 2 * PdfConfig.MARGIN
     assertTrue(cursor.fits(available.toFloat()))
@@ -84,7 +84,7 @@ class PdfCursorTest {
 
   @Test
   fun `fits returns false when the requested height overflows the bottom margin`() {
-    val cursor = PdfCursor()
+    val cursor = newCursor()
 
     val available = PdfConfig.PAGE_HEIGHT - 2 * PdfConfig.MARGIN
     assertFalse(cursor.fits(available + 1f))
@@ -92,9 +92,8 @@ class PdfCursorTest {
 
   @Test
   fun `fits subtracts the footer reserve from the available space`() {
-    val cursor = PdfCursor()
+    val cursor = newCursor(footerReserve = 50f)
     val available = (PdfConfig.PAGE_HEIGHT - 2 * PdfConfig.MARGIN).toFloat()
-    cursor.footerReserve = 50f
 
     assertTrue(cursor.fits(available - 50f))
     assertFalse(cursor.fits(available - 49f))
@@ -102,7 +101,7 @@ class PdfCursorTest {
 
   @Test
   fun `fits depends on the current Y position`() {
-    val cursor = PdfCursor()
+    val cursor = newCursor()
     val available = (PdfConfig.PAGE_HEIGHT - 2 * PdfConfig.MARGIN).toFloat()
 
     cursor.advance(100f)
@@ -113,11 +112,17 @@ class PdfCursorTest {
 
   @Test
   fun `custom page height and margin are respected`() {
-    val cursor = PdfCursor(pageHeight = 200, margin = 10)
+    val cursor = newCursor(pageHeight = 200, margin = 10)
 
     assertEquals(10f, cursor.y)
     // Usable height = 200 - 2*10 = 180.
     assertTrue(cursor.fits(180f))
     assertFalse(cursor.fits(181f))
   }
+
+  private fun newCursor(
+    footerReserve: Float = 0f,
+    pageHeight: Int = PdfConfig.PAGE_HEIGHT,
+    margin: Int = PdfConfig.MARGIN,
+  ) = PdfCursor(footerReserve = footerReserve, pageHeight = pageHeight, margin = margin)
 }

@@ -49,7 +49,6 @@ kotlin {
         implementation(libs.kotlinx.coroutines.core)
         implementation(libs.kotlinx.collections.immutable)
         implementation(libs.kotlinx.serialization.json)
-        implementation(libs.compose.ui)
       }
     }
 
@@ -65,6 +64,7 @@ kotlin {
       dependencies {
         implementation(libs.androidx.core.ktx)
         implementation(libs.androidx.exifinterface)
+        implementation(libs.compose.ui)
       }
     }
 

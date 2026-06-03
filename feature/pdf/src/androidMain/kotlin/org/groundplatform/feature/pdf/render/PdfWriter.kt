@@ -1,3 +1,18 @@
+/*
+ * Copyright 2026 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.groundplatform.feature.pdf.render
 
 import android.graphics.RectF
@@ -16,9 +31,7 @@ import org.groundplatform.feature.pdf.model.SubmissionPdfDocument.Footer
 import org.groundplatform.feature.pdf.model.SubmissionPdfDocument.Header
 import org.groundplatform.feature.pdf.model.SubmissionPdfDocument.QrBlock
 import org.groundplatform.feature.pdf.render.PdfConfig.FOOTER_TEXT_MAX_WIDTH
-import org.groundplatform.feature.pdf.render.PdfConfig.FOOTER_TOP_GAP
 import org.groundplatform.feature.pdf.render.PdfConfig.LINE_SPACING
-import org.groundplatform.feature.pdf.render.PdfConfig.MARGIN
 import org.groundplatform.feature.pdf.render.PdfConfig.MAX_FOOTER_LINES
 import org.groundplatform.feature.pdf.render.PdfConfig.MAX_HEADER_VALUE_LINES
 import org.groundplatform.feature.pdf.render.PdfConfig.PHOTO_MAX_HEIGHT
@@ -27,7 +40,7 @@ import org.groundplatform.feature.pdf.render.PdfConfig.USABLE_WIDTH
 import org.groundplatform.feature.pdf.render.components.PageFooterLayout
 import org.groundplatform.feature.pdf.render.components.PageHeaderLayout
 import org.groundplatform.feature.pdf.render.components.QrBlockLayout
-import org.groundplatform.feature.pdf.render.components.TableRowLayout
+import org.groundplatform.feature.pdf.render.components.TableLayout
 import org.groundplatform.feature.pdf.render.image.PdfImage
 import org.groundplatform.feature.pdf.render.image.PdfImageSet
 
@@ -45,23 +58,10 @@ internal class PdfWriter(
 ) : PdfPageController.PageLifecycle {
   private val paints = PdfTextPaints()
 
-  private val cursor = PdfCursor()
+  private val footerLayout: StaticLayout = buildFooterLayout(footer)
+  private val cursor =
+    PdfCursor(footerReserve = PageFooterLayout.reserve(footerLayout.height.toFloat()))
   private val pageController = PdfPageController(cursor, this)
-
-  private var currentTableTopY: Float? = null
-
-  private val footerLayout: StaticLayout
-
-  init {
-    val footerLabel = footer.dataCollectorLabel
-    val footerText =
-      SpannableString("$footerLabel: ${footer.dataCollectorName}, ${footer.userEmail}").apply {
-        setSpan(StyleSpan(Typeface.BOLD), 0, footerLabel.length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
-      }
-    footerLayout =
-      staticLayout(footerText, paints.meta, FOOTER_TEXT_MAX_WIDTH, maxLines = MAX_FOOTER_LINES)
-    cursor.footerReserve = footerLayout.height + FOOTER_TOP_GAP
-  }
 
   val pageCount: Int
     get() = pageController.pageCount
@@ -72,7 +72,6 @@ internal class PdfWriter(
   }
 
   override fun onPageEnding(pageNumber: Int) {
-    flushTableDivider()
     drawPageFooter()
     pdfCanvas.finishPage()
   }
@@ -92,8 +91,6 @@ internal class PdfWriter(
   fun drawTable(table: SubmissionPdfDocument.Table) {
     val rows = table.rows.takeIf { it.isNotEmpty() } ?: return
     pageController.ensurePage()
-    val x = MARGIN.toFloat()
-    cursor.advance(LINE_SPACING * 2)
     val label =
       SpannableString("${table.submissionLabel}: ${table.loiName}").apply {
         setSpan(
@@ -103,8 +100,10 @@ internal class PdfWriter(
           Spanned.SPAN_INCLUSIVE_EXCLUSIVE,
         )
       }
-    cursor.moveTo(drawText(label, x, cursor.y, USABLE_WIDTH, paints.title))
-    cursor.advance(LINE_SPACING)
+    val labelLayout = staticLayout(label, paints.title, USABLE_WIDTH)
+    val tableLabel = TableLayout.getLabel(top = cursor.y, labelHeight = labelLayout.height.toFloat())
+    drawStaticLayoutAt(labelLayout, tableLabel.labelOffset)
+    cursor.moveTo(tableLabel.nextCursorY)
     rows.forEach { row ->
       when (val answer = row.answer) {
         is Answer.Text ->
@@ -121,7 +120,6 @@ internal class PdfWriter(
           )
       }
     }
-    flushTableDivider()
   }
 
   fun finalizePage() {
@@ -171,15 +169,15 @@ internal class PdfWriter(
     val layout = PageFooterLayout.compute(footerHeight = footerLayout.height.toFloat())
     drawStaticLayoutAt(footerLayout, layout.footerTextOffset)
     totalPages?.let { total ->
-      drawText(
-        text = "${pageController.pageCount}/$total",
-        x = layout.pageNumberOffset.x,
-        y = layout.pageNumberOffset.y,
-        maxWidth = layout.pageNumberMaxWidth,
-        paint = paints.meta,
-        alignment = Layout.Alignment.ALIGN_OPPOSITE,
-        maxLines = 1,
-      )
+      val pageNumber =
+        staticLayout(
+          "${pageController.pageCount}/$total",
+          paints.meta,
+          layout.pageNumberMaxWidth,
+          alignment = Layout.Alignment.ALIGN_OPPOSITE,
+          maxLines = 1,
+        )
+      drawStaticLayoutAt(pageNumber, layout.pageNumberOffset)
     }
   }
 
@@ -194,22 +192,16 @@ internal class PdfWriter(
 
     val questionHeight = questionLayout.height.toFloat()
     val answerHeight = answerLayout?.height?.toFloat() ?: 0f
-    pageController.newPageIfShort(
-      TableRowLayout.totalHeight(questionHeight, answerHeight, photoSize)
-    )
+    pageController.newPageIfShort(TableLayout.getRowHeight(questionHeight, answerHeight, photoSize))
     val rowLayout =
-      TableRowLayout.compute(
+      TableLayout.getRow(
         rowTop = cursor.y,
         leftTextHeight = questionHeight,
         rightTextHeight = answerHeight,
         rightImageSize = photoSize,
       )
 
-    if (currentTableTopY == null) {
-      currentTableTopY = cursor.y
-      pdfCanvas.drawLine(rowLayout.leftRowX, cursor.y, rowLayout.rightRowX, cursor.y)
-    }
-
+    rowLayout.borderLines.forEach { drawLine(it) }
     drawStaticLayoutAt(questionLayout, rowLayout.leftTextOffset)
     if (answerLayout != null && rowLayout.rightTextOffset != null) {
       drawStaticLayoutAt(answerLayout, rowLayout.rightTextOffset)
@@ -218,35 +210,6 @@ internal class PdfWriter(
       drawImage(photo, rowLayout.rightImageFrame, smoothScaling = true)
     }
     cursor.advance(rowLayout.totalHeight)
-
-    pdfCanvas.drawLine(rowLayout.leftRowX, cursor.y, rowLayout.rightRowX, cursor.y)
-  }
-
-  private fun flushTableDivider() {
-    val top = currentTableTopY ?: return
-    val midX = MARGIN + PdfConfig.TABLE_TASK_COLUMN_WIDTH.toFloat()
-    pdfCanvas.drawLine(midX, top, midX, cursor.y)
-    currentTableTopY = null
-  }
-
-  /**
-   * Lays out [text] and draws it at ([x], [y]).
-   *
-   * @return the Y just below the drawn text.
-   */
-  private fun drawText(
-    text: CharSequence,
-    x: Float,
-    y: Float,
-    maxWidth: Int,
-    paint: TextPaint,
-    alignment: Layout.Alignment = Layout.Alignment.ALIGN_NORMAL,
-    maxLines: Int = Int.MAX_VALUE,
-  ): Float {
-    if (text.isEmpty()) return y
-    val layout = staticLayout(text, paint, maxWidth, alignment, maxLines)
-    pdfCanvas.drawStaticLayout(layout, x, y)
-    return y + layout.height
   }
 
   private fun drawStaticLayoutAt(layout: StaticLayout, offset: PdfOffset) =
@@ -254,6 +217,18 @@ internal class PdfWriter(
 
   private fun drawImage(image: PdfImage, frame: PdfRect, smoothScaling: Boolean) =
     pdfCanvas.drawImage(image, RectF(frame.x, frame.y, frame.right, frame.bottom), smoothScaling)
+
+  private fun drawLine(line: PdfLine) =
+    pdfCanvas.drawLine(line.startX, line.startY, line.endX, line.endY)
+
+  private fun buildFooterLayout(footer: Footer): StaticLayout {
+    val footerLabel = footer.dataCollectorLabel
+    val footerText =
+      SpannableString("$footerLabel: ${footer.dataCollectorName}, ${footer.userEmail}").apply {
+        setSpan(StyleSpan(Typeface.BOLD), 0, footerLabel.length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
+      }
+    return staticLayout(footerText, paints.meta, FOOTER_TEXT_MAX_WIDTH, maxLines = MAX_FOOTER_LINES)
+  }
 
   /**
    * Lays out [text] wrapped to [maxWidth]. When [maxLines] is set, overflow is ellipsized so a

@@ -40,7 +40,7 @@ class PageHeaderLayoutTest {
     assertTrue(center < right)
     assertEquals(headerColumnGap.toFloat(), center - (left + width))
     assertEquals(headerColumnGap.toFloat(), right - (center + width))
-    assertTrue(3 * width + 2 * headerColumnGap.compareTo(usableWidth) <= 0)
+    assertTrue(3 * width + 2 * headerColumnGap <= usableWidth)
   }
 
   @Test

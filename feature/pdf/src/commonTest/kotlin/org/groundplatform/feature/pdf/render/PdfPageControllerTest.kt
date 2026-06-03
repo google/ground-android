@@ -33,7 +33,7 @@ class PdfPageControllerTest {
         events += PageEvent.Ending(pageNumber)
       }
     }
-  private val cursor = PdfCursor()
+  private val cursor = PdfCursor(footerReserve = 0f)
   private val controller = PdfPageController(cursor, lifecycle)
 
   @Test

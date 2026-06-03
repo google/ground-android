@@ -22,9 +22,10 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import org.groundplatform.feature.pdf.render.PdfConfig
 import org.groundplatform.feature.pdf.render.PdfItemSize
+import org.groundplatform.feature.pdf.render.PdfLine
 import org.groundplatform.feature.pdf.render.PdfOffset
 
-class TableRowLayoutTest {
+class TableLayoutTest {
 
   private val cellPadding = PdfConfig.CELL_PADDING.toFloat()
   private val lineSpacing = PdfConfig.LINE_SPACING
@@ -33,21 +34,47 @@ class TableRowLayoutTest {
   private val taskColumnWidth = PdfConfig.TABLE_TASK_COLUMN_WIDTH
 
   @Test
-  fun `totalHeight with only left text returns left height plus padding`() {
+  fun `label sits below a top gap at the left margin`() {
+    val layout = TableLayout.getLabel(top = 100f, labelHeight = 14f)
+
+    assertEquals(PdfOffset(margin, 100f + 2 * lineSpacing), layout.labelOffset)
+  }
+
+  @Test
+  fun `label leaves a bottom gap before the first row`() {
+    val top = 100f
+    val labelHeight = 14f
+
+    val layout = TableLayout.getLabel(top = top, labelHeight = labelHeight)
+
+    assertEquals(top + 2 * lineSpacing + labelHeight + lineSpacing, layout.nextCursorY)
+  }
+
+  @Test
+  fun `taller label pushes the first row further down`() {
+    val short = TableLayout.getLabel(top = 0f, labelHeight = 10f)
+    val tall = TableLayout.getLabel(top = 0f, labelHeight = 30f)
+
+    assertTrue(short.nextCursorY < tall.nextCursorY)
+    assertEquals(20f, tall.nextCursorY - short.nextCursorY)
+  }
+
+  @Test
+  fun `rowHeight with only left text returns left height plus padding`() {
     val height =
-      TableRowLayout.totalHeight(leftTextHeight = 30f, rightTextHeight = 0f, rightImageSize = null)
+      TableLayout.getRowHeight(leftTextHeight = 30f, rightTextHeight = 0f, rightImageSize = null)
 
     assertEquals(30f + 2 * cellPadding, height)
   }
 
   @Test
-  fun `totalHeight picks the taller content height`() {
+  fun `rowHeight picks the taller content height`() {
     val tallerLeft =
-      TableRowLayout.totalHeight(leftTextHeight = 50f, rightTextHeight = 20f, rightImageSize = null)
+      TableLayout.getRowHeight(leftTextHeight = 50f, rightTextHeight = 20f, rightImageSize = null)
     val tallerRight =
-      TableRowLayout.totalHeight(leftTextHeight = 10f, rightTextHeight = 60f, rightImageSize = null)
+      TableLayout.getRowHeight(leftTextHeight = 10f, rightTextHeight = 60f, rightImageSize = null)
     val tallerImageRight =
-      TableRowLayout.totalHeight(
+      TableLayout.getRowHeight(
         leftTextHeight = 20f,
         rightTextHeight = 0f,
         rightImageSize = PdfItemSize(width = 100f, height = 80f),
@@ -59,9 +86,9 @@ class TableRowLayoutTest {
   }
 
   @Test
-  fun `totalHeight with both right text and image stacks them with line spacing`() {
+  fun `rowHeight with both right text and image stacks them with line spacing`() {
     val height =
-      TableRowLayout.totalHeight(
+      TableLayout.getRowHeight(
         leftTextHeight = 10f,
         rightTextHeight = 20f,
         rightImageSize = PdfItemSize(width = 100f, height = 80f),
@@ -71,9 +98,9 @@ class TableRowLayoutTest {
   }
 
   @Test
-  fun `compute always places left text at the row's top-left content area`() {
+  fun `row always places left text at the row's top-left content area`() {
     val layout =
-      TableRowLayout.compute(
+      TableLayout.getRow(
         rowTop = 100f,
         leftTextHeight = 20f,
         rightTextHeight = 0f,
@@ -84,9 +111,9 @@ class TableRowLayoutTest {
   }
 
   @Test
-  fun `compute returns null right offsets when right cell has no content`() {
+  fun `row returns null right offsets when right cell has no content`() {
     val layout =
-      TableRowLayout.compute(
+      TableLayout.getRow(
         rowTop = 0f,
         leftTextHeight = 20f,
         rightTextHeight = 0f,
@@ -98,9 +125,9 @@ class TableRowLayoutTest {
   }
 
   @Test
-  fun `compute places right text at the right cell's top`() {
+  fun `row places right text at the right cell's top`() {
     val layout =
-      TableRowLayout.compute(
+      TableLayout.getRow(
         rowTop = 50f,
         leftTextHeight = 20f,
         rightTextHeight = 20f,
@@ -113,10 +140,10 @@ class TableRowLayoutTest {
   }
 
   @Test
-  fun `compute places image at the right cell's top`() {
+  fun `row places image at the right cell's top`() {
     val imageSize = PdfItemSize(width = 80f, height = 60f)
     val layout =
-      TableRowLayout.compute(
+      TableLayout.getRow(
         rowTop = 50f,
         leftTextHeight = 20f,
         rightTextHeight = 0f,
@@ -135,9 +162,9 @@ class TableRowLayoutTest {
   }
 
   @Test
-  fun `compute sets row bounds and divider from page geometry`() {
+  fun `row sets bounds and divider from page geometry`() {
     val layout =
-      TableRowLayout.compute(
+      TableLayout.getRow(
         rowTop = 0f,
         leftTextHeight = 20f,
         rightTextHeight = 0f,
@@ -152,12 +179,62 @@ class TableRowLayoutTest {
   }
 
   @Test
-  fun `compute totalHeight matches the static helper`() {
+  fun `row frames itself with top, bottom, and column-divider border lines`() {
+    val rowTop = 100f
+    val layout =
+      TableLayout.getRow(
+        rowTop = rowTop,
+        leftTextHeight = 20f,
+        rightTextHeight = 20f,
+        rightImageSize = null,
+      )
+
+    val rowBottom = rowTop + layout.totalHeight
+    val right = margin + usableWidth
+    val midX = margin + taskColumnWidth
+    assertEquals(
+      listOf(
+        PdfLine(margin, rowTop, right, rowTop),
+        PdfLine(margin, rowBottom, right, rowBottom),
+        PdfLine(midX, rowTop, midX, rowBottom),
+      ),
+      layout.borderLines,
+    )
+  }
+
+  @Test
+  fun `consecutive rows produce abutting borders so the divider reads as one continuous line`() {
+    val first =
+      TableLayout.getRow(
+        rowTop = 50f,
+        leftTextHeight = 20f,
+        rightTextHeight = 0f,
+        rightImageSize = null,
+      )
+    val second =
+      TableLayout.getRow(
+        rowTop = 50f + first.totalHeight,
+        leftTextHeight = 30f,
+        rightTextHeight = 0f,
+        rightImageSize = null,
+      )
+
+    // The first row's bottom border sits exactly where the second row's top border begins.
+    assertEquals(first.borderLines[1].startY, second.borderLines[0].startY)
+    // The per-row divider segments share an X and meet end-to-start, forming one unbroken line.
+    val firstDivider = first.borderLines[2]
+    val secondDivider = second.borderLines[2]
+    assertEquals(firstDivider.endX, secondDivider.startX)
+    assertEquals(firstDivider.endY, secondDivider.startY)
+  }
+
+  @Test
+  fun `row totalHeight matches the rowHeight helper`() {
     val left = 30f
     val right = 20f
     val image = PdfItemSize(width = 80f, height = 60f)
-    val layout = TableRowLayout.compute(rowTop = 0f, left, right, image)
+    val layout = TableLayout.getRow(rowTop = 0f, left, right, image)
 
-    assertEquals(TableRowLayout.totalHeight(left, right, image), layout.totalHeight)
+    assertEquals(TableLayout.getRowHeight(left, right, image), layout.totalHeight)
   }
 }
