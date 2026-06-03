@@ -17,6 +17,9 @@ package org.groundplatform.android.system
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
+import com.google.android.gms.common.moduleinstall.ModuleInstall
+import com.google.android.gms.common.moduleinstall.ModuleInstallClient
+import com.google.android.gms.common.moduleinstall.ModuleInstallResponse
 import com.google.android.gms.tasks.OnCanceledListener
 import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.gms.tasks.OnSuccessListener
@@ -45,7 +48,10 @@ class GmsQrCodeScannerTest {
   private val context: Context = ApplicationProvider.getApplicationContext()
   private val client: GmsBarcodeScanner = mock()
   private val task: Task<Barcode> = mock<Task<Barcode>>()
+  private val moduleInstallClient: ModuleInstallClient = mock()
+  private val moduleInstallTask: Task<ModuleInstallResponse> = mock()
   private lateinit var staticScanning: MockedStatic<GmsBarcodeScanning>
+  private lateinit var staticModuleInstall: MockedStatic<ModuleInstall>
   private lateinit var scanner: GmsQrCodeScanner
 
   @Before
@@ -54,16 +60,30 @@ class GmsQrCodeScannerTest {
     staticScanning
       .`when`<GmsBarcodeScanner> { GmsBarcodeScanning.getClient(any(), any()) }
       .thenReturn(client)
+    staticModuleInstall = mockStatic(ModuleInstall::class.java)
+    staticModuleInstall
+      .`when`<ModuleInstallClient> { ModuleInstall.getClient(any<Context>()) }
+      .thenReturn(moduleInstallClient)
     whenever(client.startScan()).thenReturn(task)
     whenever(task.addOnSuccessListener(any())).thenReturn(task)
     whenever(task.addOnCanceledListener(any())).thenReturn(task)
     whenever(task.addOnFailureListener(any())).thenReturn(task)
+    whenever(moduleInstallClient.installModules(any())).thenReturn(moduleInstallTask)
+    whenever(moduleInstallTask.addOnFailureListener(any())).thenReturn(moduleInstallTask)
+    doAnswer { invocation ->
+        @Suppress("UNCHECKED_CAST")
+        (invocation.arguments[0] as OnSuccessListener<ModuleInstallResponse>).onSuccess(mock())
+        moduleInstallTask
+      }
+      .whenever(moduleInstallTask)
+      .addOnSuccessListener(any())
     scanner = GmsQrCodeScanner(context)
   }
 
   @After
   fun tearDown() {
     staticScanning.close()
+    staticModuleInstall.close()
   }
 
   @Test
@@ -102,6 +122,22 @@ class GmsQrCodeScannerTest {
         task
       }
       .whenever(task)
+      .addOnFailureListener(any())
+
+    val result = scanner.scan()
+    assertTrue(result is GmsQrCodeScanner.Result.Error)
+    assertEquals(cause, (result as GmsQrCodeScanner.Result.Error).cause)
+  }
+
+  @Test
+  fun `scan returns Error when module install fails`() = runTest {
+    val cause = RuntimeException()
+    whenever(moduleInstallTask.addOnSuccessListener(any())).thenReturn(moduleInstallTask)
+    doAnswer { invocation ->
+        (invocation.arguments[0] as OnFailureListener).onFailure(cause)
+        moduleInstallTask
+      }
+      .whenever(moduleInstallTask)
       .addOnFailureListener(any())
 
     val result = scanner.scan()
