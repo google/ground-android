@@ -28,6 +28,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.R
+import org.groundplatform.android.getString
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
 import org.groundplatform.domain.model.auth.SignInState
 import org.groundplatform.domain.repository.TermsOfServiceRepositoryInterface
@@ -54,7 +55,10 @@ class MainActivityTest : BaseHiltTest() {
   fun `Launch app with survey ID navigates to survey selector when user is logged in`() =
     runWithTestDispatcher {
       tosRepository.isTermsOfServiceAccepted = true
-      val uri = Uri.parse("https://ground-dev-sig.web.app/android/survey/surveyId")
+      val uri =
+        Uri.parse(
+          "https://${getString(R.string.deeplink_host)}${getString(R.string.survey_deeplink_path)}/surveyId"
+        )
       val intent = Intent(Intent.ACTION_VIEW, uri)
 
       Robolectric.buildActivity(MainActivity::class.java, intent).use { controller ->
@@ -80,7 +84,10 @@ class MainActivityTest : BaseHiltTest() {
 
   @Test
   fun `Launch app with survey ID shows login when user needs to login`() = runWithTestDispatcher {
-    val uri = Uri.parse("https://groundplatform.org/android/survey/surveyId")
+    val uri =
+      Uri.parse(
+        "https://${getString(R.string.deeplink_host)}${getString(R.string.survey_deeplink_path)}/surveyId"
+      )
     val intent = Intent(Intent.ACTION_VIEW, uri)
 
     Robolectric.buildActivity(MainActivity::class.java, intent).use { controller ->
