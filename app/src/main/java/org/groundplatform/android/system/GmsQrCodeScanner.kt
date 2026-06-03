@@ -16,13 +16,17 @@
 package org.groundplatform.android.system
 
 import android.content.Context
+import com.google.android.gms.common.moduleinstall.ModuleInstall
+import com.google.android.gms.common.moduleinstall.ModuleInstallRequest
 import com.google.mlkit.vision.barcode.common.Barcode
+import com.google.mlkit.vision.codescanner.GmsBarcodeScanner
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.resume
+import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.suspendCancellableCoroutine
 import timber.log.Timber
 
@@ -32,7 +36,23 @@ class GmsQrCodeScanner @Inject constructor(@ApplicationContext private val conte
   suspend fun scan(): Result = suspendCancellableCoroutine { coroutine ->
     val options =
       GmsBarcodeScannerOptions.Builder().setBarcodeFormats(Barcode.FORMAT_QR_CODE).build()
-    GmsBarcodeScanning.getClient(context, options)
+    val scanner = GmsBarcodeScanning.getClient(context, options)
+
+    // On some devices the code-scanner fails to start with an error code 13 (INTERNAL). Explicitly
+    // requesting the module install first is a workaround for this.
+    // https://issuetracker.google.com/issues/261579118.
+    val moduleInstallRequest = ModuleInstallRequest.newBuilder().addApi(scanner).build()
+    ModuleInstall.getClient(context)
+      .installModules(moduleInstallRequest)
+      .addOnSuccessListener { if (coroutine.isActive) startScan(scanner, coroutine) }
+      .addOnFailureListener { e ->
+        Timber.e(e, "Failed to install QR code scanner module")
+        if (coroutine.isActive) coroutine.resume(Result.Error(e))
+      }
+  }
+
+  private fun startScan(scanner: GmsBarcodeScanner, coroutine: CancellableContinuation<Result>) {
+    scanner
       .startScan()
       .addOnSuccessListener { barcode ->
         Timber.d("Scanned QR code with raw value: ${barcode.rawValue}")
