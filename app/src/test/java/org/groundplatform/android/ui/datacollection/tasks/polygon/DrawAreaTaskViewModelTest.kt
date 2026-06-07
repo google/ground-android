@@ -351,12 +351,23 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
   }
 
   @Test
-  fun `isTooClose is false if only one vertex`() {
+  fun `isTooClose is true if only one vertex`() {
     setupViewModel()
     updateLastVertexAndAdd(COORDINATE_1)
 
     // Only 1 vertex.
-    assertThat(viewModel.sessionState.value.isTooClose).isFalse()
+    assertThat(viewModel.sessionState.value.isTooClose).isTrue()
+  }
+
+  @Test
+  fun `addLastVertex twice without moving camera only adds one vertex`() {
+    setupViewModel()
+    updateLastVertex(COORDINATE_1)
+    viewModel.addLastVertex()
+    viewModel.addLastVertex()
+
+    val draftGeometry = viewModel.draftArea.value?.geometry as? LineString
+    assertThat(draftGeometry?.coordinates).containsExactly(COORDINATE_1)
   }
 
   @Test

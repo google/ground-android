@@ -85,7 +85,7 @@ class PolygonDrawingSessionImpl : PolygonDrawingSession {
     return vertex?.let {
       _vertices = (_vertices + it).toImmutableList()
       _tentativeVertex = null
-      _isTooClose = _vertices.size > 1
+      _isTooClose = true
       _vertices
     }
   }

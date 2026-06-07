@@ -267,6 +267,9 @@ internal constructor(
     check(!sessionState.value.isMarkedComplete) {
       "Attempted to add last vertex after completing the drawing"
     }
+    if (sessionState.value.isTooClose) {
+      return
+    }
     val vertices = session.commitTentativeVertex(currentCameraTarget)
     syncSessionState()
     if (vertices != null) {
