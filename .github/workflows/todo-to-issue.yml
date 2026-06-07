@@ -22,6 +22,10 @@ on:
   pull_request:
     branches: [ "master" ]
 
+permissions:
+  contents: write   # the workflow pushes a commit back to the PR head branch
+  issues: write     # alstr/todo-to-issue-action creates issues for TODOs
+
 jobs:
   build:
     runs-on: ubuntu-latest

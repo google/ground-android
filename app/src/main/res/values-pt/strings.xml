@@ -136,7 +136,6 @@
   <string name="read_only_data_collection_hint">Inquérito apenas para leitura</string>
   <string name="no_submissions">Nenhuma submissão</string>
   <string name="dismiss_info_popup">Ignorar</string>
-  <string name="other">Outro</string>
   <plurals name="submission_count">
     <item quantity="one">%d submissão</item>
     <item quantity="other">%d submissões</item>
@@ -238,7 +237,6 @@
   <string name="photo_save_failed_title">Erro ao salvar</string>
   <string name="photo_save_failed_desc">Falha ao salvar a foto capturada. Por favor, tente novamente.</string>
   <string name="share_location">Partilhar localização</string>
-  <string name="scan_this_qr_to_download_geojson">Leia este código QR para visualizar o GeoJson</string>
 
   <string name="join_survey">Aderir ao inquérito</string>
   <string name="invalid_survey_qr_code">Código QR de inquérito não reconhecido</string>

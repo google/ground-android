@@ -20,6 +20,7 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import java.io.File
 import javax.inject.Inject
 import org.groundplatform.android.BaseHiltTest
+import org.groundplatform.android.BuildConfig
 import org.groundplatform.domain.repository.UserMediaRepositoryInterface
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -106,7 +107,7 @@ class UserMediaRepositoryTest : BaseHiltTest() {
 
     val uri = userMediaRepository.getUriForFile(mediaFile).value
 
-    assertThat(uri).startsWith("content://org.groundplatform.android/")
+    assertThat(uri).startsWith("content://${BuildConfig.APPLICATION_ID}/")
     assertThat(uri).endsWith(File(mediaFile.value).name.replace(" ", "%20"))
   }
 }

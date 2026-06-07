@@ -19,6 +19,9 @@ on:
   pull_request:
     branches: [ "master" ]
 
+permissions:
+  contents: read
+
 jobs:
   build:
 
@@ -44,7 +47,7 @@ jobs:
         run: ./gradlew checkCode
 
       - name: Run unit tests
-        run: ./gradlew testLocalDebugUnitTest jvmTest
+        run: ./gradlew testLocalDebugUnitTest jvmTest testAndroidHostTest
 
       - name: Generate codecov report
         run: ./gradlew jacocoLocalDebugUnitTestReport

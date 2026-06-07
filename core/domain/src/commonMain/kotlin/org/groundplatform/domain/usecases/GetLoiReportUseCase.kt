@@ -15,8 +15,6 @@
  */
 package org.groundplatform.domain.usecases
 
-import kotlin.math.absoluteValue
-import kotlin.math.round
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
@@ -35,6 +33,7 @@ import org.groundplatform.domain.model.locationofinterest.LoiReport
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
+import org.groundplatform.domain.util.toFixedDecimals
 
 /**
  * Use case that generates a [LoiReport] containing the LOI geometry and properties as a GeoJSON.
@@ -128,12 +127,8 @@ class GetLoiReportUseCase(
 
   /** Renders this [Double] as a JSON number with exactly 6 decimal digits. */
   private fun Double.roundTo6Decimals(): JsonPrimitive {
-    val scaled = round(this * DECIMAL_SCALE).toLong()
-    val sign = if (scaled < 0) "-" else ""
-    val absScaled = scaled.absoluteValue
-    val intPart = absScaled / DECIMAL_SCALE
-    val fracPart = (absScaled % DECIMAL_SCALE).toString().padStart(DECIMAL_DIGITS, '0')
-    return JsonUnquotedLiteral("$sign$intPart.$fracPart")
+    val value = toFixedDecimals(DECIMAL_DIGITS)
+    return JsonUnquotedLiteral(value)
   }
 
   private companion object {
@@ -147,6 +142,5 @@ class GetLoiReportUseCase(
     const val TYPE_POLYGON = "Polygon"
     const val TYPE_MULTI_POLYGON = "MultiPolygon"
     const val DECIMAL_DIGITS = 6
-    const val DECIMAL_SCALE = 1_000_000L
   }
 }
