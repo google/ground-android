@@ -28,4 +28,8 @@
   <string name="south">S</string>
   <string name="east">E</string>
   <string name="west">O</string>
+  <string name="submission">Soumission</string>
+  <string name="survey">Enquête</string>
+  <string name="job">Mission</string>
+  <string name="pdf_data_collector">Collecteur de données</string>
 </resources>

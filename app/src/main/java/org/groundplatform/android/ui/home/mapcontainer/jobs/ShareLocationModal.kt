@@ -38,16 +38,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import ground_android.core.ui.generated.resources.Res
-import ground_android.core.ui.generated.resources.scan_this_qr_to_download_geojson
-import org.jetbrains.compose.resources.stringResource as multiplatformStringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import ground_android.core.ui.generated.resources.Res
+import ground_android.core.ui.generated.resources.scan_this_qr_to_download_geojson
 import java.util.Date
-import kotlin.time.Clock
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -56,6 +54,7 @@ import org.groundplatform.domain.model.locationofinterest.LoiReport
 import org.groundplatform.ui.components.loireport.SubmissionPdfItem
 import org.groundplatform.ui.components.qrcode.GroundQrCode
 import org.groundplatform.ui.theme.AppTheme
+import org.jetbrains.compose.resources.stringResource as multiplatformStringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -95,20 +94,22 @@ fun ShareLocationModal(loiReport: LoiReport, onDismiss: () -> Unit) {
           )
         }
 
-        loiReport.submissions?.let {
-          SubmissionPdfItem(
-            modifier = Modifier.fillMaxWidth(),
-            title = loiReport.surveyName,
-            loiName = loiReport.loiName,
-            userName = loiReport.userName,
-            date = DateFormat.getDateFormat(context).format(Date(loiReport.dateMillis)),
-            onItemClick = {
-              /* To be implemented in a follow-up on https://github.com/google/ground-android/issues/3715 */
-            },
-            onShareClick = {
-              /* To be implemented in a follow-up on https://github.com/google/ground-android/issues/3715 */
-            },
-          )
+        loiReport.submissionDetails?.let {
+          if (!it.submissions.isNullOrEmpty()) {
+            SubmissionPdfItem(
+              modifier = Modifier.fillMaxWidth(),
+              title = it.surveyName,
+              loiName = loiReport.loiName,
+              userName = it.userName,
+              date = DateFormat.getDateFormat(context).format(Date(it.dateMillis)),
+              onItemClick = {
+                /* To be implemented in a follow-up on https://github.com/google/ground-android/issues/3715 */
+              },
+              onShareClick = {
+                /* To be implemented in a follow-up on https://github.com/google/ground-android/issues/3715 */
+              },
+            )
+          }
         }
 
         TextButton(
@@ -128,9 +129,6 @@ private fun ShareLocationModalPreview() {
   val testLoiReport =
     LoiReport(
       loiName = "Test LOI",
-      surveyName = "Test Survey",
-      userName = "John Doe",
-      dateMillis = Clock.System.now().toEpochMilliseconds(),
       geoJson =
         JsonObject(
           mapOf(
@@ -145,7 +143,7 @@ private fun ShareLocationModalPreview() {
               ),
           )
         ),
-      submissions = emptyList(),
+      submissionDetails = null,
     )
 
   AppTheme {

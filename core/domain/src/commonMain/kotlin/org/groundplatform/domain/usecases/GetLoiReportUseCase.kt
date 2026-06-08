@@ -60,15 +60,19 @@ class GetLoiReportUseCase(
     // https://github.com/google/ground-android/issues/3715
     return loi?.let {
       LoiReport(
-        surveyName = surveyName,
         loiName = loiName,
-        userName = user.displayName,
-        dateMillis = it.lastModified.clientTimestamp,
         geoJson =
           it.geometry.toGeoJson(
             it.properties.filter { property -> property.key == LOI_NAME_PROPERTY }
           ),
-        submissions = submissions,
+        submissionDetails =
+          LoiReport.SubmissionDetails(
+            surveyName = surveyName,
+            userName = user.displayName,
+            userEmail = user.email,
+            dateMillis = loi.lastModified.clientTimestamp,
+            submissions = submissions,
+          ),
       )
     }
   }
