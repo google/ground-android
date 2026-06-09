@@ -92,10 +92,14 @@ class AndroidPdfImageProvider(
     val rootDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES) ?: return null
     val filename = remoteFilename.substringAfterLast('/')
     val file = File(rootDir, filename)
-    if (!file.exists()) return null
-    val decoded = runCatching { decodeSubsampled(file.absolutePath) }.getOrNull() ?: return null
-    val oriented = applyExifOrientation(file, decoded)
-    return oriented.downscaledTo(photoMaxWidthPx, photoMaxHeightPx)
+    return if (file.exists()) {
+      runCatching { decodeSubsampled(file.absolutePath) }
+        .getOrNull()
+        ?.let { decodedBitmap ->
+          val oriented = applyExifOrientation(file, decodedBitmap)
+          oriented.downscaledTo(photoMaxWidthPx, photoMaxHeightPx)
+        }
+    } else null
   }
 
   /** Decodes the photo subsampled to roughly the largest size it can occupy in the PDF. */
@@ -109,15 +113,6 @@ class AndroidPdfImageProvider(
         inSampleSize = calculateInSampleSize(bounds.outWidth, bounds.outHeight, target)
       }
     return BitmapFactory.decodeFile(path, options)
-  }
-
-  /** Largest power-of-two sample size that keeps both dimensions at or above [target] pixels. */
-  private fun calculateInSampleSize(width: Int, height: Int, target: Int): Int {
-    var sampleSize = 1
-    while (width / (sampleSize * 2) >= target && height / (sampleSize * 2) >= target) {
-      sampleSize *= 2
-    }
-    return sampleSize
   }
 
   /**
@@ -135,6 +130,15 @@ class AndroidPdfImageProvider(
       .getOrNull()
       ?.also { if (it != bitmap) bitmap.recycle() } ?: bitmap
   }
+}
+
+/** Largest power-of-two sample size that keeps both dimensions at or above [target] pixels. */
+internal fun calculateInSampleSize(width: Int, height: Int, target: Int): Int {
+  var sampleSize = 1
+  while (width / (sampleSize * 2) >= target && height / (sampleSize * 2) >= target) {
+    sampleSize *= 2
+  }
+  return sampleSize
 }
 
 /**

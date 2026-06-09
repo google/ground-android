@@ -41,9 +41,7 @@ const val MAX_QR_BYTES_WITH_LOGO = 1000
  * high error correction (ECC level H), which can tolerate approximately 30% data loss.
  */
 const val LOGO_SIZE_FRACTION = 0.15f
-/**
- * PDF document has more space to display the QR code, so we can use a larger fraction
- */
+/** PDF document has more space to display the QR code, so we can use a larger fraction. */
 const val PDF_LOGO_SIZE_FRACTION = 0.25f
 
 /**
@@ -67,7 +65,6 @@ fun generateQrBitmap(
 
 internal fun fitsLogoCapacity(content: String): Boolean =
   content.encodeToByteArray().size <= MAX_QR_BYTES_WITH_LOGO
-
 
 /** Draws [logo] centered over the receiver, scaled to [fraction] of its size, into a new bitmap. */
 private fun ImageBitmap.withCenteredLogo(logo: ImageBitmap, fraction: Float): ImageBitmap {

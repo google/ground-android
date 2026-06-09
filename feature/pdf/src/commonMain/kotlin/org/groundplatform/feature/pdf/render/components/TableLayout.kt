@@ -24,6 +24,7 @@ import org.groundplatform.feature.pdf.render.PdfItemSize
 import org.groundplatform.feature.pdf.render.PdfLine
 import org.groundplatform.feature.pdf.render.PdfOffset
 import org.groundplatform.feature.pdf.render.PdfRect
+
 internal object TableLayout {
   /**
    * Layout of a single two-column table row. Left cell holds a single text block; right cell may
