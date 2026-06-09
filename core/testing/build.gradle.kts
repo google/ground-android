@@ -21,9 +21,14 @@ plugins {
 
 kotlin {
   jvmToolchain(libs.versions.jvmToolchainVersion.get().toInt())
-  androidLibrary {
+  android {
     namespace = "org.groundplatform.core.testing"
-    compileSdk = libs.versions.androidCompileSdk.get().toInt()
+    compileSdk {
+      version =
+        release(libs.versions.androidCompileSdk.get().toInt()) {
+          minorApiLevel = libs.versions.androidCompileSdkMinor.get().toInt()
+        }
+    }
     minSdk = libs.versions.androidMinSdk.get().toInt()
   }
 
