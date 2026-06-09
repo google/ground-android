@@ -20,7 +20,7 @@ plugins {
 }
 
 kotlin {
-  androidLibrary {
+  android {
     namespace = "org.groundplatform.feature.pdf"
     compileSdk {
       version =

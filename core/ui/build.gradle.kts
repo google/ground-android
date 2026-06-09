@@ -25,7 +25,7 @@ compose.resources { publicResClass = true }
 
 kotlin {
   jvmToolchain(libs.versions.jvmToolchainVersion.get().toInt())
-  androidLibrary {
+  android {
     namespace = "org.groundplatform.core.ui"
     compileSdk {
       version =

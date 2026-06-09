@@ -21,7 +21,7 @@ plugins {
 
 kotlin {
   jvmToolchain(libs.versions.jvmToolchainVersion.get().toInt())
-  androidLibrary {
+  android {
     namespace = "org.groundplatform.core.testing"
     compileSdk {
       version =
