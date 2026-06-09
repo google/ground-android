@@ -40,7 +40,8 @@ class AndroidPdfRenderer : PdfRenderer {
     val totalPages = measurePageCount(document, images)
     val pdf = PdfDocument()
     try {
-      writer(document, images, DocumentPdfCanvas(pdf), totalPages = totalPages).draw(document)
+      writer(document, images, DocumentPdfCanvas(pdf), totalPages = totalPages)
+        .drawDocument(document)
       File(outputPath).outputStream().use { pdf.writeTo(it) }
     } finally {
       pdf.close()
@@ -48,7 +49,9 @@ class AndroidPdfRenderer : PdfRenderer {
   }
 
   private fun measurePageCount(document: SubmissionPdfDocument, images: PdfImageSet): Int =
-    writer(document, images, MeasurementPdfCanvas, totalPages = null).draw(document).pageCount
+    writer(document, images, MeasurementPdfCanvas, totalPages = null)
+      .apply { drawDocument(document) }
+      .pageCount
 
   private fun writer(
     document: SubmissionPdfDocument,
@@ -63,10 +66,4 @@ class AndroidPdfRenderer : PdfRenderer {
       footer = document.footer,
       totalPages = totalPages,
     )
-
-  private fun PdfWriter.draw(document: SubmissionPdfDocument): PdfWriter = apply {
-    drawQrBlock(document.qrBlock)
-    drawTable(document.table)
-    finalizePage()
-  }
 }

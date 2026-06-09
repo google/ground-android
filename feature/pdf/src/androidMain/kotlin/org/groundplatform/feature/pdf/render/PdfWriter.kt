@@ -76,7 +76,13 @@ internal class PdfWriter(
     pdfCanvas.finishPage()
   }
 
-  fun drawQrBlock(block: QrBlock) {
+  fun drawDocument(document: SubmissionPdfDocument) {
+    drawQrBlock(document.qrBlock)
+    drawTable(document.table)
+    finalizePage()
+  }
+
+  private fun drawQrBlock(block: QrBlock) {
     val qr = images[PdfImageSet.ImageRef.Qr] ?: return
     pageController.ensurePage()
     val captionLayout =
@@ -88,7 +94,7 @@ internal class PdfWriter(
     cursor.moveTo(layout.nextCursorY)
   }
 
-  fun drawTable(table: SubmissionPdfDocument.Table) {
+  private fun drawTable(table: SubmissionPdfDocument.Table) {
     val rows = table.rows.takeIf { it.isNotEmpty() } ?: return
     pageController.ensurePage()
     val label =
@@ -101,7 +107,8 @@ internal class PdfWriter(
         )
       }
     val labelLayout = staticLayout(label, paints.title, USABLE_WIDTH)
-    val tableLabel = TableLayout.getLabel(top = cursor.y, labelHeight = labelLayout.height.toFloat())
+    val tableLabel =
+      TableLayout.getLabel(top = cursor.y, labelHeight = labelLayout.height.toFloat())
     drawStaticLayoutAt(labelLayout, tableLabel.labelOffset)
     cursor.moveTo(tableLabel.nextCursorY)
     rows.forEach { row ->
@@ -122,7 +129,7 @@ internal class PdfWriter(
     }
   }
 
-  fun finalizePage() {
+  private fun finalizePage() {
     pageController.finalizePage()
   }
 
