@@ -20,7 +20,7 @@ import java.io.File
 
 private const val REPORTS_SUBDIR = "reports"
 
-// TODO: Add equivalent iOS implementation
+// TODO: Add equivalent iOS implementations for PDF feature
 // Issue URL: https://github.com/google/ground-android/issues/3775
 class AndroidPdfOutputProvider(private val context: Context) : PdfOutputProvider {
 

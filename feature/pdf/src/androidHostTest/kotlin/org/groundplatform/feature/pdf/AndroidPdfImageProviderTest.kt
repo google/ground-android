@@ -15,37 +15,88 @@
  */
 package org.groundplatform.feature.pdf
 
+import android.graphics.Bitmap
 import kotlin.test.assertEquals
+import kotlin.test.assertSame
+import kotlin.test.assertTrue
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 
+@RunWith(RobolectricTestRunner::class)
 class AndroidPdfImageProviderTest {
 
   @Test
-  fun `calculateInSampleSize returns 1 when the image is smaller than the target`() {
-    assertEquals(1, calculateInSampleSize(width = 100, height = 100, target = 200))
+  fun `calculateInSampleSize does not subsample when image already fits within 2x`() {
+    assertEquals(1, calculateInSampleSize(width = 100, height = 100, maxWidth = 60, maxHeight = 60))
   }
 
   @Test
-  fun `calculateInSampleSize returns 1 when the image equals the target`() {
-    assertEquals(1, calculateInSampleSize(width = 200, height = 200, target = 200))
+  fun `calculateInSampleSize halves a square image down towards the box`() {
+    assertEquals(2, calculateInSampleSize(width = 100, height = 100, maxWidth = 50, maxHeight = 50))
   }
 
   @Test
-  fun `calculateInSampleSize halves once when both dimensions are at least double the target`() {
-    // 400/2 = 200 >= 200, but 400/4 = 100 < 200, so the largest valid power of two is 2.
-    assertEquals(2, calculateInSampleSize(width = 400, height = 400, target = 200))
+  fun `calculateInSampleSize subsamples a typical landscape photo`() {
+    assertEquals(
+      2,
+      calculateInSampleSize(width = 4000, height = 3000, maxWidth = 1346, maxHeight = 1108),
+    )
   }
 
   @Test
-  fun `calculateInSampleSize returns the largest power of two that keeps both axes above target`() {
-    // 800/4 = 200 >= 200, 800/8 = 100 < 200, so the result is 4.
-    assertEquals(4, calculateInSampleSize(width = 800, height = 800, target = 200))
+  fun `calculateInSampleSize subsamples a tall image on its binding axis`() {
+    assertEquals(
+      4,
+      calculateInSampleSize(width = 1000, height = 5000, maxWidth = 1346, maxHeight = 1108),
+    )
   }
 
   @Test
-  fun `calculateInSampleSize is limited by the smaller dimension`() {
-    // Width could be sampled further, but height (300) only tolerates a sample size of 1
-    // because 300/2 = 150 < 200.
-    assertEquals(1, calculateInSampleSize(width = 1600, height = 300, target = 200))
+  fun `calculateInSampleSize never upsamples a tiny image`() {
+    assertEquals(1, calculateInSampleSize(width = 10, height = 10, maxWidth = 50, maxHeight = 50))
   }
+
+  @Test
+  fun `calculateInSampleSize leaves less than a 2x downscale for any input`() {
+    val maxWidth = 1346
+    val maxHeight = 1108
+    val dimensions = listOf(5000 to 1000, 1000 to 5000, 4000 to 3000, 3000 to 4000, 8000 to 8000)
+    for ((width, height) in dimensions) {
+      val sampleSize = calculateInSampleSize(width, height, maxWidth, maxHeight)
+      val decodedWidth = width / sampleSize
+      val decodedHeight = height / sampleSize
+      val fitScale = minOf(maxWidth.toFloat() / decodedWidth, maxHeight.toFloat() / decodedHeight)
+      assertTrue(fitScale > 0.5f)
+    }
+  }
+
+  @Test
+  fun `scaledToFit returns the same bitmap when it already fits`() {
+    val bitmap = bitmap(10, 10)
+    assertSame(bitmap, bitmap.scaledToFit(maxWidth = 50, maxHeight = 50))
+  }
+
+  @Test
+  fun `scaledToFit returns the same bitmap when it exactly matches the box`() {
+    val bitmap = bitmap(50, 50)
+    assertSame(bitmap, bitmap.scaledToFit(maxWidth = 50, maxHeight = 50))
+  }
+
+  @Test
+  fun `scaledToFit downscales preserving aspect ratio`() {
+    val result = bitmap(100, 50).scaledToFit(maxWidth = 50, maxHeight = 50)
+    assertEquals(50, result.width)
+    assertEquals(25, result.height)
+  }
+
+  @Test
+  fun `scaledToFit fits to the binding height when the box is wide`() {
+    val result = bitmap(50, 100).scaledToFit(maxWidth = 50, maxHeight = 50)
+    assertEquals(25, result.width)
+    assertEquals(50, result.height)
+  }
+
+  private fun bitmap(width: Int, height: Int): Bitmap =
+    Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
 }

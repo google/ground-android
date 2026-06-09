@@ -28,6 +28,7 @@ import androidx.exifinterface.media.ExifInterface
 import java.io.File
 import kotlin.math.roundToInt
 import org.groundplatform.feature.pdf.render.PdfConfig
+import org.groundplatform.feature.pdf.render.fitInside
 import org.groundplatform.feature.pdf.render.image.PdfImage
 import org.groundplatform.feature.pdf.render.image.PdfImageSet
 import org.groundplatform.feature.pdf.render.pointsToRenderPixels
@@ -44,7 +45,7 @@ import timber.log.Timber
  * @param context application context used for resource access and file lookups.
  * @param logoDrawableRes resource id of the centre logo bitmap. Caller supplies the app's branding.
  */
-// TODO: Add equivalent iOS implementation
+// TODO: Add equivalent iOS implementations for PDF feature
 // Issue URL: https://github.com/google/ground-android/issues/3775
 class AndroidPdfImageProvider(
   private val context: Context,
@@ -87,88 +88,80 @@ class AndroidPdfImageProvider(
             logoSizeFraction = PDF_LOGO_SIZE_FRACTION,
           )
           .asAndroidBitmap()
-          .downscaledTo(qrMaxPx, qrMaxPx)
+          .scaledToFit(qrMaxPx, qrMaxPx)
       }
       .onFailure { Timber.e(it, "Failed to generate QR code bitmap for PDF report") }
       .getOrNull()
 
   private fun loadPhotoBitmap(remoteFilename: String): Bitmap? {
     val rootDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES) ?: return null
-    val filename = remoteFilename.substringAfterLast('/')
-    val file = File(rootDir, filename)
-    return if (file.exists()) {
-      runCatching { decodeSubsampled(file.absolutePath) }
-        .getOrElse {
-          Timber.e(it, "Failed to decode subsampled photo for PDF report")
-          null
-        }
-        ?.let { decodedBitmap ->
-          val oriented = applyExifOrientation(file, decodedBitmap)
-          oriented.downscaledTo(photoMaxWidthPx, photoMaxHeightPx)
-        }
-    } else null
-  }
-
-  /** Decodes the photo subsampled to roughly the largest size it can occupy in the PDF. */
-  private fun decodeSubsampled(path: String): Bitmap? {
-    val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-    BitmapFactory.decodeFile(path, bounds)
-    // Orientation isn't known yet, so size against the larger target on both axes to be safe.
-    val target = maxOf(photoMaxWidthPx, photoMaxHeightPx)
-    val options =
-      BitmapFactory.Options().apply {
-        inSampleSize = calculateInSampleSize(bounds.outWidth, bounds.outHeight, target)
-      }
-    return BitmapFactory.decodeFile(path, options)
+    val file = File(rootDir, remoteFilename.substringAfterLast('/'))
+    if (!file.exists()) return null
+    return runCatching { decodeScaledAndOriented(file) }
+      .onFailure { Timber.e(it, "Failed to decode photo for PDF report") }
+      .getOrNull()
   }
 
   /**
-   * Rotates [bitmap] to match the EXIF orientation in [file]. Returns the original bitmap if no
-   * rotation is needed.
+   * Decodes the photo subsampled to roughly the largest size it can occupy in the PDF, scales it to
+   * fit the photo box, then applies the EXIF orientation.
    */
-  private fun applyExifOrientation(file: File, bitmap: Bitmap): Bitmap {
-    val degrees = runCatching { ExifInterface(file.absolutePath).rotationDegrees }.getOrDefault(0)
-    if (degrees == 0) return bitmap
+  private fun decodeScaledAndOriented(file: File): Bitmap? {
+    val path = file.absolutePath
+    val degrees = runCatching { ExifInterface(path).rotationDegrees }.getOrDefault(0)
+    // A 90°/270° EXIF rotation swaps width and height, so size the decode box accordingly.
+    val swapAxes = degrees == 90 || degrees == 270
+    val boxWidth = if (swapAxes) photoMaxHeightPx else photoMaxWidthPx
+    val boxHeight = if (swapAxes) photoMaxWidthPx else photoMaxHeightPx
 
-    val matrix = Matrix().apply { postRotate(degrees.toFloat()) }
-    return runCatching {
-        Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+    val decoded = decodeSubsampled(path, boxWidth, boxHeight) ?: return null
+    return decoded.scaledToFit(boxWidth, boxHeight).rotated(degrees)
+  }
+
+  /** Decodes the photo subsampled to roughly the [maxWidth] × [maxHeight] box it will occupy. */
+  private fun decodeSubsampled(path: String, maxWidth: Int, maxHeight: Int): Bitmap? {
+    val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+    BitmapFactory.decodeFile(path, bounds)
+    val options =
+      BitmapFactory.Options().apply {
+        inSampleSize = calculateInSampleSize(bounds.outWidth, bounds.outHeight, maxWidth, maxHeight)
       }
-      .getOrNull()
-      ?.also { if (it != bitmap) bitmap.recycle() } ?: bitmap
+    return BitmapFactory.decodeFile(path, options)
   }
 }
 
-/** Largest power-of-two sample size that keeps both dimensions at or above [target] pixels. */
-internal fun calculateInSampleSize(width: Int, height: Int, target: Int): Int {
+/**
+ * Largest power-of-two sample size that keeps the decoded bitmap at or above the [maxWidth] ×
+ * [maxHeight].
+ */
+internal fun calculateInSampleSize(width: Int, height: Int, maxWidth: Int, maxHeight: Int): Int {
   var sampleSize = 1
-  while (width / (sampleSize * 2) >= target && height / (sampleSize * 2) >= target) {
+  while (width / (sampleSize * 2) >= maxWidth || height / (sampleSize * 2) >= maxHeight) {
     sampleSize *= 2
   }
   return sampleSize
 }
 
 /**
- * Returns a bitmap scaled down to fit [maxWidthPx] × [maxHeightPx], preserving aspect ratio and
- * never upscaling. Uses progressive halving for efficiency; intermediate bitmaps are recycled.
+ * Returns the receiver scaled down to fit [maxWidth] × [maxHeight], preserving aspect ratio and
+ * never upscaling.
  */
-private fun Bitmap.downscaledTo(maxWidthPx: Int, maxHeightPx: Int): Bitmap {
-  if (width <= maxWidthPx && height <= maxHeightPx) return this
-  val ratio = minOf(maxWidthPx.toFloat() / width, maxHeightPx.toFloat() / height)
-  val targetWidth = (width * ratio).roundToInt().coerceAtLeast(1)
-  val targetHeight = (height * ratio).roundToInt().coerceAtLeast(1)
+internal fun Bitmap.scaledToFit(maxWidth: Int, maxHeight: Int): Bitmap {
+  val fitted = fitInside(width, height, maxWidth, maxHeight)
+  val targetWidth = fitted.width.roundToInt().coerceAtLeast(1)
+  val targetHeight = fitted.height.roundToInt().coerceAtLeast(1)
+  if (targetWidth == width && targetHeight == height) return this
+  return scale(targetWidth, targetHeight).also { if (it !== this) recycle() }
+}
 
-  var current = this
-  var w = width
-  var h = height
-  while (w / 2 >= targetWidth && h / 2 >= targetHeight) {
-    w /= 2
-    h /= 2
-    val halved = current.scale(w, h)
-    if (current !== this) current.recycle()
-    current = halved
-  }
-  val result = current.scale(targetWidth, targetHeight)
-  if (current !== this) current.recycle()
-  return result
+/** Returns the receiver rotated [degrees] clockwise, or unchanged when no rotation is needed. */
+private fun Bitmap.rotated(degrees: Int): Bitmap {
+  if (degrees == 0) return this
+  val matrix = Matrix().apply { postRotate(degrees.toFloat()) }
+  return runCatching { Bitmap.createBitmap(this, 0, 0, width, height, matrix, true) }
+    .getOrElse {
+      Timber.w(it, "Failed to rotate photo by $degrees°, returning unrotated bitmap")
+      null
+    }
+    ?.also { if (it !== this) recycle() } ?: this
 }
