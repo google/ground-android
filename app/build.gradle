@@ -60,6 +60,7 @@ static def getGitHash() {
 
 android {
     compileSdk = libs.versions.androidCompileSdk.get().toInteger()
+    compileSdkMinor = libs.versions.androidCompileSdkMinor.get().toInteger()
     sourceSets {
         main {
             proto {
@@ -96,6 +97,7 @@ android {
         def secretsFile = rootProject.file('secrets.properties')
         def secretProps = new Properties()
         if (secretsFile.exists()) secretsFile.withInputStream { secretProps.load(it) }
+        manifestPlaceholders.MAPS_API_KEY = secretProps.getProperty("MAPS_API_KEY", "DEFAULT_API_KEY")
     }
 
     // Use flag -PtestBuildType with desired variant to change default behavior.
