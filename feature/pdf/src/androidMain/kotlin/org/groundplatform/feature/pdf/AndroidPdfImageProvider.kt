@@ -33,6 +33,7 @@ import org.groundplatform.feature.pdf.render.image.PdfImageSet
 import org.groundplatform.feature.pdf.render.pointsToRenderPixels
 import org.groundplatform.ui.components.qrcode.PDF_LOGO_SIZE_FRACTION
 import org.groundplatform.ui.components.qrcode.generateQrBitmap
+import timber.log.Timber
 
 /**
  * Android implementation of [PdfImageProvider].
@@ -86,6 +87,7 @@ class AndroidPdfImageProvider(
           .asAndroidBitmap()
           .downscaledTo(qrMaxPx, qrMaxPx)
       }
+      .onFailure { Timber.e(it, "Failed to generate QR code bitmap for PDF report") }
       .getOrNull()
 
   private fun loadPhotoBitmap(remoteFilename: String): Bitmap? {
@@ -94,7 +96,10 @@ class AndroidPdfImageProvider(
     val file = File(rootDir, filename)
     return if (file.exists()) {
       runCatching { decodeSubsampled(file.absolutePath) }
-        .getOrNull()
+        .getOrElse {
+          Timber.e(it, "Failed to decode subsampled photo for PDF report")
+          null
+        }
         ?.let { decodedBitmap ->
           val oriented = applyExifOrientation(file, decodedBitmap)
           oriented.downscaledTo(photoMaxWidthPx, photoMaxHeightPx)
