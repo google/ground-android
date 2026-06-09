@@ -21,6 +21,8 @@ import androidx.core.content.FileProvider
 import java.io.File
 
 /** Launches the system share sheet or external viewer for a report file via [FileProvider]. */
+// TODO: Add equivalent iOS implementation
+// Issue URL: https://github.com/google/ground-android/issues/3775
 class AndroidPdfReportLauncher(
   private val context: Context,
   private val fileProviderAuthority: String,

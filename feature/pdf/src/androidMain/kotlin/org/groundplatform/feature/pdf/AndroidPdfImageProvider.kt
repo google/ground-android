@@ -44,6 +44,8 @@ import timber.log.Timber
  * @param context application context used for resource access and file lookups.
  * @param logoDrawableRes resource id of the centre logo bitmap. Caller supplies the app's branding.
  */
+// TODO: Add equivalent iOS implementation
+// Issue URL: https://github.com/google/ground-android/issues/3775
 class AndroidPdfImageProvider(
   private val context: Context,
   @DrawableRes private val logoDrawableRes: Int,

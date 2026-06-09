@@ -29,6 +29,8 @@ import org.groundplatform.feature.pdf.render.image.PdfImageSet
  * [PdfWriter]; the [PdfCanvas] decides whether each pass writes to a real [PdfDocument] or just
  * counts pages.
  */
+// TODO: Add equivalent iOS implementation
+// Issue URL: https://github.com/google/ground-android/issues/3775
 class AndroidPdfRenderer : PdfRenderer {
 
   override suspend fun render(
