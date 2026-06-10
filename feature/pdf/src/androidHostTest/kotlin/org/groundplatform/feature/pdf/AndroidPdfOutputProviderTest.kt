@@ -37,14 +37,14 @@ class AndroidPdfOutputProviderTest {
   @Before
   fun setUp() {
     context = RuntimeEnvironment.getApplication()
-    reportsDir = File(context.cacheDir, "reports")
+    reportsDir = File(context.cacheDir, PDF_SUBDIR)
     reportsDir.deleteRecursively()
     provider = AndroidPdfOutputProvider(context)
   }
 
   @Test
   fun `newFilePath creates the reports directory and returns a pdf path`() {
-    val path = provider.newFilePath("report")
+    val path = provider.newFilePath(PDF_FILE_NAME)
 
     assertTrue(reportsDir.isDirectory)
     assertEquals(File(reportsDir, "report.pdf").absolutePath, path)
@@ -52,11 +52,11 @@ class AndroidPdfOutputProviderTest {
 
   @Test
   fun `exists reflects whether the report file is present`() {
-    assertFalse(provider.exists("report"))
+    assertFalse(provider.exists(PDF_FILE_NAME))
 
-    File(provider.newFilePath("report")).writeText("pdf")
+    File(provider.newFilePath(PDF_FILE_NAME)).writeText(PDF_TEXT)
 
-    assertTrue(provider.exists("report"))
+    assertTrue(provider.exists(PDF_FILE_NAME))
   }
 
   @Test
@@ -66,8 +66,8 @@ class AndroidPdfOutputProviderTest {
 
   @Test
   fun `listFiles returns only pdf files`() {
-    File(provider.newFilePath("a")).writeText("pdf")
-    File(provider.newFilePath("b")).writeText("pdf")
+    File(provider.newFilePath("a")).writeText(PDF_TEXT)
+    File(provider.newFilePath("b")).writeText(PDF_TEXT)
     File(reportsDir, "notes.txt").writeText("ignore me")
 
     val names = provider.listFiles().map { File(it.path).name }.sorted()
@@ -77,7 +77,7 @@ class AndroidPdfOutputProviderTest {
 
   @Test
   fun `listFiles returns the cached pdf files with the correct lastModified value`() {
-    val file = File(provider.newFilePath("report")).apply { writeText("pdf") }
+    val file = File(provider.newFilePath(PDF_SUBDIR)).apply { writeText(PDF_TEXT) }
     file.setLastModified(987654321L)
 
     val entry = provider.listFiles().single()
@@ -88,8 +88,8 @@ class AndroidPdfOutputProviderTest {
 
   @Test
   fun `deleteReport removes the file at the given path`() {
-    val path = provider.newFilePath("report")
-    File(path).writeText("pdf")
+    val path = provider.newFilePath(PDF_SUBDIR)
+    File(path).writeText(PDF_TEXT)
 
     provider.deleteReport(path)
 
@@ -99,13 +99,19 @@ class AndroidPdfOutputProviderTest {
   @Test
   fun `pruneOldFiles deletes only reports older than a week`() {
     val now = System.currentTimeMillis()
-    val fresh = File(provider.newFilePath("fresh")).apply { writeText("pdf") }
-    val stale = File(provider.newFilePath("stale")).apply { writeText("pdf") }
+    val fresh = File(provider.newFilePath("fresh")).apply { writeText(PDF_TEXT) }
+    val stale = File(provider.newFilePath("stale")).apply { writeText(PDF_TEXT) }
     stale.setLastModified(now - 8L * 24 * 60 * 60 * 1000)
 
     provider.pruneOldFiles()
 
     assertTrue(fresh.exists())
     assertFalse(stale.exists())
+  }
+
+  private companion object {
+    const val PDF_TEXT = "This is a test PDF."
+    const val PDF_SUBDIR = "reports"
+    const val PDF_FILE_NAME = "report"
   }
 }
