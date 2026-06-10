@@ -26,6 +26,7 @@ tasks.withType(Test).configureEach {
 }
 
 def isAndroidModule = plugins.hasPlugin('com.android.application') || plugins.hasPlugin('com.android.library')
+def isAndroidKmpModule = plugins.hasPlugin('com.android.kotlin.multiplatform.library')
 def isKmpModule = plugins.hasPlugin('org.jetbrains.kotlin.multiplatform')
 def excludesList = [
     '**/databinding/*',
@@ -54,6 +55,11 @@ if (isAndroidModule) {
     classDirs = 'build/intermediates/classes/localDebug/transformLocalDebugClassesWithAsm/dirs/org/groundplatform/android'
     sourceDirs = ['src/main/java/org/groundplatform/android']
     execData = 'build/jacoco/testLocalDebugUnitTest.exec'
+} else if (isAndroidKmpModule) {
+    testTaskName = 'testAndroidHostTest'
+    classDirs = 'build/classes/kotlin/android/main'
+    sourceDirs = ['src/commonMain/kotlin', 'src/androidMain/kotlin']
+    execData = 'build/jacoco/testAndroidHostTest.exec'
 } else if (isKmpModule) {
     testTaskName = 'jvmTest'
     classDirs = 'build/classes/kotlin/jvm/main'

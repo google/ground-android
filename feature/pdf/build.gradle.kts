@@ -19,6 +19,8 @@ plugins {
   alias(libs.plugins.android.lint)
 }
 
+apply(from = "../../config/jacoco/jacoco.gradle")
+
 kotlin {
   jvmToolchain(libs.versions.jvmToolchainVersion.get().toInt())
   android {
