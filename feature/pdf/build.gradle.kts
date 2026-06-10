@@ -19,6 +19,8 @@ plugins {
   alias(libs.plugins.android.lint)
 }
 
+apply(from = "../../config/jacoco/jacoco.gradle")
+
 kotlin {
   android {
     namespace = "org.groundplatform.feature.pdf"

@@ -21,6 +21,8 @@ plugins {
   alias(libs.plugins.compose.compiler)
 }
 
+apply(from = "../../config/jacoco/jacoco.gradle")
+
 compose.resources { publicResClass = true }
 
 kotlin {
