@@ -17,11 +17,17 @@ package org.groundplatform.feature.pdf
 
 import android.graphics.Bitmap
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
+import kotlinx.coroutines.test.runTest
+import org.groundplatform.feature.pdf.render.image.PdfImageSet
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
 
 @RunWith(RobolectricTestRunner::class)
 class AndroidPdfImageProviderTest {
@@ -96,6 +102,48 @@ class AndroidPdfImageProviderTest {
     assertEquals(25, result.width)
     assertEquals(50, result.height)
   }
+
+  @Test
+  fun `load generates a qr image when content is provided`() = runTest {
+    val images = newProvider().load(qrContent = "https://example.org", photoFilenames = emptySet())
+
+    assertNotNull(images[PdfImageSet.ImageRef.Qr])
+  }
+
+  @Test
+  fun `load returns no qr image when content is null`() = runTest {
+    val images = newProvider().load(qrContent = null, photoFilenames = emptySet())
+
+    assertNull(images[PdfImageSet.ImageRef.Qr])
+  }
+
+  @Test
+  fun `load skips empty photo filenames`() = runTest {
+    val images = newProvider().load(qrContent = null, photoFilenames = setOf(""))
+
+    assertNull(images[PdfImageSet.ImageRef.Photo("")])
+  }
+
+  @Test
+  fun `load skips photos whose file does not exist`() = runTest {
+    val images = newProvider().load(qrContent = null, photoFilenames = setOf("missing.jpg"))
+
+    assertNull(images[PdfImageSet.ImageRef.Photo("missing.jpg")])
+  }
+
+  @Test
+  fun `release recycles the bitmaps it loaded`() = runTest {
+    val images = newProvider().load(qrContent = "https://example.org", photoFilenames = emptySet())
+    val qrBitmap = images[PdfImageSet.ImageRef.Qr]!!.bitmap
+    assertFalse(qrBitmap.isRecycled)
+
+    images.release()
+
+    assertTrue(qrBitmap.isRecycled)
+  }
+
+  private fun newProvider(): AndroidPdfImageProvider =
+    AndroidPdfImageProvider(RuntimeEnvironment.getApplication(), logoDrawableRes = 0)
 
   private fun bitmap(width: Int, height: Int): Bitmap =
     Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
