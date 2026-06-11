@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.feature.pdf.render.components
+package org.groundplatform.feature.pdf.render.layout
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import kotlin.text.compareTo
 import org.groundplatform.feature.pdf.render.PdfConfig
 import org.groundplatform.feature.pdf.render.PdfOffset
-import org.groundplatform.feature.pdf.render.components.PageHeaderLayout.Companion.BOTTOM_GAP
-import org.groundplatform.feature.pdf.render.components.PageHeaderLayout.Companion.COLUMN_GAP
+import org.groundplatform.feature.pdf.render.layout.PageHeaderLayout.Companion.BOTTOM_GAP
+import org.groundplatform.feature.pdf.render.layout.PageHeaderLayout.Companion.COLUMN_GAP
 
 class PageHeaderLayoutTest {
 

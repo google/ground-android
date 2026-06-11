@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.feature.pdf.render.components
+package org.groundplatform.feature.pdf.render.layout
 
 import kotlin.test.Test
 import kotlin.test.assertEquals

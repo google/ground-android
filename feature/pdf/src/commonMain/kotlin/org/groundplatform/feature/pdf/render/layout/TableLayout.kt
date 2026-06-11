@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.feature.pdf.render.components
+package org.groundplatform.feature.pdf.render.layout
 
 import org.groundplatform.feature.pdf.render.PdfConfig.LINE_SPACING
 import org.groundplatform.feature.pdf.render.PdfConfig.MARGIN

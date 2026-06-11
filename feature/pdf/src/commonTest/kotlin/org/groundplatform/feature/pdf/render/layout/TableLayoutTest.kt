@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.feature.pdf.render.components
+package org.groundplatform.feature.pdf.render.layout
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -24,8 +24,8 @@ import org.groundplatform.feature.pdf.render.PdfConfig
 import org.groundplatform.feature.pdf.render.PdfItemSize
 import org.groundplatform.feature.pdf.render.PdfLine
 import org.groundplatform.feature.pdf.render.PdfOffset
-import org.groundplatform.feature.pdf.render.components.TableLayout.CELL_PADDING
-import org.groundplatform.feature.pdf.render.components.TableLayout.TASK_COLUMN_WIDTH
+import org.groundplatform.feature.pdf.render.layout.TableLayout.CELL_PADDING
+import org.groundplatform.feature.pdf.render.layout.TableLayout.TASK_COLUMN_WIDTH
 
 class TableLayoutTest {
 

@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.feature.pdf.render.components
+package org.groundplatform.feature.pdf.render.layout
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import org.groundplatform.feature.pdf.render.PdfConfig
-import org.groundplatform.feature.pdf.render.components.QrBlockLayout.Companion.QR_SIZE
+import org.groundplatform.feature.pdf.render.layout.QrBlockLayout.Companion.QR_SIZE
 
 class QrBlockLayoutTest {
 
