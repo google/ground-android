@@ -56,7 +56,7 @@ private const val INPUT_CORRECTION_LEVEL_KEY = "inputCorrectionLevel"
 
 private val ciContext: CIContext = CIContext.contextWithOptions(null)
 
-actual fun generateQrBitmap(content: String, useHighEcc: Boolean): ImageBitmap {
+actual fun encodeQrBitmap(content: String, useHighEcc: Boolean): ImageBitmap {
   val ciImage = createQrCIImage(content, useHighEcc)
   val scaled = scaleToTargetSize(ciImage)
   return scaled.toComposeImageBitmap()
