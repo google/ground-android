@@ -27,7 +27,7 @@ class QrBlockLayoutTest {
   private val qrSize = QR_SIZE
   private val lineSpacing = PdfConfig.LINE_SPACING
 
-  private val expectedX = (pageWidth - margin - qrSize)
+  private val expectedX = pageWidth - margin - qrSize
 
   @Test
   fun `QR frame is a square anchored at the right margin`() {

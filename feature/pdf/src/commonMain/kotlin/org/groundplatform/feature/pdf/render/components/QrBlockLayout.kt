@@ -39,7 +39,7 @@ internal data class QrBlockLayout(
     const val QR_SIZE = 200f
 
     fun compute(top: Float, captionHeight: Float): QrBlockLayout {
-      val x = (PAGE_WIDTH - MARGIN - QR_SIZE)
+      val x = PAGE_WIDTH - MARGIN - QR_SIZE
       val captionTop = top + QR_SIZE + LINE_SPACING
       return QrBlockLayout(
         qrFrame = PdfRect(x, top, QR_SIZE, QR_SIZE),
