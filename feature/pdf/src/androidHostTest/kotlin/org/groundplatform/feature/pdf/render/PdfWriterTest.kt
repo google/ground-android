@@ -158,6 +158,28 @@ class PdfWriterTest {
   }
 
   @Test
+  fun `draws a top border on only the first table row of a page`() {
+    val canvas = renderDocument(SINGLE_PAGE_DOCUMENT)
+
+    // SINGLE_PAGE_DOCUMENT has 2 rows on one page: the first gets a top border, the second doesn't.
+    assertEquals(2, canvas.drawnLines.count { it.startX == it.endX })
+    assertEquals(1, canvas.topBorderCount())
+  }
+
+  @Test
+  fun `draws a fresh top border on the first row of every page`() {
+    val canvas = FakePdfCanvas()
+    val pdfWriter =
+      newPdfWriter(TEST_PDF_DOCUMENT, PdfImageSet(emptyMap()), canvas, totalPages = null)
+
+    pdfWriter.drawDocument(TEST_PDF_DOCUMENT)
+
+    // Every page resets the flag, so each page's first row draws exactly 1 top border.
+    assertTrue(pdfWriter.pageCount > 1)
+    assertEquals(pdfWriter.pageCount, canvas.topBorderCount())
+  }
+
+  @Test
   fun `skips the table when there are no rows`() {
     val tableless =
       SINGLE_PAGE_DOCUMENT.copy(table = SINGLE_PAGE_DOCUMENT.table.copy(rows = emptyList()))
@@ -193,6 +215,13 @@ class PdfWriterTest {
       header = document.header,
       footer = document.footer,
     )
+
+  private fun FakePdfCanvas.topBorderCount(): Int {
+    // This counts the rows as each row draws exactly 1 vertical divider
+    val rowCount = drawnLines.count { it.startX == it.endX }
+    val horizontalLines = drawnLines.count { it.startY == it.endY }
+    return horizontalLines - rowCount
+  }
 
   private fun pdfImage(): PdfImage = PdfImage(Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888))
 

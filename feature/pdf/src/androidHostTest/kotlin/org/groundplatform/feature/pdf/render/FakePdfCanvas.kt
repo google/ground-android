@@ -24,6 +24,7 @@ internal class FakePdfCanvas : PdfCanvas {
   var finishedPages = 0
   val drawnText = mutableListOf<String>()
   val drawnImages = mutableListOf<PdfImage>()
+  val drawnLines = mutableListOf<PdfLine>()
 
   override fun startPage(pageNumber: Int) {
     startedPages += pageNumber
@@ -41,5 +42,7 @@ internal class FakePdfCanvas : PdfCanvas {
     drawnImages += image
   }
 
-  override fun drawLine(x1: Float, y1: Float, x2: Float, y2: Float) = Unit
+  override fun drawLine(x1: Float, y1: Float, x2: Float, y2: Float) {
+    drawnLines += PdfLine(x1, y1, x2, y2)
+  }
 }
