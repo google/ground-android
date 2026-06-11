@@ -196,8 +196,9 @@ internal class PdfWriter(
   private fun drawTableRow(questionText: String, answerText: String, photo: PdfImage?) {
     val questionLayout = staticLayout(questionText, paints.body, TableLayout.TASK_TEXT_WIDTH)
     val answerLayout =
-      if (answerText.isEmpty()) null
-      else staticLayout(answerText, paints.body, TableLayout.ANSWER_TEXT_WIDTH)
+      answerText
+        .takeIf { it.isNotEmpty() }
+        ?.let { staticLayout(it, paints.body, TableLayout.ANSWER_TEXT_WIDTH) }
     val photoSize = photo?.let {
       fitInside(it.width, it.height, TableLayout.ANSWER_TEXT_WIDTH, TableLayout.PHOTO_MAX_HEIGHT)
     }
