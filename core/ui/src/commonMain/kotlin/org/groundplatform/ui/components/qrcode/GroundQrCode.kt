@@ -64,10 +64,7 @@ fun GroundQrCode(
     produceState<ImageBitmap?>(initialValue = null, key1 = content, key2 = showLogo) {
       value =
         withContext(Dispatchers.Default) {
-          encodeQrBitmap(
-            content = content,
-            useHighEcc = showLogo,
-          )
+          encodeQrBitmap(content = content, useHighEcc = showLogo)
         }
     }
 
