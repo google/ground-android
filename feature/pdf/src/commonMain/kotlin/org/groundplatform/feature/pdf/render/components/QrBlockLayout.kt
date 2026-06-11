@@ -28,23 +28,20 @@ import org.groundplatform.feature.pdf.render.PdfRect
  *
  * @param qrFrame Position and size of the QR image.
  * @param captionOffset Top-left position of the caption text (centered under the QR).
- * @param captionMaxWidth Maximum width for the caption.
  * @param nextCursorY Cursor Y position after this block.
  */
 internal data class QrBlockLayout(
   val qrFrame: PdfRect,
   val captionOffset: PdfOffset,
-  val captionMaxWidth: Int,
   val nextCursorY: Float,
 ) {
   companion object {
     fun compute(top: Float, captionHeight: Float): QrBlockLayout {
-      val x = (PAGE_WIDTH - MARGIN - QR_SIZE).toFloat()
+      val x = (PAGE_WIDTH - MARGIN - QR_SIZE)
       val captionTop = top + QR_SIZE + LINE_SPACING
       return QrBlockLayout(
-        qrFrame = PdfRect(x, top, QR_SIZE.toFloat(), QR_SIZE.toFloat()),
+        qrFrame = PdfRect(x, top, QR_SIZE, QR_SIZE),
         captionOffset = PdfOffset(x, captionTop),
-        captionMaxWidth = QR_SIZE,
         nextCursorY = captionTop + captionHeight + LINE_SPACING * 2,
       )
     }

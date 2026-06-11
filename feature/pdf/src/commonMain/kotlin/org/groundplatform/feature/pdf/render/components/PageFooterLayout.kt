@@ -27,13 +27,11 @@ import org.groundplatform.feature.pdf.render.PdfOffset
  * Pre-computed layout for the page footer with separate left and right slots.
  *
  * @param footerTextOffset The top-left position where the footer text begins.
- * @param footerMaxWidth The maximum width available for the footer text.
  * @param pageNumberOffset The top-left position where the page number begins.
  * @param pageNumberMaxWidth The maximum width available for the page number
  */
 internal data class PageFooterLayout(
   val footerTextOffset: PdfOffset,
-  val footerMaxWidth: Int,
   val pageNumberOffset: PdfOffset,
   val pageNumberMaxWidth: Int,
 ) {
@@ -51,7 +49,6 @@ internal data class PageFooterLayout(
       val pageNumberLeft = left + USABLE_WIDTH - PAGE_NUMBER_BAND_WIDTH
       return PageFooterLayout(
         footerTextOffset = PdfOffset(left, top),
-        footerMaxWidth = FOOTER_TEXT_MAX_WIDTH,
         pageNumberOffset = PdfOffset(pageNumberLeft, top),
         pageNumberMaxWidth = PAGE_NUMBER_BAND_WIDTH,
       )

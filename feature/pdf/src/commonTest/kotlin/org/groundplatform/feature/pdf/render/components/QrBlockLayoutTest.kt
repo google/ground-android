@@ -26,7 +26,7 @@ class QrBlockLayoutTest {
   private val qrSize = PdfConfig.QR_SIZE
   private val lineSpacing = PdfConfig.LINE_SPACING
 
-  private val expectedX = (pageWidth - margin - qrSize).toFloat()
+  private val expectedX = (pageWidth - margin - qrSize)
 
   @Test
   fun `QR frame is a square anchored at the right margin`() {
@@ -34,8 +34,8 @@ class QrBlockLayoutTest {
 
     assertEquals(expectedX, layout.qrFrame.x)
     assertEquals(0f, layout.qrFrame.y)
-    assertEquals(qrSize.toFloat(), layout.qrFrame.width)
-    assertEquals(qrSize.toFloat(), layout.qrFrame.height)
+    assertEquals(qrSize, layout.qrFrame.width)
+    assertEquals(qrSize, layout.qrFrame.height)
     assertEquals((pageWidth - margin).toFloat(), layout.qrFrame.right)
   }
 
@@ -46,13 +46,6 @@ class QrBlockLayoutTest {
 
     assertEquals(expectedX, layout.captionOffset.x)
     assertEquals(top + qrSize + lineSpacing, layout.captionOffset.y)
-  }
-
-  @Test
-  fun `caption maxWidth equals QR size so it stays under the QR image`() {
-    val layout = QrBlockLayout.compute(top = 0f, captionHeight = 10f)
-
-    assertEquals(qrSize, layout.captionMaxWidth)
   }
 
   @Test

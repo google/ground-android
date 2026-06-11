@@ -44,7 +44,7 @@ internal object PdfConfig {
   const val LINE_SPACING = 4f
 
   /** Target size of the QR code block. */
-  const val QR_SIZE = 200
+  const val QR_SIZE = 200f
 
   /** Horizontal gap between the two columns of the page header. */
   const val HEADER_COLUMN_GAP = 16
