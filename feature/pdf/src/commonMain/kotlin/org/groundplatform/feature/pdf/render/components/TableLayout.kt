@@ -31,26 +31,34 @@ internal object TableLayout {
    * contain either text or an image.
    *
    * @param totalHeight Total height of the row including vertical padding.
-   * @param leftRowX X coordinate of the row's left edge.
-   * @param rightRowX X coordinate of the row's right edge.
-   * @param columnDividerX X coordinate of the vertical divider between the two columns.
-   * @param leftTextOffset Top-left position where the left cell text should be drawn.
-   * @param rightTextOffset Top-left position where the right cell text should be drawn, or null if
-   *   the right cell has no text.
-   * @param rightImageFrame Frame (x, y, width, height) for the right cell image, or null if no
-   *   image.
-   * @param borderLines The row's own frame: top border, bottom border, and column divider.
+   * @property content Content-specific layout data.
+   * @property borders All the borders to draw around the row.
    */
-  data class Row(
-    val totalHeight: Float,
-    val leftRowX: Float,
-    val rightRowX: Float,
-    val columnDividerX: Float,
-    val leftTextOffset: PdfOffset,
-    val rightTextOffset: PdfOffset?,
-    val rightImageFrame: PdfRect?,
-    val borderLines: List<PdfLine>,
-  )
+  data class Row(val totalHeight: Float, val content: Content, val borders: Borders) {
+    /**
+     * @param top Horizontal line along the row's top edge, or null if there is already a row
+     *   directly above it on the same page.
+     * @param bottom Horizontal line along the row's bottom edge.
+     * @param divider Vertical line between the two columns, spanning the row's full height.
+     */
+    data class Borders(val top: PdfLine?, val divider: PdfLine, val bottom: PdfLine) {
+      val drawableLines: List<PdfLine>
+        get() = listOfNotNull(top, divider, bottom)
+    }
+
+    /**
+     * @param leftTextOffset Top-left position where the left cell text should be drawn.
+     * @param rightTextOffset Top-left position where the right cell text should be drawn, or null
+     *   if the right cell has no text.
+     * @param rightImageFrame Frame (x, y, width, height) for the right cell image, or null if no
+     *   image.
+     */
+    data class Content(
+      val leftTextOffset: PdfOffset,
+      val rightTextOffset: PdfOffset?,
+      val rightImageFrame: PdfRect?,
+    )
+  }
 
   data class Label(val labelOffset: PdfOffset, val nextCursorY: Float)
 
@@ -78,6 +86,7 @@ internal object TableLayout {
     leftTextHeight: Float,
     rightTextHeight: Float,
     rightImageSize: PdfItemSize?,
+    includeTopBorder: Boolean = true,
   ): Row {
     val totalHeight = getRowHeight(leftTextHeight, rightTextHeight, rightImageSize)
 
@@ -91,22 +100,25 @@ internal object TableLayout {
     val rightTextOffset = if (rightTextHeight > 0f) PdfOffset(rightCellLeft, contentTop) else null
     val rightImageFrame = rightImageSize?.let {
       val y = contentTop + (rightTextOffset?.let { rightTextHeight + LINE_SPACING } ?: 0f)
-      PdfRect(rightCellLeft, y, rightImageSize.width, rightImageSize.height)
+      PdfRect(rightCellLeft, y, it.width, it.height)
     }
 
     return Row(
       totalHeight = totalHeight,
-      leftRowX = left,
-      rightRowX = right,
-      columnDividerX = midX,
-      leftTextOffset = PdfOffset(left + CELL_PADDING, contentTop),
-      rightTextOffset = rightTextOffset,
-      rightImageFrame = rightImageFrame,
-      borderLines =
-        listOf(
-          PdfLine(startX = left, startY = rowTop, endX = right, endY = rowTop),
-          PdfLine(startX = left, startY = rowBottom, endX = right, endY = rowBottom),
-          PdfLine(startX = midX, startY = rowTop, endX = midX, endY = rowBottom),
+      content =
+        Row.Content(
+          leftTextOffset = PdfOffset(left + CELL_PADDING, contentTop),
+          rightTextOffset = rightTextOffset,
+          rightImageFrame = rightImageFrame,
+        ),
+      borders =
+        Row.Borders(
+          top =
+            if (includeTopBorder)
+              PdfLine(startX = left, startY = rowTop, endX = right, endY = rowTop)
+            else null,
+          divider = PdfLine(startX = midX, startY = rowTop, endX = midX, endY = rowBottom),
+          bottom = PdfLine(startX = left, startY = rowBottom, endX = right, endY = rowBottom),
         ),
     )
   }
