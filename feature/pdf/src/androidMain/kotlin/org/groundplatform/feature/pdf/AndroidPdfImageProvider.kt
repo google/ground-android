@@ -149,8 +149,15 @@ class AndroidPdfImageProvider(
  * [maxHeight].
  */
 internal fun calculateInSampleSize(width: Int, height: Int, maxWidth: Int, maxHeight: Int): Int {
+  // True if at least one dimension is still larger than the target when downsampled.
+  fun canDownsample(sampleSize: Int): Boolean {
+    val meetsTargetWidth = width / sampleSize >= maxWidth
+    val meetsTargetHeight = height / sampleSize >= maxHeight
+    return meetsTargetWidth || meetsTargetHeight
+  }
+
   var sampleSize = 1
-  while (width / (sampleSize * 2) >= maxWidth || height / (sampleSize * 2) >= maxHeight) {
+  while (canDownsample(sampleSize * 2)) {
     sampleSize *= 2
   }
   return sampleSize
