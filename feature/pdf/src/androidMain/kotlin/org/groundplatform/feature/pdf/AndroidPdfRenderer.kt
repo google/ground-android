@@ -17,6 +17,8 @@ package org.groundplatform.feature.pdf
 
 import android.graphics.pdf.PdfDocument
 import java.io.File
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
 import org.groundplatform.feature.pdf.model.SubmissionPdfDocument
 import org.groundplatform.feature.pdf.render.DocumentPdfCanvas
 import org.groundplatform.feature.pdf.render.MeasurementPdfCanvas
@@ -31,7 +33,7 @@ import org.groundplatform.feature.pdf.render.image.PdfImageSet
  */
 // TODO: Add equivalent iOS implementations for PDF feature
 // Issue URL: https://github.com/google/ground-android/issues/3775
-class AndroidPdfRenderer : PdfRenderer {
+class AndroidPdfRenderer(private val ioDispatcher: CoroutineDispatcher) : PdfRenderer {
 
   override suspend fun render(
     document: SubmissionPdfDocument,
@@ -44,7 +46,7 @@ class AndroidPdfRenderer : PdfRenderer {
     try {
       writer(document, images, DocumentPdfCanvas(pdf), totalPages = totalPages)
         .drawDocument(document)
-      File(outputPath).outputStream().use { pdf.writeTo(it) }
+      withContext(ioDispatcher) { File(outputPath).outputStream().use { pdf.writeTo(it) } }
     } finally {
       pdf.close()
     }
