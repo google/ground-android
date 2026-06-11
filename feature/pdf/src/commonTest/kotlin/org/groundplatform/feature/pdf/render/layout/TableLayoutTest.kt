@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.feature.pdf.render.components
+package org.groundplatform.feature.pdf.render.layout
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -24,14 +24,16 @@ import org.groundplatform.feature.pdf.render.PdfConfig
 import org.groundplatform.feature.pdf.render.PdfItemSize
 import org.groundplatform.feature.pdf.render.PdfLine
 import org.groundplatform.feature.pdf.render.PdfOffset
+import org.groundplatform.feature.pdf.render.layout.TableLayout.CELL_PADDING
+import org.groundplatform.feature.pdf.render.layout.TableLayout.TASK_COLUMN_WIDTH
 
 class TableLayoutTest {
 
-  private val cellPadding = PdfConfig.CELL_PADDING.toFloat()
+  private val cellPadding = CELL_PADDING.toFloat()
   private val lineSpacing = PdfConfig.LINE_SPACING
   private val margin = PdfConfig.MARGIN.toFloat()
   private val usableWidth = PdfConfig.USABLE_WIDTH
-  private val taskColumnWidth = PdfConfig.TABLE_TASK_COLUMN_WIDTH
+  private val taskColumnWidth = TASK_COLUMN_WIDTH
 
   @Test
   fun `label sits below a top gap at the left margin`() {
@@ -107,7 +109,7 @@ class TableLayoutTest {
         rightImageSize = null,
       )
 
-    assertEquals(PdfOffset(margin + cellPadding, 100f + cellPadding), layout.leftTextOffset)
+    assertEquals(PdfOffset(margin + cellPadding, 100f + cellPadding), layout.content.leftTextOffset)
   }
 
   @Test
@@ -120,8 +122,8 @@ class TableLayoutTest {
         rightImageSize = null,
       )
 
-    assertNull(layout.rightTextOffset)
-    assertNull(layout.rightImageFrame)
+    assertNull(layout.content.rightTextOffset)
+    assertNull(layout.content.rightImageFrame)
   }
 
   @Test
@@ -135,8 +137,8 @@ class TableLayoutTest {
       )
 
     val rightCellX = margin + taskColumnWidth + cellPadding
-    assertEquals(PdfOffset(rightCellX, 50f + cellPadding), layout.rightTextOffset)
-    assertNull(layout.rightImageFrame)
+    assertEquals(PdfOffset(rightCellX, 50f + cellPadding), layout.content.rightTextOffset)
+    assertNull(layout.content.rightImageFrame)
   }
 
   @Test
@@ -151,8 +153,8 @@ class TableLayoutTest {
       )
 
     val rightCellX = margin + taskColumnWidth + cellPadding
-    val frame = assertNotNull(layout.rightImageFrame)
-    assertNull(layout.rightTextOffset)
+    val frame = assertNotNull(layout.content.rightImageFrame)
+    assertNull(layout.content.rightTextOffset)
     with(frame) {
       assertEquals(rightCellX, x)
       assertEquals(50f + cellPadding, y)
@@ -171,11 +173,14 @@ class TableLayoutTest {
         rightImageSize = null,
       )
 
-    assertEquals(margin, layout.leftRowX)
-    assertEquals(margin + usableWidth, layout.rightRowX)
-    assertEquals(margin + taskColumnWidth, layout.columnDividerX)
-    assertTrue(layout.leftRowX < layout.columnDividerX)
-    assertTrue(layout.columnDividerX < layout.rightRowX)
+    val leftX = layout.borders.bottom.startX
+    val rightX = layout.borders.bottom.endX
+    val dividerX = layout.borders.divider.startX
+    assertEquals(margin, leftX)
+    assertEquals(margin + usableWidth, rightX)
+    assertEquals(margin + taskColumnWidth, dividerX)
+    assertTrue(leftX < dividerX)
+    assertTrue(dividerX < rightX)
   }
 
   @Test
@@ -192,18 +197,15 @@ class TableLayoutTest {
     val rowBottom = rowTop + layout.totalHeight
     val right = margin + usableWidth
     val midX = margin + taskColumnWidth
-    assertEquals(
-      listOf(
-        PdfLine(margin, rowTop, right, rowTop),
-        PdfLine(margin, rowBottom, right, rowBottom),
-        PdfLine(midX, rowTop, midX, rowBottom),
-      ),
-      layout.borderLines,
-    )
+    val borders = layout.borders
+    assertEquals(PdfLine(margin, rowTop, right, rowTop), borders.top)
+    assertEquals(PdfLine(margin, rowBottom, right, rowBottom), borders.bottom)
+    assertEquals(PdfLine(midX, rowTop, midX, rowBottom), borders.divider)
+    assertEquals(listOf(borders.top, borders.divider, borders.bottom), borders.drawableLines)
   }
 
   @Test
-  fun `consecutive rows produce abutting borders so the divider reads as one continuous line`() {
+  fun `row omits its top border when drawTopBorder is false`() {
     val first =
       TableLayout.getRow(
         rowTop = 50f,
@@ -217,15 +219,37 @@ class TableLayoutTest {
         leftTextHeight = 30f,
         rightTextHeight = 0f,
         rightImageSize = null,
+        includeTopBorder = false,
       )
 
-    // The first row's bottom border sits exactly where the second row's top border begins.
-    assertEquals(first.borderLines[1].startY, second.borderLines[0].startY)
-    // The per-row divider segments share an X and meet end-to-start, forming one unbroken line.
-    val firstDivider = first.borderLines[2]
-    val secondDivider = second.borderLines[2]
-    assertEquals(firstDivider.endX, secondDivider.startX)
-    assertEquals(firstDivider.endY, secondDivider.startY)
+    assertNull(second.borders.top)
+    assertEquals(first.borders.bottom.startY, second.borders.divider.startY)
+    assertEquals(first.borders.divider.endX, second.borders.divider.startX)
+    assertEquals(first.borders.divider.endY, second.borders.divider.startY)
+  }
+
+  @Test
+  fun `consecutive rows share borders so the divider reads as one continuous line`() {
+    val first =
+      TableLayout.getRow(
+        rowTop = 50f,
+        leftTextHeight = 20f,
+        rightTextHeight = 0f,
+        rightImageSize = null,
+      )
+    val second =
+      TableLayout.getRow(
+        rowTop = 50f + first.totalHeight,
+        leftTextHeight = 30f,
+        rightTextHeight = 0f,
+        rightImageSize = null,
+        includeTopBorder = false,
+      )
+
+    assertNull(second.borders.top)
+    assertEquals(first.borders.bottom.startY, second.borders.divider.startY)
+    assertEquals(first.borders.divider.endX, second.borders.divider.startX)
+    assertEquals(first.borders.divider.endY, second.borders.divider.startY)
   }
 
   @Test

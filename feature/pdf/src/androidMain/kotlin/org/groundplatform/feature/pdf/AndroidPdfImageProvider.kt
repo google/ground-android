@@ -27,10 +27,11 @@ import androidx.core.graphics.scale
 import androidx.exifinterface.media.ExifInterface
 import java.io.File
 import kotlin.math.roundToInt
-import org.groundplatform.feature.pdf.render.PdfConfig
 import org.groundplatform.feature.pdf.render.fitInside
 import org.groundplatform.feature.pdf.render.image.PdfImage
 import org.groundplatform.feature.pdf.render.image.PdfImageSet
+import org.groundplatform.feature.pdf.render.layout.QrBlockLayout
+import org.groundplatform.feature.pdf.render.layout.TableLayout
 import org.groundplatform.feature.pdf.render.pointsToRenderPixels
 import org.groundplatform.ui.components.qrcode.PDF_LOGO_SIZE_FRACTION
 import org.groundplatform.ui.components.qrcode.generateQrBitmap
@@ -52,9 +53,9 @@ class AndroidPdfImageProvider(
   @DrawableRes private val logoDrawableRes: Int,
 ) : PdfImageProvider {
 
-  private val qrMaxPx = pointsToRenderPixels(PdfConfig.QR_SIZE.toFloat())
-  private val photoMaxWidthPx = pointsToRenderPixels(PdfConfig.TABLE_ANSWER_TEXT_WIDTH.toFloat())
-  private val photoMaxHeightPx = pointsToRenderPixels(PdfConfig.PHOTO_MAX_HEIGHT.toFloat())
+  private val qrMaxPx = pointsToRenderPixels(QrBlockLayout.QR_SIZE)
+  private val photoMaxWidthPx = pointsToRenderPixels(TableLayout.ANSWER_TEXT_WIDTH.toFloat())
+  private val photoMaxHeightPx = pointsToRenderPixels(TableLayout.PHOTO_MAX_HEIGHT.toFloat())
 
   override suspend fun load(qrContent: String?, photoFilenames: Set<String>): PdfImageSet {
     val images = mutableMapOf<PdfImageSet.ImageRef, PdfImage>()

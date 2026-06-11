@@ -13,20 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.feature.pdf.render.components
+package org.groundplatform.feature.pdf.render.layout
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import org.groundplatform.feature.pdf.render.PdfConfig
+import org.groundplatform.feature.pdf.render.layout.QrBlockLayout.Companion.QR_SIZE
 
 class QrBlockLayoutTest {
 
   private val margin = PdfConfig.MARGIN
   private val pageWidth = PdfConfig.PAGE_WIDTH
-  private val qrSize = PdfConfig.QR_SIZE
+  private val qrSize = QR_SIZE
   private val lineSpacing = PdfConfig.LINE_SPACING
 
-  private val expectedX = (pageWidth - margin - qrSize).toFloat()
+  private val expectedX = pageWidth - margin - qrSize
 
   @Test
   fun `QR frame is a square anchored at the right margin`() {
@@ -34,8 +35,8 @@ class QrBlockLayoutTest {
 
     assertEquals(expectedX, layout.qrFrame.x)
     assertEquals(0f, layout.qrFrame.y)
-    assertEquals(qrSize.toFloat(), layout.qrFrame.width)
-    assertEquals(qrSize.toFloat(), layout.qrFrame.height)
+    assertEquals(qrSize, layout.qrFrame.width)
+    assertEquals(qrSize, layout.qrFrame.height)
     assertEquals((pageWidth - margin).toFloat(), layout.qrFrame.right)
   }
 
@@ -46,13 +47,6 @@ class QrBlockLayoutTest {
 
     assertEquals(expectedX, layout.captionOffset.x)
     assertEquals(top + qrSize + lineSpacing, layout.captionOffset.y)
-  }
-
-  @Test
-  fun `caption maxWidth equals QR size so it stays under the QR image`() {
-    val layout = QrBlockLayout.compute(top = 0f, captionHeight = 10f)
-
-    assertEquals(qrSize, layout.captionMaxWidth)
   }
 
   @Test

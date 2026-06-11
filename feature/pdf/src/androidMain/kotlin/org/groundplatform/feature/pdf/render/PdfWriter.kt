@@ -30,19 +30,14 @@ import org.groundplatform.feature.pdf.model.SubmissionPdfDocument.Answer
 import org.groundplatform.feature.pdf.model.SubmissionPdfDocument.Footer
 import org.groundplatform.feature.pdf.model.SubmissionPdfDocument.Header
 import org.groundplatform.feature.pdf.model.SubmissionPdfDocument.QrBlock
-import org.groundplatform.feature.pdf.render.PdfConfig.FOOTER_TEXT_MAX_WIDTH
 import org.groundplatform.feature.pdf.render.PdfConfig.LINE_SPACING
-import org.groundplatform.feature.pdf.render.PdfConfig.MAX_FOOTER_LINES
-import org.groundplatform.feature.pdf.render.PdfConfig.MAX_HEADER_VALUE_LINES
-import org.groundplatform.feature.pdf.render.PdfConfig.PHOTO_MAX_HEIGHT
-import org.groundplatform.feature.pdf.render.PdfConfig.QR_SIZE
 import org.groundplatform.feature.pdf.render.PdfConfig.USABLE_WIDTH
-import org.groundplatform.feature.pdf.render.components.PageFooterLayout
-import org.groundplatform.feature.pdf.render.components.PageHeaderLayout
-import org.groundplatform.feature.pdf.render.components.QrBlockLayout
-import org.groundplatform.feature.pdf.render.components.TableLayout
 import org.groundplatform.feature.pdf.render.image.PdfImage
 import org.groundplatform.feature.pdf.render.image.PdfImageSet
+import org.groundplatform.feature.pdf.render.layout.PageFooterLayout
+import org.groundplatform.feature.pdf.render.layout.PageHeaderLayout
+import org.groundplatform.feature.pdf.render.layout.QrBlockLayout
+import org.groundplatform.feature.pdf.render.layout.TableLayout
 
 /**
  * Draws a [SubmissionPdfDocument] onto a [PdfDocument], one section at a time, paginating top-down.
@@ -86,7 +81,12 @@ internal class PdfWriter(
     val qr = images[PdfImageSet.ImageRef.Qr] ?: return
     pageController.ensurePage()
     val captionLayout =
-      staticLayout(block.scanCaption, paints.caption, QR_SIZE, Layout.Alignment.ALIGN_CENTER)
+      staticLayout(
+        block.scanCaption,
+        paints.caption,
+        QrBlockLayout.QR_SIZE.toInt(),
+        Layout.Alignment.ALIGN_CENTER,
+      )
     val layout =
       QrBlockLayout.compute(top = cursor.y, captionHeight = captionLayout.height.toFloat())
     drawImage(qr, layout.qrFrame, smoothScaling = false)
@@ -137,24 +137,29 @@ internal class PdfWriter(
     val columnWidth = PageHeaderLayout.COLUMN_WIDTH
     val surveyLabel = staticLayout(header.surveyLabel, paints.metaLabel, columnWidth)
     val surveyValue =
-      staticLayout(header.surveyName, paints.meta, columnWidth, maxLines = MAX_HEADER_VALUE_LINES)
+      staticLayout(
+        text = header.surveyName,
+        paint = paints.meta,
+        maxWidth = columnWidth,
+        maxLines = PageHeaderLayout.MAX_LINES,
+      )
     val jobLabel =
       staticLayout(header.jobLabel, paints.metaLabel, columnWidth, Layout.Alignment.ALIGN_CENTER)
     val jobValue =
       staticLayout(
-        header.jobName,
-        paints.meta,
-        columnWidth,
+        text = header.jobName,
+        paint = paints.meta,
+        maxWidth = columnWidth,
         alignment = Layout.Alignment.ALIGN_CENTER,
-        maxLines = MAX_HEADER_VALUE_LINES,
+        maxLines = PageHeaderLayout.MAX_LINES,
       )
     val timestamp =
       staticLayout(
-        header.timestamp,
-        paints.meta,
-        columnWidth,
+        text = header.timestamp,
+        paint = paints.meta,
+        maxWidth = columnWidth,
         alignment = Layout.Alignment.ALIGN_OPPOSITE,
-        maxLines = MAX_HEADER_VALUE_LINES,
+        maxLines = PageHeaderLayout.MAX_LINES,
       )
 
     val layout =
@@ -189,12 +194,12 @@ internal class PdfWriter(
   }
 
   private fun drawTableRow(questionText: String, answerText: String, photo: PdfImage?) {
-    val questionLayout = staticLayout(questionText, paints.body, PdfConfig.TABLE_TASK_TEXT_WIDTH)
+    val questionLayout = staticLayout(questionText, paints.body, TableLayout.TASK_TEXT_WIDTH)
     val answerLayout =
       if (answerText.isEmpty()) null
-      else staticLayout(answerText, paints.body, PdfConfig.TABLE_ANSWER_TEXT_WIDTH)
+      else staticLayout(answerText, paints.body, TableLayout.ANSWER_TEXT_WIDTH)
     val photoSize = photo?.let {
-      fitInside(it.width, it.height, PdfConfig.TABLE_ANSWER_TEXT_WIDTH, PHOTO_MAX_HEIGHT)
+      fitInside(it.width, it.height, TableLayout.ANSWER_TEXT_WIDTH, TableLayout.PHOTO_MAX_HEIGHT)
     }
 
     val questionHeight = questionLayout.height.toFloat()
@@ -208,13 +213,13 @@ internal class PdfWriter(
         rightImageSize = photoSize,
       )
 
-    rowLayout.borderLines.forEach { drawLine(it) }
-    drawStaticLayoutAt(questionLayout, rowLayout.leftTextOffset)
-    if (answerLayout != null && rowLayout.rightTextOffset != null) {
-      drawStaticLayoutAt(answerLayout, rowLayout.rightTextOffset)
+    rowLayout.borders.drawableLines.forEach { drawLine(it) }
+    drawStaticLayoutAt(questionLayout, rowLayout.content.leftTextOffset)
+    if (answerLayout != null && rowLayout.content.rightTextOffset != null) {
+      drawStaticLayoutAt(answerLayout, rowLayout.content.rightTextOffset)
     }
-    if (photo != null && rowLayout.rightImageFrame != null) {
-      drawImage(photo, rowLayout.rightImageFrame, smoothScaling = true)
+    if (photo != null && rowLayout.content.rightImageFrame != null) {
+      drawImage(photo, rowLayout.content.rightImageFrame, smoothScaling = true)
     }
     cursor.advance(rowLayout.totalHeight)
   }
@@ -234,7 +239,12 @@ internal class PdfWriter(
       SpannableString("$footerLabel: ${footer.dataCollectorName}, ${footer.userEmail}").apply {
         setSpan(StyleSpan(Typeface.BOLD), 0, footerLabel.length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
       }
-    return staticLayout(footerText, paints.meta, FOOTER_TEXT_MAX_WIDTH, maxLines = MAX_FOOTER_LINES)
+    return staticLayout(
+      footerText,
+      paints.meta,
+      PageFooterLayout.TEXT_MAX_WIDTH,
+      maxLines = PageFooterLayout.MAX_LINES,
+    )
   }
 
   /**

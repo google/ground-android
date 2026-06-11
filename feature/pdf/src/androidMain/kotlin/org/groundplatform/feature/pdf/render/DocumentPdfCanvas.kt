@@ -22,6 +22,7 @@ import android.graphics.pdf.PdfDocument
 import android.text.StaticLayout
 import androidx.core.graphics.withTranslation
 import org.groundplatform.feature.pdf.render.image.PdfImage
+import org.groundplatform.feature.pdf.render.layout.TableLayout
 
 /**
  * [PdfCanvas] that draws onto a real [PdfDocument], one page at a time. Image bitmaps are expected
@@ -33,7 +34,7 @@ internal class DocumentPdfCanvas(private val pdf: PdfDocument) : PdfCanvas {
   private val strokePaint =
     Paint().apply {
       style = Paint.Style.STROKE
-      strokeWidth = PdfConfig.BORDER_WIDTH
+      strokeWidth = TableLayout.BORDER_WIDTH
       isAntiAlias = true
     }
 
