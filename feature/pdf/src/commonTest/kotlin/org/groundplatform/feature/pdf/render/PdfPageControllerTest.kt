@@ -17,6 +17,7 @@ package org.groundplatform.feature.pdf.render
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class PdfPageControllerTest {
@@ -166,6 +167,27 @@ class PdfPageControllerTest {
     cursor.advance(100f)
     controller.newPageIfShort(spaceNeeded = Float.MAX_VALUE)
     assertEquals(2, controller.pageCount)
+  }
+
+  @Test
+  fun `isFirstTableRowOnPage is true until consumed`() {
+    controller.ensurePage()
+
+    assertTrue(controller.isFirstTableRowOnPage)
+    controller.consumeFirstTableRowOnPage()
+    assertFalse(controller.isFirstTableRowOnPage)
+  }
+
+  @Test
+  fun `isFirstTableRowOnPage resets to true on a new page`() {
+    controller.ensurePage()
+    controller.consumeFirstTableRowOnPage()
+    assertFalse(controller.isFirstTableRowOnPage)
+
+    cursor.advance(100f)
+    controller.newPageIfShort(spaceNeeded = Float.MAX_VALUE)
+
+    assertTrue(controller.isFirstTableRowOnPage)
   }
 
   private sealed interface PageEvent {

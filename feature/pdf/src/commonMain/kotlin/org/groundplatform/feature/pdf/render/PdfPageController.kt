@@ -34,12 +34,20 @@ internal class PdfPageController(
   private var pageIndex = 0
   private var pageOpen = false
 
+  var isFirstTableRowOnPage = true
+    private set
+
   /** Number of pages emitted so far. Equals the current page number while a page is open. */
   val pageCount: Int
     get() = pageIndex
 
   fun ensurePage() {
     if (!pageOpen) beginPage()
+  }
+
+  /** Records that the first table row on the current page has been drawn. */
+  fun consumeFirstTableRowOnPage() {
+    isFirstTableRowOnPage = false
   }
 
   fun newPageIfShort(spaceNeeded: Float) {
@@ -58,6 +66,7 @@ internal class PdfPageController(
   private fun beginPage() {
     pageIndex++
     pageOpen = true
+    isFirstTableRowOnPage = true
     cursor.reset()
     lifecycle.onPageStarted(pageIndex)
   }

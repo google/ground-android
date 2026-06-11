@@ -212,7 +212,11 @@ internal class PdfWriter(
         leftTextHeight = questionHeight,
         rightTextHeight = answerHeight,
         rightImageSize = photoSize,
+        includeTopBorder = pageController.isFirstTableRowOnPage,
       )
+    if (pageController.isFirstTableRowOnPage) {
+      pageController.consumeFirstTableRowOnPage()
+    }
 
     rowLayout.borders.drawableLines.forEach { drawLine(it) }
     drawStaticLayoutAt(questionLayout, rowLayout.content.leftTextOffset)
