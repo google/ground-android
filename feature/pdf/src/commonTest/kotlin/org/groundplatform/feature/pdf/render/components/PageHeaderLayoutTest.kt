@@ -21,12 +21,14 @@ import kotlin.test.assertTrue
 import kotlin.text.compareTo
 import org.groundplatform.feature.pdf.render.PdfConfig
 import org.groundplatform.feature.pdf.render.PdfOffset
+import org.groundplatform.feature.pdf.render.components.PageHeaderLayout.Companion.BOTTOM_GAP
+import org.groundplatform.feature.pdf.render.components.PageHeaderLayout.Companion.COLUMN_GAP
 
 class PageHeaderLayoutTest {
 
   private val lineSpacing = PdfConfig.LINE_SPACING
-  private val headerBottomGap = PdfConfig.HEADER_BOTTOM_GAP
-  private val headerColumnGap = PdfConfig.HEADER_COLUMN_GAP
+  private val headerBottomGap = BOTTOM_GAP
+  private val headerColumnGap = COLUMN_GAP
   private val usableWidth = PdfConfig.USABLE_WIDTH
 
   @Test

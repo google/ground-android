@@ -25,8 +25,8 @@ class PageFooterLayoutTest {
   private val margin = PdfConfig.MARGIN.toFloat()
   private val pageHeight = PdfConfig.PAGE_HEIGHT
   private val usableWidth = PdfConfig.USABLE_WIDTH
-  private val pageNumberBand = PdfConfig.PAGE_NUMBER_BAND_WIDTH
-  private val footerTextMaxWidth = PdfConfig.FOOTER_TEXT_MAX_WIDTH
+  private val pageNumberBand = PageFooterLayout.PAGE_NUMBER_BAND_WIDTH
+  private val footerTextMaxWidth = PageFooterLayout.TEXT_MAX_WIDTH
 
   @Test
   fun `footer text anchors against the bottom margin`() {
@@ -46,10 +46,9 @@ class PageFooterLayoutTest {
   }
 
   @Test
-  fun `slot widths match their respective configuration constants`() {
+  fun `page number slot width matches its configuration constant`() {
     val layout = PageFooterLayout.compute(footerHeight = 12f)
 
-    assertEquals(footerTextMaxWidth, layout.footerMaxWidth)
     assertEquals(pageNumberBand, layout.pageNumberMaxWidth)
   }
 
@@ -57,7 +56,7 @@ class PageFooterLayoutTest {
   fun `footer and page number slots do not overlap`() {
     val layout = PageFooterLayout.compute(footerHeight = 12f)
 
-    val footerRight = layout.footerTextOffset.x + layout.footerMaxWidth
+    val footerRight = layout.footerTextOffset.x + footerTextMaxWidth
     assertTrue(footerRight <= layout.pageNumberOffset.x)
   }
 
@@ -93,6 +92,6 @@ class PageFooterLayoutTest {
   fun `reserve adds the top gap to the footer height`() {
     val footerHeight = 12f
 
-    assertEquals(footerHeight + PdfConfig.FOOTER_TOP_GAP, PageFooterLayout.reserve(footerHeight))
+    assertEquals(footerHeight + PageFooterLayout.TOP_GAP, PageFooterLayout.reserve(footerHeight))
   }
 }

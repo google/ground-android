@@ -18,12 +18,13 @@ package org.groundplatform.feature.pdf.render.components
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import org.groundplatform.feature.pdf.render.PdfConfig
+import org.groundplatform.feature.pdf.render.components.QrBlockLayout.Companion.QR_SIZE
 
 class QrBlockLayoutTest {
 
   private val margin = PdfConfig.MARGIN
   private val pageWidth = PdfConfig.PAGE_WIDTH
-  private val qrSize = PdfConfig.QR_SIZE
+  private val qrSize = QR_SIZE
   private val lineSpacing = PdfConfig.LINE_SPACING
 
   private val expectedX = (pageWidth - margin - qrSize)

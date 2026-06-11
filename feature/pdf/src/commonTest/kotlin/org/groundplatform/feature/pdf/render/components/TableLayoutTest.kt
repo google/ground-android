@@ -24,14 +24,16 @@ import org.groundplatform.feature.pdf.render.PdfConfig
 import org.groundplatform.feature.pdf.render.PdfItemSize
 import org.groundplatform.feature.pdf.render.PdfLine
 import org.groundplatform.feature.pdf.render.PdfOffset
+import org.groundplatform.feature.pdf.render.components.TableLayout.CELL_PADDING
+import org.groundplatform.feature.pdf.render.components.TableLayout.TASK_COLUMN_WIDTH
 
 class TableLayoutTest {
 
-  private val cellPadding = PdfConfig.CELL_PADDING.toFloat()
+  private val cellPadding = CELL_PADDING.toFloat()
   private val lineSpacing = PdfConfig.LINE_SPACING
   private val margin = PdfConfig.MARGIN.toFloat()
   private val usableWidth = PdfConfig.USABLE_WIDTH
-  private val taskColumnWidth = PdfConfig.TABLE_TASK_COLUMN_WIDTH
+  private val taskColumnWidth = TASK_COLUMN_WIDTH
 
   @Test
   fun `label sits below a top gap at the left margin`() {

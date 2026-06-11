@@ -18,7 +18,6 @@ package org.groundplatform.feature.pdf.render.components
 import org.groundplatform.feature.pdf.render.PdfConfig.LINE_SPACING
 import org.groundplatform.feature.pdf.render.PdfConfig.MARGIN
 import org.groundplatform.feature.pdf.render.PdfConfig.PAGE_WIDTH
-import org.groundplatform.feature.pdf.render.PdfConfig.QR_SIZE
 import org.groundplatform.feature.pdf.render.PdfOffset
 import org.groundplatform.feature.pdf.render.PdfRect
 
@@ -36,6 +35,9 @@ internal data class QrBlockLayout(
   val nextCursorY: Float,
 ) {
   companion object {
+    /** Target size of the QR code block. */
+    const val QR_SIZE = 200f
+
     fun compute(top: Float, captionHeight: Float): QrBlockLayout {
       val x = (PAGE_WIDTH - MARGIN - QR_SIZE)
       val captionTop = top + QR_SIZE + LINE_SPACING

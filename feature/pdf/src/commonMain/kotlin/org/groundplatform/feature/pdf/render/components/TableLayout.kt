@@ -15,10 +15,9 @@
  */
 package org.groundplatform.feature.pdf.render.components
 
-import org.groundplatform.feature.pdf.render.PdfConfig.CELL_PADDING
 import org.groundplatform.feature.pdf.render.PdfConfig.LINE_SPACING
 import org.groundplatform.feature.pdf.render.PdfConfig.MARGIN
-import org.groundplatform.feature.pdf.render.PdfConfig.TABLE_TASK_COLUMN_WIDTH
+import org.groundplatform.feature.pdf.render.PdfConfig.PAGE_HEIGHT
 import org.groundplatform.feature.pdf.render.PdfConfig.USABLE_WIDTH
 import org.groundplatform.feature.pdf.render.PdfItemSize
 import org.groundplatform.feature.pdf.render.PdfLine
@@ -26,6 +25,30 @@ import org.groundplatform.feature.pdf.render.PdfOffset
 import org.groundplatform.feature.pdf.render.PdfRect
 
 internal object TableLayout {
+  /** Inner padding between a table cell's border and its text. */
+  const val CELL_PADDING = 6
+
+  /** Stroke width used for table and cell borders. */
+  const val BORDER_WIDTH = 0.5f
+
+  /** Fraction of [USABLE_WIDTH] allotted to the task-label column of a table row. */
+  private const val TASK_LABEL_RATIO = 0.35f
+
+  /** Width of the task-label column. */
+  const val TASK_COLUMN_WIDTH = (USABLE_WIDTH * TASK_LABEL_RATIO).toInt()
+
+  /** Width for task-label text (the task column minus its padding). */
+  const val TASK_TEXT_WIDTH = TASK_COLUMN_WIDTH - 2 * CELL_PADDING
+
+  /** Width for answer text (the remaining table width minus its padding). */
+  const val ANSWER_TEXT_WIDTH = USABLE_WIDTH - TASK_COLUMN_WIDTH - 2 * CELL_PADDING
+
+  /** Fraction of the usable page height a single photo may occupy before being scaled down. */
+  private const val PHOTO_MAX_HEIGHT_RATIO = 0.35f
+
+  /** Maximum table photo height. */
+  const val PHOTO_MAX_HEIGHT = ((PAGE_HEIGHT - 2 * MARGIN) * PHOTO_MAX_HEIGHT_RATIO).toInt()
+
   /**
    * Layout of a single two-column table row. Left cell holds a single text block; right cell may
    * contain either text or an image.
@@ -92,7 +115,7 @@ internal object TableLayout {
 
     val left = MARGIN.toFloat()
     val right = left + USABLE_WIDTH
-    val midX = left + TABLE_TASK_COLUMN_WIDTH
+    val midX = left + TASK_COLUMN_WIDTH
     val rowBottom = rowTop + totalHeight
     val contentTop = rowTop + CELL_PADDING
     val rightCellLeft = midX + CELL_PADDING

@@ -15,8 +15,6 @@
  */
 package org.groundplatform.feature.pdf.render.components
 
-import org.groundplatform.feature.pdf.render.PdfConfig.HEADER_BOTTOM_GAP
-import org.groundplatform.feature.pdf.render.PdfConfig.HEADER_COLUMN_GAP
 import org.groundplatform.feature.pdf.render.PdfConfig.LINE_SPACING
 import org.groundplatform.feature.pdf.render.PdfConfig.MARGIN
 import org.groundplatform.feature.pdf.render.PdfConfig.USABLE_WIDTH
@@ -38,10 +36,17 @@ internal data class PageHeaderLayout(
   val nextCursorY: Float,
 ) {
   companion object {
-    const val COLUMN_WIDTH: Int = (USABLE_WIDTH - 2 * HEADER_COLUMN_GAP) / 3
+    /** Horizontal gap between the two columns of the page header. */
+    const val COLUMN_GAP = 16
+    /** Vertical gap below the header before body content begins. */
+    const val BOTTOM_GAP = 28f
+
+    /** Maximum number of lines rendered for each header value. */
+    const val MAX_LINES = 1
+    const val COLUMN_WIDTH: Int = (USABLE_WIDTH - 2 * COLUMN_GAP) / 3
     const val LEFT_X: Float = MARGIN.toFloat()
-    const val CENTER_X: Float = LEFT_X + COLUMN_WIDTH + HEADER_COLUMN_GAP
-    const val RIGHT_X: Float = LEFT_X + 2 * (COLUMN_WIDTH + HEADER_COLUMN_GAP)
+    const val CENTER_X: Float = LEFT_X + COLUMN_WIDTH + COLUMN_GAP
+    const val RIGHT_X: Float = LEFT_X + 2 * (COLUMN_WIDTH + COLUMN_GAP)
 
     fun compute(top: Float, labelHeight: Float, valueHeight: Float): PageHeaderLayout {
       val columnBottom = top + labelHeight + LINE_SPACING + valueHeight
@@ -49,7 +54,7 @@ internal data class PageHeaderLayout(
         leftColumn = column(LEFT_X, top, labelHeight),
         centerColumn = column(CENTER_X, top, labelHeight),
         rightTextOffset = PdfOffset(RIGHT_X, top),
-        nextCursorY = columnBottom + HEADER_BOTTOM_GAP,
+        nextCursorY = columnBottom + BOTTOM_GAP,
       )
     }
 
