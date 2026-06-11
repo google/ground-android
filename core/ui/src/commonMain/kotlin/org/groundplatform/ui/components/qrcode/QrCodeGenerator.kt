@@ -61,7 +61,9 @@ fun generateQrBitmap(
 ): ImageBitmap =
   if (logo == null || !fitsLogoCapacity(content)) {
     encodeQrBitmap(content, useHighEcc = false)
-  } else encodeQrBitmap(content, useHighEcc = true).withCenteredLogo(logo, logoSizeFraction)
+  } else {
+    encodeQrBitmap(content, useHighEcc = true).withCenteredLogo(logo, logoSizeFraction)
+  }
 
 internal fun fitsLogoCapacity(content: String): Boolean =
   content.encodeToByteArray().size <= MAX_QR_BYTES_WITH_LOGO
