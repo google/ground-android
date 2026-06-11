@@ -27,6 +27,9 @@ import androidx.core.graphics.scale
 import androidx.exifinterface.media.ExifInterface
 import java.io.File
 import kotlin.math.roundToInt
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import org.groundplatform.feature.pdf.render.fitInside
 import org.groundplatform.feature.pdf.render.image.PdfImage
 import org.groundplatform.feature.pdf.render.image.PdfImageSet
@@ -57,28 +60,38 @@ class AndroidPdfImageProvider(
   private val photoMaxWidthPx = pointsToRenderPixels(TableLayout.ANSWER_TEXT_WIDTH.toFloat())
   private val photoMaxHeightPx = pointsToRenderPixels(TableLayout.PHOTO_MAX_HEIGHT.toFloat())
 
-  override suspend fun load(qrContent: String?, photoFilenames: Set<String>): PdfImageSet {
-    val images = mutableMapOf<PdfImageSet.ImageRef, PdfImage>()
-    val bitmapsToRelease = mutableListOf<Bitmap>()
-
-    qrContent?.let { content ->
-      generateQrCodeBitmap(content)?.let { bitmap ->
-        bitmapsToRelease += bitmap
-        images[PdfImageSet.ImageRef.Qr] = PdfImage(bitmap)
-      }
-    }
-
-    photoFilenames
-      .filter { it.isNotEmpty() }
-      .forEach { filename ->
-        loadPhotoBitmap(filename)?.let { bitmap ->
-          bitmapsToRelease += bitmap
-          images[PdfImageSet.ImageRef.Photo(filename)] = PdfImage(bitmap)
+  override suspend fun load(qrContent: String?, photoFilenames: Set<String>): PdfImageSet =
+    coroutineScope {
+      val deferredQr = qrContent?.let { content ->
+        async {
+          generateQrCodeBitmap(content)?.let { bitmap ->
+            PdfImageSet.ImageRef.Qr to bitmap
+          }
         }
       }
 
-    return PdfImageSet(images) { bitmapsToRelease.forEach(Bitmap::recycle) }
-  }
+      val deferredPhotos =
+        photoFilenames
+          .filter { it.isNotEmpty() }
+          .map { filename ->
+            async {
+              loadPhotoBitmap(filename)?.let { bitmap ->
+                PdfImageSet.ImageRef.Photo(filename) to bitmap
+              }
+            }
+          }
+
+      val results = (listOfNotNull(deferredQr) + deferredPhotos).awaitAll().filterNotNull()
+
+      val images = mutableMapOf<PdfImageSet.ImageRef, PdfImage>()
+      val bitmapsToRelease = mutableListOf<Bitmap>()
+      results.forEach { (ref, bitmap) ->
+        bitmapsToRelease += bitmap
+        images[ref] = PdfImage(bitmap)
+      }
+
+      PdfImageSet(images = images, onRelease = { bitmapsToRelease.forEach(Bitmap::recycle) })
+    }
 
   private fun generateQrCodeBitmap(content: String): Bitmap? =
     runCatching {
