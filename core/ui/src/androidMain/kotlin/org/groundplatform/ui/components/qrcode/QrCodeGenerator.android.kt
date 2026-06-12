@@ -25,7 +25,7 @@ import com.google.zxing.EncodeHintType
 import com.google.zxing.qrcode.QRCodeWriter
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 
-actual fun generateQrBitmap(content: String, useHighEcc: Boolean): ImageBitmap {
+actual fun encodeQrBitmap(content: String, useHighEcc: Boolean): ImageBitmap {
   val hints =
     mapOf(
       EncodeHintType.ERROR_CORRECTION to
