@@ -179,7 +179,7 @@ internal constructor(
 
   fun onCloseClicked() {
     if (uiState.value is DataCollectionUiState.TaskSubmitted) {
-      viewModelScope.launch { _uiEffects.send(DataCollectionUiEffect.Exit) }
+      exitDataCollection()
     } else {
       showExitWarning()
     }
@@ -187,6 +187,21 @@ internal constructor(
 
   fun confirmExit() {
     dismissExitWarning()
+    exitDataCollection()
+  }
+
+  fun onBackClicked() {
+    when (val state = _uiState.value) {
+      is DataCollectionUiState.Ready ->
+        if (taskSequenceHandler.isFirstPosition(state.currentTaskId)) showExitWarning()
+        else moveToPreviousTask()
+      is DataCollectionUiState.TaskSubmitted -> exitDataCollection()
+      is DataCollectionUiState.Error,
+      DataCollectionUiState.Loading -> showExitWarning()
+    }
+  }
+
+  private fun exitDataCollection() {
     viewModelScope.launch { _uiEffects.send(DataCollectionUiEffect.Exit) }
   }
 
@@ -228,8 +243,6 @@ internal constructor(
         taskSequenceHandler.checkIfTaskIsLastWithValue(task.id to newValue)
       }
     } ?: false
-
-  fun isAtFirstTask(): Boolean = withReady { taskSequenceHandler.isFirstPosition(it.currentTaskId) }
 
   fun clearDraftBlocking() {
     suppressDrafts()

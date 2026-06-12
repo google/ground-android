@@ -22,6 +22,7 @@ import android.view.ViewGroup
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.common.BackPressListener
@@ -29,7 +30,6 @@ import org.groundplatform.android.ui.common.EphemeralPopups
 import org.groundplatform.android.ui.home.HomeScreenViewModel
 import org.groundplatform.android.util.createComposeView
 import org.groundplatform.android.util.openAppSettings
-import javax.inject.Inject
 
 /** Fragment allowing the user to collect data to complete a task. */
 @AndroidEntryPoint
@@ -71,17 +71,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
   }
 
   override fun onBack(): Boolean {
-    if (viewModel.uiState.value is DataCollectionUiState.TaskSubmitted) {
-      // Pressing back button after submitting task should navigate back to home screen.
-      navigateBack()
-      return true
-    }
-
-    if (viewModel.isAtFirstTask()) {
-      viewModel.showExitWarning()
-    } else {
-      viewModel.moveToPreviousTask()
-    }
+    viewModel.onBackClicked()
     return true
   }
 
