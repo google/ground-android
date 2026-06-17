@@ -114,6 +114,10 @@
   <string name="previous">មុន</string>
   <string name="network_error_when_signing_in">ភ្ជាប់អ៊ីនធឺណិត ដើម្បីចូលគណនី</string>
   <string name="camera_permissions_needed">អ្នកត្រូវផ្តល់ការអនុញ្ញាតកាមេរ៉ា ដល់កម្មវិធីនេះ ដើម្បីដាក់ស្នើរូបថត</string>
+  <string name="camera_launch_failed_title">កំហុសកាមេរ៉ា</string>
+  <string name="camera_launch_failed_desc">មិនអាចបើកកាមេរ៉ាបានទេ។ សូមព្យាយាមម្តងទៀត។</string>
+  <string name="photo_save_failed_title">កំហុសក្នុងការរក្សាទុក</string>
+  <string name="photo_save_failed_desc">មិនអាចរក្សាទុករូបថតដែលបានថតបានទេ។ សូមព្យាយាមម្តងទៀត។</string>
   <string name="incomplete_area">តំបន់មិនពេញលេញ</string>
   <string name="initializing">កំពុងចាប់ផ្តើម…</string>
   <string name="draw_area_task_instruction">ផ្លាស់ទីផែនទី ហើយចុច \"បន្ថែមចំណុច\" ដើម្បីបន្ថែមចំណុចជុំវិញតំបន់ដែលចង់បាន</string>
