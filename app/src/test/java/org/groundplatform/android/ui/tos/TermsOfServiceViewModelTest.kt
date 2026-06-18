@@ -32,6 +32,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
+import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 import org.mockito.MockitoAnnotations
 
@@ -102,9 +103,9 @@ class TermsOfServiceViewModelTest {
   }
 
   @Test
-  fun `Load failure triggers LoadError event and signs out`() = runTest {
+  fun `Load failure signs out when not view-only`() = runTest {
     fakeRepository.termsOfService = Result.failure(Exception("Failed to load"))
-    setupViewModel()
+    setupViewModel(isViewOnly = false)
 
     viewModel.events.test {
       advanceUntilIdle()
@@ -113,6 +114,32 @@ class TermsOfServiceViewModelTest {
     }
 
     verify(authManager).signOut()
+  }
+
+  @Test
+  fun `Load failure shows Error state, emits LoadError, and does not sign out when view-only`() =
+    runTest {
+      fakeRepository.termsOfService = Result.failure(Exception("Failed to load"))
+      setupViewModel(isViewOnly = true)
+
+      assertThat(viewModel.uiState.value).isEqualTo(TosUiState.Error(isViewOnly = true))
+      verify(authManager, never()).signOut()
+      viewModel.events.test {
+        assertThat(awaitItem()).isInstanceOf(TosEvent.LoadError::class.java)
+      }
+    }
+
+  @Test
+  fun `onRetryClicked reloads terms and recovers from Error state`() = runTest {
+    fakeRepository.termsOfService = Result.failure(Exception("Failed to load"))
+    setupViewModel(isViewOnly = true)
+    assertThat(viewModel.uiState.value).isEqualTo(TosUiState.Error(isViewOnly = true))
+
+    fakeRepository.termsOfService = Result.success(TEST_TOS)
+    viewModel.onRetryClicked()
+    advanceUntilIdle()
+
+    assertSuccessState(isViewOnly = true, TERMS_TEXT)
   }
 
   companion object {
