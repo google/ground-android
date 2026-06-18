@@ -120,7 +120,7 @@
   <string name="photo_save_failed_desc">មិនអាចរក្សាទុករូបថតដែលបានថតបានទេ។ សូមព្យាយាមម្តងទៀត។</string>
   <string name="incomplete_area">តំបន់មិនពេញលេញ</string>
   <string name="initializing">កំពុងចាប់ផ្តើម…</string>
-  <string name="draw_area_task_instruction">ផ្លាស់ទីផែនទី ហើយចុច \"បន្ថែមចំណុច\" ដើម្បីបន្ថែមចំណុចជុំវិញតំបន់ដែលចង់បាន</string>
+  <string name="draw_area_task_instruction">ផ្លាស់ទីផែនទី ហើយចុច “បន្ថែមចំណុច” ដើម្បីបន្ថែមចំណុចជុំវិញតំបន់ដែលចង់បាន</string>
   <string name="close">បិទ</string>
   <string name="data_consent_dialog_title">កិច្ចព្រមព្រៀងចែករំលែកទិន្នន័យ</string>
   <string name="map_location">ទីតាំងផែនទី៖</string>
