@@ -29,4 +29,5 @@
   <string name="lang_portuguese" translatable="false">Português</string>
   <string name="lang_thai" translatable="false">ไทย</string>
   <string name="lang_vietnamese" translatable="false">Tiếng Việt</string>
+  <string name="lang_khmer" translatable="false">ភាសាខ្មែរ</string>
 </resources>
