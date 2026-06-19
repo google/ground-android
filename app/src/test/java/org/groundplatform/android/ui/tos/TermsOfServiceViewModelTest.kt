@@ -124,9 +124,6 @@ class TermsOfServiceViewModelTest {
 
       assertThat(viewModel.uiState.value).isEqualTo(TosUiState.Error(isViewOnly = true))
       verify(authManager, never()).signOut()
-      viewModel.events.test {
-        assertThat(awaitItem()).isInstanceOf(TosEvent.LoadError::class.java)
-      }
     }
 
   @Test

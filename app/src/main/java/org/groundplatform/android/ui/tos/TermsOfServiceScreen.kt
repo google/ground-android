@@ -16,6 +16,7 @@
 package org.groundplatform.android.ui.tos
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -37,6 +38,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -120,7 +122,16 @@ private fun TermsOfServiceContent(
           }
         }
         is TosUiState.Error -> {
-          Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+          Column(
+            modifier = Modifier.fillMaxSize().padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+          ) {
+            Text(
+              text = stringResource(R.string.load_tos_failed),
+              textAlign = TextAlign.Center,
+            )
+            Spacer(modifier = Modifier.height(16.dp))
             Button(onClick = onRetry) { Text(text = stringResource(Res.string.retry)) }
           }
         }

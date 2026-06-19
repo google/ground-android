@@ -114,10 +114,10 @@ constructor(
         if (!e.isExpectedFailure()) {
           Timber.e(e, "Failed to load Terms of Service")
         }
-        _events.send(TosEvent.LoadError)
         if (isViewOnly) {
           _uiState.value = TosUiState.Error(isViewOnly)
         } else {
+          _events.send(TosEvent.LoadError)
           authManager.signOut()
         }
       }
