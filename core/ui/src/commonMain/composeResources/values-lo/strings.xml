@@ -32,4 +32,5 @@
   <string name="survey">ແບບສຳຫຼວດ</string>
   <string name="job">ພາລະກິດ</string>
   <string name="pdf_data_collector">ຜູ້ເກັບຂໍ້ມູນ</string>
+  <string name="retry">ລອງໃໝ່</string>
 </resources>

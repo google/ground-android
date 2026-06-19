@@ -205,7 +205,7 @@ private fun TermsOfServiceContentErrorPreview() {
       onAgreeClick = {},
       onBackClick = {},
       onRetry = {},
-      termsContent = { Text("Sample Terms") },
+      termsContent = { Text("Terms of service") },
     )
   }
 }
