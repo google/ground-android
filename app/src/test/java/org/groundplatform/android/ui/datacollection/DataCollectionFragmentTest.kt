@@ -19,6 +19,7 @@ package org.groundplatform.android.ui.datacollection
 import android.content.Context
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.navigation.fragment.findNavController
@@ -26,6 +27,8 @@ import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
+import javax.inject.Inject
+import kotlin.time.Clock
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -70,8 +73,6 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.shadows.ShadowToast
-import javax.inject.Inject
-import kotlin.time.Clock
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
@@ -435,6 +436,48 @@ class DataCollectionFragmentTest : BaseHiltTest() {
       // Assert that draft is cleared on confirmation
       assertNoDraftSaved()
     }
+
+  @Test
+  fun `Back navigation on a later task returns to the previous task`() = runWithTestDispatcher {
+    setupFragment()
+
+    runner()
+      .inputText(TASK_1_RESPONSE)
+      .clickNextButton()
+      .validateTextIsDisplayed(TASK_2_NAME)
+      .pressBackButton()
+      .validateTextIsDisplayed(TASK_1_NAME)
+      .validateTextIsNotDisplayed(TASK_2_NAME)
+  }
+
+  @Test
+  fun `Clicking close button displays the exit confirmation dialog`() = runWithTestDispatcher {
+    setupFragment()
+
+    composeTestRule.onNodeWithContentDescription("Close").performClick()
+    composeTestRule.waitForIdle()
+
+    composeTestRule
+      .onNodeWithText(getString(R.string.data_collection_cancellation_title))
+      .assertIsDisplayed()
+  }
+
+  @Test
+  fun `Clicking close button after submission exits the screen`() = runWithTestDispatcher {
+    setupFragment()
+
+    runner()
+      .inputText(TASK_1_RESPONSE)
+      .clickNextButton()
+      .selectOption(TASK_2_OPTION_LABEL)
+      .clickDoneButton()
+
+    composeTestRule.onNodeWithContentDescription("Close").performClick()
+    advanceUntilIdle()
+
+    assertThat(fragment.findNavController().currentDestination?.id)
+      .isNotEqualTo(R.id.data_collection_fragment)
+  }
 
   @Test
   fun `Multiple choice task remembers previous selection when navigating back and forth`() {

@@ -33,4 +33,5 @@
   <string name="survey">Survey</string>
   <string name="job">Job</string>
   <string name="pdf_data_collector">Data collector</string>
+  <string name="retry">Retry</string>
 </resources>
