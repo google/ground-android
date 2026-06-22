@@ -22,6 +22,7 @@ plugins {
 apply(from = "../../config/jacoco/jacoco.gradle")
 
 kotlin {
+  jvmToolchain(libs.versions.jvmToolchainVersion.get().toInt())
   android {
     namespace = "org.groundplatform.feature.pdf"
     compileSdk {
@@ -58,6 +59,22 @@ kotlin {
         implementation(project(":core:testing"))
         implementation(libs.kotlin.test)
         implementation(libs.kotlinx.coroutines.test)
+      }
+    }
+
+    androidMain {
+      dependencies {
+        implementation(libs.androidx.core.ktx)
+        implementation(libs.androidx.exifinterface)
+        implementation(libs.compose.ui)
+        implementation(libs.timber)
+      }
+    }
+
+    val androidHostTest by getting {
+      dependencies {
+        implementation(libs.junit)
+        implementation(libs.robolectric)
       }
     }
   }
