@@ -32,4 +32,5 @@
   <string name="survey">Enquête</string>
   <string name="job">Mission</string>
   <string name="pdf_data_collector">Collecteur de données</string>
+  <string name="retry">Réessayer</string>
 </resources>

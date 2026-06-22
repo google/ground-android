@@ -16,6 +16,7 @@
 package org.groundplatform.android.ui.tos
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -37,13 +38,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import ground_android.core.ui.generated.resources.Res
+import ground_android.core.ui.generated.resources.retry
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.components.Toolbar
+import org.groundplatform.ui.theme.AppTheme
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun TermsOfServiceScreen(
@@ -69,6 +75,7 @@ fun TermsOfServiceScreen(
     onAgreeCheckedChange = { viewModel.setAgreeCheckboxChecked(it) },
     onAgreeClick = { viewModel.onAgreeButtonClicked() },
     onBackClick = onNavigateUp,
+    onRetry = { viewModel.onRetryClicked() },
     termsContent = termsContent,
   )
 }
@@ -79,6 +86,7 @@ private fun TermsOfServiceContent(
   onAgreeCheckedChange: (Boolean) -> Unit,
   onAgreeClick: () -> Unit,
   onBackClick: () -> Unit,
+  onRetry: () -> Unit,
   termsContent: @Composable (String) -> Unit,
 ) {
   Scaffold(
@@ -113,6 +121,20 @@ private fun TermsOfServiceContent(
             }
           }
         }
+        is TosUiState.Error -> {
+          Column(
+            modifier = Modifier.fillMaxSize().padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+          ) {
+            Text(
+              text = stringResource(R.string.load_tos_failed),
+              textAlign = TextAlign.Center,
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(onClick = onRetry) { Text(text = stringResource(Res.string.retry)) }
+          }
+        }
       }
     }
   }
@@ -145,34 +167,56 @@ private fun AgreeSection(
 @Composable
 @ExcludeFromJacocoGeneratedReport
 private fun TermsOfServiceContentPreview() {
-  TermsOfServiceContent(
-    uiState =
-      TosUiState.Success(
-        tosHtml = "Sample Terms of Service content.",
-        agreeChecked = false,
-        isViewOnly = false,
-      ),
-    onAgreeCheckedChange = {},
-    onAgreeClick = {},
-    onBackClick = {},
-    termsContent = { Text("Sample Terms") },
-  )
+  AppTheme {
+    TermsOfServiceContent(
+      uiState =
+        TosUiState.Success(
+          tosHtml = "Sample Terms of Service content.",
+          agreeChecked = false,
+          isViewOnly = false,
+        ),
+      onAgreeCheckedChange = {},
+      onAgreeClick = {},
+      onBackClick = {},
+      onRetry = {},
+      termsContent = { Text("Sample Terms") },
+    )
+  }
 }
 
 @Preview(showBackground = true)
 @Composable
 @ExcludeFromJacocoGeneratedReport
 private fun TermsOfServiceContentIsViewOnlyPreview() {
-  TermsOfServiceContent(
-    uiState =
-      TosUiState.Success(
-        tosHtml = "Sample Terms of Service content.",
-        agreeChecked = false,
-        isViewOnly = true,
-      ),
-    onAgreeCheckedChange = {},
-    onAgreeClick = {},
-    onBackClick = {},
-    termsContent = { Text("Sample Terms") },
-  )
+  AppTheme {
+    TermsOfServiceContent(
+      uiState =
+        TosUiState.Success(
+          tosHtml = "Sample Terms of Service content.",
+          agreeChecked = false,
+          isViewOnly = true,
+        ),
+      onAgreeCheckedChange = {},
+      onAgreeClick = {},
+      onBackClick = {},
+      onRetry = {},
+      termsContent = { Text("Sample Terms") },
+    )
+  }
+}
+
+@Preview(showBackground = true)
+@Composable
+@ExcludeFromJacocoGeneratedReport
+private fun TermsOfServiceContentErrorPreview() {
+  AppTheme {
+    TermsOfServiceContent(
+      uiState = TosUiState.Error(isViewOnly = true),
+      onAgreeCheckedChange = {},
+      onAgreeClick = {},
+      onBackClick = {},
+      onRetry = {},
+      termsContent = { Text("Terms of service") },
+    )
+  }
 }

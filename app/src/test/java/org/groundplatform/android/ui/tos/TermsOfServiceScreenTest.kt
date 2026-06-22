@@ -26,6 +26,8 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import ground_android.core.ui.generated.resources.Res
+import ground_android.core.ui.generated.resources.retry
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.groundplatform.android.R
@@ -139,6 +141,25 @@ class TermsOfServiceScreenTest {
     setScreenContent(onError = { errorOccurred = true })
 
     assert(errorOccurred)
+  }
+
+  @Test
+  fun `View-only load failure shows error with retry and recovers on retry`() = runTest {
+    setupViewModel(Result.failure(Exception("Failed to load")), isViewOnly = true)
+    setScreenContent()
+
+    composeTestRule.waitUntil(timeoutMillis = 5000) {
+      viewModel.uiState.value is TosUiState.Error
+    }
+    composeTestRule.onNodeWithText(getString(Res.string.retry)).assertIsDisplayed()
+
+    fakeRepository.termsOfService = Result.success(TEST_TOS)
+    composeTestRule.onNodeWithText(getString(Res.string.retry)).performClick()
+
+    composeTestRule.waitUntil(timeoutMillis = 5000) {
+      viewModel.uiState.value is TosUiState.Success
+    }
+    composeTestRule.onNode(hasText(TEST_TOS_TEXT, substring = true)).assertIsDisplayed()
   }
 
   @Test
