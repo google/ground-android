@@ -30,7 +30,13 @@ object CoroutineDispatchersModule {
   @IoDispatcher @Provides fun provideIoDispatcher(): CoroutineDispatcher = Dispatchers.IO
 
   @MainDispatcher @Provides fun provideMainDispatcher(): CoroutineDispatcher = Dispatchers.Main
+
+  @DefaultDispatcher
+  @Provides
+  fun provideDefaultDispatcher(): CoroutineDispatcher = Dispatchers.Default
 }
+
+@Retention(AnnotationRetention.RUNTIME) @Qualifier annotation class DefaultDispatcher
 
 @Retention(AnnotationRetention.RUNTIME) @Qualifier annotation class IoDispatcher
 

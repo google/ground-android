@@ -38,7 +38,14 @@ object UseCaseModule {
     locationOfInterestRepository: LocationOfInterestRepositoryInterface,
     userRepository: UserRepositoryInterface,
     surveyRepository: SurveyRepositoryInterface,
-  ) = GetLoiReportUseCase(locationOfInterestRepository, userRepository, surveyRepository)
+    submissionRepository: SubmissionRepositoryInterface,
+  ) =
+    GetLoiReportUseCase(
+      locationOfInterestRepository = locationOfInterestRepository,
+      userRepositoryInterface = userRepository,
+      surveyRepositoryInterface = surveyRepository,
+      submissionRepositoryInterface = submissionRepository,
+    )
 
   @Provides
   fun providesUpdateUserSettingsUseCase(userRepository: UserRepositoryInterface) =
