@@ -42,6 +42,7 @@ import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentActio
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentState
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.job.Style
+import org.groundplatform.ui.components.loireport.LoiReportAction
 import org.groundplatform.ui.theme.AppTheme
 
 @Composable
@@ -53,6 +54,7 @@ fun HomeScreenMapContainerScreen(
   jobComponentState: JobMapComponentState,
   onBaseMapAction: (BaseMapAction) -> Unit,
   onJobComponentAction: (JobMapComponentAction) -> Unit,
+  onLoiReportAction: (LoiReportAction) -> Unit,
 ) {
   Box(modifier = modifier.fillMaxSize()) {
     if (shouldShowMapActions) {
@@ -85,7 +87,11 @@ fun HomeScreenMapContainerScreen(
         )
       }
 
-      JobMapComponent(state = jobComponentState, onAction = onJobComponentAction)
+      JobMapComponent(
+        state = jobComponentState,
+        onJobComponentAction = onJobComponentAction,
+        onLoiReportAction = onLoiReportAction,
+      )
     }
   }
 }
@@ -154,6 +160,7 @@ private fun HomeScreenMapContainerScreenPreview() {
       shouldShowRecenter = true,
       onBaseMapAction = {},
       onJobComponentAction = {},
+      onLoiReportAction = {},
     )
   }
 }

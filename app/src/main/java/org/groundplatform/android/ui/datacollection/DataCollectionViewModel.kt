@@ -59,6 +59,8 @@ import org.groundplatform.domain.model.task.Task
 import org.groundplatform.domain.repository.SubmissionRepositoryInterface
 import org.groundplatform.domain.usecases.GetLoiReportUseCase
 import org.groundplatform.domain.usecases.submission.SubmitDataUseCase
+import org.groundplatform.feature.pdf.LoiReportExporter
+import org.groundplatform.ui.components.loireport.LoiReportAction
 import timber.log.Timber
 
 sealed interface DataCollectionUiEffect {
@@ -69,6 +71,8 @@ sealed interface DataCollectionUiEffect {
   data class SetAwaitingPhotoCapture(val awaiting: Boolean) : DataCollectionUiEffect
 
   data class ShowValidationError(val errorResId: Int) : DataCollectionUiEffect
+
+  data object ShowReportExportError : DataCollectionUiEffect
 }
 
 /** View model for the Data Collection fragment. */
@@ -86,6 +90,7 @@ internal constructor(
   private val viewModelFactory: ViewModelFactory,
   private val dataCollectionInitializer: DataCollectionInitializer,
   private val getLoiReportUseCase: GetLoiReportUseCase,
+  private val loiReportExporter: LoiReportExporter,
 ) : AbstractViewModel() {
 
   private val _uiEffects = Channel<DataCollectionUiEffect>(Channel.BUFFERED)
@@ -212,6 +217,15 @@ internal constructor(
   private fun setAwaitingPhotoCapture(awaiting: Boolean) {
     viewModelScope.launch {
       _uiEffects.send(DataCollectionUiEffect.SetAwaitingPhotoCapture(awaiting))
+    }
+  }
+
+  fun onLoiReportAction(action: LoiReportAction) {
+    val loiReport = (uiState.value as? DataCollectionUiState.TaskSubmitted)?.loiReport
+    viewModelScope.launch {
+      if (loiReport == null || loiReportExporter.export(loiReport, action).isFailure) {
+        _uiEffects.send(DataCollectionUiEffect.ShowReportExportError)
+      }
     }
   }
 

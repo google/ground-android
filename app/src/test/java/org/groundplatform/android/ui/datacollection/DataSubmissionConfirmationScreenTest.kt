@@ -26,6 +26,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import ground_android.core.ui.generated.resources.Res
 import ground_android.core.ui.generated.resources.scan_this_qr_to_download_geojson
+import ground_android.core.ui.generated.resources.share
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -33,8 +34,10 @@ import org.groundplatform.android.R
 import org.groundplatform.android.getString
 import org.groundplatform.domain.model.locationofinterest.LoiReport
 import org.groundplatform.testing.FakeDataGenerator
+import org.groundplatform.ui.components.loireport.LoiReportAction
 import org.groundplatform.ui.components.loireport.TEST_TAG_PDF_ITEM
 import org.groundplatform.ui.components.qrcode.TEST_TAG_GROUND_QR_CODE
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -48,7 +51,11 @@ class DataSubmissionConfirmationScreenTest {
   @Test
   fun `Shows the correct content on portrait`() {
     composeTestRule.setContent {
-      DataSubmissionConfirmationScreen(loiReport = LOI_REPORT, onDismissed = {})
+      DataSubmissionConfirmationScreen(
+        loiReport = LOI_REPORT,
+        onDismissed = {},
+        onLoiReportAction = {},
+      )
     }
 
     composeTestRule
@@ -71,7 +78,11 @@ class DataSubmissionConfirmationScreenTest {
         LocalConfiguration provides
           Configuration().apply { orientation = Configuration.ORIENTATION_LANDSCAPE }
       ) {
-        DataSubmissionConfirmationScreen(loiReport = LOI_REPORT, onDismissed = {})
+        DataSubmissionConfirmationScreen(
+          loiReport = LOI_REPORT,
+          onDismissed = {},
+          onLoiReportAction = {},
+        )
       }
     }
 
@@ -90,7 +101,7 @@ class DataSubmissionConfirmationScreenTest {
   @Test
   fun `Does not show QR section if the LoiReport is null`() {
     composeTestRule.setContent {
-      DataSubmissionConfirmationScreen(loiReport = null, onDismissed = {})
+      DataSubmissionConfirmationScreen(loiReport = null, onDismissed = {}, onLoiReportAction = {})
     }
 
     composeTestRule
@@ -107,6 +118,7 @@ class DataSubmissionConfirmationScreenTest {
       DataSubmissionConfirmationScreen(
         loiReport = LOI_REPORT.copy(submissionDetails = FakeDataGenerator.newSubmissionDetails()),
         onDismissed = {},
+        onLoiReportAction = {},
       )
     }
 
@@ -119,6 +131,7 @@ class DataSubmissionConfirmationScreenTest {
       DataSubmissionConfirmationScreen(
         loiReport = LOI_REPORT.copy(submissionDetails = null),
         onDismissed = {},
+        onLoiReportAction = {},
       )
     }
 
@@ -126,11 +139,51 @@ class DataSubmissionConfirmationScreenTest {
   }
 
   @Test
+  fun `Clicking the PDF item triggers OnPdfItemClicked`() {
+    var action: LoiReportAction? = null
+    val details = FakeDataGenerator.newSubmissionDetails()
+
+    composeTestRule.setContent {
+      DataSubmissionConfirmationScreen(
+        loiReport = LOI_REPORT.copy(submissionDetails = details),
+        onDismissed = {},
+        onLoiReportAction = { action = it },
+      )
+    }
+
+    composeTestRule.onNodeWithTag(TEST_TAG_PDF_ITEM).performScrollTo()
+    composeTestRule.onNodeWithText(details.surveyName).performClick()
+
+    composeTestRule.runOnIdle { assertEquals(LoiReportAction.OnPdfItemClicked, action) }
+  }
+
+  @Test
+  fun `Clicking the share button triggers OnShareClicked`() {
+    var action: LoiReportAction? = null
+
+    composeTestRule.setContent {
+      DataSubmissionConfirmationScreen(
+        loiReport = LOI_REPORT.copy(submissionDetails = FakeDataGenerator.newSubmissionDetails()),
+        onDismissed = {},
+        onLoiReportAction = { action = it },
+      )
+    }
+
+    composeTestRule.onNodeWithText(getString(Res.string.share)).performScrollTo().performClick()
+
+    composeTestRule.runOnIdle { assertEquals(LoiReportAction.OnShareClicked, action) }
+  }
+
+  @Test
   fun `onDismiss is triggered when the close button is clicked`() {
     var dismissed = false
 
     composeTestRule.setContent {
-      DataSubmissionConfirmationScreen(loiReport = LOI_REPORT, onDismissed = { dismissed = true })
+      DataSubmissionConfirmationScreen(
+        loiReport = LOI_REPORT,
+        onDismissed = { dismissed = true },
+        onLoiReportAction = {},
+      )
     }
 
     composeTestRule.onNodeWithText(getString(R.string.close)).performScrollTo().performClick()

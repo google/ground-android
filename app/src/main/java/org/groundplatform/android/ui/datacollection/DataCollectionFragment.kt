@@ -55,6 +55,7 @@ class DataCollectionFragment : AbstractFragment(), BackPressListener {
       onExitConfirmed = { navigateBack() },
       onOpenSettings = { requireActivity().openAppSettings() },
       onAwaitingPhotoCapture = { homeScreenViewModel.awaitingPhotoCapture = it },
+      onReportExportError = { popups.ErrorPopup().unknownError() },
     )
   }
 

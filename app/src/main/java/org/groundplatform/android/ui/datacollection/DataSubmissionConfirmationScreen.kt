@@ -58,9 +58,11 @@ import kotlinx.serialization.json.JsonPrimitive
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.domain.model.locationofinterest.LoiReport
+import org.groundplatform.ui.components.loireport.LoiReportAction
 import org.groundplatform.ui.components.loireport.SubmissionPdfItem
 import org.groundplatform.ui.components.qrcode.GroundQrCode
 import org.groundplatform.ui.theme.AppTheme
+import kotlin.time.Clock
 import org.jetbrains.compose.resources.stringResource as multiplatformStringResource
 
 @Composable
@@ -68,6 +70,7 @@ fun DataSubmissionConfirmationScreen(
   modifier: Modifier = Modifier,
   loiReport: LoiReport? = null,
   onDismissed: () -> Unit,
+  onLoiReportAction: (LoiReportAction) -> Unit,
 ) {
   val baseModifier =
     modifier
@@ -88,12 +91,16 @@ fun DataSubmissionConfirmationScreen(
         }
       }
       Spacer(modifier = Modifier.width(16.dp))
-      ShareableContent(modifier = Modifier.weight(1f), loiReport = loiReport)
+      ShareableContent(
+        modifier = Modifier.weight(1f),
+        loiReport = loiReport,
+        onLoiReportAction = onLoiReportAction,
+      )
     }
   } else {
     Column(modifier = baseModifier, horizontalAlignment = Alignment.CenterHorizontally) {
       HeaderContent(modifier = Modifier.padding(vertical = 16.dp))
-      ShareableContent(loiReport = loiReport)
+      ShareableContent(loiReport = loiReport, onLoiReportAction = onLoiReportAction)
       OutlinedButton(modifier = Modifier.padding(vertical = 24.dp), onClick = { onDismissed() }) {
         Text(
           modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
@@ -136,7 +143,11 @@ private fun HeaderContent(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun ShareableContent(modifier: Modifier = Modifier, loiReport: LoiReport?) {
+private fun ShareableContent(
+  modifier: Modifier = Modifier,
+  loiReport: LoiReport?,
+  onLoiReportAction: (LoiReportAction) -> Unit,
+) {
   val context = LocalContext.current
 
   loiReport?.let {
@@ -164,21 +175,15 @@ private fun ShareableContent(modifier: Modifier = Modifier, loiReport: LoiReport
       }
 
       loiReport.submissionDetails?.let {
-        if (!it.submissions.isNullOrEmpty()) {
-          SubmissionPdfItem(
-            modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
-            title = it.surveyName,
-            loiName = loiReport.loiName,
-            userName = it.userName,
-            date = DateFormat.getDateFormat(context).format(Date(it.dateMillis)),
-            onItemClick = {
-              /* To be implemented in a follow-up on https://github.com/google/ground-android/issues/3715 */
-            },
-            onShareClick = {
-              /* To be implemented in a follow-up on https://github.com/google/ground-android/issues/3715 */
-            },
-          )
-        }
+        SubmissionPdfItem(
+          modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+          title = it.surveyName,
+          loiName = loiReport.loiName,
+          userName = it.userName,
+          date = DateFormat.getDateFormat(context).format(Date(it.dateMillis)),
+          onItemClick = { onLoiReportAction(LoiReportAction.OnPdfItemClicked) },
+          onShareClick = { onLoiReportAction(LoiReportAction.OnShareClicked) },
+        )
       }
     }
   }
@@ -201,19 +206,38 @@ private val testLoiReport =
             ),
         )
       ),
-    submissionDetails = null,
+    submissionDetails =
+      LoiReport.SubmissionDetails(
+        surveyName = "Test Survey",
+        userName = "John Doe",
+        userEmail = "john.doe@example.com",
+        dateMillis = Clock.System.now().toEpochMilliseconds(),
+        submissions = emptyList(),
+      ),
   )
 
 @Composable
 @Preview(showSystemUi = true)
 @ExcludeFromJacocoGeneratedReport
 private fun DataSubmissionConfirmationScreenPortraitPreview() {
-  AppTheme { DataSubmissionConfirmationScreen(loiReport = testLoiReport) {} }
+  AppTheme {
+    DataSubmissionConfirmationScreen(
+      loiReport = testLoiReport,
+      onLoiReportAction = {},
+      onDismissed = {},
+    )
+  }
 }
 
 @Composable
 @Preview(heightDp = 320, widthDp = 800)
 @ExcludeFromJacocoGeneratedReport
 private fun DataSubmissionConfirmationScreenLandscapePreview() {
-  AppTheme { DataSubmissionConfirmationScreen(loiReport = testLoiReport) {} }
+  AppTheme {
+    DataSubmissionConfirmationScreen(
+      loiReport = testLoiReport,
+      onLoiReportAction = {},
+      onDismissed = {},
+    )
+  }
 }

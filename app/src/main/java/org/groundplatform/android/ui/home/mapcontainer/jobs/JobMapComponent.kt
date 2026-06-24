@@ -42,34 +42,43 @@ import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentActio
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentAction.OnJobSelected
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.job.Style
+import org.groundplatform.ui.components.loireport.LoiReportAction
 import org.groundplatform.ui.theme.AppTheme
 
 @Composable
-fun JobMapComponent(state: JobMapComponentState, onAction: (JobMapComponentAction) -> Unit) {
+fun JobMapComponent(
+  state: JobMapComponentState,
+  onJobComponentAction: (JobMapComponentAction) -> Unit,
+  onLoiReportAction: (LoiReportAction) -> Unit,
+) {
   when (state) {
     is JobMapComponentState.LoiSelected -> {
       var showShareLoiModal by rememberSaveable { mutableStateOf(false) }
 
       LoiJobSheet(
         state = state.loi,
-        onCollectClicked = { onAction(OnAddDataClicked(state.loi)) },
-        onDeleteClicked = { onAction(OnDeleteSiteClicked(state.loi)) },
-        onDismiss = { onAction(JobMapComponentAction.OnJobCardDismissed) },
+        onCollectClicked = { onJobComponentAction(OnAddDataClicked(state.loi)) },
+        onDeleteClicked = { onJobComponentAction(OnDeleteSiteClicked(state.loi)) },
+        onDismiss = { onJobComponentAction(JobMapComponentAction.OnJobCardDismissed) },
         onShareClicked = { showShareLoiModal = true },
       )
 
       if (showShareLoiModal && state.loi.loiReport != null) {
-        ShareLocationModal(state.loi.loiReport) { showShareLoiModal = false }
+        ShareLocationModal(
+          loiReport = state.loi.loiReport,
+          onLoiReportAction = onLoiReportAction,
+          onDismiss = { showShareLoiModal = false },
+        )
       }
     }
     is JobMapComponentState.AddLoiButton -> {
-      AddLoiButton(onClick = { onAction(JobMapComponentAction.OnAddLoiButtonClicked) })
+      AddLoiButton(onClick = { onJobComponentAction(JobMapComponentAction.OnAddLoiButtonClicked) })
     }
     is JobMapComponentState.JobSelectionModal -> {
       JobSelectionModal(
         jobs = state.jobs.map { it.job },
-        onJobClicked = { job -> onAction(OnJobSelected(job)) },
-        onDismiss = { onAction(JobMapComponentAction.OnJobSelectionModalDismissed) },
+        onJobClicked = { job -> onJobComponentAction(OnJobSelected(job)) },
+        onDismiss = { onJobComponentAction(JobMapComponentAction.OnJobSelectionModalDismissed) },
       )
     }
     is JobMapComponentState.Hidden -> {}
@@ -136,7 +145,9 @@ private fun JobMapComponentPreview() {
                   ),
               )
             )
-        )
-    ) {}
+        ),
+      onJobComponentAction = {},
+      onLoiReportAction = {},
+    )
   }
 }

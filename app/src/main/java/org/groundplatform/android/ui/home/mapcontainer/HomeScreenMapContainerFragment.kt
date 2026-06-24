@@ -25,7 +25,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
-import org.groundplatform.android.R
 import org.groundplatform.android.databinding.BasemapLayoutBinding
 import org.groundplatform.android.ui.common.AbstractMapContainerFragment
 import org.groundplatform.android.ui.common.BaseMapViewModel
@@ -39,12 +38,10 @@ import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentActio
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentState
 import org.groundplatform.android.ui.home.mapcontainer.jobs.SelectedLoiSheetData
 import org.groundplatform.android.ui.map.MapFragment
-import org.groundplatform.android.usecases.datasharingterms.GetDataSharingTermsUseCase
 import org.groundplatform.android.util.renderComposableDialog
 import org.groundplatform.android.util.setComposableContent
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.locationofinterest.LOI_NAME_PROPERTY
-import timber.log.Timber
 
 /** Main app view, displaying the map and related controls (center cross-hairs, add button, etc). */
 @AndroidEntryPoint
@@ -64,13 +61,6 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     map.featureClicks.launchWhenStartedAndCollect { mapContainerViewModel.onFeatureClicked(it) }
   }
 
-  private fun hasValidTasks(cardUiData: DataCollectionEntryPointData) =
-    when (cardUiData) {
-      // LOI tasks are filtered out of the tasks list for pre-defined tasks.
-      is SelectedLoiSheetData -> cardUiData.loi.job.tasks.values.count { !it.isAddLoiTask } > 0
-      is AdHocDataCollectionButtonData -> cardUiData.job.tasks.values.isNotEmpty()
-    }
-
   private fun showDataSharingTermsDialog(
     cardUiData: DataCollectionEntryPointData,
     dataSharingTerms: Survey.DataSharingTerms,
@@ -81,45 +71,6 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
         navigateToDataCollectionFragment(cardUiData)
       }
     }
-  }
-
-  /** Invoked when user clicks on the map cards to collect data. */
-  private fun onCollectData(cardUiData: DataCollectionEntryPointData) {
-    if (!cardUiData.canCollectData) {
-      // Skip data collection screen if the user can't submit any data
-      // TODO: Revisit UX for displaying view only mode
-      // Issue URL: https://github.com/google/ground-android/issues/1667
-      ephemeralPopups.ErrorPopup().show(getString(R.string.collect_data_viewer_error))
-      return
-    }
-    if (!hasValidTasks(cardUiData)) {
-      // NOTE(#2539): The DataCollectionFragment will crash if there are no tasks.
-      ephemeralPopups.ErrorPopup().show(getString(R.string.no_tasks_error))
-      return
-    }
-
-    mapContainerViewModel
-      .getDataSharingTerms()
-      .onSuccess { terms ->
-        if (terms == null) {
-          // Data sharing terms already accepted or missing.
-          navigateToDataCollectionFragment(cardUiData)
-        } else {
-          showDataSharingTermsDialog(cardUiData, terms)
-        }
-      }
-      .onFailure {
-        Timber.e(it, "Failed to get data sharing terms")
-        ephemeralPopups
-          .ErrorPopup()
-          .show(
-            if (it is GetDataSharingTermsUseCase.InvalidCustomSharingTermsException) {
-              R.string.invalid_data_sharing_terms
-            } else {
-              R.string.something_went_wrong
-            }
-          )
-      }
   }
 
   /** Invoked when user clicks delete on a site. */
@@ -160,12 +111,14 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
           onJobComponentAction = {
             handleJobMapComponentAction(jobMapComponentState = jobMapComponentState, action = it)
           },
+          onLoiReportAction = { mapContainerViewModel.onLoiReportAction(it) },
         )
       }
     }
 
     binding.bottomContainer.bringToFront()
-    showDataCollectionHint()
+    mapContainerViewModel.uiEffects.launchWhenStartedAndCollect { handleUiEffect(it) }
+    mapContainerViewModel.showDataCollectionHint()
 
     // LOIs associated with the survey have been synced to the local db by this point. We can
     // enable location lock if no LOIs exist or a previous camera position doesn't exist.
@@ -186,7 +139,7 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
   ) {
     when (action) {
       is JobMapComponentAction.OnAddDataClicked -> {
-        onCollectData(action.selectedLoi)
+        mapContainerViewModel.onCollectData(action.selectedLoi)
       }
       is JobMapComponentAction.OnDeleteSiteClicked -> {
         onDeleteSite(action.selectedLoi)
@@ -199,10 +152,12 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
         val jobs =
           (jobMapComponentState as? JobMapComponentState.AddLoiButton)?.jobs
             ?: (jobMapComponentState as? JobMapComponentState.JobSelectionModal)?.jobs
-        jobs?.firstOrNull { it.job == action.job }?.let { onCollectData(it) }
+        jobs?.firstOrNull { it.job == action.job }?.let { mapContainerViewModel.onCollectData(it) }
       }
       is JobMapComponentAction.OnAddLoiButtonClicked -> {
-        mapContainerViewModel.resolveAddLoiAction(jobMapComponentState)?.let { onCollectData(it) }
+        mapContainerViewModel.resolveAddLoiAction(jobMapComponentState)?.let {
+          mapContainerViewModel.onCollectData(it)
+        }
       }
       JobMapComponentAction.OnJobSelectionModalDismissed -> {
         mapContainerViewModel.setJobSelectionModalVisibility(false)
@@ -210,32 +165,17 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
     }
   }
 
-  /**
-   * Displays a popup hint informing users how to begin collecting data.
-   *
-   * This method should only be called after view creation and should only trigger once per view
-   * create.
-   */
-  private fun showDataCollectionHint() {
-    if (!this::mapContainerViewModel.isInitialized) {
-      return Timber.w("showDataCollectionHint() called before mapContainerViewModel initialized")
-    }
-    if (!this::binding.isInitialized) {
-      return Timber.w("showDataCollectionHint() called before binding initialized")
-    }
-
-    // Decides which survey-related popup to show based on the current survey.
-    mapContainerViewModel.surveyUpdateFlow.launchWhenStartedAndCollectFirst { surveyProperties ->
-      surveyProperties.getInfoPopupMessageId()?.let { showInfoPopup(it) }
+  private fun handleUiEffect(event: HomeScreenMapContainerUiEffect) {
+    when (event) {
+      is HomeScreenMapContainerUiEffect.ShowError ->
+        ephemeralPopups.ErrorPopup().show(event.messageId)
+      is HomeScreenMapContainerUiEffect.ShowInfo -> showInfoPopup(event.messageId)
+      is HomeScreenMapContainerUiEffect.NavigateToDataCollection ->
+        navigateToDataCollectionFragment(event.data)
+      is HomeScreenMapContainerUiEffect.ShowDataSharingTerms ->
+        showDataSharingTermsDialog(event.data, event.terms)
     }
   }
-
-  private fun HomeScreenMapContainerViewModel.SurveyProperties.getInfoPopupMessageId(): Int? =
-    if (noLois && !addLoiPermitted) {
-      R.string.read_only_data_collection_hint
-    } else {
-      null
-    }
 
   private fun showInfoPopup(messageId: Int) {
     ephemeralPopups

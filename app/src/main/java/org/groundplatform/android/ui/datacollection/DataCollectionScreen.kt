@@ -43,6 +43,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.components.ConfirmationDialog
 import org.groundplatform.android.ui.datacollection.tasks.TaskScreenContainer
+import org.groundplatform.ui.components.loireport.LoiReportAction
 
 /**
  * The main screen for data collection, coordinating the task sequence and host UI.
@@ -57,6 +58,7 @@ import org.groundplatform.android.ui.datacollection.tasks.TaskScreenContainer
 fun DataCollectionScreen(
   viewModel: DataCollectionViewModel,
   onValidationError: (resId: Int) -> Unit,
+  onReportExportError: () -> Unit,
   onExitConfirmed: () -> Unit,
   onOpenSettings: () -> Unit,
   onAwaitingPhotoCapture: (Boolean) -> Unit,
@@ -71,11 +73,16 @@ fun DataCollectionScreen(
         is DataCollectionUiEffect.OpenSettings -> onOpenSettings()
         is DataCollectionUiEffect.SetAwaitingPhotoCapture -> onAwaitingPhotoCapture(effect.awaiting)
         is DataCollectionUiEffect.ShowValidationError -> onValidationError(effect.errorResId)
+        is DataCollectionUiEffect.ShowReportExportError -> onReportExportError()
       }
     }
   }
 
-  DataCollectionContent(uiState = uiState, onCloseClicked = { viewModel.onCloseClicked() }) {
+  DataCollectionContent(
+    uiState = uiState,
+    onCloseClicked = { viewModel.onCloseClicked() },
+    onLoiReportAction = { viewModel.onLoiReportAction(it) },
+  ) {
     readyState ->
     val tasks = readyState.tasks
     if (tasks.isNotEmpty()) {
@@ -134,6 +141,7 @@ object DataCollectionScreenTestTags {
 fun DataCollectionContent(
   uiState: DataCollectionUiState,
   onCloseClicked: () -> Unit,
+  onLoiReportAction: (LoiReportAction) -> Unit,
   pagerContent: @Composable (DataCollectionUiState.Ready) -> Unit,
 ) {
   Scaffold(topBar = { DataCollectionToolbar(uiState, onCloseClicked) }) { innerPadding ->
@@ -153,7 +161,11 @@ fun DataCollectionContent(
             ReadyContent { pagerContent(uiState) }
           }
           is DataCollectionUiState.TaskSubmitted -> {
-            DataSubmissionConfirmationScreen(loiReport = uiState.loiReport) { onCloseClicked() }
+            DataSubmissionConfirmationScreen(
+              loiReport = uiState.loiReport,
+              onLoiReportAction = onLoiReportAction,
+              onDismissed = onCloseClicked,
+            )
           }
         }
       }

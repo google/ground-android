@@ -23,6 +23,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import ground_android.core.ui.generated.resources.Res
 import ground_android.core.ui.generated.resources.scan_this_qr_to_download_geojson
+import ground_android.core.ui.generated.resources.share
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -30,9 +31,11 @@ import org.groundplatform.android.R
 import org.groundplatform.android.getString
 import org.groundplatform.domain.model.locationofinterest.LoiReport
 import org.groundplatform.testing.FakeDataGenerator
+import org.groundplatform.ui.components.loireport.LoiReportAction
 import org.groundplatform.ui.components.loireport.TEST_TAG_PDF_ITEM
 import org.groundplatform.ui.components.qrcode.TEST_TAG_GROUND_QR_CODE
 import org.groundplatform.ui.theme.AppTheme
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -46,7 +49,9 @@ class ShareLocationModalTest {
   @Test
   fun `Modal is displayed correctly and shows the QR code with the LOI geometry`() {
     composeTestRule.setContent {
-      AppTheme { ShareLocationModal(loiReport = LOI_REPORT, onDismiss = {}) }
+      AppTheme {
+        ShareLocationModal(loiReport = LOI_REPORT, onDismiss = {}, onLoiReportAction = {})
+      }
     }
     composeTestRule.onNodeWithText(getString(R.string.share_location)).assertIsDisplayed()
     composeTestRule.onNodeWithText(LOI_NAME).assertIsDisplayed()
@@ -65,6 +70,7 @@ class ShareLocationModalTest {
         ShareLocationModal(
           loiReport = LOI_REPORT.copy(submissionDetails = FakeDataGenerator.newSubmissionDetails()),
           onDismiss = {},
+          onLoiReportAction = {},
         )
       }
     }
@@ -76,7 +82,11 @@ class ShareLocationModalTest {
   fun `Does not show the PDF item when submissions is null`() {
     composeTestRule.setContent {
       AppTheme {
-        ShareLocationModal(loiReport = LOI_REPORT.copy(submissionDetails = null), onDismiss = {})
+        ShareLocationModal(
+          loiReport = LOI_REPORT.copy(submissionDetails = null),
+          onDismiss = {},
+          onLoiReportAction = {},
+        )
       }
     }
 
@@ -84,11 +94,55 @@ class ShareLocationModalTest {
   }
 
   @Test
+  fun `Clicking the PDF item triggers OnPdfItemClicked`() {
+    var action: LoiReportAction? = null
+    val details = FakeDataGenerator.newSubmissionDetails()
+
+    composeTestRule.setContent {
+      AppTheme {
+        ShareLocationModal(
+          loiReport = LOI_REPORT.copy(submissionDetails = details),
+          onDismiss = {},
+          onLoiReportAction = { action = it },
+        )
+      }
+    }
+
+    composeTestRule.onNodeWithTag(TEST_TAG_PDF_ITEM).performScrollTo()
+    composeTestRule.onNodeWithText(details.surveyName).performClick()
+
+    composeTestRule.runOnIdle { assertEquals(LoiReportAction.OnPdfItemClicked, action) }
+  }
+
+  @Test
+  fun `Clicking the share button triggers OnShareClicked`() {
+    var action: LoiReportAction? = null
+
+    composeTestRule.setContent {
+      AppTheme {
+        ShareLocationModal(
+          loiReport = LOI_REPORT.copy(submissionDetails = FakeDataGenerator.newSubmissionDetails()),
+          onDismiss = {},
+          onLoiReportAction = { action = it },
+        )
+      }
+    }
+
+    composeTestRule.onNodeWithText(getString(Res.string.share)).performScrollTo().performClick()
+
+    composeTestRule.runOnIdle { assertEquals(LoiReportAction.OnShareClicked, action) }
+  }
+
+  @Test
   fun `onDismiss callback is triggered when close button is clicked`() {
     var dismissed = false
 
     composeTestRule.setContent {
-      ShareLocationModal(loiReport = LOI_REPORT, onDismiss = { dismissed = true })
+      ShareLocationModal(
+        loiReport = LOI_REPORT,
+        onDismiss = { dismissed = true },
+        onLoiReportAction = {},
+      )
     }
 
     composeTestRule.onNodeWithText(getString(R.string.close)).performScrollTo().performClick()

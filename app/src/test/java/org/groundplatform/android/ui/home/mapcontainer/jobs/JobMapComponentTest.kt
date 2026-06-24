@@ -238,7 +238,11 @@ class JobMapComponentTest {
         LOCATION_OF_INTEREST_LOI_REPORT,
       )
     composeTestRule.setContent {
-      JobMapComponent(state = JobMapComponentState.LoiSelected(loiSheetData), onAction = {})
+      JobMapComponent(
+        state = JobMapComponentState.LoiSelected(loiSheetData),
+        onJobComponentAction = {},
+        onLoiReportAction = {},
+      )
     }
 
     composeTestRule.onNodeWithText(getString(Res.string.share)).performClick()
@@ -258,7 +262,11 @@ class JobMapComponentTest {
         LOCATION_OF_INTEREST_LOI_REPORT,
       )
     composeTestRule.setContent {
-      JobMapComponent(state = JobMapComponentState.LoiSelected(loiSheetData), onAction = {})
+      JobMapComponent(
+        state = JobMapComponentState.LoiSelected(loiSheetData),
+        onJobComponentAction = {},
+        onLoiReportAction = {},
+      )
     }
 
     composeTestRule.onNodeWithText(getString(Res.string.share)).performClick()
@@ -273,6 +281,12 @@ class JobMapComponentTest {
     state: JobMapComponentState,
     onAction: (JobMapComponentAction) -> Unit = {},
   ) {
-    composeTestRule.setContent { JobMapComponent(state = state, onAction = { onAction(it) }) }
+    composeTestRule.setContent {
+      JobMapComponent(
+        state = state,
+        onJobComponentAction = { onAction(it) },
+        onLoiReportAction = {},
+      )
+    }
   }
 }
