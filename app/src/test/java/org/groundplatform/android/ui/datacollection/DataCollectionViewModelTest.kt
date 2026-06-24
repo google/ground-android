@@ -120,6 +120,7 @@ class DataCollectionViewModelTest : BaseHiltTest() {
       viewModelFactory = mock(),
       dataCollectionInitializer = initializer,
       getLoiReportUseCase = mock(),
+      loiReportExporter = mock()
     )
   }
 
