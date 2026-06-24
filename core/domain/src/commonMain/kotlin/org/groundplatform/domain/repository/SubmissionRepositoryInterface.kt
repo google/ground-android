@@ -55,4 +55,10 @@ interface SubmissionRepositoryInterface {
   suspend fun getTotalSubmissionCount(loi: LocationOfInterest): Int
 
   suspend fun getPendingCreateCount(loiId: String): Int
+
+  /**
+   * Returns all submissions recorded for the given LOI. Includes synced submissions and locally
+   * pending CREATE mutations that have not yet been uploaded.
+   */
+  suspend fun getSubmissions(loi: LocationOfInterest): List<Submission>
 }

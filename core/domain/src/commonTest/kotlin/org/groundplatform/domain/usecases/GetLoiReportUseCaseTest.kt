@@ -18,6 +18,7 @@ package org.groundplatform.domain.usecases
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNull
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import org.groundplatform.domain.model.geometry.Coordinates
@@ -33,6 +34,7 @@ import org.groundplatform.domain.model.locationofinterest.LoiReport
 import org.groundplatform.domain.model.locationofinterest.generateProperties
 import org.groundplatform.testing.FakeDataGenerator
 import org.groundplatform.testing.FakeLocationOfInterestRepository
+import org.groundplatform.testing.FakeSubmissionRepository
 import org.groundplatform.testing.FakeSurveyRepository
 import org.groundplatform.testing.FakeUserRepository
 
@@ -41,8 +43,9 @@ class GetLoiReportUseCaseTest {
   private val loiRepository = FakeLocationOfInterestRepository()
   private val userRepository = FakeUserRepository()
   private val surveyRepository = FakeSurveyRepository()
+  private val submissionRepository = FakeSubmissionRepository()
   private val getLoiReportUseCase =
-    GetLoiReportUseCase(loiRepository, userRepository, surveyRepository)
+    GetLoiReportUseCase(loiRepository, userRepository, surveyRepository, submissionRepository)
 
   @Test
   fun `Should get a report with the correct geoJson for a Point`() = runTest {
@@ -310,6 +313,7 @@ class GetLoiReportUseCaseTest {
   @Test
   fun `Should populate loiName, userName and dateMillis from the inputs`() = runTest {
     userRepository.currentUser = FakeDataGenerator.newUser(displayName = "John Doe")
+    submissionRepository.submissions = listOf(FakeDataGenerator.newSubmission())
     loiRepository.offlineLoi =
       loiRepository.offlineLoi.copy(
         lastModified = AuditInfo(user = userRepository.currentUser, clientTimestamp = 987654321L)
@@ -327,11 +331,51 @@ class GetLoiReportUseCaseTest {
   fun `Should populate surveyName from the offline survey`() = runTest {
     surveyRepository.offlineSurveys =
       listOf(FakeDataGenerator.newSurvey(id = "surveyId", title = "Restoration areas"))
+    submissionRepository.submissions = listOf(FakeDataGenerator.newSubmission())
 
     val loiReport =
       getLoiReportUseCase.invoke(loiName = "loiName", loiId = "loiId", surveyId = "surveyId")!!
 
     assertEquals("Restoration areas", loiReport.submissionDetails!!.surveyName)
+  }
+
+  @Test
+  fun `Should include all submissions sorted by lastModified clientTimestamp descending`() =
+    runTest {
+      val older =
+        FakeDataGenerator.newSubmission(
+          id = "older",
+          lastModified = AuditInfo(FakeDataGenerator.newUser(), clientTimestamp = 100L),
+        )
+      val middle =
+        FakeDataGenerator.newSubmission(
+          id = "middle",
+          lastModified = AuditInfo(FakeDataGenerator.newUser(), clientTimestamp = 200L),
+        )
+      val newer =
+        FakeDataGenerator.newSubmission(
+          id = "newer",
+          lastModified = AuditInfo(FakeDataGenerator.newUser(), clientTimestamp = 300L),
+        )
+      submissionRepository.submissions = listOf(newer, older, middle)
+
+      val loiReport =
+        getLoiReportUseCase.invoke(loiName = "loiName", loiId = "loiId", surveyId = "surveyId")!!
+
+      assertEquals(
+        listOf("newer", "middle", "older"),
+        loiReport.submissionDetails!!.submissions.map { it.id },
+      )
+    }
+
+  @Test
+  fun `Should return null submission details when no submissions exist`() = runTest {
+    submissionRepository.submissions = emptyList()
+
+    val loiReport =
+      getLoiReportUseCase.invoke(loiName = "loiName", loiId = "loiId", surveyId = "surveyId")!!
+
+    assertNull(loiReport.submissionDetails)
   }
 
   private suspend fun invokeUseCase(geometry: Geometry, properties: LoiProperties): LoiReport {

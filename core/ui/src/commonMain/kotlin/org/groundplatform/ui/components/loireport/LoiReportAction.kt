@@ -13,22 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.domain.model.locationofinterest
+package org.groundplatform.ui.components.loireport
 
-import kotlinx.serialization.json.JsonObject
-import org.groundplatform.domain.model.submission.Submission
+sealed interface LoiReportAction {
+  data object OnShareClicked : LoiReportAction
 
-/** Represents the data collected for a specific LOI which can be downloaded and shared. */
-data class LoiReport(
-  val loiName: String,
-  val geoJson: JsonObject,
-  val submissionDetails: SubmissionDetails?,
-) {
-  data class SubmissionDetails(
-    val surveyName: String,
-    val userName: String,
-    val userEmail: String,
-    val dateMillis: Long,
-    val submissions: List<Submission>,
-  )
+  data object OnPdfItemClicked : LoiReportAction
 }
