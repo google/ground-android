@@ -75,6 +75,7 @@ class DataCollectionScreenTest {
         onExitConfirmed = onExitConfirmed,
         onOpenSettings = {},
         onAwaitingPhotoCapture = {},
+        onReportExportError = {},
       )
     }
   }

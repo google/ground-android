@@ -112,4 +112,7 @@ constructor(
 
   private suspend fun getPendingDeleteCount(loiId: String) =
     localSubmissionStore.getPendingDeleteCount(loiId)
+
+  override suspend fun getSubmissions(loi: LocationOfInterest) =
+    localSubmissionStore.getSubmissions(loi, loi.job.id)
 }

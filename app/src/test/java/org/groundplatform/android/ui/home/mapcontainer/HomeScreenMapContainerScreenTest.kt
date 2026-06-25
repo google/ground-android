@@ -22,7 +22,6 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import org.junit.Test
 import kotlin.test.assertTrue
 import org.groundplatform.android.FakeData.ADHOC_JOB
 import org.groundplatform.android.R
@@ -34,6 +33,7 @@ import org.groundplatform.android.ui.home.mapcontainer.jobs.AdHocDataCollectionB
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentAction
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentState
 import org.junit.Rule
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
@@ -176,6 +176,7 @@ class HomeScreenMapContainerScreenTest {
         jobComponentState = jobComponentState,
         onBaseMapAction = onBaseMapAction,
         onJobComponentAction = onJobComponentAction,
+        onLoiReportAction = {},
       )
     }
   }

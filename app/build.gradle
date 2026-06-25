@@ -190,6 +190,7 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation project(':core:domain')
     implementation project(':core:ui')
+    implementation project(':feature:pdf')
     implementation libs.androidx.multidex
     implementation libs.androidx.preference.ktx
 

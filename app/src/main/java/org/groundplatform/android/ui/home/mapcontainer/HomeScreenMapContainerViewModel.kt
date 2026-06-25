@@ -22,6 +22,7 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -35,8 +36,10 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import org.groundplatform.android.R
 import org.groundplatform.android.common.Constants.CLUSTERING_ZOOM_THRESHOLD
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.system.LocationManager
@@ -46,6 +49,7 @@ import org.groundplatform.android.ui.common.BaseMapViewModel
 import org.groundplatform.android.ui.common.LocationOfInterestHelper
 import org.groundplatform.android.ui.common.SharedViewModel
 import org.groundplatform.android.ui.home.mapcontainer.jobs.AdHocDataCollectionButtonData
+import org.groundplatform.android.ui.home.mapcontainer.jobs.DataCollectionEntryPointData
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentState
 import org.groundplatform.android.ui.home.mapcontainer.jobs.SelectedLoiSheetData
 import org.groundplatform.android.ui.map.Feature
@@ -62,6 +66,9 @@ import org.groundplatform.domain.repository.SubmissionRepositoryInterface
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
 import org.groundplatform.domain.usecases.GetLoiReportUseCase
+import org.groundplatform.feature.pdf.LoiReportExporter
+import org.groundplatform.ui.components.loireport.LoiReportAction
+import timber.log.Timber
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @SharedViewModel
@@ -81,6 +88,7 @@ internal constructor(
   private val localValueStore: LocalValueStore,
   private val locationOfInterestHelper: LocationOfInterestHelper,
   private val getLoiReportUseCase: GetLoiReportUseCase,
+  private val loiReportExporter: LoiReportExporter,
 ) :
   BaseMapViewModel(
     locationManager,
@@ -138,6 +146,9 @@ internal constructor(
    * buttons for creating new LOIs.
    */
   val jobMapComponentState: StateFlow<JobMapComponentState>
+
+  private val _uiEffects = Channel<HomeScreenMapContainerUiEffect>(Channel.BUFFERED)
+  val uiEffects: Flow<HomeScreenMapContainerUiEffect> = _uiEffects.receiveAsFlow()
 
   init {
     // THIS SHOULD NOT BE CALLED ON CONFIG CHANGE
@@ -326,6 +337,80 @@ internal constructor(
     selectedLoiIdFlow.value = id
     if (id == null) {
       featureClicked.value = null
+    }
+  }
+
+  fun onLoiReportAction(action: LoiReportAction) {
+    val loiReport =
+      (jobMapComponentState.value as? JobMapComponentState.LoiSelected)?.loi?.loiReport
+    viewModelScope.launch {
+      if (loiReport == null || loiReportExporter.export(loiReport, action).isFailure) {
+        _uiEffects.send(HomeScreenMapContainerUiEffect.ShowError(R.string.unexpected_error))
+      }
+    }
+  }
+
+  /** Invoked when user clicks on the map cards to collect data. */
+  fun onCollectData(cardUiData: DataCollectionEntryPointData) {
+    viewModelScope.launch {
+      when {
+        !cardUiData.canCollectData ->
+          // Skip data collection screen if the user can't submit any data.
+          // TODO: Revisit UX for displaying view only mode
+          // Issue URL: https://github.com/google/ground-android/issues/1667
+          _uiEffects.send(
+            HomeScreenMapContainerUiEffect.ShowError(R.string.collect_data_viewer_error)
+          )
+        !hasValidTasks(cardUiData) ->
+          // NOTE(#2539): The DataCollectionFragment will crash if there are no tasks.
+          _uiEffects.send(HomeScreenMapContainerUiEffect.ShowError(R.string.no_tasks_error))
+        else ->
+          getDataSharingTerms()
+            .onSuccess { terms ->
+              if (terms == null) {
+                // Data sharing terms already accepted or missing.
+                _uiEffects.send(HomeScreenMapContainerUiEffect.NavigateToDataCollection(cardUiData))
+              } else {
+                _uiEffects.send(
+                  HomeScreenMapContainerUiEffect.ShowDataSharingTerms(cardUiData, terms)
+                )
+              }
+            }
+            .onFailure {
+              Timber.e(it, "Failed to get data sharing terms")
+              val messageId =
+                if (it is GetDataSharingTermsUseCase.InvalidCustomSharingTermsException) {
+                  R.string.invalid_data_sharing_terms
+                } else {
+                  R.string.something_went_wrong
+                }
+              _uiEffects.send(HomeScreenMapContainerUiEffect.ShowError(messageId))
+            }
+      }
+    }
+  }
+
+  private fun hasValidTasks(cardUiData: DataCollectionEntryPointData) =
+    when (cardUiData) {
+      // LOI tasks are filtered out of the tasks list for pre-defined tasks.
+      is SelectedLoiSheetData -> cardUiData.loi.job.tasks.values.count { !it.isAddLoiTask } > 0
+      is AdHocDataCollectionButtonData -> cardUiData.job.tasks.values.isNotEmpty()
+    }
+
+  /**
+   * Displays a popup hint informing users how to begin collecting data.
+   *
+   * This method should only be called after view creation and should only trigger once per view
+   * create.
+   */
+  fun showDataCollectionHint() {
+    viewModelScope.launch {
+      val properties = surveyUpdateFlow.first()
+      if (properties.noLois && !properties.addLoiPermitted) {
+        _uiEffects.send(
+          HomeScreenMapContainerUiEffect.ShowInfo(R.string.read_only_data_collection_hint)
+        )
+      }
     }
   }
 }

@@ -29,6 +29,7 @@ import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.locationofinterest.LoiReport
 import org.groundplatform.ui.theme.AppTheme
+import kotlin.time.Clock
 
 private const val PAGER_CONTENT_TEXT = "Pager Content Area"
 
@@ -37,7 +38,11 @@ private const val PAGER_CONTENT_TEXT = "Pager Content Area"
 @ExcludeFromJacocoGeneratedReport
 private fun DataCollectionContentLoadingPreview() {
   AppTheme {
-    DataCollectionContent(uiState = DataCollectionUiState.Loading, onCloseClicked = {}) {
+    DataCollectionContent(
+      uiState = DataCollectionUiState.Loading,
+      onCloseClicked = {},
+      onLoiReportAction = {},
+    ) {
       Box(modifier = Modifier.fillMaxSize().background(Color.LightGray)) {
         Text(text = PAGER_CONTENT_TEXT, modifier = Modifier.align(Alignment.Center))
       }
@@ -57,6 +62,7 @@ private fun DataCollectionContentErrorPreview() {
           cause = Error("Some error"),
         ),
       onCloseClicked = {},
+      onLoiReportAction = {},
     ) {
       Box(modifier = Modifier.fillMaxSize().background(Color.LightGray)) {
         Text(text = PAGER_CONTENT_TEXT, modifier = Modifier.align(Alignment.Center))
@@ -82,6 +88,7 @@ private fun DataCollectionContentPreview() {
           position = TaskPosition(0, 1, 3),
         ),
       onCloseClicked = {},
+      onLoiReportAction = {},
     ) {
       Box(modifier = Modifier.fillMaxSize().background(Color.LightGray)) {
         Text(text = PAGER_CONTENT_TEXT, modifier = Modifier.align(Alignment.Center))
@@ -99,9 +106,21 @@ private fun DataCollectionContentCompletePreview() {
       uiState =
         DataCollectionUiState.TaskSubmitted(
           loiReport =
-            LoiReport(loiName = "Point A", geoJson = JsonObject(mapOf()), submissionDetails = null)
+            LoiReport(
+              loiName = "Point A",
+              geoJson = JsonObject(mapOf()),
+              submissionDetails =
+                LoiReport.SubmissionDetails(
+                  surveyName = "Test Survey",
+                  userName = "John Doe",
+                  userEmail = "john.doe@example.com",
+                  dateMillis = Clock.System.now().toEpochMilliseconds(),
+                  submissions = emptyList(),
+                ),
+            )
         ),
       onCloseClicked = {},
+      onLoiReportAction = {},
     ) {
       Box(modifier = Modifier.fillMaxSize().background(Color.LightGray)) {
         Text(text = PAGER_CONTENT_TEXT, modifier = Modifier.align(Alignment.Center))

@@ -129,14 +129,7 @@ object FakeData {
               ),
           )
         ),
-      submissionDetails =
-        LoiReport.SubmissionDetails(
-          surveyName = SURVEY.title,
-          userName = USER.displayName,
-          userEmail = USER.email,
-          dateMillis = LOCATION_OF_INTEREST.lastModified.clientTimestamp,
-          submissions = null,
-        ),
+      submissionDetails = null,
     )
   val LOCATION_OF_INTEREST_FEATURE =
     Feature(

@@ -46,11 +46,13 @@ import androidx.compose.ui.window.DialogProperties
 import ground_android.core.ui.generated.resources.Res
 import ground_android.core.ui.generated.resources.scan_this_qr_to_download_geojson
 import java.util.Date
+import kotlin.time.Clock
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import org.groundplatform.android.R
 import org.groundplatform.domain.model.locationofinterest.LoiReport
+import org.groundplatform.ui.components.loireport.LoiReportAction
 import org.groundplatform.ui.components.loireport.SubmissionPdfItem
 import org.groundplatform.ui.components.qrcode.GroundQrCode
 import org.groundplatform.ui.theme.AppTheme
@@ -58,7 +60,11 @@ import org.jetbrains.compose.resources.stringResource as multiplatformStringReso
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ShareLocationModal(loiReport: LoiReport, onDismiss: () -> Unit) {
+fun ShareLocationModal(
+  loiReport: LoiReport,
+  onDismiss: () -> Unit,
+  onLoiReportAction: (LoiReportAction) -> Unit,
+) {
   val context = LocalContext.current
 
   Dialog(
@@ -95,25 +101,19 @@ fun ShareLocationModal(loiReport: LoiReport, onDismiss: () -> Unit) {
         }
 
         loiReport.submissionDetails?.let {
-          if (!it.submissions.isNullOrEmpty()) {
-            SubmissionPdfItem(
-              modifier = Modifier.fillMaxWidth(),
-              title = it.surveyName,
-              loiName = loiReport.loiName,
-              userName = it.userName,
-              date = DateFormat.getDateFormat(context).format(Date(it.dateMillis)),
-              onItemClick = {
-                /* To be implemented in a follow-up on https://github.com/google/ground-android/issues/3715 */
-              },
-              onShareClick = {
-                /* To be implemented in a follow-up on https://github.com/google/ground-android/issues/3715 */
-              },
-            )
-          }
+          SubmissionPdfItem(
+            modifier = Modifier.fillMaxWidth(),
+            title = it.surveyName,
+            loiName = loiReport.loiName,
+            userName = it.userName,
+            date = DateFormat.getDateFormat(context).format(Date(it.dateMillis)),
+            onItemClick = { onLoiReportAction(LoiReportAction.OnPdfItemClicked) },
+            onShareClick = { onLoiReportAction(LoiReportAction.OnShareClicked) },
+          )
         }
 
         TextButton(
-          modifier = Modifier.align(Alignment.End).padding(top = 16.dp),
+          modifier = Modifier.align(Alignment.End).padding(16.dp),
           onClick = onDismiss,
         ) {
           Text(text = stringResource(R.string.close))
@@ -143,12 +143,19 @@ private fun ShareLocationModalPreview() {
               ),
           )
         ),
-      submissionDetails = null,
+      submissionDetails =
+        LoiReport.SubmissionDetails(
+          surveyName = "Test Survey",
+          userName = "John Doe",
+          userEmail = "john.doe@example.com",
+          dateMillis = Clock.System.now().toEpochMilliseconds(),
+          submissions = emptyList(),
+        ),
     )
 
   AppTheme {
     Surface(modifier = Modifier.fillMaxSize()) {
-      ShareLocationModal(loiReport = testLoiReport, onDismiss = {})
+      ShareLocationModal(loiReport = testLoiReport, onDismiss = {}, onLoiReportAction = {})
     }
   }
 }
