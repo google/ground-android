@@ -129,6 +129,4 @@ class PolygonDrawingSessionImpl : PolygonDrawingSession {
     _vertices = (_vertices + redoVertex).toImmutableList()
     return redoVertex
   }
-
-  override fun canRedo(): Boolean = redoVertexStack.isNotEmpty()
 }
