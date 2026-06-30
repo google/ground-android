@@ -19,8 +19,13 @@ import org.groundplatform.domain.model.geometry.Coordinates
 
 /** Encapsulates the state and basic operations for a polygon drawing session. */
 interface PolygonDrawingSession {
-
-  data class State(val isTooClose: Boolean = false, val isMarkedComplete: Boolean = false)
+  data class State(
+    val isTooClose: Boolean = false,
+    val isMarkedComplete: Boolean = false,
+    val isClosed: Boolean = false,
+    val canRedo: Boolean = false,
+    val hasSelfIntersection: Boolean = false,
+  )
 
   /** The current state of the session. */
   val state: State
