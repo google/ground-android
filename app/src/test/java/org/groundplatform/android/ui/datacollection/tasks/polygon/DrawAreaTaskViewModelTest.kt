@@ -29,11 +29,12 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.data.local.LocalValueStore
@@ -71,7 +72,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
 
   override fun setUp() {
     super.setUp()
-    mergedFeatureFlow = merge(viewModel.draftArea.filterNotNull(), viewModel.draftUpdates)
+    mergedFeatureFlow = viewModel.draftArea.filterNotNull()
 
     mergedFeatureLiveData = mergedFeatureFlow.asLiveData()
     featureTestObserver = TestObserver.test(mergedFeatureLiveData)
@@ -264,71 +265,96 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     }
   }
 
-  @OptIn(ExperimentalCoroutinesApi::class)
   @Test
-  fun `First feature is emitted on draftArea and not on draftUpdates`() = runWithTestDispatcher {
+  fun `First feature is emitted on draftArea`() = runWithTestDispatcher {
     setupViewModel()
     updateLastVertexAndAdd(COORDINATE_1)
     updateLastVertexAndAdd(COORDINATE_2)
+    advanceUntilIdle()
 
-    viewModel.draftArea.test {
-      val first = awaitItem()
-      assertThat(first).isNotNull()
-      assertThat(first!!.geometry).isInstanceOf(LineString::class.java)
-      cancelAndIgnoreRemainingEvents()
-    }
-
-    viewModel.draftUpdates.test {
-      expectNoEvents()
-      cancelAndIgnoreRemainingEvents()
-    }
+    val feature = viewModel.draftArea.value
+    assertThat(feature).isNotNull()
+    assertThat(feature!!.geometry).isInstanceOf(LineString::class.java)
   }
 
-  @OptIn(ExperimentalCoroutinesApi::class)
   @Test
-  fun `Subsequent vertex move emits in-place update on draftUpdates with stable tag`() =
+  fun `Tooltip is null for a single vertex`() = runWithTestDispatcher {
+    setupViewModel()
+    updateLastVertexAndAdd(COORDINATE_1)
+    advanceUntilIdle()
+
+    assertThat(viewModel.draftArea.value!!.tooltipText).isNull()
+  }
+
+  @Test
+  fun `Subsequent vertex move updates draftArea geometry while keeping a stable tag`() =
     runWithTestDispatcher {
       setupViewModel()
       updateLastVertexAndAdd(COORDINATE_1)
       updateLastVertexAndAdd(COORDINATE_2)
       advanceUntilIdle()
 
-      val initialTag = viewModel.draftArea.first()!!.tag
+      val initialTag = viewModel.draftArea.value!!.tag
 
-      viewModel.draftUpdates.test {
-        updateLastVertex(Coordinates(15.0, 15.0), isNearFirstVertex = false)
-        advanceUntilIdle()
+      updateLastVertex(Coordinates(15.0, 15.0), isNearFirstVertex = false)
+      advanceUntilIdle()
 
-        val upd = awaitItem()
-        assertThat(upd.tag).isEqualTo(initialTag)
-        val ls = upd.geometry as LineString
-        assertThat(ls.coordinates.last()).isEqualTo(Coordinates(15.0, 15.0))
-        assertThat(upd.tooltipText).isNotNull()
-        cancelAndIgnoreRemainingEvents()
-      }
+      val updated = viewModel.draftArea.value!!
+      assertThat(updated.tag).isEqualTo(initialTag)
+      val ls = updated.geometry as LineString
+      assertThat(ls.coordinates.last()).isEqualTo(Coordinates(15.0, 15.0))
+      assertThat(updated.tooltipText).isNotNull()
     }
 
-  @OptIn(ExperimentalCoroutinesApi::class)
   @Test
-  fun `Tooltip updates along with in-place geometry updates`() = runWithTestDispatcher {
+  fun `draftArea always holds the full current geometry`() = runWithTestDispatcher {
     setupViewModel()
     updateLastVertexAndAdd(COORDINATE_1)
     advanceUntilIdle()
-
-    val firstFeature = viewModel.draftArea.first()
-    val firstLine = firstFeature!!.geometry as LineString
-    assertThat(firstLine.coordinates.size).isEqualTo(1)
-    assertThat(firstFeature.tooltipText).isNull()
+    val firstLine = viewModel.draftArea.value!!.geometry as LineString
+    val firstSize = firstLine.coordinates.size
 
     updateLastVertexAndAdd(COORDINATE_2)
+    updateLastVertexAndAdd(COORDINATE_3)
     advanceUntilIdle()
-    val secondFeature = viewModel.draftArea.first()
-    val secondLine = secondFeature!!.geometry as LineString
-    assertThat(secondLine.coordinates.size).isEqualTo(1)
-    assertThat(secondFeature.tooltipText).isNull()
 
-    viewModel.removeLastVertex()
+    val secondLine = viewModel.draftArea.value!!.geometry as LineString
+    assertThat(secondLine.coordinates.size).isGreaterThan(firstSize)
+    assertThat(secondLine.coordinates).contains(COORDINATE_3)
   }
+
+  @Test
+  fun `Button states survive subscriber teardown and re-subscription after completion`() =
+    runWithTestDispatcher {
+      setupViewModel()
+      updateLastVertexAndAdd(COORDINATE_1)
+      updateLastVertexAndAdd(COORDINATE_2)
+      updateLastVertexAndAdd(COORDINATE_3)
+      updateLastVertex(COORDINATE_4, isNearFirstVertex = true)
+      viewModel.onButtonClick(ButtonAction.COMPLETE)
+      advanceUntilIdle()
+      assertThat(viewModel.isMarkedComplete()).isTrue()
+
+      // First subscriber
+      viewModel.taskActionButtonStates.test {
+        assertThat(awaitItem()).isNotEmpty()
+        cancelAndIgnoreRemainingEvents()
+      }
+
+      // No subscribers for longer than the WhileSubscribed(5_000) timeout
+      advanceTimeBy(6.seconds)
+      advanceUntilIdle()
+
+      // Recreated fragment re-subscribes.
+      val states = viewModel.taskActionButtonStates.first()
+
+      with(requireNotNull(states.find { it.action == ButtonAction.ADD_POINT })) {
+        assertFalse(isVisible)
+      }
+      with(requireNotNull(states.find { it.action == ButtonAction.NEXT })) {
+        assertTrue(isVisible)
+      }
+    }
 
   @Test
   fun `isTooClose is false if only one vertex`() {

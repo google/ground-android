@@ -21,15 +21,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -90,24 +87,6 @@ internal constructor(
    */
   private var draftTag: Feature.Tag? = null
 
-  /**
-   * Emits incremental updates to the currently drawn draft feature (e.g., polygon or line string).
-   *
-   * The flow sends partial geometry updates—such as when a new vertex is added or moved— allowing
-   * the map UI to update the in-progress shape in real-time.
-   *
-   * Uses [MutableSharedFlow] with a small buffer to avoid missing updates during rapid emissions.
-   */
-  private val _draftUpdates = MutableSharedFlow<Feature>(extraBufferCapacity = 1)
-
-  /**
-   * Public read-only access to the stream of draft feature updates.
-   *
-   * UI components (e.g., map fragments) collect from this flow to render live geometry updates as
-   * the user draws or modifies a shape.
-   */
-  val draftUpdates = _draftUpdates.asSharedFlow()
-
   /** Channel for one-shot camera movement events. Fragment collects to move map. */
   private val _cameraMoveEvents = Channel<Coordinates>(Channel.CONFLATED)
   val cameraMoveEvents = _cameraMoveEvents.receiveAsFlow()
@@ -131,26 +110,20 @@ internal constructor(
   lateinit var measurementUnits: MeasurementUnits
 
   override val taskActionButtonStates: StateFlow<List<ButtonActionState>> by lazy {
-    combine(taskTaskData, merge(draftArea, draftUpdates), sessionState) {
-        taskData,
-        currentFeature,
-        sessionState ->
-        val isClosed = (currentFeature?.geometry as? LineString)?.isClosed() ?: false
+    combine(taskTaskData, sessionState) { taskData, state ->
         listOfNotNull(
           getPreviousButton(),
           getSkipButton(taskData),
           getUndoButton(taskData, true),
-          getRedoButton(),
-          getAddPointButton(isClosed, sessionState.isTooClose),
-          getCompleteButton(isClosed, sessionState.isMarkedComplete),
-          getNextButton(taskData).takeIf { sessionState.isMarkedComplete },
+          getRedoButton(state.canRedo),
+          getAddPointButton(state.isClosed, state.isTooClose),
+          getCompleteButton(state.isClosed, state.isMarkedComplete, state.hasSelfIntersection),
+          getNextButton(taskData).takeIf { state.isMarkedComplete },
         )
       }
       .distinctUntilChanged()
       .stateIn(viewModelScope, WhileSubscribed(5_000), emptyList())
   }
-
-
 
   override fun initialize(
     job: Job,
@@ -247,7 +220,7 @@ internal constructor(
   }
 
   fun redoLastVertex() {
-    if (!session.canRedo()) {
+    if (!_sessionState.value.canRedo) {
       Timber.e("redoVertexStack is already empty")
       return
     }
@@ -281,6 +254,7 @@ internal constructor(
     val intersected = session.checkVertexIntersection()
     if (intersected) {
       onSelfIntersectionDetected()
+      syncSessionState()
       refreshMap()
     }
     return intersected
@@ -296,6 +270,7 @@ internal constructor(
 
   private fun updateVertices(newVertices: List<Coordinates>) {
     session.setVertices(newVertices)
+    syncSessionState()
     refreshMap()
   }
 
@@ -316,12 +291,9 @@ internal constructor(
    * This function is responsible for keeping the map view in sync with the user's drawing
    * interactions:
    * - When vertices are empty → clears the current draft from the map.
-   * - On the first vertex → creates a new [Feature] and emits it to [_draftArea].
+   * - On the first vertex → creates a new [Feature.Tag].
    * - On subsequent updates → reuses the same [Feature.Tag] and emits updated geometry through
-   *   [_draftUpdates] for in-place map updates.
-   *
-   * The goal is to ensure smooth, flicker-free rendering by avoiding unnecessary feature
-   * re-creation. Only the geometry and style of the active draft are updated in place on the map.
+   *   [_draftArea].
    *
    * This coroutine runs on [viewModelScope] to ensure lifecycle safety.
    */
@@ -330,14 +302,12 @@ internal constructor(
       _draftArea.emit(null)
       draftTag = null
     } else {
-      if (draftTag == null) {
-        val feature = buildPolygonFeature()
+      val isFirstFeature = draftTag == null
+      val feature = buildPolygonFeature(id = draftTag?.id)
+      if (isFirstFeature) {
         draftTag = feature.tag
-        _draftArea.emit(feature)
-      } else {
-        val feature = buildPolygonFeature(id = draftTag!!.id)
-        _draftUpdates.tryEmit(feature)
       }
+      _draftArea.emit(feature)
     }
   }
 
@@ -372,8 +342,8 @@ internal constructor(
     vibrationHelper.vibrate()
   }
 
-  private fun getRedoButton(): ButtonActionState =
-    ButtonActionState(action = ButtonAction.REDO, isEnabled = session.canRedo(), isVisible = true)
+  private fun getRedoButton(canRedo: Boolean): ButtonActionState =
+    ButtonActionState(action = ButtonAction.REDO, isEnabled = canRedo, isVisible = true)
 
   private fun getAddPointButton(isPolygonClosed: Boolean, isTooClose: Boolean): ButtonActionState =
     ButtonActionState(
@@ -382,10 +352,14 @@ internal constructor(
       isVisible = !isPolygonClosed,
     )
 
-  private fun getCompleteButton(isClosed: Boolean, isMarkedComplete: Boolean): ButtonActionState =
+  private fun getCompleteButton(
+    isClosed: Boolean,
+    isMarkedComplete: Boolean,
+    hasSelfIntersection: Boolean,
+  ): ButtonActionState =
     ButtonActionState(
       action = ButtonAction.COMPLETE,
-      isEnabled = isClosed && !isMarkedComplete && !session.hasSelfIntersection,
+      isEnabled = isClosed && !isMarkedComplete && !hasSelfIntersection,
       isVisible = isClosed && !isMarkedComplete,
     )
 
