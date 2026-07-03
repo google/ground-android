@@ -55,8 +55,9 @@ class LoiReportMapper(
             rows = rows,
           ),
       )
+    val dateMillis = submission.lastModified.clientTimestamp
     val timestamp =
-      "${dateFormatter.formatDate(details.dateMillis)}_${dateFormatter.formatTime(details.dateMillis)}"
+      "${dateFormatter.formatDate(dateMillis)}_${dateFormatter.formatTime(dateMillis)}"
     val fileName =
       listOf(details.surveyName, loiReport.loiName, details.userName, timestamp)
         .map { it.filter(::isSafeFileChar) }
@@ -81,7 +82,8 @@ class LoiReportMapper(
       jobLabel = strings.resolve(Res.string.job),
       jobName = submission.job.name ?: submission.job.id,
       timestamp =
-        "${dateFormatter.formatDate(details.dateMillis)} ${dateFormatter.formatTime(details.dateMillis)}",
+        "${dateFormatter.formatDate(submission.lastModified.clientTimestamp)} " +
+          dateFormatter.formatTime(submission.lastModified.clientTimestamp),
     )
 
   private suspend fun buildQrBlock(): QrBlock =

@@ -29,7 +29,6 @@ import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.locationofinterest.LoiReport
 import org.groundplatform.ui.theme.AppTheme
-import kotlin.time.Clock
 
 private const val PAGER_CONTENT_TEXT = "Pager Content Area"
 
@@ -114,7 +113,6 @@ private fun DataCollectionContentCompletePreview() {
                   surveyName = "Test Survey",
                   userName = "John Doe",
                   userEmail = "john.doe@example.com",
-                  dateMillis = Clock.System.now().toEpochMilliseconds(),
                   submissions = emptyList(),
                 ),
             )

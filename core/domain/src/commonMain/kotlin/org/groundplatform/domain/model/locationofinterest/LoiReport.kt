@@ -28,7 +28,6 @@ data class LoiReport(
     val surveyName: String,
     val userName: String,
     val userEmail: String,
-    val dateMillis: Long,
     val submissions: List<Submission>,
   )
 }
