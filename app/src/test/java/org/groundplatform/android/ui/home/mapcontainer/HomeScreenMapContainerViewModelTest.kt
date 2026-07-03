@@ -48,6 +48,7 @@ import org.groundplatform.domain.model.map.Bounds
 import org.groundplatform.domain.model.map.CameraPosition
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
+import org.groundplatform.testing.FakeDataGenerator
 import org.groundplatform.ui.components.loireport.LoiReportAction
 import org.junit.Before
 import org.junit.Test
@@ -298,7 +299,7 @@ class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
   @Test
   fun `onLoiReportAction emits ShowError when no LOI is selected`() = runWithTestDispatcher {
     // No LOI is selected, so there is no report to export.
-    viewModel.onLoiReportAction(LoiReportAction.OnShareClicked)
+    viewModel.onLoiReportAction(LoiReportAction.OnShareClicked(FakeDataGenerator.newSubmission()))
     advanceUntilIdle()
 
     assertThat(viewModel.uiEffects.first())

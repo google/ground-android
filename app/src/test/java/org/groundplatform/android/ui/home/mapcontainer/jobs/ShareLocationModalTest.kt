@@ -111,17 +111,20 @@ class ShareLocationModalTest {
     composeTestRule.onNodeWithTag(TEST_TAG_PDF_ITEM).performScrollTo()
     composeTestRule.onNodeWithText(details.surveyName).performClick()
 
-    composeTestRule.runOnIdle { assertEquals(LoiReportAction.OnPdfItemClicked, action) }
+    composeTestRule.runOnIdle {
+      assertEquals(LoiReportAction.OnPdfItemClicked(details.submissions.first()), action)
+    }
   }
 
   @Test
   fun `Clicking the share button triggers OnShareClicked`() {
     var action: LoiReportAction? = null
+    val details = FakeDataGenerator.newSubmissionDetails()
 
     composeTestRule.setContent {
       AppTheme {
         ShareLocationModal(
-          loiReport = LOI_REPORT.copy(submissionDetails = FakeDataGenerator.newSubmissionDetails()),
+          loiReport = LOI_REPORT.copy(submissionDetails = details),
           onDismiss = {},
           onLoiReportAction = { action = it },
         )
@@ -130,7 +133,9 @@ class ShareLocationModalTest {
 
     composeTestRule.onNodeWithText(getString(Res.string.share)).performScrollTo().performClick()
 
-    composeTestRule.runOnIdle { assertEquals(LoiReportAction.OnShareClicked, action) }
+    composeTestRule.runOnIdle {
+      assertEquals(LoiReportAction.OnShareClicked(details.submissions.first()), action)
+    }
   }
 
   @Test
