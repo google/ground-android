@@ -15,6 +15,11 @@
  */
 package org.groundplatform.domain.usecases
 
+import kotlin.time.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.format
+import kotlinx.datetime.format.DateTimeComponents
+import kotlinx.datetime.offsetAt
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
@@ -28,7 +33,6 @@ import org.groundplatform.domain.model.geometry.MultiPolygon
 import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.geometry.Polygon
 import org.groundplatform.domain.model.locationofinterest.LOI_NAME_PROPERTY
-import org.groundplatform.domain.model.locationofinterest.LoiProperties
 import org.groundplatform.domain.model.locationofinterest.LoiReport
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import org.groundplatform.domain.repository.SubmissionRepositoryInterface
@@ -73,21 +77,36 @@ class GetLoiReportUseCase(
           submissions = submissions,
         )
       } else null
+    val properties = buildMap {
+      loi.properties
+        .filter { property -> property.key == LOI_NAME_PROPERTY }
+        .forEach { (key, value) -> put(key, value.toJsonPrimitive()) }
+      submissionDetails
+        ?.let { mapOf(KEY_SURVEY to it.surveyName, KEY_DATE to formatIsoDateTime(it.dateMillis)) }
+        ?.forEach { (key, value) -> put(key, JsonPrimitive(value)) }
+    }
     return LoiReport(
       loiName = loiName,
-      geoJson =
-        loi.geometry.toGeoJson(
-          loi.properties.filter { property -> property.key == LOI_NAME_PROPERTY }
-        ),
+      geoJson = loi.geometry.toGeoJson(properties = properties),
       submissionDetails = submissionDetails,
     )
+  }
+
+  /**
+   * Formats an epoch-milliseconds timestamp as an ISO-8601 date-time with the device's UTC offset
+   * at that instant, e.g. `2026-07-03T14:32:00+03:00`..
+   */
+  private fun formatIsoDateTime(epochMillis: Long): String {
+    val instant = Instant.fromEpochMilliseconds(epochMillis)
+    val offset = TimeZone.currentSystemDefault().offsetAt(instant)
+    return instant.format(DateTimeComponents.Formats.ISO_DATE_TIME_OFFSET, offset)
   }
 
   /**
    * Converts a [Geometry] to its GeoJSON representation as defined by
    * [RFC 7946](https://datatracker.ietf.org/doc/html/rfc7946).
    */
-  private fun Geometry.toGeoJson(loiProperties: LoiProperties): JsonObject {
+  private fun Geometry.toGeoJson(properties: Map<String, JsonPrimitive>): JsonObject {
     val geometryJson =
       when (this) {
         is Point -> geoJsonObject(TYPE_POINT, coordinatesToPosition(coordinates))
@@ -100,10 +119,11 @@ class GetLoiReportUseCase(
         is MultiPolygon ->
           geoJsonObject(TYPE_MULTI_POLYGON, JsonArray(polygons.map { polygonToCoordinates(it) }))
       }
+
     return JsonObject(
       mapOf(
         KEY_TYPE to JsonPrimitive(TYPE_FEATURE),
-        KEY_PROPERTIES to JsonObject(loiProperties.mapValues { it.value.toJsonPrimitive() }),
+        KEY_PROPERTIES to JsonObject(properties),
         KEY_GEOMETRY to geometryJson,
       )
     )
@@ -147,6 +167,8 @@ class GetLoiReportUseCase(
     const val KEY_PROPERTIES = "properties"
     const val KEY_GEOMETRY = "geometry"
     const val KEY_COORDINATES = "coordinates"
+    const val KEY_SURVEY = "survey"
+    const val KEY_DATE = "date"
     const val TYPE_POINT = "Point"
     const val TYPE_LINE_STRING = "LineString"
     const val TYPE_POLYGON = "Polygon"

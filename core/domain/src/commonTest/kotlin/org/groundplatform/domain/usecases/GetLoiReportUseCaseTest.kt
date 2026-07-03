@@ -19,8 +19,12 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
+import kotlin.time.Instant
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.format.DateTimeComponents
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.Geometry
 import org.groundplatform.domain.model.geometry.LineString
@@ -309,6 +313,64 @@ class GetLoiReportUseCaseTest {
 
     assertEquals(Json.parseToJsonElement(expectedGeoJson), loiReport.geoJson)
   }
+
+  @Test
+  fun `Should embed survey name and ISO-8601 date in geoJson properties when submissions exist`() =
+    runTest {
+      surveyRepository.offlineSurveys =
+        listOf(FakeDataGenerator.newSurvey(id = "surveyId", title = "Restoration areas"))
+      submissionRepository.submissions = listOf(FakeDataGenerator.newSubmission())
+      loiRepository.offlineLoi =
+        loiRepository.offlineLoi.copy(
+          geometry = Point(Coordinates(lat = 1.0, lng = -1.0)),
+          properties = generateProperties("Point test"),
+          lastModified =
+            AuditInfo(user = FakeDataGenerator.newUser(), clientTimestamp = 1_700_000_000_000L),
+        )
+
+      val loiReport =
+        getLoiReportUseCase.invoke(loiName = "Point test", loiId = "loiId", surveyId = "surveyId")!!
+
+      val properties = loiReport.geoJson["properties"]!!.jsonObject
+      assertEquals("Restoration areas", properties["survey"]!!.jsonPrimitive.content)
+      val date = properties["date"]!!.jsonPrimitive.content
+      assertEquals(
+        Instant.fromEpochMilliseconds(1_700_000_000_000L),
+        DateTimeComponents.Formats.ISO_DATE_TIME_OFFSET.parse(date).toInstantUsingOffset(),
+      )
+    }
+
+  @Test
+  fun `Should not embed survey or date in geoJson properties when no submissions exist`() =
+    runTest {
+      submissionRepository.submissions = emptyList()
+      loiRepository.offlineLoi =
+        loiRepository.offlineLoi.copy(
+          geometry = Point(Coordinates(lat = 0.0, lng = 0.0)),
+          properties = generateProperties("No submissions"),
+        )
+
+      val loiReport =
+        getLoiReportUseCase.invoke(
+          loiName = "No submissions",
+          loiId = "loiId",
+          surveyId = "surveyId",
+        )!!
+
+      val expectedGeoJson =
+        """
+        {
+          "type": "Feature",
+          "properties": {"name": "No submissions"},
+          "geometry": {
+            "type": "Point",
+            "coordinates": [0.000000, 0.000000]
+          }
+        }
+        """
+          .trimIndent()
+      assertEquals(Json.parseToJsonElement(expectedGeoJson), loiReport.geoJson)
+    }
 
   @Test
   fun `Should populate loiName, userName and dateMillis from the inputs`() = runTest {
