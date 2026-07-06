@@ -32,3 +32,9 @@ updates:
       interval: "daily"
     open-pull-requests-limit: 10
     target-branch: "master"
+    # Keep all github/codeql-action entry points in a single PR. They share one version and must
+    # be bumped together, otherwise CodeQL fails with a version mismatch.
+    groups:
+      codeql:
+        patterns:
+          - "github/codeql-action*"
