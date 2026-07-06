@@ -97,6 +97,14 @@ constructor(
    * map as needed to sync the map state with the provided collection.
    */
   fun setFeatures(updatedFeatures: Collection<Feature>) {
+    updatedFeatures.forEach { feature ->
+      val existingFeature = featuresByTag[feature.tag]
+      // A non-clustered feature whose tag already exists but whose contents changed can be moved in
+      // place, instead of being removed and re-added (which flickers).
+      val shouldUpdate =
+        existingFeature != null && existingFeature != feature && !feature.clusterable
+      if (shouldUpdate) update(existing = existingFeature, updated = feature)
+    }
     // remove stale
     val removedOrChanged = features - updatedFeatures.toSet()
     removedOrChanged.forEach(this::remove)
@@ -137,19 +145,13 @@ constructor(
     }
 
   /** Updates the existing feature on the map with it's new properties (geometry, styling, etc). */
-  fun update(feature: Feature) =
-    with(feature) {
-      val prevFeature = featuresByTag[tag]
-      if (prevFeature == null) {
-        Timber.e("Feature not found for update: $tag")
-        return
-      }
+  private fun update(existing: Feature, updated: Feature) {
+    if (!mapsItemManager.update(updated)) return
 
-      features.remove(prevFeature)
-      features.add(this)
-      mapsItemManager.update(this)
-      featuresByTag[tag] = this
-    }
+    features.remove(existing)
+    features.add(updated)
+    featuresByTag[updated.tag] = updated
+  }
 
   fun onCameraIdle() {
     clusterManager.onCameraIdle()

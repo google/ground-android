@@ -52,8 +52,6 @@ class DrawAreaTaskMapFragment @Inject constructor() :
         }
       }
 
-      launch { taskViewModel.draftUpdates.collect { map.updateFeature(it) } }
-
       launch {
         taskViewModel.cameraMoveEvents.collect { coordinates -> moveToPosition(coordinates) }
       }

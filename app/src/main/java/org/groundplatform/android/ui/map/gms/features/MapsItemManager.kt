@@ -27,6 +27,7 @@ import org.groundplatform.domain.model.geometry.LineString
 import org.groundplatform.domain.model.geometry.MultiPolygon
 import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.geometry.Polygon
+import timber.log.Timber
 
 /** Manages [Feature]s displayed on the map as Maps SDK items (marker, polyline, etc). */
 class MapsItemManager(
@@ -71,14 +72,20 @@ class MapsItemManager(
       }
     }
 
-  /** Updates an already-rendered feature with new geometry and style. */
-  fun update(feature: Feature) =
+  /**
+   * Updates an already-rendered feature with new geometry and style. Logs an error and returns
+   * false if the item can't be updated.
+   */
+  fun update(feature: Feature): Boolean =
     with(feature) {
-      itemsByTag[feature.tag]?.forEach {
-        if (it is Polyline) {
-          lineStringRenderer.update(map, it, geometry as LineString, tooltipText)
+      val items = itemsByTag[tag] ?: return false
+      items.all { item ->
+        if (item is Polyline) {
+          lineStringRenderer.update(map, item, geometry as LineString, tooltipText)
+          true
         } else {
-          error("Unsupported map feature: ${it::class.java}")
+          Timber.e("Unsupported map feature: ${item::class.java}")
+          false
         }
       }
     }
