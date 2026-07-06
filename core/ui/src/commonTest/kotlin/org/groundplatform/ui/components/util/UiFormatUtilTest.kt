@@ -13,20 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.util
+package org.groundplatform.ui.components.util
 
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import java.util.Locale
-import org.junit.Test
-import org.groundplatform.android.ui.util.SQUARE_FEET_PER_SQUARE_METER
-import org.groundplatform.android.ui.util.SQUARE_METERS_PER_ACRE
-import org.groundplatform.android.ui.util.SQUARE_METERS_PER_HECTARE
-import org.groundplatform.android.ui.util.getFormattedArea
+import kotlin.test.Test
+import kotlin.test.assertEquals
 import org.groundplatform.domain.model.settings.MeasurementUnits
-import org.junit.Assert.assertEquals
-import org.junit.runner.RunWith
+import org.groundplatform.domain.util.Constants.SQUARE_METERS_PER_ACRE
+import org.groundplatform.domain.util.Constants.SQUARE_METERS_PER_HECTARE
+import org.groundplatform.ui.util.getFormattedArea
 
-@RunWith(AndroidJUnit4::class)
 class UiFormatUtilTest {
   @Test
   fun `Should display area in square meters if it's below an hectare`() {
@@ -46,12 +41,7 @@ class UiFormatUtilTest {
   fun `Should display area in square feet if it's below an acre`() {
     val areaInSquareMeters = 2000.0
     val result = getFormattedArea(areaInSquareMeters, MeasurementUnits.IMPERIAL)
-    val expected =
-      String.format(
-        Locale.getDefault(),
-        "%.2f ft²",
-        areaInSquareMeters * SQUARE_FEET_PER_SQUARE_METER,
-      )
+    val expected = "21527.80 ft²"
     assertEquals(expected, result)
   }
 
