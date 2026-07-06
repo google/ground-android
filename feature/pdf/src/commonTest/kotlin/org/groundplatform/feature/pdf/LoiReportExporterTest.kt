@@ -43,7 +43,11 @@ class LoiReportExporterTest {
     val service = FakePdfExportService()
     val exporter = LoiReportExporter(mapper, service.service)
 
-    val result = exporter.export(FakeDataGenerator.newLoiReport(), LoiReportAction.OnPdfItemClicked)
+    val result =
+      exporter.export(
+        FakeDataGenerator.newLoiReport(),
+        LoiReportAction.OnPdfItemClicked(FakeDataGenerator.newSubmission()),
+      )
 
     assertTrue(result.isSuccess)
     assertEquals(service.outputPath, service.openedPath)
@@ -55,7 +59,11 @@ class LoiReportExporterTest {
     val service = FakePdfExportService()
     val exporter = LoiReportExporter(mapper, service.service)
 
-    val result = exporter.export(FakeDataGenerator.newLoiReport(), LoiReportAction.OnShareClicked)
+    val result =
+      exporter.export(
+        FakeDataGenerator.newLoiReport(),
+        LoiReportAction.OnShareClicked(FakeDataGenerator.newSubmission()),
+      )
 
     assertTrue(result.isSuccess)
     assertEquals(service.outputPath, service.sharedPath)
@@ -63,15 +71,16 @@ class LoiReportExporterTest {
   }
 
   @Test
-  fun `returns failure without exporting when report has no submission`() = runTest {
+  fun `returns failure without exporting when report cannot be mapped`() = runTest {
     val service = FakePdfExportService()
     val exporter = LoiReportExporter(mapper, service.service)
-    val loiReport =
-      FakeDataGenerator.newLoiReport(
-        submissionDetails = FakeDataGenerator.newSubmissionDetails(submissions = emptyList())
-      )
+    val loiReport = FakeDataGenerator.newLoiReport(submissionDetails = null)
 
-    val result = exporter.export(loiReport, LoiReportAction.OnPdfItemClicked)
+    val result =
+      exporter.export(
+        loiReport,
+        LoiReportAction.OnPdfItemClicked(FakeDataGenerator.newSubmission()),
+      )
 
     assertTrue(result.isFailure)
     assertNull(service.openedPath)
@@ -82,7 +91,11 @@ class LoiReportExporterTest {
     val service = FakePdfExportService().apply { renderError = RuntimeException("boom") }
     val exporter = LoiReportExporter(mapper, service.service)
 
-    val result = exporter.export(FakeDataGenerator.newLoiReport(), LoiReportAction.OnPdfItemClicked)
+    val result =
+      exporter.export(
+        FakeDataGenerator.newLoiReport(),
+        LoiReportAction.OnPdfItemClicked(FakeDataGenerator.newSubmission()),
+      )
 
     assertTrue(result.isFailure)
   }

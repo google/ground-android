@@ -26,13 +26,11 @@ class LoiReportExporter(
   suspend fun export(loiReport: LoiReport, action: LoiReportAction): Result<Unit> = runCatching {
     val pdfAction =
       when (action) {
-        LoiReportAction.OnShareClicked -> PdfExportService.Action.Share
-        LoiReportAction.OnPdfItemClicked -> PdfExportService.Action.Open
+        is LoiReportAction.OnShareClicked -> PdfExportService.Action.Share
+        is LoiReportAction.OnPdfItemClicked -> PdfExportService.Action.Open
       }
 
-    val submission =
-      loiReport.submissionDetails?.submissions?.firstOrNull() ?: error("No submission to export")
-    val request = mapper.map(loiReport, submission) ?: error("Failed to map LoiReport")
+    val request = mapper.map(loiReport, action.submission) ?: error("Failed to map LoiReport")
     exportService.export(request, pdfAction)
   }
 }
