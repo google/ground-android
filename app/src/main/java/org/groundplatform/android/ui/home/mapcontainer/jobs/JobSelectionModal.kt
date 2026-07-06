@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android.ui.home.mapcontainer.jobs
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -47,6 +48,7 @@ import org.groundplatform.ui.theme.AppTheme
 
 @Composable
 fun JobSelectionModal(jobs: List<Job>, onJobClicked: (job: Job) -> Unit, onDismiss: () -> Unit) {
+  BackHandler(onBack = onDismiss)
   Column(
     Modifier.fillMaxWidth()
       .background(color = Color.Black.copy(alpha = 0.6f))
