@@ -62,7 +62,6 @@ import org.groundplatform.ui.components.loireport.LoiReportAction
 import org.groundplatform.ui.components.loireport.SubmissionPdfItem
 import org.groundplatform.ui.components.qrcode.GroundQrCode
 import org.groundplatform.ui.theme.AppTheme
-import kotlin.time.Clock
 import org.jetbrains.compose.resources.stringResource as multiplatformStringResource
 
 @Composable
@@ -174,15 +173,18 @@ private fun ShareableContent(
         )
       }
 
-      loiReport.submissionDetails?.let {
+      val details = loiReport.submissionDetails
+      val submission = details?.submissions?.firstOrNull()
+      if (details != null && submission != null) {
         SubmissionPdfItem(
           modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
-          title = it.surveyName,
+          title = details.surveyName,
           loiName = loiReport.loiName,
-          userName = it.userName,
-          date = DateFormat.getDateFormat(context).format(Date(it.dateMillis)),
-          onItemClick = { onLoiReportAction(LoiReportAction.OnPdfItemClicked) },
-          onShareClick = { onLoiReportAction(LoiReportAction.OnShareClicked) },
+          userName = details.userName,
+          date =
+            DateFormat.getDateFormat(context).format(Date(submission.lastModified.clientTimestamp)),
+          onItemClick = { onLoiReportAction(LoiReportAction.OnPdfItemClicked(submission)) },
+          onShareClick = { onLoiReportAction(LoiReportAction.OnShareClicked(submission)) },
         )
       }
     }
@@ -211,7 +213,6 @@ private val testLoiReport =
         surveyName = "Test Survey",
         userName = "John Doe",
         userEmail = "john.doe@example.com",
-        dateMillis = Clock.System.now().toEpochMilliseconds(),
         submissions = emptyList(),
       ),
   )

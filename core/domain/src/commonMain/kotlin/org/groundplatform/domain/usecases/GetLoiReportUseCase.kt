@@ -69,7 +69,6 @@ class GetLoiReportUseCase(
           surveyName = surveyName,
           userName = user.displayName,
           userEmail = user.email,
-          dateMillis = loi.lastModified.clientTimestamp,
           submissions = submissions,
         )
       } else null

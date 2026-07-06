@@ -19,6 +19,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlinx.coroutines.test.runTest
+import org.groundplatform.domain.model.locationofinterest.AuditInfo
 import org.groundplatform.feature.pdf.helpers.FakeDateFormatter
 import org.groundplatform.feature.pdf.helpers.FakeStringResolver
 import org.groundplatform.testing.FakeDataGenerator
@@ -33,6 +34,12 @@ class LoiReportMapperTest {
       dateFormatter = FakeDateFormatter,
     )
 
+  /** Submission with a fixed last-modified timestamp so date assertions are deterministic. */
+  private val submission =
+    FakeDataGenerator.newSubmission(
+      lastModified = AuditInfo(FakeDataGenerator.newUser(), clientTimestamp = 0L)
+    )
+
   private val timestampSegment = "DATE0_TIME0"
 
   @Test
@@ -45,7 +52,7 @@ class LoiReportMapperTest {
             submissionDetails =
               FakeDataGenerator.newSubmissionDetails(surveyName = "Survey", userName = "User"),
           ),
-        submission = FakeDataGenerator.newSubmission(),
+        submission = submission,
       )
 
     assertEquals("Survey_Loi_User_$timestampSegment", request!!.fileName)
@@ -64,7 +71,7 @@ class LoiReportMapperTest {
                 userName = "user@email.com",
               ),
           ),
-        submission = FakeDataGenerator.newSubmission(),
+        submission = submission,
       )
 
     assertEquals("MySurvey_loiname_useremailcom_$timestampSegment", request!!.fileName)
@@ -80,7 +87,7 @@ class LoiReportMapperTest {
             submissionDetails =
               FakeDataGenerator.newSubmissionDetails(surveyName = "", userName = "@@@"),
           ),
-        submission = FakeDataGenerator.newSubmission(),
+        submission = submission,
       )
 
     assertEquals("loi_$timestampSegment", request!!.fileName)
@@ -96,7 +103,7 @@ class LoiReportMapperTest {
             submissionDetails =
               FakeDataGenerator.newSubmissionDetails(surveyName = "แบบสำรวจ", userName = "テスト"),
           ),
-        submission = FakeDataGenerator.newSubmission(),
+        submission = submission,
       )
 
     assertEquals("แบบสำรวจ_ເພີ່ມຈຸດສຳຫຼວດ_テスト_$timestampSegment", request!!.fileName)
@@ -115,7 +122,7 @@ class LoiReportMapperTest {
                 userName = "Test?",
               ),
           ),
-        submission = FakeDataGenerator.newSubmission(),
+        submission = submission,
       )
 
     assertEquals("CaféSãoJosé_ß_Test_$timestampSegment", request!!.fileName)
@@ -131,16 +138,35 @@ class LoiReportMapperTest {
             submissionDetails =
               FakeDataGenerator.newSubmissionDetails(surveyName = "a".repeat(300), userName = "y"),
           ),
-        submission = FakeDataGenerator.newSubmission(),
+        submission = submission,
       )
 
     assertEquals(100, request!!.fileName.length)
   }
 
   @Test
+  fun `timestamp comes from the submission's own last modified date`() = runTest {
+    val request =
+      mapper.map(
+        loiReport =
+          FakeDataGenerator.newLoiReport(
+            loiName = "Loi",
+            submissionDetails =
+              FakeDataGenerator.newSubmissionDetails(surveyName = "Survey", userName = "User"),
+          ),
+        submission =
+          FakeDataGenerator.newSubmission(
+            lastModified = AuditInfo(FakeDataGenerator.newUser(), clientTimestamp = 42L)
+          ),
+      )
+
+    assertEquals("Survey_Loi_User_DATE42_TIME42", request!!.fileName)
+  }
+
+  @Test
   fun `map returns null when submissionDetails are missing`() = runTest {
     val report = FakeDataGenerator.newLoiReport(submissionDetails = null)
 
-    assertNull(mapper.map(report, FakeDataGenerator.newSubmission()))
+    assertNull(mapper.map(report, submission))
   }
 }

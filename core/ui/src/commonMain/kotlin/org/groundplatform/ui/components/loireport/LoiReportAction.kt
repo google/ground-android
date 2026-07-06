@@ -15,8 +15,14 @@
  */
 package org.groundplatform.ui.components.loireport
 
-sealed interface LoiReportAction {
-  data object OnShareClicked : LoiReportAction
+import org.groundplatform.domain.model.submission.Submission
 
-  data object OnPdfItemClicked : LoiReportAction
+/** A user action taken on a specific [Submission] within an LOI report. */
+sealed interface LoiReportAction {
+  /** The submission the action was taken on. */
+  val submission: Submission
+
+  data class OnShareClicked(override val submission: Submission) : LoiReportAction
+
+  data class OnPdfItemClicked(override val submission: Submission) : LoiReportAction
 }
