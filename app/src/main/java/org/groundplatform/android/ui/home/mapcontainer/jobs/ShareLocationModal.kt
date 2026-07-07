@@ -46,7 +46,6 @@ import androidx.compose.ui.window.DialogProperties
 import ground_android.core.ui.generated.resources.Res
 import ground_android.core.ui.generated.resources.scan_this_qr_to_download_geojson
 import java.util.Date
-import kotlin.time.Clock
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -100,15 +99,19 @@ fun ShareLocationModal(
           )
         }
 
-        loiReport.submissionDetails?.let {
+        val details = loiReport.submissionDetails
+        val submission = details?.submissions?.firstOrNull()
+        if (details != null && submission != null) {
           SubmissionPdfItem(
             modifier = Modifier.fillMaxWidth(),
-            title = it.surveyName,
+            title = details.surveyName,
             loiName = loiReport.loiName,
-            userName = it.userName,
-            date = DateFormat.getDateFormat(context).format(Date(it.dateMillis)),
-            onItemClick = { onLoiReportAction(LoiReportAction.OnPdfItemClicked) },
-            onShareClick = { onLoiReportAction(LoiReportAction.OnShareClicked) },
+            userName = details.userName,
+            date =
+              DateFormat.getDateFormat(context)
+                .format(Date(submission.lastModified.clientTimestamp)),
+            onItemClick = { onLoiReportAction(LoiReportAction.OnPdfItemClicked(submission)) },
+            onShareClick = { onLoiReportAction(LoiReportAction.OnShareClicked(submission)) },
           )
         }
 
@@ -148,7 +151,6 @@ private fun ShareLocationModalPreview() {
           surveyName = "Test Survey",
           userName = "John Doe",
           userEmail = "john.doe@example.com",
-          dateMillis = Clock.System.now().toEpochMilliseconds(),
           submissions = emptyList(),
         ),
     )

@@ -248,14 +248,12 @@ object FakeDataGenerator {
     surveyName: String = "survey",
     userName: String = "user",
     userEmail: String = "user@email.com",
-    dateMillis: Long = 0L,
     submissions: List<Submission> = listOf(newSubmission()),
   ): LoiReport.SubmissionDetails =
     LoiReport.SubmissionDetails(
       surveyName = surveyName,
       userName = userName,
       userEmail = userEmail,
-      dateMillis = dateMillis,
       submissions = submissions,
     )
 

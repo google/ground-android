@@ -351,14 +351,10 @@ class GetLoiReportUseCaseTest {
     }
 
   @Test
-  fun `Should populate loiName, userName, userEmail and dateMillis from the inputs`() = runTest {
+  fun `Should populate loiName, userName and userEmail from the inputs`() = runTest {
     userRepository.currentUser =
       FakeDataGenerator.newUser(displayName = "John Doe", email = "john@example.com")
     submissionRepository.submissions = listOf(FakeDataGenerator.newSubmission())
-    loiRepository.offlineLoi =
-      loiRepository.offlineLoi.copy(
-        lastModified = AuditInfo(user = userRepository.currentUser, clientTimestamp = 987654321L)
-      )
 
     val loiReport =
       getLoiReportUseCase.invoke(loiName = "Test LOI", loiId = "loiId", surveyId = "surveyId")!!
@@ -366,7 +362,6 @@ class GetLoiReportUseCaseTest {
     assertEquals("Test LOI", loiReport.loiName)
     assertEquals("John Doe", loiReport.submissionDetails!!.userName)
     assertEquals("john@example.com", loiReport.submissionDetails.userEmail)
-    assertEquals(987654321L, loiReport.submissionDetails.dateMillis)
   }
 
   @Test

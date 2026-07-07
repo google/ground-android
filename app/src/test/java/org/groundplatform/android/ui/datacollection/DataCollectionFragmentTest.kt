@@ -69,6 +69,7 @@ import org.groundplatform.domain.repository.MutationRepositoryInterface
 import org.groundplatform.domain.repository.SubmissionRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
 import org.groundplatform.feature.pdf.LoiReportExporter
+import org.groundplatform.testing.FakeDataGenerator
 import org.groundplatform.ui.components.loireport.LoiReportAction
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -772,7 +773,9 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     val state = fragment.viewModel.uiState.value as DataCollectionUiState.TaskSubmitted
     assertThat(state.loiReport).isNotNull()
 
-    fragment.viewModel.onLoiReportAction(LoiReportAction.OnShareClicked)
+    fragment.viewModel.onLoiReportAction(
+      LoiReportAction.OnShareClicked(FakeDataGenerator.newSubmission())
+    )
     advanceUntilIdle()
     composeTestRule.waitForIdle()
 
@@ -794,7 +797,9 @@ class DataCollectionFragmentTest : BaseHiltTest() {
       val state = fragment.viewModel.uiState.value as DataCollectionUiState.TaskSubmitted
       assertThat(state.loiReport).isNotNull()
 
-      fragment.viewModel.onLoiReportAction(LoiReportAction.OnShareClicked)
+      fragment.viewModel.onLoiReportAction(
+        LoiReportAction.OnShareClicked(FakeDataGenerator.newSubmission())
+      )
       advanceUntilIdle()
       composeTestRule.waitForIdle()
 
