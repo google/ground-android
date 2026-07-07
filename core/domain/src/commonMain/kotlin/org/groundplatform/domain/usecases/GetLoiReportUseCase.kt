@@ -16,10 +16,10 @@
 package org.groundplatform.domain.usecases
 
 import kotlin.time.Instant
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.format
-import kotlinx.datetime.format.DateTimeComponents
-import kotlinx.datetime.offsetAt
+import kotlinx.datetime.format.char
+import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
@@ -32,7 +32,9 @@ import org.groundplatform.domain.model.geometry.LinearRing
 import org.groundplatform.domain.model.geometry.MultiPolygon
 import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.geometry.Polygon
+import org.groundplatform.domain.model.locationofinterest.LOI_ID_PROPERTY
 import org.groundplatform.domain.model.locationofinterest.LOI_NAME_PROPERTY
+import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
 import org.groundplatform.domain.model.locationofinterest.LoiReport
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import org.groundplatform.domain.repository.SubmissionRepositoryInterface
@@ -65,10 +67,10 @@ class GetLoiReportUseCase(
       submissionRepositoryInterface.getSubmissions(loi).sortedByDescending {
         it.lastModified.clientTimestamp
       }
+    val surveyName = surveyRepositoryInterface.getOfflineSurvey(surveyId)?.title.orEmpty()
     val submissionDetails =
       if (submissions.isNotEmpty()) {
         val user = userRepositoryInterface.getAuthenticatedUser()
-        val surveyName = surveyRepositoryInterface.getOfflineSurvey(surveyId)?.title.orEmpty()
         LoiReport.SubmissionDetails(
           surveyName = surveyName,
           userName = user.displayName,
@@ -77,36 +79,19 @@ class GetLoiReportUseCase(
           submissions = submissions,
         )
       } else null
-    val properties = buildMap {
-      loi.properties
-        .filter { property -> property.key == LOI_NAME_PROPERTY }
-        .forEach { (key, value) -> put(key, value.toJsonPrimitive()) }
-      submissionDetails
-        ?.let { mapOf(KEY_SURVEY to it.surveyName, KEY_DATE to formatIsoDateTime(it.dateMillis)) }
-        ?.forEach { (key, value) -> put(key, JsonPrimitive(value)) }
-    }
+
     return LoiReport(
       loiName = loiName,
-      geoJson = loi.geometry.toGeoJson(properties = properties),
+      geoJson = loi.geometry.toGeoJson(loi = loi, surveyName = surveyName),
       submissionDetails = submissionDetails,
     )
-  }
-
-  /**
-   * Formats an epoch-milliseconds timestamp as an ISO-8601 date-time with the device's UTC offset
-   * at that instant, e.g. `2026-07-03T14:32:00+03:00`..
-   */
-  private fun formatIsoDateTime(epochMillis: Long): String {
-    val instant = Instant.fromEpochMilliseconds(epochMillis)
-    val offset = TimeZone.currentSystemDefault().offsetAt(instant)
-    return instant.format(DateTimeComponents.Formats.ISO_DATE_TIME_OFFSET, offset)
   }
 
   /**
    * Converts a [Geometry] to its GeoJSON representation as defined by
    * [RFC 7946](https://datatracker.ietf.org/doc/html/rfc7946).
    */
-  private fun Geometry.toGeoJson(properties: Map<String, JsonPrimitive>): JsonObject {
+  private fun Geometry.toGeoJson(loi: LocationOfInterest, surveyName: String): JsonObject {
     val geometryJson =
       when (this) {
         is Point -> geoJsonObject(TYPE_POINT, coordinatesToPosition(coordinates))
@@ -119,6 +104,7 @@ class GetLoiReportUseCase(
         is MultiPolygon ->
           geoJsonObject(TYPE_MULTI_POLYGON, JsonArray(polygons.map { polygonToCoordinates(it) }))
       }
+    val properties = getLoiPropertiesMap(loi, surveyName)
 
     return JsonObject(
       mapOf(
@@ -159,6 +145,37 @@ class GetLoiReportUseCase(
   private fun Double.roundTo6Decimals(): JsonPrimitive {
     val value = toFixedDecimals(DECIMAL_DIGITS)
     return JsonUnquotedLiteral(value)
+  }
+
+  private fun getLoiPropertiesMap(
+    loi: LocationOfInterest,
+    surveyName: String,
+  ): Map<String, JsonPrimitive> = buildMap {
+    loi.properties[LOI_NAME_PROPERTY]?.let { put(LOI_NAME_PROPERTY, it.toJsonPrimitive()) }
+      ?: loi.properties[LOI_ID_PROPERTY]?.let { put(LOI_ID_PROPERTY, it.toJsonPrimitive()) }
+    put(KEY_SURVEY, JsonPrimitive(surveyName))
+    if (loi.isPredefined != true) {
+      put(KEY_DATE, JsonPrimitive(formatDateTime(loi.lastModified.clientTimestamp)))
+    }
+  }
+
+  /**
+   * Formats an epoch-milliseconds timestamp as YYYYMMDD- HH:MM (24h) in the device's local time
+   * zone (e.g. 20260703 10:00).
+   */
+  internal fun formatDateTime(epochMillis: Long): String {
+    val instant = Instant.fromEpochMilliseconds(epochMillis)
+    val local = instant.toLocalDateTime(TimeZone.currentSystemDefault())
+    val fmt = LocalDateTime.Format {
+      year()
+      monthNumber()
+      day()
+      char(' ')
+      hour()
+      char(':')
+      minute()
+    }
+    return fmt.format(local)
   }
 
   private companion object {
