@@ -20,17 +20,19 @@ import android.net.Uri
 import com.android.installreferrer.api.InstallReferrerClient
 import com.android.installreferrer.api.InstallReferrerStateListener
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.suspendCancellableCoroutine
-import org.groundplatform.android.data.local.LocalValueStore
-import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.resume
+import kotlinx.coroutines.suspendCancellableCoroutine
+import org.groundplatform.android.data.local.LocalValueStore
+import timber.log.Timber
 
 @Singleton
-class InstallReferrerManager @Inject constructor(
+class InstallReferrerManager
+@Inject
+constructor(
   @ApplicationContext private val context: Context,
-  private val localValueStore: LocalValueStore
+  private val localValueStore: LocalValueStore,
 ) {
   suspend fun getDeferredSurveyId(): String? {
     if (localValueStore.isDeferredDeeplinkConsumed) return null
@@ -47,30 +49,38 @@ class InstallReferrerManager @Inject constructor(
 
   private suspend fun queryInstallReferrer(): InstallReferrerResult = suspendCancellableCoroutine {
     val client = InstallReferrerClient.newBuilder(context).build()
-    try {
-      client.startConnection(object : InstallReferrerStateListener {
+    val listener =
+      object : InstallReferrerStateListener {
         override fun onInstallReferrerSetupFinished(responseCode: Int) {
-          when (responseCode) {
-            InstallReferrerClient.InstallReferrerResponse.OK -> {
-              val referrer = client.installReferrer.installReferrer
-              it.resume(InstallReferrerResult.Success(referrer))
-            }
-
-            else -> {
-              Timber.w("Install referrer service setup failed with response code: $responseCode")
-              it.resume(InstallReferrerResult.Unavailable)
-            }
-          }
+          val result = readReferrer(client, responseCode)
+          client.endConnection()
+          it.resume(result)
         }
 
         override fun onInstallReferrerServiceDisconnected() {
           it.resume(InstallReferrerResult.Unavailable)
         }
-      })
-    } catch (e: Exception) {
-      Timber.e(e, "Failed to query install referrer")
-      it.resume(InstallReferrerResult.Unavailable)
+      }
+    runCatching { client.startConnection(listener) }
+      .onFailure { throwable ->
+        Timber.e(throwable, "Failed to start install referrer connection")
+        it.resume(InstallReferrerResult.Unavailable)
+      }
+  }
+
+  private fun readReferrer(
+    client: InstallReferrerClient,
+    responseCode: Int,
+  ): InstallReferrerResult {
+    if (responseCode != InstallReferrerClient.InstallReferrerResponse.OK) {
+      Timber.w("Install referrer setup failed with response code: $responseCode")
+      return InstallReferrerResult.Unavailable
     }
+    return runCatching { InstallReferrerResult.Success(client.installReferrer.installReferrer) }
+      .getOrElse {
+        Timber.e(it, "Failed to read install referrer")
+        InstallReferrerResult.Unavailable
+      }
   }
 
   internal fun parseSurveyId(referrer: String): String? =
@@ -85,6 +95,7 @@ class InstallReferrerManager @Inject constructor(
 
   private sealed interface InstallReferrerResult {
     data class Success(val referrer: String) : InstallReferrerResult
+
     data object Unavailable : InstallReferrerResult
   }
 
