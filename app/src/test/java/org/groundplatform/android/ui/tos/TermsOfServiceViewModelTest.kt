@@ -26,6 +26,7 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.groundplatform.android.system.auth.AuthenticationManager
+import org.groundplatform.android.system.deeplink.InstallReferrerManager
 import org.groundplatform.domain.model.TermsOfService
 import org.groundplatform.testing.FakeTermsOfServiceRepository
 import org.junit.After
@@ -35,11 +36,13 @@ import org.mockito.Mock
 import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 import org.mockito.MockitoAnnotations
+import org.mockito.kotlin.whenever
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class TermsOfServiceViewModelTest {
 
   @Mock lateinit var authManager: AuthenticationManager
+  @Mock lateinit var installReferrerManager: InstallReferrerManager
   private lateinit var fakeRepository: FakeTermsOfServiceRepository
   private lateinit var viewModel: TermsOfServiceViewModel
 
@@ -60,7 +63,8 @@ class TermsOfServiceViewModelTest {
 
   private fun setupViewModel(isViewOnly: Boolean = false) = runTest {
     val savedStateHandle = SavedStateHandle(mapOf("isViewOnly" to isViewOnly))
-    viewModel = TermsOfServiceViewModel(authManager, fakeRepository, savedStateHandle)
+    viewModel =
+      TermsOfServiceViewModel(authManager, fakeRepository, installReferrerManager, savedStateHandle)
     advanceUntilIdle()
   }
 
@@ -103,6 +107,19 @@ class TermsOfServiceViewModelTest {
   }
 
   @Test
+  fun `onAgreeButtonClicked forwards deferred survey id`() = runTest {
+    whenever(installReferrerManager.getDeferredSurveyId()).thenReturn(DEFERRED_SURVEY_ID)
+    setupViewModel()
+
+    viewModel.events.test {
+      viewModel.onAgreeButtonClicked()
+      val event = awaitItem()
+      assertThat((event as TosEvent.NavigateToSurveySelector).deferredSurveyId)
+        .isEqualTo(DEFERRED_SURVEY_ID)
+    }
+  }
+
+  @Test
   fun `Load failure signs out when not view-only`() = runTest {
     fakeRepository.termsOfService = Result.failure(Exception("Failed to load"))
     setupViewModel(isViewOnly = false)
@@ -141,6 +158,7 @@ class TermsOfServiceViewModelTest {
 
   companion object {
     private const val TERMS_TEXT = "Terms content"
+    private const val DEFERRED_SURVEY_ID = "survey_123"
     private val TEST_TOS = TermsOfService("1", TERMS_TEXT)
   }
 }
