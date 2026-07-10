@@ -508,6 +508,7 @@ fun Expression.toLocalDataStoreObject(parentTaskId: TaskId): ExpressionEntity =
     expressionType = ExpressionEntityType.fromExpressionType(expressionType),
     taskId = taskId,
     optionIds = optionIds.joinToString(","),
+    otherSelected = otherSelected,
   )
 
 fun ExpressionEntity.toModelObject(): Expression =
@@ -515,6 +516,7 @@ fun ExpressionEntity.toModelObject(): Expression =
     expressionType = expressionType.toExpressionType(),
     taskId = taskId,
     optionIds = optionIds?.split(',')?.toSet() ?: setOf(),
+    otherSelected = otherSelected
   )
 
 fun DraftSubmissionEntity.toModelObject(survey: Survey): DraftSubmission? {

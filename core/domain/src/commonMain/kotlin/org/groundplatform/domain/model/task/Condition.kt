@@ -60,6 +60,8 @@ data class Expression(
   val taskId: String,
   /** The option IDs that need to be selected to fulfill the condition. */
   val optionIds: Set<String> = setOf(),
+  /** Whether the 'Other' multiple choice option needs to be selected to fulfill the condition. */
+  val otherSelected: Boolean = false,
 ) {
 
   /** Task type names as they appear in the remote database. */
@@ -76,11 +78,16 @@ data class Expression(
 
   private fun fulfilled(taskData: TaskData): Boolean {
     if (taskData !is MultipleChoiceTaskData) return false
-    val selectedOptions = taskData.selectedOptionIds.toSet()
+
+    val selected = taskData.getSelectedOptionsIdsExceptOther().toMutableSet()
+    if (taskData.isOtherTextSelected()) selected += MultipleChoiceTaskData.OTHER_ID
+
+    val required = if (otherSelected) optionIds + MultipleChoiceTaskData.OTHER_ID else optionIds
+
     return when (expressionType) {
-      ExpressionType.ANY_OF_SELECTED -> optionIds.any { it in selectedOptions }
-      ExpressionType.ALL_OF_SELECTED -> selectedOptions.containsAll(optionIds)
-      ExpressionType.ONE_OF_SELECTED -> selectedOptions.intersect(optionIds).size == 1
+      ExpressionType.ANY_OF_SELECTED -> required.any { it in selected }
+      ExpressionType.ALL_OF_SELECTED -> selected.containsAll(required)
+      ExpressionType.ONE_OF_SELECTED -> selected.intersect(required).size == 1
       ExpressionType.UNKNOWN ->
         throw IllegalArgumentException("Unknown expression type: $expressionType")
     }
