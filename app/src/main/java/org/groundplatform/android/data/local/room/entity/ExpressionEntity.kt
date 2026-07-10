@@ -41,4 +41,5 @@ data class ExpressionEntity(
   @ColumnInfo(name = "expression_type") val expressionType: ExpressionEntityType,
   // CSV encoded string.
   @ColumnInfo(name = "option_ids") val optionIds: String?,
+  @ColumnInfo(name = "other_selected", defaultValue = "false") val otherSelected: Boolean = false,
 )

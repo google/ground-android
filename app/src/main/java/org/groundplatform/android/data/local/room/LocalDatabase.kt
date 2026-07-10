@@ -96,6 +96,7 @@ import org.groundplatform.android.data.local.room.fields.TileSetEntityState
       AutoMigration(from = 121, to = 122),
       AutoMigration(from = 122, to = 123),
       AutoMigration(from = 123, to = 124),
+      AutoMigration(from = 127, to = 128)
     ],
 )
 @TypeConverters(
