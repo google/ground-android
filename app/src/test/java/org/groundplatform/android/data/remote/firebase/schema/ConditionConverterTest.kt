@@ -59,4 +59,47 @@ class ConditionConverterTest {
         )
     }
   }
+
+  @OptIn(OnlyForUseByGeneratedProtoCode::class)
+  @Test
+  fun `toCondition() carries otherSelected from proto`() {
+    with(ConditionConverter) {
+      val conditionProto = condition {
+        multipleChoice = multipleChoiceSelection {
+          taskId = TASK_ID
+          optionIds.add("optionId1")
+          otherSelected = true
+        }
+      }
+      assertThat(conditionProto.toCondition())
+        .isEqualTo(
+          Condition(
+            Condition.MatchType.MATCH_ANY,
+            listOf(
+              Expression(
+                Expression.ExpressionType.ANY_OF_SELECTED,
+                taskId = TASK_ID,
+                optionIds = setOf("optionId1"),
+                otherSelected = true,
+              )
+            ),
+          )
+        )
+    }
+  }
+
+  @OptIn(OnlyForUseByGeneratedProtoCode::class)
+  @Test
+  fun `toCondition() defaults otherSelected to false when absent`() {
+    with(ConditionConverter) {
+      val conditionProto = condition {
+        multipleChoice = multipleChoiceSelection {
+          taskId = TASK_ID
+          optionIds.add("optionId1")
+        }
+      }
+      val expression = conditionProto.toCondition()?.expressions?.single()
+      assertThat(expression?.otherSelected).isFalse()
+    }
+  }
 }
