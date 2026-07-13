@@ -102,15 +102,20 @@ class PolygonDrawingSessionTest {
   }
 
   @Test
-  fun `commitTentativeVertex adds vertex to committed list`() {
+  fun `commitTentativeVertex falls back to the camera target when there is no cursor`() {
     session.commitTentativeVertex(COORDINATE_1)
-    assertThat(session.vertices).containsExactly(COORDINATE_1)
+
+    assertThat(session.vertices).containsExactly(COORDINATE_1, COORDINATE_1)
+    assertThat(session.state.isTooClose).isTrue()
   }
 
   @Test
-  fun `commitTentativeVertex sets isTooClose true when size greater than 1`() {
+  fun `commitTentativeVertex commits the existing cursor and ignores the passed target`() {
     session.setVertices(listOf(COORDINATE_1, COORDINATE_2))
+
     session.commitTentativeVertex(COORDINATE_3)
+
+    assertThat(session.vertices).containsExactly(COORDINATE_1, COORDINATE_2, COORDINATE_2).inOrder()
     assertThat(session.state.isTooClose).isTrue()
   }
 
