@@ -37,7 +37,7 @@ jobs:
           persist-credentials: false
       - name: "TODO to Issue"
         if: github.event.pull_request.head.repo.full_name == github.repository
-        uses: alstr/todo-to-issue-action@64aca8fda7023259aada83ba44ad988c4c443657 # v5.1.14
+        uses: alstr/todo-to-issue-action@37bb7b56e58569ef273b60678048030a7f0c261a # v5.1.15
         with:
           AUTO_ASSIGN: "true"
           INSERT_ISSUE_URLS: "true"
