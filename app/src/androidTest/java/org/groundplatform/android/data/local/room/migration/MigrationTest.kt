@@ -32,6 +32,7 @@ import org.groundplatform.android.data.local.room.migration.MigrationTestDataGen
 import org.groundplatform.android.data.local.room.migration.MigrationTestDataGenerator.getSurveyContentValues
 import org.groundplatform.android.data.local.room.migration.MigrationTestDataGenerator.getTaskContentValues
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -42,7 +43,8 @@ class MigrationTest {
   private val migrations = arrayOf(Migration_124_125, Migration_125_126, Migration_126_127)
 
   @get:Rule
-  val helper = MigrationTestHelper(InstrumentationRegistry.getInstrumentation(), LocalDatabase::class.java)
+  val helper =
+    MigrationTestHelper(InstrumentationRegistry.getInstrumentation(), LocalDatabase::class.java)
 
   @Test
   @Throws(IOException::class)
@@ -159,6 +161,34 @@ class MigrationTest {
 
       close()
     }
+  }
+
+  @Test
+  @Throws(IOException::class)
+  fun migrate127To128() = runBlocking {
+    val surveyId = "survey"
+    val jobId = "job"
+    val taskId = "task127-128"
+
+    helper.createDatabase(testDatabase, 127).apply {
+      insert("survey", SQLiteDatabase.CONFLICT_REPLACE, getSurveyContentValues(surveyId))
+      insert("job", SQLiteDatabase.CONFLICT_REPLACE, getJobContentValues(jobId, surveyId))
+      insert("task", SQLiteDatabase.CONFLICT_REPLACE, getTaskContentValues(taskId, jobId))
+      insert("condition", SQLiteDatabase.CONFLICT_REPLACE, getConditionContentValues(taskId))
+      insert("expression", SQLiteDatabase.CONFLICT_REPLACE, getExpressionContentValues(taskId))
+      close()
+    }
+
+    val migratedDb = helper.runMigrationsAndValidate(testDatabase, 128, true, *migrations)
+
+    // Beyond the schema, assert the pre-existing row was backfilled with the default (false / 0).
+    migratedDb
+      .query("SELECT other_selected FROM expression WHERE parent_task_id = ?", arrayOf(taskId))
+      .use { cursor ->
+        assertEquals("expected the seeded expression to survive migration", 1, cursor.count)
+        assertTrue(cursor.moveToFirst())
+        assertEquals(0, cursor.getInt(cursor.getColumnIndexOrThrow("other_selected")))
+      }
   }
 
   private fun getMigratedRoomDatabase(migrations: Array<Migration>): LocalDatabase =

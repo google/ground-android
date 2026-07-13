@@ -27,7 +27,14 @@ class PolygonDrawingSessionImpl : PolygonDrawingSession {
   private var _isMarkedComplete: Boolean = false
 
   override val state: PolygonDrawingSession.State
-    get() = PolygonDrawingSession.State(_isTooClose, _isMarkedComplete)
+    get() =
+      PolygonDrawingSession.State(
+        isTooClose = _isTooClose,
+        isMarkedComplete = _isMarkedComplete,
+        isClosed = LineString(_vertices).isClosed(),
+        canRedo = redoVertexStack.isNotEmpty(),
+        hasSelfIntersection = isSelfIntersecting(_vertices),
+      )
 
   private var _vertices: List<Coordinates> = listOf()
 
@@ -122,6 +129,4 @@ class PolygonDrawingSessionImpl : PolygonDrawingSession {
     _vertices = (_vertices + redoVertex).toImmutableList()
     return redoVertex
   }
-
-  override fun canRedo(): Boolean = redoVertexStack.isNotEmpty()
 }

@@ -242,10 +242,6 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
     featureManager.setFeatures(newFeatures)
   }
 
-  override fun updateFeature(feature: Feature) {
-    featureManager.update(feature)
-  }
-
   private fun onCameraIdle() {
     val cameraPosition = map.cameraPosition
     val projection = map.projection
