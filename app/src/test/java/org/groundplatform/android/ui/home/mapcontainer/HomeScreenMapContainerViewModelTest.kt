@@ -97,6 +97,7 @@ class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
     viewModel.onFeatureClicked(features = setOf(LOCATION_OF_INTEREST_FEATURE))
     val state = viewModel.processJobMapComponentState().first()
     advanceUntilIdle()
+    val actualGeoJson = (state as JobMapComponentState.LoiSelected).loi.loiReport!!.geoJson
     assertThat(state)
       .isEqualTo(
         JobMapComponentState.LoiSelected(
@@ -105,7 +106,11 @@ class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
             loi = LOCATION_OF_INTEREST,
             submissionCount = 0,
             showDeleteLoiButton = true,
-            loiReport = LOCATION_OF_INTEREST_LOI_REPORT.copy(submissionDetails = null),
+            loiReport =
+              LOCATION_OF_INTEREST_LOI_REPORT.copy(
+                submissionDetails = null,
+                geoJson = actualGeoJson,
+              ),
           )
         )
       )
