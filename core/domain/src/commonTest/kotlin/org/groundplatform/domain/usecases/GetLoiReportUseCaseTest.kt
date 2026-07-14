@@ -46,8 +46,15 @@ class GetLoiReportUseCaseTest {
   private val userRepository = FakeUserRepository()
   private val surveyRepository = FakeSurveyRepository()
   private val submissionRepository = FakeSubmissionRepository()
+  private val formatDateTime: (Long, String) -> String = { millis, _ -> "date-$millis" }
   private val getLoiReportUseCase =
-    GetLoiReportUseCase(loiRepository, userRepository, surveyRepository, submissionRepository)
+    GetLoiReportUseCase(
+      loiRepository,
+      userRepository,
+      surveyRepository,
+      submissionRepository,
+      formatDateTime,
+    )
 
   @Test
   fun `Should get a report with the correct geoJson for a Point`() = runTest {
@@ -437,7 +444,7 @@ class GetLoiReportUseCaseTest {
     id: String? = null,
     includeDate: Boolean = true,
   ): String {
-    val expectedDate = getLoiReportUseCase.formatDateTime(TEST_TIMESTAMP)
+    val expectedDate = formatDateTime(TEST_TIMESTAMP, "")
     val properties = buildMap {
       name?.let { put("name", it) }
       id?.let { put("id", it) }

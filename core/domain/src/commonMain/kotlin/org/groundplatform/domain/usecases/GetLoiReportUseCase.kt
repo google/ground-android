@@ -15,11 +15,6 @@
  */
 package org.groundplatform.domain.usecases
 
-import kotlin.time.Instant
-import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.format.char
-import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
@@ -52,6 +47,7 @@ class GetLoiReportUseCase(
   private val userRepositoryInterface: UserRepositoryInterface,
   private val surveyRepositoryInterface: SurveyRepositoryInterface,
   private val submissionRepositoryInterface: SubmissionRepositoryInterface,
+  private val formatDateTime: (timestampMillis: Long, pattern: String) -> String,
 ) {
   /**
    * Returns a [LoiReport] for the given LOI, or `null` if it does not exist.
@@ -154,27 +150,11 @@ class GetLoiReportUseCase(
       ?: loi.properties[LOI_ID_PROPERTY]?.let { put(LOI_ID_PROPERTY, it.toJsonPrimitive()) }
     put(KEY_SURVEY, JsonPrimitive(surveyName))
     if (loi.isPredefined != true) {
-      put(KEY_DATE, JsonPrimitive(formatDateTime(loi.lastModified.clientTimestamp)))
+      put(
+        KEY_DATE,
+        JsonPrimitive(formatDateTime(loi.lastModified.clientTimestamp, QR_DATE_PATTERN)),
+      )
     }
-  }
-
-  /**
-   * Formats an epoch-milliseconds timestamp as YYYYMMDD- HH:MM (24h) in the device's local time
-   * zone (e.g. 20260703 10:00).
-   */
-  internal fun formatDateTime(epochMillis: Long): String {
-    val instant = Instant.fromEpochMilliseconds(epochMillis)
-    val local = instant.toLocalDateTime(TimeZone.currentSystemDefault())
-    val fmt = LocalDateTime.Format {
-      year()
-      monthNumber()
-      day()
-      char(' ')
-      hour()
-      char(':')
-      minute()
-    }
-    return fmt.format(local)
   }
 
   private companion object {
@@ -190,5 +170,6 @@ class GetLoiReportUseCase(
     const val TYPE_POLYGON = "Polygon"
     const val TYPE_MULTI_POLYGON = "MultiPolygon"
     const val DECIMAL_DIGITS = 6
+    const val QR_DATE_PATTERN = "yyyyMMdd HH:mm"
   }
 }

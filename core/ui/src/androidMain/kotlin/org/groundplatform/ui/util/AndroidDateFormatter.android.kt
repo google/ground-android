@@ -17,7 +17,9 @@ package org.groundplatform.ui.util
 
 import android.content.Context
 import android.text.format.DateFormat
+import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 
 /**
  * Android [DateFormatter] backed by [DateFormat], which respects system date/time settings (such as
@@ -30,4 +32,7 @@ class AndroidDateFormatter(private val context: Context) : DateFormatter {
 
   override fun formatTime(millis: Long): String =
     DateFormat.getTimeFormat(context).format(Date(millis))
+
+  override fun formatDateTime(millis: Long, pattern: String): String =
+    SimpleDateFormat(pattern, Locale.getDefault()).format(Date(millis))
 }

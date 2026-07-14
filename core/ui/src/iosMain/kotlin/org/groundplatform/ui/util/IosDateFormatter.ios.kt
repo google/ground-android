@@ -43,5 +43,8 @@ class IosDateFormatter : DateFormatter {
       }
       .stringFromDate(millis.toNSDate())
 
+  override fun formatDateTime(millis: Long, pattern: String): String =
+    NSDateFormatter().apply { dateFormat = pattern }.stringFromDate(millis.toNSDate())
+
   private fun Long.toNSDate(): NSDate = NSDate.dateWithTimeIntervalSince1970(this / 1000.0)
 }
