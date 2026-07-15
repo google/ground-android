@@ -41,7 +41,7 @@ class UiFormatUtilTest {
   fun `Should display area in square feet if it's below an acre`() {
     val areaInSquareMeters = 2000.0
     val result = getFormattedArea(areaInSquareMeters, MeasurementUnits.IMPERIAL)
-    val expected = "21527.80 ft²"
+    val expected = "21,527.80 ft²"
     assertEquals(expected, result)
   }
 
