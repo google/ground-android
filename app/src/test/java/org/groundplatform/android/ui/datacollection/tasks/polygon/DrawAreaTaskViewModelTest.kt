@@ -357,12 +357,11 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     }
 
   @Test
-  fun `isTooClose is false if only one vertex`() {
+  fun `isTooClose is true after committing a vertex until the map is moved`() {
     setupViewModel()
     updateLastVertexAndAdd(COORDINATE_1)
 
-    // Only 1 vertex.
-    assertThat(viewModel.sessionState.value.isTooClose).isFalse()
+    assertThat(viewModel.sessionState.value.isTooClose).isTrue()
   }
 
   @Test
@@ -494,6 +493,21 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
       with(requireNotNull(states.find { it.action == ButtonAction.REDO })) {
         assertTrue(isVisible)
         assertTrue(isEnabled)
+      }
+    }
+
+  @Test
+  fun `ADD_POINT is disabled right after committing a vertex and before moving the map`() =
+    runWithTestDispatcher {
+      setupViewModel()
+      viewModel.onCameraMoved(COORDINATE_1)
+
+      viewModel.addLastVertex()
+      advanceUntilIdle()
+
+      val states = viewModel.taskActionButtonStates.first()
+      with(requireNotNull(states.find { it.action == ButtonAction.ADD_POINT })) {
+        assertFalse(isEnabled)
       }
     }
 

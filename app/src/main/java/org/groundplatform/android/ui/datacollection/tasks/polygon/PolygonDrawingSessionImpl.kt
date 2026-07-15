@@ -23,6 +23,13 @@ import org.groundplatform.domain.model.geometry.LineString
 import org.groundplatform.domain.util.isSelfIntersecting
 
 class PolygonDrawingSessionImpl : PolygonDrawingSession {
+  private var committedVertices: List<Coordinates> = listOf()
+
+  /**
+   * Tentative vertex that follows the map center when drawing, `null` if the user hasn't started.
+   */
+  private var cursor: Coordinates? = null
+
   private var _isTooClose: Boolean = false
   private var _isMarkedComplete: Boolean = false
 
@@ -31,80 +38,66 @@ class PolygonDrawingSessionImpl : PolygonDrawingSession {
       PolygonDrawingSession.State(
         isTooClose = _isTooClose,
         isMarkedComplete = _isMarkedComplete,
-        isClosed = LineString(_vertices).isClosed(),
+        isClosed = LineString(vertices).isClosed(),
         canRedo = redoVertexStack.isNotEmpty(),
-        hasSelfIntersection = isSelfIntersecting(_vertices),
+        hasSelfIntersection = isSelfIntersecting(vertices),
       )
 
-  private var _vertices: List<Coordinates> = listOf()
-
   override val vertices: List<Coordinates>
-    get() = _vertices
+    get() = cursor?.let { committedVertices + it } ?: committedVertices
 
   @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
   internal val redoVertexStack = mutableListOf<Coordinates>()
 
   override val hasSelfIntersection: Boolean
-    get() = isSelfIntersecting(_vertices)
+    get() = isSelfIntersecting(vertices)
 
-  private fun addVertex(vertex: Coordinates, shouldOverwriteLastVertex: Boolean) {
-    val updatedVertices = _vertices.toMutableList()
-
-    if (shouldOverwriteLastVertex && updatedVertices.isNotEmpty()) {
-      updatedVertices.removeAt(updatedVertices.lastIndex)
-    }
-
-    updatedVertices.add(vertex)
-
-    _vertices = updatedVertices.toImmutableList()
+  private fun setGeometry(points: List<Coordinates>) {
+    committedVertices = points.dropLast(1).toImmutableList()
+    cursor = points.lastOrNull()
   }
 
   override fun setVertices(newVertices: List<Coordinates>) {
-    _vertices = newVertices.toImmutableList()
+    setGeometry(newVertices)
   }
 
   override fun updateTentativeVertex(
     target: Coordinates,
     calculateDistance: (Coordinates, Coordinates) -> Double,
   ) {
-    val firstVertex = _vertices.firstOrNull()
-    var updatedTarget = target
-    if (firstVertex != null && _vertices.size > 2) {
-      val distance = calculateDistance(firstVertex, target)
+    val firstVertex = vertices.firstOrNull()
+    val shouldSnapToClose =
+      firstVertex != null &&
+        vertices.size > 2 &&
+        calculateDistance(firstVertex, target) <= DISTANCE_THRESHOLD_DP
+    cursor = if (shouldSnapToClose) firstVertex else target
 
-      if (distance <= DISTANCE_THRESHOLD_DP) {
-        updatedTarget = firstVertex
-      }
-    }
-
-    val prev = _vertices.dropLast(1).lastOrNull()
+    val lastCommitted = committedVertices.lastOrNull()
     _isTooClose =
-      _vertices.size > 1 &&
-        prev?.let { calculateDistance(it, target) <= DISTANCE_THRESHOLD_DP } == true
-
-    addVertex(updatedTarget, true)
+      lastCommitted != null && calculateDistance(lastCommitted, target) <= DISTANCE_THRESHOLD_DP
   }
 
   override fun commitTentativeVertex(currentCameraTarget: Coordinates?): List<Coordinates>? {
     redoVertexStack.clear()
-    val vertex = _vertices.lastOrNull() ?: currentCameraTarget
-    return vertex?.let {
-      _isTooClose = _vertices.size > 1
-      addVertex(it, false)
-      _vertices
-    }
+    // If the user taps "Add" before moving the map there is no cursor yet, so  fall back to the
+    // current map center.
+    val point = cursor ?: currentCameraTarget ?: return null
+    committedVertices = committedVertices + point
+    cursor = point
+    _isTooClose = true
+    return vertices
   }
 
   override fun checkVertexIntersection(): Boolean {
-    val intersected = isSelfIntersecting(_vertices)
+    val intersected = isSelfIntersecting(vertices)
     if (intersected) {
-      _vertices = _vertices.dropLast(1).toImmutableList()
+      setGeometry(vertices.dropLast(1))
     }
     return intersected
   }
 
   override fun isValidPolygon(): Boolean =
-    LineString(_vertices).isClosed() && !isSelfIntersecting(_vertices)
+    LineString(vertices).isClosed() && !isSelfIntersecting(vertices)
 
   override fun complete() {
     check(isValidPolygon()) { "Polygon is not valid" }
@@ -113,11 +106,12 @@ class PolygonDrawingSessionImpl : PolygonDrawingSession {
   }
 
   override fun removeLastVertex(): Boolean {
-    if (_vertices.isEmpty()) return false
+    val currentVertices = vertices
+    if (currentVertices.isEmpty()) return false
 
     _isMarkedComplete = false
-    redoVertexStack.add(_vertices.last())
-    _vertices = _vertices.dropLast(1).toImmutableList()
+    redoVertexStack.add(currentVertices.last())
+    setGeometry(currentVertices.dropLast(1))
     return true
   }
 
@@ -126,7 +120,7 @@ class PolygonDrawingSessionImpl : PolygonDrawingSession {
 
     _isMarkedComplete = false
     val redoVertex = redoVertexStack.removeAt(redoVertexStack.lastIndex)
-    _vertices = (_vertices + redoVertex).toImmutableList()
+    setGeometry(vertices + redoVertex)
     return redoVertex
   }
 }
