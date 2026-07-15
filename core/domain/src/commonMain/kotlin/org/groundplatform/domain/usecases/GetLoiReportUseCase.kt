@@ -63,7 +63,8 @@ class GetLoiReportUseCase(
       submissionRepositoryInterface.getSubmissions(loi).sortedByDescending {
         it.lastModified.clientTimestamp
       }
-    val surveyName = surveyRepositoryInterface.getOfflineSurvey(surveyId)?.title.orEmpty()
+    val survey = surveyRepositoryInterface.getOfflineSurvey(surveyId)
+    val surveyName = survey?.title.orEmpty()
     val submissionDetails =
       if (submissions.isNotEmpty()) {
         val user = userRepositoryInterface.getAuthenticatedUser()
@@ -72,6 +73,11 @@ class GetLoiReportUseCase(
           userName = user.displayName,
           userEmail = user.email,
           submissions = submissions,
+          plot =
+            LoiReport.Plot(
+              geometry = loi.geometry,
+              style = loi.job.style,
+            ),
         )
       } else null
 

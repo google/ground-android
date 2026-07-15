@@ -249,13 +249,20 @@ object FakeDataGenerator {
     userName: String = "user",
     userEmail: String = "user@email.com",
     submissions: List<Submission> = listOf(newSubmission()),
+    mapSnapshot: LoiReport.Plot = newLoiReportPlot(),
   ): LoiReport.SubmissionDetails =
     LoiReport.SubmissionDetails(
       surveyName = surveyName,
       userName = userName,
       userEmail = userEmail,
       submissions = submissions,
+      plot = mapSnapshot,
     )
+
+  fun newLoiReportPlot(
+    geometry: Geometry = Point(Coordinates(0.0, 0.0)),
+    style: Style? = Style("#4169E1"),
+  ): LoiReport.Plot = LoiReport.Plot(geometry = geometry, style = style)
 
   fun newLoiReport(
     loiName: String = "loi",
