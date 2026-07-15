@@ -24,6 +24,7 @@ actual object NumberFormatter {
       .apply {
         minimumFractionDigits = decimalPlaces
         maximumFractionDigits = decimalPlaces
+        isGroupingUsed = false
       }
       .format(value)
 }

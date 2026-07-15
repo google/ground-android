@@ -29,6 +29,7 @@ actual object NumberFormatter {
         locale = NSLocale.currentLocale
         minimumFractionDigits = decimalPlaces.toULong()
         maximumFractionDigits = decimalPlaces.toULong()
+        usesGroupingSeparator = false
       }
 
     return formatter.stringFromNumber(NSNumber(value)) ?: value.toString()
