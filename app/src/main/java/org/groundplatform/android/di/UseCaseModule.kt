@@ -29,6 +29,7 @@ import org.groundplatform.domain.usecases.survey.GetSurveyListItemUseCase
 import org.groundplatform.domain.usecases.survey.SyncSurveyUseCase
 import org.groundplatform.domain.usecases.user.GetUserSettingsUseCase
 import org.groundplatform.domain.usecases.user.UpdateUserSettingsUseCase
+import org.groundplatform.ui.util.DateFormatter
 
 @InstallIn(SingletonComponent::class)
 @Module
@@ -39,12 +40,14 @@ object UseCaseModule {
     userRepository: UserRepositoryInterface,
     surveyRepository: SurveyRepositoryInterface,
     submissionRepository: SubmissionRepositoryInterface,
+    dateFormatter: DateFormatter,
   ) =
     GetLoiReportUseCase(
       locationOfInterestRepository = locationOfInterestRepository,
       userRepositoryInterface = userRepository,
       surveyRepositoryInterface = surveyRepository,
       submissionRepositoryInterface = submissionRepository,
+      formatDateTime = dateFormatter::formatDateTime,
     )
 
   @Provides

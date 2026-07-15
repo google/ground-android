@@ -52,4 +52,11 @@ class AndroidDateFormatterTest {
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
     assertEquals("10:20 AM", formatter.formatTime(millis))
   }
+
+  @Test
+  fun `formatDateTime renders using the provided pattern in UTC timezone`() {
+    Locale.setDefault(Locale.US)
+    TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
+    assertEquals("19700112 10:20", formatter.formatDateTime(millis, "yyyyMMdd HH:mm"))
+  }
 }

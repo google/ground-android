@@ -23,4 +23,6 @@ object FakeDateFormatter : DateFormatter {
   override fun formatDate(millis: Long): String = "DATE($millis)"
 
   override fun formatTime(millis: Long): String = "TIME($millis)"
+
+  override fun formatDateTime(millis: Long, pattern: String): String = "DATETIME($millis)"
 }

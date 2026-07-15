@@ -26,4 +26,9 @@ interface DateFormatter {
 
   /** Formats just the time portion of [millis] in the user's locale (short style, no seconds). */
   fun formatTime(millis: Long): String
+
+  /**
+   * Formats [millis] using the given [pattern] (e.g. yyyyMMdd HH:mm) in the user's local time zone.
+   */
+  fun formatDateTime(millis: Long, pattern: String): String
 }
