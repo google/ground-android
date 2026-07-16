@@ -33,7 +33,6 @@ import org.groundplatform.android.system.SettingsManager
 import org.groundplatform.android.ui.common.BaseMapViewModel
 import org.groundplatform.android.ui.offlineareas.selector.model.OfflineAreaSelectorEvent
 import org.groundplatform.android.ui.offlineareas.selector.model.OfflineAreaSelectorState
-import org.groundplatform.android.ui.util.toMbString
 import org.groundplatform.domain.model.imagery.RemoteMogTileSource
 import org.groundplatform.domain.model.imagery.TileSource
 import org.groundplatform.domain.model.map.Bounds
@@ -43,6 +42,7 @@ import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterfac
 import org.groundplatform.domain.repository.MapStateRepositoryInterface
 import org.groundplatform.domain.repository.OfflineAreaRepositoryInterface
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
+import org.groundplatform.ui.util.toMbString
 import timber.log.Timber
 
 private const val MIN_DOWNLOAD_ZOOM_LEVEL = 9

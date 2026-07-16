@@ -13,17 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.ui.util
+package org.groundplatform.ui.util
 
-import androidx.annotation.VisibleForTesting
-import java.util.Locale
+import kotlin.math.ceil
 import org.groundplatform.domain.model.settings.MeasurementUnits
 import org.groundplatform.domain.model.util.MegabyteCount
-import kotlin.math.ceil
-
-@VisibleForTesting const val SQUARE_METERS_PER_ACRE = 4046.86
-@VisibleForTesting const val SQUARE_METERS_PER_HECTARE = 10_000
-@VisibleForTesting const val SQUARE_FEET_PER_SQUARE_METER = 10.7639
+import org.groundplatform.domain.util.Constants.SQUARE_FEET_PER_SQUARE_METER
+import org.groundplatform.domain.util.Constants.SQUARE_METERS_PER_ACRE
+import org.groundplatform.domain.util.Constants.SQUARE_METERS_PER_HECTARE
 
 fun getFormattedArea(areaInSquareMeters: Double, measurementUnits: MeasurementUnits): String {
   val (convertedArea, stringUnit) =
@@ -41,7 +38,7 @@ fun getFormattedArea(areaInSquareMeters: Double, measurementUnits: MeasurementUn
           areaInSquareMeters / SQUARE_METERS_PER_ACRE to "ac"
         }
     }
-  val rounded = String.format(Locale.getDefault(), "%.2f", convertedArea)
+  val rounded = NumberFormatter.format(value = convertedArea, decimalPlaces = 2)
   return "$rounded $stringUnit"
 }
 

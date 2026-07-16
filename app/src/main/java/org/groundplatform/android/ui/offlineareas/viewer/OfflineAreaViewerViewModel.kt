@@ -27,13 +27,13 @@ import org.groundplatform.android.system.LocationManager
 import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.system.SettingsManager
 import org.groundplatform.android.ui.common.BaseMapViewModel
-import org.groundplatform.android.ui.util.toMbString
 import org.groundplatform.domain.model.imagery.OfflineArea
 import org.groundplatform.domain.model.util.toMb
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import org.groundplatform.domain.repository.MapStateRepositoryInterface
 import org.groundplatform.domain.repository.OfflineAreaRepositoryInterface
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
+import org.groundplatform.ui.util.toMbString
 import timber.log.Timber
 
 /**
