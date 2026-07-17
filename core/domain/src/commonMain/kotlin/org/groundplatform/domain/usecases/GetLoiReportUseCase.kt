@@ -73,11 +73,8 @@ class GetLoiReportUseCase(
           userName = user.displayName,
           userEmail = user.email,
           submissions = submissions,
-          plot =
-            LoiReport.Plot(
-              geometry = loi.geometry,
-              style = loi.job.style,
-            ),
+          geometry = loi.geometry,
+          style = loi.job.style,
         )
       } else null
 

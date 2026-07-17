@@ -31,10 +31,6 @@ data class LoiReport(
     val userName: String,
     val userEmail: String,
     val submissions: List<Submission>,
-    val plot: Plot?,
-  )
-
-  data class Plot(
     val geometry: Geometry,
     val style: Style?,
   )

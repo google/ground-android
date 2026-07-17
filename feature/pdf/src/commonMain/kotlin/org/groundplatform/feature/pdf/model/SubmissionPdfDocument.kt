@@ -15,6 +15,9 @@
  */
 package org.groundplatform.feature.pdf.model
 
+import org.groundplatform.domain.model.geometry.Geometry
+import org.groundplatform.domain.model.job.Style
+
 /**
  * UI model for a submission PDF. Each property corresponds to a distinct visual section so that
  * platform renderers (Android, iOS) can lay them out independently:
@@ -24,6 +27,7 @@ data class SubmissionPdfDocument(
   val qrBlock: QrBlock,
   val footer: Footer,
   val table: Table,
+  val mapBlock: MapBlock?,
 ) {
 
   data class Header(
@@ -51,6 +55,15 @@ data class SubmissionPdfDocument(
     val dataCollectorName: String,
     val userEmail: String,
   )
+
+  data class MapBlock(
+    val geometry: Geometry,
+    val style: Style?,
+    val area: Area?,
+    val scaleLabel: String,
+  )
+
+  data class Area(val label: String, val value: String?)
 
   /** The distinct, non-empty photo filenames referenced by the document's table rows. */
   fun photoFilenames(): Set<String> =
