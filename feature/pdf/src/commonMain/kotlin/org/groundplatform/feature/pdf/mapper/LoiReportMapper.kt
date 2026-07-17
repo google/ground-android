@@ -113,7 +113,9 @@ class LoiReportMapper(
         }
       }
 
-  private suspend fun buildMapBlock(submissionDetails: LoiReport.SubmissionDetails): SubmissionPdfDocument.MapBlock {
+  private suspend fun buildMapBlock(
+    submissionDetails: LoiReport.SubmissionDetails
+  ): SubmissionPdfDocument.MapBlock {
     val areaInSquareMeters =
       (submissionDetails.geometry as? Polygon)?.let { geometry ->
         calculateShoelacePolygonArea(geometry.shell.coordinates).takeIf { it > 0.0 }

@@ -436,14 +436,8 @@ class GetLoiReportUseCaseTest {
     val loiReport =
       getLoiReportUseCase.invoke(loiName = "loiName", loiId = "loiId", surveyId = "surveyId")!!
 
-    assertEquals(
-      geometry,
-      loiReport.submissionDetails!!.geometry,
-    )
-    assertEquals(
-      Style("#4169E1"),
-      loiReport.submissionDetails.style,
-    )
+    assertEquals(geometry, loiReport.submissionDetails!!.geometry)
+    assertEquals(Style("#4169E1"), loiReport.submissionDetails.style)
   }
 
   @Test
