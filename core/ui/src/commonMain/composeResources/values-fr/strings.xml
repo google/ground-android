@@ -33,4 +33,6 @@
   <string name="job">Mission</string>
   <string name="pdf_data_collector">Collecteur de données</string>
   <string name="retry">Réessayer</string>
+  <string name="area">Surface</string>
+  <string name="scale">Échelle</string>
 </resources>

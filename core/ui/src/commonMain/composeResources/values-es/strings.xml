@@ -34,4 +34,6 @@
   <string name="job">Trabajo</string>
   <string name="pdf_data_collector">Recolector de datos</string>
   <string name="retry">Reintentar</string>
+  <string name="area">Área</string>
+  <string name="scale">Escala</string>
 </resources>

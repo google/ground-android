@@ -33,4 +33,6 @@
   <string name="job">งาน</string>
   <string name="pdf_data_collector">ผู้เก็บข้อมูล</string>
   <string name="retry">ลองใหม่</string>
+  <string name="area">พื้นที่</string>
+  <string name="scale">มาตราส่วน</string>
 </resources>

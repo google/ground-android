@@ -33,4 +33,6 @@
   <string name="job">Công việc</string>
   <string name="pdf_data_collector">Người thu thập dữ liệu</string>
   <string name="retry">Thử lại</string>
+  <string name="area">Diện tích</string>
+  <string name="scale">Tỷ lệ</string>
 </resources>
