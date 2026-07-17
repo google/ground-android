@@ -27,6 +27,7 @@ import org.groundplatform.android.BuildConfig
 import org.groundplatform.android.R
 import org.groundplatform.android.di.coroutines.DefaultDispatcher
 import org.groundplatform.android.di.coroutines.IoDispatcher
+import org.groundplatform.domain.usecases.user.GetUserSettingsUseCase
 import org.groundplatform.feature.pdf.AndroidPdfImageProvider
 import org.groundplatform.feature.pdf.AndroidPdfOutputProvider
 import org.groundplatform.feature.pdf.AndroidPdfRenderer
@@ -74,11 +75,13 @@ object PdfModule {
     taskValueMapper: TaskValueMapper,
     strings: StringResolver,
     dateFormatter: DateFormatter,
+    getUserSettingsUseCase: GetUserSettingsUseCase,
   ): LoiReportMapper =
     LoiReportMapper(
       taskValueMapper = taskValueMapper,
       strings = strings,
       dateFormatter = dateFormatter,
+      getUserSettings = getUserSettingsUseCase,
     )
 
   @Provides
