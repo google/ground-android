@@ -186,7 +186,7 @@
   <string name="polygon_vertex_add_dialog_positive_button">យល់ព្រម</string>
   <string name="clear">សម្អាត</string>
   <string name="text_task_data_character_limit">អតិបរមា 255 តួអក្សរ</string>
-  <string name="area_message">ផ្ទៃក្រឡា៖</string>
+  <string name="area_message">ផ្ទៃក្រឡា៖ %s</string>
   <string name="access_restricted">មានការកំណត់</string>
   <string name="access_unlisted">មិនមានក្នុងបញ្ជី</string>
   <string name="access_public">ជាសាធារណៈ</string>
