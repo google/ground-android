@@ -438,11 +438,11 @@ class GetLoiReportUseCaseTest {
 
     assertEquals(
       geometry,
-      loiReport.submissionDetails!!.plot!!.geometry,
+      loiReport.submissionDetails!!.geometry,
     )
     assertEquals(
       Style("#4169E1"),
-      loiReport.submissionDetails.plot.style,
+      loiReport.submissionDetails.style,
     )
   }
 
@@ -455,7 +455,7 @@ class GetLoiReportUseCaseTest {
     val loiReport =
       getLoiReportUseCase.invoke(loiName = "loiName", loiId = "loiId", surveyId = "surveyId")!!
 
-    assertNull(loiReport.submissionDetails!!.plot!!.style)
+    assertNull(loiReport.submissionDetails!!.style)
   }
 
   private suspend fun invokeUseCase(

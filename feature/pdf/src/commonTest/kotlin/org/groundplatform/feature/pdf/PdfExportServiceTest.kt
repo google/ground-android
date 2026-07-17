@@ -121,6 +121,7 @@ class PdfExportServiceTest {
             loiName = "Loi",
             rows = emptyList(),
           ),
+        mapBlock = null,
       )
 
     val request =

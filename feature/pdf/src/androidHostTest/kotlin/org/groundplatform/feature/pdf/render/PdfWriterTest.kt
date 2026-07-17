@@ -267,6 +267,7 @@ class PdfWriterTest {
         qrBlock = QR_BLOCK,
         footer = FOOTER,
         table = TABLE,
+        mapBlock = null,
       )
 
     val SINGLE_PAGE_DOCUMENT =
@@ -288,6 +289,7 @@ class PdfWriterTest {
                 ),
               )
           ),
+        mapBlock = null,
       )
 
     val TEST_PDF_DOCUMENT =
@@ -305,6 +307,7 @@ class PdfWriterTest {
                 )
               }
           ),
+        mapBlock = null,
       )
   }
 }
