@@ -26,6 +26,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import kotlinx.serialization.json.JsonObject
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
+import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.locationofinterest.LoiReport
 import org.groundplatform.ui.theme.AppTheme
@@ -114,6 +116,8 @@ private fun DataCollectionContentCompletePreview() {
                   userName = "John Doe",
                   userEmail = "john.doe@example.com",
                   submissions = emptyList(),
+                  geometry = Point(Coordinates(0.0, 0.0)),
+                  style = null,
                 ),
             )
         ),
