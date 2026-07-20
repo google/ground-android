@@ -47,6 +47,7 @@
   <issue id="RtlHardcoded" severity="error" />
   <issue id="SetTextI18n" severity="error" />
   <issue id="SpUsage" severity="error" />
+  <issue id="StringFormatCount" severity="error" />
   <issue id="TypographyEllipsis" severity="error" />
   <issue id="TypographyQuotes" severity="error" />
   <issue id="Typos" severity="error" />
