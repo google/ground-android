@@ -20,6 +20,7 @@ import androidx.core.content.edit
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.FirebaseFirestoreException
+import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlin.test.assertFailsWith
@@ -30,18 +31,23 @@ import org.groundplatform.android.FakeData
 import org.groundplatform.android.data.local.room.LocalDataStoreException
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
+import org.groundplatform.android.system.deeplink.PlayInstallReferrerService
 import org.groundplatform.domain.model.auth.SignInState
 import org.groundplatform.domain.repository.TermsOfServiceRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class MainViewModelTest : BaseHiltTest() {
+
+  @BindValue @JvmField val playInstallReferrerService: PlayInstallReferrerService = mock()
 
   @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
@@ -170,5 +176,37 @@ class MainViewModelTest : BaseHiltTest() {
       assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
       assertThat(awaitItem()).isEqualTo(MainUiState.TosNotAccepted)
     }
+  }
+
+  @Test
+  fun `navigation redirects to deferred deep link survey when install referrer has survey id`() =
+    runWithTestDispatcher {
+      tosRepository.isTermsOfServiceAccepted = true
+      whenever(playInstallReferrerService.getDeferredSurveyId()).thenReturn(SURVEY_ID)
+
+      viewModel.navigationRequests.test {
+        fakeAuthenticationManager.signIn()
+        advanceUntilIdle()
+
+        assertThat(awaitItem()).isEqualTo(MainUiState.ActiveSurveyById(SURVEY_ID))
+      }
+    }
+
+  @Test
+  fun `navigation falls back to survey selector when install referrer has no survey id`() =
+    runWithTestDispatcher {
+      tosRepository.isTermsOfServiceAccepted = true
+      whenever(playInstallReferrerService.getDeferredSurveyId()).thenReturn(null)
+
+      viewModel.navigationRequests.test {
+        fakeAuthenticationManager.signIn()
+        advanceUntilIdle()
+
+        assertThat(awaitItem()).isEqualTo(MainUiState.NoActiveSurvey)
+      }
+    }
+
+  companion object {
+    private const val SURVEY_ID = "survey_123"
   }
 }
