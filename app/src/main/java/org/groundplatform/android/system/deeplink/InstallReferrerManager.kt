@@ -43,7 +43,9 @@ constructor(
           parseSurveyId(Uri.decode(result.referrer))
         } else null
       }
-      InstallReferrerResult.Unavailable -> null
+      InstallReferrerResult.Unavailable -> {
+        null
+      }
     }
   }
 
