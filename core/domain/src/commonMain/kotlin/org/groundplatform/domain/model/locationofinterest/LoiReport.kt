@@ -16,6 +16,8 @@
 package org.groundplatform.domain.model.locationofinterest
 
 import kotlinx.serialization.json.JsonObject
+import org.groundplatform.domain.model.geometry.Geometry
+import org.groundplatform.domain.model.job.Style
 import org.groundplatform.domain.model.submission.Submission
 
 /** Represents the data collected for a specific LOI which can be downloaded and shared. */
@@ -29,5 +31,7 @@ data class LoiReport(
     val userName: String,
     val userEmail: String,
     val submissions: List<Submission>,
+    val geometry: Geometry,
+    val style: Style?,
   )
 }

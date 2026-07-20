@@ -30,6 +30,7 @@ import org.groundplatform.domain.model.geometry.LinearRing
 import org.groundplatform.domain.model.geometry.MultiPolygon
 import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.geometry.Polygon
+import org.groundplatform.domain.model.job.Style
 import org.groundplatform.domain.model.locationofinterest.AuditInfo
 import org.groundplatform.domain.model.locationofinterest.LoiProperties
 import org.groundplatform.domain.model.locationofinterest.LoiReport
@@ -420,6 +421,35 @@ class GetLoiReportUseCaseTest {
       getLoiReportUseCase.invoke(loiName = "loiName", loiId = "loiId", surveyId = "surveyId")!!
 
     assertNull(loiReport.submissionDetails)
+  }
+
+  @Test
+  fun `Should populate map snapshot with the LOI geometry and job style`() = runTest {
+    val geometry = Point(Coordinates(lat = 41.0, lng = -89.0))
+    loiRepository.offlineLoi =
+      loiRepository.offlineLoi.copy(
+        geometry = geometry,
+        job = FakeDataGenerator.newJob(style = Style("#4169E1")),
+      )
+    submissionRepository.submissions = listOf(FakeDataGenerator.newSubmission())
+
+    val loiReport =
+      getLoiReportUseCase.invoke(loiName = "loiName", loiId = "loiId", surveyId = "surveyId")!!
+
+    assertEquals(geometry, loiReport.submissionDetails!!.geometry)
+    assertEquals(Style("#4169E1"), loiReport.submissionDetails.style)
+  }
+
+  @Test
+  fun `Should populate map snapshot with a null style when the job has no style`() = runTest {
+    loiRepository.offlineLoi =
+      loiRepository.offlineLoi.copy(job = FakeDataGenerator.newJob().copy(style = null))
+    submissionRepository.submissions = listOf(FakeDataGenerator.newSubmission())
+
+    val loiReport =
+      getLoiReportUseCase.invoke(loiName = "loiName", loiId = "loiId", surveyId = "surveyId")!!
+
+    assertNull(loiReport.submissionDetails!!.style)
   }
 
   private suspend fun invokeUseCase(

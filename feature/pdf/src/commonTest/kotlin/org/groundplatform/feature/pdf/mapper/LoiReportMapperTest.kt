@@ -19,12 +19,22 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlinx.coroutines.test.runTest
+import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.geometry.LinearRing
+import org.groundplatform.domain.model.geometry.Point
+import org.groundplatform.domain.model.geometry.Polygon
+import org.groundplatform.domain.model.job.Style
 import org.groundplatform.domain.model.locationofinterest.AuditInfo
+import org.groundplatform.domain.model.settings.MeasurementUnits
+import org.groundplatform.domain.usecases.user.GetUserSettingsUseCase
 import org.groundplatform.feature.pdf.helpers.FakeDateFormatter
 import org.groundplatform.feature.pdf.helpers.FakeStringResolver
 import org.groundplatform.testing.FakeDataGenerator
+import org.groundplatform.testing.FakeUserRepository
 
 class LoiReportMapperTest {
+
+  private val userRepository = FakeUserRepository()
 
   private val mapper =
     LoiReportMapper(
@@ -32,15 +42,8 @@ class LoiReportMapperTest {
         TaskValueMapper(strings = FakeStringResolver, dateFormatter = FakeDateFormatter),
       strings = FakeStringResolver,
       dateFormatter = FakeDateFormatter,
+      getUserSettings = GetUserSettingsUseCase(userRepository),
     )
-
-  /** Submission with a fixed last-modified timestamp so date assertions are deterministic. */
-  private val submission =
-    FakeDataGenerator.newSubmission(
-      lastModified = AuditInfo(FakeDataGenerator.newUser(), clientTimestamp = 0L)
-    )
-
-  private val timestampSegment = "DATE0_TIME0"
 
   @Test
   fun `file name joins survey loi user and timestamp with underscores`() = runTest {
@@ -55,7 +58,7 @@ class LoiReportMapperTest {
         submission = submission,
       )
 
-    assertEquals("Survey_Loi_User_$timestampSegment", request!!.fileName)
+    assertEquals("Survey_Loi_User_$TEST_TIMESTAMP", request!!.fileName)
   }
 
   @Test
@@ -74,7 +77,7 @@ class LoiReportMapperTest {
         submission = submission,
       )
 
-    assertEquals("MySurvey_loiname_useremailcom_$timestampSegment", request!!.fileName)
+    assertEquals("MySurvey_loiname_useremailcom_$TEST_TIMESTAMP", request!!.fileName)
   }
 
   @Test
@@ -90,7 +93,7 @@ class LoiReportMapperTest {
         submission = submission,
       )
 
-    assertEquals("loi_$timestampSegment", request!!.fileName)
+    assertEquals("loi_$TEST_TIMESTAMP", request!!.fileName)
   }
 
   @Test
@@ -106,7 +109,7 @@ class LoiReportMapperTest {
         submission = submission,
       )
 
-    assertEquals("แบบสำรวจ_ເພີ່ມຈຸດສຳຫຼວດ_テスト_$timestampSegment", request!!.fileName)
+    assertEquals("แบบสำรวจ_ເພີ່ມຈຸດສຳຫຼວດ_テスト_$TEST_TIMESTAMP", request!!.fileName)
   }
 
   @Test
@@ -125,7 +128,7 @@ class LoiReportMapperTest {
         submission = submission,
       )
 
-    assertEquals("CaféSãoJosé_ß_Test_$timestampSegment", request!!.fileName)
+    assertEquals("CaféSãoJosé_ß_Test_$TEST_TIMESTAMP", request!!.fileName)
   }
 
   @Test
@@ -164,9 +167,79 @@ class LoiReportMapperTest {
   }
 
   @Test
-  fun `map returns null when submissionDetails are missing`() = runTest {
+  fun `mapper returns null when submissionDetails are missing`() = runTest {
     val report = FakeDataGenerator.newLoiReport(submissionDetails = null)
 
     assertNull(mapper.map(report, submission))
+  }
+
+  @Test
+  fun `mapBlock contains the labels, geometry, style, and the area formatted in the user's metric units`() =
+    runTest {
+      val style = Style("#00FF00")
+      val report =
+        FakeDataGenerator.newLoiReport(
+          submissionDetails =
+            FakeDataGenerator.newSubmissionDetails(geometry = SQUARE_POLYGON, style = style)
+        )
+      userRepository.currentUserSettings =
+        FakeDataGenerator.newUserSettings(measurementUnits = MeasurementUnits.METRIC)
+
+      val mapBlock = mapper.map(report, submission)!!.document.mapBlock!!
+
+      assertEquals(SQUARE_POLYGON, mapBlock.geometry)
+      assertEquals(style, mapBlock.style)
+      assertEquals("scale", mapBlock.scaleLabel)
+      val area = mapBlock.area!!
+      assertEquals("area", area.label)
+      assertEquals("1.00 ha", area.value)
+    }
+
+  @Test
+  fun `mapBlock area is formatted in the user's imperial units`() = runTest {
+    val report =
+      FakeDataGenerator.newLoiReport(
+        submissionDetails = FakeDataGenerator.newSubmissionDetails(geometry = SQUARE_POLYGON)
+      )
+    userRepository.currentUserSettings =
+      FakeDataGenerator.newUserSettings(measurementUnits = MeasurementUnits.IMPERIAL)
+
+    val mapBlock = mapper.map(report, submission)!!.document.mapBlock!!
+
+    assertEquals("2.48 ac", mapBlock.area!!.value)
+  }
+
+  @Test
+  fun `mapBlock has no area when the geometry is not a polygon`() = runTest {
+    val report =
+      FakeDataGenerator.newLoiReport(
+        submissionDetails =
+          FakeDataGenerator.newSubmissionDetails(geometry = Point(Coordinates(0.0, 0.0)))
+      )
+
+    val mapBlock = mapper.map(report, submission)!!.document.mapBlock
+
+    assertNull(mapBlock?.area)
+  }
+
+  private companion object {
+    val SQUARE_POLYGON =
+      Polygon(
+        LinearRing(
+          listOf(
+            Coordinates(0.0, 0.0),
+            Coordinates(0.0, 0.0009),
+            Coordinates(0.0009, 0.0009),
+            Coordinates(0.0009, 0.0),
+            Coordinates(0.0, 0.0),
+          )
+        )
+      )
+    const val TEST_TIMESTAMP = "DATE0_TIME0"
+    /** Submission with a fixed last-modified timestamp so date assertions are deterministic. */
+    val submission =
+      FakeDataGenerator.newSubmission(
+        lastModified = AuditInfo(FakeDataGenerator.newUser(), clientTimestamp = 0L)
+      )
   }
 }

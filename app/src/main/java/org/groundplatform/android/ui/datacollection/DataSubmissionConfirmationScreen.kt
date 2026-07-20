@@ -57,6 +57,8 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
+import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.locationofinterest.LoiReport
 import org.groundplatform.ui.components.loireport.LoiReportAction
 import org.groundplatform.ui.components.loireport.SubmissionPdfItem
@@ -214,6 +216,8 @@ private val testLoiReport =
         userName = "John Doe",
         userEmail = "john.doe@example.com",
         submissions = emptyList(),
+        geometry = Point(Coordinates(0.0, 0.0)),
+        style = null,
       ),
   )
 

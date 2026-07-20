@@ -20,12 +20,14 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlinx.coroutines.test.runTest
+import org.groundplatform.domain.usecases.user.GetUserSettingsUseCase
 import org.groundplatform.feature.pdf.helpers.FakeDateFormatter
 import org.groundplatform.feature.pdf.helpers.FakePdfExportService
 import org.groundplatform.feature.pdf.helpers.FakeStringResolver
 import org.groundplatform.feature.pdf.mapper.LoiReportMapper
 import org.groundplatform.feature.pdf.mapper.TaskValueMapper
 import org.groundplatform.testing.FakeDataGenerator
+import org.groundplatform.testing.FakeUserRepository
 import org.groundplatform.ui.components.loireport.LoiReportAction
 
 class LoiReportExporterTest {
@@ -36,6 +38,7 @@ class LoiReportExporterTest {
         TaskValueMapper(strings = FakeStringResolver, dateFormatter = FakeDateFormatter),
       strings = FakeStringResolver,
       dateFormatter = FakeDateFormatter,
+      getUserSettings = GetUserSettingsUseCase(FakeUserRepository()),
     )
 
   @Test
