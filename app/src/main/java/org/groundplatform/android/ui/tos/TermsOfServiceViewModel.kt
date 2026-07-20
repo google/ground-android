@@ -28,7 +28,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.groundplatform.android.system.auth.AuthenticationManager
-import org.groundplatform.android.system.deeplink.InstallReferrerManager
+import org.groundplatform.android.system.deeplink.PlayInstallReferrerService
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.util.isPermissionDeniedException
 import org.groundplatform.domain.repository.TermsOfServiceRepositoryInterface
@@ -63,7 +63,7 @@ class TermsOfServiceViewModel
 constructor(
   private val authManager: AuthenticationManager,
   private val termsOfServiceRepository: TermsOfServiceRepositoryInterface,
-  private val installReferrerManager: InstallReferrerManager,
+  private val playInstallReferrerService: PlayInstallReferrerService,
   savedStateHandle: SavedStateHandle,
 ) : AbstractViewModel() {
 
@@ -92,7 +92,7 @@ constructor(
   fun onAgreeButtonClicked() {
     viewModelScope.launch {
       termsOfServiceRepository.isTermsOfServiceAccepted = true
-      val deferredSurveyId = installReferrerManager.getDeferredSurveyId()
+      val deferredSurveyId = playInstallReferrerService.getDeferredSurveyId()
       _events.send(TosEvent.NavigateToSurveySelector(deferredSurveyId))
     }
   }

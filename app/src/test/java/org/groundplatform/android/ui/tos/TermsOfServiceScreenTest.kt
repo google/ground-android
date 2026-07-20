@@ -33,7 +33,7 @@ import kotlinx.coroutines.test.runTest
 import org.groundplatform.android.R
 import org.groundplatform.android.getString
 import org.groundplatform.android.system.auth.AuthenticationManager
-import org.groundplatform.android.system.deeplink.InstallReferrerManager
+import org.groundplatform.android.system.deeplink.PlayInstallReferrerService
 import org.groundplatform.domain.model.TermsOfService
 import org.groundplatform.testing.FakeTermsOfServiceRepository
 import org.junit.Before
@@ -51,7 +51,7 @@ class TermsOfServiceScreenTest {
   @get:Rule val composeTestRule = createComposeRule()
 
   @Mock lateinit var authManager: AuthenticationManager
-  @Mock lateinit var installReferrerManager: InstallReferrerManager
+  @Mock lateinit var playInstallReferrerService: PlayInstallReferrerService
   private lateinit var fakeRepository: FakeTermsOfServiceRepository
   private lateinit var viewModel: TermsOfServiceViewModel
 
@@ -69,7 +69,7 @@ class TermsOfServiceScreenTest {
     fakeRepository.termsOfService = result
     val savedStateHandle = SavedStateHandle(mapOf("isViewOnly" to isViewOnly))
     viewModel =
-      TermsOfServiceViewModel(authManager, fakeRepository, installReferrerManager, savedStateHandle)
+      TermsOfServiceViewModel(authManager, fakeRepository, playInstallReferrerService, savedStateHandle)
   }
 
   private fun setScreenContent(

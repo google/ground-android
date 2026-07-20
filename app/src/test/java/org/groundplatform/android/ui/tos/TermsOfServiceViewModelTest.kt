@@ -26,7 +26,7 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.groundplatform.android.system.auth.AuthenticationManager
-import org.groundplatform.android.system.deeplink.InstallReferrerManager
+import org.groundplatform.android.system.deeplink.PlayInstallReferrerService
 import org.groundplatform.domain.model.TermsOfService
 import org.groundplatform.testing.FakeTermsOfServiceRepository
 import org.junit.After
@@ -42,7 +42,7 @@ import org.mockito.kotlin.whenever
 class TermsOfServiceViewModelTest {
 
   @Mock lateinit var authManager: AuthenticationManager
-  @Mock lateinit var installReferrerManager: InstallReferrerManager
+  @Mock lateinit var playInstallReferrerService: PlayInstallReferrerService
   private lateinit var fakeRepository: FakeTermsOfServiceRepository
   private lateinit var viewModel: TermsOfServiceViewModel
 
@@ -64,7 +64,7 @@ class TermsOfServiceViewModelTest {
   private fun setupViewModel(isViewOnly: Boolean = false) = runTest {
     val savedStateHandle = SavedStateHandle(mapOf("isViewOnly" to isViewOnly))
     viewModel =
-      TermsOfServiceViewModel(authManager, fakeRepository, installReferrerManager, savedStateHandle)
+      TermsOfServiceViewModel(authManager, fakeRepository, playInstallReferrerService, savedStateHandle)
     advanceUntilIdle()
   }
 
@@ -108,7 +108,7 @@ class TermsOfServiceViewModelTest {
 
   @Test
   fun `onAgreeButtonClicked forwards deferred survey id`() = runTest {
-    whenever(installReferrerManager.getDeferredSurveyId()).thenReturn(DEFERRED_SURVEY_ID)
+    whenever(playInstallReferrerService.getDeferredSurveyId()).thenReturn(DEFERRED_SURVEY_ID)
     setupViewModel()
 
     viewModel.events.test {

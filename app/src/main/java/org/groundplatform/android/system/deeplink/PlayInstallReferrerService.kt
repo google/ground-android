@@ -22,13 +22,14 @@ import com.android.installreferrer.api.InstallReferrerStateListener
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.coroutines.resume
-import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.withTimeoutOrNull
 import org.groundplatform.android.data.local.LocalValueStore
 import timber.log.Timber
 
 @Singleton
-class InstallReferrerManager
+class PlayInstallReferrerService
 @Inject
 constructor(
   @ApplicationContext private val context: Context,
@@ -36,38 +37,41 @@ constructor(
 ) {
   suspend fun getDeferredSurveyId(): String? {
     if (localValueStore.isDeferredDeeplinkConsumed) return null
-    return when (val result = queryInstallReferrer()) {
-      is InstallReferrerResult.Success -> {
-        if (!result.referrer.isEmpty()) {
-          localValueStore.isDeferredDeeplinkConsumed = true
-          parseSurveyId(Uri.decode(result.referrer))
-        } else null
-      }
-      InstallReferrerResult.Unavailable -> {
-        null
-      }
+    val result = withTimeoutOrNull(QUERY_TIMEOUT_MILLIS.milliseconds) { queryInstallReferrer() }
+    if (result == null) {
+      Timber.w("Timed out reading install referrer")
+    }
+    return if (result is InstallReferrerResult.Success && result.referrer.isNotEmpty()) {
+      localValueStore.isDeferredDeeplinkConsumed = true
+      parseSurveyId(result.referrer)
+    } else {
+      null
     }
   }
 
-  private suspend fun queryInstallReferrer(): InstallReferrerResult = suspendCancellableCoroutine {
+  private suspend fun queryInstallReferrer(): InstallReferrerResult {
     val client = InstallReferrerClient.newBuilder(context).build()
-    val listener =
-      object : InstallReferrerStateListener {
-        override fun onInstallReferrerSetupFinished(responseCode: Int) {
-          val result = readReferrer(client, responseCode)
-          client.endConnection()
-          it.resume(result)
-        }
+    val result = CompletableDeferred<InstallReferrerResult>()
+    return try {
+      val listener =
+        object : InstallReferrerStateListener {
+          override fun onInstallReferrerSetupFinished(responseCode: Int) {
+            result.complete(readReferrer(client, responseCode))
+          }
 
-        override fun onInstallReferrerServiceDisconnected() {
-          it.resume(InstallReferrerResult.Unavailable)
+          override fun onInstallReferrerServiceDisconnected() {
+            result.complete(InstallReferrerResult.Unavailable)
+          }
         }
-      }
-    runCatching { client.startConnection(listener) }
-      .onFailure { throwable ->
-        Timber.e(throwable, "Failed to start install referrer connection")
-        it.resume(InstallReferrerResult.Unavailable)
-      }
+      runCatching { client.startConnection(listener) }
+        .onFailure { throwable ->
+          Timber.e(throwable, "Failed to start install referrer connection")
+          result.complete(InstallReferrerResult.Unavailable)
+        }
+      result.await()
+    } finally {
+      finish(client)
+    }
   }
 
   private fun readReferrer(
@@ -86,14 +90,18 @@ constructor(
   }
 
   internal fun parseSurveyId(referrer: String): String? =
-    referrer.split('&').firstNotNullOfOrNull { part ->
-      val idx = part.indexOf('=')
-      if (idx > 0 && part.substring(0, idx) == DEFERRED_SURVEY_ID_KEY) {
-        part.substring(idx + 1).takeIf { it.isNotBlank() }
+    referrer.split('&').firstNotNullOfOrNull { param ->
+      if (param.substringBefore('=', "") == DEFERRED_SURVEY_ID_KEY) {
+        Uri.decode(param.substringAfter('=')).takeIf { it.isNotBlank() }
       } else {
         null
       }
     }
+
+  private fun finish(client: InstallReferrerClient) {
+    runCatching { client.endConnection() }
+      .onFailure { Timber.e(it, "Failed to close install referrer connection") }
+  }
 
   private sealed interface InstallReferrerResult {
     data class Success(val referrer: String) : InstallReferrerResult
@@ -103,5 +111,6 @@ constructor(
 
   companion object {
     private const val DEFERRED_SURVEY_ID_KEY = "survey_id"
+    private const val QUERY_TIMEOUT_MILLIS = 5000L
   }
 }
