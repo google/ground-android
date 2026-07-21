@@ -41,11 +41,22 @@ constructor(
     if (result == null) {
       Timber.w("Timed out reading install referrer")
     }
-    return if (result is InstallReferrerResult.Success && result.referrer.isNotEmpty()) {
-      localValueStore.isDeferredDeeplinkConsumed = true
-      parseSurveyId(result.referrer)
-    } else {
-      null
+    return when (result) {
+      is InstallReferrerResult.Success -> {
+        localValueStore.isDeferredDeeplinkConsumed = true
+        parseSurveyId(result.referrer)
+      }
+      // Play can't serve install referrers on this device, so retrying will never help
+      InstallReferrerResult.Unsupported -> {
+        localValueStore.isDeferredDeeplinkConsumed = true
+        null
+      }
+      // Transient failure. Leave the referrer eligible so the next launch can retry it, since it
+      // stays retrievable from Play for a while after install.
+      InstallReferrerResult.Unavailable,
+      null -> {
+        null
+      }
     }
   }
 
@@ -80,7 +91,13 @@ constructor(
   ): InstallReferrerResult {
     if (responseCode != InstallReferrerClient.InstallReferrerResponse.OK) {
       Timber.w("Install referrer setup failed with response code: $responseCode")
-      return InstallReferrerResult.Unavailable
+      return if (
+        responseCode == InstallReferrerClient.InstallReferrerResponse.FEATURE_NOT_SUPPORTED
+      ) {
+        InstallReferrerResult.Unsupported
+      } else {
+        InstallReferrerResult.Unavailable
+      }
     }
     return runCatching { InstallReferrerResult.Success(client.installReferrer.installReferrer) }
       .getOrElse {
@@ -107,10 +124,12 @@ constructor(
     data class Success(val referrer: String) : InstallReferrerResult
 
     data object Unavailable : InstallReferrerResult
+
+    data object Unsupported : InstallReferrerResult
   }
 
   companion object {
     private const val DEFERRED_SURVEY_ID_KEY = "survey_id"
-    private const val QUERY_TIMEOUT_MILLIS = 5000L
+    private const val QUERY_TIMEOUT_MILLIS = 3000L
   }
 }
