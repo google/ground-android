@@ -21,7 +21,7 @@
 # Same-repo PRs are routed via pull_request (head's workflow file applies);
 # fork PRs are routed via pull_request_target (base's workflow file applies,
 # secrets gated by the e2e-approval environment in test-e2e.yml).
-name: CI
+name: E2E Dispatch
 
 on:
   pull_request:
