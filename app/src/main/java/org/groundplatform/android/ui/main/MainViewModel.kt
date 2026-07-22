@@ -20,10 +20,10 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.groundplatform.android.BuildConfig
@@ -57,8 +57,8 @@ constructor(
   private val playInstallReferrerService: PlayInstallReferrerService,
 ) : AbstractViewModel() {
 
-  private val _navigationRequests: MutableSharedFlow<MainUiState?> = MutableSharedFlow()
-  var navigationRequests: SharedFlow<MainUiState?> = _navigationRequests.asSharedFlow()
+  private val _uiEffects = Channel<MainUiEffect>(Channel.BUFFERED)
+  val uiEffects: Flow<MainUiEffect> = _uiEffects.receiveAsFlow()
 
   private val _deepLinkUri = MutableStateFlow<Uri?>(null)
 
@@ -66,9 +66,7 @@ constructor(
     viewModelScope.launch {
       // TODO: Check auth status whenever fragments resumes
       // Issue URL: https://github.com/google/ground-android/issues/2624
-      authenticationManager.signInState.collect {
-        _navigationRequests.emit(onSignInStateChange(it))
-      }
+      authenticationManager.signInState.collect { onSignInStateChange(it) }
     }
   }
 
@@ -78,45 +76,47 @@ constructor(
     _deepLinkUri.value = uri
   }
 
-  private suspend fun onSignInStateChange(signInState: SignInState): MainUiState? =
+  private suspend fun onSignInStateChange(signInState: SignInState) {
     when (signInState) {
       is SignInState.SignedIn -> onUserSignedIn(signInState.user)
       is SignInState.SignedOut -> onUserSignedOut()
-      else -> null
+      else -> {}
     }
+  }
 
-  private fun onUserSignedOut(): MainUiState {
+  private suspend fun onUserSignedOut() {
     // Scope of subscription is until view model is cleared. Dispose it manually otherwise, firebase
     // attempts to maintain a connection even after user has logged out and throws an error.
     viewModelScope.launch { withContext(ioDispatcher) { clearUserSessionUseCase() } }
-    return MainUiState.OnUserSignedOut
+    _uiEffects.send(MainUiEffect.SignedOut)
   }
 
-  private suspend fun onUserSignedIn(user: User): MainUiState =
-    try {
-      userRepository.saveUserDetails(user)
-      if (!isTosAccepted()) {
-        MainUiState.TosNotAccepted
-      } else if (isDeepLinkAvailable()) {
-        val surveyId = _deepLinkUri.value?.let { surveyDeepLinkParser.parse(it) }
-        if (surveyId != null) {
-          MainUiState.ActiveSurveyById(surveyId)
+  private suspend fun onUserSignedIn(user: User) {
+    val destination =
+      try {
+        userRepository.saveUserDetails(user)
+        if (!isTosAccepted()) {
+          MainUiEffect.StartDestination.TermsOfService
+        } else if (isDeepLinkAvailable()) {
+          val surveyId = _deepLinkUri.value?.let { surveyDeepLinkParser.parse(it) }
+          if (surveyId != null) MainUiEffect.StartDestination.ActiveSurvey(surveyId)
+          else MainUiEffect.StartDestination.SurveySelector
         } else {
-          MainUiState.NoActiveSurvey
+          val deferredSurveyId = playInstallReferrerService.getDeferredSurveyId()
+          when {
+            deferredSurveyId != null -> MainUiEffect.StartDestination.ActiveSurvey(deferredSurveyId)
+            reactivateLastSurvey() -> MainUiEffect.StartDestination.Home
+            else -> MainUiEffect.StartDestination.SurveySelector
+          }
         }
-      } else {
-        val deferredSurveyId = playInstallReferrerService.getDeferredSurveyId()
-        when {
-          deferredSurveyId != null -> MainUiState.ActiveSurveyById(deferredSurveyId)
-          reactivateLastSurvey() -> MainUiState.ShowHomeScreen
-          else -> MainUiState.NoActiveSurvey
-        }
+      } catch (e: Throwable) {
+        Timber.e(e)
+        // TODO: Display some error dialog to the user with a helpful user-readable message.
+        onUserSignedOut()
+        return
       }
-    } catch (e: Throwable) {
-      Timber.e(e)
-      // TODO: Display some error dialog to the user with a helpful user-readable message.
-      onUserSignedOut()
-    }
+    _uiEffects.send(MainUiEffect.OpenStartDestination(destination))
+  }
 
   /** Returns true if the user has already accepted the Terms of Service. */
   private fun isTosAccepted(): Boolean = termsOfServiceRepository.isTermsOfServiceAccepted

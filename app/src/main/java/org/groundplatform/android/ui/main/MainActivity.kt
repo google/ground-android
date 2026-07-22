@@ -28,7 +28,6 @@ import androidx.navigation.NavDirections
 import androidx.navigation.fragment.NavHostFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.databinding.MainActBinding
@@ -89,7 +88,21 @@ class MainActivity : AbstractActivity() {
         }
       }
 
-      viewModel.navigationRequests.filterNotNull().collect { updateUi(it) }
+      viewModel.uiEffects.collect { effect ->
+        when (effect) {
+          is MainUiEffect.OpenStartDestination -> {
+            // Applied only while the app is still on an entry screen in order to not override a
+            // back stack that was restored after process recreation
+            val currentId = navHostFragment.navController.currentDestination?.id
+            if (currentId == R.id.startup_fragment || currentId == R.id.sign_in_fragment) {
+              updateUi(effect.destination)
+            }
+          }
+          MainUiEffect.SignedOut -> {
+            navigateTo(SignInFragmentDirections.showSignInScreen())
+          }
+        }
+      }
     }
 
     onBackPressedDispatcher.addCallback(
@@ -105,23 +118,20 @@ class MainActivity : AbstractActivity() {
     )
   }
 
-  private fun updateUi(uiState: MainUiState) {
-    when (uiState) {
-      MainUiState.OnUserSignedOut -> {
-        navigateTo(SignInFragmentDirections.showSignInScreen())
-      }
-      MainUiState.TosNotAccepted -> {
+  private fun updateUi(destination: MainUiEffect.StartDestination) {
+    when (destination) {
+      MainUiEffect.StartDestination.TermsOfService -> {
         navigateTo(SignInFragmentDirections.showTermsOfService(false))
       }
-      MainUiState.NoActiveSurvey -> {
+      MainUiEffect.StartDestination.SurveySelector -> {
         navigateTo(SurveySelectorFragmentDirections.showSurveySelectorScreen(true))
       }
-      MainUiState.ShowHomeScreen -> {
+      MainUiEffect.StartDestination.Home -> {
         navigateTo(HomeScreenFragmentDirections.showHomeScreen())
       }
-      is MainUiState.ActiveSurveyById -> {
+      is MainUiEffect.StartDestination.ActiveSurvey -> {
         val action = SurveySelectorFragmentDirections.showSurveySelectorScreen(false)
-        action.surveyId = uiState.surveyId
+        action.surveyId = destination.surveyId
         navigateTo(action)
       }
     }
