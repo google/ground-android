@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.groundplatform.android.system.auth.AuthenticationManager
+import org.groundplatform.android.system.deeplink.PlayInstallReferrerService
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.util.isPermissionDeniedException
 import org.groundplatform.domain.repository.TermsOfServiceRepositoryInterface
@@ -51,7 +52,7 @@ sealed interface TosUiState {
 }
 
 sealed interface TosEvent {
-  object NavigateToSurveySelector : TosEvent
+  data class NavigateToSurveySelector(val deferredSurveyId: String?) : TosEvent
 
   object LoadError : TosEvent
 }
@@ -62,6 +63,7 @@ class TermsOfServiceViewModel
 constructor(
   private val authManager: AuthenticationManager,
   private val termsOfServiceRepository: TermsOfServiceRepositoryInterface,
+  private val playInstallReferrerService: PlayInstallReferrerService,
   savedStateHandle: SavedStateHandle,
 ) : AbstractViewModel() {
 
@@ -90,7 +92,8 @@ constructor(
   fun onAgreeButtonClicked() {
     viewModelScope.launch {
       termsOfServiceRepository.isTermsOfServiceAccepted = true
-      _events.send(TosEvent.NavigateToSurveySelector)
+      val deferredSurveyId = playInstallReferrerService.getDeferredSurveyId()
+      _events.send(TosEvent.NavigateToSurveySelector(deferredSurveyId))
     }
   }
 

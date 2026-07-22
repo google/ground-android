@@ -123,6 +123,14 @@ constructor(private val preferences: SharedPreferences, private val locale: Loca
       preferences.edit { putBoolean(PrefKeys.UPLOAD_MEDIA, value) }
     }
 
+  var isDeferredDeeplinkConsumed: Boolean
+    get() = allowThreadDiskReads {
+      preferences.getBoolean(PrefKeys.DEFERRED_DEEPLINK_CONSUMED, false)
+    }
+    set(value) = allowThreadDiskWrites {
+      preferences.edit { putBoolean(PrefKeys.DEFERRED_DEEPLINK_CONSUMED, value) }
+    }
+
   /** Removes all values stored in the local store. */
   fun clear() = allowThreadDiskWrites { preferences.edit { clear() } }
 
