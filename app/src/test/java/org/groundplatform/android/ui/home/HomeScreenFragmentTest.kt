@@ -15,7 +15,14 @@
  */
 package org.groundplatform.android.ui.home
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.click
@@ -60,6 +67,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 
 abstract class AbstractHomeScreenFragmentTest : BaseHiltTest() {
   @get:Rule val fragmentScenario = FragmentScenarioRule()
@@ -160,6 +168,42 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
         fragment.getString(R.string.build, org.groundplatform.android.BuildConfig.VERSION_NAME)
       )
       .assertIsDisplayed()
+  }
+
+  @Test
+  fun `clicking build label opens Play Store`() = runWithTestDispatcher {
+    openDrawer(composeTestRule)
+    swipeUpDrawer()
+
+    composeTestRule
+      .onNodeWithText(
+        fragment.getString(R.string.build, org.groundplatform.android.BuildConfig.VERSION_NAME)
+      )
+      .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+      .performClick()
+
+    val intent = shadowOf(fragment.requireActivity()).nextStartedActivity
+    assertThat(intent.action).isEqualTo(Intent.ACTION_VIEW)
+    assertThat(intent.data)
+      .isEqualTo(Uri.parse("market://details?id=${fragment.requireContext().packageName}"))
+  }
+
+  @Test
+  fun `Play Store link falls back to HTTPS when market app is unavailable`() {
+    val intents = mutableListOf<Intent>()
+
+    openPlayStore("org.groundplatform.android") { intent ->
+      intents += intent
+      if (intents.size == 1) throw ActivityNotFoundException()
+    }
+
+    assertThat(intents).hasSize(2)
+    assertThat(intents[0].data)
+      .isEqualTo(Uri.parse("market://details?id=org.groundplatform.android"))
+    assertThat(intents[1].data)
+      .isEqualTo(
+        Uri.parse("https://play.google.com/store/apps/details?id=org.groundplatform.android")
+      )
   }
 
   @Test
