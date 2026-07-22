@@ -59,6 +59,8 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          # Safe because this job only runs after maintainer approval.
+          allow-unsafe-pr-checkout: true
 
       - name: Run Android tests on e2eTest module
         uses: ./.github/actions/submit-test
