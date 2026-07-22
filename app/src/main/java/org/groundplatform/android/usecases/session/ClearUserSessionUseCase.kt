@@ -16,6 +16,7 @@
 package org.groundplatform.android.usecases.session
 
 import javax.inject.Inject
+import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.local.room.LocalDatabase
 import org.groundplatform.domain.repository.OfflineAreaRepositoryInterface
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
@@ -33,6 +34,7 @@ class ClearUserSessionUseCase
 @Inject
 constructor(
   private val localDatabase: LocalDatabase,
+  private val localValueStore: LocalValueStore,
   private val offlineAreaRepository: OfflineAreaRepositoryInterface,
   private val surveyRepository: SurveyRepositoryInterface,
   private val userRepository: UserRepositoryInterface,
@@ -41,7 +43,13 @@ constructor(
   suspend operator fun invoke() {
     offlineAreaRepository.removeAllOfflineAreas()
     surveyRepository.clearActiveSurvey()
+    val deferredDeeplinkConsumed = localValueStore.isDeferredDeeplinkConsumed
     userRepository.clearUserPreferences()
+    if (deferredDeeplinkConsumed) {
+      // A deferred deep link is spent once per install, so signing out must not make an already
+      // consumed one eligible to be consumed again.
+      localValueStore.isDeferredDeeplinkConsumed = true
+    }
 
     // TODO: Once multi-user login is supported, avoid clearing local db data. This is
     //  currently being done to prevent one user's data to be submitted as another user after

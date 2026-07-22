@@ -15,6 +15,7 @@
 [versions]
 androidCompileSdk = "37"
 androidCompileSdkMinor = "0"
+androidInstallReferrer = "2.2"
 androidMinSdk = "24"
 androidTargetSdk = "36"
 androidMapsUtilsVersion = "4.5.2"
@@ -83,6 +84,7 @@ uiautomatorVersion = "2.4.0"
 workVersion = "2.11.2"
 
 [libraries]
+android-install-referrer = { module = "com.android.installreferrer:installreferrer", version.ref = "androidInstallReferrer" }
 android-maps-utils = { module = "com.google.maps.android:android-maps-utils", version.ref = "androidMapsUtilsVersion" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompatVersion" }
 androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayoutVersion" }
