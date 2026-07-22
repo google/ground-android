@@ -29,6 +29,7 @@ import kotlinx.coroutines.withContext
 import org.groundplatform.android.BuildConfig
 import org.groundplatform.android.di.coroutines.IoDispatcher
 import org.groundplatform.android.system.auth.AuthenticationManager
+import org.groundplatform.android.system.deeplink.PlayInstallReferrerService
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.common.SharedViewModel
 import org.groundplatform.android.usecases.session.ClearUserSessionUseCase
@@ -53,6 +54,7 @@ constructor(
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
   private val remoteConfig: FirebaseRemoteConfig,
   authenticationManager: AuthenticationManager,
+  private val playInstallReferrerService: PlayInstallReferrerService,
 ) : AbstractViewModel() {
 
   private val _navigationRequests: MutableSharedFlow<MainUiState?> = MutableSharedFlow()
@@ -102,11 +104,13 @@ constructor(
         } else {
           MainUiState.NoActiveSurvey
         }
-      } else if (!reactivateLastSurvey()) {
-        MainUiState.NoActiveSurvey
       } else {
-        // Everything is fine, show the home screen
-        MainUiState.ShowHomeScreen
+        val deferredSurveyId = playInstallReferrerService.getDeferredSurveyId()
+        when {
+          deferredSurveyId != null -> MainUiState.ActiveSurveyById(deferredSurveyId)
+          reactivateLastSurvey() -> MainUiState.ShowHomeScreen
+          else -> MainUiState.NoActiveSurvey
+        }
       }
     } catch (e: Throwable) {
       Timber.e(e)

@@ -52,8 +52,9 @@ class TermsOfServiceFragment : AbstractFragment() {
   ): View = createComposeView {
     TermsOfServiceScreen(
       onNavigateUp = { findNavController().navigateUp() },
-      onNavigateToSurveySelector = {
-        openSurveySelector(activity?.intent?.data?.let { surveyDeepLinkParser.parse(it) })
+      onNavigateToSurveySelector = { deferredSurveyId ->
+        val explicitSurveyId = activity?.intent?.data?.let { surveyDeepLinkParser.parse(it) }
+        openSurveySelector(explicitSurveyId ?: deferredSurveyId)
       },
       onLoadError = { popups.ErrorPopup().show(R.string.load_tos_failed) },
       termsContent = { html -> TermsTextView(fromHtml(html, 0)) },
