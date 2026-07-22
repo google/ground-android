@@ -54,7 +54,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun TermsOfServiceScreen(
   onNavigateUp: () -> Unit,
-  onNavigateToSurveySelector: () -> Unit,
+  onNavigateToSurveySelector: (String?) -> Unit,
   onLoadError: () -> Unit,
   termsContent: @Composable (String) -> Unit,
   viewModel: TermsOfServiceViewModel = hiltViewModel(),
@@ -64,7 +64,7 @@ fun TermsOfServiceScreen(
   LaunchedEffect(Unit) {
     viewModel.events.collect { event ->
       when (event) {
-        is TosEvent.NavigateToSurveySelector -> onNavigateToSurveySelector()
+        is TosEvent.NavigateToSurveySelector -> onNavigateToSurveySelector(event.deferredSurveyId)
         is TosEvent.LoadError -> onLoadError()
       }
     }

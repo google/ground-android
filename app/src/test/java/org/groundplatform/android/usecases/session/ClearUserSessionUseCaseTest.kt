@@ -16,6 +16,7 @@
 package org.groundplatform.android.usecases.session
 
 import kotlinx.coroutines.test.runTest
+import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.local.room.LocalDatabase
 import org.groundplatform.domain.repository.OfflineAreaRepositoryInterface
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
@@ -24,13 +25,17 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.InjectMocks
 import org.mockito.Mock
+import org.mockito.Mockito.never
 import org.mockito.Mockito.times
 import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.inOrder
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 
 @RunWith(MockitoJUnitRunner::class)
 class ClearUserSessionUseCaseTest {
   @Mock lateinit var localDatabase: LocalDatabase
+  @Mock lateinit var localValueStore: LocalValueStore
   @Mock lateinit var offlineAreaRepository: OfflineAreaRepositoryInterface
   @Mock lateinit var surveyRepository: SurveyRepositoryInterface
   @Mock lateinit var userRepository: UserRepositoryInterface
@@ -59,5 +64,26 @@ class ClearUserSessionUseCaseTest {
   fun `Clears all tables`() = runTest {
     clearUserSessionUseCase()
     verify(localDatabase, times(1)).clearAllTables()
+  }
+
+  @Test
+  fun `Restores consumed deferred deep link after clearing preferences`() = runTest {
+    whenever(localValueStore.isDeferredDeeplinkConsumed).thenReturn(true)
+
+    clearUserSessionUseCase()
+
+    inOrder(userRepository, localValueStore) {
+      verify(userRepository).clearUserPreferences()
+      verify(localValueStore).isDeferredDeeplinkConsumed = true
+    }
+  }
+
+  @Test
+  fun `Leaves deferred deep link unconsumed when it was never consumed`() = runTest {
+    whenever(localValueStore.isDeferredDeeplinkConsumed).thenReturn(false)
+
+    clearUserSessionUseCase()
+
+    verify(localValueStore, never()).isDeferredDeeplinkConsumed = true
   }
 }

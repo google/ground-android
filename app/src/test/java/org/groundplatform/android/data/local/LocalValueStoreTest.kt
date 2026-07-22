@@ -137,6 +137,29 @@ class LocalValueStoreTest {
     assertThat(localValueStore.getLastCameraPosition("survey-b")).isEqualTo(b)
   }
 
+  @Test
+  fun `isDeferredDeeplinkConsumed defaults to false`() {
+    assertThat(localValueStore.isDeferredDeeplinkConsumed).isFalse()
+  }
+
+  @Test
+  fun `isDeferredDeeplinkConsumed sets the shared preferences value accordingly`() {
+    localValueStore.isDeferredDeeplinkConsumed = true
+    assertThat(sharedPreferences.getBoolean(PrefKeys.DEFERRED_DEEPLINK_CONSUMED, false)).isTrue()
+
+    localValueStore.isDeferredDeeplinkConsumed = false
+    assertThat(sharedPreferences.getBoolean(PrefKeys.DEFERRED_DEEPLINK_CONSUMED, false)).isFalse()
+  }
+
+  @Test
+  fun `clear resets isDeferredDeeplinkConsumed`() {
+    localValueStore.isDeferredDeeplinkConsumed = true
+
+    localValueStore.clear()
+
+    assertThat(localValueStore.isDeferredDeeplinkConsumed).isFalse()
+  }
+
   companion object {
     private const val SURVEY_ID = "survey-1"
     private val BOUNDS = Bounds(-10.0, -20.0, 10.0, 20.0)
