@@ -346,6 +346,9 @@ dependencies {
 
     // Pulls protodefs from the specified commit in the ground-platform repo.
     groundProtoJar libs.ground.platform
+
+    // Deferred deeplinks
+    implementation libs.android.install.referrer
 }
 
 protobuf {
