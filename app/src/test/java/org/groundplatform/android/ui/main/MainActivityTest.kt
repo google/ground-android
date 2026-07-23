@@ -17,10 +17,13 @@ package org.groundplatform.android.ui.main
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Bundle
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -30,11 +33,13 @@ import org.groundplatform.android.FakeData
 import org.groundplatform.android.R
 import org.groundplatform.android.getString
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
+import org.groundplatform.android.system.deeplink.PlayInstallReferrerService
 import org.groundplatform.domain.model.auth.SignInState
 import org.groundplatform.domain.repository.TermsOfServiceRepositoryInterface
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.mock
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 
@@ -67,10 +72,7 @@ class MainActivityTest : BaseHiltTest() {
 
         viewModel.setDeepLinkUri(uri)
         advanceUntilIdle()
-        val navHost =
-          activity.supportFragmentManager.findFragmentById(R.id.nav_host_fragment)
-            as NavHostFragment
-        val navController = navHost.navController
+        val navController = activity.navController()
 
         fakeAuthenticationManager.setState(SignInState.SignedIn(FakeData.USER))
         advanceUntilIdle()
@@ -93,10 +95,7 @@ class MainActivityTest : BaseHiltTest() {
     Robolectric.buildActivity(MainActivity::class.java, intent).use { controller ->
       controller.setup()
       activity = controller.get()
-
-      val navHost =
-        activity.supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-      val navController = navHost.navController
+      val navController = activity.navController()
 
       fakeAuthenticationManager.setState(SignInState.SignedOut)
       advanceUntilIdle()
@@ -104,4 +103,76 @@ class MainActivityTest : BaseHiltTest() {
       assertThat(navController.currentDestination?.id).isEqualTo(R.id.sign_in_fragment)
     }
   }
+
+  @Test
+  fun `Signing in from the sign in screen navigates to the start destination`() =
+    runWithTestDispatcher {
+      Robolectric.buildActivity(MainActivity::class.java).use { controller ->
+        controller.setup()
+        val navController = controller.get().navController()
+
+        fakeAuthenticationManager.setState(SignInState.SignedOut)
+        advanceUntilIdle()
+        assertThat(navController.currentDestination?.id).isEqualTo(R.id.sign_in_fragment)
+
+        tosRepository.isTermsOfServiceAccepted = true
+        fakeAuthenticationManager.setState(SignInState.SignedIn(FakeData.USER))
+        advanceUntilIdle()
+
+        assertThat(navController.currentDestination?.id).isEqualTo(R.id.surveySelectorFragment)
+      }
+    }
+
+  @Test
+  fun `Restoring after process death keeps the user on the screen they were on`() =
+    runWithTestDispatcher {
+      tosRepository.isTermsOfServiceAccepted = true
+      val savedState = Bundle()
+
+      Robolectric.buildActivity(MainActivity::class.java).use { controller ->
+        controller.setup()
+        fakeAuthenticationManager.setState(SignInState.SignedIn(FakeData.USER))
+        advanceUntilIdle()
+        val navController = controller.get().navController()
+        assertThat(navController.currentDestination?.id).isEqualTo(R.id.surveySelectorFragment)
+
+        navController.navigate(R.id.aboutFragment)
+        advanceUntilIdle()
+        assertThat(navController.currentDestination?.id).isEqualTo(R.id.aboutFragment)
+
+        controller.saveInstanceState(savedState)
+      }
+
+      // A new activity with a cleared view model store, as after the process is killed.
+      Robolectric.buildActivity(MainActivity::class.java).use { controller ->
+        controller.setup(savedState)
+        advanceUntilIdle()
+
+        assertThat(controller.get().navController().currentDestination?.id)
+          .isEqualTo(R.id.aboutFragment)
+      }
+    }
+
+  @Test
+  fun `Signing out from another screen returns to the sign in screen`() = runWithTestDispatcher {
+    tosRepository.isTermsOfServiceAccepted = true
+
+    Robolectric.buildActivity(MainActivity::class.java).use { controller ->
+      controller.setup()
+      fakeAuthenticationManager.setState(SignInState.SignedIn(FakeData.USER))
+      advanceUntilIdle()
+      val navController = controller.get().navController()
+      navController.navigate(R.id.aboutFragment)
+      advanceUntilIdle()
+
+      fakeAuthenticationManager.setState(SignInState.SignedOut)
+      advanceUntilIdle()
+
+      assertThat(navController.currentDestination?.id).isEqualTo(R.id.sign_in_fragment)
+    }
+  }
+
+  private fun MainActivity.navController(): NavController =
+    (supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment)
+      .navController
 }
