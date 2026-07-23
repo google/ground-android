@@ -54,6 +54,7 @@ import kotlin.test.assertFalse
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
+import org.groundplatform.android.BuildConfig
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.R
 import org.groundplatform.android.data.local.stores.LocalSurveyStore
@@ -165,7 +166,7 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
       .assertIsDisplayed()
     composeTestRule
       .onNodeWithText(
-        fragment.getString(R.string.build, org.groundplatform.android.BuildConfig.VERSION_NAME)
+        fragment.getString(R.string.build, BuildConfig.VERSION_NAME)
       )
       .assertIsDisplayed()
   }
@@ -177,7 +178,7 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
 
     composeTestRule
       .onNodeWithText(
-        fragment.getString(R.string.build, org.groundplatform.android.BuildConfig.VERSION_NAME)
+        fragment.getString(R.string.build, BuildConfig.VERSION_NAME)
       )
       .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
       .performClick()

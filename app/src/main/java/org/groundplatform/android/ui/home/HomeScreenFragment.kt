@@ -188,7 +188,7 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener {
 
   private fun openPlayStore() {
     closeDrawer()
-    openPlayStore(requireContext().packageName) { startActivity(it) }
+    openPlayStore(requireContext().packageName, ::startActivity)
   }
 
   override fun onBack(): Boolean = false
