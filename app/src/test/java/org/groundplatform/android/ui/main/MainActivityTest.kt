@@ -40,6 +40,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 
@@ -55,6 +56,8 @@ class MainActivityTest : BaseHiltTest() {
   @Inject lateinit var tosRepository: TermsOfServiceRepositoryInterface
 
   @Inject lateinit var remoteConfig: FirebaseRemoteConfig
+
+  @BindValue @JvmField val playInstallReferrerService: PlayInstallReferrerService = mock()
 
   @Test
   fun `Launch app with survey ID navigates to survey selector when user is logged in`() =
@@ -101,6 +104,24 @@ class MainActivityTest : BaseHiltTest() {
       advanceUntilIdle()
 
       assertThat(navController.currentDestination?.id).isEqualTo(R.id.sign_in_fragment)
+    }
+  }
+
+  @Test
+  fun `Deferred deep link routes to the survey after signing in`() = runWithTestDispatcher {
+    tosRepository.isTermsOfServiceAccepted = true
+    whenever(playInstallReferrerService.getDeferredSurveyId()).thenReturn("surveyId")
+
+    Robolectric.buildActivity(MainActivity::class.java).use { controller ->
+      controller.setup()
+      val navController = controller.get().navController()
+
+      fakeAuthenticationManager.setState(SignInState.SignedIn(FakeData.USER))
+      advanceUntilIdle()
+
+      assertThat(navController.currentDestination?.id).isEqualTo(R.id.surveySelectorFragment)
+      assertThat(navController.currentBackStackEntry?.arguments?.getString("surveyId"))
+        .isEqualTo("surveyId")
     }
   }
 

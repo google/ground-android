@@ -23,7 +23,9 @@ import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.NavHostFragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -54,8 +56,6 @@ class MainActivity : AbstractActivity() {
   private lateinit var viewModel: MainViewModel
   private lateinit var navHostFragment: NavHostFragment
 
-  private var pendingDeepLink: Uri? = null
-
   override fun onCreate(savedInstanceState: Bundle?) {
     // Make sure this is before calling super.onCreate()
     setTheme(R.style.AppTheme)
@@ -79,27 +79,27 @@ class MainActivity : AbstractActivity() {
 
     viewModel = viewModelFactory[this, MainViewModel::class.java]
 
-    lifecycleScope.launch {
-      intent.data?.let {
-        if (navHostFragment.navController.currentDestination?.id != R.id.sign_in_fragment) {
-          viewModel.setDeepLinkUri(it)
-        } else {
-          pendingDeepLink = it
-        }
+    intent.data?.let {
+      if (navHostFragment.navController.currentDestination?.id != R.id.sign_in_fragment) {
+        viewModel.setDeepLinkUri(it)
       }
+    }
 
-      viewModel.uiEffects.collect { effect ->
-        when (effect) {
-          is MainUiEffect.OpenStartDestination -> {
-            // Applied only while the app is still on an entry screen in order to not override a
-            // back stack that was restored after process recreation
-            val currentId = navHostFragment.navController.currentDestination?.id
-            if (currentId == R.id.startup_fragment || currentId == R.id.sign_in_fragment) {
-              updateUi(effect.destination)
+    lifecycleScope.launch {
+      repeatOnLifecycle(Lifecycle.State.STARTED) {
+        viewModel.uiEffects.collect { effect ->
+          when (effect) {
+            is MainUiEffect.OpenStartDestination -> {
+              // Applied only while the app is still on an entry screen in order to not override a
+              // back stack that was restored after process recreation
+              val currentId = navHostFragment.navController.currentDestination?.id
+              if (currentId == R.id.startup_fragment || currentId == R.id.sign_in_fragment) {
+                updateUi(effect.destination)
+              }
             }
-          }
-          MainUiEffect.SignedOut -> {
-            navigateTo(SignInFragmentDirections.showSignInScreen())
+            MainUiEffect.SignedOut -> {
+              navigateTo(SignInFragmentDirections.showSignInScreen())
+            }
           }
         }
       }
