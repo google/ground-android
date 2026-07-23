@@ -81,7 +81,7 @@ internal constructor(
             status = status,
             label = locationOfInterestHelper.getJobName(loi) ?: "",
             subtitle = locationOfInterestHelper.getDisplayLoiName(loi),
-            description = surveyRepository.getOfflineSurvey(mutation.surveyId)?.description ?: "",
+            description = surveyRepository.getOfflineSurvey(mutation.surveyId)?.title ?: "",
           )
         }
       }

@@ -91,7 +91,8 @@ class SyncStatusFragmentTest : BaseHiltTest() {
     composeTestRule.onNodeWithTag("sync list").assertIsDisplayed()
     composeTestRule.onNodeWithText("Job • Test LOI Name").assertIsDisplayed()
     composeTestRule.onNodeWithText("Pending").assertIsDisplayed() // Status
-    composeTestRule.onNodeWithText("Test survey description").assertIsDisplayed() // Description
+    composeTestRule.onNodeWithText("Survey title").assertIsDisplayed()
+    composeTestRule.onNodeWithText("Test survey description").assertDoesNotExist()
   }
 
   @Test
