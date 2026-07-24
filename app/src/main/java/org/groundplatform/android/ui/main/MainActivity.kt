@@ -23,12 +23,13 @@ import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.NavHostFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.databinding.MainActBinding
@@ -55,8 +56,6 @@ class MainActivity : AbstractActivity() {
   private lateinit var viewModel: MainViewModel
   private lateinit var navHostFragment: NavHostFragment
 
-  private var pendingDeepLink: Uri? = null
-
   override fun onCreate(savedInstanceState: Bundle?) {
     // Make sure this is before calling super.onCreate()
     setTheme(R.style.AppTheme)
@@ -80,16 +79,30 @@ class MainActivity : AbstractActivity() {
 
     viewModel = viewModelFactory[this, MainViewModel::class.java]
 
+    intent.data?.let {
+      if (navHostFragment.navController.currentDestination?.id != R.id.sign_in_fragment) {
+        viewModel.setDeepLinkUri(it)
+      }
+    }
+
     lifecycleScope.launch {
-      intent.data?.let {
-        if (navHostFragment.navController.currentDestination?.id != R.id.sign_in_fragment) {
-          viewModel.setDeepLinkUri(it)
-        } else {
-          pendingDeepLink = it
+      repeatOnLifecycle(Lifecycle.State.STARTED) {
+        viewModel.uiEffects.collect { effect ->
+          when (effect) {
+            is MainUiEffect.OpenStartDestination -> {
+              // Applied only while the app is still on an entry screen in order to not override a
+              // back stack that was restored after process recreation
+              val currentId = navHostFragment.navController.currentDestination?.id
+              if (currentId == R.id.startup_fragment || currentId == R.id.sign_in_fragment) {
+                updateUi(effect.destination)
+              }
+            }
+            MainUiEffect.SignedOut -> {
+              navigateTo(SignInFragmentDirections.showSignInScreen())
+            }
+          }
         }
       }
-
-      viewModel.navigationRequests.filterNotNull().collect { updateUi(it) }
     }
 
     onBackPressedDispatcher.addCallback(
@@ -105,26 +118,20 @@ class MainActivity : AbstractActivity() {
     )
   }
 
-  private fun updateUi(uiState: MainUiState) {
-    when (uiState) {
-      MainUiState.OnUserSignedOut -> {
-        navigateTo(SignInFragmentDirections.showSignInScreen())
+  private fun updateUi(destination: MainUiEffect.StartDestination) {
+    val direction =
+      when (destination) {
+        MainUiEffect.StartDestination.TermsOfService ->
+          SignInFragmentDirections.showTermsOfService(false)
+        MainUiEffect.StartDestination.SurveySelector ->
+          SurveySelectorFragmentDirections.showSurveySelectorScreen(true)
+        MainUiEffect.StartDestination.Home -> HomeScreenFragmentDirections.showHomeScreen()
+        is MainUiEffect.StartDestination.ActiveSurvey ->
+          SurveySelectorFragmentDirections.showSurveySelectorScreen(false).apply {
+            surveyId = destination.surveyId
+          }
       }
-      MainUiState.TosNotAccepted -> {
-        navigateTo(SignInFragmentDirections.showTermsOfService(false))
-      }
-      MainUiState.NoActiveSurvey -> {
-        navigateTo(SurveySelectorFragmentDirections.showSurveySelectorScreen(true))
-      }
-      MainUiState.ShowHomeScreen -> {
-        navigateTo(HomeScreenFragmentDirections.showHomeScreen())
-      }
-      is MainUiState.ActiveSurveyById -> {
-        val action = SurveySelectorFragmentDirections.showSurveySelectorScreen(false)
-        action.surveyId = uiState.surveyId
-        navigateTo(action)
-      }
-    }
+    navigateTo(direction)
   }
 
   /**
