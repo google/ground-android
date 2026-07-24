@@ -95,18 +95,23 @@ constructor(
     val destination =
       try {
         userRepository.saveUserDetails(user)
-        if (!isTosAccepted()) {
-          MainUiEffect.StartDestination.TermsOfService
-        } else if (isDeepLinkAvailable()) {
-          val surveyId = _deepLinkUri.value?.let { surveyDeepLinkParser.parse(it) }
-          if (surveyId != null) MainUiEffect.StartDestination.ActiveSurvey(surveyId)
-          else MainUiEffect.StartDestination.SurveySelector
-        } else {
-          val deferredSurveyId = playInstallReferrerService.getDeferredSurveyId()
-          when {
-            deferredSurveyId != null -> MainUiEffect.StartDestination.ActiveSurvey(deferredSurveyId)
-            reactivateLastSurvey() -> MainUiEffect.StartDestination.Home
-            else -> MainUiEffect.StartDestination.SurveySelector
+        when {
+          !isTosAccepted() -> {
+            MainUiEffect.StartDestination.TermsOfService
+          }
+          isDeepLinkAvailable() -> {
+            val surveyId = _deepLinkUri.value?.let { surveyDeepLinkParser.parse(it) }
+            surveyId?.let { MainUiEffect.StartDestination.ActiveSurvey(it) }
+              ?: MainUiEffect.StartDestination.SurveySelector
+          }
+          else -> {
+            val deferredSurveyId = playInstallReferrerService.getDeferredSurveyId()
+            when {
+              deferredSurveyId != null ->
+                MainUiEffect.StartDestination.ActiveSurvey(deferredSurveyId)
+              reactivateLastSurvey() -> MainUiEffect.StartDestination.Home
+              else -> MainUiEffect.StartDestination.SurveySelector
+            }
           }
         }
       } catch (e: Throwable) {

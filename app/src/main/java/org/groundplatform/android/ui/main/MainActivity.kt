@@ -119,22 +119,19 @@ class MainActivity : AbstractActivity() {
   }
 
   private fun updateUi(destination: MainUiEffect.StartDestination) {
-    when (destination) {
-      MainUiEffect.StartDestination.TermsOfService -> {
-        navigateTo(SignInFragmentDirections.showTermsOfService(false))
+    val direction =
+      when (destination) {
+        MainUiEffect.StartDestination.TermsOfService ->
+          SignInFragmentDirections.showTermsOfService(false)
+        MainUiEffect.StartDestination.SurveySelector ->
+          SurveySelectorFragmentDirections.showSurveySelectorScreen(true)
+        MainUiEffect.StartDestination.Home -> HomeScreenFragmentDirections.showHomeScreen()
+        is MainUiEffect.StartDestination.ActiveSurvey ->
+          SurveySelectorFragmentDirections.showSurveySelectorScreen(false).apply {
+            surveyId = destination.surveyId
+          }
       }
-      MainUiEffect.StartDestination.SurveySelector -> {
-        navigateTo(SurveySelectorFragmentDirections.showSurveySelectorScreen(true))
-      }
-      MainUiEffect.StartDestination.Home -> {
-        navigateTo(HomeScreenFragmentDirections.showHomeScreen())
-      }
-      is MainUiEffect.StartDestination.ActiveSurvey -> {
-        val action = SurveySelectorFragmentDirections.showSurveySelectorScreen(false)
-        action.surveyId = destination.surveyId
-        navigateTo(action)
-      }
-    }
+    navigateTo(direction)
   }
 
   /**
