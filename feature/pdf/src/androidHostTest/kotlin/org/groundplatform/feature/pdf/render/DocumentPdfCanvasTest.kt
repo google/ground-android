@@ -54,4 +54,24 @@ class DocumentPdfCanvasTest {
   fun `finishPage with no page open does nothing`() {
     canvas.finishPage()
   }
+
+  @Test
+  fun `drawMapOverlay before a page is started fails`() {
+    assertFailsWith<IllegalStateException> {
+      canvas.drawMapOverlay(COMPASS_OVERLAY, darkBasemap = false)
+    }
+    assertFailsWith<IllegalStateException> {
+      canvas.drawMapOverlay(LINE_OVERLAY, darkBasemap = false)
+    }
+    assertFailsWith<IllegalStateException> {
+      canvas.drawMapOverlay(TEXT_OVERLAY, darkBasemap = false)
+    }
+  }
+
+  private companion object {
+    val COMPASS_OVERLAY =
+      MapOverlay.Polygon(listOf(PdfOffset(0f, 0f), PdfOffset(10f, 0f), PdfOffset(5f, 10f)))
+    val LINE_OVERLAY = MapOverlay.Line(PdfLine(0f, 0f, 10f, 0f))
+    val TEXT_OVERLAY = MapOverlay.Text("N", boxWidth = 50, offset = PdfOffset(0f, 0f))
+  }
 }

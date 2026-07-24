@@ -30,6 +30,8 @@ internal interface PdfCanvas {
   fun drawImage(image: PdfImage, frame: RectF, smoothScaling: Boolean)
 
   fun drawLine(x1: Float, y1: Float, x2: Float, y2: Float)
+
+  fun drawMapOverlay(overlay: MapOverlay, darkBasemap: Boolean)
 }
 
 /** Used during the page-counting phase. Drops every drawing call. */
@@ -43,4 +45,6 @@ internal object MeasurementPdfCanvas : PdfCanvas {
   override fun drawImage(image: PdfImage, frame: RectF, smoothScaling: Boolean) = Unit
 
   override fun drawLine(x1: Float, y1: Float, x2: Float, y2: Float) = Unit
+
+  override fun drawMapOverlay(overlay: MapOverlay, darkBasemap: Boolean) = Unit
 }
