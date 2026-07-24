@@ -40,8 +40,6 @@ internal data class NorthArrowLayout(val labelOffset: PdfOffset, val arrow: List
     /** Vertical gap between the label and the arrow's tip. */
     const val LABEL_GAP = 1f
 
-    fun height(labelHeight: Float): Float = labelHeight + LABEL_GAP + ARROW_HEIGHT
-
     fun compute(imageFrame: PdfRect, labelHeight: Float): NorthArrowLayout {
       val halfWidth = ARROW_WIDTH / 2f
       val centerX = imageFrame.right - MARGIN - halfWidth

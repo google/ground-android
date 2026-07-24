@@ -49,14 +49,6 @@ class NorthArrowLayoutTest {
     assertTrue(layout.labelOffset.x + NorthArrowLayout.LABEL_WIDTH <= frame.right)
   }
 
-  @Test
-  fun `height covers the label, gap, and arrow`() {
-    val top = layout.labelOffset.y
-    val bottom = layout.arrow.maxOf { it.y }
-
-    assertEquals(NorthArrowLayout.height(LABEL_HEIGHT), bottom - top)
-  }
-
   private companion object {
     const val LABEL_HEIGHT = 9f
     private val frame = PdfRect(x = 100f, y = 192f, width = 300f, height = 300f)

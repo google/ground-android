@@ -60,7 +60,6 @@ data class SubmissionPdfDocument(
     val geometry: Geometry,
     val style: Style?,
     val area: Area?,
-    val scaleLabel: String,
   )
 
   data class Area(val label: String, val value: String?)

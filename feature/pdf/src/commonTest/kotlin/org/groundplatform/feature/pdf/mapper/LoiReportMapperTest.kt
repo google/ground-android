@@ -189,7 +189,6 @@ class LoiReportMapperTest {
 
       assertEquals(SQUARE_POLYGON, mapBlock.geometry)
       assertEquals(style, mapBlock.style)
-      assertEquals("scale", mapBlock.scaleLabel)
       val area = mapBlock.area!!
       assertEquals("area", area.label)
       assertEquals("1.00 ha", area.value)
