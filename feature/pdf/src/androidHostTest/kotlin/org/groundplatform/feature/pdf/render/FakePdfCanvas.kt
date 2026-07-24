@@ -25,6 +25,7 @@ internal class FakePdfCanvas : PdfCanvas {
   val drawnText = mutableListOf<String>()
   val drawnImages = mutableListOf<PdfImage>()
   val drawnLines = mutableListOf<PdfLine>()
+  val drawnOverlays = mutableListOf<Pair<MapOverlay, Boolean>>()
 
   override fun startPage(pageNumber: Int) {
     startedPages += pageNumber
@@ -44,5 +45,9 @@ internal class FakePdfCanvas : PdfCanvas {
 
   override fun drawLine(x1: Float, y1: Float, x2: Float, y2: Float) {
     drawnLines += PdfLine(x1, y1, x2, y2)
+  }
+
+  override fun drawMapOverlay(overlay: MapOverlay, darkBasemap: Boolean) {
+    drawnOverlays += overlay to darkBasemap
   }
 }
