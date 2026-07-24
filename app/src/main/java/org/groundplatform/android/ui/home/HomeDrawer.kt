@@ -51,6 +51,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -119,7 +120,7 @@ private val NAV_ITEMS =
 private fun DrawerItems(onAction: (HomeDrawerAction) -> Unit, versionText: String) {
   NAV_ITEMS.forEach { item -> DrawerNavigationItem(item, onAction) }
 
-  DrawerVersionFooter(versionText)
+  DrawerVersionFooter(versionText) { onAction(HomeDrawerAction.OnOpenPlayStore) }
 }
 
 @Composable
@@ -142,11 +143,13 @@ private fun DrawerNavigationItem(item: DrawerItem, onAction: (HomeDrawerAction) 
 }
 
 @Composable
-private fun DrawerVersionFooter(versionText: String) {
+private fun DrawerVersionFooter(versionText: String, onClick: () -> Unit) {
   Row(
     modifier =
       Modifier.fillMaxWidth()
         .padding(NavigationDrawerItemDefaults.ItemPadding)
+        .clip(CircleShape)
+        .clickable(onClick = onClick, role = Role.Button)
         .padding(start = 16.dp, end = 24.dp, top = 12.dp, bottom = 12.dp),
     verticalAlignment = Alignment.CenterVertically,
   ) {

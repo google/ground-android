@@ -28,6 +28,8 @@ sealed interface HomeDrawerAction {
 
   data object OnNavigateToTerms : HomeDrawerAction
 
+  data object OnOpenPlayStore : HomeDrawerAction
+
   data object OnSignOut : HomeDrawerAction
 
   data object OnUserDetails : HomeDrawerAction
