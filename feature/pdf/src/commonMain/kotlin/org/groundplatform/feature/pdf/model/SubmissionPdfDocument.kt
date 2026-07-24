@@ -20,7 +20,7 @@ import org.groundplatform.domain.model.job.Style
 
 /**
  * UI model for a submission PDF. Each property corresponds to a distinct visual section so that
- * platform renderers (Android, iOS) can lay them out independently:
+ * platform renderers (Android, iOS) can lay them out independently.
  */
 data class SubmissionPdfDocument(
   val header: Header,
@@ -56,11 +56,7 @@ data class SubmissionPdfDocument(
     val userEmail: String,
   )
 
-  data class MapBlock(
-    val geometry: Geometry,
-    val style: Style?,
-    val area: Area?,
-  )
+  data class MapBlock(val geometry: Geometry, val style: Style?, val area: Area?)
 
   data class Area(val label: String, val value: String?)
 
