@@ -130,10 +130,7 @@ internal constructor(
   /** [Feature] clicked by the user. */
   val featureClicked: MutableStateFlow<Feature?> = MutableStateFlow(null)
 
-  /**
-   * List of [Job]s which allow LOIs to be added during field collection, populated only when zoomed
-   * in far enough.
-   */
+  /** List of [Job]s which allow LOIs to be added during field collection. */
   private val adHocLoiJobs: Flow<List<Job>>
 
   private val showJobSelectionModal = MutableStateFlow(false)
@@ -179,8 +176,8 @@ internal constructor(
         .stateIn(viewModelScope, SharingStarted.Lazily, listOf())
 
     adHocLoiJobs =
-      activeSurvey.combine(isZoomedInFlow) { survey, isZoomedIn ->
-        if (survey == null || !isZoomedIn) listOf()
+      activeSurvey.map { survey ->
+        if (survey == null) listOf()
         else survey.jobs.filter { it.canDataCollectorsAddLois && it.getAddLoiTask() != null }
       }
 
