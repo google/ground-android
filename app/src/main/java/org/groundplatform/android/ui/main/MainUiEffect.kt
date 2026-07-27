@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Google LLC
+ * Copyright 2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,19 @@
 
 package org.groundplatform.android.ui.main
 
-sealed class MainUiState {
+/** One-off navigation effects emitted by [MainViewModel]. */
+sealed interface MainUiEffect {
+  data class OpenStartDestination(val destination: StartDestination) : MainUiEffect
 
-  data object OnUserSignedOut : MainUiState()
+  data object SignedOut : MainUiEffect
 
-  data object TosNotAccepted : MainUiState()
+  sealed interface StartDestination {
+    data object Home : StartDestination
 
-  data object NoActiveSurvey : MainUiState()
+    data object SurveySelector : StartDestination
 
-  data object ShowHomeScreen : MainUiState()
+    data class ActiveSurvey(val surveyId: String) : StartDestination
 
-  data class ActiveSurveyById(val surveyId: String) : MainUiState()
+    data object TermsOfService : StartDestination
+  }
 }
