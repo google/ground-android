@@ -24,6 +24,11 @@ updates:
       interval: "daily"
     open-pull-requests-limit: 10
     target-branch: "master"
+    ignore:
+      # Google Play Console flags issues with this dependency on Android <= 14. Remove this if
+      # this issue is fixed in later releases: https://github.com/JetBrains/markdown/issues/197.
+      - dependency-name: "org.jetbrains:markdown"
+        versions: [ "[0.7.4,0.7.7]" ]
 
   # Enable version updates for GitHub Actions
   - package-ecosystem: "github-actions"
