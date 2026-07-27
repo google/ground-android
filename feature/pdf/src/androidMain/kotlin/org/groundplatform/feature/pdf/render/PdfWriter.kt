@@ -78,19 +78,31 @@ internal class PdfWriter(
     finalizePage()
   }
 
-  /** Draws the QR code and its caption on a page of their own, without header or footer. */
+  /**
+   * Draws the submission title, the QR code and its caption on a page of their own, without header
+   * or footer.
+   */
   private fun drawQrPage(block: QrBlock) {
     val qr = images[PdfImageSet.ImageRef.Qr] ?: return
-    val captionLayout =
+    val blockWidth = QrPageLayout.QR_SIZE.toInt()
+    val titleLayout =
       staticLayout(
-        block.scanCaption,
-        paints.caption,
-        QrPageLayout.QR_SIZE.toInt(),
-        Layout.Alignment.ALIGN_CENTER,
+        text = labeled(block.submissionLabel, block.submissionName),
+        paint = paints.body,
+        maxWidth = blockWidth,
+        alignment = Layout.Alignment.ALIGN_CENTER,
+        maxLines = QrPageLayout.TITLE_MAX_LINES,
       )
-    val layout = QrPageLayout.compute(captionHeight = captionLayout.height.toFloat())
+    val captionLayout =
+      staticLayout(block.scanCaption, paints.caption, blockWidth, Layout.Alignment.ALIGN_CENTER)
+    val layout =
+      QrPageLayout.compute(
+        titleHeight = titleLayout.height.toFloat(),
+        captionHeight = captionLayout.height.toFloat(),
+      )
     pageController.standalonePage { pageNumber ->
       pdfCanvas.startPage(pageNumber, PdfConfig.QR_PAGE_SIZE)
+      drawStaticLayoutAt(titleLayout, layout.titleOffset)
       drawImage(qr, layout.qrFrame, smoothScaling = false)
       drawStaticLayoutAt(captionLayout, layout.captionOffset)
       pdfCanvas.finishPage()
@@ -241,19 +253,19 @@ internal class PdfWriter(
   private fun drawLine(line: PdfLine) =
     pdfCanvas.drawLine(line.startX, line.startY, line.endX, line.endY)
 
-  private fun buildFooterLayout(footer: Footer): StaticLayout {
-    val footerLabel = footer.dataCollectorLabel
-    val footerText =
-      SpannableString("$footerLabel: ${footer.dataCollectorName}, ${footer.userEmail}").apply {
-        setSpan(StyleSpan(Typeface.BOLD), 0, footerLabel.length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
-      }
-    return staticLayout(
-      footerText,
+  private fun buildFooterLayout(footer: Footer): StaticLayout =
+    staticLayout(
+      labeled(footer.dataCollectorLabel, "${footer.dataCollectorName}, ${footer.userEmail}"),
       paints.meta,
       PageFooterLayout.TEXT_MAX_WIDTH,
       maxLines = PageFooterLayout.MAX_LINES,
     )
-  }
+
+  /** Builds a `"<label>: <value>"` string with the label in bold. */
+  private fun labeled(label: String, value: String): SpannableString =
+    SpannableString("$label: $value").apply {
+      setSpan(StyleSpan(Typeface.BOLD), 0, label.length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
+    }
 
   /**
    * Lays out [text] wrapped to [maxWidth]. When [maxLines] is set, overflow is ellipsized so a

@@ -22,26 +22,36 @@ import org.groundplatform.feature.pdf.render.PdfOffset
 import org.groundplatform.feature.pdf.render.PdfRect
 
 /**
- * Pre-computed layout for the QR page: the QR code and its caption centered on a page of
- * [QR_PAGE_WIDTH] x [QR_PAGE_HEIGHT]. Compute should only be called when a QR image is available;
- * the caption is meaningless without it.
+ * Pre-computed layout for the QR page: the submission title, the QR code and its caption centered
+ * on a page of [QR_PAGE_WIDTH] x [QR_PAGE_HEIGHT]. Compute should only be called when a QR image is
+ * available; the title and caption are meaningless without it.
  *
+ * @param titleOffset Top-left position of the submission title (centered above the QR).
  * @param qrFrame Position and size of the QR image.
  * @param captionOffset Top-left position of the caption text (centered under the QR).
  */
-internal data class QrPageLayout(val qrFrame: PdfRect, val captionOffset: PdfOffset) {
+internal data class QrPageLayout(
+  val titleOffset: PdfOffset,
+  val qrFrame: PdfRect,
+  val captionOffset: PdfOffset,
+) {
   companion object {
     const val MARGIN = 16f
 
     /** Target size of the QR code, spanning the page width between the margins. */
     const val QR_SIZE = QR_PAGE_WIDTH - 2 * MARGIN
 
-    fun compute(captionHeight: Float): QrPageLayout {
-      val blockHeight = QR_SIZE + LINE_SPACING + captionHeight
+    /** Maximum number of lines rendered for the submission title. */
+    const val TITLE_MAX_LINES = 2
+
+    fun compute(titleHeight: Float, captionHeight: Float): QrPageLayout {
+      val blockHeight = titleHeight + LINE_SPACING + QR_SIZE + LINE_SPACING + captionHeight
       val top = (QR_PAGE_HEIGHT - blockHeight) / 2
+      val qrTop = top + titleHeight + LINE_SPACING
       return QrPageLayout(
-        qrFrame = PdfRect(MARGIN, top, QR_SIZE, QR_SIZE),
-        captionOffset = PdfOffset(MARGIN, top + QR_SIZE + LINE_SPACING),
+        titleOffset = PdfOffset(MARGIN, top),
+        qrFrame = PdfRect(MARGIN, qrTop, QR_SIZE, QR_SIZE),
+        captionOffset = PdfOffset(MARGIN, qrTop + QR_SIZE + LINE_SPACING),
       )
     }
   }

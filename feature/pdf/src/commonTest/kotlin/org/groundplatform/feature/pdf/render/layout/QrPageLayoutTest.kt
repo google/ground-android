@@ -29,7 +29,7 @@ class QrPageLayoutTest {
 
   @Test
   fun `QR frame is a square spanning the page width between the margins`() {
-    val layout = QrPageLayout.compute(captionHeight = 10f)
+    val layout = compute()
 
     assertEquals(MARGIN, layout.qrFrame.x)
     assertEquals(QR_SIZE, layout.qrFrame.width)
@@ -38,34 +38,54 @@ class QrPageLayoutTest {
   }
 
   @Test
+  fun `title sits directly above the QR with line spacing between them`() {
+    val titleHeight = 12f
+    val layout = compute(titleHeight = titleHeight)
+
+    assertEquals(layout.qrFrame.y - lineSpacing - titleHeight, layout.titleOffset.y)
+  }
+
+  @Test
   fun `caption sits directly below the QR with line spacing between them`() {
-    val layout = QrPageLayout.compute(captionHeight = 10f)
+    val layout = compute()
 
     assertEquals(layout.qrFrame.bottom + lineSpacing, layout.captionOffset.y)
   }
 
   @Test
-  fun `caption shares its X with the QR frame`() {
-    val layout = QrPageLayout.compute(captionHeight = 10f)
+  fun `title and caption share their X with the QR frame`() {
+    val layout = compute()
 
+    assertEquals(layout.qrFrame.x, layout.titleOffset.x)
     assertEquals(layout.qrFrame.x, layout.captionOffset.x)
   }
 
   @Test
-  fun `QR and caption are centered vertically on the page`() {
+  fun `the whole title QR and caption block is centered vertically on the page`() {
     val captionHeight = 14f
-    val layout = QrPageLayout.compute(captionHeight = captionHeight)
+    val layout = compute(titleHeight = 12f, captionHeight = captionHeight)
 
-    val spaceAbove = layout.qrFrame.y
+    val spaceAbove = layout.titleOffset.y
     val spaceBelow = pageHeight - (layout.captionOffset.y + captionHeight)
     assertEquals(spaceAbove, spaceBelow)
   }
 
   @Test
   fun `taller captions push the QR further up the page`() {
-    val short = QrPageLayout.compute(captionHeight = 10f)
-    val tall = QrPageLayout.compute(captionHeight = 30f)
+    val short = compute(captionHeight = 10f)
+    val tall = compute(captionHeight = 30f)
 
     assertEquals(short.qrFrame.y - 10f, tall.qrFrame.y)
   }
+
+  @Test
+  fun `taller titles push the QR further down the page`() {
+    val short = compute(titleHeight = 10f)
+    val tall = compute(titleHeight = 30f)
+
+    assertEquals(short.qrFrame.y + 10f, tall.qrFrame.y)
+  }
+
+  private fun compute(titleHeight: Float = 12f, captionHeight: Float = 10f) =
+    QrPageLayout.compute(titleHeight = titleHeight, captionHeight = captionHeight)
 }

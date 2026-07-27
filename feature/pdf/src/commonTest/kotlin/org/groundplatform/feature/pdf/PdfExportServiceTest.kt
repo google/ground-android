@@ -108,7 +108,12 @@ class PdfExportServiceTest {
             jobName = "Job name",
             timestamp = "timestamp",
           ),
-        qrBlock = SubmissionPdfDocument.QrBlock(scanCaption = "Scan"),
+        qrBlock =
+          SubmissionPdfDocument.QrBlock(
+            submissionLabel = "Submission",
+            submissionName = "Loi",
+            scanCaption = "Scan",
+          ),
         footer =
           SubmissionPdfDocument.Footer(
             dataCollectorLabel = "Collector",

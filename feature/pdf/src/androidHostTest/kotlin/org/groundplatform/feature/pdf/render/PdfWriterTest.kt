@@ -82,7 +82,7 @@ class PdfWriterTest {
 
     val canvas = renderDocument(tableless, pdfImageSet(qr = pdfImage()))
 
-    assertEquals(listOf(QR_BLOCK.scanCaption), canvas.drawnText)
+    assertEquals(listOf(QR_TITLE, QR_BLOCK.scanCaption), canvas.drawnText)
   }
 
   @Test
@@ -124,12 +124,13 @@ class PdfWriterTest {
   }
 
   @Test
-  fun `draws the qr image and caption when a qr image is provided`() {
+  fun `draws the qr image, its submission title and caption when a qr image is provided`() {
     val qr = pdfImage()
     val canvas = renderDocument(SINGLE_PAGE_DOCUMENT, pdfImageSet(qr = qr))
 
     assertTrue(canvas.drawnImages.any { it.bitmap === qr.bitmap })
     assertTrue(canvas.drawnText.contains(QR_BLOCK.scanCaption))
+    assertTrue(canvas.drawnText.contains(QR_TITLE))
   }
 
   @Test
@@ -279,7 +280,14 @@ class PdfWriterTest {
         userEmail = "user@gmail.com",
       )
 
-    val QR_BLOCK = SubmissionPdfDocument.QrBlock(scanCaption = "Scan")
+    val QR_BLOCK =
+      SubmissionPdfDocument.QrBlock(
+        submissionLabel = "Submission",
+        submissionName = "Plot 42",
+        scanCaption = "Scan",
+      )
+
+    val QR_TITLE = "${QR_BLOCK.submissionLabel}: ${QR_BLOCK.submissionName}"
 
     val TABLE =
       SubmissionPdfDocument.Table(
