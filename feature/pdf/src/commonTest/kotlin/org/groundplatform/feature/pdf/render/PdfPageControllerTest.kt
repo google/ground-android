@@ -170,6 +170,52 @@ class PdfPageControllerTest {
   }
 
   @Test
+  fun `standalonePage emits a page without header and footer events`() {
+    val drawnOn = mutableListOf<Int>()
+
+    controller.standalonePage { pageNumber -> drawnOn += pageNumber }
+
+    assertEquals(listOf(1), drawnOn)
+    assertEquals(1, controller.pageCount)
+    assertTrue(lifecycle.events.isEmpty())
+  }
+
+  @Test
+  fun `standalonePage is left out of the content page count`() {
+    controller.standalonePage {}
+    controller.ensurePage()
+
+    assertEquals(2, controller.pageCount)
+    assertEquals(1, controller.contentPageCount)
+    assertEquals(listOf<PageEvent>(PageEvent.Started(2)), lifecycle.events)
+  }
+
+  @Test
+  fun `standalonePage closes an open content page first`() {
+    controller.ensurePage()
+
+    controller.standalonePage {}
+
+    assertEquals(listOf(PageEvent.Started(1), PageEvent.Ending(1)), lifecycle.events)
+    assertEquals(2, controller.pageCount)
+    assertEquals(1, controller.contentPageCount)
+  }
+
+  @Test
+  fun `content pages that follow a standalone page keep their document page numbers`() {
+    controller.standalonePage {}
+    controller.ensurePage()
+    cursor.advance(100f)
+    controller.newPageIfShort(spaceNeeded = Float.MAX_VALUE)
+
+    assertEquals(
+      listOf(PageEvent.Started(2), PageEvent.Ending(2), PageEvent.Started(3)),
+      lifecycle.events,
+    )
+    assertEquals(2, controller.contentPageCount)
+  }
+
+  @Test
   fun `isFirstTableRowOnPage is true until consumed`() {
     controller.ensurePage()
 

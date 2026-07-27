@@ -24,25 +24,49 @@ internal class PdfPageController(
   private val lifecycle: PageLifecycle,
 ) {
   interface PageLifecycle {
-    /** Called after a new page has been allocated. The header should be drawn here. */
+    /** Called after a new content page has been allocated. The header should be drawn here. */
     fun onPageStarted(pageNumber: Int)
 
-    /** Called before the page is closed. The footer and per-page flush should happen here. */
+    /**
+     * Called before the content page is closed. The footer and per-page flush should happen here.
+     */
     fun onPageEnding(pageNumber: Int)
   }
 
   private var pageIndex = 0
+  private var contentPageIndex = 0
   private var pageOpen = false
 
   var isFirstTableRowOnPage = true
     private set
 
-  /** Number of pages emitted so far. Equals the current page number while a page is open. */
+  /**
+   * Number of pages emitted so far, standalone pages included. Equals the current page number while
+   * a page is open.
+   */
   val pageCount: Int
     get() = pageIndex
 
+  /**
+   * Number of content pages emitted so far. Standalone pages are excluded, so this is the number
+   * shown in the footer of the page currently open.
+   */
+  val contentPageCount: Int
+    get() = contentPageIndex
+
   fun ensurePage() {
     if (!pageOpen) beginPage()
+  }
+
+  /**
+   * Emits a page that carries no header or footer and is left out of the content page numbering.
+   * Any open content page is closed first so the standalone page keeps its place in the document.
+   * [draw] receives the page number and is responsible for opening and closing the page.
+   */
+  fun standalonePage(draw: (pageNumber: Int) -> Unit) {
+    finalizePage()
+    pageIndex++
+    draw(pageIndex)
   }
 
   /** Records that the first table row on the current page has been drawn. */
@@ -65,6 +89,7 @@ internal class PdfPageController(
 
   private fun beginPage() {
     pageIndex++
+    contentPageIndex++
     pageOpen = true
     isFirstTableRowOnPage = true
     cursor.reset()

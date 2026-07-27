@@ -51,11 +51,38 @@ class PdfWriterTest {
   }
 
   @Test
-  fun `opens and closes exactly one page for a single-page document`() {
+  fun `opens and closes a qr page and one content page for a single-page document`() {
     val canvas = renderDocument(SINGLE_PAGE_DOCUMENT)
 
-    assertEquals(listOf(1), canvas.startedPages)
-    assertEquals(1, canvas.finishedPages)
+    assertEquals(listOf(1, 2), canvas.startedPageNumbers)
+    assertEquals(2, canvas.finishedPages)
+  }
+
+  @Test
+  fun `draws the qr on an A7 page ahead of the A4 content pages`() {
+    val canvas = renderDocument(SINGLE_PAGE_DOCUMENT)
+
+    assertEquals(
+      listOf(PdfConfig.QR_PAGE_SIZE, PdfConfig.REPORT_PAGE_SIZE),
+      canvas.startedPages.map { it.pageSize },
+    )
+  }
+
+  @Test
+  fun `does not open a qr page when no qr image is provided`() {
+    val canvas = renderDocument(SINGLE_PAGE_DOCUMENT, pdfImageSet(qr = null))
+
+    assertEquals(listOf(PdfConfig.REPORT_PAGE_SIZE), canvas.startedPages.map { it.pageSize })
+  }
+
+  @Test
+  fun `draws no header or footer on the qr page`() {
+    val tableless =
+      SINGLE_PAGE_DOCUMENT.copy(table = SINGLE_PAGE_DOCUMENT.table.copy(rows = emptyList()))
+
+    val canvas = renderDocument(tableless, pdfImageSet(qr = pdfImage()))
+
+    assertEquals(listOf(QR_BLOCK.scanCaption), canvas.drawnText)
   }
 
   @Test
@@ -86,10 +113,10 @@ class PdfWriterTest {
 
     pdfWriter.drawDocument(TEST_PDF_DOCUMENT)
 
-    assertTrue(pdfWriter.pageCount > 1)
-    assertEquals(pdfWriter.pageCount, canvas.drawnText.count { it == HEADER.surveyName })
+    assertTrue(pdfWriter.contentPageCount > 1)
+    assertEquals(pdfWriter.contentPageCount, canvas.drawnText.count { it == HEADER.surveyName })
     assertEquals(
-      pdfWriter.pageCount,
+      pdfWriter.contentPageCount,
       canvas.drawnText.count {
         it == "${FOOTER.dataCollectorLabel}: ${FOOTER.dataCollectorName}, ${FOOTER.userEmail}"
       },
@@ -144,7 +171,7 @@ class PdfWriterTest {
   }
 
   @Test
-  fun `includes the page number in the footer when totalPages is set`() {
+  fun `numbers the content pages in the footer, leaving the qr page out of the count`() {
     val canvas = renderDocument(SINGLE_PAGE_DOCUMENT, totalPages = 1)
 
     assertTrue(canvas.drawnText.contains("1/1"))
@@ -175,8 +202,8 @@ class PdfWriterTest {
     pdfWriter.drawDocument(TEST_PDF_DOCUMENT)
 
     // Every page resets the flag, so each page's first row draws exactly 1 top border.
-    assertTrue(pdfWriter.pageCount > 1)
-    assertEquals(pdfWriter.pageCount, canvas.topBorderCount())
+    assertTrue(pdfWriter.contentPageCount > 1)
+    assertEquals(pdfWriter.contentPageCount, canvas.topBorderCount())
   }
 
   @Test
@@ -186,7 +213,7 @@ class PdfWriterTest {
 
     val canvas = renderDocument(tableless, pdfImageSet(qr = pdfImage()))
 
-    assertEquals(listOf(1), canvas.startedPages)
+    assertEquals(listOf(1), canvas.startedPageNumbers)
     assertFalse(canvas.drawnText.contains(TABLE.submissionLabel))
   }
 
@@ -200,7 +227,7 @@ class PdfWriterTest {
   private fun renderPageCount(totalPages: Int?): Int =
     newPdfWriter(TEST_PDF_DOCUMENT, PdfImageSet(emptyMap()), MeasurementPdfCanvas, totalPages)
       .apply { drawDocument(TEST_PDF_DOCUMENT) }
-      .pageCount
+      .contentPageCount
 
   private fun newPdfWriter(
     document: SubmissionPdfDocument,

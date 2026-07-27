@@ -36,7 +36,7 @@ import org.groundplatform.feature.pdf.render.image.PdfImage
 import org.groundplatform.feature.pdf.render.image.PdfImageSet
 import org.groundplatform.feature.pdf.render.layout.PageFooterLayout
 import org.groundplatform.feature.pdf.render.layout.PageHeaderLayout
-import org.groundplatform.feature.pdf.render.layout.QrBlockLayout
+import org.groundplatform.feature.pdf.render.layout.QrPageLayout
 import org.groundplatform.feature.pdf.render.layout.TableLayout
 
 /**
@@ -58,11 +58,12 @@ internal class PdfWriter(
     PdfCursor(footerReserve = PageFooterLayout.reserve(footerLayout.height.toFloat()))
   private val pageController = PdfPageController(cursor, this)
 
-  val pageCount: Int
-    get() = pageController.pageCount
+  /** Number of pages carrying the header and footer; the standalone QR page is excluded. */
+  val contentPageCount: Int
+    get() = pageController.contentPageCount
 
   override fun onPageStarted(pageNumber: Int) {
-    pdfCanvas.startPage(pageNumber)
+    pdfCanvas.startPage(pageNumber, PdfConfig.REPORT_PAGE_SIZE)
     drawPageHeader()
   }
 
@@ -72,26 +73,28 @@ internal class PdfWriter(
   }
 
   fun drawDocument(document: SubmissionPdfDocument) {
-    drawQrBlock(document.qrBlock)
+    drawQrPage(document.qrBlock)
     drawTable(document.table)
     finalizePage()
   }
 
-  private fun drawQrBlock(block: QrBlock) {
+  /** Draws the QR code and its caption on a page of their own, without header or footer. */
+  private fun drawQrPage(block: QrBlock) {
     val qr = images[PdfImageSet.ImageRef.Qr] ?: return
-    pageController.ensurePage()
     val captionLayout =
       staticLayout(
         block.scanCaption,
         paints.caption,
-        QrBlockLayout.QR_SIZE.toInt(),
+        QrPageLayout.QR_SIZE.toInt(),
         Layout.Alignment.ALIGN_CENTER,
       )
-    val layout =
-      QrBlockLayout.compute(top = cursor.y, captionHeight = captionLayout.height.toFloat())
-    drawImage(qr, layout.qrFrame, smoothScaling = false)
-    drawStaticLayoutAt(captionLayout, layout.captionOffset)
-    cursor.moveTo(layout.nextCursorY)
+    val layout = QrPageLayout.compute(captionHeight = captionLayout.height.toFloat())
+    pageController.standalonePage { pageNumber ->
+      pdfCanvas.startPage(pageNumber, PdfConfig.QR_PAGE_SIZE)
+      drawImage(qr, layout.qrFrame, smoothScaling = false)
+      drawStaticLayoutAt(captionLayout, layout.captionOffset)
+      pdfCanvas.finishPage()
+    }
   }
 
   private fun drawTable(table: SubmissionPdfDocument.Table) {
@@ -183,7 +186,7 @@ internal class PdfWriter(
     totalPages?.let { total ->
       val pageNumber =
         staticLayout(
-          "${pageController.pageCount}/$total",
+          "${pageController.contentPageCount}/$total",
           paints.meta,
           layout.pageNumberMaxWidth,
           alignment = Layout.Alignment.ALIGN_OPPOSITE,
