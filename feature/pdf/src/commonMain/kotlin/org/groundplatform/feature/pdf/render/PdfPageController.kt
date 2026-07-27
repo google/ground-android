@@ -18,10 +18,6 @@ package org.groundplatform.feature.pdf.render
 /**
  * Platform-agnostic page state machine for PDF rendering. Delegates the actual page allocation and
  * drawing to a platform-specific [PageLifecycle] implementation.
- *
- * @param coverPages Pages drawn ahead of the body by someone else, e.g. the QR page. They take the
- *   document's first page numbers, so the body is numbered from [coverPages] + 1, but they are not
- *   counted by [pageCount] and so stay out of the numbering the footer prints.
  */
 internal class PdfPageController(
   private val cursor: PdfCursor,
@@ -43,15 +39,15 @@ internal class PdfPageController(
     private set
 
   /**
-   * Number of body pages emitted so far, which is the numbering the footer prints. Equals the
-   * current body page number while a page is open.
+   * Number of content pages emitted so far. Does not include cover pages as they have no page
+   * numbering. Equals the current page number while a page is open.
    */
-  val pageCount: Int
+  val bodyPageCount: Int
     get() = pageIndex
 
-  /** Position of the current page within the document, cover pages included. */
-  private val documentPageNumber: Int
-    get() = coverPages + pageIndex
+  /** Where the current page sits in the PDF itself, counting the cover pages ahead of the body. */
+  private val pdfPageNumber: Int
+    get() = coverPages + bodyPageCount
 
   fun ensurePage() {
     if (!pageOpen) beginPage()
@@ -71,7 +67,7 @@ internal class PdfPageController(
 
   fun finalizePage() {
     if (!pageOpen) return
-    lifecycle.onPageEnding(documentPageNumber)
+    lifecycle.onPageEnding(pdfPageNumber)
     pageOpen = false
   }
 
@@ -80,6 +76,6 @@ internal class PdfPageController(
     pageOpen = true
     isFirstTableRowOnPage = true
     cursor.reset()
-    lifecycle.onPageStarted(documentPageNumber)
+    lifecycle.onPageStarted(pdfPageNumber)
   }
 }

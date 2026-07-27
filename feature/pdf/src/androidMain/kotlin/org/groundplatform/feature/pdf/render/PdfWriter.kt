@@ -61,9 +61,8 @@ internal class PdfWriter(
   private val pageController =
     PdfPageController(cursor, this, coverPages = if (coverImage == null) 0 else 1)
 
-  /** Number content pages. The cover is excluded, as it doesn't have page numbering. */
-  val pageCount: Int
-    get() = pageController.pageCount
+  val bodyPageCount: Int
+    get() = pageController.bodyPageCount
 
   override fun onPageStarted(pageNumber: Int) {
     pdfCanvas.startPage(pageNumber, PdfConfig.REPORT_PAGE_SIZE)
@@ -195,7 +194,7 @@ internal class PdfWriter(
     totalPages?.let { total ->
       val pageNumber =
         staticLayout(
-          "${pageController.pageCount}/$total",
+          "${pageController.bodyPageCount}/$total",
           paints.meta,
           layout.pageNumberMaxWidth,
           alignment = Layout.Alignment.ALIGN_OPPOSITE,
