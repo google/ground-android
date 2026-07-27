@@ -172,7 +172,6 @@ class LoiReportMapperTest {
 
     val qrBlock = mapper.map(report, submission)!!.document.qrBlock
 
-    assertEquals("submission", qrBlock.submissionLabel)
     assertEquals("Loi", qrBlock.submissionName)
     assertEquals("scan_this_qr_to_download_geojson", qrBlock.scanCaption)
   }

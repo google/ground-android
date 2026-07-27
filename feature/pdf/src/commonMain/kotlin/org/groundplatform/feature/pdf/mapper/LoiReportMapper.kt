@@ -95,7 +95,6 @@ class LoiReportMapper(
 
   private suspend fun buildQrBlock(loiName: String): QrBlock =
     QrBlock(
-      submissionLabel = strings.resolve(Res.string.submission),
       submissionName = loiName,
       scanCaption = strings.resolve(Res.string.scan_this_qr_to_download_geojson),
     )
