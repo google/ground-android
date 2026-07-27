@@ -83,13 +83,26 @@ internal object TableLayout {
     )
   }
 
-  data class Label(val labelOffset: PdfOffset, val nextCursorY: Float)
+  /**
+   * Layout of the two heading lines above the table.
+   *
+   * @param titleOffset Top-left position of the submission line.
+   * @param subtitleOffset Top-left position of the job line, directly below the submission line.
+   * @param nextCursorY Cursor Y position after the heading.
+   */
+  data class Heading(
+    val titleOffset: PdfOffset,
+    val subtitleOffset: PdfOffset,
+    val nextCursorY: Float,
+  )
 
-  fun getLabel(top: Float, labelHeight: Float): Label {
-    val labelTop = top + LINE_SPACING * 2
-    return Label(
-      labelOffset = PdfOffset(MARGIN.toFloat(), labelTop),
-      nextCursorY = labelTop + labelHeight + LINE_SPACING,
+  fun getHeading(top: Float, titleHeight: Float, subtitleHeight: Float): Heading {
+    val titleTop = top + LINE_SPACING * 2
+    val subtitleTop = titleTop + titleHeight + LINE_SPACING
+    return Heading(
+      titleOffset = PdfOffset(MARGIN.toFloat(), titleTop),
+      subtitleOffset = PdfOffset(MARGIN.toFloat(), subtitleTop),
+      nextCursorY = subtitleTop + subtitleHeight + LINE_SPACING * 2,
     )
   }
 

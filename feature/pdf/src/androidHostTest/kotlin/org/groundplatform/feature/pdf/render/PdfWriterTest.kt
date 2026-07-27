@@ -59,12 +59,29 @@ class PdfWriterTest {
   }
 
   @Test
-  fun `draws the header values on the page`() {
+  fun `draws the survey, submission and date columns in the header`() {
     val canvas = renderDocument(SINGLE_PAGE_DOCUMENT)
 
-    assertTrue(canvas.drawnText.contains(HEADER.surveyName))
-    assertTrue(canvas.drawnText.contains(HEADER.jobName))
-    assertTrue(canvas.drawnText.contains(HEADER.timestamp))
+    assertTrue(canvas.drawnText.containsAll(listOf(HEADER.surveyLabel, HEADER.surveyName)))
+    assertTrue(canvas.drawnText.containsAll(listOf(HEADER.submissionLabel, HEADER.submissionName)))
+    assertTrue(canvas.drawnText.containsAll(listOf(HEADER.dateLabel, HEADER.timestamp)))
+  }
+
+  @Test
+  fun `draws no job column in the header`() {
+    val canvas = renderDocument(SINGLE_PAGE_DOCUMENT)
+
+    assertFalse(canvas.drawnText.contains(TABLE.jobName))
+    assertEquals(1, canvas.drawnText.count { it == "${TABLE.jobLabel}: ${TABLE.jobName}" })
+  }
+
+  @Test
+  fun `draws the submission heading above the table with the job below it`() {
+    val canvas = renderDocument(SINGLE_PAGE_DOCUMENT)
+
+    val jobLineIndex = canvas.drawnText.indexOf("${TABLE.jobLabel}: ${TABLE.jobName}")
+    assertTrue(jobLineIndex > 0)
+    assertEquals("${TABLE.submissionLabel}: ${TABLE.loiName}", canvas.drawnText[jobLineIndex - 1])
   }
 
   @Test
@@ -187,7 +204,7 @@ class PdfWriterTest {
     val canvas = renderDocument(tableless, pdfImageSet(qr = pdfImage()))
 
     assertEquals(listOf(1), canvas.startedPages)
-    assertFalse(canvas.drawnText.contains(TABLE.submissionLabel))
+    assertFalse(canvas.drawnText.contains("${TABLE.submissionLabel}: ${TABLE.loiName}"))
   }
 
   private fun renderDocument(
@@ -241,8 +258,9 @@ class PdfWriterTest {
       SubmissionPdfDocument.Header(
         surveyLabel = "Survey",
         surveyName = "Survey name",
-        jobLabel = "Job",
-        jobName = "Job name",
+        submissionLabel = "Submission",
+        submissionName = "Plot 42",
+        dateLabel = "Date",
         timestamp = "timestamp",
       )
     val FOOTER =
@@ -258,6 +276,8 @@ class PdfWriterTest {
       SubmissionPdfDocument.Table(
         submissionLabel = "Submission",
         loiName = "Plot 42",
+        jobLabel = "Job",
+        jobName = "Job name",
         rows = emptyList(),
       )
 

@@ -36,29 +36,46 @@ class TableLayoutTest {
   private val taskColumnWidth = TASK_COLUMN_WIDTH
 
   @Test
-  fun `label sits below a top gap at the left margin`() {
-    val layout = TableLayout.getLabel(top = 100f, labelHeight = 14f)
+  fun `heading title sits below a top gap at the left margin`() {
+    val layout = TableLayout.getHeading(top = 100f, titleHeight = 14f, subtitleHeight = 12f)
 
-    assertEquals(PdfOffset(margin, 100f + 2 * lineSpacing), layout.labelOffset)
+    assertEquals(PdfOffset(margin, 100f + 2 * lineSpacing), layout.titleOffset)
   }
 
   @Test
-  fun `label leaves a bottom gap before the first row`() {
+  fun `heading subtitle sits below the title at the left margin`() {
+    val titleHeight = 14f
+
+    val layout = TableLayout.getHeading(top = 100f, titleHeight = titleHeight, subtitleHeight = 12f)
+
+    assertEquals(
+      PdfOffset(margin, 100f + 2 * lineSpacing + titleHeight + lineSpacing),
+      layout.subtitleOffset,
+    )
+  }
+
+  @Test
+  fun `heading leaves a bottom gap before the first row`() {
     val top = 100f
-    val labelHeight = 14f
+    val titleHeight = 14f
+    val subtitleHeight = 12f
 
-    val layout = TableLayout.getLabel(top = top, labelHeight = labelHeight)
+    val layout =
+      TableLayout.getHeading(top = top, titleHeight = titleHeight, subtitleHeight = subtitleHeight)
 
-    assertEquals(top + 2 * lineSpacing + labelHeight + lineSpacing, layout.nextCursorY)
+    assertEquals(
+      top + 2 * lineSpacing + titleHeight + lineSpacing + subtitleHeight + 2 * lineSpacing,
+      layout.nextCursorY,
+    )
   }
 
   @Test
-  fun `taller label pushes the first row further down`() {
-    val short = TableLayout.getLabel(top = 0f, labelHeight = 10f)
-    val tall = TableLayout.getLabel(top = 0f, labelHeight = 30f)
+  fun `taller heading lines push the first row further down`() {
+    val short = TableLayout.getHeading(top = 0f, titleHeight = 10f, subtitleHeight = 10f)
+    val tall = TableLayout.getHeading(top = 0f, titleHeight = 30f, subtitleHeight = 20f)
 
     assertTrue(short.nextCursorY < tall.nextCursorY)
-    assertEquals(20f, tall.nextCursorY - short.nextCursorY)
+    assertEquals(30f, tall.nextCursorY - short.nextCursorY)
   }
 
   @Test
