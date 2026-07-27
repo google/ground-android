@@ -19,7 +19,6 @@ import ground_android.core.ui.generated.resources.Res
 import ground_android.core.ui.generated.resources.area
 import ground_android.core.ui.generated.resources.job
 import ground_android.core.ui.generated.resources.pdf_data_collector
-import ground_android.core.ui.generated.resources.scale
 import ground_android.core.ui.generated.resources.scan_this_qr_to_download_geojson
 import ground_android.core.ui.generated.resources.submission
 import ground_android.core.ui.generated.resources.survey
@@ -130,7 +129,6 @@ class LoiReportMapper(
             value = getFormattedArea(areaInSquareMeters, getUserSettings().measurementUnits),
           )
         },
-      scaleLabel = strings.resolve(Res.string.scale),
     )
   }
 

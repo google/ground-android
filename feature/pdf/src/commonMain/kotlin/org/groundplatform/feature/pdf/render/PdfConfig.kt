@@ -48,4 +48,7 @@ internal object PdfConfig {
 
   /** Resolution in dots-per-inch used when rasterizing images for the PDF. */
   const val IMAGE_RENDER_DPI = 300f
+
+  /** Thickness of the lines in drawn map overlays. */
+  const val OVERLAY_LINE_WIDTH = 1.5f
 }

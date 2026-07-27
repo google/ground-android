@@ -16,11 +16,16 @@
 package org.groundplatform.feature.pdf.render
 
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Path
 import android.graphics.RectF
 import android.graphics.pdf.PdfDocument
+import android.text.Layout
 import android.text.StaticLayout
 import androidx.core.graphics.withTranslation
+import org.groundplatform.feature.pdf.render.PdfConfig.LINE_SPACING
+import org.groundplatform.feature.pdf.render.PdfConfig.OVERLAY_LINE_WIDTH
 import org.groundplatform.feature.pdf.render.image.PdfImage
 import org.groundplatform.feature.pdf.render.layout.TableLayout
 
@@ -44,6 +49,21 @@ internal class DocumentPdfCanvas(private val pdf: PdfDocument) : PdfCanvas {
       isAntiAlias = true
       isDither = true
     }
+
+  private val mapOverlayFillPaint =
+    Paint().apply {
+      style = Paint.Style.FILL
+      isAntiAlias = true
+    }
+
+  private val mapOverlayLinePaint =
+    Paint().apply {
+      style = Paint.Style.STROKE
+      strokeWidth = OVERLAY_LINE_WIDTH
+      isAntiAlias = true
+    }
+
+  private val mapOverlayTextPaint = PdfTextPaints().mapOverlay
 
   override fun startPage(pageNumber: Int) {
     val info =
@@ -69,4 +89,40 @@ internal class DocumentPdfCanvas(private val pdf: PdfDocument) : PdfCanvas {
   }
 
   private fun canvas(): Canvas = currentPage?.canvas ?: error("draw called with no page open")
+
+  override fun drawMapOverlay(overlay: MapOverlay, darkBasemap: Boolean) {
+    val ink = if (darkBasemap) Color.WHITE else Color.BLACK
+    when (overlay) {
+      is MapOverlay.Polygon -> fillOverlayPolygon(overlay.points, ink)
+      is MapOverlay.Line -> drawOverlayLine(overlay.line, ink)
+      is MapOverlay.Text -> drawOverlayText(overlay.text, overlay.boxWidth, overlay.offset, ink)
+    }
+  }
+
+  private fun fillOverlayPolygon(points: List<PdfOffset>, ink: Int) {
+    mapOverlayFillPaint.color = ink
+    val path =
+      Path().apply {
+        points.forEachIndexed { index, point ->
+          if (index == 0) moveTo(point.x, point.y) else lineTo(point.x, point.y)
+        }
+        close()
+      }
+    canvas().drawPath(path, mapOverlayFillPaint)
+  }
+
+  private fun drawOverlayLine(line: PdfLine, ink: Int) {
+    mapOverlayLinePaint.color = ink
+    canvas().drawLine(line.startX, line.startY, line.endX, line.endY, mapOverlayLinePaint)
+  }
+
+  private fun drawOverlayText(text: String, boxWidth: Int, offset: PdfOffset, ink: Int) {
+    mapOverlayTextPaint.color = ink
+    val layout =
+      StaticLayout.Builder.obtain(text, 0, text.length, mapOverlayTextPaint, boxWidth)
+        .setAlignment(Layout.Alignment.ALIGN_CENTER)
+        .setLineSpacing(LINE_SPACING, 1f)
+        .build()
+    drawStaticLayout(layout = layout, x = offset.x, y = offset.y)
+  }
 }
