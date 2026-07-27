@@ -86,8 +86,8 @@ internal class PdfWriter(
     val blockWidth = QrPageLayout.QR_SIZE.toInt()
     val titleLayout =
       staticLayout(
-        text = labeled(block.submissionLabel, block.submissionName),
-        paint = paints.body,
+        text = block.submissionName,
+        paint = paints.bodyLabel,
         maxWidth = blockWidth,
         alignment = Layout.Alignment.ALIGN_CENTER,
         maxLines = QrPageLayout.TITLE_MAX_LINES,
