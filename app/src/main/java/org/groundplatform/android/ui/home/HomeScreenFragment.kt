@@ -15,6 +15,9 @@
  */
 package org.groundplatform.android.ui.home
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -93,12 +96,7 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener {
           onAction = { action ->
             when (action) {
               HomeDrawerAction.OnSwitchSurvey -> {
-                findNavController()
-                  .navigate(
-                    HomeScreenFragmentDirections.actionHomeScreenFragmentToSurveySelectorFragment(
-                      false
-                    )
-                  )
+                navigateToSurveySelector()
               }
               HomeDrawerAction.OnNavigateToOfflineAreas -> {
                 lifecycleScope.launch {
@@ -127,6 +125,9 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener {
               HomeDrawerAction.OnNavigateToTerms -> {
                 findNavController().navigate(HomeScreenFragmentDirections.showTermsOfService(true))
                 closeDrawer()
+              }
+              HomeDrawerAction.OnOpenPlayStore -> {
+                openPlayStore()
               }
               HomeDrawerAction.OnSignOut -> {
                 homeScreenViewModel.showSignOutConfirmation()
@@ -178,6 +179,18 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener {
     binding.drawerLayout.closeDrawer(GravityCompat.START)
   }
 
+  private fun navigateToSurveySelector() {
+    findNavController()
+      .navigate(
+        HomeScreenFragmentDirections.actionHomeScreenFragmentToSurveySelectorFragment(false)
+      )
+  }
+
+  private fun openPlayStore() {
+    closeDrawer()
+    openPlayStore(requireContext().packageName, ::startActivity)
+  }
+
   override fun onBack(): Boolean = false
 
   @Composable
@@ -191,6 +204,19 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener {
       onSignOut = { homeScreenViewModel.signOut() },
       onShowSignOutConfirmation = { homeScreenViewModel.showSignOutConfirmation() },
       onDismiss = { homeScreenViewModel.dismissLogoutDialog() },
+    )
+  }
+}
+
+internal fun openPlayStore(packageName: String, startActivity: (Intent) -> Unit) {
+  try {
+    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$packageName")))
+  } catch (_: ActivityNotFoundException) {
+    startActivity(
+      Intent(
+        Intent.ACTION_VIEW,
+        Uri.parse("https://play.google.com/store/apps/details?id=$packageName"),
+      )
     )
   }
 }
