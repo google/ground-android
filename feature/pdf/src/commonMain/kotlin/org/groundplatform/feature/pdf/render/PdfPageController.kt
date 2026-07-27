@@ -32,7 +32,6 @@ internal class PdfPageController(
     fun onPageEnding(pageNumber: Int)
   }
 
-  private var pageIndex = 0
   private var pageOpen = false
 
   var isFirstTableRowOnPage = true
@@ -42,8 +41,8 @@ internal class PdfPageController(
    * Number of content pages emitted so far. Does not include cover pages as they have no page
    * numbering. Equals the current page number while a page is open.
    */
-  val bodyPageCount: Int
-    get() = pageIndex
+  var bodyPageCount: Int = 0
+    private set
 
   /** Where the current page sits in the PDF itself, counting the cover pages ahead of the body. */
   private val pdfPageNumber: Int
@@ -72,7 +71,7 @@ internal class PdfPageController(
   }
 
   private fun beginPage() {
-    pageIndex++
+    bodyPageCount++
     pageOpen = true
     isFirstTableRowOnPage = true
     cursor.reset()
