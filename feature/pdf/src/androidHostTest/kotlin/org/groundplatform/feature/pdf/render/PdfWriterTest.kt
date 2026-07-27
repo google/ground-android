@@ -46,7 +46,7 @@ class PdfWriterTest {
 
     newPdfWriter(EMPTY_DOCUMENT, PdfImageSet(emptyMap()), canvas).drawDocument(EMPTY_DOCUMENT)
 
-    assertEquals(0, canvas.startedPages.size)
+    assertEquals(0, canvas.startedPageNumbers.size)
     assertEquals(0, canvas.finishedPages)
   }
 
@@ -64,7 +64,7 @@ class PdfWriterTest {
 
     assertEquals(
       listOf(PdfConfig.QR_PAGE_SIZE, PdfConfig.REPORT_PAGE_SIZE),
-      canvas.startedPages.map { it.pageSize },
+      canvas.startedPageSizes,
     )
   }
 
@@ -72,7 +72,7 @@ class PdfWriterTest {
   fun `does not open a qr page when no qr image is provided`() {
     val canvas = renderDocument(SINGLE_PAGE_DOCUMENT, pdfImageSet(qr = null))
 
-    assertEquals(listOf(PdfConfig.REPORT_PAGE_SIZE), canvas.startedPages.map { it.pageSize })
+    assertEquals(listOf(PdfConfig.REPORT_PAGE_SIZE), canvas.startedPageSizes)
   }
 
   @Test
