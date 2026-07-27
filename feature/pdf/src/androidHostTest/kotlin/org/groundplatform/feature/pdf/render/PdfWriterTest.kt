@@ -113,10 +113,10 @@ class PdfWriterTest {
 
     pdfWriter.drawDocument(TEST_PDF_DOCUMENT)
 
-    assertTrue(pdfWriter.contentPageCount > 1)
-    assertEquals(pdfWriter.contentPageCount, canvas.drawnText.count { it == HEADER.surveyName })
+    assertTrue(pdfWriter.pageCount > 1)
+    assertEquals(pdfWriter.pageCount, canvas.drawnText.count { it == HEADER.surveyName })
     assertEquals(
-      pdfWriter.contentPageCount,
+      pdfWriter.pageCount,
       canvas.drawnText.count {
         it == "${FOOTER.dataCollectorLabel}: ${FOOTER.dataCollectorName}, ${FOOTER.userEmail}"
       },
@@ -203,8 +203,8 @@ class PdfWriterTest {
     pdfWriter.drawDocument(TEST_PDF_DOCUMENT)
 
     // Every page resets the flag, so each page's first row draws exactly 1 top border.
-    assertTrue(pdfWriter.contentPageCount > 1)
-    assertEquals(pdfWriter.contentPageCount, canvas.topBorderCount())
+    assertTrue(pdfWriter.pageCount > 1)
+    assertEquals(pdfWriter.pageCount, canvas.topBorderCount())
   }
 
   @Test
@@ -228,7 +228,7 @@ class PdfWriterTest {
   private fun renderPageCount(totalPages: Int?): Int =
     newPdfWriter(TEST_PDF_DOCUMENT, PdfImageSet(emptyMap()), MeasurementPdfCanvas, totalPages)
       .apply { drawDocument(TEST_PDF_DOCUMENT) }
-      .contentPageCount
+      .pageCount
 
   private fun newPdfWriter(
     document: SubmissionPdfDocument,

@@ -53,14 +53,17 @@ internal class PdfWriter(
 ) : PdfPageController.PageLifecycle {
   private val paints = PdfTextPaints()
 
+  private val coverImage = images[PdfImageSet.ImageRef.Qr]
+
   private val footerLayout: StaticLayout = buildFooterLayout(footer)
   private val cursor =
     PdfCursor(footerReserve = PageFooterLayout.reserve(footerLayout.height.toFloat()))
-  private val pageController = PdfPageController(cursor, this)
+  private val pageController =
+    PdfPageController(cursor, this, coverPages = if (coverImage == null) 0 else 1)
 
-  /** Number of pages carrying the header and footer; the standalone QR page is excluded. */
-  val contentPageCount: Int
-    get() = pageController.contentPageCount
+  /** Number content pages. The cover is excluded, as it doesn't have page numbering. */
+  val pageCount: Int
+    get() = pageController.pageCount
 
   override fun onPageStarted(pageNumber: Int) {
     pdfCanvas.startPage(pageNumber, PdfConfig.REPORT_PAGE_SIZE)
@@ -78,12 +81,8 @@ internal class PdfWriter(
     finalizePage()
   }
 
-  /**
-   * Draws the submission title, the QR code and its caption on a page of their own, without header
-   * or footer.
-   */
   private fun drawQrPage(block: QrBlock) {
-    val qr = images[PdfImageSet.ImageRef.Qr] ?: return
+    val qr = coverImage ?: return
     val blockWidth = QrPageLayout.QR_SIZE.toInt()
     val titleLayout =
       staticLayout(
@@ -100,13 +99,11 @@ internal class PdfWriter(
         titleHeight = titleLayout.height.toFloat(),
         captionHeight = captionLayout.height.toFloat(),
       )
-    pageController.standalonePage { pageNumber ->
-      pdfCanvas.startPage(pageNumber, PdfConfig.QR_PAGE_SIZE)
-      drawStaticLayoutAt(titleLayout, layout.titleOffset)
-      drawImage(qr, layout.qrFrame, smoothScaling = false)
-      drawStaticLayoutAt(captionLayout, layout.captionOffset)
-      pdfCanvas.finishPage()
-    }
+    pdfCanvas.startPage(COVER_PAGE_NUMBER, PdfConfig.QR_PAGE_SIZE)
+    drawStaticLayoutAt(titleLayout, layout.titleOffset)
+    drawImage(qr, layout.qrFrame, smoothScaling = false)
+    drawStaticLayoutAt(captionLayout, layout.captionOffset)
+    pdfCanvas.finishPage()
   }
 
   private fun drawTable(table: SubmissionPdfDocument.Table) {
@@ -198,7 +195,7 @@ internal class PdfWriter(
     totalPages?.let { total ->
       val pageNumber =
         staticLayout(
-          "${pageController.contentPageCount}/$total",
+          "${pageController.pageCount}/$total",
           paints.meta,
           layout.pageNumberMaxWidth,
           alignment = Layout.Alignment.ALIGN_OPPOSITE,
@@ -288,4 +285,12 @@ internal class PdfWriter(
         }
       }
       .build()
+
+  private companion object {
+    /**
+     * The QR page opens the document, so the body pages start at 2 whenever there is this cover
+     * page.
+     */
+    const val COVER_PAGE_NUMBER = 1
+  }
 }

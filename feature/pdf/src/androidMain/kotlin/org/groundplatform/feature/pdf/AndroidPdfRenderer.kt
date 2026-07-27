@@ -55,7 +55,7 @@ class AndroidPdfRenderer(private val ioDispatcher: CoroutineDispatcher) : PdfRen
   private fun measurePageCount(document: SubmissionPdfDocument, images: PdfImageSet): Int =
     writer(document, images, MeasurementPdfCanvas, totalPages = null)
       .apply { drawDocument(document) }
-      .contentPageCount
+      .pageCount
 
   private fun writer(
     document: SubmissionPdfDocument,
