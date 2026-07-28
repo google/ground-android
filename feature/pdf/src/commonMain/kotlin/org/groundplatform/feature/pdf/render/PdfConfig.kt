@@ -31,7 +31,7 @@ internal object PdfConfig {
   /** Page margin applied to all four edges. */
   const val MARGIN = 40
 
-  /** Font size for title text, a step above [BODY_SIZE]. */
+  /** Font size for title text. */
   const val TITLE_SIZE = 13f
 
   /** Font size body and table-cell text. */

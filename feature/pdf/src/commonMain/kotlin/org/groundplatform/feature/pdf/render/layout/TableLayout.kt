@@ -84,22 +84,22 @@ internal object TableLayout {
   }
 
   /**
-   * Layout of the two heading lines above the table.
+   * Layout of the two title lines above the table.
    *
    * @param titleOffset Top-left position of the submission line.
    * @param subtitleOffset Top-left position of the job line, directly below the submission line.
-   * @param nextCursorY Cursor Y position after the heading.
+   * @param nextCursorY Cursor Y position after the title block.
    */
-  data class Heading(
+  data class TitleBlock(
     val titleOffset: PdfOffset,
     val subtitleOffset: PdfOffset,
     val nextCursorY: Float,
   )
 
-  fun getHeading(top: Float, titleHeight: Float, subtitleHeight: Float): Heading {
+  fun getTitleBlock(top: Float, titleHeight: Float, subtitleHeight: Float): TitleBlock {
     val titleTop = top + LINE_SPACING * 2
     val subtitleTop = titleTop + titleHeight + LINE_SPACING
-    return Heading(
+    return TitleBlock(
       titleOffset = PdfOffset(MARGIN.toFloat(), titleTop),
       subtitleOffset = PdfOffset(MARGIN.toFloat(), subtitleTop),
       nextCursorY = subtitleTop + subtitleHeight + LINE_SPACING * 2,

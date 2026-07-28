@@ -36,17 +36,18 @@ class TableLayoutTest {
   private val taskColumnWidth = TASK_COLUMN_WIDTH
 
   @Test
-  fun `heading title sits below a top gap at the left margin`() {
-    val layout = TableLayout.getHeading(top = 100f, titleHeight = 14f, subtitleHeight = 12f)
+  fun `title sits below a top gap at the left margin`() {
+    val layout = TableLayout.getTitleBlock(top = 100f, titleHeight = 14f, subtitleHeight = 12f)
 
     assertEquals(PdfOffset(margin, 100f + 2 * lineSpacing), layout.titleOffset)
   }
 
   @Test
-  fun `heading subtitle sits below the title at the left margin`() {
+  fun `subtitle sits below the title at the left margin`() {
     val titleHeight = 14f
 
-    val layout = TableLayout.getHeading(top = 100f, titleHeight = titleHeight, subtitleHeight = 12f)
+    val layout =
+      TableLayout.getTitleBlock(top = 100f, titleHeight = titleHeight, subtitleHeight = 12f)
 
     assertEquals(
       PdfOffset(margin, 100f + 2 * lineSpacing + titleHeight + lineSpacing),
@@ -55,13 +56,17 @@ class TableLayoutTest {
   }
 
   @Test
-  fun `heading leaves a bottom gap before the first row`() {
+  fun `title block leaves a bottom gap before the first row`() {
     val top = 100f
     val titleHeight = 14f
     val subtitleHeight = 12f
 
     val layout =
-      TableLayout.getHeading(top = top, titleHeight = titleHeight, subtitleHeight = subtitleHeight)
+      TableLayout.getTitleBlock(
+        top = top,
+        titleHeight = titleHeight,
+        subtitleHeight = subtitleHeight,
+      )
 
     assertEquals(
       top + 2 * lineSpacing + titleHeight + lineSpacing + subtitleHeight + 2 * lineSpacing,
@@ -70,9 +75,9 @@ class TableLayoutTest {
   }
 
   @Test
-  fun `taller heading lines push the first row further down`() {
-    val short = TableLayout.getHeading(top = 0f, titleHeight = 10f, subtitleHeight = 10f)
-    val tall = TableLayout.getHeading(top = 0f, titleHeight = 30f, subtitleHeight = 20f)
+  fun `taller title lines push the first row further down`() {
+    val short = TableLayout.getTitleBlock(top = 0f, titleHeight = 10f, subtitleHeight = 10f)
+    val tall = TableLayout.getTitleBlock(top = 0f, titleHeight = 30f, subtitleHeight = 20f)
 
     assertTrue(short.nextCursorY < tall.nextCursorY)
     assertEquals(30f, tall.nextCursorY - short.nextCursorY)

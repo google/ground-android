@@ -101,15 +101,15 @@ internal class PdfWriter(
       staticLayout("${table.submissionLabel}: ${table.loiName}", paints.title, USABLE_WIDTH)
     val subtitleLayout =
       staticLayout(labeled(table.jobLabel, table.jobName), paints.body, USABLE_WIDTH)
-    val heading =
-      TableLayout.getHeading(
+    val titleBlock =
+      TableLayout.getTitleBlock(
         top = cursor.y,
         titleHeight = titleLayout.height.toFloat(),
         subtitleHeight = subtitleLayout.height.toFloat(),
       )
-    drawStaticLayoutAt(titleLayout, heading.titleOffset)
-    drawStaticLayoutAt(subtitleLayout, heading.subtitleOffset)
-    cursor.moveTo(heading.nextCursorY)
+    drawStaticLayoutAt(titleLayout, titleBlock.titleOffset)
+    drawStaticLayoutAt(subtitleLayout, titleBlock.subtitleOffset)
+    cursor.moveTo(titleBlock.nextCursorY)
     rows.forEach { row ->
       when (val answer = row.answer) {
         is Answer.Text ->

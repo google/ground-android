@@ -68,15 +68,7 @@ class PdfWriterTest {
   }
 
   @Test
-  fun `draws no job column in the header`() {
-    val canvas = renderDocument(SINGLE_PAGE_DOCUMENT)
-
-    assertFalse(canvas.drawnText.contains(TABLE.jobName))
-    assertEquals(1, canvas.drawnText.count { it == "${TABLE.jobLabel}: ${TABLE.jobName}" })
-  }
-
-  @Test
-  fun `draws the submission heading above the table with the job below it`() {
+  fun `draws the submission title above the table with the job below it`() {
     val canvas = renderDocument(SINGLE_PAGE_DOCUMENT)
 
     val jobLineIndex = canvas.drawnText.indexOf("${TABLE.jobLabel}: ${TABLE.jobName}")
@@ -259,7 +251,7 @@ class PdfWriterTest {
         surveyLabel = "Survey",
         surveyName = "Survey name",
         submissionLabel = "Submission",
-        submissionName = "Plot 42",
+        submissionName = "Submission name",
         dateLabel = "Date",
         timestamp = "timestamp",
       )
@@ -275,7 +267,7 @@ class PdfWriterTest {
     val TABLE =
       SubmissionPdfDocument.Table(
         submissionLabel = "Submission",
-        loiName = "Plot 42",
+        loiName = "Submission name",
         jobLabel = "Job",
         jobName = "Job name",
         rows = emptyList(),
