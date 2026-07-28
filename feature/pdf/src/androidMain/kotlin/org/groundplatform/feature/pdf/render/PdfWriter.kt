@@ -157,6 +157,13 @@ internal class PdfWriter(
         alignment = Layout.Alignment.ALIGN_CENTER,
         maxLines = PageHeaderLayout.MAX_LINES,
       )
+    val dateLabel =
+      staticLayout(
+        header.dateLabel,
+        paints.metaLabel,
+        columnWidth,
+        Layout.Alignment.ALIGN_OPPOSITE,
+      )
     val timestamp =
       staticLayout(
         text = header.timestamp,
@@ -177,6 +184,7 @@ internal class PdfWriter(
     drawStaticLayoutAt(surveyValue, layout.leftColumn.valueOffset)
     drawStaticLayoutAt(submissionLabel, layout.centerColumn.labelOffset)
     drawStaticLayoutAt(submissionValue, layout.centerColumn.valueOffset)
+    drawStaticLayoutAt(dateLabel, layout.rightColumn.labelOffset)
     drawStaticLayoutAt(timestamp, layout.rightColumn.valueOffset)
     cursor.moveTo(layout.nextCursorY)
   }
