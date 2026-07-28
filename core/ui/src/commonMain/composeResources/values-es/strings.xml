@@ -35,4 +35,5 @@
   <string name="pdf_data_collector">Recolector de datos</string>
   <string name="retry">Reintentar</string>
   <string name="area">Área</string>
+  <string name="date">Fecha</string>
 </resources>

@@ -34,4 +34,5 @@
   <string name="pdf_data_collector">ຜູ້ເກັບຂໍ້ມູນ</string>
   <string name="retry">ລອງໃໝ່</string>
   <string name="area">ພື້ນທີ່</string>
+  <string name="date">ວັນທີ</string>
 </resources>
