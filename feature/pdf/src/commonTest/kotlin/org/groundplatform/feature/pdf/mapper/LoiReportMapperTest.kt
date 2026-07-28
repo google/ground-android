@@ -133,7 +133,7 @@ class LoiReportMapperTest {
   }
 
   @Test
-  fun `file name is capped at 100 characters and still ends with the submission id`() = runTest {
+  fun `file name is capped at 60 characters and still ends with the submission id`() = runTest {
     val request =
       mapper.map(
         loiReport =
@@ -146,8 +146,27 @@ class LoiReportMapperTest {
       )
 
     val fileName = request!!.fileName
-    assertEquals(100, fileName.removeSuffix("_$TEST_SUBMISSION_ID").length)
+    assertEquals(60, fileName.removeSuffix("_$TEST_SUBMISSION_ID").length)
     assertTrue(fileName.endsWith("_$TEST_SUBMISSION_ID"))
+  }
+
+  @Test
+  fun `file name stays within the file system byte limit for multi-byte scripts`() = runTest {
+    val request =
+      mapper.map(
+        loiReport =
+          FakeDataGenerator.newLoiReport(
+            loiName = "ເພີ່ມຈຸດສຳຫຼວດ".repeat(20),
+            submissionDetails =
+              FakeDataGenerator.newSubmissionDetails(
+                surveyName = "แบบสำรวจ".repeat(20),
+                userName = "テスト".repeat(20),
+              ),
+          ),
+        submission = submission,
+      )
+
+    assertTrue(request!!.fileName.encodeToByteArray().size <= 255)
   }
 
   @Test
@@ -249,9 +268,6 @@ class LoiReportMapperTest {
         )
       )
     const val TEST_SUBMISSION_ID = "submissionId"
-    /**
-     * Submission with a fixed id and last-modified timestamp so name assertions are deterministic.
-     */
     val submission =
       FakeDataGenerator.newSubmission(
         id = TEST_SUBMISSION_ID,

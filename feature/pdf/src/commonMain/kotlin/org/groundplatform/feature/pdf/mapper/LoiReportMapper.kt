@@ -68,7 +68,7 @@ class LoiReportMapper(
         .map { it.filter(::isSafeFileChar) }
         .filter { it.isNotBlank() }
         .joinToString("_")
-        .take(100) + "_${submission.id}"
+        .take(60) + "_${submission.id}"
 
     return PdfExportService.Request(
       document = document,
