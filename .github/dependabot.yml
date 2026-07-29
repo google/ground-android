@@ -22,6 +22,8 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    cooldown:
+      default-days: 7
     open-pull-requests-limit: 10
     target-branch: "master"
     ignore:
@@ -35,6 +37,8 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    cooldown:
+      default-days: 7
     open-pull-requests-limit: 10
     target-branch: "master"
     # Keep all github/codeql-action entry points in a single PR. They share one version and must
