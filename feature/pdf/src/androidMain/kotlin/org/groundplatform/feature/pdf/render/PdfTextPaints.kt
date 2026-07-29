@@ -28,6 +28,7 @@ internal class PdfTextPaints {
   val metaLabel: TextPaint = textPaint(CAPTION_SIZE, bold = true, textColor = Color.GRAY)
   val meta: TextPaint = textPaint(CAPTION_SIZE, bold = false, textColor = Color.GRAY)
   val caption: TextPaint = textPaint(CAPTION_SIZE, bold = false)
+  val mapOverlay: TextPaint = textPaint(CAPTION_SIZE, bold = true, textColor = Color.WHITE)
 
   private fun textPaint(size: Float, bold: Boolean, textColor: Int = Color.BLACK): TextPaint =
     TextPaint().apply {
