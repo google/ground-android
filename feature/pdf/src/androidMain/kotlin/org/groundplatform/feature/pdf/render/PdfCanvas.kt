@@ -21,7 +21,7 @@ import org.groundplatform.feature.pdf.render.image.PdfImage
 
 /** Abstraction for drawing onto a PDF page. */
 internal interface PdfCanvas {
-  fun startPage(pageNumber: Int)
+  fun startPage(pageNumber: Int, pageSize: PdfPageSize)
 
   fun finishPage()
 
@@ -36,7 +36,7 @@ internal interface PdfCanvas {
 
 /** Used during the page-counting phase. Drops every drawing call. */
 internal object MeasurementPdfCanvas : PdfCanvas {
-  override fun startPage(pageNumber: Int) = Unit
+  override fun startPage(pageNumber: Int, pageSize: PdfPageSize) = Unit
 
   override fun finishPage() = Unit
 

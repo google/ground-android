@@ -39,7 +39,7 @@ data class SubmissionPdfDocument(
     val timestamp: String,
   )
 
-  data class QrBlock(val scanCaption: String)
+  data class QrBlock(val submissionName: String, val scanCaption: String)
 
   data class Table(
     val submissionLabel: String,

@@ -167,6 +167,16 @@ class LoiReportMapperTest {
   }
 
   @Test
+  fun `qr block carries the labelled submission name and the scan caption`() = runTest {
+    val report = FakeDataGenerator.newLoiReport(loiName = "Loi")
+
+    val qrBlock = mapper.map(report, submission)!!.document.qrBlock
+
+    assertEquals("Loi", qrBlock.submissionName)
+    assertEquals("scan_this_qr_to_download_geojson", qrBlock.scanCaption)
+  }
+
+  @Test
   fun `header carries the survey, the submission name and the labelled date`() = runTest {
     val report =
       FakeDataGenerator.newLoiReport(

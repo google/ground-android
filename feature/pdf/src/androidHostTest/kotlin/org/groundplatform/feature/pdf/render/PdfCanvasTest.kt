@@ -31,7 +31,7 @@ class PdfCanvasTest {
     val layout = StaticLayout.Builder.obtain("body", 0, "body".length, TextPaint(), 100).build()
     val image = PdfImage(Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888))
     with(MeasurementPdfCanvas) {
-      startPage(pageNumber = 1)
+      startPage(pageNumber = 1, pageSize = PdfConfig.REPORT_PAGE_SIZE)
       drawStaticLayout(layout, x = 0f, y = 0f)
       drawImage(image, RectF(0f, 0f, 10f, 10f), smoothScaling = true)
       drawLine(0f, 0f, 10f, 10f)

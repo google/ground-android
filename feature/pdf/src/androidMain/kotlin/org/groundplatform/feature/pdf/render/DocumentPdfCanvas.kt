@@ -65,9 +65,8 @@ internal class DocumentPdfCanvas(private val pdf: PdfDocument) : PdfCanvas {
 
   private val mapOverlayTextPaint = PdfTextPaints().mapOverlay
 
-  override fun startPage(pageNumber: Int) {
-    val info =
-      PdfDocument.PageInfo.Builder(PdfConfig.PAGE_WIDTH, PdfConfig.PAGE_HEIGHT, pageNumber).create()
+  override fun startPage(pageNumber: Int, pageSize: PdfPageSize) {
+    val info = PdfDocument.PageInfo.Builder(pageSize.width, pageSize.height, pageNumber).create()
     currentPage = pdf.startPage(info)
   }
 

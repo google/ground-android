@@ -35,6 +35,7 @@ import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST_LOI_REPORT
 import org.groundplatform.android.FakeData.SURVEY
 import org.groundplatform.android.FakeData.USER
 import org.groundplatform.android.R
+import org.groundplatform.android.common.Constants.CLUSTERING_ZOOM_THRESHOLD
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.di.LocationOfInterestRepositoryModule
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
@@ -157,6 +158,20 @@ class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
       val addLoiState = state as JobMapComponentState.AddLoiButton
       assertThat(addLoiState.jobs.map { it.job }).containsExactly(ADHOC_JOB)
     }
+
+  @Test
+  fun `job component state is AddLoiButton below clustering threshold`() = runWithTestDispatcher {
+    viewModel.onMapCameraMoved(
+      CAMERA_POSITION.copy(zoomLevel = CLUSTERING_ZOOM_THRESHOLD - 1f)
+    )
+    advanceUntilIdle()
+
+    val state = viewModel.processJobMapComponentState().first()
+
+    assertThat(state).isInstanceOf(JobMapComponentState.AddLoiButton::class.java)
+    assertThat((state as JobMapComponentState.AddLoiButton).jobs.map { it.job })
+      .containsExactly(ADHOC_JOB)
+  }
 
   @Test
   fun `setJobSelectionModalVisibility hides map actions when modal is shown`() =

@@ -22,6 +22,7 @@ package org.groundplatform.feature.pdf.render
 internal class PdfPageController(
   private val cursor: PdfCursor,
   private val lifecycle: PageLifecycle,
+  private val coverPages: Int = 0,
 ) {
   interface PageLifecycle {
     /** Called after a new page has been allocated. The header should be drawn here. */
@@ -31,15 +32,21 @@ internal class PdfPageController(
     fun onPageEnding(pageNumber: Int)
   }
 
-  private var pageIndex = 0
   private var pageOpen = false
 
   var isFirstTableRowOnPage = true
     private set
 
-  /** Number of pages emitted so far. Equals the current page number while a page is open. */
-  val pageCount: Int
-    get() = pageIndex
+  /**
+   * Number of content pages emitted so far. Does not include cover pages as they have no page
+   * numbering. Equals the current page number while a page is open.
+   */
+  var bodyPageCount: Int = 0
+    private set
+
+  /** Where the current page sits in the PDF itself, counting the cover pages ahead of the body. */
+  private val pdfPageNumber: Int
+    get() = coverPages + bodyPageCount
 
   fun ensurePage() {
     if (!pageOpen) beginPage()
@@ -59,15 +66,15 @@ internal class PdfPageController(
 
   fun finalizePage() {
     if (!pageOpen) return
-    lifecycle.onPageEnding(pageIndex)
+    lifecycle.onPageEnding(pdfPageNumber)
     pageOpen = false
   }
 
   private fun beginPage() {
-    pageIndex++
+    bodyPageCount++
     pageOpen = true
     isFirstTableRowOnPage = true
     cursor.reset()
-    lifecycle.onPageStarted(pageIndex)
+    lifecycle.onPageStarted(pdfPageNumber)
   }
 }
