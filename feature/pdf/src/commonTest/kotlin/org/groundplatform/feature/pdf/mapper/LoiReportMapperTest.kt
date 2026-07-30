@@ -177,6 +177,48 @@ class LoiReportMapperTest {
   }
 
   @Test
+  fun `header carries the survey, the submission name and the labelled date`() = runTest {
+    val report =
+      FakeDataGenerator.newLoiReport(
+        loiName = "Loi",
+        submissionDetails = FakeDataGenerator.newSubmissionDetails(surveyName = "Survey"),
+      )
+
+    val header = mapper.map(report, submission)!!.document.header
+
+    assertEquals("survey", header.surveyLabel)
+    assertEquals("Survey", header.surveyName)
+    assertEquals("submission", header.submissionLabel)
+    assertEquals("Loi", header.submissionName)
+    assertEquals("date", header.dateLabel)
+    assertEquals("DATE(0) TIME(0)", header.timestamp)
+  }
+
+  @Test
+  fun `table carries the submission name and the job it belongs to`() = runTest {
+    val report = FakeDataGenerator.newLoiReport(loiName = "Loi")
+
+    val table = mapper.map(report, submission)!!.document.table
+
+    assertEquals("submission", table.submissionLabel)
+    assertEquals("Loi", table.loiName)
+    assertEquals("job", table.jobLabel)
+    assertEquals("job", table.jobName)
+  }
+
+  @Test
+  fun `table falls back to the job id when the job has no name`() = runTest {
+    val unnamedJob =
+      FakeDataGenerator.newSubmission(
+        job = FakeDataGenerator.newJob(id = "job id").copy(name = null)
+      )
+
+    val table = mapper.map(FakeDataGenerator.newLoiReport(), unnamedJob)!!.document.table
+
+    assertEquals("job id", table.jobName)
+  }
+
+  @Test
   fun `mapper returns null when submissionDetails are missing`() = runTest {
     val report = FakeDataGenerator.newLoiReport(submissionDetails = null)
 

@@ -108,20 +108,19 @@ internal class PdfWriter(
   private fun drawTable(table: SubmissionPdfDocument.Table) {
     val rows = table.rows.takeIf { it.isNotEmpty() } ?: return
     pageController.ensurePage()
-    val label =
-      SpannableString("${table.submissionLabel}: ${table.loiName}").apply {
-        setSpan(
-          StyleSpan(Typeface.BOLD),
-          0,
-          table.submissionLabel.length,
-          Spanned.SPAN_INCLUSIVE_EXCLUSIVE,
-        )
-      }
-    val labelLayout = staticLayout(label, paints.title, USABLE_WIDTH)
-    val tableLabel =
-      TableLayout.getLabel(top = cursor.y, labelHeight = labelLayout.height.toFloat())
-    drawStaticLayoutAt(labelLayout, tableLabel.labelOffset)
-    cursor.moveTo(tableLabel.nextCursorY)
+    val titleLayout =
+      staticLayout("${table.submissionLabel}: ${table.loiName}", paints.title, USABLE_WIDTH)
+    val subtitleLayout =
+      staticLayout(labeled(table.jobLabel, table.jobName), paints.body, USABLE_WIDTH)
+    val titleBlock =
+      TableLayout.getTitleBlock(
+        top = cursor.y,
+        titleHeight = titleLayout.height.toFloat(),
+        subtitleHeight = subtitleLayout.height.toFloat(),
+      )
+    drawStaticLayoutAt(titleLayout, titleBlock.titleOffset)
+    drawStaticLayoutAt(subtitleLayout, titleBlock.subtitleOffset)
+    cursor.moveTo(titleBlock.nextCursorY)
     rows.forEach { row ->
       when (val answer = row.answer) {
         is Answer.Text ->
@@ -154,15 +153,27 @@ internal class PdfWriter(
         maxWidth = columnWidth,
         maxLines = PageHeaderLayout.MAX_LINES,
       )
-    val jobLabel =
-      staticLayout(header.jobLabel, paints.metaLabel, columnWidth, Layout.Alignment.ALIGN_CENTER)
-    val jobValue =
+    val submissionLabel =
       staticLayout(
-        text = header.jobName,
+        header.submissionLabel,
+        paints.metaLabel,
+        columnWidth,
+        Layout.Alignment.ALIGN_CENTER,
+      )
+    val submissionValue =
+      staticLayout(
+        text = header.submissionName,
         paint = paints.meta,
         maxWidth = columnWidth,
         alignment = Layout.Alignment.ALIGN_CENTER,
         maxLines = PageHeaderLayout.MAX_LINES,
+      )
+    val dateLabel =
+      staticLayout(
+        header.dateLabel,
+        paints.metaLabel,
+        columnWidth,
+        Layout.Alignment.ALIGN_OPPOSITE,
       )
     val timestamp =
       staticLayout(
@@ -182,9 +193,10 @@ internal class PdfWriter(
 
     drawStaticLayoutAt(surveyLabel, layout.leftColumn.labelOffset)
     drawStaticLayoutAt(surveyValue, layout.leftColumn.valueOffset)
-    drawStaticLayoutAt(jobLabel, layout.centerColumn.labelOffset)
-    drawStaticLayoutAt(jobValue, layout.centerColumn.valueOffset)
-    drawStaticLayoutAt(timestamp, layout.rightTextOffset)
+    drawStaticLayoutAt(submissionLabel, layout.centerColumn.labelOffset)
+    drawStaticLayoutAt(submissionValue, layout.centerColumn.valueOffset)
+    drawStaticLayoutAt(dateLabel, layout.rightColumn.labelOffset)
+    drawStaticLayoutAt(timestamp, layout.rightColumn.valueOffset)
     cursor.moveTo(layout.nextCursorY)
   }
 

@@ -34,4 +34,5 @@
   <string name="pdf_data_collector">Collecteur de données</string>
   <string name="retry">Réessayer</string>
   <string name="area">Surface</string>
+  <string name="date">Date</string>
 </resources>

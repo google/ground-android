@@ -23,7 +23,7 @@ import org.groundplatform.feature.pdf.render.PdfConfig.CAPTION_SIZE
 import org.groundplatform.feature.pdf.render.PdfConfig.TITLE_SIZE
 
 internal class PdfTextPaints {
-  val title: TextPaint = textPaint(TITLE_SIZE, bold = false)
+  val title: TextPaint = textPaint(TITLE_SIZE, bold = true)
   val body: TextPaint = textPaint(BODY_SIZE, bold = false)
   val bodyLabel: TextPaint = textPaint(BODY_SIZE, bold = true)
   val metaLabel: TextPaint = textPaint(CAPTION_SIZE, bold = true, textColor = Color.GRAY)
