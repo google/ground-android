@@ -65,15 +65,13 @@ class LoiReportMapper(
           ),
         mapBlock = buildMapBlock(details),
       )
-    val dateMillis = submission.lastModified.clientTimestamp
-    val timestamp =
-      "${dateFormatter.formatDate(dateMillis)}_${dateFormatter.formatTime(dateMillis)}"
+
     val fileName =
-      listOf(details.surveyName, loiReport.loiName, details.userName, timestamp)
+      listOf(details.surveyName, loiReport.loiName, details.userName)
         .map { it.filter(::isSafeFileChar) }
         .filter { it.isNotBlank() }
         .joinToString("_")
-        .take(100)
+        .take(60) + "_${submission.id}"
 
     return PdfExportService.Request(
       document = document,
