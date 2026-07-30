@@ -17,6 +17,7 @@ package org.groundplatform.feature.pdf.mapper
 
 import ground_android.core.ui.generated.resources.Res
 import ground_android.core.ui.generated.resources.area
+import ground_android.core.ui.generated.resources.date
 import ground_android.core.ui.generated.resources.job
 import ground_android.core.ui.generated.resources.pdf_data_collector
 import ground_android.core.ui.generated.resources.scan_this_qr_to_download_geojson
@@ -51,26 +52,26 @@ class LoiReportMapper(
     val rows = buildRows(submission)
     val document =
       SubmissionPdfDocument(
-        header = buildHeader(details, submission),
-        qrBlock = buildQrBlock(),
+        header = buildHeader(details, loiReport.loiName, submission),
+        qrBlock = buildQrBlock(loiReport.loiName),
         footer = buildFooter(details),
         table =
           Table(
             submissionLabel = strings.resolve(Res.string.submission),
             loiName = loiReport.loiName,
+            jobLabel = strings.resolve(Res.string.job),
+            jobName = submission.jobName(),
             rows = rows,
           ),
         mapBlock = buildMapBlock(details),
       )
-    val dateMillis = submission.lastModified.clientTimestamp
-    val timestamp =
-      "${dateFormatter.formatDate(dateMillis)}_${dateFormatter.formatTime(dateMillis)}"
+
     val fileName =
-      listOf(details.surveyName, loiReport.loiName, details.userName, timestamp)
+      listOf(details.surveyName, loiReport.loiName, details.userName)
         .map { it.filter(::isSafeFileChar) }
         .filter { it.isNotBlank() }
         .joinToString("_")
-        .take(100)
+        .take(60) + "_${submission.id}"
 
     return PdfExportService.Request(
       document = document,
@@ -81,20 +82,27 @@ class LoiReportMapper(
 
   private suspend fun buildHeader(
     details: LoiReport.SubmissionDetails,
+    loiName: String,
     submission: Submission,
   ): Header =
     Header(
       surveyLabel = strings.resolve(Res.string.survey),
       surveyName = details.surveyName,
-      jobLabel = strings.resolve(Res.string.job),
-      jobName = submission.job.name ?: submission.job.id,
+      submissionLabel = strings.resolve(Res.string.submission),
+      submissionName = loiName,
+      dateLabel = strings.resolve(Res.string.date),
       timestamp =
         "${dateFormatter.formatDate(submission.lastModified.clientTimestamp)} " +
           dateFormatter.formatTime(submission.lastModified.clientTimestamp),
     )
 
-  private suspend fun buildQrBlock(): QrBlock =
-    QrBlock(scanCaption = strings.resolve(Res.string.scan_this_qr_to_download_geojson))
+  private fun Submission.jobName(): String = job.name ?: job.id
+
+  private suspend fun buildQrBlock(loiName: String): QrBlock =
+    QrBlock(
+      submissionName = loiName,
+      scanCaption = strings.resolve(Res.string.scan_this_qr_to_download_geojson),
+    )
 
   private suspend fun buildFooter(details: LoiReport.SubmissionDetails): Footer =
     Footer(

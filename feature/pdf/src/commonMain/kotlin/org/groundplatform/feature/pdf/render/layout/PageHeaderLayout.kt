@@ -26,13 +26,13 @@ import org.groundplatform.feature.pdf.render.PdfOffset
  *
  * @param leftColumn Label and value positions for the left column.
  * @param centerColumn Label and value positions for the center column.
- * @param rightTextOffset The position where the right-aligned value begins .
+ * @param rightColumn Label and value positions for the right column, whose text is right-aligned.
  * @param nextCursorY The Y position where the cursor should be positioned after the header.
  */
 internal data class PageHeaderLayout(
   val leftColumn: Column,
   val centerColumn: Column,
-  val rightTextOffset: PdfOffset,
+  val rightColumn: Column,
   val nextCursorY: Float,
 ) {
   companion object {
@@ -53,7 +53,7 @@ internal data class PageHeaderLayout(
       return PageHeaderLayout(
         leftColumn = column(LEFT_X, top, labelHeight),
         centerColumn = column(CENTER_X, top, labelHeight),
-        rightTextOffset = PdfOffset(RIGHT_X, top),
+        rightColumn = column(RIGHT_X, top, labelHeight),
         nextCursorY = columnBottom + BOTTOM_GAP,
       )
     }

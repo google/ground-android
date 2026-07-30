@@ -104,11 +104,12 @@ class PdfExportServiceTest {
           SubmissionPdfDocument.Header(
             surveyLabel = "Survey",
             surveyName = "Survey name",
-            jobLabel = "Job",
-            jobName = "Job name",
+            submissionLabel = "Submission",
+            submissionName = "Loi",
+            dateLabel = "Date",
             timestamp = "timestamp",
           ),
-        qrBlock = SubmissionPdfDocument.QrBlock(scanCaption = "Scan"),
+        qrBlock = SubmissionPdfDocument.QrBlock(submissionName = "Loi", scanCaption = "Scan"),
         footer =
           SubmissionPdfDocument.Footer(
             dataCollectorLabel = "Collector",
@@ -119,6 +120,8 @@ class PdfExportServiceTest {
           SubmissionPdfDocument.Table(
             submissionLabel = "Submission",
             loiName = "Loi",
+            jobLabel = "Job",
+            jobName = "Job name",
             rows = emptyList(),
           ),
         mapBlock = null,
