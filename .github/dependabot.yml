@@ -22,14 +22,23 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    cooldown:
+      default-days: 7
     open-pull-requests-limit: 10
     target-branch: "master"
+    ignore:
+      # Versions 0.7.5-0.7.8 incompatible with Android <= 14 (use ArrayList.removeLast, API 35+ only).
+      # Exclude until 0.7.9 release https://github.com/JetBrains/markdown/issues/197.
+      - dependency-name: "org.jetbrains:markdown"
+        versions: [ "[0.7.4,0.7.8]" ]
 
   # Enable version updates for GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "daily"
+    cooldown:
+      default-days: 7
     open-pull-requests-limit: 10
     target-branch: "master"
     # Keep all github/codeql-action entry points in a single PR. They share one version and must
