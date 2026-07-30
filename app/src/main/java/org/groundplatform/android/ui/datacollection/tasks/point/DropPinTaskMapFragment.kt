@@ -18,6 +18,7 @@ package org.groundplatform.android.ui.datacollection.tasks.point
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment
 import org.groundplatform.android.ui.datacollection.tasks.launchWhenTaskVisible
 import org.groundplatform.android.ui.map.Feature
@@ -50,7 +51,10 @@ class DropPinTaskMapFragment @Inject constructor() :
     taskViewModel.updateCameraPosition(position)
   }
 
-  override fun renderFeatures(): Flow<Set<Feature>> = taskViewModel.features
+  override fun renderFeatures(): Flow<Set<Feature>> =
+    combine(taskViewModel.features, taskViewModel.existingLoiFeatures) { pinFeatures, existing ->
+      pinFeatures + existing
+    }
 
   override fun setDefaultViewPort() {
     val feature = taskViewModel.features.value?.firstOrNull() ?: return

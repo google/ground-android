@@ -27,6 +27,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -50,11 +53,14 @@ import org.groundplatform.domain.model.geometry.LineString
 import org.groundplatform.domain.model.geometry.LinearRing
 import org.groundplatform.domain.model.geometry.Polygon
 import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
 import org.groundplatform.domain.model.settings.MeasurementUnits
 import org.groundplatform.domain.model.submission.DrawAreaTaskData
 import org.groundplatform.domain.model.submission.DrawAreaTaskIncompleteData
 import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.task.Task
+import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
+import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.usecases.user.GetUserSettingsUseCase
 import org.groundplatform.domain.util.calculateShoelacePolygonArea
 import org.groundplatform.ui.util.getFormattedArea
@@ -73,11 +79,34 @@ internal constructor(
   private val vibrationHelper: VibrationHelper,
   private val localeAwareMeasureFormatter: LocaleAwareMeasureFormatter,
   private val getUserSettingsUseCase: GetUserSettingsUseCase,
+  private val loiRepository: LocationOfInterestRepositoryInterface,
+  private val surveyRepository: SurveyRepositoryInterface,
 ) : AbstractMapTaskViewModel() {
 
   /** Polygon [Feature] being drawn by the user. */
   private val _draftArea: MutableStateFlow<Feature?> = MutableStateFlow(null)
   val draftArea: StateFlow<Feature?> = _draftArea.asStateFlow()
+
+  /**
+   * Features representing LOIs that already exist in the survey, shown as background context while
+   * the user draws a new polygon.
+   */
+  val existingLoiFeatures: StateFlow<Set<Feature>> =
+    surveyRepository.activeSurveyFlow
+      .filterNotNull()
+      .flatMapLatest { survey -> loiRepository.getValidLois(survey) }
+      .map { lois -> lois.map { loi -> loi.toExistingFeature() }.toSet() }
+      .stateIn(viewModelScope, WhileSubscribed(5_000), emptySet())
+
+  private fun LocationOfInterest.toExistingFeature(): Feature =
+    Feature(
+      id = id,
+      type = Feature.Type.LOCATION_OF_INTEREST,
+      geometry = geometry,
+      style = Feature.Style(job.getDefaultColor()),
+      clusterable = false,
+      selected = false,
+    )
 
   /**
    * Unique identifier for the currently active draft polygon or line being drawn.

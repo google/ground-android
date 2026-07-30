@@ -18,8 +18,13 @@ package org.groundplatform.android.ui.datacollection.tasks.point
 import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
@@ -32,21 +37,47 @@ import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.util.getDefaultColor
 import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
 import org.groundplatform.domain.model.submission.DropPinTaskData
 import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.submission.isNullOrEmpty
 import org.groundplatform.domain.model.task.Task
+import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
+import org.groundplatform.domain.repository.SurveyRepositoryInterface
 
 class DropPinTaskViewModel
 @Inject
 constructor(
   private val uuidGenerator: OfflineUuidGenerator,
   private val localValueStore: LocalValueStore,
+  private val loiRepository: LocationOfInterestRepositoryInterface,
+  private val surveyRepository: SurveyRepositoryInterface,
 ) : AbstractMapTaskViewModel() {
 
   private var pinColor: Int = 0
   private val _features = MutableStateFlow<Set<Feature>>(emptySet())
   val features: StateFlow<Set<Feature>> = _features.asStateFlow()
+
+  /**
+   * Features representing LOIs that already exist in the survey, shown as background context while
+   * the user drops a new pin.
+   */
+  val existingLoiFeatures: StateFlow<Set<Feature>> =
+    surveyRepository.activeSurveyFlow
+      .filterNotNull()
+      .flatMapLatest { survey -> loiRepository.getValidLois(survey) }
+      .map { lois -> lois.map { loi -> loi.toExistingFeature() }.toSet() }
+      .stateIn(viewModelScope, WhileSubscribed(5_000), emptySet())
+
+  private fun LocationOfInterest.toExistingFeature(): Feature =
+    Feature(
+      id = id,
+      type = Feature.Type.LOCATION_OF_INTEREST,
+      geometry = geometry,
+      style = Feature.Style(job.getDefaultColor()),
+      clusterable = false,
+      selected = false,
+    )
 
   /** Whether the instructions dialog has been shown or not. */
   internal var instructionsDialogShown: Boolean by localValueStore::dropPinInstructionsShown
