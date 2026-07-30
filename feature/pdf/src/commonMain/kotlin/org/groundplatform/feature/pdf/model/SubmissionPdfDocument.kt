@@ -33,14 +33,21 @@ data class SubmissionPdfDocument(
   data class Header(
     val surveyLabel: String,
     val surveyName: String,
-    val jobLabel: String,
-    val jobName: String,
+    val submissionLabel: String,
+    val submissionName: String,
+    val dateLabel: String,
     val timestamp: String,
   )
 
-  data class QrBlock(val scanCaption: String)
+  data class QrBlock(val submissionName: String, val scanCaption: String)
 
-  data class Table(val submissionLabel: String, val loiName: String, val rows: List<Row>)
+  data class Table(
+    val submissionLabel: String,
+    val loiName: String,
+    val jobLabel: String,
+    val jobName: String,
+    val rows: List<Row>,
+  )
 
   data class Row(val question: String, val answer: Answer)
 

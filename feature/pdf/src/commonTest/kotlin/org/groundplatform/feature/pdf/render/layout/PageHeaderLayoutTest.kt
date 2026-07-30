@@ -56,7 +56,7 @@ class PageHeaderLayoutTest {
   }
 
   @Test
-  fun `compute places job column labels and values at CENTER_X`() {
+  fun `compute places submission column labels and values at CENTER_X`() {
     val layout = PageHeaderLayout.compute(top = 0f, labelHeight = 10f, valueHeight = 14f)
 
     assertEquals(PdfOffset(PageHeaderLayout.CENTER_X, 0f), layout.centerColumn.labelOffset)
@@ -67,12 +67,22 @@ class PageHeaderLayoutTest {
   }
 
   @Test
-  fun `compute places timestamp at RIGHT_X with the same top as labels`() {
+  fun `compute places the date column at RIGHT_X with the same top as the other labels`() {
     val layout = PageHeaderLayout.compute(top = 50f, labelHeight = 10f, valueHeight = 14f)
 
-    assertEquals(PdfOffset(PageHeaderLayout.RIGHT_X, 50f), layout.rightTextOffset)
-    assertEquals(layout.leftColumn.labelOffset.y, layout.rightTextOffset.y)
-    assertEquals(layout.centerColumn.labelOffset.y, layout.rightTextOffset.y)
+    assertEquals(PdfOffset(PageHeaderLayout.RIGHT_X, 50f), layout.rightColumn.labelOffset)
+    assertEquals(layout.leftColumn.labelOffset.y, layout.rightColumn.labelOffset.y)
+    assertEquals(layout.centerColumn.labelOffset.y, layout.rightColumn.labelOffset.y)
+  }
+
+  @Test
+  fun `date value sits below its label like the other columns`() {
+    val layout = PageHeaderLayout.compute(top = 50f, labelHeight = 10f, valueHeight = 14f)
+
+    assertEquals(
+      PdfOffset(PageHeaderLayout.RIGHT_X, 50f + 10f + lineSpacing),
+      layout.rightColumn.valueOffset,
+    )
   }
 
   @Test

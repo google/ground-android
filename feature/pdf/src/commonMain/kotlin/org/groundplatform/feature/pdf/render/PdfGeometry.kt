@@ -28,6 +28,9 @@ internal fun pointsToRenderPixels(points: Float): Int =
 
 internal data class PdfItemSize(val width: Float, val height: Float)
 
+/** Dimensions of a PDF page, in points. */
+internal data class PdfPageSize(val width: Int, val height: Int)
+
 internal data class PdfOffset(val x: Float, val y: Float)
 
 internal data class PdfLine(val startX: Float, val startY: Float, val endX: Float, val endY: Float)

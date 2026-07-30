@@ -33,7 +33,7 @@ import kotlinx.coroutines.coroutineScope
 import org.groundplatform.feature.pdf.render.fitInside
 import org.groundplatform.feature.pdf.render.image.PdfImage
 import org.groundplatform.feature.pdf.render.image.PdfImageSet
-import org.groundplatform.feature.pdf.render.layout.QrBlockLayout
+import org.groundplatform.feature.pdf.render.layout.QrPageLayout
 import org.groundplatform.feature.pdf.render.layout.TableLayout
 import org.groundplatform.feature.pdf.render.pointsToRenderPixels
 import org.groundplatform.ui.components.qrcode.PDF_LOGO_SIZE_FRACTION
@@ -56,7 +56,7 @@ class AndroidPdfImageProvider(
   @DrawableRes private val logoDrawableRes: Int,
 ) : PdfImageProvider {
 
-  private val qrMaxPx = pointsToRenderPixels(QrBlockLayout.QR_SIZE)
+  private val qrMaxPx = pointsToRenderPixels(QrPageLayout.QR_SIZE)
   private val photoMaxWidthPx = pointsToRenderPixels(TableLayout.ANSWER_TEXT_WIDTH.toFloat())
   private val photoMaxHeightPx = pointsToRenderPixels(TableLayout.PHOTO_MAX_HEIGHT.toFloat())
 

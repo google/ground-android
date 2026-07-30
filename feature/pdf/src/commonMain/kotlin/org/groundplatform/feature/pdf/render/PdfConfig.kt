@@ -28,11 +28,23 @@ internal object PdfConfig {
   /** Page height in points (A4 portrait, 297mm). */
   const val PAGE_HEIGHT = 842
 
+  /** QR page width in points (A7 portrait, 74mm). */
+  const val QR_PAGE_WIDTH = 210
+
+  /** QR page height in points (A7 portrait, 105mm). */
+  const val QR_PAGE_HEIGHT = 298
+
+  /** Size of the report body pages. */
+  val REPORT_PAGE_SIZE = PdfPageSize(PAGE_WIDTH, PAGE_HEIGHT)
+
+  /** Size of the standalone QR page. */
+  val QR_PAGE_SIZE = PdfPageSize(QR_PAGE_WIDTH, QR_PAGE_HEIGHT)
+
   /** Page margin applied to all four edges. */
   const val MARGIN = 40
 
   /** Font size for title text. */
-  const val TITLE_SIZE = 11f
+  const val TITLE_SIZE = 13f
 
   /** Font size body and table-cell text. */
   const val BODY_SIZE = 11f
