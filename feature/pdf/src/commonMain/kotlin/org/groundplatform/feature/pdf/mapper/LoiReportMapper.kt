@@ -52,7 +52,7 @@ class LoiReportMapper(
     val document =
       SubmissionPdfDocument(
         header = buildHeader(details, submission),
-        qrBlock = buildQrBlock(),
+        qrBlock = buildQrBlock(loiReport.loiName),
         footer = buildFooter(details),
         table =
           Table(
@@ -93,8 +93,11 @@ class LoiReportMapper(
           dateFormatter.formatTime(submission.lastModified.clientTimestamp),
     )
 
-  private suspend fun buildQrBlock(): QrBlock =
-    QrBlock(scanCaption = strings.resolve(Res.string.scan_this_qr_to_download_geojson))
+  private suspend fun buildQrBlock(loiName: String): QrBlock =
+    QrBlock(
+      submissionName = loiName,
+      scanCaption = strings.resolve(Res.string.scan_this_qr_to_download_geojson),
+    )
 
   private suspend fun buildFooter(details: LoiReport.SubmissionDetails): Footer =
     Footer(
