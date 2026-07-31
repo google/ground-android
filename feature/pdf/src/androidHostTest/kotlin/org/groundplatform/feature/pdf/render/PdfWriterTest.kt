@@ -46,25 +46,61 @@ class PdfWriterTest {
 
     newPdfWriter(EMPTY_DOCUMENT, PdfImageSet(emptyMap()), canvas).drawDocument(EMPTY_DOCUMENT)
 
-    assertEquals(0, canvas.startedPages.size)
+    assertEquals(0, canvas.startedPageNumbers.size)
     assertEquals(0, canvas.finishedPages)
   }
 
   @Test
-  fun `opens and closes exactly one page for a single-page document`() {
+  fun `opens and closes a qr page and one content page for a single-page document`() {
     val canvas = renderDocument(SINGLE_PAGE_DOCUMENT)
 
-    assertEquals(listOf(1), canvas.startedPages)
-    assertEquals(1, canvas.finishedPages)
+    assertEquals(listOf(1, 2), canvas.startedPageNumbers)
+    assertEquals(2, canvas.finishedPages)
   }
 
   @Test
-  fun `draws the header values on the page`() {
+  fun `draws the qr on an A7 page ahead of the A4 content pages`() {
     val canvas = renderDocument(SINGLE_PAGE_DOCUMENT)
 
-    assertTrue(canvas.drawnText.contains(HEADER.surveyName))
-    assertTrue(canvas.drawnText.contains(HEADER.jobName))
-    assertTrue(canvas.drawnText.contains(HEADER.timestamp))
+    assertEquals(
+      listOf(PdfConfig.QR_PAGE_SIZE, PdfConfig.REPORT_PAGE_SIZE),
+      canvas.startedPageSizes,
+    )
+  }
+
+  @Test
+  fun `does not open a qr page when no qr image is provided`() {
+    val canvas = renderDocument(SINGLE_PAGE_DOCUMENT, pdfImageSet(qr = null))
+
+    assertEquals(listOf(PdfConfig.REPORT_PAGE_SIZE), canvas.startedPageSizes)
+  }
+
+  @Test
+  fun `draws no header or footer on the qr page`() {
+    val tableless =
+      SINGLE_PAGE_DOCUMENT.copy(table = SINGLE_PAGE_DOCUMENT.table.copy(rows = emptyList()))
+
+    val canvas = renderDocument(tableless, pdfImageSet(qr = pdfImage()))
+
+    assertEquals(listOf(QR_BLOCK.submissionName, QR_BLOCK.scanCaption), canvas.drawnText)
+  }
+
+  @Test
+  fun `draws the survey, submission and date columns in the header`() {
+    val canvas = renderDocument(SINGLE_PAGE_DOCUMENT)
+
+    assertTrue(canvas.drawnText.containsAll(listOf(HEADER.surveyLabel, HEADER.surveyName)))
+    assertTrue(canvas.drawnText.containsAll(listOf(HEADER.submissionLabel, HEADER.submissionName)))
+    assertTrue(canvas.drawnText.containsAll(listOf(HEADER.dateLabel, HEADER.timestamp)))
+  }
+
+  @Test
+  fun `draws the submission title above the table with the job below it`() {
+    val canvas = renderDocument(SINGLE_PAGE_DOCUMENT)
+
+    val jobLineIndex = canvas.drawnText.indexOf("${TABLE.jobLabel}: ${TABLE.jobName}")
+    assertTrue(jobLineIndex > 0)
+    assertEquals("${TABLE.submissionLabel}: ${TABLE.loiName}", canvas.drawnText[jobLineIndex - 1])
   }
 
   @Test
@@ -86,10 +122,10 @@ class PdfWriterTest {
 
     pdfWriter.drawDocument(TEST_PDF_DOCUMENT)
 
-    assertTrue(pdfWriter.pageCount > 1)
-    assertEquals(pdfWriter.pageCount, canvas.drawnText.count { it == HEADER.surveyName })
+    assertTrue(pdfWriter.bodyPageCount > 1)
+    assertEquals(pdfWriter.bodyPageCount, canvas.drawnText.count { it == HEADER.surveyName })
     assertEquals(
-      pdfWriter.pageCount,
+      pdfWriter.bodyPageCount,
       canvas.drawnText.count {
         it == "${FOOTER.dataCollectorLabel}: ${FOOTER.dataCollectorName}, ${FOOTER.userEmail}"
       },
@@ -97,12 +133,13 @@ class PdfWriterTest {
   }
 
   @Test
-  fun `draws the qr image and caption when a qr image is provided`() {
+  fun `draws the qr image, its submission title and caption when a qr image is provided`() {
     val qr = pdfImage()
     val canvas = renderDocument(SINGLE_PAGE_DOCUMENT, pdfImageSet(qr = qr))
 
     assertTrue(canvas.drawnImages.any { it.bitmap === qr.bitmap })
     assertTrue(canvas.drawnText.contains(QR_BLOCK.scanCaption))
+    assertTrue(canvas.drawnText.contains(QR_BLOCK.submissionName))
   }
 
   @Test
@@ -144,7 +181,7 @@ class PdfWriterTest {
   }
 
   @Test
-  fun `includes the page number in the footer when totalPages is set`() {
+  fun `numbers the content pages in the footer, leaving the qr page out of the count`() {
     val canvas = renderDocument(SINGLE_PAGE_DOCUMENT, totalPages = 1)
 
     assertTrue(canvas.drawnText.contains("1/1"))
@@ -175,8 +212,8 @@ class PdfWriterTest {
     pdfWriter.drawDocument(TEST_PDF_DOCUMENT)
 
     // Every page resets the flag, so each page's first row draws exactly 1 top border.
-    assertTrue(pdfWriter.pageCount > 1)
-    assertEquals(pdfWriter.pageCount, canvas.topBorderCount())
+    assertTrue(pdfWriter.bodyPageCount > 1)
+    assertEquals(pdfWriter.bodyPageCount, canvas.topBorderCount())
   }
 
   @Test
@@ -186,8 +223,8 @@ class PdfWriterTest {
 
     val canvas = renderDocument(tableless, pdfImageSet(qr = pdfImage()))
 
-    assertEquals(listOf(1), canvas.startedPages)
-    assertFalse(canvas.drawnText.contains(TABLE.submissionLabel))
+    assertEquals(listOf(1), canvas.startedPageNumbers)
+    assertFalse(canvas.drawnText.contains("${TABLE.submissionLabel}: ${TABLE.loiName}"))
   }
 
   private fun renderDocument(
@@ -200,7 +237,7 @@ class PdfWriterTest {
   private fun renderPageCount(totalPages: Int?): Int =
     newPdfWriter(TEST_PDF_DOCUMENT, PdfImageSet(emptyMap()), MeasurementPdfCanvas, totalPages)
       .apply { drawDocument(TEST_PDF_DOCUMENT) }
-      .pageCount
+      .bodyPageCount
 
   private fun newPdfWriter(
     document: SubmissionPdfDocument,
@@ -241,8 +278,9 @@ class PdfWriterTest {
       SubmissionPdfDocument.Header(
         surveyLabel = "Survey",
         surveyName = "Survey name",
-        jobLabel = "Job",
-        jobName = "Job name",
+        submissionLabel = "Submission",
+        submissionName = "Submission name",
+        dateLabel = "Date",
         timestamp = "timestamp",
       )
     val FOOTER =
@@ -252,12 +290,14 @@ class PdfWriterTest {
         userEmail = "user@gmail.com",
       )
 
-    val QR_BLOCK = SubmissionPdfDocument.QrBlock(scanCaption = "Scan")
+    val QR_BLOCK = SubmissionPdfDocument.QrBlock(submissionName = "Plot 42", scanCaption = "Scan")
 
     val TABLE =
       SubmissionPdfDocument.Table(
         submissionLabel = "Submission",
-        loiName = "Plot 42",
+        loiName = "Submission name",
+        jobLabel = "Job",
+        jobName = "Job name",
         rows = emptyList(),
       )
 

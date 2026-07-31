@@ -18,6 +18,7 @@ package org.groundplatform.feature.pdf.mapper
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 import kotlinx.coroutines.test.runTest
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.LinearRing
@@ -46,7 +47,7 @@ class LoiReportMapperTest {
     )
 
   @Test
-  fun `file name joins survey loi user and timestamp with underscores`() = runTest {
+  fun `file name joins survey loi user and submission id with underscores`() = runTest {
     val request =
       mapper.map(
         loiReport =
@@ -58,7 +59,7 @@ class LoiReportMapperTest {
         submission = submission,
       )
 
-    assertEquals("Survey_Loi_User_$TEST_TIMESTAMP", request!!.fileName)
+    assertEquals("Survey_Loi_User_$TEST_SUBMISSION_ID", request!!.fileName)
   }
 
   @Test
@@ -77,7 +78,7 @@ class LoiReportMapperTest {
         submission = submission,
       )
 
-    assertEquals("MySurvey_loiname_useremailcom_$TEST_TIMESTAMP", request!!.fileName)
+    assertEquals("MySurvey_loiname_useremailcom_$TEST_SUBMISSION_ID", request!!.fileName)
   }
 
   @Test
@@ -93,7 +94,7 @@ class LoiReportMapperTest {
         submission = submission,
       )
 
-    assertEquals("loi_$TEST_TIMESTAMP", request!!.fileName)
+    assertEquals("loi_$TEST_SUBMISSION_ID", request!!.fileName)
   }
 
   @Test
@@ -109,7 +110,7 @@ class LoiReportMapperTest {
         submission = submission,
       )
 
-    assertEquals("แบบสำรวจ_ເພີ່ມຈຸດສຳຫຼວດ_テスト_$TEST_TIMESTAMP", request!!.fileName)
+    assertEquals("แบบสำรวจ_ເພີ່ມຈຸດສຳຫຼວດ_テスト_$TEST_SUBMISSION_ID", request!!.fileName)
   }
 
   @Test
@@ -128,11 +129,11 @@ class LoiReportMapperTest {
         submission = submission,
       )
 
-    assertEquals("CaféSãoJosé_ß_Test_$TEST_TIMESTAMP", request!!.fileName)
+    assertEquals("CaféSãoJosé_ß_Test_$TEST_SUBMISSION_ID", request!!.fileName)
   }
 
   @Test
-  fun `file name is capped at 100 characters`() = runTest {
+  fun `file name is capped at 60 characters and still ends with the submission id`() = runTest {
     val request =
       mapper.map(
         loiReport =
@@ -144,26 +145,110 @@ class LoiReportMapperTest {
         submission = submission,
       )
 
-    assertEquals(100, request!!.fileName.length)
+    val fileName = request!!.fileName
+    assertEquals(60, fileName.removeSuffix("_$TEST_SUBMISSION_ID").length)
+    assertTrue(fileName.endsWith("_$TEST_SUBMISSION_ID"))
   }
 
   @Test
-  fun `timestamp comes from the submission's own last modified date`() = runTest {
+  fun `file name stays within the file system byte limit for multi-byte scripts`() = runTest {
     val request =
       mapper.map(
         loiReport =
           FakeDataGenerator.newLoiReport(
-            loiName = "Loi",
+            loiName = "ເພີ່ມຈຸດສຳຫຼວດ".repeat(20),
             submissionDetails =
-              FakeDataGenerator.newSubmissionDetails(surveyName = "Survey", userName = "User"),
+              FakeDataGenerator.newSubmissionDetails(
+                surveyName = "แบบสำรวจ".repeat(20),
+                userName = "テスト".repeat(20),
+              ),
           ),
+        submission = submission,
+      )
+
+    assertTrue(request!!.fileName.encodeToByteArray().size <= 255)
+  }
+
+  @Test
+  fun `submissions sharing survey, loi name and user get different file names`() = runTest {
+    val loiReport =
+      FakeDataGenerator.newLoiReport(
+        loiName = "Loi",
+        submissionDetails =
+          FakeDataGenerator.newSubmissionDetails(surveyName = "Survey", userName = "User"),
+      )
+
+    val first = mapper.map(loiReport, FakeDataGenerator.newSubmission(id = "a"))
+    val second = mapper.map(loiReport, FakeDataGenerator.newSubmission(id = "b"))
+
+    assertEquals("Survey_Loi_User_a", first!!.fileName)
+    assertEquals("Survey_Loi_User_b", second!!.fileName)
+  }
+
+  @Test
+  fun `header timestamp comes from the submission's own last modified date`() = runTest {
+    val request =
+      mapper.map(
+        loiReport = FakeDataGenerator.newLoiReport(),
         submission =
           FakeDataGenerator.newSubmission(
             lastModified = AuditInfo(FakeDataGenerator.newUser(), clientTimestamp = 42L)
           ),
       )
 
-    assertEquals("Survey_Loi_User_DATE42_TIME42", request!!.fileName)
+    assertEquals("DATE(42) TIME(42)", request!!.document.header.timestamp)
+  }
+
+  @Test
+  fun `qr block carries the labelled submission name and the scan caption`() = runTest {
+    val report = FakeDataGenerator.newLoiReport(loiName = "Loi")
+
+    val qrBlock = mapper.map(report, submission)!!.document.qrBlock
+
+    assertEquals("Loi", qrBlock.submissionName)
+    assertEquals("scan_this_qr_to_download_geojson", qrBlock.scanCaption)
+  }
+
+  @Test
+  fun `header carries the survey, the submission name and the labelled date`() = runTest {
+    val report =
+      FakeDataGenerator.newLoiReport(
+        loiName = "Loi",
+        submissionDetails = FakeDataGenerator.newSubmissionDetails(surveyName = "Survey"),
+      )
+
+    val header = mapper.map(report, submission)!!.document.header
+
+    assertEquals("survey", header.surveyLabel)
+    assertEquals("Survey", header.surveyName)
+    assertEquals("submission", header.submissionLabel)
+    assertEquals("Loi", header.submissionName)
+    assertEquals("date", header.dateLabel)
+    assertEquals("DATE(0) TIME(0)", header.timestamp)
+  }
+
+  @Test
+  fun `table carries the submission name and the job it belongs to`() = runTest {
+    val report = FakeDataGenerator.newLoiReport(loiName = "Loi")
+
+    val table = mapper.map(report, submission)!!.document.table
+
+    assertEquals("submission", table.submissionLabel)
+    assertEquals("Loi", table.loiName)
+    assertEquals("job", table.jobLabel)
+    assertEquals("job", table.jobName)
+  }
+
+  @Test
+  fun `table falls back to the job id when the job has no name`() = runTest {
+    val unnamedJob =
+      FakeDataGenerator.newSubmission(
+        job = FakeDataGenerator.newJob(id = "job id").copy(name = null)
+      )
+
+    val table = mapper.map(FakeDataGenerator.newLoiReport(), unnamedJob)!!.document.table
+
+    assertEquals("job id", table.jobName)
   }
 
   @Test
@@ -234,11 +319,11 @@ class LoiReportMapperTest {
           )
         )
       )
-    const val TEST_TIMESTAMP = "DATE0_TIME0"
-    /** Submission with a fixed last-modified timestamp so date assertions are deterministic. */
+    const val TEST_SUBMISSION_ID = "submissionId"
     val submission =
       FakeDataGenerator.newSubmission(
-        lastModified = AuditInfo(FakeDataGenerator.newUser(), clientTimestamp = 0L)
+        id = TEST_SUBMISSION_ID,
+        lastModified = AuditInfo(FakeDataGenerator.newUser(), clientTimestamp = 0L),
       )
   }
 }
