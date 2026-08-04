@@ -87,6 +87,8 @@ class LoiConverterTest {
     source = Source.IMPORTED
     properties.put("property1", property { stringValue = "value1" })
     properties.put("property2", property { numericValue = 123.0 })
+    properties.put("name", property { stringValue = "a plot" })
+    properties.put("id", property { stringValue = "plot-7" })
   }
 
   @Test
@@ -113,7 +115,7 @@ class LoiConverterTest {
         lastModified = AuditInfo(user = USER, 987654321L * 1000, 9876543210L * 1000),
         geometry = Point(coordinates = Coordinates(1.0, 2.0)),
         submissionCount = 1,
-        properties = mapOf("property1" to "value1", "property2" to 123.0),
+        properties = mapOf("name" to "a plot", "id" to "plot-7"),
         isPredefined = true,
       ),
       toLocationOfInterest(),
