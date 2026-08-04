@@ -15,15 +15,18 @@
  */
 package org.groundplatform.android.data.local.room.stores
 
+import androidx.room.withTransaction
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.groundplatform.android.data.local.room.LocalDataStoreException
+import org.groundplatform.android.data.local.room.LocalDatabase
 import org.groundplatform.android.data.local.room.converter.toLocalDataStoreObject
 import org.groundplatform.android.data.local.room.converter.toModelObject
 import org.groundplatform.android.data.local.room.dao.LocationOfInterestDao
 import org.groundplatform.android.data.local.room.dao.LocationOfInterestMutationDao
+import org.groundplatform.android.data.local.room.dao.MAX_SQL_VARIABLES
 import org.groundplatform.android.data.local.room.dao.insertOrUpdate
 import org.groundplatform.android.data.local.room.entity.LocationOfInterestEntity
 import org.groundplatform.android.data.local.room.entity.LocationOfInterestMutationEntity
@@ -43,6 +46,7 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
   @Inject lateinit var locationOfInterestDao: LocationOfInterestDao
   @Inject lateinit var locationOfInterestMutationDao: LocationOfInterestMutationDao
   @Inject lateinit var userStore: RoomUserStore
+  @Inject lateinit var localDatabase: LocalDatabase
 
   override suspend fun getLoiCount(surveyId: String): Int =
     locationOfInterestDao.countByDeletionState(surveyId, EntityDeletionState.DEFAULT)
@@ -131,6 +135,17 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
     locationOfInterestDao.insertOrUpdate(loi.toLocalDataStoreObject())
   }
 
-  override suspend fun deleteNotIn(surveyId: String, ids: List<String>) =
-    locationOfInterestDao.deleteNotIn(surveyId, ids)
+  override suspend fun deleteNotIn(surveyId: String, ids: List<String>) {
+    val idsToKeep = ids.toSet()
+    localDatabase.withTransaction {
+      locationOfInterestDao
+        .getIds(surveyId)
+        .filterNot { it in idsToKeep }
+        // Deleting via `NOT IN (:ids)` would bind one variable per retained ID, which overflows
+        // SQLite's limit on surveys with more LOIs than that. Delete the complement instead, in
+        // chunks small enough to bind.
+        .chunked(MAX_SQL_VARIABLES)
+        .forEach { locationOfInterestDao.deleteByIds(it) }
+    }
+  }
 }

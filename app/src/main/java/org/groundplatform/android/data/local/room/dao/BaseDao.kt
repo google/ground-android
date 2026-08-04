@@ -35,6 +35,13 @@ interface BaseDao<E> {
   @Delete suspend fun delete(entity: E)
 }
 
+/**
+ * The maximum number of bind arguments a single SQLite statement accepts. Queries binding a list
+ * (e.g. `WHERE id IN (:ids)`) must chunk it to stay under this limit, otherwise SQLite fails with
+ * "too many SQL variables" once the list grows large enough.
+ */
+const val MAX_SQL_VARIABLES = 900
+
 /** Try to update the specified entity, and if it doesn't yet exist, create it. Main-safe. */
 suspend fun <E> BaseDao<E>.insertOrUpdate(entity: E) {
   val count = update(entity)

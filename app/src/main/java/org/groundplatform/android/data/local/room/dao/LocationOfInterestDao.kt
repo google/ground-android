@@ -25,6 +25,13 @@ import org.groundplatform.android.data.local.room.fields.EntityDeletionState
 @Dao
 interface LocationOfInterestDao : BaseDao<LocationOfInterestEntity> {
 
+  @Query("SELECT id FROM location_of_interest WHERE survey_id = :surveyId")
+  suspend fun getIds(surveyId: String): List<String>
+
+  /** Deletes the LOIs with the given IDs. Callers must respect [MAX_SQL_VARIABLES]. */
+  @Query("DELETE FROM location_of_interest WHERE id IN (:ids)")
+  suspend fun deleteByIds(ids: List<String>)
+
   @Query(
     "SELECT * FROM location_of_interest WHERE survey_id = :surveyId AND state = :deletionState"
   )
@@ -40,11 +47,4 @@ interface LocationOfInterestDao : BaseDao<LocationOfInterestEntity> {
 
   @Query("SELECT * FROM location_of_interest WHERE id = :id")
   suspend fun findById(id: String): LocationOfInterestEntity?
-
-  /**
-   * Deletes all LOIs in specified survey whose IDs are not present in the specified list..
-   * Main-safe.
-   */
-  @Query("DELETE FROM location_of_interest WHERE survey_id = :surveyId AND id NOT IN (:ids)")
-  suspend fun deleteNotIn(surveyId: String, ids: List<String>)
 }

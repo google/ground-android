@@ -20,6 +20,7 @@ import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlin.test.assertFailsWith
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
@@ -29,7 +30,9 @@ import org.groundplatform.android.data.local.room.converter.formatVertices
 import org.groundplatform.android.data.local.room.converter.parseVertices
 import org.groundplatform.android.data.local.room.converter.toLocalDataStoreObject
 import org.groundplatform.android.data.local.room.dao.LocationOfInterestDao
+import org.groundplatform.android.data.local.room.dao.MAX_SQL_VARIABLES
 import org.groundplatform.android.data.local.room.fields.EntityDeletionState
+import org.groundplatform.android.data.local.room.stores.RoomLocationOfInterestStore
 import org.groundplatform.android.data.local.stores.LocalLocationOfInterestStore
 import org.groundplatform.android.data.local.stores.LocalSubmissionStore
 import org.groundplatform.android.data.local.stores.LocalSurveyStore
@@ -45,6 +48,7 @@ import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.geometry.Polygon
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.job.Style
+import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
 import org.groundplatform.domain.model.mutation.Mutation
 import org.groundplatform.domain.model.mutation.Mutation.SyncStatus
 import org.groundplatform.domain.model.mutation.SubmissionMutation
@@ -274,6 +278,74 @@ class LocalLocationOfInterestStoreTest : BaseHiltTest() {
       assertFailsWith<IllegalArgumentException> { localLoiStore.insertOrUpdate(invalidLoi) }
     }
 
+  @Test
+  fun `deleteNotIn deletes in chunks small enough for SQLite to bind`() = runWithTestDispatcher {
+    val ids = (1..MAX_SQL_VARIABLES * 2 + 1).map { "loi-$it" }
+    val chunkSizes = mutableListOf<Int>()
+
+    withDao(
+      object : LocationOfInterestDao by locationOfInterestDao {
+        override suspend fun getIds(surveyId: String) = ids
+
+        override suspend fun deleteByIds(ids: List<String>) {
+          chunkSizes.add(ids.size)
+        }
+      }
+    ) {
+      localLoiStore.deleteNotIn(TEST_SURVEY.id, emptyList())
+    }
+
+    assertThat(chunkSizes.sum()).isEqualTo(ids.size)
+    assertThat(chunkSizes.max()).isAtMost(MAX_SQL_VARIABLES)
+  }
+
+  /** Runs [block] with the store reading and writing through [dao] instead of the real one. */
+  private suspend fun withDao(dao: LocationOfInterestDao, block: suspend () -> Unit) {
+    val store = localLoiStore as RoomLocationOfInterestStore
+    val real = store.locationOfInterestDao
+    store.locationOfInterestDao = dao
+    try {
+      block()
+    } finally {
+      store.locationOfInterestDao = real
+    }
+  }
+
+  @Test
+  fun `deleteNotIn deletes LOIs missing from the given list`() = runWithTestDispatcher {
+    localUserStore.insertOrUpdateUser(TEST_USER)
+    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
+    localLoiStore.insertOrUpdate(testLoi("keep"))
+    localLoiStore.insertOrUpdate(testLoi("drop"))
+
+    localLoiStore.deleteNotIn(TEST_SURVEY.id, listOf("keep"))
+
+    assertThat(localLoiStore.getValidLois(TEST_SURVEY).first().map { it.id }).containsExactly("keep")
+  }
+
+  @Test
+  fun `deleteNotIn leaves LOIs of other surveys untouched`() = runWithTestDispatcher {
+    localUserStore.insertOrUpdateUser(TEST_USER)
+    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
+    localSurveyStore.insertOrUpdateSurvey(OTHER_SURVEY)
+    localLoiStore.insertOrUpdate(testLoi("mine"))
+    localLoiStore.insertOrUpdate(testLoi("theirs", surveyId = OTHER_SURVEY.id))
+
+    localLoiStore.deleteNotIn(TEST_SURVEY.id, emptyList())
+
+    assertThat(localLoiStore.getLoiCount(TEST_SURVEY.id)).isEqualTo(0)
+    assertThat(localLoiStore.getLoiCount(OTHER_SURVEY.id)).isEqualTo(1)
+  }
+
+  private fun testLoi(id: String, surveyId: String = TEST_SURVEY.id): LocationOfInterest =
+    FakeData.LOCATION_OF_INTEREST.copy(
+      id = id,
+      surveyId = surveyId,
+      customId = "",
+      job = TEST_JOB,
+      geometry = TEST_POINT,
+    )
+
   companion object {
     private val TEST_USER = User(FakeData.USER_ID, "user@gmail.com", "user 1")
     private val TEST_TASK = Task("task id", 1, Task.Type.TEXT, "task label", false)
@@ -285,6 +357,14 @@ class LocalLocationOfInterestStoreTest : BaseHiltTest() {
         FakeData.SURVEY_ID,
         "survey 1",
         "foo description",
+        mapOf(Pair(TEST_JOB.id, TEST_JOB)),
+        generalAccess = FAKE_GENERAL_ACCESS,
+      )
+    private val OTHER_SURVEY =
+      Survey(
+        "other-survey-id",
+        "survey 2",
+        "bar description",
         mapOf(Pair(TEST_JOB.id, TEST_JOB)),
         generalAccess = FAKE_GENERAL_ACCESS,
       )
