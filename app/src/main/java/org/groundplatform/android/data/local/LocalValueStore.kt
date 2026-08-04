@@ -131,6 +131,18 @@ constructor(private val preferences: SharedPreferences, private val locale: Loca
       preferences.edit { putBoolean(PrefKeys.DEFERRED_DEEPLINK_CONSUMED, value) }
     }
 
+  /**
+   * Ids of surveys known to have changed remotely since they were last synced, because they weren't
+   * the active survey when the change was notified. Their sync is deferred until next activation.
+   */
+  var staleSurveyIds: Set<String>
+    get() = allowThreadDiskReads {
+      preferences.getStringSet(PrefKeys.STALE_SURVEY_IDS, emptySet()).orEmpty().toSet()
+    }
+    set(value) = allowThreadDiskWrites {
+      preferences.edit { putStringSet(PrefKeys.STALE_SURVEY_IDS, value) }
+    }
+
   /** Removes all values stored in the local store. */
   fun clear() = allowThreadDiskWrites { preferences.edit { clear() } }
 

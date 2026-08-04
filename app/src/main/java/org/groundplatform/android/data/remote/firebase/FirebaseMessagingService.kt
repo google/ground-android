@@ -20,6 +20,7 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.sync.SurveySyncService
 import timber.log.Timber
 
@@ -33,6 +34,7 @@ const val TOPIC_PREFIX = "/topics/"
 class FirebaseMessagingService : FirebaseMessagingService() {
 
   @Inject lateinit var surveySyncService: SurveySyncService
+  @Inject lateinit var localValueStore: LocalValueStore
 
   /**
    * Processes new messages, enqueuing a worker to sync the survey with the id specified in the
@@ -45,7 +47,14 @@ class FirebaseMessagingService : FirebaseMessagingService() {
       return
     }
     Timber.v("Message received from topic ${remoteMessage.from}")
-    surveySyncService.enqueueSync(surveyId)
+    // A sync re-reads the survey, its jobs and its entire LOI collection, so only the active
+    // survey is synced here
+    if (surveyId == localValueStore.lastActiveSurveyId) {
+      surveySyncService.enqueueSync(surveyId)
+    } else {
+      Timber.d("Deferring sync of inactive survey $surveyId until it is next activated")
+      localValueStore.staleSurveyIds += surveyId
+    }
   }
 
   override fun onNewToken(token: String) {

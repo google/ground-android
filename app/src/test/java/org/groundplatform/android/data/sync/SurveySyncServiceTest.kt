@@ -36,6 +36,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.SURVEY
+import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.di.coroutines.IoDispatcher
 import org.groundplatform.domain.usecases.survey.SyncSurveyUseCase
 import org.junit.Before
@@ -54,6 +55,8 @@ class SurveySyncServiceTest : BaseHiltTest() {
   @Inject @IoDispatcher lateinit var ioDispatcher: CoroutineDispatcher
   @Mock lateinit var syncSurvey: SyncSurveyUseCase
 
+  @Inject lateinit var localValueStore: LocalValueStore
+
   private lateinit var workManager: WorkManager
   private lateinit var testDriver: TestDriver
 
@@ -71,7 +74,8 @@ class SurveySyncServiceTest : BaseHiltTest() {
               appContext: Context,
               workerClassName: String,
               workerParameters: WorkerParameters,
-            ) = SurveySyncWorker(context, workerParameters, syncSurvey, ioDispatcher)
+            ) =
+              SurveySyncWorker(context, workerParameters, syncSurvey, localValueStore, ioDispatcher)
           }
         )
         .build()

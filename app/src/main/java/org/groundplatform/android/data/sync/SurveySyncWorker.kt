@@ -28,6 +28,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
+import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.di.coroutines.IoDispatcher
 import org.groundplatform.domain.usecases.survey.SyncSurveyUseCase
 import timber.log.Timber
@@ -40,6 +41,7 @@ constructor(
   @Assisted context: Context,
   @Assisted params: WorkerParameters,
   private val syncSurvey: SyncSurveyUseCase,
+  private val localValueStore: LocalValueStore,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : CoroutineWorker(context, params) {
   private val surveyId: String? = params.inputData.getString(SURVEY_ID_PARAM_KEY)
@@ -55,6 +57,7 @@ constructor(
     try {
       Timber.d("Syncing survey $surveyId")
       syncSurvey(surveyId)
+      localValueStore.staleSurveyIds -= surveyId
       return success()
     } catch (t: Throwable) {
       Timber.e(t, "Failed to sync survey $surveyId, retrying")

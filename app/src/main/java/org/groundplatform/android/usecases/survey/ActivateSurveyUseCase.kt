@@ -17,22 +17,29 @@
 package org.groundplatform.android.usecases.survey
 
 import javax.inject.Inject
+import org.groundplatform.android.data.local.LocalValueStore
+import org.groundplatform.android.data.remote.firebase.FirebaseMessagingService
+import org.groundplatform.android.data.sync.SurveySyncService
 import org.groundplatform.android.data.sync.SurveySyncWorker
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
+import timber.log.Timber
 
 /**
  * Sets the survey with the specified ID as the currently active.
  *
  * First attempts to load the survey from the local db. If not present, fetches from remote and
  * activates offline sync. Throws an error if the survey isn't found or cannot be made available
- * offline. Activating a survey which is already available offline doesn't force a re-sync, since
- * this is handled by [SurveySyncWorker].
+ * offline. Activating a survey which is already available offline doesn't force a re-sync unless it
+ * changed remotely while inactive, in which case [FirebaseMessagingService] will have flagged it
+ * and the deferred sync is picked up here and run by [SurveySyncWorker].
  */
 class ActivateSurveyUseCase
 @Inject
 constructor(
+  private val localValueStore: LocalValueStore,
   private val makeSurveyAvailableOffline: MakeSurveyAvailableOfflineUseCase,
   private val surveyRepository: SurveyRepositoryInterface,
+  private val surveySyncService: SurveySyncService,
 ) {
 
   /**
@@ -47,6 +54,12 @@ constructor(
     surveyRepository.getOfflineSurvey(surveyId)
       ?: makeSurveyAvailableOffline(surveyId)
       ?: error("Survey $surveyId not found in remote db")
+
+    // Pick up any sync deferred while this survey was inactive
+    if (surveyId in localValueStore.staleSurveyIds) {
+      Timber.d("Survey $surveyId changed while inactive; enqueuing deferred sync")
+      surveySyncService.enqueueSync(surveyId)
+    }
 
     surveyRepository.activateSurvey(surveyId)
 

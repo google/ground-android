@@ -30,6 +30,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.SURVEY
+import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.sync.SurveySyncWorker.Companion.SURVEY_ID_PARAM_KEY
 import org.groundplatform.android.di.coroutines.IoDispatcher
 import org.groundplatform.domain.usecases.survey.SyncSurveyUseCase
@@ -47,6 +48,7 @@ class SurveySyncWorkerTest : BaseHiltTest() {
   @Mock lateinit var syncSurvey: SyncSurveyUseCase
 
   @Inject @IoDispatcher lateinit var ioDispatcher: CoroutineDispatcher
+  @Inject lateinit var localValueStore: LocalValueStore
 
   private val factory =
     object : WorkerFactory() {
@@ -54,7 +56,7 @@ class SurveySyncWorkerTest : BaseHiltTest() {
         appContext: Context,
         workerClassName: String,
         workerParameters: WorkerParameters,
-      ) = SurveySyncWorker(appContext, workerParameters, syncSurvey, ioDispatcher)
+      ) = SurveySyncWorker(appContext, workerParameters, syncSurvey, localValueStore, ioDispatcher)
     }
 
   @Before
@@ -104,5 +106,44 @@ class SurveySyncWorkerTest : BaseHiltTest() {
         .build()
     val result = worker.doWork()
     assertThat(result).isEqualTo(Result.retry())
+  }
+
+  @Test
+  fun `doWork() clears the survey's stale pref on success`() = runWithTestDispatcher {
+    `when`(syncSurvey(SURVEY.id)).thenReturn(SURVEY)
+    localValueStore.staleSurveyIds = setOf(SURVEY.id, OTHER_SURVEY_ID)
+
+    val worker =
+      TestListenableWorkerBuilder<SurveySyncWorker>(
+          context,
+          inputData = workDataOf(Pair(SURVEY_ID_PARAM_KEY, SURVEY.id)),
+        )
+        .setWorkerFactory(factory)
+        .build()
+    worker.doWork()
+
+    // Other surveys' markers must survive; only the one just synced is cleared.
+    assertThat(localValueStore.staleSurveyIds).containsExactly(OTHER_SURVEY_ID)
+  }
+
+  @Test
+  fun `doWork() keeps the survey's stale pref when sync fails`() = runWithTestDispatcher {
+    `when`(syncSurvey(SURVEY.id)).thenThrow(NotFoundException())
+    localValueStore.staleSurveyIds = setOf(SURVEY.id)
+
+    val worker =
+      TestListenableWorkerBuilder<SurveySyncWorker>(
+          context,
+          inputData = workDataOf(Pair(SURVEY_ID_PARAM_KEY, SURVEY.id)),
+        )
+        .setWorkerFactory(factory)
+        .build()
+    worker.doWork()
+
+    assertThat(localValueStore.staleSurveyIds).containsExactly(SURVEY.id)
+  }
+
+  private companion object {
+    const val OTHER_SURVEY_ID = "other-survey-id"
   }
 }

@@ -17,6 +17,7 @@
 package org.groundplatform.android.data.remote.firebase
 
 import com.google.firebase.messaging.RemoteMessage
+import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.sync.SurveySyncService
 import org.junit.Before
 import org.junit.Rule
@@ -30,11 +31,13 @@ import org.mockito.Mockito.`when`
 import org.mockito.junit.MockitoJUnit
 import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.junit.MockitoRule
+import org.mockito.kotlin.any
 
 @RunWith(MockitoJUnitRunner::class)
 class FirebaseMessagingSurveyTest {
   @JvmField @Rule val rule: MockitoRule = MockitoJUnit.rule()
   @Mock private lateinit var surveySyncService: SurveySyncService
+  @Mock private lateinit var localValueStore: LocalValueStore
   @Mock private lateinit var remoteMessage: RemoteMessage
 
   private lateinit var messagingService: FirebaseMessagingService
@@ -43,16 +46,40 @@ class FirebaseMessagingSurveyTest {
   fun setUp() {
     messagingService = FirebaseMessagingService()
     messagingService.surveySyncService = surveySyncService
+    messagingService.localValueStore = localValueStore
   }
 
   @Test
-  fun `enqueues survey sync for topic`() {
-    val surveyId = "test-survey-id"
-    `when`(remoteMessage.from).thenReturn("/topics/${surveyId}")
+  fun `enqueues survey sync when the survey is the active one`() {
+    `when`(remoteMessage.from).thenReturn("/topics/$SURVEY_ID")
+    `when`(localValueStore.lastActiveSurveyId).thenReturn(SURVEY_ID)
 
     messagingService.onMessageReceived(remoteMessage)
 
-    verify(surveySyncService).enqueueSync(surveyId)
+    verify(surveySyncService).enqueueSync(SURVEY_ID)
+    verify(localValueStore, never()).staleSurveyIds = any()
+  }
+
+  @Test
+  fun `defers survey sync when a different survey is active`() {
+    `when`(remoteMessage.from).thenReturn("/topics/$SURVEY_ID")
+    `when`(localValueStore.lastActiveSurveyId).thenReturn("some-other-survey")
+
+    messagingService.onMessageReceived(remoteMessage)
+
+    verify(surveySyncService, never()).enqueueSync(anyString())
+    verify(localValueStore).staleSurveyIds = setOf(SURVEY_ID)
+  }
+
+  @Test
+  fun `defers survey sync when no survey is active`() {
+    `when`(remoteMessage.from).thenReturn("/topics/$SURVEY_ID")
+    `when`(localValueStore.lastActiveSurveyId).thenReturn("")
+
+    messagingService.onMessageReceived(remoteMessage)
+
+    verify(surveySyncService, never()).enqueueSync(anyString())
+    verify(localValueStore).staleSurveyIds = setOf(SURVEY_ID)
   }
 
   @Test
@@ -62,6 +89,7 @@ class FirebaseMessagingSurveyTest {
     messagingService.onMessageReceived(remoteMessage)
 
     verify(surveySyncService, never()).enqueueSync(anyString())
+    verify(localValueStore, never()).staleSurveyIds = any()
   }
 
   @Test
@@ -71,5 +99,10 @@ class FirebaseMessagingSurveyTest {
     messagingService.onMessageReceived(remoteMessage)
 
     verify(surveySyncService, never()).enqueueSync(anyString())
+    verify(localValueStore, never()).staleSurveyIds = any()
+  }
+
+  private companion object {
+    const val SURVEY_ID = "test-survey-id"
   }
 }

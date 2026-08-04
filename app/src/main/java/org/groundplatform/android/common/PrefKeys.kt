@@ -29,6 +29,7 @@ object PrefKeys {
   const val LOCATION_LOCK_ENABLED = "location_lock_enabled"
   const val MAP_TYPE = "map_type"
   const val OFFLINE_MAP_IMAGERY = "offline_map_imagery"
+  const val STALE_SURVEY_IDS = "stale_survey_ids"
   const val TOS_ACCEPTED = "tos_accepted"
   const val UPLOAD_MEDIA = "upload_media"
   const val VISIT_WEBSITE = "visit_website"
