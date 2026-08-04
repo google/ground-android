@@ -18,7 +18,6 @@ package org.groundplatform.android.data.remote.firebase.schema
 import com.google.firebase.firestore.DocumentSnapshot
 import org.groundplatform.android.data.remote.DataStoreException
 import org.groundplatform.android.data.remote.firebase.protobuf.parseFrom
-import org.groundplatform.android.data.remote.firebase.schema.GeometryConverter.toGeometry
 import org.groundplatform.android.proto.LocationOfInterest as LocationOfInterestProto
 import org.groundplatform.android.proto.LocationOfInterest.Source
 import org.groundplatform.domain.model.Survey
@@ -31,6 +30,8 @@ object LoiConverter {
   const val GEOMETRY_TYPE = "type"
   const val POLYGON_TYPE = "Polygon"
 
+  private val GEOMETRY_FIELD = LocationOfInterestProto.GEOMETRY_FIELD_NUMBER.toString()
+
   fun toLoi(survey: Survey, doc: DocumentSnapshot): Result<LocationOfInterest> = runCatching {
     toLoiUnchecked(survey, doc)
   }
@@ -39,8 +40,9 @@ object LoiConverter {
   private fun toLoiUnchecked(survey: Survey, doc: DocumentSnapshot): LocationOfInterest {
     if (!doc.exists()) throw DataStoreException("LOI missing")
     val loiId = doc.id
-    val loiProto = LocationOfInterestProto::class.parseFrom(doc, 1)
-    val geometry = loiProto.geometry.toGeometry()
+    val data = doc.data.orEmpty()
+    val geometry = LoiGeometryConverter.toGeometry(data[GEOMETRY_FIELD])
+    val loiProto = LocationOfInterestProto::class.parseFrom(loiId, data - GEOMETRY_FIELD, 1)
     val jobId = loiProto.jobId
     val job = DataStoreException.checkNotNull(survey.getJob(jobId), "job $jobId")
     // Degrade gracefully when audit info missing in remote db.
