@@ -18,7 +18,6 @@ package org.groundplatform.android.data.remote.firebase.schema
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
 import org.groundplatform.android.data.remote.DataStoreException
-import org.groundplatform.android.data.remote.firebase.schema.GeometryConverter.toGeometry
 import org.groundplatform.android.proto.Coordinates as CoordinatesProto
 import org.groundplatform.android.proto.Geometry as GeometryProto
 import org.groundplatform.android.proto.LinearRing as LinearRingProto

@@ -111,8 +111,10 @@ private fun FirestoreValue.toMessageValue(
     (this as FirestoreMap).toMessageMap(builderType.getMapValueType(fieldName))
   } else if (fieldType.isSubclassOf(List::class)) {
     val elementType = builderType.getListElementFieldTypeByName(fieldName)
+    // Resolved once rather than per element, since repeated fields can be long.
+    val isMessageElement = elementType.isSubclassOf(GeneratedMessageLite::class)
     (this as List<FirestoreValue>).map {
-      if (elementType.isSubclassOf(GeneratedMessageLite::class)) {
+      if (isMessageElement) {
         (elementType as KClass<Message>).parseFrom(it as FirestoreMap)
       } else {
         it.toMessageValue(elementType)

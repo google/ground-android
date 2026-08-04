@@ -90,26 +90,17 @@ fun <T : MessageBuilder> KClass<T>.getListElementFieldTypeByName(fieldName: Stri
     ?: throw UnsupportedOperationException("Getter not found for field $fieldName")
 
 /**
- * Resolved builder methods, keyed by the builder class and method name.
+ * Builder methods already looked up, keyed by builder class and method name.
  *
- * Finding one goes through `declaredFunctions`, which rebuilds the whole class's Kotlin reflection
- * metadata on every call and caches nothing — by far the most expensive step of mapping a document
- * onto a proto, and repeated for every field of every document. The result depends only on the key,
- * so it is resolved once and reused. The underlying [Method] is what gets stored, since invoking it
- * directly is much cheaper than going through [KFunction.call].
+ * Finding one uses `declaredFunctions`, which is slow and remembers nothing, so it runs once per
+ * method rather than once per field of every document.
  */
 private val methodCache = ConcurrentHashMap<MemberKey, Method>()
 
 /** Identifies a single method of a class, for use as a cache key. */
 private data class MemberKey(val declaringClass: Class<*>, val methodName: String)
 
-/**
- * Returns the cached method for [name] on this builder, resolving it with [resolve] on first use.
- *
- * A plain get-then-put rather than `computeIfAbsent`: the latter allocates a capturing lambda on
- * every hit and may lock the bin, and this is read concurrently while a survey's LOI sources are
- * fetched in parallel. Resolution is idempotent, so a duplicate compute under a race is harmless.
- */
+/** Returns the method named [name], calling [resolve] to find it the first time only. */
 private fun MessageBuilder.cachedMethod(name: String, resolve: () -> KFunction<*>): Method {
   val key = MemberKey(javaClass, name)
   return methodCache[key]

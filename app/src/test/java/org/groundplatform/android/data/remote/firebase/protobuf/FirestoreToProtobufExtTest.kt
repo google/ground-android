@@ -26,6 +26,10 @@ import org.groundplatform.android.proto.Task.DateTimeQuestion.Type.BOTH_DATE_AND
 import org.groundplatform.android.proto.Task.MultipleChoiceQuestion.Type.SELECT_MULTIPLE
 import org.groundplatform.android.proto.TaskKt.dateTimeQuestion
 import org.groundplatform.android.proto.TaskKt.multipleChoiceQuestion
+import org.groundplatform.android.proto.coordinates
+import org.groundplatform.android.proto.geometry
+import org.groundplatform.android.proto.linearRing
+import org.groundplatform.android.proto.polygon
 import org.groundplatform.android.proto.survey
 import org.groundplatform.android.proto.task
 import org.groundplatform.android.test.deeplyNestedTestObject
@@ -126,6 +130,12 @@ class FirestoreToProtobufExtTest(
         ),
         testCase(desc = "skips enum value 0", input = mapOf("3" to 0), expected = task {}),
         testCase(desc = "skips an unspecified enum value", input = mapOf(), expected = task {}),
+        // Exercises the repeated-message branch, whose per-element type resolution is cached.
+        testCase(
+          desc = "converts repeated messages",
+          input = REPEATED_MESSAGE_PROTO.toFirestoreMap(),
+          expected = REPEATED_MESSAGE_PROTO,
+        ),
         testCase(
           desc = "converts oneof messages",
           input = mapOf("10" to mapOf("1" to 2)),
@@ -133,6 +143,26 @@ class FirestoreToProtobufExtTest(
             task { multipleChoiceQuestion = multipleChoiceQuestion { type = SELECT_MULTIPLE } },
         ),
       )
+
+    /** A message carrying a repeated nested message: a ring of coordinates. */
+    private val REPEATED_MESSAGE_PROTO = geometry {
+      polygon = polygon {
+        shell = linearRing {
+          coordinates.add(
+            coordinates {
+              latitude = 1.0
+              longitude = 2.0
+            }
+          )
+          coordinates.add(
+            coordinates {
+              latitude = 3.0
+              longitude = 4.0
+            }
+          )
+        }
+      }
+    }
 
     /** Help to improve readability by provided named args for positional test constructor args. */
     private fun testCase(

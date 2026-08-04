@@ -41,25 +41,9 @@ object LoiConverter {
   private val PROPERTY_NUMERIC_VALUE =
     LocationOfInterestProto.Property.NUMERIC_VALUE_FIELD_NUMBER.toString()
 
-  /** The only LOI properties the app reads; see [readRetainedProperties]. */
   private val RETAINED_PROPERTIES = listOf(LOI_NAME_PROPERTY, LOI_ID_PROPERTY)
 
-  /**
-   * Returns the LOI properties the app actually reads, taken straight from the document.
-   *
-   * Imported LOIs carry every attribute of the feature they came from — hundreds of key-value pairs
-   * in some surveys — of which only the name and ID are ever displayed. Keeping the rest costs
-   * reflective parsing per pair, heap for the lifetime of the survey, and space in the local db, so
-   * they are dropped on the way in.
-   *
-   * Dropping them does not put the remote copy at risk. [LocationOfInterest.toMutation] does carry
-   * properties into mutations, but deletes remove the document outright and updates are written
-   * with `SetOptions.merge()`, which merges nested maps key by key rather than replacing them.
-   *
-   * What it does mean is that any feature needing an attribute other than these will silently find
-   * it absent rather than fail; add the key here and re-sync to get it back.
-   */
-  private fun readRetainedProperties(value: Any?): Map<String, Any> {
+  private fun pruneUnusedProperties(value: Any?): Map<String, Any> {
     val properties = value as? Map<*, *> ?: return mapOf()
     return RETAINED_PROPERTIES.mapNotNull { key ->
         (properties[key] as? Map<*, *>)?.let { property ->
@@ -81,7 +65,7 @@ object LoiConverter {
     val loiId = doc.id
     val data = doc.data.orEmpty()
     val geometry = LoiGeometryConverter.toGeometry(data[GEOMETRY_FIELD])
-    val properties = readRetainedProperties(data[PROPERTIES_FIELD])
+    val properties = pruneUnusedProperties(data[PROPERTIES_FIELD])
     val loiProto =
       LocationOfInterestProto::class.parseFrom(loiId, data - GEOMETRY_FIELD - PROPERTIES_FIELD, 1)
     val jobId = loiProto.jobId
