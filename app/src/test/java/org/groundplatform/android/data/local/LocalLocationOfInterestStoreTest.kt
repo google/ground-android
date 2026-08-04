@@ -299,18 +299,6 @@ class LocalLocationOfInterestStoreTest : BaseHiltTest() {
     assertThat(chunkSizes.max()).isAtMost(MAX_SQL_VARIABLES)
   }
 
-  /** Runs [block] with the store reading and writing through [dao] instead of the real one. */
-  private suspend fun withDao(dao: LocationOfInterestDao, block: suspend () -> Unit) {
-    val store = localLoiStore as RoomLocationOfInterestStore
-    val real = store.locationOfInterestDao
-    store.locationOfInterestDao = dao
-    try {
-      block()
-    } finally {
-      store.locationOfInterestDao = real
-    }
-  }
-
   @Test
   fun `deleteNotIn deletes LOIs missing from the given list`() = runWithTestDispatcher {
     localUserStore.insertOrUpdateUser(TEST_USER)
@@ -320,7 +308,8 @@ class LocalLocationOfInterestStoreTest : BaseHiltTest() {
 
     localLoiStore.deleteNotIn(TEST_SURVEY.id, listOf("keep"))
 
-    assertThat(localLoiStore.getValidLois(TEST_SURVEY).first().map { it.id }).containsExactly("keep")
+    assertThat(localLoiStore.getValidLois(TEST_SURVEY).first().map { it.id })
+      .containsExactly("keep")
   }
 
   @Test
@@ -362,6 +351,17 @@ class LocalLocationOfInterestStoreTest : BaseHiltTest() {
         localLoiStore.insertOrUpdateAll(listOf(testLoi("valid"), invalidLoi))
       }
     }
+
+  private suspend fun withDao(dao: LocationOfInterestDao, block: suspend () -> Unit) {
+    val store = localLoiStore as RoomLocationOfInterestStore
+    val real = store.locationOfInterestDao
+    store.locationOfInterestDao = dao
+    try {
+      block()
+    } finally {
+      store.locationOfInterestDao = real
+    }
+  }
 
   private fun testLoi(
     id: String,

@@ -99,11 +99,7 @@ constructor(
     lois: List<LocationOfInterest>,
     pendingLois: List<String>,
   ) {
-    // Insert new or update existing LOIs in local db, as one batched write rather than a
-    // transaction per LOI.
-    val startedAt = System.currentTimeMillis()
     localLoiStore.insertOrUpdateAll(lois.onEach { validateGeometry(it) })
-    Timber.d("Saved %d LOIs in %d ms", lois.size, System.currentTimeMillis() - startedAt)
     // Delete LOIs in local db not returned in latest list from server, skipping pending mutations.
     localLoiStore.deleteNotIn(surveyId, lois.map { it.id } + pendingLois)
   }

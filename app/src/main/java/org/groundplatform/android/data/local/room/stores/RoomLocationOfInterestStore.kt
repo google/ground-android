@@ -150,9 +150,6 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
       locationOfInterestDao
         .getIds(surveyId)
         .filterNot { it in idsToKeep }
-        // Deleting via `NOT IN (:ids)` would bind one variable per retained ID, which overflows
-        // SQLite's limit on surveys with more LOIs than that. Delete the complement instead, in
-        // chunks small enough to bind.
         .chunked(MAX_SQL_VARIABLES)
         .forEach { locationOfInterestDao.deleteByIds(it) }
     }

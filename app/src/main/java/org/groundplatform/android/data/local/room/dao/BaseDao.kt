@@ -36,9 +36,8 @@ interface BaseDao<E> {
 }
 
 /**
- * The maximum number of bind arguments a single SQLite statement accepts. Queries binding a list
- * (e.g. `WHERE id IN (:ids)`) must chunk it to stay under this limit, otherwise SQLite fails with
- * "too many SQL variables" once the list grows large enough.
+ * Conservative SQLite variable limit. The actual limit is ~999, but 900 ensures
+ * compatibility across SQLite versions. Use when chunking IN clauses.
  */
 const val MAX_SQL_VARIABLES = 900
 
