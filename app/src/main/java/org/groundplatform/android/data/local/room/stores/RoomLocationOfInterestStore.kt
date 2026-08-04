@@ -135,6 +135,15 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
     locationOfInterestDao.insertOrUpdate(loi.toLocalDataStoreObject())
   }
 
+  override suspend fun insertOrUpdateAll(lois: List<LocationOfInterest>) {
+    val entities =
+      lois.map {
+        require(!it.geometry.isEmpty()) { "Cannot save LOI ${it.id} with empty geometry" }
+        it.toLocalDataStoreObject()
+      }
+    locationOfInterestDao.upsertAll(entities)
+  }
+
   override suspend fun deleteNotIn(surveyId: String, ids: List<String>) {
     val idsToKeep = ids.toSet()
     localDatabase.withTransaction {

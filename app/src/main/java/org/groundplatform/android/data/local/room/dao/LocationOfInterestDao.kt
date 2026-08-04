@@ -17,6 +17,7 @@ package org.groundplatform.android.data.local.room.dao
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 import org.groundplatform.android.data.local.room.entity.LocationOfInterestEntity
 import org.groundplatform.android.data.local.room.fields.EntityDeletionState
@@ -24,6 +25,9 @@ import org.groundplatform.android.data.local.room.fields.EntityDeletionState
 /** Provides low-level read/write operations of [LocationOfInterestEntity] to/from the local db. */
 @Dao
 interface LocationOfInterestDao : BaseDao<LocationOfInterestEntity> {
+
+  /** Inserts or updates all the given LOIs in a single transaction. */
+  @Upsert suspend fun upsertAll(entities: List<LocationOfInterestEntity>)
 
   @Query("SELECT id FROM location_of_interest WHERE survey_id = :surveyId")
   suspend fun getIds(surveyId: String): List<String>

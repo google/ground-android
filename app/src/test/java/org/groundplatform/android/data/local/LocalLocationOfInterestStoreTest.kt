@@ -337,11 +337,41 @@ class LocalLocationOfInterestStoreTest : BaseHiltTest() {
     assertThat(localLoiStore.getLoiCount(OTHER_SURVEY.id)).isEqualTo(1)
   }
 
-  private fun testLoi(id: String, surveyId: String = TEST_SURVEY.id): LocationOfInterest =
+  @Test
+  fun `insertOrUpdateAll inserts new LOIs and updates existing ones`() = runWithTestDispatcher {
+    localUserStore.insertOrUpdateUser(TEST_USER)
+    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
+    localLoiStore.insertOrUpdateAll(listOf(testLoi("a"), testLoi("b")))
+
+    localLoiStore.insertOrUpdateAll(listOf(testLoi("b", customId = "updated"), testLoi("c")))
+
+    val lois = localLoiStore.getValidLois(TEST_SURVEY).first()
+    assertThat(lois.map { it.id }).containsExactly("a", "b", "c")
+    assertThat(lois.first { it.id == "b" }.customId).isEqualTo("updated")
+  }
+
+  @Test
+  fun `insertOrUpdateAll throws exception when any LOI has empty coordinates`() =
+    runWithTestDispatcher {
+      localUserStore.insertOrUpdateUser(TEST_USER)
+      localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
+
+      val invalidLoi = testLoi("invalid").copy(geometry = Polygon(LinearRing(emptyList())))
+
+      assertFailsWith<IllegalArgumentException> {
+        localLoiStore.insertOrUpdateAll(listOf(testLoi("valid"), invalidLoi))
+      }
+    }
+
+  private fun testLoi(
+    id: String,
+    surveyId: String = TEST_SURVEY.id,
+    customId: String = "",
+  ): LocationOfInterest =
     FakeData.LOCATION_OF_INTEREST.copy(
       id = id,
       surveyId = surveyId,
-      customId = "",
+      customId = customId,
       job = TEST_JOB,
       geometry = TEST_POINT,
     )
