@@ -55,6 +55,25 @@ class FirestoreToProtobufExtTest(
 
   companion object {
     @get:ClassRule @JvmStatic var timberRule = TimberTestRule()
+    /** A message carrying a repeated nested message: a ring of coordinates. */
+    private val REPEATED_MESSAGE_PROTO = geometry {
+      polygon = polygon {
+        shell = linearRing {
+          coordinates.add(
+            coordinates {
+              latitude = 1.0
+              longitude = 2.0
+            }
+          )
+          coordinates.add(
+            coordinates {
+              latitude = 3.0
+              longitude = 4.0
+            }
+          )
+        }
+      }
+    }
 
     @JvmStatic
     @Parameterized.Parameters(name = "{0}")
@@ -143,26 +162,6 @@ class FirestoreToProtobufExtTest(
             task { multipleChoiceQuestion = multipleChoiceQuestion { type = SELECT_MULTIPLE } },
         ),
       )
-
-    /** A message carrying a repeated nested message: a ring of coordinates. */
-    private val REPEATED_MESSAGE_PROTO = geometry {
-      polygon = polygon {
-        shell = linearRing {
-          coordinates.add(
-            coordinates {
-              latitude = 1.0
-              longitude = 2.0
-            }
-          )
-          coordinates.add(
-            coordinates {
-              latitude = 3.0
-              longitude = 4.0
-            }
-          )
-        }
-      }
-    }
 
     /** Help to improve readability by provided named args for positional test constructor args. */
     private fun testCase(
