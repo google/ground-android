@@ -20,6 +20,8 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Polygon as MapsPolygon
+import com.google.common.truth.Truth.assertThat
+import com.google.maps.android.clustering.algo.NonHierarchicalViewBasedAlgorithm
 import kotlinx.coroutines.test.TestScope
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.domain.model.geometry.Coordinates
@@ -30,6 +32,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
@@ -42,14 +45,21 @@ class FeatureManagerTest {
   private val pointRenderer: PointRenderer = mock()
   private val polygonRenderer: PolygonRenderer = mock()
   private val lineStringRenderer: LineStringRenderer = mock()
+  private val mapsPolygon: MapsPolygon = mock()
 
   private lateinit var featureManager: FeatureManager
+
+  @Suppress("UNCHECKED_CAST")
+  private val clusterAlgorithm
+    get() =
+      featureManager.clusterManager.algorithm
+        as NonHierarchicalViewBasedAlgorithm<FeatureClusterItem>
 
   @Before
   fun setUp() {
     whenever(map.cameraPosition).thenReturn(CameraPosition(LatLng(0.0, 0.0), 10f, 0f, 0f))
     whenever(polygonRenderer.add(any(), any(), any(), any(), any(), any(), anyOrNull()))
-      .thenReturn(mock<MapsPolygon>())
+      .thenReturn(mapsPolygon)
     featureManager =
       FeatureManager(
         ApplicationProvider.getApplicationContext(),
@@ -75,6 +85,65 @@ class FeatureManagerTest {
     verify(polygonRenderer).add(any(), any(), any(), any(), any(), any(), anyOrNull())
   }
 
+  @Test
+  fun `only features within the visible area reach the renderer`() {
+    featureManager.setFeatures(
+      listOf(
+        clusterableFeature("near"),
+        clusterableFeature("far").copy(geometry = FAR_FROM_THE_DEFAULT_POSITION),
+      )
+    )
+
+    val reachingRenderer = clusterAlgorithm.getClusters(ZOOM).flatMap { it.items }
+
+    assertThat(reachingRenderer.map { it.feature.tag.id }).containsExactly("near")
+  }
+
+  @Test
+  fun `features reach the renderer as they come into view`() {
+    featureManager.setFeatures(
+      listOf(
+        clusterableFeature("near"),
+        clusterableFeature("far").copy(geometry = FAR_FROM_THE_DEFAULT_POSITION),
+      )
+    )
+
+    clusterAlgorithm.onCameraChange(CameraPosition(LatLng(60.0, 60.0), ZOOM, 0f, 0f))
+    val reachingRenderer = clusterAlgorithm.getClusters(ZOOM).flatMap { it.items }
+
+    assertThat(reachingRenderer.map { it.feature.tag.id }).containsExactly("far")
+  }
+
+  @Test
+  fun `draws a feature individually when the renderer reports it as unclustered`() {
+    val feature = clusterableFeature("a")
+    featureManager.setFeatures(listOf(feature))
+
+    featureManager.clusterRenderer.onClusterItemRendered(feature.tag)
+
+    verify(polygonRenderer)
+      .add(
+        map = any(),
+        tag = eq(feature.tag),
+        geometry = any(),
+        style = any(),
+        selected = any(),
+        visible = any(),
+        tooltipText = anyOrNull(),
+      )
+  }
+
+  @Test
+  fun `releases an individually drawn feature's map item when it becomes clustered`() {
+    val feature = clusterableFeature("a")
+    featureManager.setFeatures(listOf(feature))
+    featureManager.clusterRenderer.onClusterItemRendered(feature.tag)
+
+    featureManager.clusterRenderer.onClusterRendered(feature.tag)
+
+    verify(mapsPolygon).remove()
+  }
+
   private fun clusterableFeature(id: String) =
     Feature(
       tag = Feature.Tag(id, Feature.Type.LOCATION_OF_INTEREST),
@@ -92,4 +161,19 @@ class FeatureManagerTest {
       style = Feature.Style(0),
       clusterable = true,
     )
+
+  private companion object {
+    const val ZOOM = 5f
+    val FAR_FROM_THE_DEFAULT_POSITION =
+      Polygon(
+        LinearRing(
+          listOf(
+            Coordinates(60.0, 60.0),
+            Coordinates(60.0, 61.0),
+            Coordinates(61.0, 61.0),
+            Coordinates(60.0, 60.0),
+          )
+        )
+      )
+  }
 }

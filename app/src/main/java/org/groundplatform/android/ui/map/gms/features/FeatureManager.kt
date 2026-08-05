@@ -17,9 +17,11 @@
 package org.groundplatform.android.ui.map.gms.features
 
 import android.content.Context
+import androidx.annotation.VisibleForTesting
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
+import com.google.maps.android.clustering.algo.NonHierarchicalViewBasedAlgorithm
 import com.google.maps.android.collections.MarkerManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -49,8 +51,8 @@ constructor(
 
   private lateinit var map: GoogleMap
   private lateinit var mapsItemManager: MapsItemManager
-  private lateinit var clusterManager: FeatureClusterManager
-  private lateinit var clusterRenderer: FeatureClusterRenderer
+  @VisibleForTesting internal lateinit var clusterManager: FeatureClusterManager
+  @VisibleForTesting internal lateinit var clusterRenderer: FeatureClusterRenderer
 
   private val _markerClicks: MutableSharedFlow<Feature> = MutableSharedFlow()
   val markerClicks = _markerClicks.asSharedFlow()
@@ -69,6 +71,15 @@ constructor(
     featuresByTag.clear()
     mapsItemManager = MapsItemManager(map, pointRenderer, polygonRenderer, lineStringRenderer)
     clusterManager = FeatureClusterManager(context, map, createMarkerManager(map))
+    // Render only visible features; off-screen clusterable features are omitted
+    clusterManager.setAlgorithm(
+      with(context.resources.displayMetrics) {
+        NonHierarchicalViewBasedAlgorithm(
+          (widthPixels / density).toInt(),
+          (heightPixels / density).toInt(),
+        )
+      }
+    )
     clusterRenderer = FeatureClusterRenderer(context, map, clusterManager, map.cameraPosition.zoom)
     clusterRenderer.onClusterItemRendered = { showClusterableItem(it) }
     clusterRenderer.onClusterRendered = { hideClusterableItem(it) }
