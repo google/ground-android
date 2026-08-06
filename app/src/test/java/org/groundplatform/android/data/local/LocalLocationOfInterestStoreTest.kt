@@ -32,6 +32,7 @@ import org.groundplatform.android.data.local.room.converter.toLocalDataStoreObje
 import org.groundplatform.android.data.local.room.dao.LocationOfInterestDao
 import org.groundplatform.android.data.local.room.dao.MAX_SQL_VARIABLES
 import org.groundplatform.android.data.local.room.fields.EntityDeletionState
+import org.groundplatform.android.data.local.room.fields.MutationEntitySyncStatus
 import org.groundplatform.android.data.local.room.stores.RoomLocationOfInterestStore
 import org.groundplatform.android.data.local.stores.LocalLocationOfInterestStore
 import org.groundplatform.android.data.local.stores.LocalSubmissionStore
@@ -338,6 +339,35 @@ class LocalLocationOfInterestStoreTest : BaseHiltTest() {
     assertThat(lois.map { it.id }).containsExactly("a", "b", "c")
     assertThat(lois.first { it.id == "b" }.customId).isEqualTo("updated")
   }
+
+  @Test
+  fun `insertOrUpdateAll keeps submissions and pending mutations of existing LOIs`() =
+    runWithTestDispatcher {
+      localUserStore.insertOrUpdateUser(TEST_USER)
+      localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
+      localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION)
+      localSubmissionStore.applyAndEnqueue(TEST_SUBMISSION_MUTATION)
+      val loi = localLoiStore.getLocationOfInterest(TEST_SURVEY, FakeData.LOI_ID)!!
+
+      // Simulate a re-sync returning an updated version of the same LOI.
+      localLoiStore.insertOrUpdateAll(listOf(loi.copy(customId = "updated")))
+
+      assertThat(localLoiStore.getLocationOfInterest(TEST_SURVEY, FakeData.LOI_ID)?.customId)
+        .isEqualTo("updated")
+      assertThat(localSubmissionStore.getSubmission(loi, "submission id").id)
+        .isEqualTo("submission id")
+      assertThat(
+          localLoiStore.findByLocationOfInterestId(FakeData.LOI_ID, MutationEntitySyncStatus.PENDING)
+        )
+        .hasSize(1)
+      assertThat(
+          localSubmissionStore.findByLocationOfInterestId(
+            FakeData.LOI_ID,
+            MutationEntitySyncStatus.PENDING,
+          )
+        )
+        .hasSize(1)
+    }
 
   @Test
   fun `insertOrUpdateAll throws exception when any LOI has empty coordinates`() =
