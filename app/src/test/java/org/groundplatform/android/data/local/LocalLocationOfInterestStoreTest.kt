@@ -357,7 +357,10 @@ class LocalLocationOfInterestStoreTest : BaseHiltTest() {
       assertThat(localSubmissionStore.getSubmission(loi, "submission id").id)
         .isEqualTo("submission id")
       assertThat(
-          localLoiStore.findByLocationOfInterestId(FakeData.LOI_ID, MutationEntitySyncStatus.PENDING)
+          localLoiStore.findByLocationOfInterestId(
+            FakeData.LOI_ID,
+            MutationEntitySyncStatus.PENDING,
+          )
         )
         .hasSize(1)
       assertThat(
