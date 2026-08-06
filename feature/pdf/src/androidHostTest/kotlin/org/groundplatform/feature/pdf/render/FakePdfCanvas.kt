@@ -20,14 +20,17 @@ import android.text.StaticLayout
 import org.groundplatform.feature.pdf.render.image.PdfImage
 
 internal class FakePdfCanvas : PdfCanvas {
-  val startedPages = mutableListOf<Int>()
+  val startedPageNumbers = mutableListOf<Int>()
+  val startedPageSizes = mutableListOf<PdfPageSize>()
   var finishedPages = 0
   val drawnText = mutableListOf<String>()
   val drawnImages = mutableListOf<PdfImage>()
   val drawnLines = mutableListOf<PdfLine>()
+  val drawnOverlays = mutableListOf<Pair<MapOverlay, Boolean>>()
 
-  override fun startPage(pageNumber: Int) {
-    startedPages += pageNumber
+  override fun startPage(pageNumber: Int, pageSize: PdfPageSize) {
+    startedPageNumbers += pageNumber
+    startedPageSizes += pageSize
   }
 
   override fun finishPage() {
@@ -44,5 +47,9 @@ internal class FakePdfCanvas : PdfCanvas {
 
   override fun drawLine(x1: Float, y1: Float, x2: Float, y2: Float) {
     drawnLines += PdfLine(x1, y1, x2, y2)
+  }
+
+  override fun drawMapOverlay(overlay: MapOverlay, darkBasemap: Boolean) {
+    drawnOverlays += overlay to darkBasemap
   }
 }

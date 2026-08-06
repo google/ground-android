@@ -39,7 +39,7 @@ class PdfPageControllerTest {
 
   @Test
   fun `Should have zero pages at the start`() {
-    assertEquals(0, controller.pageCount)
+    assertEquals(0, controller.bodyPageCount)
     assertTrue(lifecycle.events.isEmpty())
   }
 
@@ -47,7 +47,7 @@ class PdfPageControllerTest {
   fun `ensurePage starts the a page`() {
     controller.ensurePage()
 
-    assertEquals(1, controller.pageCount)
+    assertEquals(1, controller.bodyPageCount)
     assertEquals(listOf<PageEvent>(PageEvent.Started(1)), lifecycle.events)
   }
 
@@ -57,7 +57,7 @@ class PdfPageControllerTest {
     controller.ensurePage()
     controller.ensurePage()
 
-    assertEquals(1, controller.pageCount)
+    assertEquals(1, controller.bodyPageCount)
     assertEquals(listOf<PageEvent>(PageEvent.Started(1)), lifecycle.events)
   }
 
@@ -65,7 +65,7 @@ class PdfPageControllerTest {
   fun `finalizePage does nothing if there is no page open`() {
     controller.finalizePage()
 
-    assertEquals(0, controller.pageCount)
+    assertEquals(0, controller.bodyPageCount)
     assertTrue(lifecycle.events.isEmpty())
   }
 
@@ -75,7 +75,7 @@ class PdfPageControllerTest {
     controller.finalizePage()
     controller.finalizePage()
 
-    assertEquals(1, controller.pageCount)
+    assertEquals(1, controller.bodyPageCount)
     assertEquals(listOf(PageEvent.Started(1), PageEvent.Ending(1)), lifecycle.events)
   }
 
@@ -91,7 +91,7 @@ class PdfPageControllerTest {
   fun `newPageIfShort starts a page if there is none open`() {
     controller.newPageIfShort(spaceNeeded = 10f)
 
-    assertEquals(1, controller.pageCount)
+    assertEquals(1, controller.bodyPageCount)
     assertEquals(listOf<PageEvent>(PageEvent.Started(1)), lifecycle.events)
   }
 
@@ -99,7 +99,7 @@ class PdfPageControllerTest {
   fun `newPageIfShort does not emit more pages if impossible to fit content in a new page`() {
     controller.newPageIfShort(spaceNeeded = Float.MAX_VALUE)
 
-    assertEquals(1, controller.pageCount)
+    assertEquals(1, controller.bodyPageCount)
     assertEquals(listOf<PageEvent>(PageEvent.Started(1)), lifecycle.events)
   }
 
@@ -110,7 +110,7 @@ class PdfPageControllerTest {
 
     controller.newPageIfShort(spaceNeeded = 10f)
 
-    assertEquals(1, controller.pageCount)
+    assertEquals(1, controller.bodyPageCount)
     assertTrue(lifecycle.events.isEmpty())
   }
 
@@ -122,7 +122,7 @@ class PdfPageControllerTest {
 
     controller.newPageIfShort(spaceNeeded = Float.MAX_VALUE)
 
-    assertEquals(2, controller.pageCount)
+    assertEquals(2, controller.bodyPageCount)
     assertEquals(listOf(PageEvent.Ending(1), PageEvent.Started(2)), lifecycle.events)
   }
 
@@ -145,7 +145,7 @@ class PdfPageControllerTest {
     controller.newPageIfShort(spaceNeeded = Float.MAX_VALUE)
     controller.finalizePage()
 
-    assertEquals(3, controller.pageCount)
+    assertEquals(3, controller.bodyPageCount)
     assertEquals(
       listOf(
         PageEvent.Started(1),
@@ -160,13 +160,37 @@ class PdfPageControllerTest {
   }
 
   @Test
-  fun `pageCount reflects the current page number while the page is open`() {
+  fun `bodyPageCount reflects the current page number while the page is open`() {
     controller.ensurePage()
-    assertEquals(1, controller.pageCount)
+    assertEquals(1, controller.bodyPageCount)
 
     cursor.advance(100f)
     controller.newPageIfShort(spaceNeeded = Float.MAX_VALUE)
-    assertEquals(2, controller.pageCount)
+    assertEquals(2, controller.bodyPageCount)
+  }
+
+  @Test
+  fun `a cover page pushes the body down the document`() {
+    val controller = PdfPageController(cursor, lifecycle, coverPages = 1)
+
+    controller.ensurePage()
+
+    assertEquals(listOf<PageEvent>(PageEvent.Started(2)), lifecycle.events)
+  }
+
+  @Test
+  fun `a cover page is left out of the page count`() {
+    val controller = PdfPageController(cursor, lifecycle, coverPages = 1)
+
+    controller.ensurePage()
+    cursor.advance(100f)
+    controller.newPageIfShort(spaceNeeded = Float.MAX_VALUE)
+
+    assertEquals(
+      listOf(PageEvent.Started(2), PageEvent.Ending(2), PageEvent.Started(3)),
+      lifecycle.events,
+    )
+    assertEquals(2, controller.bodyPageCount)
   }
 
   @Test
