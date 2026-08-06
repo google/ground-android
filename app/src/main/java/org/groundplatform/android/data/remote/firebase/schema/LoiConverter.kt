@@ -27,33 +27,14 @@ import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
 
 /** Converts between Firestore documents and [LocationOfInterest] instances. */
 object LoiConverter {
-  // TODO: Define field names on DocumentReference objects, not converters.
-  // Issue URL: https://github.com/google/ground-android/issues/2375
-  const val GEOMETRY_TYPE = "type"
-  const val POLYGON_TYPE = "Polygon"
-
   private val GEOMETRY_FIELD = LocationOfInterestProto.GEOMETRY_FIELD_NUMBER.toString()
   private val PROPERTIES_FIELD = LocationOfInterestProto.PROPERTIES_FIELD_NUMBER.toString()
-
-  /** Keys within a `Property`, which holds one of a string or a numeric value. */
   private val PROPERTY_STRING_VALUE =
     LocationOfInterestProto.Property.STRING_VALUE_FIELD_NUMBER.toString()
   private val PROPERTY_NUMERIC_VALUE =
     LocationOfInterestProto.Property.NUMERIC_VALUE_FIELD_NUMBER.toString()
 
   private val RETAINED_PROPERTIES = listOf(LOI_NAME_PROPERTY, LOI_ID_PROPERTY)
-
-  private fun pruneUnusedProperties(value: Any?): Map<String, Any> {
-    val properties = value as? Map<*, *> ?: return mapOf()
-    return RETAINED_PROPERTIES.mapNotNull { key ->
-        (properties[key] as? Map<*, *>)?.let { property ->
-          val numeric = property[PROPERTY_NUMERIC_VALUE] as? Number
-          val text = property[PROPERTY_STRING_VALUE] as? String
-          (numeric ?: text)?.let { key to it }
-        }
-      }
-      .toMap()
-  }
 
   fun toLoi(survey: Survey, doc: DocumentSnapshot): Result<LocationOfInterest> = runCatching {
     toLoiUnchecked(survey, doc)
@@ -88,12 +69,22 @@ object LoiConverter {
       job = job,
       created = created,
       lastModified = lastModified,
-      // TODO: Set geometry once LOI has been updated to use our own model.
-      // Issue URL: https://github.com/google/ground-android/issues/929
       geometry = geometry,
       submissionCount = submissionCount,
       properties = properties,
       isPredefined = isPredefined,
     )
+  }
+
+  private fun pruneUnusedProperties(value: Any?): Map<String, Any> {
+    val properties = value as? Map<*, *> ?: return mapOf()
+    return RETAINED_PROPERTIES.mapNotNull { key ->
+        (properties[key] as? Map<*, *>)?.let { property ->
+          val numeric = property[PROPERTY_NUMERIC_VALUE] as? Number
+          val text = property[PROPERTY_STRING_VALUE] as? String
+          (numeric ?: text)?.let { key to it }
+        }
+      }
+      .toMap()
   }
 }
