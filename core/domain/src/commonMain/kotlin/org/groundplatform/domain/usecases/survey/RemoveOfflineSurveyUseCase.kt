@@ -33,6 +33,7 @@ class RemoveOfflineSurveyUseCase(
     }
 
     surveyRepository.removeOfflineSurvey(surveyId)
+    surveyRepository.unsubscribeFromSurveyUpdates(surveyId)
     mapStateRepository.clearCameraPosition(surveyId)
   }
 }
