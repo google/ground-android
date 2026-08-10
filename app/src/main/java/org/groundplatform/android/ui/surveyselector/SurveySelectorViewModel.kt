@@ -42,7 +42,7 @@ import org.groundplatform.android.system.GmsQrCodeScanner
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
 import org.groundplatform.android.usecases.survey.ListAvailableSurveysUseCase
-import org.groundplatform.android.usecases.survey.RemoveOfflineSurveyUseCase
+import org.groundplatform.domain.usecases.survey.RemoveOfflineSurveyUseCase
 import org.groundplatform.android.util.SurveyDeepLinkParser
 import org.groundplatform.domain.model.SurveyListItem
 import org.groundplatform.domain.repository.UserRepositoryInterface
