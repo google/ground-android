@@ -101,6 +101,16 @@ internal constructor(
     }
   }
 
+  override suspend fun unsubscribeFromSurveyUpdates(surveyId: String) {
+    if (USE_EMULATORS) return
+    Timber.d("Unsubscribing from FCM topic $surveyId")
+    try {
+      Firebase.messaging.unsubscribeFromTopic(surveyId).await()
+    } catch (e: CancellationException) {
+      Timber.i(e, "Unsubscribing from FCM topic was cancelled")
+    }
+  }
+
   /**
    * Calls Cloud Function to refresh the current user's profile info in the remote database if
    * network is available.

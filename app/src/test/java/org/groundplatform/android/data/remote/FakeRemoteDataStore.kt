@@ -43,7 +43,7 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
   var termsOfService: Result<TermsOfService?>? = null
   var applyMutationError: Error? = null
 
-  private val subscribedSurveyIds = mutableSetOf<String>()
+  val subscribedSurveyIds = mutableSetOf<String>()
 
   override fun getRestrictedSurveyList(user: User): Flow<List<SurveyListItem>> =
     flowOf(surveys.map { it.toListItem(false) })
@@ -67,6 +67,10 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
     subscribedSurveyIds.add(surveyId)
   }
 
+  override suspend fun unsubscribeFromSurveyUpdates(surveyId: String) {
+    subscribedSurveyIds.remove(surveyId)
+  }
+
   override suspend fun refreshUserProfile() {
     userProfileRefreshCount++
   }
@@ -75,8 +79,4 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
     userLois
 
   override suspend fun loadSharedLois(survey: Survey): List<LocationOfInterest> = sharedLois
-
-  /** Returns true iff [subscribeToSurveyUpdates] has been called with the specified id. */
-  fun isSubscribedToSurveyUpdates(surveyId: String): Boolean =
-    subscribedSurveyIds.contains(surveyId)
 }
