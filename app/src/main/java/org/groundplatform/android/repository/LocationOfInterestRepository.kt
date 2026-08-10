@@ -99,22 +99,19 @@ constructor(
     lois: List<LocationOfInterest>,
     pendingLois: List<String>,
   ) {
-    // Insert new or update existing LOIs in local db.
-    lois.forEach { validateAndInsertOrUpdate(it) }
+    localLoiStore.insertOrUpdateAll(lois.onEach { validateGeometry(it) })
     // Delete LOIs in local db not returned in latest list from server, skipping pending mutations.
     localLoiStore.deleteNotIn(surveyId, lois.map { it.id } + pendingLois)
   }
 
   /**
-   * Validates LOI geometry before inserting or updating it in the local store. Throws
-   * IllegalArgumentException if the geometry has empty coordinates.
+   * Throws IllegalArgumentException if the LOI's geometry has empty coordinates, which would
+   * otherwise be persisted and later fail to render.
    */
-  private suspend fun validateAndInsertOrUpdate(loi: LocationOfInterest) {
+  private fun validateGeometry(loi: LocationOfInterest) {
     require(!loi.geometry.isEmpty()) {
       "Attempted to save LOI ${loi.id} with empty geometry. LOI: $loi"
     }
-
-    localLoiStore.insertOrUpdate(loi)
   }
 
   override suspend fun getOfflineLoi(surveyId: String, loiId: String): LocationOfInterest? {
