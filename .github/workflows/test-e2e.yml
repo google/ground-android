@@ -50,12 +50,12 @@ jobs:
     # See docs/e2e-testing-doc.md for details on how this is setup
     steps:
       - name: Start Firebase emulator
-        uses: google/ground-platform/.github/actions/start-emulator@master
+        uses: google/ground-platform/.github/actions/start-emulator@b1eeccf9af27205206e0ec7b87ceaf6d7264f4ba
         with:
           platform-repository: google/ground-platform
 
       - name: Checkout PR
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
