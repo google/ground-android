@@ -17,7 +17,9 @@ package org.groundplatform.domain.usecases.survey
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 import kotlinx.coroutines.test.runTest
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.map.CameraPosition
@@ -53,10 +55,34 @@ class RemoveOfflineSurveyUseCaseTest {
   }
 
   @Test
+  fun `should unsubscribe from survey updates`() = runTest {
+    surveyRepository.saveSurvey(survey)
+    surveyRepository.subscribeToSurveyUpdates(survey.id)
+
+    useCase(survey.id)
+
+    assertFalse(surveyRepository.subscribedSurveyIds.contains(survey.id))
+  }
+
+  @Test
+  fun `should not unsubscribe from updates of other surveys`() = runTest {
+    val otherSurvey = FakeDataGenerator.newSurvey(id = "other survey id", jobMap = emptyMap())
+    surveyRepository.saveSurvey(survey)
+    surveyRepository.saveSurvey(otherSurvey)
+    surveyRepository.subscribeToSurveyUpdates(survey.id)
+    surveyRepository.subscribeToSurveyUpdates(otherSurvey.id)
+
+    useCase(survey.id)
+
+    assertEquals(setOf(otherSurvey.id), surveyRepository.subscribedSurveyIds)
+  }
+
+  @Test
   fun `should not throw if local copy missing`() = runTest {
     useCase(survey.id)
 
     assertEquals(emptyList(), surveyRepository.offlineSurveys)
+    assertTrue(surveyRepository.subscribedSurveyIds.isEmpty())
   }
 
   @Test
