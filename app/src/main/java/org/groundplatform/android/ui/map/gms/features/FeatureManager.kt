@@ -17,9 +17,11 @@
 package org.groundplatform.android.ui.map.gms.features
 
 import android.content.Context
+import androidx.annotation.VisibleForTesting
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
+import com.google.maps.android.clustering.algo.NonHierarchicalViewBasedAlgorithm
 import com.google.maps.android.collections.MarkerManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -49,8 +51,8 @@ constructor(
 
   private lateinit var map: GoogleMap
   private lateinit var mapsItemManager: MapsItemManager
-  private lateinit var clusterManager: FeatureClusterManager
-  private lateinit var clusterRenderer: FeatureClusterRenderer
+  @VisibleForTesting internal lateinit var clusterManager: FeatureClusterManager
+  @VisibleForTesting internal lateinit var clusterRenderer: FeatureClusterRenderer
 
   private val _markerClicks: MutableSharedFlow<Feature> = MutableSharedFlow()
   val markerClicks = _markerClicks.asSharedFlow()
@@ -69,9 +71,18 @@ constructor(
     featuresByTag.clear()
     mapsItemManager = MapsItemManager(map, pointRenderer, polygonRenderer, lineStringRenderer)
     clusterManager = FeatureClusterManager(context, map, createMarkerManager(map))
+    // Render only visible features; off-screen clusterable features are omitted
+    clusterManager.setAlgorithm(
+      with(context.resources.displayMetrics) {
+        NonHierarchicalViewBasedAlgorithm(
+          (widthPixels / density).toInt(),
+          (heightPixels / density).toInt(),
+        )
+      }
+    )
     clusterRenderer = FeatureClusterRenderer(context, map, clusterManager, map.cameraPosition.zoom)
-    clusterRenderer.onClusterItemRendered = { mapsItemManager.setVisible(it, true) }
-    clusterRenderer.onClusterRendered = { mapsItemManager.setVisible(it, false) }
+    clusterRenderer.onClusterItemRendered = { showClusterableItem(it) }
+    clusterRenderer.onClusterRendered = { hideClusterableItem(it) }
     clusterManager.renderer = clusterRenderer
     this.map = map
   }
@@ -124,17 +135,32 @@ constructor(
     mapsItemManager.getIntersectingPolygonTags(latLng).mapNotNull { featuresByTag[it] }.toSet()
 
   /**
-   * Adds a feature to the map, cluster, and to this class' internal index. Clusterable features are
-   * initialized as hidden so that the clusterer can determine whether they should be shown based on
-   * zoom level.
+   * Adds a feature to the cluster and to this class' internal index. Clusterable feature map items
+   * are created only when drawn individually to reduce heap pressure.
    */
   private fun add(feature: Feature) =
     with(feature) {
       features.add(this)
       featuresByTag[tag] = this
-      if (clusterable) clusterManager.addFeature(this)
-      mapsItemManager.put(this, visible = !clusterable)
+      if (clusterable) {
+        clusterManager.addFeature(this)
+      } else {
+        mapsItemManager.put(this, visible = true)
+      }
     }
+
+  /** Draws a clustered feature individually, creating its map item if it doesn't have one yet. */
+  private fun showClusterableItem(tag: Feature.Tag) {
+    if (mapsItemManager.contains(tag)) {
+      mapsItemManager.setVisible(tag, true)
+    } else {
+      featuresByTag[tag]?.let { mapsItemManager.put(it, visible = true) }
+    }
+  }
+
+  private fun hideClusterableItem(tag: Feature.Tag) {
+    mapsItemManager.remove(tag)
+  }
 
   private fun remove(feature: Feature) =
     with(feature) {
