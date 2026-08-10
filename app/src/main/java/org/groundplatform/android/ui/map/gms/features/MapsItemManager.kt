@@ -61,6 +61,9 @@ class MapsItemManager(
         }
     }
 
+  /** Returns whether map items are currently allocated for the specified feature's tag. */
+  fun contains(tag: Feature.Tag): Boolean = itemsByTag.containsKey(tag)
+
   /** Removes map items associated with the specified feature's tag. */
   fun remove(tag: Feature.Tag) =
     itemsByTag.remove(tag)?.forEach {
