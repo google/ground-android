@@ -54,20 +54,20 @@ constructor(
       return failure()
     }
 
-    try {
+    return try {
       if (surveyRepository.getOfflineSurvey(surveyId) == null) {
         Timber.w(
           "Ignoring sync for survey $surveyId, no longer available offline. Retrying unsubscribe from updates."
         )
         surveyRepository.unsubscribeFromSurveyUpdates(surveyId)
-        return success()
+      } else {
+        Timber.d("Syncing survey $surveyId")
+        syncSurvey(surveyId)
       }
-      Timber.d("Syncing survey $surveyId")
-      syncSurvey(surveyId)
-      return success()
+      success()
     } catch (t: Throwable) {
       Timber.e(t, "Failed to sync survey $surveyId, retrying")
-      return retry()
+      retry()
     }
   }
 
