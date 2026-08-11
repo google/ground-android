@@ -82,6 +82,32 @@ class MapsItemManagerTest {
     assertThat(mapsItemManager.update(TEST_POINT_FEATURE)).isFalse()
   }
 
+  @Test
+  fun `contains() reports whether a feature currently holds map items`() {
+    whenever(pointRenderer.add(any(), any(), any(), any(), any(), any(), anyOrNull()))
+      .thenReturn(mock<Marker>())
+
+    assertThat(mapsItemManager.contains(TEST_POINT_FEATURE.tag)).isFalse()
+
+    mapsItemManager.put(TEST_POINT_FEATURE, visible = true)
+    assertThat(mapsItemManager.contains(TEST_POINT_FEATURE.tag)).isTrue()
+
+    mapsItemManager.remove(TEST_POINT_FEATURE.tag)
+    assertThat(mapsItemManager.contains(TEST_POINT_FEATURE.tag)).isFalse()
+  }
+
+  @Test
+  fun `remove() releases the underlying map item so it stops consuming memory`() {
+    val marker = mock<Marker>()
+    whenever(pointRenderer.add(any(), any(), any(), any(), any(), any(), anyOrNull()))
+      .thenReturn(marker)
+    mapsItemManager.put(TEST_POINT_FEATURE, visible = true)
+
+    mapsItemManager.remove(TEST_POINT_FEATURE.tag)
+
+    verify(marker).remove()
+  }
+
   private companion object {
     val TEST_LINE_STRING_FEATURE =
       Feature(
