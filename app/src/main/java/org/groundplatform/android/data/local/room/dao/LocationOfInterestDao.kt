@@ -17,6 +17,7 @@ package org.groundplatform.android.data.local.room.dao
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 import org.groundplatform.android.data.local.room.entity.LocationOfInterestEntity
@@ -36,6 +37,11 @@ interface LocationOfInterestDao : BaseDao<LocationOfInterestEntity> {
   @Query("DELETE FROM location_of_interest WHERE id IN (:ids)")
   suspend fun deleteByIds(ids: List<String>)
 
+  /**
+   * Streams LOIs in the given deletion state. Runs in a transaction to ensure consistent reads
+   * across cursor windows.
+   */
+  @Transaction
   @Query(
     "SELECT * FROM location_of_interest WHERE survey_id = :surveyId AND state = :deletionState"
   )
