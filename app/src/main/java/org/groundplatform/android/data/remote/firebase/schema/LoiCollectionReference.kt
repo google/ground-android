@@ -16,6 +16,7 @@
 
 package org.groundplatform.android.data.remote.firebase.schema
 
+import androidx.annotation.VisibleForTesting
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldPath
@@ -42,7 +43,7 @@ const val OWNER_FIELD = LocationOfInterestProto.OWNER_ID_FIELD_NUMBER.toString()
  * Documents per query. Deliberately small since geometry complexity varies widely and is unknown
  * before fetching. Any limit bounds memory, and the cost of being small is just more round trips.
  */
-private const val PAGE_SIZE = 250
+@VisibleForTesting internal const val PAGE_SIZE = 250
 
 class LoiCollectionReference internal constructor(ref: CollectionReference) :
   FluentCollectionReference(ref) {

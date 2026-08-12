@@ -30,6 +30,15 @@ import org.groundplatform.domain.model.toListItem
 @Singleton
 class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
   var predefinedLois = emptyList<LocationOfInterest>()
+
+  /**
+   * Pages of predefined LOIs, taking precedence over [predefinedLois] when set.
+   *
+   * Lets a test drive a sync over several pages, or fail one part way through, which
+   * [predefinedLois] cannot express since it always stands for exactly one page.
+   */
+  var predefinedLoiPages: Flow<List<LocationOfInterest>>? = null
+
   var userLois = emptyList<LocationOfInterest>()
   var sharedLois = emptyList<LocationOfInterest>()
   var surveys = emptyList<Survey>()
@@ -55,7 +64,8 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
 
   override suspend fun loadTermsOfService(): TermsOfService? = termsOfService?.getOrThrow()
 
-  override suspend fun loadPredefinedLois(survey: Survey) = predefinedLois
+  override fun loadPredefinedLois(survey: Survey): Flow<List<LocationOfInterest>> =
+    predefinedLoiPages ?: flowOf(predefinedLois)
 
   override suspend fun applyMutations(mutations: List<Mutation>, user: User) {
     if (applyMutationError != null) {
@@ -71,10 +81,10 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
     userProfileRefreshCount++
   }
 
-  override suspend fun loadUserLois(survey: Survey, ownerUserId: String): List<LocationOfInterest> =
-    userLois
+  override fun loadUserLois(survey: Survey, ownerUserId: String): Flow<List<LocationOfInterest>> =
+    flowOf(userLois)
 
-  override suspend fun loadSharedLois(survey: Survey): List<LocationOfInterest> = sharedLois
+  override fun loadSharedLois(survey: Survey): Flow<List<LocationOfInterest>> = flowOf(sharedLois)
 
   /** Returns true iff [subscribeToSurveyUpdates] has been called with the specified id. */
   fun isSubscribedToSurveyUpdates(surveyId: String): Boolean =
