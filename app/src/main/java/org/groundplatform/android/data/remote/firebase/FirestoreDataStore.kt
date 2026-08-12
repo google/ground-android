@@ -26,17 +26,20 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import org.groundplatform.android.BuildConfig.USE_EMULATORS
 import org.groundplatform.android.data.remote.RemoteDataStore
 import org.groundplatform.android.data.remote.firebase.schema.GroundFirestore
+import org.groundplatform.android.data.remote.firebase.schema.LoiCollectionReference
 import org.groundplatform.android.di.coroutines.IoDispatcher
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.SurveyListItem
 import org.groundplatform.domain.model.TermsOfService
 import org.groundplatform.domain.model.User
+import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
 import org.groundplatform.domain.model.mutation.LocationOfInterestMutation
 import org.groundplatform.domain.model.mutation.Mutation
 import org.groundplatform.domain.model.mutation.SubmissionMutation
@@ -80,16 +83,21 @@ internal constructor(
     )
   }
 
-  override suspend fun loadPredefinedLois(survey: Survey) =
-    withContext(ioDispatcher) { db().surveys().survey(survey.id).lois().fetchPredefined(survey) }
+  override fun loadPredefinedLois(survey: Survey) =
+    fetchLoiPages(survey) { fetchPredefined(survey) }
 
-  override suspend fun loadUserLois(survey: Survey, ownerUserId: String) =
-    withContext(ioDispatcher) {
-      db().surveys().survey(survey.id).lois().fetchUserDefined(survey, ownerUserId)
-    }
+  override fun loadUserLois(survey: Survey, ownerUserId: String) =
+    fetchLoiPages(survey) { fetchUserDefined(survey, ownerUserId) }
 
-  override suspend fun loadSharedLois(survey: Survey) =
-    withContext(ioDispatcher) { db().surveys().survey(survey.id).lois().fetchSharedLois(survey) }
+  override fun loadSharedLois(survey: Survey) = fetchLoiPages(survey) { fetchSharedLois(survey) }
+
+  /** Emits the pages of LOIs produced by [fetch] against the given survey's LOI collection. */
+  private fun fetchLoiPages(
+    survey: Survey,
+    fetch: LoiCollectionReference.() -> Flow<List<LocationOfInterest>>,
+  ): Flow<List<LocationOfInterest>> = flow {
+    emitAll(db().surveys().survey(survey.id).lois().fetch())
+  }.flowOn(ioDispatcher)
 
   override suspend fun subscribeToSurveyUpdates(surveyId: String) {
     if (USE_EMULATORS) return
