@@ -24,6 +24,7 @@ import javax.inject.Singleton
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -97,7 +98,9 @@ internal constructor(
     fetch: LoiCollectionReference.() -> Flow<List<LocationOfInterest>>,
   ): Flow<List<LocationOfInterest>> = flow {
     emitAll(db().surveys().survey(survey.id).lois().fetch())
-  }.flowOn(ioDispatcher)
+  }
+    .buffer(1)
+    .flowOn(ioDispatcher)
 
   override suspend fun subscribeToSurveyUpdates(surveyId: String) {
     if (USE_EMULATORS) return
