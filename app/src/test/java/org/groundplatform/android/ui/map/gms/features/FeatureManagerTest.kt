@@ -23,6 +23,7 @@ import com.google.android.gms.maps.model.Polygon as MapsPolygon
 import com.google.common.truth.Truth.assertThat
 import com.google.maps.android.clustering.algo.NonHierarchicalViewBasedAlgorithm
 import kotlinx.coroutines.test.TestScope
+import org.groundplatform.android.ui.IconFactory
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.LinearRing
@@ -67,6 +68,7 @@ class FeatureManagerTest {
         pointRenderer,
         polygonRenderer,
         lineStringRenderer,
+        IconFactory(ApplicationProvider.getApplicationContext()),
       )
     featureManager.onMapReady(map)
   }

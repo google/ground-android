@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import org.groundplatform.android.di.coroutines.MainScope
+import org.groundplatform.android.ui.IconFactory
 import org.groundplatform.android.ui.map.Feature
 import timber.log.Timber
 
@@ -45,6 +46,8 @@ constructor(
   private val pointRenderer: PointRenderer,
   private val polygonRenderer: PolygonRenderer,
   private val lineStringRenderer: LineStringRenderer,
+  // Shared with PointRenderer so cluster icons hit the same cache instead of a per-renderer one.
+  private val iconFactory: IconFactory,
 ) {
   private val features = mutableSetOf<Feature>()
   private val featuresByTag = mutableMapOf<Feature.Tag, Feature>()
@@ -80,7 +83,8 @@ constructor(
         )
       }
     )
-    clusterRenderer = FeatureClusterRenderer(context, map, clusterManager, map.cameraPosition.zoom)
+    clusterRenderer =
+      FeatureClusterRenderer(context, map, clusterManager, map.cameraPosition.zoom, iconFactory)
     clusterRenderer.onClusterItemRendered = { showClusterableItem(it) }
     clusterRenderer.onClusterRendered = { hideClusterableItem(it) }
     clusterManager.renderer = clusterRenderer

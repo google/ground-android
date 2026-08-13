@@ -24,6 +24,7 @@ import android.graphics.PorterDuff
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.os.Build
+import android.util.LruCache
 import androidx.appcompat.content.res.AppCompatResources
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
@@ -36,6 +37,20 @@ import org.groundplatform.android.ui.util.obtainTextPaintFromStyle
 /** Responsible for building dynamically generated icon bitmaps. */
 @Singleton
 class IconFactory @Inject constructor(@ApplicationContext private val context: Context) {
+
+  private val markerIcons =
+    // One icon per job colour at each of two scales, so a handful per survey.
+    object : LruCache<Pair<Int, Float>, BitmapDescriptor>(16) {
+      override fun create(key: Pair<Int, Float>): BitmapDescriptor =
+        BitmapDescriptorFactory.fromBitmap(getMarkerBitmap(key.first, key.second))
+    }
+
+  private val clusterIcons =
+    // Clusters sit at least 100dp apart, so ~32 fit on a phone screen.
+    object : LruCache<String, BitmapDescriptor>(32) {
+      override fun create(key: String): BitmapDescriptor = createClusterIcon(key)
+    }
+
   /** Create a scaled bitmap based on the dimensions of a given [Drawable]. */
   private fun createBitmap(drawable: Drawable, scale: Float = 1f): Bitmap {
     val width = (drawable.intrinsicWidth * scale).toInt()
@@ -67,14 +82,16 @@ class IconFactory @Inject constructor(@ApplicationContext private val context: C
     return bitmap
   }
 
-  /** Returns a [BitmapDescriptor] for representing an individual marker on the map. */
-  fun getMarkerIcon(color: Int, scale: Float): BitmapDescriptor {
-    val bitmap = getMarkerBitmap(color, scale)
-    return BitmapDescriptorFactory.fromBitmap(bitmap)
-  }
+  /**
+   * Returns a cached [BitmapDescriptor] representing an individual marker on the map. Descriptors
+   * are immutable, so one per [color] and [scale] is shared by every marker drawn with it.
+   */
+  fun getMarkerIcon(color: Int, scale: Float): BitmapDescriptor = markerIcons.get(color to scale)
 
-  /** Returns a [BitmapDescriptor] for representing a marker cluster on the map. */
-  fun getClusterIcon(text: String): BitmapDescriptor {
+  /** Returns a cached [BitmapDescriptor] representing a marker cluster on the map. */
+  fun getClusterIcon(text: String): BitmapDescriptor = clusterIcons.get(text)
+
+  private fun createClusterIcon(text: String): BitmapDescriptor {
     val fill = AppCompatResources.getDrawable(context, R.drawable.cluster_marker)
     val bitmap = createBitmap(fill!!)
     val canvas = Canvas(bitmap)
