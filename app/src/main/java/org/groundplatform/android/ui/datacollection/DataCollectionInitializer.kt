@@ -25,9 +25,18 @@ import org.groundplatform.android.ui.common.LocationOfInterestHelper
 import org.groundplatform.android.ui.datacollection.DataCollectionInitializer.Companion.TASK_POSITION_ID
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.submission.DraftSubmission
+import org.groundplatform.domain.model.submission.TaskData
+import org.groundplatform.domain.model.submission.ValueDelta
 import org.groundplatform.domain.model.task.Task
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
+import org.groundplatform.domain.repository.SubmissionRepositoryInterface
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
+
+data class DataCollectionInitializerResult(
+  val uiState: DataCollectionUiState,
+  val collectedData: Map<Task, TaskData> = emptyMap(),
+)
 
 /**
  * DataCollectionInitializer
@@ -38,7 +47,8 @@ import org.groundplatform.domain.repository.SurveyRepositoryInterface
  * - Load active survey (with timeout).
  * - Resolve job by id.
  * - Pick displayable tasks (exclude Add-LOI when LOI exists).
- * - Choose initial task id from SavedStateHandle (if valid) or first task.
+ * - Restore the data collected so far from the draft of an interrupted session, if any.
+ * - Choose initial task id from SavedStateHandle or the draft (if valid), or first task.
  * - Compute a simple [TaskPosition] from list order.
  * - Resolve a user-visible LOI name (typed for Add-LOI, formatted for existing LOI).
  */
@@ -47,31 +57,33 @@ class DataCollectionInitializer
 constructor(
   private val locationOfInterestHelper: LocationOfInterestHelper,
   private val locationOfInterestRepository: LocationOfInterestRepositoryInterface,
+  private val submissionRepository: SubmissionRepositoryInterface,
   private val surveyRepository: SurveyRepositoryInterface,
 ) {
 
   /**
-   * Computes the initial [DataCollectionUiState] without building any sequence.
+   * Computes the initial [DataCollectionInitializerResult] without building any sequence.
    *
    * Reads from [savedStateHandle]:
    * - [TASK_POSITION_ID]: previously visited task id (optional).
-   * - [TASK_LOI_NAME_KEY]: user-typed LOI name for Add-LOI flows (optional).
    */
   suspend fun initialize(
     savedStateHandle: SavedStateHandle,
     jobId: String,
     loiId: String?,
     loiName: String?,
-  ): DataCollectionUiState =
+  ): DataCollectionInitializerResult =
     try {
       val survey = loadSurveyOrThrow()
       val job = resolveJobOrThrow(survey, jobId)
       val tasks = pickTasks(job, loiId)
       if (tasks.isEmpty()) throw DataCollectionException.NoValidTasks
 
+      val draft = findDraft(survey, jobId, loiId)
+
       val savedTaskId: String? = savedStateHandle[TASK_POSITION_ID]
       val currentTaskId =
-        resolveInitialTaskId(tasks, savedTaskId)
+        resolveInitialTaskId(tasks, savedTaskId, draft?.currentTaskId)
           ?: throw DataCollectionException.Wrapped(
             DataCollectionErrorCode.INITIAL_TASK_RESOLUTION_FAILED,
             IllegalStateException("No valid initial task id"),
@@ -89,21 +101,24 @@ constructor(
 
       val loiName = computeLoiName(survey.id, loiId, loiName)
 
-      DataCollectionUiState.Ready(
-        surveyId = survey.id,
-        job = job,
-        loiName = loiName,
-        tasks = tasks,
-        isAddLoiFlow = loiId == null,
-        currentTaskId = currentTaskId,
-        position = position,
+      DataCollectionInitializerResult(
+        DataCollectionUiState.Ready(
+          surveyId = survey.id,
+          job = job,
+          loiName = loiName,
+          tasks = tasks,
+          isAddLoiFlow = loiId == null,
+          currentTaskId = currentTaskId,
+          position = position,
+        ),
+        collectedData = restoreData(tasks, draft?.deltas.orEmpty()),
       )
     } catch (e: DataCollectionException) {
-      DataCollectionUiState.Error(e.code, e)
+      DataCollectionInitializerResult(DataCollectionUiState.Error(e.code, e))
     } catch (c: CancellationException) {
       throw c
     } catch (t: Throwable) {
-      DataCollectionUiState.Error(mapThrowableToCode(t), t)
+      DataCollectionInitializerResult(DataCollectionUiState.Error(mapThrowableToCode(t), t))
     }
 
   private suspend fun loadSurveyOrThrow(): Survey =
@@ -123,13 +138,31 @@ constructor(
     if (loiId == null) job.tasksSorted else job.tasksSorted.filterNot { it.isAddLoiTask }
 
   /**
+   * Returns the draft of an interrupted data collection session for the given [survey], [jobId] and
+   * [loiId], or `null` when there is none, or the stored one belongs to a different session.
+   */
+  private suspend fun findDraft(survey: Survey, jobId: String, loiId: String?): DraftSubmission? {
+    val draftId = submissionRepository.getDraftSubmissionsId()
+    val draft =
+      if (draftId.isEmpty()) null else submissionRepository.getDraftSubmission(draftId, survey)
+    return draft?.takeIf { it.surveyId == survey.id && it.jobId == jobId && it.loiId == loiId }
+  }
+
+  private fun restoreData(tasks: List<Task>, deltas: List<ValueDelta>): Map<Task, TaskData> {
+    val deltaMap = deltas.associateBy { it.taskId to it.taskType }
+    return tasks
+      .mapNotNull { task -> deltaMap[task.id to task.type]?.newTaskData?.let { task to it } }
+      .toMap()
+  }
+
+  /**
    * Choose initial task:
-   * - Use [saved] if it exists within [tasks].
+   * - Use the first of [candidates] which exists within [tasks].
    * - Otherwise, first task in list.
    */
-  private fun resolveInitialTaskId(tasks: List<Task>, saved: String?): String? {
+  private fun resolveInitialTaskId(tasks: List<Task>, vararg candidates: String?): String? {
     val validIds = tasks.map { it.id }.toSet()
-    return saved?.takeIf { it in validIds } ?: tasks.firstOrNull()?.id
+    return candidates.filterNotNull().firstOrNull { it in validIds } ?: tasks.firstOrNull()?.id
   }
 
   /**
