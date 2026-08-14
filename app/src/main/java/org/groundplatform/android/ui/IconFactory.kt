@@ -86,10 +86,7 @@ class IconFactory @Inject constructor(@ApplicationContext private val context: C
     return bitmap
   }
 
-  /**
-   * Returns a cached [BitmapDescriptor] representing an individual marker on the map. Descriptors
-   * are immutable, so one per [color] and [scale] is shared by every marker drawn with it.
-   */
+  /** Returns a cached [BitmapDescriptor] representing an individual marker on the map. */
   fun getMarkerIcon(color: Int, scale: Float): BitmapDescriptor = markerIcons.get(color to scale)
 
   /** Returns a cached [BitmapDescriptor] representing a marker cluster on the map. */

@@ -46,7 +46,6 @@ constructor(
   private val pointRenderer: PointRenderer,
   private val polygonRenderer: PolygonRenderer,
   private val lineStringRenderer: LineStringRenderer,
-  // Shared with PointRenderer so cluster icons hit the same cache instead of a per-renderer one.
   private val iconFactory: IconFactory,
 ) {
   private val features = mutableSetOf<Feature>()
@@ -189,7 +188,7 @@ constructor(
   }
 
   @VisibleForTesting
-  internal fun maxVisibleClusters(algorithm: NonHierarchicalViewBasedAlgorithm<*>): Int =
+  fun maxVisibleClusters(algorithm: NonHierarchicalViewBasedAlgorithm<*>): Int =
     with(context.resources.displayMetrics) {
       val spacingDp = algorithm.maxDistanceBetweenClusteredItems
       val columns = widthPixels / density / spacingDp
