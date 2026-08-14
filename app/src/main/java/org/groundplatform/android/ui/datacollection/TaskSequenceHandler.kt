@@ -82,6 +82,21 @@ class TaskSequenceHandler(
     return validTasks
   }
 
+  /**
+   * Returns the task ID to resume. Ensures sequences never skip past tasks with required answers,
+   * so incomplete answers get recollected instead of omitted.
+   */
+  fun getResumeTask(taskId: String): String {
+    validateTaskId(taskId)
+    val sequence = getValidTasks()
+    val target = sequence.firstOrNull { it.id == taskId } ?: sequence.first()
+    val unanswered =
+      sequence
+        .takeWhile { it != target }
+        .firstOrNull { (it.isRequired || it.isAddLoiTask) && taskDataHandler.getData(it) == null }
+    return (unanswered ?: target).id
+  }
+
   /** Resets the local cache of the task list. */
   fun invalidateCache() {
     isTaskListReady = false
