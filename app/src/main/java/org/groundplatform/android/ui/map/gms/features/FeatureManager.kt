@@ -75,14 +75,15 @@ constructor(
     mapsItemManager = MapsItemManager(map, pointRenderer, polygonRenderer, lineStringRenderer)
     clusterManager = FeatureClusterManager(context, map, createMarkerManager(map))
     // Render only visible features; off-screen clusterable features are omitted
-    clusterManager.setAlgorithm(
+    val algorithm =
       with(context.resources.displayMetrics) {
-        NonHierarchicalViewBasedAlgorithm(
+        NonHierarchicalViewBasedAlgorithm<FeatureClusterItem>(
           (widthPixels / density).toInt(),
           (heightPixels / density).toInt(),
         )
       }
-    )
+    clusterManager.setAlgorithm(algorithm)
+    iconFactory.setClusterIconCacheSize(maxVisibleClusters(algorithm))
     clusterRenderer =
       FeatureClusterRenderer(context, map, clusterManager, map.cameraPosition.zoom, iconFactory)
     clusterRenderer.onClusterItemRendered = { showClusterableItem(it) }
@@ -186,4 +187,13 @@ constructor(
   fun onCameraIdle() {
     clusterManager.onCameraIdle()
   }
+
+  @VisibleForTesting
+  internal fun maxVisibleClusters(algorithm: NonHierarchicalViewBasedAlgorithm<*>): Int =
+    with(context.resources.displayMetrics) {
+      val spacingDp = algorithm.maxDistanceBetweenClusteredItems
+      val columns = widthPixels / density / spacingDp
+      val rows = heightPixels / density / spacingDp
+      (columns * rows).toInt()
+    }
 }

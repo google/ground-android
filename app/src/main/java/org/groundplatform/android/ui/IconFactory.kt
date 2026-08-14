@@ -39,17 +39,21 @@ import org.groundplatform.android.ui.util.obtainTextPaintFromStyle
 class IconFactory @Inject constructor(@ApplicationContext private val context: Context) {
 
   private val markerIcons =
-    // One icon per job colour at each of two scales, so a handful per survey.
+    // Bitmap cache keyed by job color and scale. Capacity of 16 covers most combinations and avoids
+    // recreating icons.
     object : LruCache<Pair<Int, Float>, BitmapDescriptor>(16) {
       override fun create(key: Pair<Int, Float>): BitmapDescriptor =
         BitmapDescriptorFactory.fromBitmap(getMarkerBitmap(key.first, key.second))
     }
 
   private val clusterIcons =
-    // Clusters sit at least 100dp apart, so ~32 fit on a phone screen.
-    object : LruCache<String, BitmapDescriptor>(32) {
+    object : LruCache<String, BitmapDescriptor>(1) {
       override fun create(key: String): BitmapDescriptor = createClusterIcon(key)
     }
+
+  fun setClusterIconCacheSize(maxVisibleClusters: Int) {
+    clusterIcons.resize(maxVisibleClusters.coerceAtLeast(1))
+  }
 
   /** Create a scaled bitmap based on the dimensions of a given [Drawable]. */
   private fun createBitmap(drawable: Drawable, scale: Float = 1f): Bitmap {
