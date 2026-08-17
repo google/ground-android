@@ -58,12 +58,12 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup JDK 17
+      - name: Setup JDK 21
         if: matrix.language == 'java-kotlin'
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
         with:
           distribution: 'temurin'
-          java-version: 17
+          java-version: 21
 
       # Initializes the CodeQL tools for scanning.
       - name: Initialize CodeQL
