@@ -49,6 +49,12 @@ jobs:
 
     # See docs/e2e-testing-doc.md for details on how this is setup
     steps:
+      - name: Setup JDK 21 for Firebase emulator
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+        with:
+          distribution: 'temurin'
+          java-version: 21
+
       - name: Start Firebase emulator
         uses: google/ground-platform/.github/actions/start-emulator@b1eeccf9af27205206e0ec7b87ceaf6d7264f4ba
         with:
