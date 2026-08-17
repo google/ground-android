@@ -39,15 +39,15 @@ import org.groundplatform.android.ui.util.obtainTextPaintFromStyle
 class IconFactory @Inject constructor(@ApplicationContext private val context: Context) {
 
   private val markerIcons =
-    // Bitmap cache keyed by job color and scale. Capacity of 16 covers most combinations and avoids
-    // recreating icons.
-    object : LruCache<Pair<Int, Float>, BitmapDescriptor>(16) {
+    // Bitmap cache keyed by job color and scale.
+    object : LruCache<Pair<Int, Float>, BitmapDescriptor>(DEFAULT_ICON_CACHE_SIZE) {
       override fun create(key: Pair<Int, Float>): BitmapDescriptor =
         BitmapDescriptorFactory.fromBitmap(getMarkerBitmap(key.first, key.second))
     }
 
+  // Bitmap cache keyed by cluster label. Resized to fit the visible clusters once the map is ready.
   private val clusterIcons =
-    object : LruCache<String, BitmapDescriptor>(1) {
+    object : LruCache<String, BitmapDescriptor>(DEFAULT_ICON_CACHE_SIZE) {
       override fun create(key: String): BitmapDescriptor = createClusterIcon(key)
     }
 
@@ -112,5 +112,10 @@ class IconFactory @Inject constructor(@ApplicationContext private val context: C
     canvas.drawText(text, x.toFloat(), y.toFloat(), textPaint)
 
     return BitmapDescriptorFactory.fromBitmap(bitmap)
+  }
+
+  companion object {
+    /** Default capacity of the icon caches, sufficient to cover most combinations. */
+    private const val DEFAULT_ICON_CACHE_SIZE = 16
   }
 }
