@@ -73,6 +73,12 @@ interface RemoteDataStore {
    */
   suspend fun subscribeToSurveyUpdates(surveyId: String)
 
+  /**
+   * Stops listening for remote changes to the survey with the specified id, releasing any resources
+   * held by the corresponding subscription.
+   */
+  suspend fun unsubscribeFromSurveyUpdates(surveyId: String)
+
   /** Refreshes the current user's profile info in the remote database. */
   suspend fun refreshUserProfile()
 }

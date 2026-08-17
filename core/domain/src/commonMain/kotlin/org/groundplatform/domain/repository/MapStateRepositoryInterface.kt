@@ -30,4 +30,6 @@ interface MapStateRepositoryInterface {
   fun setCameraPosition(cameraPosition: CameraPosition)
 
   fun getCameraPosition(surveyId: String): CameraPosition?
+
+  fun clearCameraPosition(surveyId: String)
 }
