@@ -23,6 +23,7 @@ import com.google.maps.android.clustering.Cluster
 import com.google.maps.android.clustering.ClusterManager
 import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST_CLUSTER_ITEM
 import org.groundplatform.android.common.Constants.CLUSTERING_ZOOM_THRESHOLD
+import org.groundplatform.android.ui.IconFactory
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -51,7 +52,8 @@ class FeatureClusterRendererTest {
   fun setUp() {
     context = ApplicationProvider.getApplicationContext()
     com.google.android.gms.maps.MapsInitializer.initialize(context)
-    featureClusterRenderer = FeatureClusterRenderer(context, map, clusterManager, 10f)
+    featureClusterRenderer =
+      FeatureClusterRenderer(context, map, clusterManager, 10f, IconFactory(context))
   }
 
   @Test

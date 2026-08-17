@@ -20,6 +20,7 @@ import android.view.View
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment
@@ -66,8 +67,10 @@ class DrawAreaTaskMapFragment @Inject constructor() :
   }
 
   override fun renderFeatures(): Flow<Set<Feature>> =
-    taskViewModel.draftArea.map { feature: Feature? ->
-      if (feature == null) setOf() else setOf(feature)
+    combine(getMapViewModel().existingLoiFeatures, taskViewModel.draftArea) {
+      loiFeatures,
+      draftArea: Feature? ->
+      loiFeatures + setOfNotNull(draftArea)
     }
 
   override fun onMapCameraMoved(position: CameraPosition) {
