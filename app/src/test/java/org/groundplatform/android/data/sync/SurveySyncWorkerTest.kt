@@ -32,12 +32,16 @@ import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.SURVEY
 import org.groundplatform.android.data.sync.SurveySyncWorker.Companion.SURVEY_ID_PARAM_KEY
 import org.groundplatform.android.di.coroutines.IoDispatcher
+import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.usecases.survey.SyncSurveyUseCase
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
+import org.mockito.kotlin.never
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyBlocking
 import org.robolectric.RobolectricTestRunner
 
 @HiltAndroidTest
@@ -45,6 +49,7 @@ import org.robolectric.RobolectricTestRunner
 class SurveySyncWorkerTest : BaseHiltTest() {
   private lateinit var context: Context
   @Mock lateinit var syncSurvey: SyncSurveyUseCase
+  @Mock lateinit var surveyRepository: SurveyRepositoryInterface
 
   @Inject @IoDispatcher lateinit var ioDispatcher: CoroutineDispatcher
 
@@ -54,7 +59,7 @@ class SurveySyncWorkerTest : BaseHiltTest() {
         appContext: Context,
         workerClassName: String,
         workerParameters: WorkerParameters,
-      ) = SurveySyncWorker(appContext, workerParameters, syncSurvey, ioDispatcher)
+      ) = SurveySyncWorker(appContext, workerParameters, syncSurvey, surveyRepository, ioDispatcher)
     }
 
   @Before
@@ -78,6 +83,7 @@ class SurveySyncWorkerTest : BaseHiltTest() {
 
   @Test
   fun `doWork() succeeds on valid survey`() = runWithTestDispatcher {
+    `when`(surveyRepository.getOfflineSurvey(SURVEY.id)).thenReturn(SURVEY)
     `when`(syncSurvey(SURVEY.id)).thenReturn(SURVEY)
 
     val worker =
@@ -89,10 +95,12 @@ class SurveySyncWorkerTest : BaseHiltTest() {
         .build()
     val result = worker.doWork()
     assertThat(result).isEqualTo(Result.success())
+    verify(syncSurvey).invoke(SURVEY.id)
   }
 
   @Test
   fun `doWork() retries on failure`() = runWithTestDispatcher {
+    `when`(surveyRepository.getOfflineSurvey(SURVEY.id)).thenReturn(SURVEY)
     `when`(syncSurvey(SURVEY.id)).thenThrow(NotFoundException())
 
     val worker =
@@ -105,4 +113,23 @@ class SurveySyncWorkerTest : BaseHiltTest() {
     val result = worker.doWork()
     assertThat(result).isEqualTo(Result.retry())
   }
+
+  @Test
+  fun `doWork() skips sync and unsubscribes when survey is no longer available offline`() =
+    runWithTestDispatcher {
+      `when`(surveyRepository.getOfflineSurvey(SURVEY.id)).thenReturn(null)
+
+      val worker =
+        TestListenableWorkerBuilder<SurveySyncWorker>(
+            context,
+            inputData = workDataOf(Pair(SURVEY_ID_PARAM_KEY, SURVEY.id)),
+          )
+          .setWorkerFactory(factory)
+          .build()
+      val result = worker.doWork()
+
+      assertThat(result).isEqualTo(Result.success())
+      verifyBlocking(syncSurvey, never()) { invoke(SURVEY.id) }
+      verify(surveyRepository).unsubscribeFromSurveyUpdates(SURVEY.id)
+    }
 }

@@ -23,6 +23,8 @@ import javax.inject.Inject
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
@@ -50,6 +52,9 @@ import org.mockito.Mockito.`when`
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.robolectric.RobolectricTestRunner
+
+/** Distinguishes a deliberately failed fetch from any other error the sync might raise. */
+private class TestSyncException : RuntimeException("fetch failed")
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
@@ -135,11 +140,98 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
     verify(mockWorkManager, times(1)).enqueueSyncWorker()
   }
 
-  // TODO: Add tests for new LOI sync once implemented (create, update, delete, error).
-  // Issue URL: https://github.com/google/ground-android/issues/1373
+  @Test
+  fun `sync saves every page of a multi page source`() = runWithTestDispatcher {
+    fakeRemoteDataStore.predefinedLoiPages =
+      flowOf(
+        listOf(TEST_POINT_OF_INTEREST_1, TEST_POINT_OF_INTEREST_2),
+        listOf(TEST_POINT_OF_INTEREST_3),
+        listOf(TEST_AREA_OF_INTEREST_1, TEST_AREA_OF_INTEREST_2),
+      )
 
-  // TODO: Add tests for getLocationsOfInterest once new LOI sync implemented.
-  // Issue URL: https://github.com/google/ground-android/issues/1373
+    locationOfInterestRepository.syncLocationsOfInterest(TEST_SURVEY)
+
+    assertThat(locationOfInterestRepository.getValidLois(TEST_SURVEY).first())
+      .containsExactlyElementsIn(TEST_LOCATIONS_OF_INTEREST)
+  }
+
+  @Test
+  fun `sync saves each page before requesting the next`() = runWithTestDispatcher {
+    localLoiStore.deleteNotIn(TEST_SURVEY.id, emptyList())
+    val savedWhenPageRequested = mutableListOf<Int>()
+
+    fakeRemoteDataStore.predefinedLoiPages = flow {
+      savedWhenPageRequested += localLoiStore.getLoiCount(TEST_SURVEY.id)
+      emit(listOf(TEST_POINT_OF_INTEREST_1, TEST_POINT_OF_INTEREST_2))
+      savedWhenPageRequested += localLoiStore.getLoiCount(TEST_SURVEY.id)
+      emit(listOf(TEST_POINT_OF_INTEREST_3))
+      savedWhenPageRequested += localLoiStore.getLoiCount(TEST_SURVEY.id)
+    }
+
+    locationOfInterestRepository.syncLocationsOfInterest(TEST_SURVEY)
+
+    assertThat(savedWhenPageRequested).containsExactly(0, 2, 3).inOrder()
+  }
+
+  @Test
+  fun `sync that fails midway keeps saved pages and deletes nothing`() = runWithTestDispatcher {
+    val newLoi = createPoint("6", COORDINATE_2)
+    fakeRemoteDataStore.predefinedLoiPages =
+      flow {
+        emit(listOf(newLoi))
+        throw TestSyncException()
+      }
+
+    assertFailsWith<TestSyncException> {
+      locationOfInterestRepository.syncLocationsOfInterest(TEST_SURVEY)
+    }
+
+    val lois = locationOfInterestRepository.getValidLois(TEST_SURVEY).first()
+    assertThat(lois).contains(newLoi)
+    assertThat(lois).containsAtLeastElementsIn(TEST_LOCATIONS_OF_INTEREST)
+  }
+
+  @Test
+  fun `sync deletes only the lois absent from every page`() = runWithTestDispatcher {
+    // Every LOI is stored to begin with, having been synced during setup.
+    assertThat(locationOfInterestRepository.getValidLois(TEST_SURVEY).first())
+      .containsExactlyElementsIn(TEST_LOCATIONS_OF_INTEREST)
+
+    // Sync again, with the server now returning two of them across separate pages.
+    fakeRemoteDataStore.predefinedLoiPages =
+      flowOf(listOf(TEST_POINT_OF_INTEREST_1), listOf(TEST_AREA_OF_INTEREST_2))
+    locationOfInterestRepository.syncLocationsOfInterest(TEST_SURVEY)
+
+    assertThat(locationOfInterestRepository.getValidLois(TEST_SURVEY).first())
+      .containsExactly(TEST_POINT_OF_INTEREST_1, TEST_AREA_OF_INTEREST_2)
+  }
+
+  @Test
+  fun `sync updates lois that changed remotely`() = runWithTestDispatcher {
+    val updated = TEST_POINT_OF_INTEREST_1.copy(geometry = Point(COORDINATE_3))
+    fakeRemoteDataStore.predefinedLois =
+      TEST_LOCATIONS_OF_INTEREST.map { if (it.id == updated.id) updated else it }
+
+    locationOfInterestRepository.syncLocationsOfInterest(TEST_SURVEY)
+
+    val lois = locationOfInterestRepository.getValidLois(TEST_SURVEY).first()
+    assertThat(lois).contains(updated)
+    assertThat(lois).doesNotContain(TEST_POINT_OF_INTEREST_1)
+  }
+
+  @Test
+  fun `sync does not delete lois with pending mutations`() = runWithTestDispatcher {
+    // Created locally and not yet uploaded, so the server cannot know about it.
+    val pending =
+      LOCATION_OF_INTEREST.copy(customId = "", lastModified = LOCATION_OF_INTEREST.created)
+    locationOfInterestRepository.applyAndEnqueue(pending.toMutation(CREATE, TEST_USER.id))
+
+    fakeRemoteDataStore.predefinedLois = listOf(TEST_POINT_OF_INTEREST_1)
+    locationOfInterestRepository.syncLocationsOfInterest(TEST_SURVEY)
+
+    assertThat(locationOfInterestRepository.getOfflineLoi(TEST_SURVEY.id, pending.id))
+      .isEqualTo(pending)
+  }
 
   @Test
   fun `loi within bounds when out of bounds returns empty list`() = runWithTestDispatcher {

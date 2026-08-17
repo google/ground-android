@@ -35,6 +35,9 @@ class FakeSurveyRepository : SurveyRepositoryInterface {
   var remoteSurveys: List<Survey> = emptyList()
   var remoteListItems: List<SurveyListItem> = emptyList()
 
+  /** Ids of surveys currently subscribed to via [subscribeToSurveyUpdates]. */
+  val subscribedSurveyIds = mutableSetOf<String>()
+
   val onGetRemoteSurveyCall = FakeCall<String, Survey?> { id -> remoteSurveys.find { it.id == id } }
 
   override suspend fun saveSurvey(survey: Survey) {
@@ -64,4 +67,12 @@ class FakeSurveyRepository : SurveyRepositoryInterface {
   }
 
   override fun isSurveyActive(surveyId: String): Boolean = _activeSurveyFlow.value?.id == surveyId
+
+  override suspend fun subscribeToSurveyUpdates(surveyId: String) {
+    subscribedSurveyIds.add(surveyId)
+  }
+
+  override suspend fun unsubscribeFromSurveyUpdates(surveyId: String) {
+    subscribedSurveyIds.remove(surveyId)
+  }
 }

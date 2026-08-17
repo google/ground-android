@@ -264,6 +264,23 @@ class LocalLocationOfInterestStoreTest : BaseHiltTest() {
     }
 
   @Test
+  fun `getValidLois streams the surviving LOIs after a bulk delete`() = runWithTestDispatcher {
+    localUserStore.insertOrUpdateUser(TEST_USER)
+    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
+    val ids = (1..100).map { "loi-$it" }
+    localLoiStore.insertOrUpdateAll(ids.map { testLoi(it) })
+
+    localLoiStore.getValidLois(TEST_SURVEY).test {
+      assertThat(expectMostRecentItem().map { it.id }).containsExactlyElementsIn(ids)
+
+      // Simulate a re-sync dropping most LOIs while the stream is being observed.
+      localLoiStore.deleteNotIn(TEST_SURVEY.id, listOf("loi-1"))
+
+      assertThat(expectMostRecentItem().map { it.id }).containsExactly("loi-1")
+    }
+  }
+
+  @Test
   fun `insertOrUpdate throws exception when attempting to save LOI with empty polygon coordinates`() =
     runWithTestDispatcher {
       localUserStore.insertOrUpdateUser(TEST_USER)
