@@ -361,15 +361,14 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     runner().inputText(TASK_1_RESPONSE).clickNextButton()
 
     // Verify draft was saved
-    val draftId = submissionRepository.getDraftSubmissionsId()
-    assertThat(draftId).isNotEmpty()
+    assertThat(submissionRepository.getDraftSubmission(SURVEY)).isNotNull()
     assertThat(submissionRepository.countDraftSubmissions()).isEqualTo(1)
 
     // Simulate deleting the job from the submission
     val surveyWithMissingJob = SURVEY.copy(jobMap = emptyMap())
 
     // Attempt to get draft with the survey that's missing the job
-    val result = submissionRepository.getDraftSubmission(draftId, surveyWithMissingJob)
+    val result = submissionRepository.getDraftSubmission(surveyWithMissingJob)
     assertThat(result).isNull()
   }
 
@@ -918,15 +917,14 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   }
 
   private suspend fun assertDraftSaved(valueDeltas: List<ValueDelta>, currentTaskId: String) {
-    val draftId = submissionRepository.getDraftSubmissionsId()
-    assertThat(draftId).isNotEmpty()
+    val draft = checkNotNull(submissionRepository.getDraftSubmission(SURVEY))
 
     // Exactly 1 draft should be present always.
     assertThat(submissionRepository.countDraftSubmissions()).isEqualTo(1)
-    assertThat(submissionRepository.getDraftSubmission(draftId, SURVEY))
+    assertThat(draft)
       .isEqualTo(
         DraftSubmission(
-          id = draftId,
+          id = draft.id,
           jobId = JOB.id,
           loiId = LOCATION_OF_INTEREST.id,
           loiName = LOCATION_OF_INTEREST_NAME,
@@ -938,7 +936,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   }
 
   private suspend fun assertNoDraftSaved() {
-    assertThat(submissionRepository.getDraftSubmissionsId()).isEmpty()
+    assertThat(submissionRepository.getDraftSubmission(SURVEY)).isNull()
     assertThat(submissionRepository.countDraftSubmissions()).isEqualTo(0)
   }
 
@@ -990,8 +988,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
       }
     }
 
-    val argsBundle =
-      DataCollectionFragmentArgs.Builder(loiId, loiName, JOB.id).build().toBundle()
+    val argsBundle = DataCollectionFragmentArgs.Builder(loiId, loiName, JOB.id).build().toBundle()
 
     fragmentScenario.launchFragmentWithNavController<DataCollectionFragment>(
       argsBundle,

@@ -25,7 +25,6 @@ import org.groundplatform.android.ui.common.LocationOfInterestHelper
 import org.groundplatform.android.ui.datacollection.DataCollectionInitializer.Companion.TASK_POSITION_ID
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.job.Job
-import org.groundplatform.domain.model.submission.DraftSubmission
 import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.submission.ValueDelta
 import org.groundplatform.domain.model.task.Task
@@ -79,7 +78,7 @@ constructor(
       val tasks = pickTasks(job, loiId)
       if (tasks.isEmpty()) throw DataCollectionException.NoValidTasks
 
-      val draft = findDraft(survey, jobId, loiId)
+      val draft = submissionRepository.getDraftSubmissionForSession(survey, jobId, loiId)
 
       val savedTaskId: String? = savedStateHandle[TASK_POSITION_ID]
       val currentTaskId =
@@ -136,17 +135,6 @@ constructor(
    */
   private fun pickTasks(job: Job, loiId: String?): List<Task> =
     if (loiId == null) job.tasksSorted else job.tasksSorted.filterNot { it.isAddLoiTask }
-
-  /**
-   * Returns the draft of an interrupted data collection session for the given [survey], [jobId] and
-   * [loiId], or `null` when there is none, or the stored one belongs to a different session.
-   */
-  private suspend fun findDraft(survey: Survey, jobId: String, loiId: String?): DraftSubmission? {
-    val draftId = submissionRepository.getDraftSubmissionsId()
-    val draft =
-      if (draftId.isEmpty()) null else submissionRepository.getDraftSubmission(draftId, survey)
-    return draft?.takeIf { it.surveyId == survey.id && it.jobId == jobId && it.loiId == loiId }
-  }
 
   private fun restoreData(tasks: List<Task>, deltas: List<ValueDelta>): Map<Task, TaskData> {
     val deltaMap = deltas.associateBy { it.taskId to it.taskType }
