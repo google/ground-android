@@ -20,12 +20,14 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
+import org.groundplatform.domain.repository.MapStateRepositoryInterface
 import org.groundplatform.domain.repository.SubmissionRepositoryInterface
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
 import org.groundplatform.domain.usecases.GetLoiReportUseCase
 import org.groundplatform.domain.usecases.submission.SubmitDataUseCase
 import org.groundplatform.domain.usecases.survey.GetSurveyListItemUseCase
+import org.groundplatform.domain.usecases.survey.RemoveOfflineSurveyUseCase
 import org.groundplatform.domain.usecases.survey.SyncSurveyUseCase
 import org.groundplatform.domain.usecases.user.GetUserSettingsUseCase
 import org.groundplatform.domain.usecases.user.UpdateUserSettingsUseCase
@@ -73,4 +75,10 @@ object UseCaseModule {
   @Provides
   fun providesGetSurveyListItemUseCase(surveyRepository: SurveyRepositoryInterface) =
     GetSurveyListItemUseCase(surveyRepository)
+
+  @Provides
+  fun providesRemoveOfflineSurveyUseCase(
+    surveyRepository: SurveyRepositoryInterface,
+    mapStateRepository: MapStateRepositoryInterface,
+  ) = RemoveOfflineSurveyUseCase(surveyRepository, mapStateRepository)
 }

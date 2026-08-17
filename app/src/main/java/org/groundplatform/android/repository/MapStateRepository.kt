@@ -55,4 +55,8 @@ class MapStateRepository @Inject constructor(private val localValueStore: LocalV
 
   override fun getCameraPosition(surveyId: String): CameraPosition? =
     localValueStore.getLastCameraPosition(surveyId)
+
+  override fun clearCameraPosition(surveyId: String) {
+    localValueStore.clearLastCameraPosition(surveyId)
+  }
 }
