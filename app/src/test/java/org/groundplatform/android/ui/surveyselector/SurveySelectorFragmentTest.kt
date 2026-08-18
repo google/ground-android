@@ -47,7 +47,6 @@ import org.groundplatform.android.ui.surveyselector.components.SURVEY_LIST_TEST_
 import org.groundplatform.android.ui.surveyselector.components.formatSectionTitle
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
 import org.groundplatform.android.usecases.survey.ListAvailableSurveysUseCase
-import org.groundplatform.android.usecases.survey.RemoveOfflineSurveyUseCase
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.SurveyListItem
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
@@ -74,7 +73,6 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   @BindValue @Mock lateinit var userRepository: UserRepositoryInterface
   @BindValue @Mock lateinit var activateSurvey: ActivateSurveyUseCase
   @BindValue @Mock lateinit var listAvailableSurveysUseCase: ListAvailableSurveysUseCase
-  @BindValue @Mock lateinit var removeOfflineSurveyUseCase: RemoveOfflineSurveyUseCase
   @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
 
   private lateinit var fragment: SurveySelectorFragment

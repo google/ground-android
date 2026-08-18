@@ -124,4 +124,12 @@ constructor(
 
   override fun isSurveyActive(surveyId: String): Boolean =
     surveyId.isNotBlank() && activeSurvey?.id == surveyId
+
+  override suspend fun subscribeToSurveyUpdates(surveyId: String) {
+    remoteDataStore.subscribeToSurveyUpdates(surveyId)
+  }
+
+  override suspend fun unsubscribeFromSurveyUpdates(surveyId: String) {
+    remoteDataStore.unsubscribeFromSurveyUpdates(surveyId)
+  }
 }

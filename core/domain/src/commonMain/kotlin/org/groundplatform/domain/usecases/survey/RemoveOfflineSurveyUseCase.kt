@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Google LLC
+ * Copyright 2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.usecases.survey
+package org.groundplatform.domain.usecases.survey
 
-import javax.inject.Inject
-import org.groundplatform.android.data.local.LocalValueStore
+import org.groundplatform.domain.repository.MapStateRepositoryInterface
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
 
-class RemoveOfflineSurveyUseCase
-@Inject
-constructor(
-  private val localValueStore: LocalValueStore,
+class RemoveOfflineSurveyUseCase(
   private val surveyRepository: SurveyRepositoryInterface,
+  private val mapStateRepository: MapStateRepositoryInterface,
 ) {
 
   /**
@@ -35,8 +32,8 @@ constructor(
       surveyRepository.clearActiveSurvey()
     }
 
-    localValueStore.clearLastCameraPosition(surveyId)
-
     surveyRepository.removeOfflineSurvey(surveyId)
+    mapStateRepository.clearCameraPosition(surveyId)
+    surveyRepository.unsubscribeFromSurveyUpdates(surveyId)
   }
 }

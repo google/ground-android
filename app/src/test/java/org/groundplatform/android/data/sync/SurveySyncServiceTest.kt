@@ -37,6 +37,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.SURVEY
 import org.groundplatform.android.di.coroutines.IoDispatcher
+import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.usecases.survey.SyncSurveyUseCase
 import org.junit.Before
 import org.junit.Test
@@ -53,6 +54,7 @@ class SurveySyncServiceTest : BaseHiltTest() {
   @Inject @ApplicationContext lateinit var context: Context
   @Inject @IoDispatcher lateinit var ioDispatcher: CoroutineDispatcher
   @Mock lateinit var syncSurvey: SyncSurveyUseCase
+  @Mock lateinit var surveyRepository: SurveyRepositoryInterface
 
   private lateinit var workManager: WorkManager
   private lateinit var testDriver: TestDriver
@@ -71,7 +73,14 @@ class SurveySyncServiceTest : BaseHiltTest() {
               appContext: Context,
               workerClassName: String,
               workerParameters: WorkerParameters,
-            ) = SurveySyncWorker(context, workerParameters, syncSurvey, ioDispatcher)
+            ) =
+              SurveySyncWorker(
+                context,
+                workerParameters,
+                syncSurvey,
+                surveyRepository,
+                ioDispatcher,
+              )
           }
         )
         .build()
@@ -82,9 +91,9 @@ class SurveySyncServiceTest : BaseHiltTest() {
 
   @Test
   fun `calls sync survey with id when constraints are met`() = runWithTestDispatcher {
-    `when`(syncSurvey(SURVEY.id)).thenReturn(SURVEY)
-
     val surveyId = "survey1000"
+    `when`(surveyRepository.getOfflineSurvey(surveyId)).thenReturn(SURVEY)
+    `when`(syncSurvey(surveyId)).thenReturn(SURVEY)
 
     val service = SurveySyncService(workManager)
     val requestId = service.enqueueSync(surveyId)

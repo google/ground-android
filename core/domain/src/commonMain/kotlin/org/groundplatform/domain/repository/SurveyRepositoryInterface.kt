@@ -44,4 +44,8 @@ interface SurveyRepositoryInterface {
   suspend fun clearActiveSurvey()
 
   fun isSurveyActive(surveyId: String): Boolean
+
+  suspend fun subscribeToSurveyUpdates(surveyId: String)
+
+  suspend fun unsubscribeFromSurveyUpdates(surveyId: String)
 }

@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import org.groundplatform.android.di.coroutines.MainScope
+import org.groundplatform.android.ui.IconFactory
 import org.groundplatform.android.ui.map.Feature
 import timber.log.Timber
 
@@ -45,6 +46,7 @@ constructor(
   private val pointRenderer: PointRenderer,
   private val polygonRenderer: PolygonRenderer,
   private val lineStringRenderer: LineStringRenderer,
+  private val iconFactory: IconFactory,
 ) {
   private val features = mutableSetOf<Feature>()
   private val featuresByTag = mutableMapOf<Feature.Tag, Feature>()
@@ -72,15 +74,17 @@ constructor(
     mapsItemManager = MapsItemManager(map, pointRenderer, polygonRenderer, lineStringRenderer)
     clusterManager = FeatureClusterManager(context, map, createMarkerManager(map))
     // Render only visible features; off-screen clusterable features are omitted
-    clusterManager.setAlgorithm(
+    val algorithm =
       with(context.resources.displayMetrics) {
-        NonHierarchicalViewBasedAlgorithm(
+        NonHierarchicalViewBasedAlgorithm<FeatureClusterItem>(
           (widthPixels / density).toInt(),
           (heightPixels / density).toInt(),
         )
       }
-    )
-    clusterRenderer = FeatureClusterRenderer(context, map, clusterManager, map.cameraPosition.zoom)
+    clusterManager.setAlgorithm(algorithm)
+    iconFactory.setClusterIconCacheSize(maxVisibleClusters(algorithm))
+    clusterRenderer =
+      FeatureClusterRenderer(context, map, clusterManager, map.cameraPosition.zoom, iconFactory)
     clusterRenderer.onClusterItemRendered = { showClusterableItem(it) }
     clusterRenderer.onClusterRendered = { hideClusterableItem(it) }
     clusterManager.renderer = clusterRenderer
@@ -182,4 +186,13 @@ constructor(
   fun onCameraIdle() {
     clusterManager.onCameraIdle()
   }
+
+  @VisibleForTesting
+  fun maxVisibleClusters(algorithm: NonHierarchicalViewBasedAlgorithm<*>): Int =
+    with(context.resources.displayMetrics) {
+      val spacingDp = algorithm.maxDistanceBetweenClusteredItems
+      val columns = widthPixels / density / spacingDp
+      val rows = heightPixels / density / spacingDp
+      (columns * rows).toInt()
+    }
 }
