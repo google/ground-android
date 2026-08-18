@@ -39,8 +39,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.merge
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -63,6 +63,7 @@ import org.groundplatform.android.ui.util.getDefaultColor
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.imagery.TileSource
+import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
 import org.groundplatform.domain.model.map.CameraPosition
 import org.groundplatform.domain.model.map.MapType
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
@@ -135,31 +136,32 @@ constructor(
       .asLiveData()
 
   /**
-   * Read-only LOI features for the active survey. Lazily initialized to avoid unnecessary database
-   * queries when not rendered.
+   * Read-only LOI features for the active survey which fall within the visible viewport. Lazily
+   * initialized to avoid unnecessary database queries when not rendered.
    */
-  val existingLoiFeatures: Flow<Set<Feature>> by lazy {
-    surveyRepository.activeSurveyFlow
-      .flatMapLatest { survey ->
-        if (survey == null) flowOf(emptySet())
-        else locationOfInterestRepository.getValidLois(survey)
+  val existingLoiFeatures: StateFlow<Set<Feature>> by lazy {
+    combine(
+        surveyRepository.activeSurveyFlow,
+        getCurrentCameraPosition().mapNotNull { it.bounds }.distinctUntilChanged(),
+      ) { survey, bounds ->
+        survey to bounds
       }
-      .map { lois ->
-        lois
-          .map {
-            Feature(
-              id = it.id,
-              type = Feature.Type.LOCATION_OF_INTEREST,
-              geometry = it.geometry,
-              style = Feature.Style(it.job.getDefaultColor()),
-              clusterable = false,
-            )
-          }
-          .toSet()
+      .flatMapLatest { (survey, bounds) ->
+        if (survey == null) flowOf(emptyList())
+        else locationOfInterestRepository.getWithinBounds(survey, bounds)
       }
-      .onStart { emit(setOf()) }
-      .distinctUntilChanged()
+      .map { lois -> lois.map { it.toFeature() }.toSet() }
+      .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), setOf())
   }
+
+  private fun LocationOfInterest.toFeature() =
+    Feature(
+      id = id,
+      type = Feature.Type.LOCATION_OF_INTEREST,
+      geometry = geometry,
+      style = Feature.Style(job.getDefaultColor()),
+      clusterable = false,
+    )
 
   /** Returns whether the user has granted fine location permission. */
   fun hasLocationPermission() =

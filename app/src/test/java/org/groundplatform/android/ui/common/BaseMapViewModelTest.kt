@@ -40,6 +40,9 @@ import org.groundplatform.android.system.SettingsManager
 import org.groundplatform.android.ui.components.MapFloatingActionButtonType
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.util.getDefaultColor
+import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.map.Bounds
+import org.groundplatform.domain.model.map.CameraPosition
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import org.groundplatform.domain.repository.MapStateRepositoryInterface
 import org.groundplatform.domain.repository.OfflineAreaRepositoryInterface
@@ -48,6 +51,8 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
+import org.mockito.kotlin.any
+import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
@@ -66,6 +71,9 @@ class BaseMapViewModelTest : BaseHiltTest() {
   @Mock lateinit var locationOfInterestRepository: LocationOfInterestRepositoryInterface
 
   private lateinit var viewModel: BaseMapViewModel
+
+  private val viewport = Bounds(south = -10.0, west = -10.0, north = 10.0, east = 10.0)
+  private val otherViewport = Bounds(south = 10.0, west = 10.0, north = 20.0, east = 20.0)
 
   @Test
   fun `Should display the correct location icon and hide the recenter button when the location is locked`() =
@@ -170,35 +178,47 @@ class BaseMapViewModelTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Should show existing features on the map`() =
+  fun `Should show existing features within the viewport on the map`() = runWithTestDispatcher {
+    setupMocks()
+    val areaOfInterest = AREA_OF_INTEREST.copy(id = "loi id 2")
+    whenever(surveyRepository.activeSurveyFlow).thenReturn(MutableStateFlow(SURVEY))
+    whenever(locationOfInterestRepository.getWithinBounds(SURVEY, viewport))
+      .thenReturn(flowOf(listOf(LOCATION_OF_INTEREST, areaOfInterest)))
+
+    viewModel.onMapCameraMoved(CameraPosition(Coordinates(0.0, 0.0), bounds = viewport))
+
+    val features = viewModel.existingLoiFeatures.first { it.isNotEmpty() }
+
+    assertThat(features)
+      .containsExactly(
+        Feature(
+          id = LOCATION_OF_INTEREST.id,
+          type = Feature.Type.LOCATION_OF_INTEREST,
+          geometry = LOCATION_OF_INTEREST.geometry,
+          style = Feature.Style(JOB.getDefaultColor()),
+          clusterable = false,
+          selected = false,
+        ),
+        Feature(
+          id = areaOfInterest.id,
+          type = Feature.Type.LOCATION_OF_INTEREST,
+          geometry = areaOfInterest.geometry,
+          style = Feature.Style(JOB.getDefaultColor()),
+          clusterable = false,
+          selected = false,
+        ),
+      )
+  }
+
+  @Test
+  fun `Should not query for existing features until the viewport is known`() =
     runWithTestDispatcher {
       setupMocks()
-      val areaOfInterest = AREA_OF_INTEREST.copy(id = "loi id 2")
       whenever(surveyRepository.activeSurveyFlow).thenReturn(MutableStateFlow(SURVEY))
-      whenever(locationOfInterestRepository.getValidLois(SURVEY))
-        .thenReturn(flowOf(setOf(LOCATION_OF_INTEREST, areaOfInterest)))
 
-      val features = viewModel.existingLoiFeatures.first { it.isNotEmpty() }
+      assertThat(viewModel.existingLoiFeatures.first()).isEmpty()
 
-      assertThat(features)
-        .containsExactly(
-          Feature(
-            id = LOCATION_OF_INTEREST.id,
-            type = Feature.Type.LOCATION_OF_INTEREST,
-            geometry = LOCATION_OF_INTEREST.geometry,
-            style = Feature.Style(JOB.getDefaultColor()),
-            clusterable = false,
-            selected = false,
-          ),
-          Feature(
-            id = areaOfInterest.id,
-            type = Feature.Type.LOCATION_OF_INTEREST,
-            geometry = areaOfInterest.geometry,
-            style = Feature.Style(JOB.getDefaultColor()),
-            clusterable = false,
-            selected = false,
-          ),
-        )
+      verify(locationOfInterestRepository, never()).getWithinBounds(any(), any())
     }
 
   private fun setupMocks(
