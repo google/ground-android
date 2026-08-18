@@ -27,7 +27,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
@@ -499,11 +498,6 @@ internal constructor(
       onValid()
     }
   }
-
-  fun isCurrentActiveTaskFlow(taskId: String): Flow<Boolean> =
-    uiState
-      .map { (it as? DataCollectionUiState.Ready)?.currentTaskId == taskId }
-      .distinctUntilChanged()
 
   companion object {
     private const val TASK_JOB_ID_KEY = "jobId"

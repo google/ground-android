@@ -22,9 +22,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment
-import org.groundplatform.android.ui.datacollection.tasks.launchWhenTaskVisible
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.gms.GmsExt.toBounds
 import org.groundplatform.domain.model.map.CameraPosition
@@ -36,26 +34,24 @@ class DrawAreaTaskMapFragment @Inject constructor() :
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
 
-    launchWhenTaskVisible(dataCollectionViewModel, taskId) {
-      launch {
-        taskViewModel.sessionState
-          .map { state -> !state.isTooClose && !state.isMarkedComplete }
-          .collect { shouldShow -> setCenterMarkerVisibility(shouldShow) }
-      }
+    launchWhenStarted {
+      taskViewModel.sessionState
+        .map { state -> !state.isTooClose && !state.isMarkedComplete }
+        .collect { shouldShow -> setCenterMarkerVisibility(shouldShow) }
+    }
 
-      launch {
-        map.cameraDragEvents.collect { coord ->
-          if (!taskViewModel.isMarkedComplete()) {
-            taskViewModel.updateLastVertexAndMaybeCompletePolygon(coord) { c1, c2 ->
-              map.getDistanceInPixels(c1, c2)
-            }
+    launchWhenStarted {
+      map.cameraDragEvents.collect { coord ->
+        if (!taskViewModel.isMarkedComplete()) {
+          taskViewModel.updateLastVertexAndMaybeCompletePolygon(coord) { c1, c2 ->
+            map.getDistanceInPixels(c1, c2)
           }
         }
       }
+    }
 
-      launch {
-        taskViewModel.cameraMoveEvents.collect { coordinates -> moveToPosition(coordinates) }
-      }
+    launchWhenStarted {
+      taskViewModel.cameraMoveEvents.collect { coordinates -> moveToPosition(coordinates) }
     }
   }
 
