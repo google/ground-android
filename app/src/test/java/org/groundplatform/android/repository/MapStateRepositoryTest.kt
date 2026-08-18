@@ -91,6 +91,16 @@ class MapStateRepositoryTest : BaseHiltTest() {
       .isEqualTo(CameraPosition(coordinates = COORDINATES))
   }
 
+  @Test
+  fun `clearCameraPosition() should remove the stored value`() {
+    localValueStore.lastActiveSurveyId = SURVEY_ID
+    mapStateRepository.setCameraPosition(CameraPosition(coordinates = COORDINATES))
+
+    mapStateRepository.clearCameraPosition(SURVEY_ID)
+
+    assertThat(mapStateRepository.getCameraPosition(SURVEY_ID)).isNull()
+  }
+
   companion object {
     private val COORDINATES = FakeData.COORDINATES
     private const val SURVEY_ID = "survey_id"

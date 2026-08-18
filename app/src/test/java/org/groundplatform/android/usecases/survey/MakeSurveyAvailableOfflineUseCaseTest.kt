@@ -70,6 +70,6 @@ class MakeSurveyAvailableOfflineUseCaseTest : BaseHiltTest() {
     val result = makeSurveyAvailableOffline(SURVEY.id)
 
     assertThat(result).isEqualTo(SURVEY)
-    assertThat(fakeRemoteDataStore.isSubscribedToSurveyUpdates(SURVEY.id)).isTrue()
+    assertThat(fakeRemoteDataStore.subscribedSurveyIds.contains(SURVEY.id)).isTrue()
   }
 }

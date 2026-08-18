@@ -20,17 +20,26 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE
+import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.groundplatform.android.BaseHiltTest
+import org.groundplatform.android.FakeData.AREA_OF_INTEREST
+import org.groundplatform.android.FakeData.JOB
+import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST
+import org.groundplatform.android.FakeData.SURVEY
 import org.groundplatform.android.system.FINE_LOCATION_UPDATES_REQUEST
 import org.groundplatform.android.system.LocationManager
 import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.system.SettingsManager
 import org.groundplatform.android.ui.components.MapFloatingActionButtonType
+import org.groundplatform.android.ui.map.Feature
+import org.groundplatform.android.ui.util.getDefaultColor
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import org.groundplatform.domain.repository.MapStateRepositoryInterface
 import org.groundplatform.domain.repository.OfflineAreaRepositoryInterface
@@ -159,6 +168,38 @@ class BaseMapViewModelTest : BaseHiltTest() {
     assertEquals(false, viewModel.locationLock.value.getOrNull())
     verify(locationManager).disableLocationUpdates()
   }
+
+  @Test
+  fun `Should show existing features on the map`() =
+    runWithTestDispatcher {
+      setupMocks()
+      val areaOfInterest = AREA_OF_INTEREST.copy(id = "loi id 2")
+      whenever(surveyRepository.activeSurveyFlow).thenReturn(MutableStateFlow(SURVEY))
+      whenever(locationOfInterestRepository.getValidLois(SURVEY))
+        .thenReturn(flowOf(setOf(LOCATION_OF_INTEREST, areaOfInterest)))
+
+      val features = viewModel.existingLoiFeatures.first { it.isNotEmpty() }
+
+      assertThat(features)
+        .containsExactly(
+          Feature(
+            id = LOCATION_OF_INTEREST.id,
+            type = Feature.Type.LOCATION_OF_INTEREST,
+            geometry = LOCATION_OF_INTEREST.geometry,
+            style = Feature.Style(JOB.getDefaultColor()),
+            clusterable = false,
+            selected = false,
+          ),
+          Feature(
+            id = areaOfInterest.id,
+            type = Feature.Type.LOCATION_OF_INTEREST,
+            geometry = areaOfInterest.geometry,
+            style = Feature.Style(JOB.getDefaultColor()),
+            clusterable = false,
+            selected = false,
+          ),
+        )
+    }
 
   private fun setupMocks(
     isLocationLocked: Boolean = false,

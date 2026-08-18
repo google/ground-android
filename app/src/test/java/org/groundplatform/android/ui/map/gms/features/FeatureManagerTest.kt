@@ -23,6 +23,7 @@ import com.google.android.gms.maps.model.Polygon as MapsPolygon
 import com.google.common.truth.Truth.assertThat
 import com.google.maps.android.clustering.algo.NonHierarchicalViewBasedAlgorithm
 import kotlinx.coroutines.test.TestScope
+import org.groundplatform.android.ui.IconFactory
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.LinearRing
@@ -38,6 +39,7 @@ import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 class FeatureManagerTest {
@@ -67,6 +69,7 @@ class FeatureManagerTest {
         pointRenderer,
         polygonRenderer,
         lineStringRenderer,
+        IconFactory(ApplicationProvider.getApplicationContext()),
       )
     featureManager.onMapReady(map)
   }
@@ -142,6 +145,26 @@ class FeatureManagerTest {
     featureManager.clusterRenderer.onClusterRendered(feature.tag)
 
     verify(mapsPolygon).remove()
+  }
+
+  @Test
+  @Config(qualifiers = "w360dp-h800dp-xxhdpi")
+  fun `counts the clusters that fit on a phone screen`() {
+    // 360dp / 100dp = 3.6 columns, 800dp / 100dp = 8 rows, 3.6 * 8 = 28.8 cells.
+    assertThat(featureManager.maxVisibleClusters(clusterAlgorithm)).isEqualTo(28)
+  }
+
+  @Test
+  @Config(qualifiers = "w360dp-h800dp-mdpi")
+  fun `counts the clusters that fit on screen independently of density`() {
+    assertThat(featureManager.maxVisibleClusters(clusterAlgorithm)).isEqualTo(28)
+  }
+
+  @Test
+  @Config(qualifiers = "w1280dp-h800dp-xhdpi")
+  fun `counts the clusters that fit on a tablet screen`() {
+    // 1280dp / 100dp = 12.8 columns, 800dp / 100dp = 8 rows, 12.8 * 8 = 102.4 cells.
+    assertThat(featureManager.maxVisibleClusters(clusterAlgorithm)).isEqualTo(102)
   }
 
   private fun clusterableFeature(id: String) =

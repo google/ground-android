@@ -29,6 +29,7 @@ import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import org.groundplatform.android.di.coroutines.IoDispatcher
+import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.usecases.survey.SyncSurveyUseCase
 import timber.log.Timber
 
@@ -40,6 +41,7 @@ constructor(
   @Assisted context: Context,
   @Assisted params: WorkerParameters,
   private val syncSurvey: SyncSurveyUseCase,
+  private val surveyRepository: SurveyRepositoryInterface,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : CoroutineWorker(context, params) {
   private val surveyId: String? = params.inputData.getString(SURVEY_ID_PARAM_KEY)
@@ -52,13 +54,20 @@ constructor(
       return failure()
     }
 
-    try {
-      Timber.d("Syncing survey $surveyId")
-      syncSurvey(surveyId)
-      return success()
+    return try {
+      if (surveyRepository.getOfflineSurvey(surveyId) == null) {
+        Timber.w(
+          "Ignoring sync for survey $surveyId, no longer available offline. Retrying unsubscribe from updates."
+        )
+        surveyRepository.unsubscribeFromSurveyUpdates(surveyId)
+      } else {
+        Timber.d("Syncing survey $surveyId")
+        syncSurvey(surveyId)
+      }
+      success()
     } catch (t: Throwable) {
       Timber.e(t, "Failed to sync survey $surveyId, retrying")
-      return retry()
+      retry()
     }
   }
 
