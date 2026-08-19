@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.usecases.session
+package org.groundplatform.domain.usecases.user
 
 import kotlinx.coroutines.flow.first
-import javax.inject.Inject
 import org.groundplatform.domain.repository.OfflineAreaRepositoryInterface
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
@@ -29,9 +28,7 @@ import org.groundplatform.domain.repository.UserRepositoryInterface
  * Warning: This operation is destructive and will remove all locally stored data. It is primarily
  * intended for use during sign-out or when switching users.
  */
-class ClearUserSessionUseCase
-@Inject
-constructor(
+class ClearUserSessionUseCase(
   private val offlineAreaRepository: OfflineAreaRepositoryInterface,
   private val surveyRepository: SurveyRepositoryInterface,
   private val userRepository: UserRepositoryInterface,

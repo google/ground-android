@@ -32,7 +32,7 @@ import org.groundplatform.android.system.auth.AuthenticationManager
 import org.groundplatform.android.system.deeplink.PlayInstallReferrerService
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.common.SharedViewModel
-import org.groundplatform.android.usecases.session.ClearUserSessionUseCase
+import org.groundplatform.domain.usecases.user.ClearUserSessionUseCase
 import org.groundplatform.android.usecases.survey.ReactivateLastSurveyUseCase
 import org.groundplatform.android.util.SurveyDeepLinkParser
 import org.groundplatform.domain.model.User

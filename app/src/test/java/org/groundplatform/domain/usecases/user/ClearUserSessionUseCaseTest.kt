@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.usecases.session
+package org.groundplatform.domain.usecases.user
 
 import kotlinx.coroutines.test.runTest
 import org.groundplatform.android.data.local.LocalValueStore
@@ -25,8 +25,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.InjectMocks
 import org.mockito.Mock
-import org.mockito.Mockito.never
-import org.mockito.Mockito.times
+import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.inOrder
 import org.mockito.kotlin.verify
@@ -45,25 +44,25 @@ class ClearUserSessionUseCaseTest {
   @Test
   fun `Deletes all offline areas`() = runTest {
     clearUserSessionUseCase()
-    verify(offlineAreaRepository, times(1)).removeAllOfflineAreas()
+    verify(offlineAreaRepository, Mockito.times(1)).removeAllOfflineAreas()
   }
 
   @Test
   fun `Clears active survey`() = runTest {
     clearUserSessionUseCase()
-    verify(surveyRepository, times(1)).clearActiveSurvey()
+    verify(surveyRepository, Mockito.times(1)).clearActiveSurvey()
   }
 
   @Test
   fun `Clears user preference`() = runTest {
     clearUserSessionUseCase()
-    verify(userRepository, times(1)).clearUserPreferences()
+    verify(userRepository, Mockito.times(1)).clearUserPreferences()
   }
 
   @Test
   fun `Clears all tables`() = runTest {
     clearUserSessionUseCase()
-    verify(localDatabase, times(1)).clearAllTables()
+    verify(localDatabase, Mockito.times(1)).clearAllTables()
   }
 
   @Test
@@ -84,6 +83,6 @@ class ClearUserSessionUseCaseTest {
 
     clearUserSessionUseCase()
 
-    verify(localValueStore, never()).isDeferredDeeplinkConsumed = true
+    verify(localValueStore, Mockito.never()).isDeferredDeeplinkConsumed = true
   }
 }

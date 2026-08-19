@@ -96,9 +96,11 @@ constructor(
   private fun clearUserPreferences() {
     val deferredDeeplinkConsumed = localValueStore.isDeferredDeeplinkConsumed
     localValueStore.clear()
-    // A deferred deep link is spent once per install, so signing out must not make an already
-    // consumed one eligible to be consumed again.
-    localValueStore.isDeferredDeeplinkConsumed = deferredDeeplinkConsumed
+    if (deferredDeeplinkConsumed) {
+      // A deferred deep link is spent once per install, so signing out must not make an already
+      // consumed one eligible to be consumed again.
+      localValueStore.isDeferredDeeplinkConsumed = true
+    }
   }
 
   override suspend fun canUserSubmitData(): Boolean {
