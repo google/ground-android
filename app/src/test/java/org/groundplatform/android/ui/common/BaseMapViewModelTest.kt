@@ -73,7 +73,6 @@ class BaseMapViewModelTest : BaseHiltTest() {
   private lateinit var viewModel: BaseMapViewModel
 
   private val viewport = Bounds(south = -10.0, west = -10.0, north = 10.0, east = 10.0)
-  private val otherViewport = Bounds(south = 10.0, west = 10.0, north = 20.0, east = 20.0)
 
   @Test
   fun `Should display the correct location icon and hide the recenter button when the location is locked`() =
