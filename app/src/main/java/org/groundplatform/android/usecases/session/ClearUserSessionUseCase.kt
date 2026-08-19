@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android.usecases.session
 
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import org.groundplatform.domain.repository.OfflineAreaRepositoryInterface
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
@@ -39,6 +40,9 @@ constructor(
   suspend operator fun invoke() {
     offlineAreaRepository.removeAllOfflineAreas()
     surveyRepository.clearActiveSurvey()
+    surveyRepository.getOfflineSurveys().first().forEach { survey ->
+      surveyRepository.unsubscribeFromSurveyUpdates(survey.id)
+    }
     userRepository.clearUserData()
   }
 }
