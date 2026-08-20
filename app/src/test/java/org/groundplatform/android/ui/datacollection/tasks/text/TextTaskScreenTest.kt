@@ -29,12 +29,12 @@ import org.groundplatform.android.common.Constants
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.ButtonActionStateChecker
+import org.groundplatform.android.ui.datacollection.tasks.DataCollectionEvent
 import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.submission.TextTaskData
 import org.groundplatform.domain.model.task.Task
-import org.groundplatform.android.ui.datacollection.tasks.DataCollectionEvent
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -66,11 +66,7 @@ class TextTaskScreenTest {
       eventReporter = { lastEvent = it },
     )
 
-    composeTestRule.setContent {
-      TextTaskScreen(
-        viewModel = viewModel,
-      )
-    }
+    composeTestRule.setContent { TextTaskScreen(viewModel = viewModel) }
   }
 
   @Test

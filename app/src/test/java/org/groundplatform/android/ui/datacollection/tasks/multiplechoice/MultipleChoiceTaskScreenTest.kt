@@ -72,11 +72,7 @@ class MultipleChoiceTaskScreenTest {
       eventReporter = {},
     )
 
-    composeTestRule.setContent {
-      MultipleChoiceTaskScreen(
-        viewModel = viewModel,
-      )
-    }
+    composeTestRule.setContent { MultipleChoiceTaskScreen(viewModel = viewModel) }
   }
 
   @Test

@@ -23,7 +23,6 @@ import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
-import org.junit.Ignore
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -35,6 +34,7 @@ import org.groundplatform.android.system.auth.FakeAuthenticationManager
 import org.groundplatform.android.testrules.FragmentScenarioRule
 import org.groundplatform.domain.model.auth.SignInState
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

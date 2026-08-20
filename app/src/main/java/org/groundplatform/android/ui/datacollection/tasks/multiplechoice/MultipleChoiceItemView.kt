@@ -44,11 +44,11 @@ import androidx.compose.ui.unit.dp
 import ground_android.core.ui.generated.resources.Res
 import ground_android.core.ui.generated.resources.other
 import org.groundplatform.android.common.Constants
-import org.jetbrains.compose.resources.stringResource
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.domain.model.task.MultipleChoice
 import org.groundplatform.domain.model.task.Option
 import org.groundplatform.ui.theme.AppTheme
+import org.jetbrains.compose.resources.stringResource
 
 const val MULTIPLE_CHOICE_ITEM_TEST_TAG = "multiple choice item test tag"
 const val OTHER_INPUT_TEXT_TEST_TAG = "other input test tag"

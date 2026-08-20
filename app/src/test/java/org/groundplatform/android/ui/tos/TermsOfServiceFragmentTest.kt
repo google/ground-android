@@ -20,6 +20,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.core.os.bundleOf
 import dagger.hilt.android.testing.HiltAndroidTest
+import javax.inject.Inject
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.testrules.FragmentScenarioRule
@@ -28,8 +29,8 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import javax.inject.Inject
 
+@Suppress("MultilineRawStringIndentation")
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class TermsOfServiceFragmentTest : BaseHiltTest() {
@@ -50,19 +51,25 @@ class TermsOfServiceFragmentTest : BaseHiltTest() {
       bundleOf(Pair("isViewOnly", false))
     )
 
-    composeTestRule.onNodeWithText("""
+    composeTestRule
+      .onNodeWithText(
+        """
         This is a heading
 
         Sample terms of service
 
-    """.trimIndent()).isDisplayed()
+        """
+          .trimIndent()
+      )
+      .isDisplayed()
 
     composeTestRule
       .onNodeWithText(
         """
-            <p dir="ltr"><span style="font-size:1.50em;"><b>This is a heading</b></span></p>
-            <p dir="ltr">Sample terms of service</p>
-        """.trimIndent()
+        <p dir="ltr"><span style="font-size:1.50em;"><b>This is a heading</b></span></p>
+        <p dir="ltr">Sample terms of service</p>
+        """
+          .trimIndent()
       )
       .isDisplayed()
   }

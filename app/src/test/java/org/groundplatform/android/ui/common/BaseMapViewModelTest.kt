@@ -170,36 +170,35 @@ class BaseMapViewModelTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Should show existing features on the map`() =
-    runWithTestDispatcher {
-      setupMocks()
-      val areaOfInterest = AREA_OF_INTEREST.copy(id = "loi id 2")
-      whenever(surveyRepository.activeSurveyFlow).thenReturn(MutableStateFlow(SURVEY))
-      whenever(locationOfInterestRepository.getValidLois(SURVEY))
-        .thenReturn(flowOf(setOf(LOCATION_OF_INTEREST, areaOfInterest)))
+  fun `Should show existing features on the map`() = runWithTestDispatcher {
+    setupMocks()
+    val areaOfInterest = AREA_OF_INTEREST.copy(id = "loi id 2")
+    whenever(surveyRepository.activeSurveyFlow).thenReturn(MutableStateFlow(SURVEY))
+    whenever(locationOfInterestRepository.getValidLois(SURVEY))
+      .thenReturn(flowOf(setOf(LOCATION_OF_INTEREST, areaOfInterest)))
 
-      val features = viewModel.existingLoiFeatures.first { it.isNotEmpty() }
+    val features = viewModel.existingLoiFeatures.first { it.isNotEmpty() }
 
-      assertThat(features)
-        .containsExactly(
-          Feature(
-            id = LOCATION_OF_INTEREST.id,
-            type = Feature.Type.LOCATION_OF_INTEREST,
-            geometry = LOCATION_OF_INTEREST.geometry,
-            style = Feature.Style(JOB.getDefaultColor()),
-            clusterable = false,
-            selected = false,
-          ),
-          Feature(
-            id = areaOfInterest.id,
-            type = Feature.Type.LOCATION_OF_INTEREST,
-            geometry = areaOfInterest.geometry,
-            style = Feature.Style(JOB.getDefaultColor()),
-            clusterable = false,
-            selected = false,
-          ),
-        )
-    }
+    assertThat(features)
+      .containsExactly(
+        Feature(
+          id = LOCATION_OF_INTEREST.id,
+          type = Feature.Type.LOCATION_OF_INTEREST,
+          geometry = LOCATION_OF_INTEREST.geometry,
+          style = Feature.Style(JOB.getDefaultColor()),
+          clusterable = false,
+          selected = false,
+        ),
+        Feature(
+          id = areaOfInterest.id,
+          type = Feature.Type.LOCATION_OF_INTEREST,
+          geometry = areaOfInterest.geometry,
+          style = Feature.Style(JOB.getDefaultColor()),
+          clusterable = false,
+          selected = false,
+        ),
+      )
+  }
 
   private fun setupMocks(
     isLocationLocked: Boolean = false,

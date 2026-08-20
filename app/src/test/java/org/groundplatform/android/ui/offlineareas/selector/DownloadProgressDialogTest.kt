@@ -21,11 +21,11 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import dagger.hilt.android.testing.HiltAndroidTest
-import org.junit.Test
 import org.groundplatform.android.R
 import org.groundplatform.android.getString
 import org.junit.Assert.assertTrue
 import org.junit.Rule
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
