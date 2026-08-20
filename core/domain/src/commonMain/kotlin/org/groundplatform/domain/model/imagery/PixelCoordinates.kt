@@ -16,7 +16,9 @@
 package org.groundplatform.domain.model.imagery
 
 import kotlin.math.PI
+import kotlin.math.atan
 import kotlin.math.ln
+import kotlin.math.sinh
 import kotlin.math.tan
 import org.groundplatform.domain.model.geometry.Coordinates
 
@@ -33,6 +35,13 @@ fun Coordinates.toPixelCoordinates(zoom: Int): PixelCoordinates {
   val x = zoomFactor * (this.lng + 180) / 360
   val y = zoomFactor * (1 - (ln(tan(latRad) + sec(latRad)) / PI)) / 2
   return PixelCoordinates((x * 256.0).toInt(), (y * 256.0).toInt(), zoom)
+}
+
+fun PixelCoordinates.toCoordinates(): Coordinates {
+  val worldPx = 256.0 * (1 shl zoom)
+  val lng = x / worldPx * 360.0 - 180.0
+  val lat = atan(sinh(PI * (1 - 2 * y / worldPx))) * 180.0 / PI
+  return Coordinates(lat, lng)
 }
 
 fun TileCoordinates.toPixelCoordinate(xOffset: Int, yOffset: Int) =
