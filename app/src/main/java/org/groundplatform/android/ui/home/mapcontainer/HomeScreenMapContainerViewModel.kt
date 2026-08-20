@@ -175,11 +175,10 @@ internal constructor(
         }
         .stateIn(viewModelScope, SharingStarted.Lazily, listOf())
 
-    adHocLoiJobs =
-      activeSurvey.map { survey ->
-        if (survey == null) listOf()
-        else survey.jobs.filter { it.canDataCollectorsAddLois && it.getAddLoiTask() != null }
-      }
+    adHocLoiJobs = activeSurvey.map { survey ->
+      if (survey == null) listOf()
+      else survey.jobs.filter { it.canDataCollectorsAddLois && it.getAddLoiTask() != null }
+    }
 
     jobMapComponentState =
       processJobMapComponentState()

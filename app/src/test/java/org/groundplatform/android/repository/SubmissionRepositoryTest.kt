@@ -115,17 +115,77 @@ class SubmissionRepositoryTest {
   @Test
   fun `getDraftSubmission gets the draft from the local store`() = runTest {
     setupMocks()
-    val result = repository.getDraftSubmission(DRAFT_SUBMISSION.id, TEST_SURVEY)
+    val result = repository.getDraftSubmission(TEST_SURVEY)
 
     assertThat(result).isEqualTo(DRAFT_SUBMISSION)
+    verify(localSubmissionStore).getDraftSubmission(DRAFT_SUBMISSION.id, TEST_SURVEY)
+    assertThat(repository.getDraftSubmission(TEST_SURVEY)?.id).isEqualTo(DRAFT_SUBMISSION.id)
   }
 
   @Test
   fun `getDraftSubmission returns null when not found`() = runTest {
     setupMocks(draftSubmissions = null)
 
-    assertThat(repository.getDraftSubmission("missing", TEST_SURVEY)).isNull()
+    assertThat(repository.getDraftSubmission(TEST_SURVEY)).isNull()
   }
+
+  @Test
+  fun `getDraftSubmission returns null when there is no draftSubmissionId stored`() = runTest {
+    setupMocks(draftSubmissions = listOf(DRAFT_SUBMISSION), selectedDraftId = null)
+
+    assertThat(repository.getDraftSubmission(TEST_SURVEY)).isNull()
+  }
+
+  @Test
+  fun `getDraftSubmission returns null when the draft belongs to a different survey`() = runTest {
+    setupMocks(draftSubmissions = listOf(DRAFT_SUBMISSION.copy(surveyId = "some-other-survey")))
+
+    assertThat(repository.getDraftSubmission(TEST_SURVEY)).isNull()
+  }
+
+  @Test
+  fun `getDraftSubmissionForSession returns the draft when job and LOI match`() = runTest {
+    setupMocks()
+
+    assertThat(repository.getDraftSubmissionForSession(TEST_SURVEY, TEST_JOB.id, TEST_LOI.id))
+      .isEqualTo(DRAFT_SUBMISSION)
+  }
+
+  @Test
+  fun `getDraftSubmissionForSession returns null when the draft is for a different job`() =
+    runTest {
+      setupMocks()
+
+      assertThat(repository.getDraftSubmissionForSession(TEST_SURVEY, "other-job", TEST_LOI.id))
+        .isNull()
+    }
+
+  @Test
+  fun `getDraftSubmissionForSession returns null when the draft is for a different LOI`() =
+    runTest {
+      setupMocks()
+
+      assertThat(repository.getDraftSubmissionForSession(TEST_SURVEY, TEST_JOB.id, "other-loi"))
+        .isNull()
+    }
+
+  @Test
+  fun `getDraftSubmissionForSession matches an add-LOI draft on a null LOI id`() = runTest {
+    val addLoiDraft = DRAFT_SUBMISSION.copy(loiId = null)
+    setupMocks(draftSubmissions = listOf(addLoiDraft))
+
+    assertThat(repository.getDraftSubmissionForSession(TEST_SURVEY, TEST_JOB.id, null))
+      .isEqualTo(addLoiDraft)
+  }
+
+  @Test
+  fun `getDraftSubmissionForSession returns null when the draft is for a different survey`() =
+    runTest {
+      setupMocks(draftSubmissions = listOf(DRAFT_SUBMISSION.copy(surveyId = "some-other-survey")))
+
+      assertThat(repository.getDraftSubmissionForSession(TEST_SURVEY, TEST_JOB.id, TEST_LOI.id))
+        .isNull()
+    }
 
   @Test
   fun `countDraftSubmissions counts the draft submissions in the local store`() = runTest {
@@ -140,30 +200,6 @@ class SubmissionRepositoryTest {
 
     assertThat(repository.countDraftSubmissions()).isEqualTo(3)
   }
-
-  @Test
-  fun `getDraftSubmissionsId returns id from local value store`() = runTest {
-    val selectedDraftId = "draft-3"
-    setupMocks(
-      draftSubmissions =
-        listOf(
-          DRAFT_SUBMISSION,
-          DRAFT_SUBMISSION.copy(id = "draft-2", surveyId = "survey2"),
-          DRAFT_SUBMISSION.copy(id = "draft-3", surveyId = "survey3"),
-        ),
-      selectedDraftId = selectedDraftId,
-    )
-
-    assertThat(repository.getDraftSubmissionsId()).isEqualTo(selectedDraftId)
-  }
-
-  @Test
-  fun `getDraftSubmissionsId returns empty string when there is no draftSubmissionId stored`() =
-    runTest {
-      setupMocks(draftSubmissions = listOf(DRAFT_SUBMISSION), selectedDraftId = null)
-
-      assertThat(repository.getDraftSubmissionsId()).isEmpty()
-    }
 
   @Test
   fun `saveDraftSubmission saves and updates the id in the local store`() = runTest {

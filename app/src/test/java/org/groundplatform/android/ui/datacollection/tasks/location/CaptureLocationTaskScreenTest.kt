@@ -242,7 +242,7 @@ class CaptureLocationTaskScreenTest {
     composeTestRule.setContent {
       CaptureLocationTaskScreen(
         viewModel = viewModel,
-        mapContent = {}
+        mapContent = {},
       )
     }
   }

@@ -263,8 +263,7 @@ class OfflineAreaRepositoryTest {
 
   private companion object {
     val TEST_BOUNDS = Bounds(0.0, 0.0, 1.0, 1.0)
-    val TEST_AREA =
-      OfflineArea("id", OfflineArea.State.DOWNLOADED, TEST_BOUNDS, "Test Area", 0..14)
+    val TEST_AREA = OfflineArea("id", OfflineArea.State.DOWNLOADED, TEST_BOUNDS, "Test Area", 0..14)
     val TEST_COLLECTION = MogCollection(listOf(MogSource(0..14, "/path/{z}/{x}/{y}.tif")))
   }
 }

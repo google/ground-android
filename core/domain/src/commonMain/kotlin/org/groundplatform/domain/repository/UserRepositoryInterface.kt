@@ -37,8 +37,8 @@ interface UserRepositoryInterface {
 
   suspend fun getUser(userId: String): User
 
-  /** Clears all user-specific preferences and settings. */
-  fun clearUserPreferences()
+  /** Clears all user-specific preferences, settings and data stored in the local database. */
+  suspend fun clearUserData()
 
   /**
    * Returns true if the currently logged in user has permissions to write data to the active
