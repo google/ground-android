@@ -161,9 +161,7 @@ class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
 
   @Test
   fun `job component state is AddLoiButton below clustering threshold`() = runWithTestDispatcher {
-    viewModel.onMapCameraMoved(
-      CAMERA_POSITION.copy(zoomLevel = CLUSTERING_ZOOM_THRESHOLD - 1f)
-    )
+    viewModel.onMapCameraMoved(CAMERA_POSITION.copy(zoomLevel = CLUSTERING_ZOOM_THRESHOLD - 1f))
     advanceUntilIdle()
 
     val state = viewModel.processJobMapComponentState().first()

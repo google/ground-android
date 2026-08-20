@@ -23,8 +23,7 @@ import org.groundplatform.domain.model.submission.ValueDelta
 import org.groundplatform.domain.repository.SubmissionRepositoryInterface
 
 class FakeSubmissionRepository : SubmissionRepositoryInterface {
-  var draftSubmission: List<DraftSubmission> = emptyList()
-  var latestDraftSubmissionId: String = ""
+  var draftSubmission: DraftSubmission? = null
   var pendingCreateCount: Int = 0
   var pendingDeleteCount: Int = 0
   var submissions: List<Submission> = emptyList()
@@ -39,14 +38,15 @@ class FakeSubmissionRepository : SubmissionRepositoryInterface {
     onSaveSubmissionCall(SaveSubmissionParams(surveyId, locationOfInterestId, deltas, collectionId))
   }
 
-  override suspend fun getDraftSubmission(
-    draftSubmissionId: String,
+  override suspend fun getDraftSubmission(survey: Survey): DraftSubmission? = draftSubmission
+
+  override suspend fun getDraftSubmissionForSession(
     survey: Survey,
-  ): DraftSubmission? = draftSubmission.firstOrNull { it.id == draftSubmissionId }
+    jobId: String,
+    loiId: String?,
+  ): DraftSubmission? = draftSubmission
 
-  override suspend fun countDraftSubmissions(): Int = draftSubmission.count()
-
-  override fun getDraftSubmissionsId(): String = latestDraftSubmissionId
+  override suspend fun countDraftSubmissions(): Int = if (draftSubmission == null) 0 else 1
 
   override suspend fun saveDraftSubmission(
     jobId: String,
@@ -56,7 +56,7 @@ class FakeSubmissionRepository : SubmissionRepositoryInterface {
     loiName: String?,
     currentTaskId: String,
   ) {
-    draftSubmission +=
+    draftSubmission =
       FakeDataGenerator.newDraftSubmission(
         jobId = jobId,
         loiId = loiId,
@@ -68,8 +68,7 @@ class FakeSubmissionRepository : SubmissionRepositoryInterface {
   }
 
   override suspend fun deleteDraftSubmission() {
-    draftSubmission = emptyList()
-    latestDraftSubmissionId = ""
+    draftSubmission = null
   }
 
   override suspend fun getTotalSubmissionCount(loi: LocationOfInterest): Int =

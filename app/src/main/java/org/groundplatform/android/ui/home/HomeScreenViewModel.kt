@@ -48,7 +48,6 @@ import org.groundplatform.domain.repository.OfflineAreaRepositoryInterface
 import org.groundplatform.domain.repository.SubmissionRepositoryInterface
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
-import timber.log.Timber
 
 data class HomeDrawerState(val user: User, val survey: Survey?, val appVersion: String)
 
@@ -100,16 +99,17 @@ internal constructor(
     viewModelScope.launch { kickLocalMutationSyncWorkers() }
   }
 
-  val drawerState: StateFlow<HomeDrawerState?> =
-    flow { emit(userRepository.getAuthenticatedUser()) }
-      .combine(surveyRepository.activeSurveyFlow) { user, survey ->
-        HomeDrawerState(
-          user = user,
-          survey = survey,
-          appVersion = org.groundplatform.android.BuildConfig.VERSION_NAME,
-        )
-      }
-      .stateIn(viewModelScope, SharingStarted.Lazily, null)
+  val drawerState: StateFlow<HomeDrawerState?> = flow {
+    emit(userRepository.getAuthenticatedUser())
+  }
+    .combine(surveyRepository.activeSurveyFlow) { user, survey ->
+      HomeDrawerState(
+        user = user,
+        survey = survey,
+        appVersion = org.groundplatform.android.BuildConfig.VERSION_NAME,
+      )
+    }
+    .stateIn(viewModelScope, SharingStarted.Lazily, null)
 
   /**
    * Enqueue data and photo upload workers for all pending mutations when home screen is first
@@ -128,24 +128,10 @@ internal constructor(
 
   /** Attempts to return draft submission for the currently active active survey. */
   suspend fun getDraftSubmission(): DraftSubmission? {
-    val draftId = submissionRepository.getDraftSubmissionsId()
-    val survey = surveyRepository.activeSurveyFlow.first()
-
-    if (survey == null || draftId.isEmpty()) {
-      // No active survey or draft submission.
-      return null
-    }
-
-    val draft = submissionRepository.getDraftSubmission(draftId, survey) ?: return null
-
-    if (draft.surveyId != survey.id) {
-      Timber.e("Skipping draft submission, survey id doesn't match")
-      return null
-    }
-
     // TODO: Check whether the previous user id matches with current user or not.
     // Issue URL: https://github.com/google/ground-android/issues/2903
-    return draft
+    val survey = surveyRepository.activeSurveyFlow.first() ?: return null
+    return submissionRepository.getDraftSubmission(survey)
   }
 
   fun openNavDrawer() {

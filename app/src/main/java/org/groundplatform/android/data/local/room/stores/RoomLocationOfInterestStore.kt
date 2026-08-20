@@ -136,11 +136,10 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
   }
 
   override suspend fun insertOrUpdateAll(lois: List<LocationOfInterest>) {
-    val entities =
-      lois.map {
-        require(!it.geometry.isEmpty()) { "Cannot save LOI ${it.id} with empty geometry" }
-        it.toLocalDataStoreObject()
-      }
+    val entities = lois.map {
+      require(!it.geometry.isEmpty()) { "Cannot save LOI ${it.id} with empty geometry" }
+      it.toLocalDataStoreObject()
+    }
     locationOfInterestDao.upsertAll(entities)
   }
 

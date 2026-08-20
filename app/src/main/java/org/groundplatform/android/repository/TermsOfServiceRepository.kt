@@ -36,7 +36,7 @@ constructor(
   private val networkManager: NetworkManager,
   private val remoteDataStore: RemoteDataStore,
   private val localValueStore: LocalValueStore,
-): TermsOfServiceRepositoryInterface {
+) : TermsOfServiceRepositoryInterface {
 
   override var isTermsOfServiceAccepted: Boolean by localValueStore::isTermsOfServiceAccepted
 

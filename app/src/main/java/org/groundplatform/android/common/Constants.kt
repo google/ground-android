@@ -30,7 +30,7 @@ object Constants {
   const val DB_NAME = "ground.db"
 
   // Firebase Cloud Firestore settings.
-  const val FIRESTORE_LOGGING_ENABLED = true
+  val FIRESTORE_LOGGING_ENABLED = !isReleaseBuild()
 
   // Photos
   const val PHOTO_EXT = ".jpg"
