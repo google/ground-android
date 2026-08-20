@@ -19,6 +19,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import org.groundplatform.android.data.local.LocalValueStore
+import org.groundplatform.android.data.local.room.LocalDatabase
 import org.groundplatform.android.data.local.stores.LocalUserStore
 import org.groundplatform.android.data.remote.RemoteDataStore
 import org.groundplatform.android.system.NetworkManager
@@ -48,6 +49,7 @@ constructor(
   private val networkManager: NetworkManager,
   private val surveyRepository: SurveyRepositoryInterface,
   private val remoteDataStore: RemoteDataStore,
+  private val localDatabase: LocalDatabase,
 ) : UserRepositoryInterface {
 
   override fun getSignInState(): Flow<SignInState> = authenticationManager.signInState
@@ -82,7 +84,24 @@ constructor(
 
   override suspend fun getUser(userId: String): User = localUserStore.getUser(userId)
 
-  override fun clearUserPreferences() = localValueStore.clear()
+  override suspend fun clearUserData() {
+    clearUserPreferences()
+    // TODO: Once multi-user login is supported, avoid clearing local db data. This is
+    //  currently being done to prevent one user's data to be submitted as another user after
+    //  re-login.
+    // Issue URL: https://github.com/google/ground-android/issues/1691
+    localDatabase.clearAllTables()
+  }
+
+  private fun clearUserPreferences() {
+    val deferredDeeplinkConsumed = localValueStore.isDeferredDeeplinkConsumed
+    localValueStore.clear()
+    if (deferredDeeplinkConsumed) {
+      // A deferred deep link is spent once per install, so signing out must not make an already
+      // consumed one eligible to be consumed again.
+      localValueStore.isDeferredDeeplinkConsumed = true
+    }
+  }
 
   override suspend fun canUserSubmitData(): Boolean {
     if (

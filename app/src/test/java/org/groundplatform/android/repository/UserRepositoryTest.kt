@@ -93,13 +93,41 @@ class UserRepositoryTest : BaseHiltTest() {
     }
 
   @Test
-  fun `clearUserPreferences() clears lastActiveSurveyId`() {
+  fun `clearUserData() clears lastActiveSurveyId`() = runWithTestDispatcher {
     localValueStore.lastActiveSurveyId = "foo"
 
-    userRepository.clearUserPreferences()
+    userRepository.clearUserData()
 
     assertThat(localValueStore.lastActiveSurveyId).isEmpty()
   }
+
+  @Test
+  fun `clearUserData() clears the local database`() = runWithTestDispatcher {
+    localSurveyStore.insertOrUpdateSurvey(FakeData.SURVEY)
+
+    userRepository.clearUserData()
+
+    assertThat(localSurveyStore.surveys.first()).isEmpty()
+  }
+
+  @Test
+  fun `clearUserData() retains an already consumed deferred deep link`() = runWithTestDispatcher {
+    localValueStore.isDeferredDeeplinkConsumed = true
+
+    userRepository.clearUserData()
+
+    assertThat(localValueStore.isDeferredDeeplinkConsumed).isTrue()
+  }
+
+  @Test
+  fun `clearUserData() leaves an unconsumed deferred deep link unconsumed`() =
+    runWithTestDispatcher {
+      localValueStore.isDeferredDeeplinkConsumed = false
+
+      userRepository.clearUserData()
+
+      assertThat(localValueStore.isDeferredDeeplinkConsumed).isFalse()
+    }
 
   @Test
   fun `canUserSubmitData() when user has permissions returns true`() = runWithTestDispatcher {
