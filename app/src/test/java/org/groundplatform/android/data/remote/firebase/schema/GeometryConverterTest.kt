@@ -58,13 +58,13 @@ class GeometryConverterTest {
   fun `toGeometry converts point from proto`() {
     assertThat(
         geometry {
-            point = point {
-              coordinates = coordinates {
-                latitude = x
-                longitude = y
-              }
+          point = point {
+            coordinates = coordinates {
+              latitude = x
+              longitude = y
             }
           }
+        }
           .toGeometry()
       )
       .isEqualTo(Point(coordinates = Coordinates(x, y)))

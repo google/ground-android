@@ -87,8 +87,9 @@ private fun FirestoreKey.toMessageFieldNumber() =
   toIntOrNull() ?: throw IllegalArgumentException("Non-numeric document key $this")
 
 private fun FirestoreMap.toMessageMap(mapValueType: KClass<*>): MessageMap =
-  map { (key: FirestoreValue, value: FirestoreValue) -> key to value.toMessageValue(mapValueType) }
-    .toMap()
+  map { (key: FirestoreValue, value: FirestoreValue) ->
+    key to value.toMessageValue(mapValueType)
+  }.toMap()
 
 @Suppress("UNCHECKED_CAST")
 private fun FirestoreValue.toMessageValue(

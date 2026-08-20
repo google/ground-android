@@ -122,14 +122,14 @@ constructor(
     mutations: List<Mutation>
   ): MutationRepositoryInterface.MutationResult =
     try {
-    markAsInProgress(mutations)
-    uploadMutations(mutations)
-    finalizeDeletions(mutations)
-    val (hasMediaToUpload, hasNoMedia) =
-      mutations.partition { it is SubmissionMutation && it.getPhotoData().isNotEmpty() }
-    if (hasNoMedia.isNotEmpty()) markAsComplete(hasNoMedia)
-    if (hasMediaToUpload.isNotEmpty()) markForMediaUpload(hasMediaToUpload)
-    MutationRepositoryInterface.MutationResult.Success(hasMediaToUpload.isNotEmpty())
+      markAsInProgress(mutations)
+      uploadMutations(mutations)
+      finalizeDeletions(mutations)
+      val (hasMediaToUpload, hasNoMedia) =
+        mutations.partition { it is SubmissionMutation && it.getPhotoData().isNotEmpty() }
+      if (hasNoMedia.isNotEmpty()) markAsComplete(hasNoMedia)
+      if (hasMediaToUpload.isNotEmpty()) markForMediaUpload(hasMediaToUpload)
+      MutationRepositoryInterface.MutationResult.Success(hasMediaToUpload.isNotEmpty())
     } catch (t: Throwable) {
       // Mark all mutations as having failed since the remote datastore only commits when all
       // mutations have succeeded.
