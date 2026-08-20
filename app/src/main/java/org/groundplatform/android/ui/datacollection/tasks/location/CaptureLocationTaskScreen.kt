@@ -51,7 +51,7 @@ fun CaptureLocationTaskScreen(
       clazz = CaptureLocationTaskMapFragment::class.java,
       arguments = bundleOf(Pair(DataCollectionFragment.TASK_ID, viewModel.task.id)),
     )
-  }
+  },
 ) {
   val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
   val showAccuracyCard by viewModel.showAccuracyCard.collectAsStateWithLifecycle()

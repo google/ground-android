@@ -64,7 +64,12 @@ class TermsOfServiceViewModelTest {
   private fun setupViewModel(isViewOnly: Boolean = false) = runTest {
     val savedStateHandle = SavedStateHandle(mapOf("isViewOnly" to isViewOnly))
     viewModel =
-      TermsOfServiceViewModel(authManager, fakeRepository, playInstallReferrerService, savedStateHandle)
+      TermsOfServiceViewModel(
+        authManager,
+        fakeRepository,
+        playInstallReferrerService,
+        savedStateHandle,
+      )
     advanceUntilIdle()
   }
 

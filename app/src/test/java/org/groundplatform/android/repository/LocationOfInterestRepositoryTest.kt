@@ -176,11 +176,10 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   @Test
   fun `sync that fails midway keeps saved pages and deletes nothing`() = runWithTestDispatcher {
     val newLoi = createPoint("6", COORDINATE_2)
-    fakeRemoteDataStore.predefinedLoiPages =
-      flow {
-        emit(listOf(newLoi))
-        throw TestSyncException()
-      }
+    fakeRemoteDataStore.predefinedLoiPages = flow {
+      emit(listOf(newLoi))
+      throw TestSyncException()
+    }
 
     assertFailsWith<TestSyncException> {
       locationOfInterestRepository.syncLocationsOfInterest(TEST_SURVEY)
@@ -209,8 +208,9 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   @Test
   fun `sync updates lois that changed remotely`() = runWithTestDispatcher {
     val updated = TEST_POINT_OF_INTEREST_1.copy(geometry = Point(COORDINATE_3))
-    fakeRemoteDataStore.predefinedLois =
-      TEST_LOCATIONS_OF_INTEREST.map { if (it.id == updated.id) updated else it }
+    fakeRemoteDataStore.predefinedLois = TEST_LOCATIONS_OF_INTEREST.map {
+      if (it.id == updated.id) updated else it
+    }
 
     locationOfInterestRepository.syncLocationsOfInterest(TEST_SURVEY)
 

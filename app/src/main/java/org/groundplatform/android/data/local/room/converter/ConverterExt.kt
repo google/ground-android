@@ -52,7 +52,6 @@ import org.groundplatform.android.data.local.room.relations.SurveyEntityAndRelat
 import org.groundplatform.android.data.local.room.relations.TaskEntityAndRelations
 import org.groundplatform.android.data.remote.firebase.protobuf.toModel
 import org.groundplatform.android.data.remote.firebase.protobuf.toProto
-import org.groundplatform.domain.model.imagery.OfflineArea
 import org.groundplatform.android.proto.Survey as SurveyProto
 import org.groundplatform.android.proto.Survey.DataSharingTerms
 import org.groundplatform.domain.model.Survey
@@ -60,6 +59,7 @@ import org.groundplatform.domain.model.User
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.Geometry
 import org.groundplatform.domain.model.geometry.Point
+import org.groundplatform.domain.model.imagery.OfflineArea
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.job.Job.DataCollectionStrategy
 import org.groundplatform.domain.model.job.Style
@@ -263,14 +263,10 @@ fun MultipleChoice.toLocalDataStoreObject(taskId: String): MultipleChoiceEntity 
 
 private fun OfflineAreaEntityState.toModelObject() =
   when (this) {
-    OfflineAreaEntityState.PENDING ->
-      OfflineArea.State.PENDING
-    OfflineAreaEntityState.IN_PROGRESS ->
-      OfflineArea.State.IN_PROGRESS
-    OfflineAreaEntityState.DOWNLOADED ->
-      OfflineArea.State.DOWNLOADED
-    OfflineAreaEntityState.FAILED ->
-      OfflineArea.State.FAILED
+    OfflineAreaEntityState.PENDING -> OfflineArea.State.PENDING
+    OfflineAreaEntityState.IN_PROGRESS -> OfflineArea.State.IN_PROGRESS
+    OfflineAreaEntityState.DOWNLOADED -> OfflineArea.State.DOWNLOADED
+    OfflineAreaEntityState.FAILED -> OfflineArea.State.FAILED
     else -> throw IllegalArgumentException("Unknown area state: $this")
   }
 
@@ -516,7 +512,7 @@ fun ExpressionEntity.toModelObject(): Expression =
     expressionType = expressionType.toExpressionType(),
     taskId = taskId,
     optionIds = optionIds?.split(',')?.toSet() ?: setOf(),
-    otherSelected = otherSelected
+    otherSelected = otherSelected,
   )
 
 fun DraftSubmissionEntity.toModelObject(survey: Survey): DraftSubmission? {

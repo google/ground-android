@@ -82,8 +82,7 @@ fun DataCollectionScreen(
     uiState = uiState,
     onCloseClicked = { viewModel.onCloseClicked() },
     onLoiReportAction = { viewModel.onLoiReportAction(it) },
-  ) {
-    readyState ->
+  ) { readyState ->
     val tasks = readyState.tasks
     if (tasks.isNotEmpty()) {
       val position = readyState.position

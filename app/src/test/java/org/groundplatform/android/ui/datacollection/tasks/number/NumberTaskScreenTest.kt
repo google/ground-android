@@ -64,11 +64,7 @@ class NumberTaskScreenTest {
 
     buttonActionStateChecker = ButtonActionStateChecker(composeTestRule)
 
-    composeTestRule.setContent {
-      NumberTaskScreen(
-        viewModel = viewModel,
-      )
-    }
+    composeTestRule.setContent { NumberTaskScreen(viewModel = viewModel) }
   }
 
   @Test
