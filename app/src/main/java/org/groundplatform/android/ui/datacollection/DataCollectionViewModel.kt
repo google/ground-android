@@ -484,9 +484,7 @@ internal constructor(
       .map { (it as? DataCollectionUiState.Ready)?.currentTaskId == taskId }
       .distinctUntilChanged()
 
-  private fun DataCollectionUiState.Ready.withTask(
-    taskId: String
-  ): DataCollectionUiState.Ready {
+  private fun DataCollectionUiState.Ready.withTask(taskId: String): DataCollectionUiState.Ready {
     savedStateHandle[TASK_POSITION_ID] = taskId
     return copy(currentTaskId = taskId, position = taskSequenceHandler.getTaskPosition(taskId))
   }
