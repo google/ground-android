@@ -111,7 +111,8 @@ constructor(
     // Check if user is a survey organizer
     val isOrganizer = runCatching {
       surveyRepository.activeSurvey?.getRole(user.email) == Role.SURVEY_ORGANIZER
-    }.getOrElse { false }
+    }
+      .getOrElse { false }
 
     return isOrganizer
   }
