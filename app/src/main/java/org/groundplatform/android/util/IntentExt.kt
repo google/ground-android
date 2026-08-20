@@ -23,8 +23,8 @@ import android.provider.Settings
 /**
  * Opens the system settings screen for the current application.
  *
- * This is typically used to allow users to manually manage app permissions or clear app data
- * when they have permanently denied a permission request.
+ * This is typically used to allow users to manually manage app permissions or clear app data when
+ * they have permanently denied a permission request.
  */
 fun Activity.openAppSettings() {
   val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)

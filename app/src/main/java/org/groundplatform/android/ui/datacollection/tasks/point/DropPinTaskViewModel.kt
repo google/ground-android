@@ -51,8 +51,6 @@ constructor(
   /** Whether the instructions dialog has been shown or not. */
   internal var instructionsDialogShown: Boolean by localValueStore::dropPinInstructionsShown
 
-
-
   override fun initialize(
     job: Job,
     task: Task,

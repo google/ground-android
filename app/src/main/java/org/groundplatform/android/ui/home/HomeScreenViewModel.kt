@@ -100,16 +100,17 @@ internal constructor(
     viewModelScope.launch { kickLocalMutationSyncWorkers() }
   }
 
-  val drawerState: StateFlow<HomeDrawerState?> =
-    flow { emit(userRepository.getAuthenticatedUser()) }
-      .combine(surveyRepository.activeSurveyFlow) { user, survey ->
-        HomeDrawerState(
-          user = user,
-          survey = survey,
-          appVersion = org.groundplatform.android.BuildConfig.VERSION_NAME,
-        )
-      }
-      .stateIn(viewModelScope, SharingStarted.Lazily, null)
+  val drawerState: StateFlow<HomeDrawerState?> = flow {
+    emit(userRepository.getAuthenticatedUser())
+  }
+    .combine(surveyRepository.activeSurveyFlow) { user, survey ->
+      HomeDrawerState(
+        user = user,
+        survey = survey,
+        appVersion = org.groundplatform.android.BuildConfig.VERSION_NAME,
+      )
+    }
+    .stateIn(viewModelScope, SharingStarted.Lazily, null)
 
   /**
    * Enqueue data and photo upload workers for all pending mutations when home screen is first

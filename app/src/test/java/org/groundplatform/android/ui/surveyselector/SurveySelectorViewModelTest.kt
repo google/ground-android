@@ -36,12 +36,12 @@ import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.system.GmsQrCodeScanner
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
 import org.groundplatform.android.usecases.survey.ListAvailableSurveysUseCase
-import org.groundplatform.domain.usecases.survey.RemoveOfflineSurveyUseCase
 import org.groundplatform.android.util.SurveyDeepLinkParser
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.SurveyListItem
 import org.groundplatform.domain.repository.UserRepositoryInterface
 import org.groundplatform.domain.usecases.survey.GetSurveyListItemUseCase
+import org.groundplatform.domain.usecases.survey.RemoveOfflineSurveyUseCase
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
