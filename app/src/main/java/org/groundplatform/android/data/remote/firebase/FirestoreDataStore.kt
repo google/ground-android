@@ -105,17 +105,17 @@ internal constructor(
   override suspend fun subscribeToSurveyUpdates(surveyId: String) {
     if (USE_EMULATORS) return
     Timber.d("Subscribing to FCM topic $surveyId")
-    Firebase.messaging
-      .subscribeToTopic(surveyId)
-      .addOnFailureListener { Timber.w(it, "Failed to subscribe to FCM topic $surveyId") }
+    Firebase.messaging.subscribeToTopic(surveyId).addOnFailureListener {
+      Timber.w(it, "Failed to subscribe to FCM topic $surveyId")
+    }
   }
 
   override suspend fun unsubscribeFromSurveyUpdates(surveyId: String) {
     if (USE_EMULATORS) return
     Timber.d("Unsubscribing from FCM topic $surveyId")
-    Firebase.messaging
-      .unsubscribeFromTopic(surveyId)
-      .addOnFailureListener { Timber.w(it, "Failed to unsubscribe from FCM topic $surveyId") }
+    Firebase.messaging.unsubscribeFromTopic(surveyId).addOnFailureListener {
+      Timber.w(it, "Failed to unsubscribe from FCM topic $surveyId")
+    }
   }
 
   /**

@@ -19,7 +19,6 @@ import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
-import org.junit.Test
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
@@ -31,6 +30,7 @@ import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.NetworkStatus
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.toListItem
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.kotlin.whenever
