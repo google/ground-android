@@ -107,7 +107,8 @@ class DataCollectionViewModelTest : BaseHiltTest() {
   private suspend fun setupViewModel(result: DataCollectionUiState): DataCollectionViewModel {
     val initializer =
       mock<DataCollectionInitializer>().apply {
-        whenever(initialize(any(), any(), anyOrNull(), anyOrNull())) doReturn result
+        whenever(initialize(any(), any(), anyOrNull(), anyOrNull())) doReturn
+          DataCollectionInitializerResult(result)
       }
 
     return DataCollectionViewModel(

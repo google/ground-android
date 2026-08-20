@@ -33,7 +33,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
-import org.groundplatform.android.data.local.room.converter.SubmissionDeltasConverter
 import org.groundplatform.android.databinding.HomeScreenFragBinding
 import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.common.BackPressListener
@@ -152,9 +151,6 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener {
               draft.loiId,
               draft.loiName ?: "",
               draft.jobId,
-              true,
-              SubmissionDeltasConverter.toString(draft.deltas),
-              draft.currentTaskId ?: "",
             )
           )
 

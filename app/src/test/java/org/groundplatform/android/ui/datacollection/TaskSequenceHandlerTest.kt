@@ -54,13 +54,18 @@ class TaskSequenceHandlerTest {
   private val taskDataHandler = TaskDataHandler()
   private val taskSequenceHandler = TaskSequenceHandler(allTasks, taskDataHandler)
 
-  private fun createTask(taskId: String, index: Int, condition: Condition? = null) =
+  private fun createTask(
+    taskId: String,
+    index: Int,
+    condition: Condition? = null,
+    isRequired: Boolean = true,
+  ) =
     Task(
       taskId,
       index,
       Type.MULTIPLE_CHOICE,
       label = "",
-      true,
+      isRequired,
       multipleChoice = multipleChoice,
       condition = condition,
     )
@@ -287,6 +292,41 @@ class TaskSequenceHandlerTest {
     assertThrows(IllegalArgumentException::class.java) {
       taskSequenceHandler.getTaskPosition(conditionalTask.id)
     }
+  }
+
+  @Test
+  fun `getResumeTask returns the given task when the ones before it are answered`() {
+    taskDataHandler.setData(task1, MultipleChoiceTaskData(multipleChoice, listOf(option1.id)))
+
+    assertThat(taskSequenceHandler.getResumeTask(task2.id)).isEqualTo(task2.id)
+  }
+
+  @Test
+  fun `getResumeTask returns the first unanswered task before the given one`() {
+    assertThat(taskSequenceHandler.getResumeTask(task2.id)).isEqualTo(task1.id)
+  }
+
+  @Test
+  fun `getResumeTask ignores unanswered optional tasks`() {
+    val optionalTask = createTask(taskId = "optional", index = 0, isRequired = false)
+    val handler = TaskSequenceHandler(listOf(optionalTask, task2), taskDataHandler)
+
+    assertThat(handler.getResumeTask(task2.id)).isEqualTo(task2.id)
+  }
+
+  @Test
+  fun `getResumeTask returns the given task when it is the first one`() {
+    assertThat(taskSequenceHandler.getResumeTask(task1.id)).isEqualTo(task1.id)
+  }
+
+  @Test
+  fun `getResumeTask returns the first task when the given one is not in the sequence`() {
+    assertThat(taskSequenceHandler.getResumeTask(conditionalTask.id)).isEqualTo(task1.id)
+  }
+
+  @Test
+  fun `getResumeTask throws error for invalid task id`() {
+    assertThrows(IllegalArgumentException::class.java) { taskSequenceHandler.getResumeTask("") }
   }
 
   @Test

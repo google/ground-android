@@ -39,7 +39,6 @@ import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST
 import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST_NAME
 import org.groundplatform.android.FakeData.USER
 import org.groundplatform.android.R
-import org.groundplatform.android.data.local.room.converter.SubmissionDeltasConverter
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.data.sync.MutationSyncWorkManager
 import org.groundplatform.android.di.PdfModule
@@ -327,9 +326,8 @@ class DataCollectionFragmentTest : BaseHiltTest() {
       setupFragment(
         loiId = null,
         loiName = null,
-        shouldLoadFromDraft = true,
-        draftValues = SubmissionDeltasConverter.toString(expectedDeltas),
-        currentTaskId = TASK_ID_2,
+        draftDeltas = expectedDeltas,
+        draftCurrentTaskId = TASK_ID_2,
       )
 
       runner()
@@ -344,21 +342,33 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     }
 
   @Test
+  fun `Resumes at the first task whose data could not be restored`() = runWithTestDispatcher {
+    // The draft holds no answer for the add LOI task, e.g. because the task changed in the survey.
+    setupFragment(
+      loiId = null,
+      loiName = null,
+      draftDeltas = listOf(TASK_1_VALUE_DELTA),
+      draftCurrentTaskId = TASK_ID_2,
+    )
+
+    runner().validateTextIsDisplayed(TASK_0_NAME)
+  }
+
+  @Test
   fun `Does not load draft if it references missing job`() = runWithTestDispatcher {
     setupFragment()
 
     runner().inputText(TASK_1_RESPONSE).clickNextButton()
 
     // Verify draft was saved
-    val draftId = submissionRepository.getDraftSubmissionsId()
-    assertThat(draftId).isNotEmpty()
+    assertThat(submissionRepository.getDraftSubmission(SURVEY)).isNotNull()
     assertThat(submissionRepository.countDraftSubmissions()).isEqualTo(1)
 
     // Simulate deleting the job from the submission
     val surveyWithMissingJob = SURVEY.copy(jobMap = emptyMap())
 
     // Attempt to get draft with the survey that's missing the job
-    val result = submissionRepository.getDraftSubmission(draftId, surveyWithMissingJob)
+    val result = submissionRepository.getDraftSubmission(surveyWithMissingJob)
     assertThat(result).isNull()
   }
 
@@ -664,11 +674,15 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Loading tasks from draft with invalid data handles gracefully`() = runWithTestDispatcher {
-    setupFragment(shouldLoadFromDraft = true, draftValues = "invalid-json-data")
+  fun `Draft of another LOI is ignored`() = runWithTestDispatcher {
+    setupFragment(
+      draftDeltas = listOf(TASK_1_VALUE_DELTA),
+      draftLoiId = "another loi",
+      draftCurrentTaskId = TASK_ID_2,
+    )
 
-    // Should still load first task even with invalid draft data
-    runner().validateTextIsDisplayed(TASK_1_NAME)
+    // The first task is shown, with nothing restored into it.
+    runner().validateTextIsDisplayed(TASK_1_NAME).assertButtonIsDisabled("Next")
   }
 
   @Test
@@ -903,15 +917,14 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   }
 
   private suspend fun assertDraftSaved(valueDeltas: List<ValueDelta>, currentTaskId: String) {
-    val draftId = submissionRepository.getDraftSubmissionsId()
-    assertThat(draftId).isNotEmpty()
+    val draft = checkNotNull(submissionRepository.getDraftSubmission(SURVEY))
 
     // Exactly 1 draft should be present always.
     assertThat(submissionRepository.countDraftSubmissions()).isEqualTo(1)
-    assertThat(submissionRepository.getDraftSubmission(draftId, SURVEY))
+    assertThat(draft)
       .isEqualTo(
         DraftSubmission(
-          id = draftId,
+          id = draft.id,
           jobId = JOB.id,
           loiId = LOCATION_OF_INTEREST.id,
           loiName = LOCATION_OF_INTEREST_NAME,
@@ -923,7 +936,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   }
 
   private suspend fun assertNoDraftSaved() {
-    assertThat(submissionRepository.getDraftSubmissionsId()).isEmpty()
+    assertThat(submissionRepository.getDraftSubmission(SURVEY)).isNull()
     assertThat(submissionRepository.countDraftSubmissions()).isEqualTo(0)
   }
 
@@ -937,10 +950,7 @@ class DataCollectionFragmentTest : BaseHiltTest() {
   }
 
   private fun setupFragmentWithDraft(expectedValues: List<ValueDelta>) {
-    setupFragment(
-      shouldLoadFromDraft = true,
-      draftValues = SubmissionDeltasConverter.toString(expectedValues),
-    )
+    setupFragment(draftDeltas = expectedValues)
   }
 
   private fun setupFragmentWithNoLoi() {
@@ -951,27 +961,34 @@ class DataCollectionFragmentTest : BaseHiltTest() {
     viewModel.updateCameraPosition(CameraPosition(TASK_0_RESPONSE))
   }
 
+  /**
+   * Launches the fragment, optionally with [draftDeltas] stored as the draft of an interrupted data
+   * collection session for the same job and LOI.
+   */
   private fun setupFragment(
     loiId: String? = LOCATION_OF_INTEREST.id,
     loiName: String? = LOCATION_OF_INTEREST_NAME,
     tasks: List<Task> = TASKS,
-    shouldLoadFromDraft: Boolean = false,
-    draftValues: String? = null,
-    currentTaskId: String = "",
+    draftDeltas: List<ValueDelta>? = null,
+    draftLoiId: String? = loiId,
+    draftCurrentTaskId: String = "",
   ) {
     setupSubmission(tasks)
 
-    val argsBundle =
-      DataCollectionFragmentArgs.Builder(
-          loiId,
-          loiName,
-          JOB.id,
-          shouldLoadFromDraft,
-          draftValues,
-          currentTaskId,
+    draftDeltas?.let {
+      runWithTestDispatcher {
+        submissionRepository.saveDraftSubmission(
+          jobId = JOB.id,
+          loiId = draftLoiId,
+          surveyId = SURVEY.id,
+          deltas = it,
+          loiName = loiName,
+          currentTaskId = draftCurrentTaskId,
         )
-        .build()
-        .toBundle()
+      }
+    }
+
+    val argsBundle = DataCollectionFragmentArgs.Builder(loiId, loiName, JOB.id).build().toBundle()
 
     fragmentScenario.launchFragmentWithNavController<DataCollectionFragment>(
       argsBundle,
