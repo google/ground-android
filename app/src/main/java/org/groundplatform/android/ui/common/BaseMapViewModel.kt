@@ -57,6 +57,7 @@ import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.NewCameraPositionViaBounds
 import org.groundplatform.android.ui.map.NewCameraPositionViaCoordinates
 import org.groundplatform.android.ui.map.NewCameraPositionViaCoordinatesAndZoomLevel
+import org.groundplatform.android.ui.map.gms.GmsExt.contains
 import org.groundplatform.android.ui.map.gms.GmsExt.toBounds
 import org.groundplatform.android.ui.map.gms.toCoordinates
 import org.groundplatform.android.ui.util.getDefaultColor
@@ -140,15 +141,15 @@ constructor(
    * initialized to avoid unnecessary database queries when not rendered.
    */
   val existingLoiFeatures: StateFlow<Set<Feature>> by lazy {
-    combine(
-        surveyRepository.activeSurveyFlow,
-        getCurrentCameraPosition().mapNotNull { it.bounds }.distinctUntilChanged(),
-      ) { survey, bounds ->
-        survey to bounds
+    surveyRepository.activeSurveyFlow
+      .flatMapLatest { survey ->
+        if (survey == null) flowOf(emptySet())
+        else locationOfInterestRepository.getValidLois(survey)
       }
-      .flatMapLatest { (survey, bounds) ->
-        if (survey == null) flowOf(emptyList())
-        else locationOfInterestRepository.getWithinBounds(survey, bounds)
+      .combine(getCurrentCameraPosition().mapNotNull { it.bounds }.distinctUntilChanged()) {
+        lois,
+        bounds ->
+        lois.filter { bounds.contains(it.geometry) }
       }
       .map { lois -> lois.map { it.toFeature() }.toSet() }
       .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), setOf())

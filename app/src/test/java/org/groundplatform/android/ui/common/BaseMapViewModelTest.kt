@@ -16,6 +16,7 @@
 package org.groundplatform.android.ui.common
 
 import android.Manifest
+import android.os.Looper
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.common.api.Status
@@ -26,7 +27,9 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.AREA_OF_INTEREST
@@ -51,11 +54,11 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.kotlin.any
-import org.mockito.kotlin.never
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
@@ -181,8 +184,8 @@ class BaseMapViewModelTest : BaseHiltTest() {
     setupMocks()
     val areaOfInterest = AREA_OF_INTEREST.copy(id = "loi id 2")
     whenever(surveyRepository.activeSurveyFlow).thenReturn(MutableStateFlow(SURVEY))
-    whenever(locationOfInterestRepository.getWithinBounds(SURVEY, viewport))
-      .thenReturn(flowOf(listOf(LOCATION_OF_INTEREST, areaOfInterest)))
+    whenever(locationOfInterestRepository.getValidLois(SURVEY))
+      .thenReturn(flowOf(setOf(LOCATION_OF_INTEREST, areaOfInterest)))
 
     viewModel.onMapCameraMoved(CameraPosition(Coordinates(0.0, 0.0), bounds = viewport))
 
@@ -210,14 +213,40 @@ class BaseMapViewModelTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Should not query for existing features until the viewport is known`() =
+  fun `Should not emit existing features until the viewport is known`() = runWithTestDispatcher {
+    setupMocks()
+    whenever(surveyRepository.activeSurveyFlow).thenReturn(MutableStateFlow(SURVEY))
+    whenever(locationOfInterestRepository.getValidLois(SURVEY))
+      .thenReturn(flowOf(setOf(LOCATION_OF_INTEREST)))
+
+    assertThat(viewModel.existingLoiFeatures.first()).isEmpty()
+  }
+
+  @Test
+  fun `Should filter existing features on camera move without re-querying`() =
     runWithTestDispatcher {
       setupMocks()
       whenever(surveyRepository.activeSurveyFlow).thenReturn(MutableStateFlow(SURVEY))
+      whenever(locationOfInterestRepository.getValidLois(SURVEY))
+        .thenReturn(flowOf(setOf(LOCATION_OF_INTEREST)))
 
-      assertThat(viewModel.existingLoiFeatures.first()).isEmpty()
+      backgroundScope.launch { viewModel.existingLoiFeatures.collect {} }
+      runCurrent()
 
-      verify(locationOfInterestRepository, never()).getWithinBounds(any(), any())
+      viewModel.onMapCameraMoved(CameraPosition(Coordinates(0.0, 0.0), bounds = viewport))
+      shadowOf(Looper.getMainLooper()).idle()
+      assertThat(viewModel.existingLoiFeatures.value).hasSize(1)
+
+      // Panning away from the only LOI must change what is rendered
+      viewModel.onMapCameraMoved(
+        CameraPosition(
+          coordinates = Coordinates(50.0, 50.0),
+          bounds = Bounds(south = 40.0, west = 40.0, north = 60.0, east = 60.0),
+        )
+      )
+      shadowOf(Looper.getMainLooper()).idle()
+      assertThat(viewModel.existingLoiFeatures.value).isEmpty()
+      verify(locationOfInterestRepository, times(1)).getValidLois(SURVEY)
     }
 
   private fun setupMocks(
