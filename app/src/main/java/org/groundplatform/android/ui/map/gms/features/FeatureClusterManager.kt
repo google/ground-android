@@ -16,12 +16,15 @@
 package org.groundplatform.android.ui.map.gms.features
 
 import android.content.Context
+import androidx.annotation.VisibleForTesting
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.maps.android.clustering.Cluster
 import com.google.maps.android.clustering.ClusterManager
+import com.google.maps.android.clustering.algo.ScreenBasedAlgorithm
 import com.google.maps.android.collections.MarkerManager
 import org.groundplatform.android.R
+import org.groundplatform.android.ui.IconFactory
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.gms.GmsExt.toBounds
 import org.groundplatform.android.ui.map.gms.toGoogleMapsObject
@@ -29,10 +32,12 @@ import org.groundplatform.domain.model.map.Bounds
 
 /** Manages clustering of map [Feature]s. */
 class FeatureClusterManager(
-  context: Context,
+  private val context: Context,
   private val map: GoogleMap,
   markerManager: MarkerManager,
-) : ClusterManager<FeatureClusterItem>(context, map, markerManager) {
+) {
+  @VisibleForTesting
+  val gmsClusterManager = ClusterManager<FeatureClusterItem>(context, map, markerManager)
 
   private val itemsByTag = mutableMapOf<Feature.Tag, FeatureClusterItem>()
   private val viewportPadding: Int by lazy {
@@ -40,21 +45,44 @@ class FeatureClusterManager(
   }
 
   init {
-    setOnClusterClickListener(this::onClusterClick)
+    gmsClusterManager.setOnClusterClickListener(this::onClusterClick)
+  }
+
+  fun setAlgorithm(algorithm: ScreenBasedAlgorithm<FeatureClusterItem>) {
+    gmsClusterManager.setAlgorithm(algorithm)
+  }
+
+  fun createRenderer(
+    zoom: Float,
+    iconFactory: IconFactory,
+    onClusterRendered: (Feature.Tag) -> Unit,
+    onClusterItemRendered: (Feature.Tag) -> Unit,
+  ): FeatureClusterRenderer {
+    val renderer = FeatureClusterRenderer(context, map, gmsClusterManager, zoom, iconFactory)
+    renderer.onClusterRendered = onClusterRendered
+    renderer.onClusterItemRendered = onClusterItemRendered
+    gmsClusterManager.renderer = renderer
+    return renderer
   }
 
   /** Adds the specified feature for clustering. */
   fun addFeature(feature: Feature) {
     removeFeature(feature.tag)
     val item = FeatureClusterItem(feature)
-    addItem(item)
+    gmsClusterManager.addItem(item)
     itemsByTag[feature.tag] = item
   }
 
   /** Removes the specified feature . */
   fun removeFeature(tag: Feature.Tag) {
-    itemsByTag.remove(tag)?.let { removeItem(it) }
+    itemsByTag.remove(tag)?.let { gmsClusterManager.removeItem(it) }
   }
+
+  /** Recomputes clusters and re-renders the map. */
+  fun cluster() = gmsClusterManager.cluster()
+
+  /** Notifies the underlying manager that the map camera has come to rest. */
+  fun onCameraIdle() = gmsClusterManager.onCameraIdle()
 
   /** Pan and zoom the camera to the bounds of features contained in the selected cluster. */
   private fun onClusterClick(cluster: Cluster<FeatureClusterItem>): Boolean {

@@ -124,8 +124,8 @@ class FeatureClusterRenderer(
    *   the clusters differ; false otherwise.
    */
   override fun shouldRender(
-    oldClusters: Set<Cluster<FeatureClusterItem?>?>,
-    newClusters: Set<Cluster<FeatureClusterItem?>?>,
+    oldClusters: Set<Cluster<FeatureClusterItem>>,
+    newClusters: Set<Cluster<FeatureClusterItem>>,
   ): Boolean =
     if (hasRenderingModeChanged()) {
       true

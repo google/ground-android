@@ -84,10 +84,12 @@ constructor(
     clusterManager.setAlgorithm(algorithm)
     iconFactory.setClusterIconCacheSize(maxVisibleClusters(algorithm))
     clusterRenderer =
-      FeatureClusterRenderer(context, map, clusterManager, map.cameraPosition.zoom, iconFactory)
-    clusterRenderer.onClusterItemRendered = { showClusterableItem(it) }
-    clusterRenderer.onClusterRendered = { hideClusterableItem(it) }
-    clusterManager.renderer = clusterRenderer
+      clusterManager.createRenderer(
+        zoom = map.cameraPosition.zoom,
+        iconFactory = iconFactory,
+        onClusterRendered = { hideClusterableItem(it) },
+        onClusterItemRendered = { showClusterableItem(it) },
+      )
     this.map = map
   }
 
