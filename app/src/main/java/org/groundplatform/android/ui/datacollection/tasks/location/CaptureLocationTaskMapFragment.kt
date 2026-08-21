@@ -38,8 +38,6 @@ class CaptureLocationTaskMapFragment @Inject constructor() :
 
   override fun onMapReady(map: MapFragment) {
     super.onMapReady(map)
-    launchWhenStarted {
-      taskViewModel.initLocationUpdates(getMapViewModel())
-    }
+    launchWhenStarted { taskViewModel.initLocationUpdates(getMapViewModel()) }
   }
 }
