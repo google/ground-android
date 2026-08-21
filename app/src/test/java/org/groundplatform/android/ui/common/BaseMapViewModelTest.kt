@@ -43,7 +43,9 @@ import org.groundplatform.android.system.SettingsManager
 import org.groundplatform.android.ui.components.MapFloatingActionButtonType
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.util.getDefaultColor
+import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.map.Bounds
 import org.groundplatform.domain.model.map.CameraPosition
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
@@ -247,6 +249,58 @@ class BaseMapViewModelTest : BaseHiltTest() {
       shadowOf(Looper.getMainLooper()).idle()
       assertThat(viewModel.existingLoiFeatures.value).isEmpty()
       verify(locationOfInterestRepository, times(1)).getValidLois(SURVEY)
+    }
+
+  @Test
+  fun `Should render existing features when moving camera`() = runWithTestDispatcher {
+    setupMocks()
+    val lois = MutableStateFlow(setOf(LOCATION_OF_INTEREST))
+    whenever(surveyRepository.activeSurveyFlow).thenReturn(MutableStateFlow(SURVEY))
+    whenever(locationOfInterestRepository.getValidLois(SURVEY)).thenReturn(lois)
+
+    backgroundScope.launch { viewModel.existingLoiFeatures.collect {} }
+    runCurrent()
+
+    viewModel.onMapCameraMoved(CameraPosition(Coordinates(0.0, 0.0), bounds = viewport))
+    shadowOf(Looper.getMainLooper()).idle()
+    assertThat(viewModel.existingLoiFeatures.value).hasSize(1)
+
+    val added = LOCATION_OF_INTEREST.copy(id = "inside", geometry = Point(Coordinates(1.0, 1.0)))
+    val offscreen =
+      LOCATION_OF_INTEREST.copy(id = "outside", geometry = Point(Coordinates(50.0, 50.0)))
+    lois.value = setOf(LOCATION_OF_INTEREST, added, offscreen)
+    shadowOf(Looper.getMainLooper()).idle()
+
+    assertThat(viewModel.existingLoiFeatures.value.map { it.tag.id })
+      .containsExactly(LOCATION_OF_INTEREST.id, added.id)
+  }
+
+  @Test
+  fun `Should re-query and replace existing features when the active survey changes`() =
+    runWithTestDispatcher {
+      setupMocks()
+      val otherSurvey = SURVEY.copy(id = "survey id 2")
+      val otherLoi = LOCATION_OF_INTEREST.copy(id = "loi id 2")
+      val activeSurvey = MutableStateFlow<Survey?>(SURVEY)
+      whenever(surveyRepository.activeSurveyFlow).thenReturn(activeSurvey)
+      whenever(locationOfInterestRepository.getValidLois(SURVEY))
+        .thenReturn(flowOf(setOf(LOCATION_OF_INTEREST)))
+      whenever(locationOfInterestRepository.getValidLois(otherSurvey))
+        .thenReturn(flowOf(setOf(otherLoi)))
+
+      backgroundScope.launch { viewModel.existingLoiFeatures.collect {} }
+      runCurrent()
+
+      viewModel.onMapCameraMoved(CameraPosition(Coordinates(0.0, 0.0), bounds = viewport))
+      shadowOf(Looper.getMainLooper()).idle()
+      assertThat(viewModel.existingLoiFeatures.value.map { it.tag.id })
+        .containsExactly(LOCATION_OF_INTEREST.id)
+
+      activeSurvey.value = otherSurvey
+      shadowOf(Looper.getMainLooper()).idle()
+
+      verify(locationOfInterestRepository).getValidLois(otherSurvey)
+      assertThat(viewModel.existingLoiFeatures.value.map { it.tag.id }).containsExactly(otherLoi.id)
     }
 
   private fun setupMocks(
