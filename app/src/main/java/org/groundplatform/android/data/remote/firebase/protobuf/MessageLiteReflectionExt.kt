@@ -18,7 +18,9 @@ package org.groundplatform.android.data.remote.firebase.protobuf
 
 import com.google.protobuf.GeneratedMessageLite
 import com.google.protobuf.Internal.EnumLite
+import java.lang.reflect.Method
 import java.lang.reflect.Modifier
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
@@ -27,6 +29,7 @@ import kotlin.reflect.full.declaredFunctions
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.jvm.isAccessible
+import kotlin.reflect.jvm.javaMethod
 import timber.log.Timber
 
 /** A key used in a document or a nested object in Firestore. */
@@ -86,26 +89,54 @@ fun <T : MessageBuilder> KClass<T>.getListElementFieldTypeByName(fieldName: Stri
   java.getDeclaredMethod("get${fieldName.toUpperCamelCase()}", Int::class.java).returnType?.kotlin
     ?: throw UnsupportedOperationException("Getter not found for field $fieldName")
 
-private fun MessageBuilder.getSetterByFieldName(fieldName: String): KFunction<*> =
-  // Message fields generated two setters; ignore the Builder's setter in favor of the
-  // message setter.
-  this::class.declaredFunctions.find {
-    it.name == "set${fieldName.toUpperCamelCase()}" && !it.parameters[1].type.isBuilder()
-  } ?: throw UnsupportedOperationException("Setter not found for field $fieldName")
+/**
+ * Builder methods already looked up, keyed by builder class and method name.
+ *
+ * Finding one uses `declaredFunctions`, which is slow and remembers nothing, so it runs once per
+ * method rather than once per field of every document.
+ */
+private val methodCache = ConcurrentHashMap<MemberKey, Method>()
 
-private fun MessageBuilder.getAddAllByFieldName(fieldName: String): KFunction<*> =
-  // Message fields generated two setters; ignore the Builder's setter in favor of the
-  // message setter.
-  this::class.declaredFunctions.find {
-    it.name == "addAll${fieldName.toUpperCamelCase()}" && !it.parameters[1].type.isBuilder()
-  } ?: throw UnsupportedOperationException("addAll not found for field $fieldName")
+/** Identifies a single method of a class, for use as a cache key. */
+private data class MemberKey(val declaringClass: Class<*>, val methodName: String)
+
+/** Returns the method named [name], calling [resolve] to find it the first time only. */
+private fun MessageBuilder.cachedMethod(name: String, resolve: () -> KFunction<*>): Method {
+  val key = MemberKey(javaClass, name)
+  return methodCache[key]
+    ?: resolve().javaMethod!!.apply { isAccessible = true }.also { methodCache[key] = it }
+}
+
+private fun MessageBuilder.getSetterByFieldName(fieldName: String): Method {
+  val name = "set${fieldName.toUpperCamelCase()}"
+  return cachedMethod(name) {
+    // Message fields generated two setters; ignore the Builder's setter in favor of the
+    // message setter.
+    this::class.declaredFunctions.find { it.name == name && !it.parameters[1].type.isBuilder() }
+      ?: throw UnsupportedOperationException("Setter not found for field $fieldName")
+  }
+}
+
+private fun MessageBuilder.getAddAllByFieldName(fieldName: String): Method {
+  val name = "addAll${fieldName.toUpperCamelCase()}"
+  return cachedMethod(name) {
+    // Message fields generated two setters; ignore the Builder's setter in favor of the
+    // message setter.
+    this::class.declaredFunctions.find { it.name == name && !it.parameters[1].type.isBuilder() }
+      ?: throw UnsupportedOperationException("addAll not found for field $fieldName")
+  }
+}
 
 private fun KType.isBuilder() =
   (classifier as KClass<*>).isSubclassOf(GeneratedMessageLite.Builder::class)
 
-private fun MessageBuilder.getPutAllByFieldName(fieldName: String): KFunction<*> =
-  this::class.declaredFunctions.find { it.name == "putAll${fieldName.toUpperCamelCase()}" }
-    ?: throw UnsupportedOperationException("Putter not found for field $fieldName")
+private fun MessageBuilder.getPutAllByFieldName(fieldName: String): Method {
+  val name = "putAll${fieldName.toUpperCamelCase()}"
+  return cachedMethod(name) {
+    this::class.declaredFunctions.find { it.name == name }
+      ?: throw UnsupportedOperationException("Putter not found for field $fieldName")
+  }
+}
 
 fun <T : Message> KClass<T>.newBuilderForType() =
   java.getDeclaredMethod("newBuilder").invoke(null) as MessageBuilder
@@ -180,15 +211,15 @@ private fun String.toUpperCamelCase(): String =
   toCamelCase().replaceFirstChar { it.uppercaseChar() }
 
 private fun MessageBuilder.set(fieldName: MessageFieldName, value: MessageValue) {
-  getSetterByFieldName(fieldName).call(this, value)
+  getSetterByFieldName(fieldName).invoke(this, value)
 }
 
 private fun MessageBuilder.addAll(fieldName: MessageFieldName, value: MessageValue) {
-  getAddAllByFieldName(fieldName).call(this, value)
+  getAddAllByFieldName(fieldName).invoke(this, value)
 }
 
 private fun MessageBuilder.putAll(fieldName: MessageFieldName, value: MessageMap) {
-  getPutAllByFieldName(fieldName).call(this, value)
+  getPutAllByFieldName(fieldName).invoke(this, value)
 }
 
 fun <T : Message> KClass<T>.getFieldProperties(): List<KProperty<*>> =

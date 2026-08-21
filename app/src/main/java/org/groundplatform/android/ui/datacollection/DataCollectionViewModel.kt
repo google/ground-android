@@ -29,7 +29,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.groundplatform.android.data.local.room.converter.SubmissionDeltasConverter
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.android.di.coroutines.ApplicationScope
 import org.groundplatform.android.di.coroutines.IoDispatcher
@@ -48,7 +47,6 @@ import org.groundplatform.android.ui.datacollection.tasks.point.DropPinTaskViewM
 import org.groundplatform.android.ui.datacollection.tasks.polygon.DrawAreaTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.text.TextTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.time.TimeTaskViewModel
-import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.submission.ValueDelta
 import org.groundplatform.domain.model.submission.isNotNullOrEmpty
@@ -105,8 +103,6 @@ internal constructor(
   private val _loiNameDraft = MutableStateFlow("")
   val loiNameDraft: StateFlow<String> = _loiNameDraft
 
-  private var shouldLoadFromDraft: Boolean = savedStateHandle[TASK_SHOULD_LOAD_FROM_DRAFT] ?: false
-
   private val jobId: String = requireNotNull(savedStateHandle[TASK_JOB_ID_KEY])
   private val loiId: String? = savedStateHandle[TASK_LOI_ID_KEY]
 
@@ -126,18 +122,30 @@ internal constructor(
           getTypedLoiNameOrEmpty(),
         )
 
-      if (initResult is DataCollectionUiState.Ready) {
-        if (shouldLoadFromDraft) {
-          initializeDraftValues(initResult.job, initResult.tasks)
+      _uiState.value =
+        when (val state = initResult.uiState) {
+          is DataCollectionUiState.Ready -> {
+            taskDataHandler.setData(initResult.collectedData)
+            taskSequenceHandler = TaskSequenceHandler(state.tasks, taskDataHandler)
+            setupSession(state)
+          }
+          is DataCollectionUiState.Error -> {
+            Timber.e(state.cause, "Initialization failed code=%s", state.code)
+            state
+          }
+          else -> {
+            state
+          }
         }
-        taskSequenceHandler = TaskSequenceHandler(initResult.tasks, taskDataHandler)
-      }
-
-      if (initResult is DataCollectionUiState.Error) {
-        Timber.e(initResult.cause, "Initialization failed code=%s", initResult.code)
-      }
-      _uiState.value = initResult
     }
+  }
+
+  private fun setupSession(state: DataCollectionUiState.Ready): DataCollectionUiState.Ready {
+    val taskId = taskSequenceHandler.getResumeTask(state.currentTaskId)
+    if (taskId == state.currentTaskId) return state
+
+    Timber.w("No data restored for task %s; resuming at %s", state.currentTaskId, taskId)
+    return state.withTask(taskId)
   }
 
   private fun setLoiName(name: String) {
@@ -407,11 +415,9 @@ internal constructor(
     val validIds = taskSequenceHandler.getValidTasks().map { it.id }.toSet()
     val safeId = if (taskId in validIds) taskId else validIds.first()
 
-    savedStateHandle[TASK_POSITION_ID] = safeId
+    val newState = st.withTask(safeId)
     saveDraft(safeId)
-
-    val newPos = taskSequenceHandler.getTaskPosition(safeId)
-    _uiState.value = st.copy(currentTaskId = safeId, position = newPos)
+    _uiState.value = newState
   }
 
   private fun getDeltas(): List<ValueDelta> {
@@ -461,33 +467,6 @@ internal constructor(
     return block(s)
   }
 
-  private fun initializeDraftValues(job: Job, tasks: List<Task>) {
-    val serialized: String? = savedStateHandle[TASK_DRAFT_VALUES]
-    if (serialized.isNullOrBlank()) {
-      Timber.w("No draft values found; skipping load")
-      return
-    }
-
-    val parsed =
-      try {
-        SubmissionDeltasConverter.fromString(job, serialized)
-      } catch (e: Exception) {
-        Timber.e(e, "Failed to parse draft submission")
-        emptyList()
-      }
-
-    val deltaMap = parsed.associateBy { it.taskId to it.taskType }
-
-    val draftValues =
-      tasks
-        .mapNotNull { task -> deltaMap[task.id to task.type]?.newTaskData?.let { task to it } }
-        .toMap()
-
-    if (draftValues.isNotEmpty()) {
-      taskDataHandler.setData(draftValues)
-    }
-  }
-
   private inline fun validateOrShow(taskVm: AbstractTaskViewModel, onValid: () -> Unit) {
     val error = taskVm.validate()
     if (error != null) {
@@ -497,13 +476,16 @@ internal constructor(
     }
   }
 
+  private fun DataCollectionUiState.Ready.withTask(taskId: String): DataCollectionUiState.Ready {
+    savedStateHandle[TASK_POSITION_ID] = taskId
+    return copy(currentTaskId = taskId, position = taskSequenceHandler.getTaskPosition(taskId))
+  }
+
   companion object {
     private const val TASK_JOB_ID_KEY = "jobId"
     private const val TASK_LOI_ID_KEY = "locationOfInterestId"
     private const val TASK_LOI_NAME_KEY = "locationOfInterestName"
     private const val TASK_POSITION_ID = "currentTaskId"
-    private const val TASK_DRAFT_VALUES = "draftValues"
-    private const val TASK_SHOULD_LOAD_FROM_DRAFT = "shouldLoadFromDraft"
 
     fun getViewModelClass(taskType: Task.Type): Class<out AbstractTaskViewModel> =
       when (taskType) {

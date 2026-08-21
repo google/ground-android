@@ -23,12 +23,14 @@ import org.groundplatform.domain.model.User
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.Geometry
 import org.groundplatform.domain.model.geometry.Point
+import org.groundplatform.domain.model.imagery.OfflineArea
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.job.Style
 import org.groundplatform.domain.model.locationofinterest.AuditInfo
 import org.groundplatform.domain.model.locationofinterest.LOI_NAME_PROPERTY
 import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
 import org.groundplatform.domain.model.locationofinterest.LoiReport
+import org.groundplatform.domain.model.map.Bounds
 import org.groundplatform.domain.model.mutation.LocationOfInterestMutation
 import org.groundplatform.domain.model.mutation.Mutation
 import org.groundplatform.domain.model.mutation.Mutation.SyncStatus.PENDING
@@ -47,6 +49,14 @@ import org.groundplatform.domain.model.task.Task
 object FakeDataGenerator {
   fun newUser(id: String = "user id", email: String = "", displayName: String = "User"): User =
     User(id, email, displayName)
+
+  fun newOfflineArea(
+    id: String = "id_1",
+    state: OfflineArea.State = OfflineArea.State.PENDING,
+    bounds: Bounds = Bounds(0.0, 0.0, 0.0, 0.0),
+    name: String = "Test Area",
+    zoomRange: IntRange = 0..14,
+  ): OfflineArea = OfflineArea(id, state, bounds, name, zoomRange)
 
   fun newUserSettings(
     language: String = "en",

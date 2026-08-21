@@ -30,6 +30,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import java.math.RoundingMode
+import java.text.DecimalFormat
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
@@ -51,8 +53,6 @@ import org.groundplatform.android.util.setComposableContent
 import org.groundplatform.android.util.toDmsFormat
 import org.groundplatform.domain.model.map.CameraPosition
 import org.jetbrains.annotations.MustBeInvokedByOverriders
-import java.math.RoundingMode
-import java.text.DecimalFormat
 
 abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
   AbstractMapContainerFragment() {

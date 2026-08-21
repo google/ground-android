@@ -30,6 +30,8 @@ class FakeUserRepository : UserRepositoryInterface {
   var canSubmitData = true
   var canDeleteLoi = true
 
+  val clearUserDataCall = FakeCall<Unit, Unit> {}
+
   override fun getSignInState(): Flow<SignInState> = flowOf(signInState)
 
   override fun init() {
@@ -53,9 +55,7 @@ class FakeUserRepository : UserRepositoryInterface {
 
   override suspend fun getUser(userId: String): User = currentUser
 
-  override fun clearUserPreferences() {
-    /* Nothing to do */
-  }
+  override suspend fun clearUserData() = clearUserDataCall(Unit)
 
   override suspend fun canUserSubmitData(): Boolean = canSubmitData
 
