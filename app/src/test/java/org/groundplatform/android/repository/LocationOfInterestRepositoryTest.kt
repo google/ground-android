@@ -86,6 +86,10 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
       fakeRemoteDataStore.predefinedLois = TEST_LOCATIONS_OF_INTEREST
       activateSurvey(TEST_SURVEY.id)
       advanceUntilIdle()
+
+      // Clear query records
+      fakeRemoteDataStore.loadUserLoisCall.reset()
+      fakeRemoteDataStore.loadSharedLoisCall.reset()
     }
   }
 
@@ -307,7 +311,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
       val sharedLoi = FakeData.LOCATION_OF_INTEREST.copy(id = "shared_id")
       fakeRemoteDataStore.predefinedLois = listOf(predefinedLoi)
       fakeRemoteDataStore.userLois = listOf(userLoi)
-      fakeRemoteDataStore.sharedLois = listOf(sharedLoi)
+      fakeRemoteDataStore.sharedLois = listOf(userLoi, sharedLoi)
 
       val expected = setOf(predefinedLoi, userLoi, sharedLoi)
 
@@ -316,6 +320,22 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
       val actual = locationOfInterestRepository.getValidLois(survey).first()
 
       assertThat(actual).isEqualTo(expected)
+    }
+
+  @Test
+  fun `should not query user LOIs separately when shared LOIs already include them`() =
+    runWithTestDispatcher {
+      val survey = TEST_SURVEY.copy(dataVisibility = Survey.DataVisibility.ALL_SURVEY_PARTICIPANTS)
+      fakeRemoteDataStore.surveys = listOf(survey)
+
+      val userLoi = FakeData.LOCATION_OF_INTEREST.copy(id = "user_id")
+      fakeRemoteDataStore.userLois = listOf(userLoi)
+      fakeRemoteDataStore.sharedLois = listOf(userLoi)
+
+      syncSurvey(survey.id)
+
+      assertThat(fakeRemoteDataStore.loadUserLoisCall.callCount).isEqualTo(0)
+      assertThat(fakeRemoteDataStore.loadSharedLoisCall.callCount).isEqualTo(1)
     }
 
   @Test
@@ -337,7 +357,21 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
       val actual = locationOfInterestRepository.getValidLois(survey).first()
 
       assertThat(actual).isEqualTo(expected)
+      assertThat(fakeRemoteDataStore.loadUserLoisCall.callCount).isEqualTo(1)
+      assertThat(fakeRemoteDataStore.loadSharedLoisCall.callCount).isEqualTo(0)
     }
+
+  @Test
+  fun `should only query user LOIs when visibility is UNSPECIFIED`() = runWithTestDispatcher {
+    val survey = TEST_SURVEY.copy(dataVisibility = Survey.DataVisibility.UNSPECIFIED)
+    fakeRemoteDataStore.surveys = listOf(survey)
+    fakeRemoteDataStore.userLois = listOf(FakeData.LOCATION_OF_INTEREST.copy(id = "user_id"))
+
+    syncSurvey(survey.id)
+
+    assertThat(fakeRemoteDataStore.loadUserLoisCall.callCount).isEqualTo(1)
+    assertThat(fakeRemoteDataStore.loadSharedLoisCall.callCount).isEqualTo(0)
+  }
 
   companion object {
     private val COORDINATE_1 = Coordinates(-20.0, -20.0)

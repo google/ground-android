@@ -65,10 +65,14 @@ constructor(
     // Single-page buffering. Persist immediately to avoid OOM on geometry-heavy surveys.
     val syncedLoiIds = mutableSetOf<String>()
     syncedLoiIds += savePages(remoteDataStore.loadPredefinedLois(survey))
-    syncedLoiIds += savePages(remoteDataStore.loadUserLois(survey, ownerUserId))
-    if (survey.dataVisibility == Survey.DataVisibility.ALL_SURVEY_PARTICIPANTS) {
-      syncedLoiIds += savePages(remoteDataStore.loadSharedLois(survey))
-    }
+    // Shared LOIs are visible to all survey participants, so a user's own LOIs are already
+    // included.
+    syncedLoiIds +=
+      if (survey.dataVisibility == Survey.DataVisibility.ALL_SURVEY_PARTICIPANTS) {
+        savePages(remoteDataStore.loadSharedLois(survey))
+      } else {
+        savePages(remoteDataStore.loadUserLois(survey, ownerUserId))
+      }
 
     val mutations = localLoiStore.getAllSurveyMutations(survey).firstOrNull().orEmpty()
 
