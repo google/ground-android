@@ -21,7 +21,6 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.maps.android.clustering.Cluster
 import com.google.maps.android.clustering.ClusterManager
-import com.google.maps.android.clustering.algo.Algorithm
 import com.google.maps.android.clustering.algo.ScreenBasedAlgorithm
 import com.google.maps.android.collections.MarkerManager
 import org.groundplatform.android.R
@@ -37,17 +36,13 @@ class FeatureClusterManager(
   private val map: GoogleMap,
   markerManager: MarkerManager,
 ) {
-  private val gmsClusterManager = ClusterManager<FeatureClusterItem>(context, map, markerManager)
+  @VisibleForTesting
+  val gmsClusterManager = ClusterManager<FeatureClusterItem>(context, map, markerManager)
 
   private val itemsByTag = mutableMapOf<Feature.Tag, FeatureClusterItem>()
   private val viewportPadding: Int by lazy {
     context.resources.getDimension(R.dimen.zoom_on_cluster_click_padding).toInt()
   }
-
-  /** The algorithm currently grouping features into clusters. */
-  @VisibleForTesting
-  internal val algorithm: Algorithm<FeatureClusterItem>
-    get() = gmsClusterManager.algorithm
 
   init {
     gmsClusterManager.setOnClusterClickListener(this::onClusterClick)
