@@ -149,12 +149,12 @@ abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
 
   @MustBeInvokedByOverriders
   override fun onMapReady(map: MapFragment) {
-    launchWhenTaskVisible(dataCollectionViewModel, taskId) {
-      launch { getMapViewModel().getCurrentCameraPosition().collect { onMapCameraMoved(it) } }
-      launch { renderFeatures().collect { map.setFeatures(it) } }
-      // Allow the fragment to restore map viewport to previously drawn feature.
-      setDefaultViewPort()
+    launchWhenStarted {
+      getMapViewModel().getCurrentCameraPosition().collect { onMapCameraMoved(it) }
     }
+    launchWhenStarted { renderFeatures().collect { map.setFeatures(it) } }
+    // Allow the fragment to restore map viewport to previously drawn feature.
+    launchWhenStarted { setDefaultViewPort() }
   }
 
   /** Must be overridden by subclasses. */

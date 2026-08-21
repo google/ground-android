@@ -21,7 +21,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import org.groundplatform.android.ui.common.MapConfig
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment
-import org.groundplatform.android.ui.datacollection.tasks.launchWhenTaskVisible
 import org.groundplatform.android.ui.map.MapFragment
 
 @AndroidEntryPoint
@@ -30,7 +29,7 @@ class CaptureLocationTaskMapFragment @Inject constructor() :
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    launchWhenTaskVisible(dataCollectionViewModel, taskId) {
+    launchWhenStarted {
       getMapViewModel().getLocationUpdates().collect { taskViewModel.updateLocation(it) }
     }
   }
@@ -39,8 +38,6 @@ class CaptureLocationTaskMapFragment @Inject constructor() :
 
   override fun onMapReady(map: MapFragment) {
     super.onMapReady(map)
-    launchWhenTaskVisible(dataCollectionViewModel, taskId) {
-      taskViewModel.initLocationUpdates(getMapViewModel())
-    }
+    launchWhenStarted { taskViewModel.initLocationUpdates(getMapViewModel()) }
   }
 }
