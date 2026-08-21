@@ -22,6 +22,8 @@ import android.os.Build
 import android.os.Build.VERSION_CODES
 import androidx.core.net.toUri
 import androidx.lifecycle.viewModelScope
+import java.io.File
+import javax.inject.Inject
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
@@ -41,8 +43,6 @@ import org.groundplatform.domain.model.submission.isNotNullOrEmpty
 import org.groundplatform.domain.model.task.PhotoTaskData
 import org.groundplatform.domain.repository.UserMediaRepositoryInterface
 import timber.log.Timber
-import java.io.File
-import javax.inject.Inject
 
 class PhotoTaskViewModel
 @Inject

@@ -37,7 +37,9 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
@@ -51,14 +53,18 @@ import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.system.SettingsManager
 import org.groundplatform.android.ui.components.MapFloatingActionButtonType
 import org.groundplatform.android.ui.map.CameraUpdateRequest
+import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.NewCameraPositionViaBounds
 import org.groundplatform.android.ui.map.NewCameraPositionViaCoordinates
 import org.groundplatform.android.ui.map.NewCameraPositionViaCoordinatesAndZoomLevel
+import org.groundplatform.android.ui.map.gms.GmsExt.contains
 import org.groundplatform.android.ui.map.gms.GmsExt.toBounds
 import org.groundplatform.android.ui.map.gms.toCoordinates
+import org.groundplatform.android.ui.util.getDefaultColor
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.imagery.TileSource
+import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
 import org.groundplatform.domain.model.map.CameraPosition
 import org.groundplatform.domain.model.map.MapType
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
@@ -67,6 +73,7 @@ import org.groundplatform.domain.repository.OfflineAreaRepositoryInterface
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import timber.log.Timber
 
+@OptIn(ExperimentalCoroutinesApi::class)
 open class BaseMapViewModel
 @Inject
 constructor(
@@ -128,6 +135,34 @@ constructor(
         if (enabled) offlineSources else null
       }
       .asLiveData()
+
+  /**
+   * Read-only LOI features for the active survey which fall within the visible viewport. Lazily
+   * initialized to avoid unnecessary database queries when not rendered.
+   */
+  val existingLoiFeatures: StateFlow<Set<Feature>> by lazy {
+    surveyRepository.activeSurveyFlow
+      .flatMapLatest { survey ->
+        if (survey == null) flowOf(emptySet())
+        else locationOfInterestRepository.getValidLois(survey)
+      }
+      .combine(getCurrentCameraPosition().mapNotNull { it.bounds }.distinctUntilChanged()) {
+        lois,
+        bounds ->
+        lois.filter { bounds.contains(it.geometry) }
+      }
+      .map { lois -> lois.map { it.toFeature() }.toSet() }
+      .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), setOf())
+  }
+
+  private fun LocationOfInterest.toFeature() =
+    Feature(
+      id = id,
+      type = Feature.Type.LOCATION_OF_INTEREST,
+      geometry = geometry,
+      style = Feature.Style(job.getDefaultColor()),
+      clusterable = false,
+    )
 
   /** Returns whether the user has granted fine location permission. */
   fun hasLocationPermission() =

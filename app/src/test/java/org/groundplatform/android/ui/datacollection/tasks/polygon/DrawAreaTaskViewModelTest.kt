@@ -351,9 +351,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
       with(requireNotNull(states.find { it.action == ButtonAction.ADD_POINT })) {
         assertFalse(isVisible)
       }
-      with(requireNotNull(states.find { it.action == ButtonAction.NEXT })) {
-        assertTrue(isVisible)
-      }
+      with(requireNotNull(states.find { it.action == ButtonAction.NEXT })) { assertTrue(isVisible) }
     }
 
   @Test

@@ -67,6 +67,23 @@ class SurveyRepositoryTest : BaseHiltTest() {
   }
 
   @Test
+  fun `subscribeToSurveyUpdates() subscribes in the remote data store`() = runWithTestDispatcher {
+    surveyRepository.subscribeToSurveyUpdates(SURVEY.id)
+
+    assertThat(fakeRemoteDataStore.subscribedSurveyIds.contains(SURVEY.id)).isTrue()
+  }
+
+  @Test
+  fun `unsubscribeFromSurveyUpdates() unsubscribes in the remote data store`() =
+    runWithTestDispatcher {
+      surveyRepository.subscribeToSurveyUpdates(SURVEY.id)
+
+      surveyRepository.unsubscribeFromSurveyUpdates(SURVEY.id)
+
+      assertThat(fakeRemoteDataStore.subscribedSurveyIds.contains(SURVEY.id)).isFalse()
+    }
+
+  @Test
   fun `getRemoteSurvey throws error when loading remote survey times out`() =
     runWithTestDispatcher {
       fakeRemoteDataStore.onLoadSurvey = {

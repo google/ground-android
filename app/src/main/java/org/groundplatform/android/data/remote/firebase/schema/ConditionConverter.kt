@@ -37,7 +37,7 @@ internal object ConditionConverter {
           expressionType = ExpressionType.ANY_OF_SELECTED,
           taskId = multipleChoice.taskId,
           optionIds = multipleChoice.optionIdsList.toSet(),
-          otherSelected = multipleChoice.otherSelected
+          otherSelected = multipleChoice.otherSelected,
         )
       )
     return Condition(MatchType.MATCH_ANY, expressions)

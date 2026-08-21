@@ -25,4 +25,3 @@ fun File?.isEmpty() = this?.listFiles().isNullOrEmpty()
 fun File.deleteIfEmpty() {
   if (isEmpty()) delete()
 }
-

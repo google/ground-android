@@ -165,9 +165,7 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
       .onNodeWithText(fragment.getString(R.string.terms_of_service))
       .assertIsDisplayed()
     composeTestRule
-      .onNodeWithText(
-        fragment.getString(R.string.build, BuildConfig.VERSION_NAME)
-      )
+      .onNodeWithText(fragment.getString(R.string.build, BuildConfig.VERSION_NAME))
       .assertIsDisplayed()
   }
 
@@ -177,9 +175,7 @@ class HomeScreenFragmentTest : AbstractHomeScreenFragmentTest() {
     swipeUpDrawer()
 
     composeTestRule
-      .onNodeWithText(
-        fragment.getString(R.string.build, BuildConfig.VERSION_NAME)
-      )
+      .onNodeWithText(fragment.getString(R.string.build, BuildConfig.VERSION_NAME))
       .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
       .performClick()
 

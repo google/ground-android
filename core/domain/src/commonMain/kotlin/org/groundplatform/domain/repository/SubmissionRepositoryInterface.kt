@@ -35,11 +35,25 @@ interface SubmissionRepositoryInterface {
     collectionId: String,
   )
 
-  suspend fun getDraftSubmission(draftSubmissionId: String, survey: Survey): DraftSubmission?
+  /**
+   * Returns the draft submission of an interrupted data collection session for [survey], whichever
+   * job and LOI it belongs to, or `null` when none is stored or the stored one belongs to a
+   * different survey.
+   */
+  suspend fun getDraftSubmission(survey: Survey): DraftSubmission?
+
+  /**
+   * Returns the draft submission of an interrupted data collection session, but only when it
+   * belongs to the session identified by [survey], [jobId] and [loiId]. Returns `null` when there
+   * is no draft, or the stored one was left by a different session.
+   */
+  suspend fun getDraftSubmissionForSession(
+    survey: Survey,
+    jobId: String,
+    loiId: String?,
+  ): DraftSubmission?
 
   suspend fun countDraftSubmissions(): Int
-
-  fun getDraftSubmissionsId(): String
 
   suspend fun saveDraftSubmission(
     jobId: String,

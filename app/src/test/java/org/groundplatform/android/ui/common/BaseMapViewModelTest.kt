@@ -16,21 +16,38 @@
 package org.groundplatform.android.ui.common
 
 import android.Manifest
+import android.os.Looper
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE
+import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.groundplatform.android.BaseHiltTest
+import org.groundplatform.android.FakeData.AREA_OF_INTEREST
+import org.groundplatform.android.FakeData.JOB
+import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST
+import org.groundplatform.android.FakeData.SURVEY
 import org.groundplatform.android.system.FINE_LOCATION_UPDATES_REQUEST
 import org.groundplatform.android.system.LocationManager
 import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.system.SettingsManager
 import org.groundplatform.android.ui.components.MapFloatingActionButtonType
+import org.groundplatform.android.ui.map.Feature
+import org.groundplatform.android.ui.util.getDefaultColor
+import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.geometry.Point
+import org.groundplatform.domain.model.map.Bounds
+import org.groundplatform.domain.model.map.CameraPosition
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import org.groundplatform.domain.repository.MapStateRepositoryInterface
 import org.groundplatform.domain.repository.OfflineAreaRepositoryInterface
@@ -39,9 +56,11 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
@@ -57,6 +76,8 @@ class BaseMapViewModelTest : BaseHiltTest() {
   @Mock lateinit var locationOfInterestRepository: LocationOfInterestRepositoryInterface
 
   private lateinit var viewModel: BaseMapViewModel
+
+  private val viewport = Bounds(south = -10.0, west = -10.0, north = 10.0, east = 10.0)
 
   @Test
   fun `Should display the correct location icon and hide the recenter button when the location is locked`() =
@@ -159,6 +180,128 @@ class BaseMapViewModelTest : BaseHiltTest() {
     assertEquals(false, viewModel.locationLock.value.getOrNull())
     verify(locationManager).disableLocationUpdates()
   }
+
+  @Test
+  fun `Should show existing features within the viewport on the map`() = runWithTestDispatcher {
+    setupMocks()
+    val areaOfInterest = AREA_OF_INTEREST.copy(id = "loi id 2")
+    whenever(surveyRepository.activeSurveyFlow).thenReturn(MutableStateFlow(SURVEY))
+    whenever(locationOfInterestRepository.getValidLois(SURVEY))
+      .thenReturn(flowOf(setOf(LOCATION_OF_INTEREST, areaOfInterest)))
+
+    viewModel.onMapCameraMoved(CameraPosition(Coordinates(0.0, 0.0), bounds = viewport))
+
+    val features = viewModel.existingLoiFeatures.first { it.isNotEmpty() }
+
+    assertThat(features)
+      .containsExactly(
+        Feature(
+          id = LOCATION_OF_INTEREST.id,
+          type = Feature.Type.LOCATION_OF_INTEREST,
+          geometry = LOCATION_OF_INTEREST.geometry,
+          style = Feature.Style(JOB.getDefaultColor()),
+          clusterable = false,
+          selected = false,
+        ),
+        Feature(
+          id = areaOfInterest.id,
+          type = Feature.Type.LOCATION_OF_INTEREST,
+          geometry = areaOfInterest.geometry,
+          style = Feature.Style(JOB.getDefaultColor()),
+          clusterable = false,
+          selected = false,
+        ),
+      )
+  }
+
+  @Test
+  fun `Should not emit existing features until the viewport is known`() = runWithTestDispatcher {
+    setupMocks()
+    whenever(surveyRepository.activeSurveyFlow).thenReturn(MutableStateFlow(SURVEY))
+    whenever(locationOfInterestRepository.getValidLois(SURVEY))
+      .thenReturn(flowOf(setOf(LOCATION_OF_INTEREST)))
+
+    assertThat(viewModel.existingLoiFeatures.first()).isEmpty()
+  }
+
+  @Test
+  fun `Should filter existing features on camera move without re-querying`() =
+    runWithTestDispatcher {
+      setupMocks()
+      whenever(surveyRepository.activeSurveyFlow).thenReturn(MutableStateFlow(SURVEY))
+      whenever(locationOfInterestRepository.getValidLois(SURVEY))
+        .thenReturn(flowOf(setOf(LOCATION_OF_INTEREST)))
+
+      backgroundScope.launch { viewModel.existingLoiFeatures.collect {} }
+      runCurrent()
+
+      viewModel.onMapCameraMoved(CameraPosition(Coordinates(0.0, 0.0), bounds = viewport))
+      shadowOf(Looper.getMainLooper()).idle()
+      assertThat(viewModel.existingLoiFeatures.value).hasSize(1)
+
+      // Panning away from the only LOI must change what is rendered
+      viewModel.onMapCameraMoved(
+        CameraPosition(
+          coordinates = Coordinates(50.0, 50.0),
+          bounds = Bounds(south = 40.0, west = 40.0, north = 60.0, east = 60.0),
+        )
+      )
+      shadowOf(Looper.getMainLooper()).idle()
+      assertThat(viewModel.existingLoiFeatures.value).isEmpty()
+      verify(locationOfInterestRepository, times(1)).getValidLois(SURVEY)
+    }
+
+  @Test
+  fun `Should render existing features when moving camera`() = runWithTestDispatcher {
+    setupMocks()
+    val lois = MutableStateFlow(setOf(LOCATION_OF_INTEREST))
+    whenever(surveyRepository.activeSurveyFlow).thenReturn(MutableStateFlow(SURVEY))
+    whenever(locationOfInterestRepository.getValidLois(SURVEY)).thenReturn(lois)
+
+    backgroundScope.launch { viewModel.existingLoiFeatures.collect {} }
+    runCurrent()
+
+    viewModel.onMapCameraMoved(CameraPosition(Coordinates(0.0, 0.0), bounds = viewport))
+    shadowOf(Looper.getMainLooper()).idle()
+    assertThat(viewModel.existingLoiFeatures.value).hasSize(1)
+
+    val added = LOCATION_OF_INTEREST.copy(id = "inside", geometry = Point(Coordinates(1.0, 1.0)))
+    val offscreen =
+      LOCATION_OF_INTEREST.copy(id = "outside", geometry = Point(Coordinates(50.0, 50.0)))
+    lois.value = setOf(LOCATION_OF_INTEREST, added, offscreen)
+    shadowOf(Looper.getMainLooper()).idle()
+
+    assertThat(viewModel.existingLoiFeatures.value.map { it.tag.id })
+      .containsExactly(LOCATION_OF_INTEREST.id, added.id)
+  }
+
+  @Test
+  fun `Should re-query and replace existing features when the active survey changes`() =
+    runWithTestDispatcher {
+      setupMocks()
+      val otherSurvey = SURVEY.copy(id = "survey id 2")
+      val otherLoi = LOCATION_OF_INTEREST.copy(id = "loi id 2")
+      val activeSurvey = MutableStateFlow<Survey?>(SURVEY)
+      whenever(surveyRepository.activeSurveyFlow).thenReturn(activeSurvey)
+      whenever(locationOfInterestRepository.getValidLois(SURVEY))
+        .thenReturn(flowOf(setOf(LOCATION_OF_INTEREST)))
+      whenever(locationOfInterestRepository.getValidLois(otherSurvey))
+        .thenReturn(flowOf(setOf(otherLoi)))
+
+      backgroundScope.launch { viewModel.existingLoiFeatures.collect {} }
+      runCurrent()
+
+      viewModel.onMapCameraMoved(CameraPosition(Coordinates(0.0, 0.0), bounds = viewport))
+      shadowOf(Looper.getMainLooper()).idle()
+      assertThat(viewModel.existingLoiFeatures.value.map { it.tag.id })
+        .containsExactly(LOCATION_OF_INTEREST.id)
+
+      activeSurvey.value = otherSurvey
+      shadowOf(Looper.getMainLooper()).idle()
+
+      verify(locationOfInterestRepository).getValidLois(otherSurvey)
+      assertThat(viewModel.existingLoiFeatures.value.map { it.tag.id }).containsExactly(otherLoi.id)
+    }
 
   private fun setupMocks(
     isLocationLocked: Boolean = false,

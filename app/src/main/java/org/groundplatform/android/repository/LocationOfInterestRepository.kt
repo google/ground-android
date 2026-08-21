@@ -17,9 +17,6 @@ package org.groundplatform.android.repository
 
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.firstOrNull
@@ -62,23 +59,20 @@ constructor(
   private val uuidGenerator: OfflineUuidGenerator,
   private val authenticationManager: AuthenticationManager,
 ) : LocationOfInterestRepositoryInterface {
-  override suspend fun syncLocationsOfInterest(survey: Survey) = coroutineScope {
+  override suspend fun syncLocationsOfInterest(survey: Survey) {
     val ownerUserId = authenticationManager.getAuthenticatedUser().id
 
-    val predefinedDeferred = async { remoteDataStore.loadPredefinedLois(survey) }
-    val userDeferred = async { remoteDataStore.loadUserLois(survey, ownerUserId) }
-    val sharedDeferred = async {
+    // Single-page buffering. Persist immediately to avoid OOM on geometry-heavy surveys.
+    val syncedLoiIds = mutableSetOf<String>()
+    syncedLoiIds += savePages(remoteDataStore.loadPredefinedLois(survey))
+    // Shared LOIs are visible to all survey participants, so a user's own LOIs are already
+    // included.
+    syncedLoiIds +=
       if (survey.dataVisibility == Survey.DataVisibility.ALL_SURVEY_PARTICIPANTS) {
-        remoteDataStore.loadSharedLois(survey)
+        savePages(remoteDataStore.loadSharedLois(survey))
       } else {
-        emptyList()
+        savePages(remoteDataStore.loadUserLois(survey, ownerUserId))
       }
-    }
-
-    val (predefinedLois, userLois, sharedLois) =
-      awaitAll(predefinedDeferred, userDeferred, sharedDeferred)
-
-    val allLois = predefinedLois + userLois + sharedLois
 
     val mutations = localLoiStore.getAllSurveyMutations(survey).firstOrNull().orEmpty()
 
@@ -91,27 +85,18 @@ constructor(
         .map { it.locationOfInterestId }
         .toList()
 
-    mergeAll(survey.id, allLois, pendingLois)
-  }
-
-  private suspend fun mergeAll(
-    surveyId: String,
-    lois: List<LocationOfInterest>,
-    pendingLois: List<String>,
-  ) {
-    localLoiStore.insertOrUpdateAll(lois.onEach { validateGeometry(it) })
     // Delete LOIs in local db not returned in latest list from server, skipping pending mutations.
-    localLoiStore.deleteNotIn(surveyId, lois.map { it.id } + pendingLois)
+    localLoiStore.deleteNotIn(survey.id, syncedLoiIds.toList() + pendingLois)
   }
 
-  /**
-   * Throws IllegalArgumentException if the LOI's geometry has empty coordinates, which would
-   * otherwise be persisted and later fail to render.
-   */
-  private fun validateGeometry(loi: LocationOfInterest) {
-    require(!loi.geometry.isEmpty()) {
-      "Attempted to save LOI ${loi.id} with empty geometry. LOI: $loi"
+  /** Saves each page of [pages] as it arrives, returning the ids of every LOI saved. */
+  private suspend fun savePages(pages: Flow<List<LocationOfInterest>>): Set<String> {
+    val savedIds = mutableSetOf<String>()
+    pages.collect { page ->
+      localLoiStore.insertOrUpdateAll(page)
+      savedIds += page.map { it.id }
     }
+    return savedIds
   }
 
   override suspend fun getOfflineLoi(surveyId: String, loiId: String): LocationOfInterest? {
