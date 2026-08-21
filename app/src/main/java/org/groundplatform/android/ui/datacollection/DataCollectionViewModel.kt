@@ -23,12 +23,9 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -478,11 +475,6 @@ internal constructor(
       onValid()
     }
   }
-
-  fun isCurrentActiveTaskFlow(taskId: String): Flow<Boolean> =
-    uiState
-      .map { (it as? DataCollectionUiState.Ready)?.currentTaskId == taskId }
-      .distinctUntilChanged()
 
   private fun DataCollectionUiState.Ready.withTask(taskId: String): DataCollectionUiState.Ready {
     savedStateHandle[TASK_POSITION_ID] = taskId

@@ -18,6 +18,7 @@ package org.groundplatform.android.data.remote
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.SurveyListItem
@@ -26,6 +27,7 @@ import org.groundplatform.domain.model.User
 import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
 import org.groundplatform.domain.model.mutation.Mutation
 import org.groundplatform.domain.model.toListItem
+import org.groundplatform.testing.FakeCall
 
 @Singleton
 class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
@@ -51,6 +53,9 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
   var applyMutationError: Error? = null
 
   val subscribedSurveyIds = mutableSetOf<String>()
+  val loadUserLoisCall = FakeCall<Survey, List<LocationOfInterest>> { userLois }
+
+  val loadSharedLoisCall = FakeCall<Survey, List<LocationOfInterest>> { sharedLois }
 
   override fun getRestrictedSurveyList(user: User): Flow<List<SurveyListItem>> =
     flowOf(surveys.map { it.toListItem(false) })
@@ -84,7 +89,11 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
   }
 
   override fun loadUserLois(survey: Survey, ownerUserId: String): Flow<List<LocationOfInterest>> =
-    flowOf(userLois)
+    flow {
+      emit(loadUserLoisCall(survey))
+    }
 
-  override fun loadSharedLois(survey: Survey): Flow<List<LocationOfInterest>> = flowOf(sharedLois)
+  override fun loadSharedLois(survey: Survey): Flow<List<LocationOfInterest>> = flow {
+    emit(loadSharedLoisCall(survey))
+  }
 }
