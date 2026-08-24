@@ -192,9 +192,6 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
               cardUiData.loi.id,
               cardUiData.loi.properties[LOI_NAME_PROPERTY] as? String?,
               cardUiData.loi.job.id,
-              false,
-              null,
-              "",
             )
           )
       is AdHocDataCollectionButtonData ->
@@ -204,9 +201,6 @@ class HomeScreenMapContainerFragment : AbstractMapContainerFragment() {
               null,
               null,
               cardUiData.job.id,
-              false,
-              null,
-              "",
             )
           )
     }

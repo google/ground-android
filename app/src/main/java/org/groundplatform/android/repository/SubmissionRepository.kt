@@ -70,15 +70,26 @@ constructor(
     } ?: run { Timber.w("Job not found for survey $surveyId and LOI $locationOfInterestId") }
   }
 
-  override suspend fun getDraftSubmission(
-    draftSubmissionId: String,
+  override suspend fun getDraftSubmission(survey: Survey): DraftSubmission? {
+    val draftId = localValueStore.draftSubmissionId
+    val draft =
+      if (draftId.isNullOrEmpty()) null
+      else localSubmissionStore.getDraftSubmission(draftSubmissionId = draftId, survey = survey)
+    if (draft != null && draft.surveyId != survey.id) {
+      Timber.e("Skipping draft submission, survey id doesn't match")
+      return null
+    }
+    return draft
+  }
+
+  override suspend fun getDraftSubmissionForSession(
     survey: Survey,
+    jobId: String,
+    loiId: String?,
   ): DraftSubmission? =
-    localSubmissionStore.getDraftSubmission(draftSubmissionId = draftSubmissionId, survey = survey)
+    getDraftSubmission(survey)?.takeIf { it.jobId == jobId && it.loiId == loiId }
 
   override suspend fun countDraftSubmissions() = localSubmissionStore.countDraftSubmissions()
-
-  override fun getDraftSubmissionsId() = localValueStore.draftSubmissionId ?: ""
 
   override suspend fun saveDraftSubmission(
     jobId: String,

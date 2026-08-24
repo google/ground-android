@@ -54,7 +54,6 @@ class LoiConverterTest {
   @Mock private lateinit var loiDocumentSnapshot: DocumentSnapshot
 
   private lateinit var survey: Survey
-  private lateinit var noVerticesGeometry: MutableMap<String, Any>
 
   private var testLoiProto = locationOfInterest {
     id = LOI_ID
@@ -87,6 +86,8 @@ class LoiConverterTest {
     source = Source.IMPORTED
     properties.put("property1", property { stringValue = "value1" })
     properties.put("property2", property { numericValue = 123.0 })
+    properties.put("name", property { stringValue = "a plot" })
+    properties.put("id", property { stringValue = "plot-7" })
   }
 
   @Test
@@ -113,7 +114,7 @@ class LoiConverterTest {
         lastModified = AuditInfo(user = USER, 987654321L * 1000, 9876543210L * 1000),
         geometry = Point(coordinates = Coordinates(1.0, 2.0)),
         submissionCount = 1,
-        properties = mapOf("property1" to "value1", "property2" to 123.0),
+        properties = mapOf("name" to "a plot", "id" to "plot-7"),
         isPredefined = true,
       ),
       toLocationOfInterest(),
@@ -122,7 +123,6 @@ class LoiConverterTest {
 
   @Test
   fun `fails when converting null location of interest`() {
-    setUpTestGeometry()
     setUpTestSurvey(
       JOB_ID,
       newTask("task1"),
@@ -139,7 +139,6 @@ class LoiConverterTest {
 
   @Test
   fun `fails when converting location of interest with zero indices`() {
-    setUpTestGeometry()
     setUpTestSurvey(
       JOB_ID,
       newTask("task1"),
@@ -158,11 +157,6 @@ class LoiConverterTest {
     val taskMap = tasks.associateBy { it.id }
     val job = Job(jobId, TEST_STYLE, "JOB_NAME", taskMap)
     survey = Survey("", "", "", mapOf(Pair(job.id, job)), generalAccess = FAKE_GENERAL_ACCESS)
-  }
-
-  private fun setUpTestGeometry() {
-    noVerticesGeometry = HashMap()
-    noVerticesGeometry[LoiConverter.GEOMETRY_TYPE] = LoiConverter.POLYGON_TYPE
   }
 
   /** Mock submission document snapshot to return the specified id and proto representation. */

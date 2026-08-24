@@ -21,6 +21,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import org.groundplatform.domain.repository.MapStateRepositoryInterface
+import org.groundplatform.domain.repository.OfflineAreaRepositoryInterface
 import org.groundplatform.domain.repository.SubmissionRepositoryInterface
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
@@ -29,6 +30,7 @@ import org.groundplatform.domain.usecases.submission.SubmitDataUseCase
 import org.groundplatform.domain.usecases.survey.GetSurveyListItemUseCase
 import org.groundplatform.domain.usecases.survey.RemoveOfflineSurveyUseCase
 import org.groundplatform.domain.usecases.survey.SyncSurveyUseCase
+import org.groundplatform.domain.usecases.user.ClearUserSessionUseCase
 import org.groundplatform.domain.usecases.user.GetUserSettingsUseCase
 import org.groundplatform.domain.usecases.user.UpdateUserSettingsUseCase
 import org.groundplatform.ui.util.DateFormatter
@@ -75,6 +77,13 @@ object UseCaseModule {
   @Provides
   fun providesGetSurveyListItemUseCase(surveyRepository: SurveyRepositoryInterface) =
     GetSurveyListItemUseCase(surveyRepository)
+
+  @Provides
+  fun providesClearUserSessionUseCase(
+    offlineAreaRepository: OfflineAreaRepositoryInterface,
+    surveyRepository: SurveyRepositoryInterface,
+    userRepository: UserRepositoryInterface,
+  ) = ClearUserSessionUseCase(offlineAreaRepository, surveyRepository, userRepository)
 
   @Provides
   fun providesRemoveOfflineSurveyUseCase(
