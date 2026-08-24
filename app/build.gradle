@@ -295,7 +295,11 @@ dependencies {
     testImplementation libs.androidx.work.testing
 
     // OSS Licenses Plugin
-    implementation libs.play.services.oss.licenses
+    implementation(libs.play.services.oss.licenses) {
+        // We use only the View-based OSS Licenses UI. Exclude the Compose UI's alpha material3 to
+        // avoid conflicts with the compose BOM.
+        exclude group: 'androidx.compose.material3'
+    }
 
     // Markdown Parser
     implementation libs.markdown
