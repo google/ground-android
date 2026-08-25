@@ -29,8 +29,8 @@ def main():
     print("🚧 Starting Pre-Push Checks...")
     
     # 1. Verify (Tests)
-    print("\n1️⃣  Running Unit Tests...")
-    run_command("./gradlew :app:testLocalDebugUnitTest")
+    print("\n1️⃣  Running Unit Tests across all modules...")
+    run_command("./gradlew testLocalDebugUnitTest jvmTest testAndroidHostTest")
     
     # 2. Check Code (Lint/Analysis)
     print("\n2️⃣  Running Code Checks...")

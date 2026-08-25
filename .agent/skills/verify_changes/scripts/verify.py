@@ -26,8 +26,8 @@ def run_command(command):
         sys.exit(1)
 
 def main():
-    print("🧪 Running local unit tests...")
-    run_command("./gradlew :app:testLocalDebugUnitTest")
+    print("🧪 Running local unit tests across all modules...")
+    run_command("./gradlew testLocalDebugUnitTest jvmTest testAndroidHostTest")
     print("\n✅ Verified.")
 
 if __name__ == "__main__":
