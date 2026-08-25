@@ -22,12 +22,12 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import org.groundplatform.android.FakeData
 import org.groundplatform.android.FlakyTest
 import org.groundplatform.android.FlakyTestRule
-import org.groundplatform.android.model.submission.TaskData
-import org.groundplatform.android.model.submission.TextTaskData
-import org.groundplatform.android.model.task.Task
+import org.groundplatform.domain.model.submission.TaskData
+import org.groundplatform.domain.model.submission.TextTaskData
+import org.groundplatform.domain.model.task.Task
+import org.groundplatform.testing.FakeDataGenerator
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -49,6 +49,22 @@ class TaskDataHandlerTest {
     val dataState = handler.dataState.first()
     assertThat(dataState).hasSize(1)
     assertThat(dataState[task]).isEqualTo(taskData)
+  }
+
+  @Test
+  fun `setData with map updates dataState correctly`() = runTest {
+    val handler = TaskDataHandler()
+    val task1 = createTask("task1")
+    val taskData1 = createTaskData("data1")
+    val task2 = createTask("task2")
+    val taskData2 = createTaskData("data2")
+
+    handler.setData(mapOf(task1 to taskData1, task2 to taskData2))
+
+    val dataState = handler.dataState.first()
+    assertThat(dataState).hasSize(2)
+    assertThat(dataState[task1]).isEqualTo(taskData1)
+    assertThat(dataState[task2]).isEqualTo(taskData2)
   }
 
   @OptIn(ExperimentalCoroutinesApi::class)
@@ -205,7 +221,7 @@ class TaskDataHandlerTest {
   }
 
   private fun createTask(taskId: String): Task =
-    FakeData.newTask(id = taskId, type = Task.Type.TEXT)
+    FakeDataGenerator.newTask(id = taskId, type = Task.Type.TEXT)
 
   private fun createTaskData(value: String): TextTaskData = TextTaskData(value)
 }

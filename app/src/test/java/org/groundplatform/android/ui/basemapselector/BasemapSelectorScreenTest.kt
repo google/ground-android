@@ -19,6 +19,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.isToggleable
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.google.common.truth.Truth.assertThat
@@ -26,9 +27,10 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.groundplatform.android.BaseHiltTest
-import org.groundplatform.android.model.map.MapType
-import org.groundplatform.android.repository.MapStateRepository
+import org.groundplatform.domain.model.map.MapType
+import org.groundplatform.domain.repository.MapStateRepositoryInterface
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -40,7 +42,9 @@ import org.robolectric.annotation.Config
 @Config(qualifiers = "w600dp-h1024dp")
 class BasemapSelectorScreenTest : BaseHiltTest() {
 
-  @Inject lateinit var mapStateRepository: MapStateRepository
+  @get:Rule val composeTestRule = createComposeRule()
+
+  @Inject lateinit var mapStateRepository: MapStateRepositoryInterface
 
   private lateinit var viewModel: BasemapSelectorViewModel
   private var isDismissed = false

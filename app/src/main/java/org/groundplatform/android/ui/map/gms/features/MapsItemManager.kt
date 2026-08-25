@@ -22,11 +22,12 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.Polygon as MapsPolygon
 import com.google.android.gms.maps.model.Polyline
 import com.google.maps.android.PolyUtil.containsLocation
-import org.groundplatform.android.model.geometry.LineString
-import org.groundplatform.android.model.geometry.MultiPolygon
-import org.groundplatform.android.model.geometry.Point
-import org.groundplatform.android.model.geometry.Polygon
 import org.groundplatform.android.ui.map.Feature
+import org.groundplatform.domain.model.geometry.LineString
+import org.groundplatform.domain.model.geometry.MultiPolygon
+import org.groundplatform.domain.model.geometry.Point
+import org.groundplatform.domain.model.geometry.Polygon
+import timber.log.Timber
 
 /** Manages [Feature]s displayed on the map as Maps SDK items (marker, polyline, etc). */
 class MapsItemManager(
@@ -60,6 +61,9 @@ class MapsItemManager(
         }
     }
 
+  /** Returns whether map items are currently allocated for the specified feature's tag. */
+  fun contains(tag: Feature.Tag): Boolean = itemsByTag.containsKey(tag)
+
   /** Removes map items associated with the specified feature's tag. */
   fun remove(tag: Feature.Tag) =
     itemsByTag.remove(tag)?.forEach {
@@ -71,14 +75,20 @@ class MapsItemManager(
       }
     }
 
-  /** Updates an already-rendered feature with new geometry and style. */
-  fun update(feature: Feature) =
+  /**
+   * Updates an already-rendered feature with new geometry and style. Logs an error and returns
+   * false if the item can't be updated.
+   */
+  fun update(feature: Feature): Boolean =
     with(feature) {
-      itemsByTag[feature.tag]?.forEach {
-        if (it is Polyline) {
-          lineStringRenderer.update(map, it, geometry as LineString, tooltipText)
+      val items = itemsByTag[tag] ?: return false
+      items.all { item ->
+        if (item is Polyline) {
+          lineStringRenderer.update(map, item, geometry as LineString, tooltipText)
+          true
         } else {
-          error("Unsupported map feature: ${it::class.java}")
+          Timber.e("Unsupported map feature: ${item::class.java}")
+          false
         }
       }
     }

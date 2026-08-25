@@ -1,0 +1,87 @@
+/*
+ * Copyright 2026 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.groundplatform.testing
+
+import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
+import org.groundplatform.domain.model.submission.DraftSubmission
+import org.groundplatform.domain.model.submission.Submission
+import org.groundplatform.domain.model.submission.ValueDelta
+import org.groundplatform.domain.repository.SubmissionRepositoryInterface
+
+class FakeSubmissionRepository : SubmissionRepositoryInterface {
+  var draftSubmission: DraftSubmission? = null
+  var pendingCreateCount: Int = 0
+  var pendingDeleteCount: Int = 0
+  var submissions: List<Submission> = emptyList()
+  var onSaveSubmissionCall = FakeCall<SaveSubmissionParams, Unit> {}
+
+  override suspend fun saveSubmission(
+    surveyId: String,
+    locationOfInterestId: String,
+    deltas: List<ValueDelta>,
+    collectionId: String,
+  ) {
+    onSaveSubmissionCall(SaveSubmissionParams(surveyId, locationOfInterestId, deltas, collectionId))
+  }
+
+  override suspend fun getDraftSubmission(survey: Survey): DraftSubmission? = draftSubmission
+
+  override suspend fun getDraftSubmissionForSession(
+    survey: Survey,
+    jobId: String,
+    loiId: String?,
+  ): DraftSubmission? = draftSubmission
+
+  override suspend fun countDraftSubmissions(): Int = if (draftSubmission == null) 0 else 1
+
+  override suspend fun saveDraftSubmission(
+    jobId: String,
+    loiId: String?,
+    surveyId: String,
+    deltas: List<ValueDelta>,
+    loiName: String?,
+    currentTaskId: String,
+  ) {
+    draftSubmission =
+      FakeDataGenerator.newDraftSubmission(
+        jobId = jobId,
+        loiId = loiId,
+        surveyId = surveyId,
+        deltas = deltas,
+        loiName = loiName,
+        currentTaskId = currentTaskId,
+      )
+  }
+
+  override suspend fun deleteDraftSubmission() {
+    draftSubmission = null
+  }
+
+  override suspend fun getTotalSubmissionCount(loi: LocationOfInterest): Int =
+    loi.submissionCount + getPendingCreateCount(loi.id) - pendingDeleteCount
+
+  override suspend fun getPendingCreateCount(loiId: String): Int = pendingCreateCount
+
+  override suspend fun getSubmissions(loi: LocationOfInterest): List<Submission> = submissions
+
+  data class SaveSubmissionParams(
+    val surveyId: String,
+    val loiId: String,
+    val deltas: List<ValueDelta>,
+    val collectionId: String,
+  )
+}

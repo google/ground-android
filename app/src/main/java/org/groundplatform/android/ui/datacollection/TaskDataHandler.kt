@@ -18,9 +18,9 @@ package org.groundplatform.android.ui.datacollection
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import org.groundplatform.android.model.submission.TaskData
-import org.groundplatform.android.model.task.Task
-import org.groundplatform.android.model.task.TaskSelections
+import org.groundplatform.domain.model.submission.TaskData
+import org.groundplatform.domain.model.task.Task
+import org.groundplatform.domain.model.task.TaskSelections
 
 /**
  * Manages the state of [TaskData] associated with [Task] instances.
@@ -46,6 +46,20 @@ class TaskDataHandler {
     if (getData(task) == newValue) return
     // Ensure that the map is recreated to ensure that the state flow is emitted.
     _dataState.value = LinkedHashMap(_dataState.value).apply { this[task] = newValue }
+  }
+
+  /**
+   * Sets the [TaskData] for multiple [Task]s in a single transaction.
+   *
+   * Recreates the map and emits a state update exactly once.
+   *
+   * @param values A map of [Task] to [TaskData] to be updated.
+   */
+  fun setData(values: Map<Task, TaskData?>) {
+    val filteredValues = values.filter { (task, newValue) -> getData(task) != newValue }
+    if (filteredValues.isEmpty()) return
+    // Ensure that the map is recreated to ensure that the state flow is emitted.
+    _dataState.value = LinkedHashMap(_dataState.value).apply { putAll(filteredValues) }
   }
 
   /**

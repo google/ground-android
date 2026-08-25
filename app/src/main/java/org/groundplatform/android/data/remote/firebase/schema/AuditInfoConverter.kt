@@ -16,26 +16,25 @@
 
 package org.groundplatform.android.data.remote.firebase.schema
 
-import java.util.Date
-import org.groundplatform.android.model.AuditInfo
-import org.groundplatform.android.model.User
 import org.groundplatform.android.proto.AuditInfo as AuditInfoProto
+import org.groundplatform.domain.model.User
+import org.groundplatform.domain.model.locationofinterest.AuditInfo
 
 /** Converts between Firestore nested objects and [AuditInfo] instances. */
 internal object AuditInfoConverter {
 
   private fun com.google.protobuf.Timestamp.isZero() = this.seconds == 0L
 
-  private fun com.google.protobuf.Timestamp.toDate() = Date(this.seconds * 1000)
+  private fun com.google.protobuf.Timestamp.toLong() = this.seconds * 1000
 
   fun toAuditInfo(info: AuditInfoProto): AuditInfo =
     AuditInfo(
       User(info.userId, "", info.displayName, info.photoUrl.ifEmpty { null }),
-      info.clientTimestamp.toDate(),
+      info.clientTimestamp.toLong(),
       if (info.serverTimestamp.isZero()) {
         null
       } else {
-        info.serverTimestamp.toDate()
+        info.serverTimestamp.toLong()
       },
     )
 }

@@ -18,8 +18,11 @@ package org.groundplatform.android.model.task
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
-import org.groundplatform.android.model.submission.MultipleChoiceTaskData
-import org.groundplatform.android.model.submission.TaskData
+import org.groundplatform.domain.model.submission.MultipleChoiceTaskData
+import org.groundplatform.domain.model.submission.TaskData
+import org.groundplatform.domain.model.task.Condition
+import org.groundplatform.domain.model.task.Expression
+import org.groundplatform.domain.model.task.TaskSelections
 import org.junit.Test
 
 typealias ExpressionTestCase = List<Pair<Boolean, Pair<String, TaskData>>>
@@ -50,6 +53,9 @@ val Task_B_EXPRESSION =
 
 fun makeValue(vararg selectedOptions: String) =
   MultipleChoiceTaskData(multipleChoice = null, selectedOptionIds = selectedOptions.toList())
+
+fun otherText(text: String = "free text") =
+  MultipleChoiceTaskData.OTHER_PREFIX + text + MultipleChoiceTaskData.OTHER_SUFFIX
 
 class ConditionTest {
   @Test
@@ -186,6 +192,71 @@ class ConditionTest {
         false to (TASK_A_ID to makeValue(TASK_A_OPTION_X, TASK_A_OPTION_Y)),
         false to (TASK_A_ID to makeValue(TASK_A_OPTION_Z)),
         false to (TASK_B_ID to makeValue(TASK_A_OPTION_X)),
+      )
+      .test(expression)
+  }
+
+  @Test
+  fun `ANY_OF_SELECTED without otherSelected condition ignores an Other selection`() {
+    val expression =
+      Expression(
+        expressionType = Expression.ExpressionType.ANY_OF_SELECTED,
+        taskId = TASK_A_ID,
+        optionIds = setOf(TASK_A_OPTION_X),
+      )
+    listOf(
+        true to (TASK_A_ID to makeValue(TASK_A_OPTION_X)),
+        false to (TASK_A_ID to makeValue(otherText())),
+      )
+      .test(expression)
+  }
+
+  @Test
+  fun `ANY_OF_SELECTED with otherSelected condition passes on Other or a listed option`() {
+    val expression =
+      Expression(
+        expressionType = Expression.ExpressionType.ANY_OF_SELECTED,
+        taskId = TASK_A_ID,
+        optionIds = setOf(TASK_A_OPTION_X),
+        otherSelected = true,
+      )
+    listOf(
+        true to (TASK_A_ID to makeValue(otherText())),
+        true to (TASK_A_ID to makeValue(TASK_A_OPTION_X)),
+        true to (TASK_A_ID to makeValue(TASK_A_OPTION_X, otherText())),
+        false to (TASK_A_ID to makeValue(TASK_A_OPTION_Y)),
+      )
+      .test(expression)
+  }
+
+  @Test
+  fun `ANY_OF_SELECTED with only otherSelected condition passes when Other is selected`() {
+    val expression =
+      Expression(
+        expressionType = Expression.ExpressionType.ANY_OF_SELECTED,
+        taskId = TASK_A_ID,
+        otherSelected = true,
+      )
+    listOf(
+        true to (TASK_A_ID to makeValue(otherText())),
+        false to (TASK_A_ID to makeValue(TASK_A_OPTION_X)),
+      )
+      .test(expression)
+  }
+
+  @Test
+  fun `ALL_OF_SELECTED with otherSelected condition requires Other to be selected`() {
+    val expression =
+      Expression(
+        expressionType = Expression.ExpressionType.ALL_OF_SELECTED,
+        taskId = TASK_A_ID,
+        optionIds = setOf(TASK_A_OPTION_X),
+        otherSelected = true,
+      )
+    listOf(
+        true to (TASK_A_ID to makeValue(TASK_A_OPTION_X, otherText())),
+        false to (TASK_A_ID to makeValue(TASK_A_OPTION_X)),
+        false to (TASK_A_ID to makeValue(otherText())),
       )
       .test(expression)
   }

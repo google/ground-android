@@ -1,0 +1,189 @@
+/*
+ * Copyright 2026 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.groundplatform.android.ui.datacollection.tasks.time
+
+import android.text.format.DateFormat
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerDialog
+import androidx.compose.material3.rememberTimePickerState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import org.groundplatform.android.R
+import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
+import org.groundplatform.android.ui.datacollection.TaskPosition
+import org.groundplatform.android.ui.datacollection.components.TaskHeader
+import org.groundplatform.android.ui.datacollection.tasks.TaskScreen
+import org.groundplatform.domain.model.submission.DateTimeTaskData
+import org.groundplatform.ui.theme.AppTheme
+import org.groundplatform.ui.theme.sizes
+
+const val TIME_PICKER_TEST_TAG: String = "time picker test tag"
+
+@Composable
+fun TimeTaskScreen(viewModel: TimeTaskViewModel, taskPosition: TaskPosition? = null) {
+  val taskActionButtonsStates by viewModel.taskActionButtonStates.collectAsStateWithLifecycle()
+  val taskData by viewModel.taskTaskData.collectAsStateWithLifecycle()
+
+  TaskScreen(
+    taskHeader =
+      TaskHeader(label = viewModel.task.label, iconResId = R.drawable.ic_question_answer),
+    taskPosition = taskPosition,
+    taskActionButtonsStates = taskActionButtonsStates,
+    onButtonClicked = { viewModel.onButtonClick(it) },
+    taskBody = {
+      TimeTaskContent(
+        taskData as? DateTimeTaskData,
+        onTimeSelected = { viewModel.updateResponse(it) },
+        onResponseCleared = { viewModel.clearResponse() },
+      )
+    },
+  )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun TimeTaskContent(
+  taskData: DateTimeTaskData?,
+  onTimeSelected: (Long) -> Unit,
+  onResponseCleared: () -> Unit,
+) {
+  val context = LocalContext.current
+  var showDialog by rememberSaveable { mutableStateOf(false) }
+
+  val timeText =
+    remember(taskData) {
+      taskData?.let { DateFormat.getTimeFormat(context).format(Date(it.timeInMillis)) } ?: ""
+    }
+
+  val hintText = remember {
+    (DateFormat.getTimeFormat(context) as? SimpleDateFormat)?.toPattern()?.uppercase()
+      ?: "HH:MM AM/PM"
+  }
+
+  TimeTaskField(
+    modifier = Modifier.padding(horizontal = MaterialTheme.sizes.taskViewPadding),
+    timeText = timeText,
+    hintText = hintText,
+    onTimeClick = { showDialog = true },
+  )
+
+  if (showDialog) {
+    TimeSelectionDialog(
+      initialTime = taskData?.timeInMillis ?: System.currentTimeMillis(),
+      onTimeSelected = onTimeSelected,
+      onClear = {
+        onResponseCleared()
+        showDialog = false
+      },
+      onDismiss = { showDialog = false },
+    )
+  }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TimeSelectionDialog(
+  initialTime: Long?,
+  onTimeSelected: (Long) -> Unit,
+  onClear: () -> Unit,
+  onDismiss: () -> Unit,
+) {
+  val calendar = Calendar.getInstance()
+  if (initialTime != null) {
+    calendar.timeInMillis = initialTime
+  }
+
+  val timePickerState =
+    rememberTimePickerState(
+      initialHour = calendar.get(Calendar.HOUR_OF_DAY),
+      initialMinute = calendar.get(Calendar.MINUTE),
+      is24Hour = DateFormat.is24HourFormat(LocalContext.current),
+    )
+
+  TimePickerDialog(
+    modifier = Modifier.testTag(TIME_PICKER_TEST_TAG),
+    onDismissRequest = onDismiss,
+    confirmButton = {
+      TextButton(
+        onClick = {
+          val c = Calendar.getInstance()
+          c.set(Calendar.HOUR_OF_DAY, timePickerState.hour)
+          c.set(Calendar.MINUTE, timePickerState.minute)
+          onTimeSelected(c.time.time)
+          onDismiss()
+        }
+      ) {
+        Text(stringResource(android.R.string.ok))
+      }
+    },
+    dismissButton = { TextButton(onClick = onClear) { Text(stringResource(R.string.clear)) } },
+    title = {},
+  ) {
+    TimePicker(state = timePickerState)
+  }
+}
+
+@Preview(showBackground = true)
+@Composable
+@ExcludeFromJacocoGeneratedReport
+private fun TimeTaskContentFilledPreview() {
+  AppTheme {
+    TimeTaskContent(
+      taskData = DateTimeTaskData(timeInMillis = 1711929600000L),
+      onTimeSelected = {},
+      onResponseCleared = {},
+    )
+  }
+}
+
+@Preview(showBackground = true)
+@Composable
+@ExcludeFromJacocoGeneratedReport
+private fun TimeTaskContentEmptyPreview() {
+  AppTheme { TimeTaskContent(taskData = null, onTimeSelected = {}, onResponseCleared = {}) }
+}
+
+@Preview(showBackground = true)
+@Composable
+@ExcludeFromJacocoGeneratedReport
+private fun TimeSelectionDialogPreview() {
+  AppTheme {
+    TimeSelectionDialog(
+      initialTime = System.currentTimeMillis(),
+      onTimeSelected = {},
+      onClear = {},
+      onDismiss = {},
+    )
+  }
+}

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright 2025 Google LLC
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources>
+  <string name="share">Chia sẻ</string>
+  <string name="pdf_details_site">Địa điểm: %1$s</string>
+  <string name="pdf_details_data_collector">Người thu thập dữ liệu: %1$s</string>
+  <string name="scan_this_qr_to_download_geojson">Quét mã QR này để xem GeoJSON</string>
+  <string name="other">Khác</string>
+  <string name="skipped">Bỏ qua</string>
+  <string name="pdf_altitude">Độ cao: %1$sm</string>
+  <string name="pdf_accuracy">Độ chính xác: %1$sm</string>
+  <string name="north">Bắc</string>
+  <string name="south">Nam</string>
+  <string name="east">Đông</string>
+  <string name="west">Tây</string>
+  <string name="submission">bài gửi</string>
+  <string name="survey">Khảo sát</string>
+  <string name="job">Công việc</string>
+  <string name="pdf_data_collector">Người thu thập dữ liệu</string>
+  <string name="retry">Thử lại</string>
+  <string name="area">Diện tích</string>
+  <string name="date">Ngày</string>
+</resources>

@@ -18,18 +18,27 @@ package org.groundplatform.android.data.remote
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import org.groundplatform.android.model.Survey
-import org.groundplatform.android.model.SurveyListItem
-import org.groundplatform.android.model.TermsOfService
-import org.groundplatform.android.model.User
-import org.groundplatform.android.model.locationofinterest.LocationOfInterest
-import org.groundplatform.android.model.mutation.Mutation
-import org.groundplatform.android.model.toListItem
+import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.SurveyListItem
+import org.groundplatform.domain.model.TermsOfService
+import org.groundplatform.domain.model.User
+import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
+import org.groundplatform.domain.model.mutation.Mutation
+import org.groundplatform.domain.model.toListItem
+import org.groundplatform.testing.FakeCall
 
 @Singleton
 class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
   var predefinedLois = emptyList<LocationOfInterest>()
+  /**
+   * Pages of predefined LOIs, taking precedence over [predefinedLois] when set.
+   *
+   * Lets a test drive a sync over several pages, or fail one part way through, which
+   * [predefinedLois] cannot express since it always stands for exactly one page.
+   */
+  var predefinedLoiPages: Flow<List<LocationOfInterest>>? = null
   var userLois = emptyList<LocationOfInterest>()
   var sharedLois = emptyList<LocationOfInterest>()
   var surveys = emptyList<Survey>()
@@ -43,7 +52,10 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
   var termsOfService: Result<TermsOfService?>? = null
   var applyMutationError: Error? = null
 
-  private val subscribedSurveyIds = mutableSetOf<String>()
+  val subscribedSurveyIds = mutableSetOf<String>()
+  val loadUserLoisCall = FakeCall<Survey, List<LocationOfInterest>> { userLois }
+
+  val loadSharedLoisCall = FakeCall<Survey, List<LocationOfInterest>> { sharedLois }
 
   override fun getRestrictedSurveyList(user: User): Flow<List<SurveyListItem>> =
     flowOf(surveys.map { it.toListItem(false) })
@@ -55,7 +67,8 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
 
   override suspend fun loadTermsOfService(): TermsOfService? = termsOfService?.getOrThrow()
 
-  override suspend fun loadPredefinedLois(survey: Survey) = predefinedLois
+  override fun loadPredefinedLois(survey: Survey): Flow<List<LocationOfInterest>> =
+    predefinedLoiPages ?: flowOf(predefinedLois)
 
   override suspend fun applyMutations(mutations: List<Mutation>, user: User) {
     if (applyMutationError != null) {
@@ -67,16 +80,20 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
     subscribedSurveyIds.add(surveyId)
   }
 
+  override suspend fun unsubscribeFromSurveyUpdates(surveyId: String) {
+    subscribedSurveyIds.remove(surveyId)
+  }
+
   override suspend fun refreshUserProfile() {
     userProfileRefreshCount++
   }
 
-  override suspend fun loadUserLois(survey: Survey, ownerUserId: String): List<LocationOfInterest> =
-    userLois
+  override fun loadUserLois(survey: Survey, ownerUserId: String): Flow<List<LocationOfInterest>> =
+    flow {
+      emit(loadUserLoisCall(survey))
+    }
 
-  override suspend fun loadSharedLois(survey: Survey): List<LocationOfInterest> = sharedLois
-
-  /** Returns true iff [subscribeToSurveyUpdates] has been called with the specified id. */
-  fun isSubscribedToSurveyUpdates(surveyId: String): Boolean =
-    subscribedSurveyIds.contains(surveyId)
+  override fun loadSharedLois(survey: Survey): Flow<List<LocationOfInterest>> = flow {
+    emit(loadSharedLoisCall(survey))
+  }
 }

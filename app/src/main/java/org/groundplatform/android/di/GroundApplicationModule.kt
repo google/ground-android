@@ -17,7 +17,6 @@ package org.groundplatform.android.di
 
 import android.content.Context
 import android.content.res.Resources
-import androidx.work.WorkManager
 import com.google.android.gms.common.GoogleApiAvailability
 import dagger.Module
 import dagger.Provides
@@ -26,6 +25,12 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import java.util.Locale
 import javax.inject.Singleton
+import org.groundplatform.android.R
+import org.groundplatform.android.util.SurveyDeepLinkParser
+import org.groundplatform.ui.util.AndroidDateFormatter
+import org.groundplatform.ui.util.ComposeStringResolver
+import org.groundplatform.ui.util.DateFormatter
+import org.groundplatform.ui.util.StringResolver
 
 @InstallIn(SingletonComponent::class)
 @Module(includes = [ViewModelModule::class])
@@ -41,7 +46,16 @@ object GroundApplicationModule {
   @Provides fun provideLocale(): Locale = Locale.getDefault()
 
   @Provides
+  fun providesSurveyDeepLinkParser(resources: Resources) =
+    SurveyDeepLinkParser(
+      deepLinkHost = resources.getString(R.string.deeplink_host),
+      deepLinkPath = resources.getString(R.string.survey_deeplink_path),
+    )
+
+  @Provides
   @Singleton
-  fun provideWorkManager(@ApplicationContext context: Context): WorkManager =
-    WorkManager.getInstance(context)
+  fun provideDateFormatter(@ApplicationContext context: Context): DateFormatter =
+    AndroidDateFormatter(context)
+
+  @Provides @Singleton fun provideStringResolver(): StringResolver = ComposeStringResolver
 }

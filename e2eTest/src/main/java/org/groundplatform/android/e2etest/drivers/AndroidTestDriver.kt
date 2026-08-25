@@ -21,9 +21,9 @@ import android.content.Intent
 import android.graphics.Point
 import android.net.Uri
 import android.provider.MediaStore
-import android.widget.DatePicker
-import android.widget.TimePicker
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
@@ -41,10 +41,15 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
+import java.util.regex.Pattern
 import org.groundplatform.android.R
 import org.groundplatform.android.e2etest.TestConfig.DEFAULT_TIMEOUT
 import org.groundplatform.android.e2etest.TestConfig.TEST_PHOTO_FILE
 import org.groundplatform.android.e2etest.extensions.onTarget
+import org.groundplatform.android.ui.datacollection.tasks.date.DATE_PICKER_TEST_TAG
+import org.groundplatform.android.ui.datacollection.tasks.date.DATE_TEXT_TEST_TAG
+import org.groundplatform.android.ui.datacollection.tasks.time.TIME_PICKER_TEST_TAG
+import org.groundplatform.android.ui.datacollection.tasks.time.TIME_TEXT_TEST_TAG
 
 @OptIn(ExperimentalTestApi::class)
 class AndroidTestDriver(
@@ -53,20 +58,22 @@ class AndroidTestDriver(
 ) : TestDriver {
   private fun wait(target: TestDriver.Target, timeout: Long = DEFAULT_TIMEOUT) {
     when (target) {
-      is TestDriver.Target.ContentDescription ->
+      is TestDriver.Target.ContentDescription -> {
         composeRule.waitUntilAtLeastOneExists(
           hasContentDescription(target.text) and isEnabled(),
           timeout,
         )
+      }
 
-      is TestDriver.Target.TestTag ->
+      is TestDriver.Target.TestTag -> {
         composeRule.waitUntilAtLeastOneExists(hasTestTag(target.tag) and isEnabled(), timeout)
-
-      is TestDriver.Target.Text ->
+      }
+      is TestDriver.Target.Text -> {
         composeRule.waitUntilAtLeastOneExists(
           hasText(target.text, target.substring) and isEnabled(),
           timeout,
         )
+      }
 
       is TestDriver.Target.ViewId -> {
         val resName = composeRule.activity.resources.getResourceEntryName(target.resId)
@@ -148,28 +155,41 @@ class AndroidTestDriver(
       Instrumentation.ActivityResult(Activity.RESULT_OK, Intent())
     }
 
-    click(TestDriver.Target.ViewId(R.id.btn_camera))
+    composeRule.onTarget(TestDriver.Target.Text("Camera")).performClick()
   }
 
   override fun setDate() {
-    val resName = composeRule.activity.resources.getResourceEntryName(R.id.user_date_response_text)
-    val packageName = composeRule.activity.packageName
-    val textInputField = device.findObject(By.res(packageName, resName))
-    textInputField?.click()
+    click(TestDriver.Target.TestTag(DATE_TEXT_TEST_TAG))
 
-    device.wait(Until.findObject(By.clazz(DatePicker::class.java)), DEFAULT_TIMEOUT)
+    wait(TestDriver.Target.TestTag(DATE_PICKER_TEST_TAG))
     device.findObject(By.text("OK")).click()
   }
 
   override fun setTime() {
-    val resName = composeRule.activity.resources.getResourceEntryName(R.id.user_time_response_text)
-    val packageName = composeRule.activity.packageName
-    val textInputField = device.findObject(By.res(packageName, resName))
-    textInputField?.click()
+    click(TestDriver.Target.TestTag(TIME_TEXT_TEST_TAG))
 
-    device.wait(Until.findObject(By.clazz(TimePicker::class.java)), DEFAULT_TIMEOUT)
+    wait(TestDriver.Target.TestTag(TIME_PICKER_TEST_TAG))
     device.findObject(By.text("OK")).click()
   }
 
   override fun getStringResource(id: Int): String = composeRule.activity.getString(id)
+
+  override fun assertVisible(componentText: String, isVisible: Boolean) {
+    if (isVisible) {
+      composeRule.onTarget(TestDriver.Target.Text(componentText)).assertIsDisplayed()
+    } else {
+      composeRule.onTarget(TestDriver.Target.Text(componentText)).assertIsNotDisplayed()
+    }
+  }
+
+  override fun enableLocationServices() {
+    val button =
+      device.wait(
+        Until.findObject(
+          By.text(Pattern.compile(".*${Regex.escape("ok")}.*", Pattern.CASE_INSENSITIVE))
+        ),
+        DEFAULT_TIMEOUT,
+      )
+    button?.click()
+  }
 }

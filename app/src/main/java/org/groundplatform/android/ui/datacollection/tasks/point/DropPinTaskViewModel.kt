@@ -15,24 +15,27 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.point
 
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
-import org.groundplatform.android.model.geometry.Point
-import org.groundplatform.android.model.job.Job
-import org.groundplatform.android.model.job.getDefaultColor
-import org.groundplatform.android.model.submission.DropPinTaskData
-import org.groundplatform.android.model.submission.TaskData
-import org.groundplatform.android.model.submission.isNullOrEmpty
-import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.AbstractMapTaskViewModel
+import org.groundplatform.android.ui.datacollection.tasks.DataCollectionEvent
 import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 import org.groundplatform.android.ui.map.Feature
+import org.groundplatform.android.ui.util.getDefaultColor
+import org.groundplatform.domain.model.geometry.Point
+import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.submission.DropPinTaskData
+import org.groundplatform.domain.model.submission.TaskData
+import org.groundplatform.domain.model.submission.isNullOrEmpty
+import org.groundplatform.domain.model.task.Task
 
 class DropPinTaskViewModel
 @Inject
@@ -42,22 +45,25 @@ constructor(
 ) : AbstractMapTaskViewModel() {
 
   private var pinColor: Int = 0
-  val features: MutableLiveData<Set<Feature>> = MutableLiveData()
+  private val _features = MutableStateFlow<Set<Feature>>(emptySet())
+  val features: StateFlow<Set<Feature>> = _features.asStateFlow()
+
   /** Whether the instructions dialog has been shown or not. */
-  var instructionsDialogShown: Boolean by localValueStore::dropPinInstructionsShown
-  var captureLocation: Boolean = false
+  internal var instructionsDialogShown: Boolean by localValueStore::dropPinInstructionsShown
 
   override fun initialize(
     job: Job,
     task: Task,
     taskData: TaskData?,
     taskPositionInterface: TaskPositionInterface,
+    surveyId: String,
+    eventReporter: (DataCollectionEvent) -> Unit,
   ) {
-    super.initialize(job, task, taskData, taskPositionInterface)
+    super.initialize(job, task, taskData, taskPositionInterface, surveyId, eventReporter)
     pinColor = job.getDefaultColor()
 
     // Drop a marker for current value
-    (taskData as? DropPinTaskData)?.let { dropMarker(it.location) }
+    (taskData as? DropPinTaskData)?.let { placeMarker(it.location) }
   }
 
   override fun getButtonStates(taskData: TaskData?): List<ButtonActionState> =
@@ -65,25 +71,46 @@ constructor(
       getPreviousButton(),
       getSkipButton(taskData),
       getUndoButton(taskData),
-      getDropPinButtonState(taskData),
+      ButtonActionState(
+        action = ButtonAction.DROP_PIN,
+        isEnabled = true,
+        isVisible = taskData.isNullOrEmpty(),
+      ),
       getNextButton(taskData, hideIfEmpty = true),
     )
 
   override fun clearResponse() {
     super.clearResponse()
-    features.postValue(setOf())
+    _features.value = setOf()
   }
 
-  private fun updateResponse(point: Point) {
-    setValue(DropPinTaskData(point))
-    dropMarker(point)
-  }
-
-  private fun dropMarker(point: Point) =
-    viewModelScope.launch {
-      val feature = createFeature(point)
-      features.postValue(setOf(feature))
+  override fun onButtonClick(action: ButtonAction) {
+    if (action == ButtonAction.DROP_PIN) {
+      getLastCameraPosition()?.let { cameraPosition ->
+        val point = Point(cameraPosition.coordinates)
+        setValue(DropPinTaskData(point))
+        placeMarker(point)
+      }
+    } else {
+      super.onButtonClick(action)
     }
+  }
+
+  fun dismissDropPinInstructions() {
+    instructionsDialogShown = true
+    dismissInstructions()
+  }
+
+  fun maybeShowInstructions() {
+    if (!instructionsDialogShown) {
+      showInstructions()
+    }
+  }
+
+  private fun placeMarker(point: Point) = viewModelScope.launch {
+    val feature = createFeature(point)
+    _features.value = setOf(feature)
+  }
 
   /** Creates a new map [Feature] representing the point placed by the user. */
   private suspend fun createFeature(point: Point): Feature =
@@ -95,25 +122,4 @@ constructor(
       clusterable = false,
       selected = true,
     )
-
-  private fun dropPin() {
-    getLastCameraPosition()?.let { updateResponse(Point(it.coordinates)) }
-  }
-
-  fun shouldShowInstructionsDialog() = !instructionsDialogShown && !captureLocation
-
-  private fun getDropPinButtonState(taskData: TaskData?): ButtonActionState =
-    ButtonActionState(
-      action = ButtonAction.DROP_PIN,
-      isEnabled = true,
-      isVisible = taskData.isNullOrEmpty(),
-    )
-
-  override fun onButtonClick(action: ButtonAction) {
-    if (action == ButtonAction.DROP_PIN) {
-      dropPin()
-    } else {
-      super.onButtonClick(action)
-    }
-  }
 }

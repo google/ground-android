@@ -20,22 +20,36 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.groundplatform.android.data.sync.MediaUploadWorkManager
 import org.groundplatform.android.data.sync.MutationSyncWorkManager
-import org.groundplatform.android.model.submission.DraftSubmission
-import org.groundplatform.android.repository.MutationRepository
-import org.groundplatform.android.repository.OfflineAreaRepository
-import org.groundplatform.android.repository.SubmissionRepository
-import org.groundplatform.android.repository.SurveyRepository
-import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.common.SharedViewModel
-import timber.log.Timber
+import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.User
+import org.groundplatform.domain.model.auth.SignInState
+import org.groundplatform.domain.model.submission.DraftSubmission
+import org.groundplatform.domain.repository.MutationRepositoryInterface
+import org.groundplatform.domain.repository.OfflineAreaRepositoryInterface
+import org.groundplatform.domain.repository.SubmissionRepositoryInterface
+import org.groundplatform.domain.repository.SurveyRepositoryInterface
+import org.groundplatform.domain.repository.UserRepositoryInterface
+
+data class HomeDrawerState(val user: User, val survey: Survey?, val appVersion: String)
 
 private const val AWAITING_PHOTO_CAPTURE_KEY = "awaiting_photo_capture"
 
@@ -43,18 +57,27 @@ private const val AWAITING_PHOTO_CAPTURE_KEY = "awaiting_photo_capture"
 class HomeScreenViewModel
 @Inject
 internal constructor(
-  private val offlineAreaRepository: OfflineAreaRepository,
-  private val submissionRepository: SubmissionRepository,
-  private val mutationRepository: MutationRepository,
+  private val offlineAreaRepository: OfflineAreaRepositoryInterface,
+  private val submissionRepository: SubmissionRepositoryInterface,
+  private val mutationRepository: MutationRepositoryInterface,
   private val mutationSyncWorkManager: MutationSyncWorkManager,
   private val mediaUploadWorkManager: MediaUploadWorkManager,
-  val surveyRepository: SurveyRepository,
-  val userRepository: UserRepository,
+  val surveyRepository: SurveyRepositoryInterface,
+  val userRepository: UserRepositoryInterface,
 ) : AbstractViewModel() {
 
   private val savedStateHandle: SavedStateHandle = SavedStateHandle()
   private val _openDrawerRequests: MutableSharedFlow<Unit> = MutableSharedFlow()
   val openDrawerRequestsFlow: SharedFlow<Unit> = _openDrawerRequests.asSharedFlow()
+
+  private val _accountDialogState = MutableStateFlow(AccountDialogState.HIDDEN)
+  val accountDialogState: StateFlow<AccountDialogState> = _accountDialogState.asStateFlow()
+
+  val user: Flow<User> =
+    userRepository
+      .getSignInState()
+      .filter { it is SignInState.SignedIn }
+      .map { (it as SignInState.SignedIn).user }
 
   // TODO: Allow tile source configuration from a non-survey accessible source.
   // Issue URL: https://github.com/google/ground-android/issues/1730
@@ -76,6 +99,18 @@ internal constructor(
     viewModelScope.launch { kickLocalMutationSyncWorkers() }
   }
 
+  val drawerState: StateFlow<HomeDrawerState?> = flow {
+    emit(userRepository.getAuthenticatedUser())
+  }
+    .combine(surveyRepository.activeSurveyFlow) { user, survey ->
+      HomeDrawerState(
+        user = user,
+        survey = survey,
+        appVersion = org.groundplatform.android.BuildConfig.VERSION_NAME,
+      )
+    }
+    .stateIn(viewModelScope, SharingStarted.Lazily, null)
+
   /**
    * Enqueue data and photo upload workers for all pending mutations when home screen is first
    * opened as a workaround the get stuck mutations (i.e., PENDING or FAILED mutations with no
@@ -91,26 +126,12 @@ internal constructor(
     }
   }
 
-  /** Attempts to return draft submission for the currently active survey. */
+  /** Attempts to return draft submission for the currently active active survey. */
   suspend fun getDraftSubmission(): DraftSubmission? {
-    val draftId = submissionRepository.getDraftSubmissionsId()
-    val survey = surveyRepository.activeSurveyFlow.first()
-
-    if (survey == null || draftId.isEmpty()) {
-      // No active survey or draft submission.
-      return null
-    }
-
-    val draft = submissionRepository.getDraftSubmission(draftId, survey) ?: return null
-
-    if (draft.surveyId != survey.id) {
-      Timber.e("Skipping draft submission, survey id doesn't match")
-      return null
-    }
-
     // TODO: Check whether the previous user id matches with current user or not.
     // Issue URL: https://github.com/google/ground-android/issues/2903
-    return draft
+    val survey = surveyRepository.activeSurveyFlow.first() ?: return null
+    return submissionRepository.getDraftSubmission(survey)
   }
 
   fun openNavDrawer() {
@@ -120,6 +141,29 @@ internal constructor(
   suspend fun getOfflineAreas() = offlineAreaRepository.offlineAreas().first()
 
   fun signOut() {
+    _accountDialogState.value = AccountDialogState.HIDDEN
     viewModelScope.launch { userRepository.signOut() }
+  }
+
+  fun showUserDetails() {
+    _accountDialogState.value = AccountDialogState.USER_DETAILS
+  }
+
+  fun showSignOutConfirmation() {
+    _accountDialogState.value = AccountDialogState.SIGN_OUT_CONFIRMATION
+  }
+
+  fun dismissLogoutDialog() {
+    _accountDialogState.value = AccountDialogState.HIDDEN
+  }
+
+  /**
+   * Represents the possible visibility states of dialogs related to the user's account, such as
+   * profile details and sign-out confirmation.
+   */
+  enum class AccountDialogState {
+    HIDDEN,
+    USER_DETAILS,
+    SIGN_OUT_CONFIRMATION,
   }
 }

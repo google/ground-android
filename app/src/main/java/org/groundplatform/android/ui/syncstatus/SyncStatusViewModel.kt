@@ -19,15 +19,15 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
 import javax.inject.Inject
 import kotlinx.coroutines.flow.map
-import org.groundplatform.android.model.mutation.LocationOfInterestMutation
-import org.groundplatform.android.model.mutation.SubmissionMutation
-import org.groundplatform.android.model.submission.UploadQueueEntry
-import org.groundplatform.android.repository.LocationOfInterestRepository
-import org.groundplatform.android.repository.MutationRepository
-import org.groundplatform.android.repository.SurveyRepository
-import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.common.LocationOfInterestHelper
+import org.groundplatform.domain.model.mutation.LocationOfInterestMutation
+import org.groundplatform.domain.model.mutation.SubmissionMutation
+import org.groundplatform.domain.model.submission.UploadQueueEntry
+import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
+import org.groundplatform.domain.repository.MutationRepositoryInterface
+import org.groundplatform.domain.repository.SurveyRepositoryInterface
+import org.groundplatform.domain.repository.UserRepositoryInterface
 import timber.log.Timber
 
 /**
@@ -40,11 +40,11 @@ import timber.log.Timber
 class SyncStatusViewModel
 @Inject
 internal constructor(
-  mutationRepository: MutationRepository,
-  private val locationOfInterestRepository: LocationOfInterestRepository,
-  private val userRepository: UserRepository,
+  mutationRepository: MutationRepositoryInterface,
+  private val locationOfInterestRepository: LocationOfInterestRepositoryInterface,
+  private val userRepository: UserRepositoryInterface,
   private val locationOfInterestHelper: LocationOfInterestHelper,
-  private val surveyRepository: SurveyRepository,
+  private val surveyRepository: SurveyRepositoryInterface,
 ) : AbstractViewModel() {
 
   /**
@@ -81,7 +81,7 @@ internal constructor(
             status = status,
             label = locationOfInterestHelper.getJobName(loi) ?: "",
             subtitle = locationOfInterestHelper.getDisplayLoiName(loi),
-            description = surveyRepository.getOfflineSurvey(mutation.surveyId)?.description ?: "",
+            description = surveyRepository.getOfflineSurvey(mutation.surveyId)?.title ?: "",
           )
         }
       }

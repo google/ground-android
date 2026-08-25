@@ -35,6 +35,12 @@ interface BaseDao<E> {
   @Delete suspend fun delete(entity: E)
 }
 
+/**
+ * Conservative SQLite variable limit. The actual limit is ~999, but 900 ensures compatibility
+ * across SQLite versions. Use when chunking IN clauses.
+ */
+const val MAX_SQL_VARIABLES = 900
+
 /** Try to update the specified entity, and if it doesn't yet exist, create it. Main-safe. */
 suspend fun <E> BaseDao<E>.insertOrUpdate(entity: E) {
   val count = update(entity)

@@ -18,7 +18,7 @@ package org.groundplatform.android.data.remote.firebase.schema
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.DocumentSnapshot
 import org.groundplatform.android.data.remote.firebase.schema.TermsOfServiceConverter.toTerms
-import org.groundplatform.android.model.TermsOfService
+import org.groundplatform.domain.model.TermsOfService
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

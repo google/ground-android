@@ -18,9 +18,9 @@ package org.groundplatform.android.data.local.stores
 import kotlinx.coroutines.flow.Flow
 import org.groundplatform.android.data.local.room.entity.LocationOfInterestMutationEntity
 import org.groundplatform.android.data.local.room.fields.MutationEntitySyncStatus
-import org.groundplatform.android.model.Survey
-import org.groundplatform.android.model.locationofinterest.LocationOfInterest
-import org.groundplatform.android.model.mutation.LocationOfInterestMutation
+import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
+import org.groundplatform.domain.model.mutation.LocationOfInterestMutation
 
 interface LocalLocationOfInterestStore :
   LocalMutationStore<LocationOfInterestMutation, LocationOfInterest> {
@@ -61,6 +61,9 @@ interface LocalLocationOfInterestStore :
   ): List<LocationOfInterestMutationEntity>
 
   suspend fun insertOrUpdate(loi: LocationOfInterest)
+
+  /** Inserts or updates all the given LOIs in a single transaction. */
+  suspend fun insertOrUpdateAll(lois: List<LocationOfInterest>)
 
   suspend fun deleteNotIn(surveyId: String, ids: List<String>)
 }

@@ -16,13 +16,9 @@
 package org.groundplatform.android.ui.datacollection.tasks.location
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
-import kotlinx.coroutines.launch
 import org.groundplatform.android.ui.common.MapConfig
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment
 import org.groundplatform.android.ui.map.MapFragment
@@ -31,24 +27,17 @@ import org.groundplatform.android.ui.map.MapFragment
 class CaptureLocationTaskMapFragment @Inject constructor() :
   AbstractTaskMapFragment<CaptureLocationTaskViewModel>() {
 
-  override fun onCreateView(
-    inflater: LayoutInflater,
-    container: ViewGroup?,
-    savedInstanceState: Bundle?,
-  ): View {
-    val root = super.onCreateView(inflater, container, savedInstanceState)
-    viewLifecycleOwner.lifecycleScope.launch {
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+    launchWhenStarted {
       getMapViewModel().getLocationUpdates().collect { taskViewModel.updateLocation(it) }
     }
-    return root
   }
 
   override fun getMapConfig(): MapConfig = super.getMapConfig().copy(allowGestures = false)
 
   override fun onMapReady(map: MapFragment) {
     super.onMapReady(map)
-    viewLifecycleOwner.lifecycleScope.launch {
-      taskViewModel.initLocationUpdates(getMapViewModel())
-    }
+    launchWhenStarted { taskViewModel.initLocationUpdates(getMapViewModel()) }
   }
 }

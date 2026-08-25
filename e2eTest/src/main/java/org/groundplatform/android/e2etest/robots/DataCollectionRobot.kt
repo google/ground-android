@@ -16,16 +16,23 @@
 package org.groundplatform.android.e2etest.robots
 
 import org.groundplatform.android.R
+import org.groundplatform.android.e2etest.MultipleChoiceType
+import org.groundplatform.android.e2etest.TestConfig.CONDITIONAL_TRIGGER_OPTION
+import org.groundplatform.android.e2etest.TestConfig.COVER_CROPPING_TEST_OPTION
+import org.groundplatform.android.e2etest.TestConfig.EXPECTED_CONDITIONAL_OPTION
 import org.groundplatform.android.e2etest.TestConfig.LOI_NAME
+import org.groundplatform.android.e2etest.TestConfig.NEXT_NAVIGATION_TEST_OPTION
+import org.groundplatform.android.e2etest.TestConfig.PALM_TEST_OPTION
+import org.groundplatform.android.e2etest.TestConfig.PREVIOUS_NAVIGATION_TEST_OPTION
 import org.groundplatform.android.e2etest.TestTask
 import org.groundplatform.android.e2etest.drivers.TestDriver
-import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.datacollection.components.LOI_NAME_TEXT_FIELD_TEST_TAG
 import org.groundplatform.android.ui.datacollection.tasks.multiplechoice.OTHER_INPUT_TEXT_TEST_TAG
 import org.groundplatform.android.ui.datacollection.tasks.multiplechoice.SELECT_MULTIPLE_CHECKBOX_TEST_TAG
 import org.groundplatform.android.ui.datacollection.tasks.multiplechoice.SELECT_MULTIPLE_RADIO_TEST_TAG
 import org.groundplatform.android.ui.datacollection.tasks.number.INPUT_NUMBER_TEST_TAG
 import org.groundplatform.android.ui.datacollection.tasks.text.INPUT_TEXT_TEST_TAG
+import org.groundplatform.domain.model.task.Task
 
 class DataCollectionRobot(override val testDriver: TestDriver) : Robot<DataCollectionRobot>() {
   fun dismissInstructions() {
@@ -35,31 +42,8 @@ class DataCollectionRobot(override val testDriver: TestDriver) : Robot<DataColle
 
   fun runTasks(taskList: List<TestTask>) {
     taskList.forEach { task ->
-      when (task.taskType) {
-        Task.Type.UNKNOWN ->
-          throw IllegalStateException(
-            "Something is wrong with the tasks defined in the Firebase emulator"
-          )
-        Task.Type.TEXT -> textTask()
-        Task.Type.MULTIPLE_CHOICE -> multipleChoiceTask(task.selectIndexes!!)
-        Task.Type.PHOTO -> cameraTask()
-        Task.Type.NUMBER -> numberTask()
-        Task.Type.DATE -> dateTask()
-        Task.Type.TIME -> timeTask()
-        Task.Type.DROP_PIN -> dropPinTask()
-        Task.Type.DRAW_AREA -> drawAreaTask()
-        Task.Type.CAPTURE_LOCATION -> captureLocationTask()
-        Task.Type.INSTRUCTIONS -> {
-          /* Nothing to do, just read */
-        }
-      }
-
-      if (task == taskList.last()) {
-        testDriver.click(TestDriver.Target.Text(testDriver.getStringResource(R.string.done)))
-      } else {
-        testDriver.click(TestDriver.Target.Text(testDriver.getStringResource(R.string.next)))
-      }
-
+      executeTask(task = task)
+      clickToNextStep(isLast = task == taskList.last())
       if (task.taskType == Task.Type.DRAW_AREA || task.taskType == Task.Type.DROP_PIN) {
         nameLocation()
       }
@@ -67,14 +51,48 @@ class DataCollectionRobot(override val testDriver: TestDriver) : Robot<DataColle
     testDriver.click(TestDriver.Target.Text(testDriver.getStringResource(R.string.close)))
   }
 
+  private fun executeTask(task: TestTask) {
+    when (task.taskType) {
+      Task.Type.UNKNOWN ->
+        error("Something is wrong with the tasks defined in the Firebase emulator")
+      Task.Type.TEXT -> textTask()
+      Task.Type.MULTIPLE_CHOICE ->
+        if (task.isConditional) {
+          multipleChoiceTask(MultipleChoiceType.Conditional)
+        } else {
+          multipleChoiceTask(MultipleChoiceType.Regular(task.selectIndexes!!))
+        }
+      Task.Type.PHOTO -> cameraTask()
+      Task.Type.NUMBER -> numberTask()
+      Task.Type.DATE -> dateTask()
+      Task.Type.TIME -> timeTask()
+      Task.Type.DROP_PIN -> dropPinTask()
+      Task.Type.DRAW_AREA -> drawAreaTask()
+      Task.Type.CAPTURE_LOCATION -> captureLocationTask()
+      Task.Type.INSTRUCTIONS -> {
+        /* Nothing to do, just read */
+      }
+    }
+  }
+
+  private fun clickToNextStep(isLast: Boolean) {
+    if (isLast) {
+      testDriver.click(TestDriver.Target.Text(testDriver.getStringResource(R.string.done)))
+    } else {
+      testDriver.click(TestDriver.Target.Text(testDriver.getStringResource(R.string.next)))
+    }
+  }
+
   private fun drawAreaTask(): DataCollectionRobot {
-    val points = listOf((0 to 0), (-500 to 0), (0 to -500), (500 to 0), (0 to 500))
+    val points = listOf(0 to 0, -500 to 0, 0 to -500, 500 to 0, 0 to 500)
     val nextButton = TestDriver.Target.Text(testDriver.getStringResource(R.string.add_point))
     val completeButton =
       TestDriver.Target.Text(testDriver.getStringResource(R.string.complete_polygon))
     points.forEachIndexed { index, point ->
       when (index) {
-        0 -> testDriver.click(nextButton)
+        0 -> {
+          testDriver.click(nextButton)
+        }
         points.lastIndex -> {
           testDriver.dragMapBy(point.first, point.second)
           testDriver.click(completeButton)
@@ -109,17 +127,27 @@ class DataCollectionRobot(override val testDriver: TestDriver) : Robot<DataColle
     testDriver.click(TestDriver.Target.Text(testDriver.getStringResource(R.string.save)))
   }
 
-  private fun multipleChoiceTask(selectIndexes: List<Int>) {
-    if (selectIndexes.size == 1) {
-      testDriver.selectFromList(
-        TestDriver.Target.TestTag(SELECT_MULTIPLE_RADIO_TEST_TAG),
-        selectIndexes[0],
-      )
-    } else {
-      selectIndexes.forEach {
-        testDriver.selectFromList(TestDriver.Target.TestTag(SELECT_MULTIPLE_CHECKBOX_TEST_TAG), it)
+  private fun multipleChoiceTask(multipleChoiceType: MultipleChoiceType) {
+    when (multipleChoiceType) {
+      is MultipleChoiceType.Regular -> {
+        if (multipleChoiceType.selectIndexes.size == 1) {
+          testDriver.selectFromList(
+            TestDriver.Target.TestTag(SELECT_MULTIPLE_RADIO_TEST_TAG),
+            multipleChoiceType.selectIndexes[0],
+          )
+        } else {
+          multipleChoiceType.selectIndexes.forEach {
+            testDriver.selectFromList(
+              TestDriver.Target.TestTag(SELECT_MULTIPLE_CHECKBOX_TEST_TAG),
+              it,
+            )
+          }
+          testDriver.insertText("Other", TestDriver.Target.TestTag(OTHER_INPUT_TEXT_TEST_TAG))
+        }
       }
-      testDriver.insertText("Other", TestDriver.Target.TestTag(OTHER_INPUT_TEXT_TEST_TAG))
+      MultipleChoiceType.Conditional -> {
+        conditionalTask(TestDriver.Target.TestTag(SELECT_MULTIPLE_RADIO_TEST_TAG))
+      }
     }
   }
 
@@ -137,5 +165,21 @@ class DataCollectionRobot(override val testDriver: TestDriver) : Robot<DataColle
 
   private fun captureLocationTask() {
     testDriver.click(TestDriver.Target.Text(testDriver.getStringResource(R.string.capture)))
+  }
+
+  private fun conditionalTask(target: TestDriver.Target) {
+    if (target is TestDriver.Target.TestTag && target.tag == SELECT_MULTIPLE_RADIO_TEST_TAG) {
+
+      testDriver.assertVisible(EXPECTED_CONDITIONAL_OPTION)
+      testDriver.click(TestDriver.Target.Text(CONDITIONAL_TRIGGER_OPTION))
+      testDriver.click(TestDriver.Target.Text(NEXT_NAVIGATION_TEST_OPTION))
+      testDriver.assertVisible(EXPECTED_CONDITIONAL_OPTION, true)
+      testDriver.click(TestDriver.Target.Text(PREVIOUS_NAVIGATION_TEST_OPTION))
+      testDriver.click(TestDriver.Target.Text(PALM_TEST_OPTION))
+      testDriver.click(TestDriver.Target.Text(NEXT_NAVIGATION_TEST_OPTION))
+      testDriver.assertVisible(EXPECTED_CONDITIONAL_OPTION, false)
+      testDriver.click(TestDriver.Target.Text(COVER_CROPPING_TEST_OPTION))
+      testDriver.click(TestDriver.Target.Text(PREVIOUS_NAVIGATION_TEST_OPTION))
+    }
   }
 }

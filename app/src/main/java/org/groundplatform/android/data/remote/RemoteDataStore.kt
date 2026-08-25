@@ -16,12 +16,12 @@
 package org.groundplatform.android.data.remote
 
 import kotlinx.coroutines.flow.Flow
-import org.groundplatform.android.model.Survey
-import org.groundplatform.android.model.SurveyListItem
-import org.groundplatform.android.model.TermsOfService
-import org.groundplatform.android.model.User
-import org.groundplatform.android.model.locationofinterest.LocationOfInterest
-import org.groundplatform.android.model.mutation.Mutation
+import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.SurveyListItem
+import org.groundplatform.domain.model.TermsOfService
+import org.groundplatform.domain.model.User
+import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
+import org.groundplatform.domain.model.mutation.Mutation
 
 /**
  * Defines API for accessing data in a remote data store. Implementations must ensure all
@@ -50,15 +50,15 @@ interface RemoteDataStore {
   suspend fun loadTermsOfService(): TermsOfService?
 
   /** Returns predefined LOIs in the specified survey. Main-safe. */
-  suspend fun loadPredefinedLois(survey: Survey): List<LocationOfInterest>
+  fun loadPredefinedLois(survey: Survey): Flow<List<LocationOfInterest>>
 
   /** Returns LOIs owned by the specified user in the specified survey. Main-safe. */
-  suspend fun loadUserLois(survey: Survey, ownerUserId: String): List<LocationOfInterest>
+  fun loadUserLois(survey: Survey, ownerUserId: String): Flow<List<LocationOfInterest>>
 
   /**
    * Returns LOIs that have been marked as shared for other participants of the specified survey.
    */
-  suspend fun loadSharedLois(survey: Survey): List<LocationOfInterest>
+  fun loadSharedLois(survey: Survey): Flow<List<LocationOfInterest>>
 
   /**
    * Applies the provided mutations to the remote data store in a single batched transaction. If one
@@ -72,6 +72,12 @@ interface RemoteDataStore {
    * background.
    */
   suspend fun subscribeToSurveyUpdates(surveyId: String)
+
+  /**
+   * Stops listening for remote changes to the survey with the specified id, releasing any resources
+   * held by the corresponding subscription.
+   */
+  suspend fun unsubscribeFromSurveyUpdates(surveyId: String)
 
   /** Refreshes the current user's profile info in the remote database. */
   suspend fun refreshUserProfile()

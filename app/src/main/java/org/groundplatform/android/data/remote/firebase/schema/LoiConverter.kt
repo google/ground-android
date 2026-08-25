@@ -18,18 +18,23 @@ package org.groundplatform.android.data.remote.firebase.schema
 import com.google.firebase.firestore.DocumentSnapshot
 import org.groundplatform.android.data.remote.DataStoreException
 import org.groundplatform.android.data.remote.firebase.protobuf.parseFrom
-import org.groundplatform.android.data.remote.firebase.schema.GeometryConverter.toGeometry
-import org.groundplatform.android.model.Survey
-import org.groundplatform.android.model.locationofinterest.LocationOfInterest
 import org.groundplatform.android.proto.LocationOfInterest as LocationOfInterestProto
 import org.groundplatform.android.proto.LocationOfInterest.Source
+import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.locationofinterest.LOI_ID_PROPERTY
+import org.groundplatform.domain.model.locationofinterest.LOI_NAME_PROPERTY
+import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
 
 /** Converts between Firestore documents and [LocationOfInterest] instances. */
 object LoiConverter {
-  // TODO: Define field names on DocumentReference objects, not converters.
-  // Issue URL: https://github.com/google/ground-android/issues/2375
-  const val GEOMETRY_TYPE = "type"
-  const val POLYGON_TYPE = "Polygon"
+  private val GEOMETRY_FIELD = LocationOfInterestProto.GEOMETRY_FIELD_NUMBER.toString()
+  private val PROPERTIES_FIELD = LocationOfInterestProto.PROPERTIES_FIELD_NUMBER.toString()
+  private val PROPERTY_STRING_VALUE =
+    LocationOfInterestProto.Property.STRING_VALUE_FIELD_NUMBER.toString()
+  private val PROPERTY_NUMERIC_VALUE =
+    LocationOfInterestProto.Property.NUMERIC_VALUE_FIELD_NUMBER.toString()
+
+  private val RETAINED_PROPERTIES = listOf(LOI_NAME_PROPERTY, LOI_ID_PROPERTY)
 
   fun toLoi(survey: Survey, doc: DocumentSnapshot): Result<LocationOfInterest> = runCatching {
     toLoiUnchecked(survey, doc)
@@ -39,8 +44,11 @@ object LoiConverter {
   private fun toLoiUnchecked(survey: Survey, doc: DocumentSnapshot): LocationOfInterest {
     if (!doc.exists()) throw DataStoreException("LOI missing")
     val loiId = doc.id
-    val loiProto = LocationOfInterestProto::class.parseFrom(doc, 1)
-    val geometry = loiProto.geometry.toGeometry()
+    val data = doc.data.orEmpty()
+    val geometry = LoiGeometryConverter.toGeometry(data[GEOMETRY_FIELD])
+    val properties = pruneUnusedProperties(data[PROPERTIES_FIELD])
+    val loiProto =
+      LocationOfInterestProto::class.parseFrom(loiId, data - GEOMETRY_FIELD - PROPERTIES_FIELD, 1)
     val jobId = loiProto.jobId
     val job = DataStoreException.checkNotNull(survey.getJob(jobId), "job $jobId")
     // Degrade gracefully when audit info missing in remote db.
@@ -53,16 +61,6 @@ object LoiConverter {
       }
     val submissionCount = loiProto.submissionCount
 
-    val properties =
-      loiProto.propertiesMap.entries.associate {
-        val propertyValue =
-          if (it.value.hasNumericValue()) {
-            it.value.numericValue
-          } else {
-            it.value.stringValue
-          }
-        it.key to propertyValue
-      }
     val isPredefined = loiProto.source == Source.IMPORTED
     return LocationOfInterest(
       id = loiId,
@@ -71,12 +69,22 @@ object LoiConverter {
       job = job,
       created = created,
       lastModified = lastModified,
-      // TODO: Set geometry once LOI has been updated to use our own model.
-      // Issue URL: https://github.com/google/ground-android/issues/929
       geometry = geometry,
       submissionCount = submissionCount,
       properties = properties,
       isPredefined = isPredefined,
     )
+  }
+
+  private fun pruneUnusedProperties(value: Any?): Map<String, Any> {
+    val properties = value as? Map<*, *> ?: return mapOf()
+    return RETAINED_PROPERTIES.mapNotNull { key ->
+        (properties[key] as? Map<*, *>)?.let { property ->
+          val numeric = property[PROPERTY_NUMERIC_VALUE] as? Number
+          val text = property[PROPERTY_STRING_VALUE] as? String
+          (numeric ?: text)?.let { key to it }
+        }
+      }
+      .toMap()
   }
 }

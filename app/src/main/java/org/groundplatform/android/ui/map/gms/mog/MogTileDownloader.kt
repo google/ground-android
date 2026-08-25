@@ -21,6 +21,7 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.cancellable
 import kotlinx.coroutines.flow.flow
+import org.groundplatform.domain.model.imagery.TileCoordinates
 import timber.log.Timber
 
 /**
@@ -36,20 +37,19 @@ class MogTileDownloader(private val client: MogClient, private val outputBasePat
    * Executes the provided [requests], writing resulting tiles to [outputBasePath] in sub-paths of
    * the form `{z}/{x}/{y}.jpg`.
    */
-  suspend fun downloadTiles(requests: List<MogTilesRequest>) =
-    flow {
-        client.getTiles(requests).collect { tile ->
-          currentCoroutineContext().ensureActive()
-          val outFile = File(outputBasePath, tile.metadata.tileCoordinates.getTilePath())
-          outFile.parentFile?.mkdirs()
-          val gmsTile = tile.toGmsTile()
-          val data = gmsTile.data!!
-          outFile.writeBytes(data)
-          Timber.d("Saved ${data.size} bytes to ${outFile.path}")
-          emit(data.size)
-        }
-      }
-      .cancellable()
+  suspend fun downloadTiles(requests: List<MogTilesRequest>) = flow {
+    client.getTiles(requests).collect { tile ->
+      currentCoroutineContext().ensureActive()
+      val outFile = File(outputBasePath, tile.metadata.tileCoordinates.getTilePath())
+      outFile.parentFile?.mkdirs()
+      val gmsTile = tile.toGmsTile()
+      val data = gmsTile.data!!
+      outFile.writeBytes(data)
+      Timber.d("Saved ${data.size} bytes to ${outFile.path}")
+      emit(data.size)
+    }
+  }
+    .cancellable()
 }
 
 fun TileCoordinates.getTilePath() = "$zoom/$x/$y.jpg"

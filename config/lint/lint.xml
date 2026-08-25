@@ -47,6 +47,7 @@
   <issue id="RtlHardcoded" severity="error" />
   <issue id="SetTextI18n" severity="error" />
   <issue id="SpUsage" severity="error" />
+  <issue id="StringFormatCount" severity="error" />
   <issue id="TypographyEllipsis" severity="error" />
   <issue id="TypographyQuotes" severity="error" />
   <issue id="Typos" severity="error" />
@@ -60,7 +61,4 @@
   <issue id="UseCompatTextViewDrawableXml" severity="error" />
   <issue id="ValidActionsXml" severity="error" />
   <issue id="WrongThreadInterprocedural" severity="error" />
-  <issue id="usesCleartextTraffic">
-    <ignore path="AndroidManifest.xml" />
-  </issue>
 </lint>

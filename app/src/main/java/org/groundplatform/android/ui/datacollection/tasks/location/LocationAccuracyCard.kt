@@ -36,9 +36,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.groundplatform.android.R
+import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
+import org.groundplatform.ui.theme.AppTheme
 
 @Composable
 fun LocationAccuracyCard(onDismiss: () -> Unit, modifier: Modifier = Modifier) {
@@ -62,7 +64,6 @@ fun LocationAccuracyCard(onDismiss: () -> Unit, modifier: Modifier = Modifier) {
         Text(
           text = stringResource(R.string.location_not_accurate_heading),
           style = MaterialTheme.typography.titleMedium,
-          fontWeight = FontWeight.Bold,
           color = MaterialTheme.colorScheme.onSurface,
         )
         Spacer(Modifier.height(4.dp))
@@ -78,10 +79,17 @@ fun LocationAccuracyCard(onDismiss: () -> Unit, modifier: Modifier = Modifier) {
       IconButton(onClick = onDismiss, modifier = Modifier.size(24.dp)) {
         Icon(
           painter = painterResource(R.drawable.baseline_close_24),
-          contentDescription = null,
+          contentDescription = stringResource(R.string.close),
           tint = MaterialTheme.colorScheme.onSurface,
         )
       }
     }
   }
+}
+
+@Preview(showBackground = true)
+@Composable
+@ExcludeFromJacocoGeneratedReport
+private fun LocationAccuracyCardPreview() {
+  AppTheme { LocationAccuracyCard(onDismiss = {}) }
 }

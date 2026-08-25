@@ -15,10 +15,17 @@
  */
 package org.groundplatform.android.e2etest
 
-import org.groundplatform.android.model.task.Task
+import org.groundplatform.domain.model.task.Task
 
 data class TestTask(
   val taskType: Task.Type,
   val isRequired: Boolean = false,
   val selectIndexes: List<Int>? = null,
+  val isConditional: Boolean = false,
 )
+
+sealed class MultipleChoiceType {
+  data class Regular(val selectIndexes: List<Int>) : MultipleChoiceType()
+
+  data object Conditional : MultipleChoiceType()
+}

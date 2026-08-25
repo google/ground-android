@@ -66,8 +66,6 @@
   <string name="tos_title">Terms of service</string>
   <string name="agree_terms">Agree</string>
   <string name="agree_checkbox">I agree</string>
-  <string name="date">Date</string>
-  <string name="time">Time</string>
   <!-- Other strings (to be organized) -->
   <string name="sync_status">Data sync status</string>
 
@@ -127,6 +125,10 @@
   <string name="previous">Previous</string>
   <string name="network_error_when_signing_in">Connect to the internet to sign in</string>
   <string name="camera_permissions_needed">You need to grant this application camera permissions to submit photos.</string>
+  <string name="camera_launch_failed_title">Camera Error</string>
+  <string name="camera_launch_failed_desc">Failed to open the camera. Please try again.</string>
+  <string name="photo_save_failed_title">Save Error</string>
+  <string name="photo_save_failed_desc">Failed to save the captured photo. Please try again.</string>
   <string name="incomplete_area">Incomplete area</string>
   <string name="initializing">Initializing…</string>
   <string name="draw_area_task_instruction">Move the map and tap “Add point” to add points around the desired area.</string>
@@ -138,7 +140,6 @@
   <string name="read_only_data_collection_hint">Survey is read-only</string>
   <string name="no_submissions">No submissions</string>
   <string name="dismiss_info_popup">Dismiss</string>
-  <string name="other">Other</string>
   <plurals name="submission_count">
     <item quantity="one">%d submission</item>
     <item quantity="other">%d submissions</item>
@@ -174,7 +175,6 @@
   <string name="visit_website_title">Visit website</string>
   <string name="accuracy">Accuracy:</string>
   <string name="select_language_title">Select language</string>
-  <string name="select_language_summary">Select your preferred language</string>
   <!-- Data Sharing Consent Text -->
   <string name="data_sharing_no_terms">*No terms to display.*</string>
   <string name="data_sharing_private_message">
@@ -187,7 +187,6 @@
   </string>
   <string name="draft_restored">Unsaved data restored</string>
   <string name="load_tos_failed">Could not connect, try again later</string>
-  <string name="data_submitted_image">Data submitted image</string>
   <string name="data_collection_complete">Data collection complete!</string>
   <string name="data_collection_complete_details">Your data has been saved and will be automatically synced when you’re online.</string>
 
@@ -208,12 +207,6 @@
 
   <string name="area_message">Area: %s</string>
 
-  <string name="lang_english">English</string>
-  <string name="lang_french">French</string>
-  <string name="lang_spanish">Spanish</string>
-  <string name="lang_portuguese">Portuguese</string>
-  <string name="lang_vietnamese">Vietnamese</string>
-
   <string name="access_restricted">Restricted</string>
   <string name="access_unlisted">Unlisted</string>
   <string name="access_public">Public</string>
@@ -227,7 +220,6 @@
   <string name="dialog_button_update">Update</string>
 
   <string name="select_length_title">Select units</string>
-  <string name="select_length_summary">Select your preferred unit</string>
   <string name="length_metric">Metric</string>
   <string name="length_imperial">Imperial</string>
 
@@ -240,4 +232,9 @@
   <string name="location_not_accurate_description">Try standing still or waiting for a more accurate position</string>
 
   <string name="recenter">Re-center</string>
+  <string name="share_location">Share location</string>
+
+  <string name="join_survey">Join survey</string>
+  <string name="invalid_survey_qr_code">Unrecognized survey QR code</string>
+  <string name="join_survey_confirm_title">Join survey?</string>
 </resources>

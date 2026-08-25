@@ -44,13 +44,6 @@ import kotlin.math.sqrt
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
-import org.groundplatform.android.model.geometry.Coordinates
-import org.groundplatform.android.model.imagery.LocalTileSource
-import org.groundplatform.android.model.imagery.RemoteMogTileSource
-import org.groundplatform.android.model.imagery.TileSource
-import org.groundplatform.android.model.map.Bounds
-import org.groundplatform.android.model.map.CameraPosition
-import org.groundplatform.android.model.map.MapType
 import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.MapFragment
@@ -59,6 +52,13 @@ import org.groundplatform.android.ui.map.gms.mog.MogSourceProvider.DEFAULT_MOG_M
 import org.groundplatform.android.ui.map.gms.mog.MogTileProvider
 import org.groundplatform.android.util.invert
 import org.groundplatform.android.util.systemInsets
+import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.imagery.LocalTileSource
+import org.groundplatform.domain.model.imagery.RemoteMogTileSource
+import org.groundplatform.domain.model.imagery.TileSource
+import org.groundplatform.domain.model.map.Bounds
+import org.groundplatform.domain.model.map.CameraPosition
+import org.groundplatform.domain.model.map.MapType
 import timber.log.Timber
 
 const val TILE_OVERLAY_Z = 0f
@@ -153,6 +153,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   ) {
     containerFragment.replaceFragment(containerId, this)
     getMapAsync { googleMap: GoogleMap ->
+      if (view == null) return@getMapAsync
       onMapReady(googleMap)
       onMapReadyCallback(this)
     }
@@ -227,7 +228,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   private fun onMapClick(latLng: LatLng) {
     val clickedPolygonsOrEmpty = featureManager.getIntersectingPolygons(latLng)
-    viewLifecycleOwner.lifecycleScope.launch { featureClicks.emit(clickedPolygonsOrEmpty) }
+    lifecycleScope.launch { featureClicks.emit(clickedPolygonsOrEmpty) }
   }
 
   @SuppressLint("MissingPermission")
@@ -239,10 +240,6 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   override fun setFeatures(newFeatures: Set<Feature>) {
     featureManager.setFeatures(newFeatures)
-  }
-
-  override fun updateFeature(feature: Feature) {
-    featureManager.update(feature)
   }
 
   private fun onCameraIdle() {
@@ -267,7 +264,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
 
   private fun onCameraMoveStarted(reason: Int) {
     if (reason == OnCameraMoveStartedListener.REASON_GESTURE) {
-      viewLifecycleOwner.lifecycleScope.launch { startDragEvents.emit(Unit) }
+      lifecycleScope.launch { startDragEvents.emit(Unit) }
     }
   }
 

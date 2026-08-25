@@ -26,6 +26,7 @@ import org.groundplatform.android.FakeData
 import org.groundplatform.android.data.remote.DataStoreException
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.system.NetworkManager
+import org.groundplatform.domain.repository.TermsOfServiceRepositoryInterface
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -37,7 +38,7 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class TermsOfServiceRepositoryTest : BaseHiltTest() {
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
-  @Inject lateinit var termsOfServiceRepository: TermsOfServiceRepository
+  @Inject lateinit var termsOfServiceRepository: TermsOfServiceRepositoryInterface
 
   @BindValue @Mock lateinit var mockNetworkManager: NetworkManager
 

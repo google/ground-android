@@ -16,9 +16,9 @@
 package org.groundplatform.android.ui.datacollection.tasks.instruction
 
 import javax.inject.Inject
-import org.groundplatform.android.model.submission.TaskData
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
+import org.groundplatform.domain.model.submission.TaskData
 
 class InstructionTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
 

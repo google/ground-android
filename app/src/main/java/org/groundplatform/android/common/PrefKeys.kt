@@ -32,4 +32,5 @@ object PrefKeys {
   const val TOS_ACCEPTED = "tos_accepted"
   const val UPLOAD_MEDIA = "upload_media"
   const val VISIT_WEBSITE = "visit_website"
+  const val DEFERRED_DEEPLINK_CONSUMED = "deferred_deeplink_consumed"
 }

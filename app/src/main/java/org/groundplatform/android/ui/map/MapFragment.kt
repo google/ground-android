@@ -18,12 +18,12 @@ package org.groundplatform.android.ui.map
 import android.annotation.SuppressLint
 import androidx.annotation.IdRes
 import kotlinx.coroutines.flow.SharedFlow
-import org.groundplatform.android.model.geometry.Coordinates
-import org.groundplatform.android.model.imagery.TileSource
-import org.groundplatform.android.model.map.Bounds
-import org.groundplatform.android.model.map.CameraPosition
-import org.groundplatform.android.model.map.MapType
 import org.groundplatform.android.ui.common.AbstractFragment
+import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.imagery.TileSource
+import org.groundplatform.domain.model.map.Bounds
+import org.groundplatform.domain.model.map.CameraPosition
+import org.groundplatform.domain.model.map.MapType
 
 /** Implementation of Fragment which supports displaying a map. */
 interface MapFragment {
@@ -94,9 +94,6 @@ interface MapFragment {
 
   /** Update the set of map [Feature]s present on the map. */
   fun setFeatures(newFeatures: Set<Feature>)
-
-  /** Updates an existing [Feature] present on the map. */
-  fun updateFeature(feature: Feature)
 
   /** Returns the actual distance in pixels between provided [Coordinates]s. */
   fun getDistanceInPixels(coordinates1: Coordinates, coordinates2: Coordinates): Double

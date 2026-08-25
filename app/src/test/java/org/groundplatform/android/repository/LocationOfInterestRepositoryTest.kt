@@ -23,22 +23,27 @@ import javax.inject.Inject
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.data.local.stores.LocalLocationOfInterestStore
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.data.sync.MutationSyncWorkManager
-import org.groundplatform.android.model.geometry.Coordinates
-import org.groundplatform.android.model.geometry.LinearRing
-import org.groundplatform.android.model.geometry.Point
-import org.groundplatform.android.model.geometry.Polygon
-import org.groundplatform.android.model.map.Bounds
-import org.groundplatform.android.model.mutation.Mutation.Type.CREATE
-import org.groundplatform.android.proto.Survey.DataVisibility
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
-import org.groundplatform.android.usecases.survey.SyncSurveyUseCase
+import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.geometry.LinearRing
+import org.groundplatform.domain.model.geometry.Point
+import org.groundplatform.domain.model.geometry.Polygon
+import org.groundplatform.domain.model.map.Bounds
+import org.groundplatform.domain.model.mutation.Mutation.Type.CREATE
+import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
+import org.groundplatform.domain.repository.MutationRepositoryInterface
+import org.groundplatform.domain.repository.UserRepositoryInterface
+import org.groundplatform.domain.usecases.survey.SyncSurveyUseCase
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,6 +53,9 @@ import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.robolectric.RobolectricTestRunner
 
+/** Distinguishes a deliberately failed fetch from any other error the sync might raise. */
+private class TestSyncException : RuntimeException("fetch failed")
+
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -56,10 +64,10 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
 
   @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
-  @Inject lateinit var locationOfInterestRepository: LocationOfInterestRepository
+  @Inject lateinit var locationOfInterestRepository: LocationOfInterestRepositoryInterface
   @Inject lateinit var localLoiStore: LocalLocationOfInterestStore
-  @Inject lateinit var mutationRepository: MutationRepository
-  @Inject lateinit var userRepository: UserRepository
+  @Inject lateinit var mutationRepository: MutationRepositoryInterface
+  @Inject lateinit var userRepository: UserRepositoryInterface
   @Inject lateinit var activateSurvey: ActivateSurveyUseCase
   @Inject lateinit var syncSurvey: SyncSurveyUseCase
 
@@ -78,6 +86,10 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
       fakeRemoteDataStore.predefinedLois = TEST_LOCATIONS_OF_INTEREST
       activateSurvey(TEST_SURVEY.id)
       advanceUntilIdle()
+
+      // Clear query records
+      fakeRemoteDataStore.loadUserLoisCall.reset()
+      fakeRemoteDataStore.loadSharedLoisCall.reset()
     }
   }
 
@@ -101,8 +113,14 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   fun `apply and enqueue when enqueues loi mutation`() = runWithTestDispatcher {
     locationOfInterestRepository.applyAndEnqueue(mutation)
 
-    mutationRepository.getSurveyMutationsFlow(TEST_SURVEY).test {
-      assertThat(expectMostRecentItem()).isEqualTo(listOf(mutation.copy(id = 1)))
+    mutationRepository.getUploadQueueFlow().test {
+      with(expectMostRecentItem().first()) {
+        assertThat(userId).isEqualTo(TEST_USER.id)
+        assertThat(clientTimestamp).isEqualTo(mutation.clientTimestamp)
+        assertThat(uploadStatus).isEqualTo(mutation.syncStatus)
+        assertThat(loiMutation).isEqualTo(mutation.copy(id = 1))
+        assertThat(submissionMutation).isNull()
+      }
     }
   }
 
@@ -126,11 +144,98 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
     verify(mockWorkManager, times(1)).enqueueSyncWorker()
   }
 
-  // TODO: Add tests for new LOI sync once implemented (create, update, delete, error).
-  // Issue URL: https://github.com/google/ground-android/issues/1373
+  @Test
+  fun `sync saves every page of a multi page source`() = runWithTestDispatcher {
+    fakeRemoteDataStore.predefinedLoiPages =
+      flowOf(
+        listOf(TEST_POINT_OF_INTEREST_1, TEST_POINT_OF_INTEREST_2),
+        listOf(TEST_POINT_OF_INTEREST_3),
+        listOf(TEST_AREA_OF_INTEREST_1, TEST_AREA_OF_INTEREST_2),
+      )
 
-  // TODO: Add tests for getLocationsOfInterest once new LOI sync implemented.
-  // Issue URL: https://github.com/google/ground-android/issues/1373
+    locationOfInterestRepository.syncLocationsOfInterest(TEST_SURVEY)
+
+    assertThat(locationOfInterestRepository.getValidLois(TEST_SURVEY).first())
+      .containsExactlyElementsIn(TEST_LOCATIONS_OF_INTEREST)
+  }
+
+  @Test
+  fun `sync saves each page before requesting the next`() = runWithTestDispatcher {
+    localLoiStore.deleteNotIn(TEST_SURVEY.id, emptyList())
+    val savedWhenPageRequested = mutableListOf<Int>()
+
+    fakeRemoteDataStore.predefinedLoiPages = flow {
+      savedWhenPageRequested += localLoiStore.getLoiCount(TEST_SURVEY.id)
+      emit(listOf(TEST_POINT_OF_INTEREST_1, TEST_POINT_OF_INTEREST_2))
+      savedWhenPageRequested += localLoiStore.getLoiCount(TEST_SURVEY.id)
+      emit(listOf(TEST_POINT_OF_INTEREST_3))
+      savedWhenPageRequested += localLoiStore.getLoiCount(TEST_SURVEY.id)
+    }
+
+    locationOfInterestRepository.syncLocationsOfInterest(TEST_SURVEY)
+
+    assertThat(savedWhenPageRequested).containsExactly(0, 2, 3).inOrder()
+  }
+
+  @Test
+  fun `sync that fails midway keeps saved pages and deletes nothing`() = runWithTestDispatcher {
+    val newLoi = createPoint("6", COORDINATE_2)
+    fakeRemoteDataStore.predefinedLoiPages = flow {
+      emit(listOf(newLoi))
+      throw TestSyncException()
+    }
+
+    assertFailsWith<TestSyncException> {
+      locationOfInterestRepository.syncLocationsOfInterest(TEST_SURVEY)
+    }
+
+    val lois = locationOfInterestRepository.getValidLois(TEST_SURVEY).first()
+    assertThat(lois).contains(newLoi)
+    assertThat(lois).containsAtLeastElementsIn(TEST_LOCATIONS_OF_INTEREST)
+  }
+
+  @Test
+  fun `sync deletes only the lois absent from every page`() = runWithTestDispatcher {
+    // Every LOI is stored to begin with, having been synced during setup.
+    assertThat(locationOfInterestRepository.getValidLois(TEST_SURVEY).first())
+      .containsExactlyElementsIn(TEST_LOCATIONS_OF_INTEREST)
+
+    // Sync again, with the server now returning two of them across separate pages.
+    fakeRemoteDataStore.predefinedLoiPages =
+      flowOf(listOf(TEST_POINT_OF_INTEREST_1), listOf(TEST_AREA_OF_INTEREST_2))
+    locationOfInterestRepository.syncLocationsOfInterest(TEST_SURVEY)
+
+    assertThat(locationOfInterestRepository.getValidLois(TEST_SURVEY).first())
+      .containsExactly(TEST_POINT_OF_INTEREST_1, TEST_AREA_OF_INTEREST_2)
+  }
+
+  @Test
+  fun `sync updates lois that changed remotely`() = runWithTestDispatcher {
+    val updated = TEST_POINT_OF_INTEREST_1.copy(geometry = Point(COORDINATE_3))
+    fakeRemoteDataStore.predefinedLois = TEST_LOCATIONS_OF_INTEREST.map {
+      if (it.id == updated.id) updated else it
+    }
+
+    locationOfInterestRepository.syncLocationsOfInterest(TEST_SURVEY)
+
+    val lois = locationOfInterestRepository.getValidLois(TEST_SURVEY).first()
+    assertThat(lois).contains(updated)
+    assertThat(lois).doesNotContain(TEST_POINT_OF_INTEREST_1)
+  }
+
+  @Test
+  fun `sync does not delete lois with pending mutations`() = runWithTestDispatcher {
+    // Created locally and not yet uploaded, so the server cannot know about it.
+    val pending =
+      LOCATION_OF_INTEREST.copy(customId = "", lastModified = LOCATION_OF_INTEREST.created)
+    locationOfInterestRepository.applyAndEnqueue(pending.toMutation(CREATE, TEST_USER.id))
+
+    fakeRemoteDataStore.predefinedLois = listOf(TEST_POINT_OF_INTEREST_1)
+    locationOfInterestRepository.syncLocationsOfInterest(TEST_SURVEY)
+
+    assertThat(locationOfInterestRepository.getOfflineLoi(TEST_SURVEY.id, pending.id))
+      .isEqualTo(pending)
+  }
 
   @Test
   fun `loi within bounds when out of bounds returns empty list`() = runWithTestDispatcher {
@@ -198,7 +303,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   @Test
   fun `should load all types of LOIs when visibility is ALL_SURVEY_PARTICIPANTS`() =
     runWithTestDispatcher {
-      val survey = TEST_SURVEY.copy(dataVisibility = DataVisibility.ALL_SURVEY_PARTICIPANTS)
+      val survey = TEST_SURVEY.copy(dataVisibility = Survey.DataVisibility.ALL_SURVEY_PARTICIPANTS)
       fakeRemoteDataStore.surveys = listOf(survey)
 
       val predefinedLoi = FakeData.LOCATION_OF_INTEREST.copy(id = "predefined_id")
@@ -206,7 +311,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
       val sharedLoi = FakeData.LOCATION_OF_INTEREST.copy(id = "shared_id")
       fakeRemoteDataStore.predefinedLois = listOf(predefinedLoi)
       fakeRemoteDataStore.userLois = listOf(userLoi)
-      fakeRemoteDataStore.sharedLois = listOf(sharedLoi)
+      fakeRemoteDataStore.sharedLois = listOf(userLoi, sharedLoi)
 
       val expected = setOf(predefinedLoi, userLoi, sharedLoi)
 
@@ -218,9 +323,26 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
     }
 
   @Test
+  fun `should not query user LOIs separately when shared LOIs already include them`() =
+    runWithTestDispatcher {
+      val survey = TEST_SURVEY.copy(dataVisibility = Survey.DataVisibility.ALL_SURVEY_PARTICIPANTS)
+      fakeRemoteDataStore.surveys = listOf(survey)
+
+      val userLoi = FakeData.LOCATION_OF_INTEREST.copy(id = "user_id")
+      fakeRemoteDataStore.userLois = listOf(userLoi)
+      fakeRemoteDataStore.sharedLois = listOf(userLoi)
+
+      syncSurvey(survey.id)
+
+      assertThat(fakeRemoteDataStore.loadUserLoisCall.callCount).isEqualTo(0)
+      assertThat(fakeRemoteDataStore.loadSharedLoisCall.callCount).isEqualTo(1)
+    }
+
+  @Test
   fun `should not load shared LOIs when visibility is not ALL_SURVEY_PARTICIPANTS`() =
     runWithTestDispatcher {
-      val survey = TEST_SURVEY.copy(dataVisibility = DataVisibility.CONTRIBUTOR_AND_ORGANIZERS)
+      val survey =
+        TEST_SURVEY.copy(dataVisibility = Survey.DataVisibility.CONTRIBUTOR_AND_ORGANIZERS)
       fakeRemoteDataStore.surveys = listOf(survey)
 
       val predefinedLoi = FakeData.LOCATION_OF_INTEREST.copy(id = "predefined_id")
@@ -235,7 +357,21 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
       val actual = locationOfInterestRepository.getValidLois(survey).first()
 
       assertThat(actual).isEqualTo(expected)
+      assertThat(fakeRemoteDataStore.loadUserLoisCall.callCount).isEqualTo(1)
+      assertThat(fakeRemoteDataStore.loadSharedLoisCall.callCount).isEqualTo(0)
     }
+
+  @Test
+  fun `should only query user LOIs when visibility is UNSPECIFIED`() = runWithTestDispatcher {
+    val survey = TEST_SURVEY.copy(dataVisibility = Survey.DataVisibility.UNSPECIFIED)
+    fakeRemoteDataStore.surveys = listOf(survey)
+    fakeRemoteDataStore.userLois = listOf(FakeData.LOCATION_OF_INTEREST.copy(id = "user_id"))
+
+    syncSurvey(survey.id)
+
+    assertThat(fakeRemoteDataStore.loadUserLoisCall.callCount).isEqualTo(1)
+    assertThat(fakeRemoteDataStore.loadSharedLoisCall.callCount).isEqualTo(0)
+  }
 
   companion object {
     private val COORDINATE_1 = Coordinates(-20.0, -20.0)

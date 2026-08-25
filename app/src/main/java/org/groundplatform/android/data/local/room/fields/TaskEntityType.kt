@@ -17,7 +17,7 @@ package org.groundplatform.android.data.local.room.fields
 
 import androidx.room.TypeConverter
 import org.groundplatform.android.data.local.room.IntEnum
-import org.groundplatform.android.model.task.Task
+import org.groundplatform.domain.model.task.Task
 
 enum class TaskEntityType(private val intValue: Int) : IntEnum {
   UNKNOWN(0),

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright 2026 Google LLC
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources>
+  <string name="share">Partager</string>
+  <string name="pdf_details_site">Site: %1$s</string>
+  <string name="pdf_details_data_collector">Collecteur de données: %1$s</string>
+  <string name="scan_this_qr_to_download_geojson">Scannez ce code QR pour afficher le GeoJson</string>
+  <string name="other">Autres</string>
+  <string name="skipped">Ignoré</string>
+  <string name="pdf_altitude">Altitude: %1$sm</string>
+  <string name="pdf_accuracy">Précision: %1$sm</string>
+  <string name="north">N</string>
+  <string name="south">S</string>
+  <string name="east">E</string>
+  <string name="west">O</string>
+  <string name="submission">Soumission</string>
+  <string name="survey">Enquête</string>
+  <string name="job">Mission</string>
+  <string name="pdf_data_collector">Collecteur de données</string>
+  <string name="retry">Réessayer</string>
+  <string name="area">Surface</string>
+  <string name="date">Date</string>
+</resources>

@@ -18,9 +18,18 @@ package org.groundplatform.android.ui.map.gms.mog
 
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
+import org.groundplatform.android.ui.map.gms.toCoordinates
+import org.groundplatform.domain.model.imagery.PixelBounds
+import org.groundplatform.domain.model.imagery.toPixelCoordinates
 
 /** Returns the coordinates of the northwest corner of the bounds. */
 fun LatLngBounds.northwest() = LatLng(northeast.latitude, southwest.longitude)
 
 /** Returns the coordinates of the southeast corner of the bounds. */
 fun LatLngBounds.southeast() = LatLng(southwest.latitude, northeast.longitude)
+
+fun LatLngBounds.toPixelBounds(zoom: Int) =
+  PixelBounds(
+    northwest().toCoordinates().toPixelCoordinates(zoom),
+    southeast().toCoordinates().toPixelCoordinates(zoom),
+  )

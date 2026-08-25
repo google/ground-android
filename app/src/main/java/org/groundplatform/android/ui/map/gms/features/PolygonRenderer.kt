@@ -23,11 +23,11 @@ import com.google.android.gms.maps.model.Polygon as MapsPolygon
 import com.google.android.gms.maps.model.PolygonOptions
 import javax.inject.Inject
 import org.groundplatform.android.R
-import org.groundplatform.android.model.geometry.Polygon
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.gms.POLYGON_Z
 import org.groundplatform.android.ui.map.gms.toLatLng
 import org.groundplatform.android.ui.map.gms.toLatLngList
+import org.groundplatform.domain.model.geometry.Polygon
 
 class PolygonRenderer @Inject constructor(resources: Resources) :
   MapsItemRenderer<Polygon, MapsPolygon> {

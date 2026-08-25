@@ -17,9 +17,9 @@
 package org.groundplatform.android.data.remote.firebase.schema
 
 import kotlinx.collections.immutable.toPersistentList
-import org.groundplatform.android.model.task.MultipleChoice
-import org.groundplatform.android.model.task.Option
 import org.groundplatform.android.proto.Task.MultipleChoiceQuestion
+import org.groundplatform.domain.model.task.MultipleChoice
+import org.groundplatform.domain.model.task.Option
 
 internal object MultipleChoiceConverter {
   fun toMultipleChoice(em: MultipleChoiceQuestion): MultipleChoice {

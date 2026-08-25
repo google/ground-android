@@ -18,26 +18,35 @@ package org.groundplatform.android.ui.surveyselector
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
-import dagger.hilt.android.testing.BindValue
+import com.google.firebase.firestore.FirebaseFirestoreException
+import com.google.mlkit.common.MlKitException
 import dagger.hilt.android.testing.HiltAndroidTest
-import javax.inject.Inject
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.withTimeout
 import org.groundplatform.android.BaseHiltTest
-import org.groundplatform.android.di.coroutines.ApplicationScope
-import org.groundplatform.android.di.coroutines.IoDispatcher
-import org.groundplatform.android.model.SurveyListItem
-import org.groundplatform.android.proto.Survey
-import org.groundplatform.android.repository.UserRepository
+import org.groundplatform.android.system.GmsQrCodeScanner
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
 import org.groundplatform.android.usecases.survey.ListAvailableSurveysUseCase
-import org.groundplatform.android.usecases.survey.RemoveOfflineSurveyUseCase
+import org.groundplatform.android.util.SurveyDeepLinkParser
+import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.SurveyListItem
+import org.groundplatform.domain.repository.UserRepositoryInterface
+import org.groundplatform.domain.usecases.survey.GetSurveyListItemUseCase
+import org.groundplatform.domain.usecases.survey.RemoveOfflineSurveyUseCase
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
+import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
@@ -46,36 +55,47 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class SurveySelectorViewModelTest : BaseHiltTest() {
 
-  @BindValue @Mock lateinit var activateSurveyUseCase: ActivateSurveyUseCase
-  @BindValue @Mock lateinit var listAvailableSurveysUseCase: ListAvailableSurveysUseCase
-  @BindValue @Mock lateinit var removeOfflineSurveyUseCase: RemoveOfflineSurveyUseCase
-  @BindValue @Mock lateinit var userRepository: UserRepository
+  @Mock lateinit var activateSurveyUseCase: ActivateSurveyUseCase
+  @Mock lateinit var listAvailableSurveysUseCase: ListAvailableSurveysUseCase
+  @Mock lateinit var surveyDeepLinkParser: SurveyDeepLinkParser
+  @Mock lateinit var qrCodeScanner: GmsQrCodeScanner
+  @Mock lateinit var removeOfflineSurveyUseCase: RemoveOfflineSurveyUseCase
+  @Mock lateinit var getSurveyListItemUseCase: GetSurveyListItemUseCase
+  @Mock lateinit var userRepository: UserRepositoryInterface
 
-  @Mock lateinit var savedStateHandle: SavedStateHandle
-
-  @Inject @ApplicationScope lateinit var externalScope: CoroutineScope
-  @Inject @IoDispatcher lateinit var ioDispatcher: CoroutineDispatcher
+  private lateinit var externalScope: CoroutineScope
+  private lateinit var ioDispatcher: CoroutineDispatcher
 
   private lateinit var viewModel: SurveySelectorViewModel
 
   @Before
   override fun setUp() {
     super.setUp()
+    externalScope = TestScope(testDispatcher)
+    ioDispatcher = testDispatcher
     whenever(listAvailableSurveysUseCase()).thenReturn(flowOf(listOf(TEST_SURVEY)))
+  }
+
+  private fun createViewModel(savedStateHandle: SavedStateHandle = SavedStateHandle()) {
     viewModel =
       SurveySelectorViewModel(
         activateSurveyUseCase,
         externalScope,
         ioDispatcher,
         listAvailableSurveysUseCase,
+        qrCodeScanner,
+        surveyDeepLinkParser,
         removeOfflineSurveyUseCase,
+        getSurveyListItemUseCase,
         userRepository,
-        SavedStateHandle(),
+        savedStateHandle,
       )
   }
 
   @Test
   fun `uiState loads surveys`() = runWithTestDispatcher {
+    createViewModel()
+
     viewModel.uiState.test {
       val state = awaitItem()
       assertThat(state.isLoading).isFalse()
@@ -85,6 +105,7 @@ class SurveySelectorViewModelTest : BaseHiltTest() {
 
   @Test
   fun `activateSurvey navigates on success`() = runWithTestDispatcher {
+    createViewModel()
     whenever(activateSurveyUseCase("1")).thenReturn(true)
 
     viewModel.events.test {
@@ -95,12 +116,224 @@ class SurveySelectorViewModelTest : BaseHiltTest() {
 
   @Test
   fun `activateSurvey shows error on failure`() = runWithTestDispatcher {
+    createViewModel()
     val error = RuntimeException("Oops")
     whenever(activateSurveyUseCase("1")).thenThrow(error)
 
     viewModel.events.test {
       viewModel.activateSurvey("1")
-      assertThat(awaitItem()).isEqualTo(SurveySelectorEvent.ShowError(error))
+      assertThat(awaitItem())
+        .isEqualTo(SurveySelectorEvent.ShowError(SurveySelectorEvent.ErrorType.Generic(error)))
+    }
+  }
+
+  @Test
+  fun `activateSurvey emits Generic error when use case returns false`() = runWithTestDispatcher {
+    createViewModel()
+    whenever(activateSurveyUseCase("1")).thenReturn(false)
+
+    viewModel.events.test {
+      viewModel.activateSurvey("1")
+      val event = awaitItem()
+      assertThat(event).isInstanceOf(SurveySelectorEvent.ShowError::class.java)
+      val errorType = (event as SurveySelectorEvent.ShowError).errorType
+      assertThat(errorType).isInstanceOf(SurveySelectorEvent.ErrorType.Generic::class.java)
+      assertThat((errorType as SurveySelectorEvent.ErrorType.Generic).cause)
+    }
+  }
+
+  @Test
+  fun `activateSurvey emits Timeout when use case throws TimeoutCancellationException`() =
+    runWithTestDispatcher {
+      createViewModel()
+      val timeout = assertFailsWith<TimeoutCancellationException> { withTimeout(1) { delay(2) } }
+      whenever(activateSurveyUseCase("1")).thenThrow(timeout)
+
+      viewModel.events.test {
+        viewModel.activateSurvey("1")
+        assertThat(awaitItem())
+          .isEqualTo(SurveySelectorEvent.ShowError(SurveySelectorEvent.ErrorType.Timeout))
+      }
+    }
+
+  @Test
+  fun `activateSurvey emits Timeout on Firestore UNAVAILABLE`() = runWithTestDispatcher {
+    createViewModel()
+    val error = FirebaseFirestoreException("offline", FirebaseFirestoreException.Code.UNAVAILABLE)
+    doAnswer { throw error }.whenever(activateSurveyUseCase).invoke("1")
+
+    viewModel.events.test {
+      viewModel.activateSurvey("1")
+      assertThat(awaitItem())
+        .isEqualTo(SurveySelectorEvent.ShowError(SurveySelectorEvent.ErrorType.Timeout))
+    }
+  }
+
+  @Test
+  fun `activateSurvey from deeplink works correctly`() = runWithTestDispatcher {
+    val savedState = SavedStateHandle(mapOf("surveyId" to "deeplink-id"))
+    whenever(activateSurveyUseCase("deeplink-id")).thenReturn(true)
+    createViewModel(savedStateHandle = savedState)
+
+    viewModel.events.test { assertThat(awaitItem()).isEqualTo(SurveySelectorEvent.NavigateToHome) }
+  }
+
+  @Test
+  fun `activateSurvey from deeplink shows error on failure`() = runWithTestDispatcher {
+    val savedState = SavedStateHandle(mapOf("surveyId" to "bad-id"))
+    val error = RuntimeException("activation failed")
+    whenever(activateSurveyUseCase("bad-id")).thenThrow(error)
+    createViewModel(savedStateHandle = savedState)
+
+    viewModel.events.test {
+      assertThat(awaitItem())
+        .isEqualTo(SurveySelectorEvent.ShowError(SurveySelectorEvent.ErrorType.Generic(error)))
+    }
+  }
+
+  @Test
+  fun `joinSurveyByQrCode requests confirmation for parsed survey`() = runWithTestDispatcher {
+    val payload = "https://groundplatform.org/android/survey/xyz"
+    whenever(getSurveyListItemUseCase(TEST_SURVEY.id)).thenReturn(TEST_SURVEY)
+    createViewModel()
+    whenever(qrCodeScanner.scan()).thenReturn(GmsQrCodeScanner.Result.Success(payload))
+    whenever(surveyDeepLinkParser.parse(payload)).thenReturn(TEST_SURVEY.id)
+
+    viewModel.joinSurveyByQrCode()
+    val state = viewModel.uiState.first { it.pendingJoinSurvey != null }
+    assertThat(state.pendingJoinSurvey).isEqualTo(TEST_SURVEY)
+  }
+
+  @Test
+  fun `confirmJoinSurvey activates pending survey and clears confirmation`() =
+    runWithTestDispatcher {
+      val payload = "https://groundplatform.org/android/survey/xyz"
+      whenever(getSurveyListItemUseCase(TEST_SURVEY.id)).thenReturn(TEST_SURVEY)
+      createViewModel()
+      whenever(qrCodeScanner.scan()).thenReturn(GmsQrCodeScanner.Result.Success(payload))
+      whenever(surveyDeepLinkParser.parse(payload)).thenReturn(TEST_SURVEY.id)
+      whenever(activateSurveyUseCase(TEST_SURVEY.id)).thenReturn(true)
+
+      viewModel.events.test {
+        viewModel.joinSurveyByQrCode()
+        viewModel.confirmJoinSurvey()
+        assertThat(awaitItem()).isEqualTo(SurveySelectorEvent.NavigateToHome)
+      }
+      assertThat(viewModel.uiState.value.pendingJoinSurvey).isNull()
+    }
+
+  @Test
+  fun `dismissJoinSurveyConfirmation clears pending survey without activating`() =
+    runWithTestDispatcher {
+      val payload = "https://groundplatform.org/android/survey/xyz"
+      whenever(getSurveyListItemUseCase(TEST_SURVEY.id)).thenReturn(TEST_SURVEY)
+      createViewModel()
+      whenever(qrCodeScanner.scan()).thenReturn(GmsQrCodeScanner.Result.Success(payload))
+      whenever(surveyDeepLinkParser.parse(payload)).thenReturn(TEST_SURVEY.id)
+
+      viewModel.events.test {
+        viewModel.joinSurveyByQrCode()
+        viewModel.dismissJoinSurveyConfirmation()
+        expectNoEvents()
+      }
+      assertThat(viewModel.uiState.value.pendingJoinSurvey).isNull()
+    }
+
+  @Test
+  fun `joinSurveyByQrCode emits invalid event when survey cannot be loaded`() =
+    runWithTestDispatcher {
+      val payload = "https://groundplatform.org/android/survey/missing"
+      createViewModel()
+      whenever(qrCodeScanner.scan()).thenReturn(GmsQrCodeScanner.Result.Success(payload))
+      whenever(surveyDeepLinkParser.parse(payload)).thenReturn("missing")
+
+      viewModel.events.test {
+        viewModel.joinSurveyByQrCode()
+        assertThat(awaitItem())
+          .isEqualTo(SurveySelectorEvent.ShowError(SurveySelectorEvent.ErrorType.InvalidQrCode))
+      }
+    }
+
+  @Test
+  fun `joinSurveyByQrCode emits invalid event for bad payload`() = runWithTestDispatcher {
+    createViewModel()
+    whenever(qrCodeScanner.scan()).thenReturn(GmsQrCodeScanner.Result.Success("not a url"))
+    whenever(surveyDeepLinkParser.parse("not a url")).thenReturn(null)
+
+    viewModel.events.test {
+      viewModel.joinSurveyByQrCode()
+      assertThat(awaitItem())
+        .isEqualTo(SurveySelectorEvent.ShowError(SurveySelectorEvent.ErrorType.InvalidQrCode))
+    }
+  }
+
+  @Test
+  fun `joinSurveyByQrCode is silent on cancellation`() = runWithTestDispatcher {
+    createViewModel()
+    whenever(qrCodeScanner.scan()).thenReturn(GmsQrCodeScanner.Result.Cancelled)
+
+    viewModel.events.test {
+      viewModel.joinSurveyByQrCode()
+      expectNoEvents()
+    }
+  }
+
+  @Test
+  fun `joinSurveyByQrCode emits generic error when there's a problem scanning`() =
+    runWithTestDispatcher {
+      createViewModel()
+      val error = RuntimeException("camera unavailable")
+      whenever(qrCodeScanner.scan()).thenReturn(GmsQrCodeScanner.Result.Error(error))
+
+      viewModel.events.test {
+        viewModel.joinSurveyByQrCode()
+        assertThat(awaitItem())
+          .isEqualTo(SurveySelectorEvent.ShowError(SurveySelectorEvent.ErrorType.Generic(error)))
+      }
+    }
+
+  @Test
+  fun `joinSurveyByQrCode emits ScannerUnavailable when scanner module is unavailable`() =
+    runWithTestDispatcher {
+      createViewModel()
+      val error = MlKitException("scanner unavailable", MlKitException.CODE_SCANNER_UNAVAILABLE)
+      whenever(qrCodeScanner.scan()).thenReturn(GmsQrCodeScanner.Result.Error(error))
+
+      viewModel.events.test {
+        viewModel.joinSurveyByQrCode()
+        assertThat(awaitItem())
+          .isEqualTo(
+            SurveySelectorEvent.ShowError(SurveySelectorEvent.ErrorType.ScannerUnavailable)
+          )
+      }
+    }
+
+  @Test
+  fun `joinSurveyByQrCode emits Timeout on MlKit NETWORK_ISSUE`() = runWithTestDispatcher {
+    createViewModel()
+    val error = MlKitException("network issue", MlKitException.NETWORK_ISSUE)
+    whenever(qrCodeScanner.scan()).thenReturn(GmsQrCodeScanner.Result.Error(error))
+
+    viewModel.events.test {
+      viewModel.joinSurveyByQrCode()
+      assertThat(awaitItem())
+        .isEqualTo(SurveySelectorEvent.ShowError(SurveySelectorEvent.ErrorType.Timeout))
+    }
+  }
+
+  @Test
+  fun `surveyList failure emits Generic error event`() = runWithTestDispatcher {
+    val error = RuntimeException()
+    whenever(listAvailableSurveysUseCase()).thenReturn(flow { throw error })
+    createViewModel()
+
+    viewModel.events.test {
+      viewModel.uiState.test {
+        awaitItem()
+        cancelAndIgnoreRemainingEvents()
+      }
+      assertThat(awaitItem())
+        .isEqualTo(SurveySelectorEvent.ShowError(SurveySelectorEvent.ErrorType.Generic(error)))
     }
   }
 

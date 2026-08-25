@@ -15,22 +15,45 @@
  */
 package org.groundplatform.android.ui.settings
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import dagger.hilt.android.AndroidEntryPoint
-import org.groundplatform.android.databinding.SettingsActivityBinding
 import org.groundplatform.android.ui.common.AbstractActivity
+import org.groundplatform.android.ui.main.MainActivity
+import org.groundplatform.ui.theme.AppTheme
 
 @AndroidEntryPoint
 class SettingsActivity : AbstractActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-
-    val binding = SettingsActivityBinding.inflate(layoutInflater)
-    setContentView(binding.root)
-
-    with(binding.settingsToolbar) {
-      setSupportActionBar(this)
-      setNavigationOnClickListener { finish() }
+    setContent {
+      AppTheme {
+        SettingsScreen(
+          onBack = { finish() },
+          onLocaleChanged = { locale -> applyLocaleAndRestart(locale) },
+          onVisitWebsiteClick = { uri: Uri -> openWebsite(uri) },
+        )
+      }
     }
+  }
+
+  private fun applyLocaleAndRestart(languageCode: String) {
+    val appLocale = LocaleListCompat.forLanguageTags(languageCode)
+    AppCompatDelegate.setApplicationLocales(appLocale)
+
+    val intent =
+      Intent(this, MainActivity::class.java).apply {
+        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+      }
+    startActivity(intent)
+  }
+
+  private fun openWebsite(uri: Uri) {
+    val intent = Intent(Intent.ACTION_VIEW, uri)
+    startActivity(intent)
   }
 }

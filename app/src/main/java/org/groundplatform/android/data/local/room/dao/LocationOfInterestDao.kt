@@ -17,6 +17,8 @@ package org.groundplatform.android.data.local.room.dao
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Transaction
+import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 import org.groundplatform.android.data.local.room.entity.LocationOfInterestEntity
 import org.groundplatform.android.data.local.room.fields.EntityDeletionState
@@ -25,6 +27,21 @@ import org.groundplatform.android.data.local.room.fields.EntityDeletionState
 @Dao
 interface LocationOfInterestDao : BaseDao<LocationOfInterestEntity> {
 
+  /** Inserts or updates all the given LOIs in a single transaction. */
+  @Upsert suspend fun upsertAll(entities: List<LocationOfInterestEntity>)
+
+  @Query("SELECT id FROM location_of_interest WHERE survey_id = :surveyId")
+  suspend fun getIds(surveyId: String): List<String>
+
+  /** Deletes the LOIs with the given IDs. Callers must respect [MAX_SQL_VARIABLES]. */
+  @Query("DELETE FROM location_of_interest WHERE id IN (:ids)")
+  suspend fun deleteByIds(ids: List<String>)
+
+  /**
+   * Streams LOIs in the given deletion state. Runs in a transaction to ensure consistent reads
+   * across cursor windows.
+   */
+  @Transaction
   @Query(
     "SELECT * FROM location_of_interest WHERE survey_id = :surveyId AND state = :deletionState"
   )
@@ -40,11 +57,4 @@ interface LocationOfInterestDao : BaseDao<LocationOfInterestEntity> {
 
   @Query("SELECT * FROM location_of_interest WHERE id = :id")
   suspend fun findById(id: String): LocationOfInterestEntity?
-
-  /**
-   * Deletes all LOIs in specified survey whose IDs are not present in the specified list..
-   * Main-safe.
-   */
-  @Query("DELETE FROM location_of_interest WHERE survey_id = :surveyId AND id NOT IN (:ids)")
-  suspend fun deleteNotIn(surveyId: String, ids: List<String>)
 }

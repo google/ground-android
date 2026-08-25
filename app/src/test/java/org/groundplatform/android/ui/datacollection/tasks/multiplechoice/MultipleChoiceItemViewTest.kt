@@ -16,24 +16,24 @@
 package org.groundplatform.android.ui.datacollection.tasks.multiplechoice
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import com.google.common.truth.Truth.assertThat
-import dagger.hilt.android.testing.HiltAndroidTest
 import junit.framework.TestCase.assertTrue
-import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.common.Constants
-import org.groundplatform.android.model.task.MultipleChoice
-import org.groundplatform.android.model.task.Option
+import org.groundplatform.domain.model.task.MultipleChoice
+import org.groundplatform.domain.model.task.Option
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
-@HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-class MultipleChoiceItemViewTest : BaseHiltTest() {
+class MultipleChoiceItemViewTest {
+  @get:Rule val composeTestRule = createComposeRule()
 
   @Test
   fun `SELECT_ONE multiple choice shows radio buttons and toggles select event correctly`() {
@@ -63,6 +63,20 @@ class MultipleChoiceItemViewTest : BaseHiltTest() {
 
     assertTrue(clicked)
     composeTestRule.onNodeWithTag(SELECT_MULTIPLE_RADIO_TEST_TAG).assertDoesNotExist()
+  }
+
+  @Test
+  fun `Clicking anywhere on the item row triggers toggleItem`() {
+    var clickCount = 0
+    val item = generateMultipleChoiceItem(MultipleChoice.Cardinality.SELECT_ONE)
+
+    composeTestRule.setContent {
+      MultipleChoiceItemView(item = item, toggleItem = { clickCount++ })
+    }
+
+    composeTestRule.onNodeWithTag(MULTIPLE_CHOICE_ITEM_TEST_TAG).performClick()
+
+    assertThat(clickCount).isEqualTo(1)
   }
 
   @Test

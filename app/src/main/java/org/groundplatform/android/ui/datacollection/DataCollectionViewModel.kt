@@ -15,32 +15,27 @@
  */
 package org.groundplatform.android.ui.datacollection
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import javax.inject.Provider
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.groundplatform.android.data.local.room.converter.SubmissionDeltasConverter
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.android.di.coroutines.ApplicationScope
 import org.groundplatform.android.di.coroutines.IoDispatcher
-import org.groundplatform.android.model.job.Job
-import org.groundplatform.android.model.submission.TaskData
-import org.groundplatform.android.model.submission.ValueDelta
-import org.groundplatform.android.model.submission.isNotNullOrEmpty
-import org.groundplatform.android.model.task.Task
-import org.groundplatform.android.repository.SubmissionRepository
 import org.groundplatform.android.ui.common.AbstractViewModel
-import org.groundplatform.android.ui.common.EphemeralPopups
 import org.groundplatform.android.ui.common.ViewModelFactory
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
+import org.groundplatform.android.ui.datacollection.tasks.DataCollectionEvent
 import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 import org.groundplatform.android.ui.datacollection.tasks.date.DateTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.instruction.InstructionTaskViewModel
@@ -52,10 +47,31 @@ import org.groundplatform.android.ui.datacollection.tasks.point.DropPinTaskViewM
 import org.groundplatform.android.ui.datacollection.tasks.polygon.DrawAreaTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.text.TextTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.time.TimeTaskViewModel
-import org.groundplatform.android.usecases.submission.SubmitDataUseCase
+import org.groundplatform.domain.model.submission.TaskData
+import org.groundplatform.domain.model.submission.ValueDelta
+import org.groundplatform.domain.model.submission.isNotNullOrEmpty
+import org.groundplatform.domain.model.task.Task
+import org.groundplatform.domain.repository.SubmissionRepositoryInterface
+import org.groundplatform.domain.usecases.GetLoiReportUseCase
+import org.groundplatform.domain.usecases.submission.SubmitDataUseCase
+import org.groundplatform.feature.pdf.LoiReportExporter
+import org.groundplatform.ui.components.loireport.LoiReportAction
 import timber.log.Timber
 
+sealed interface DataCollectionUiEffect {
+  data object Exit : DataCollectionUiEffect
+
+  data object OpenSettings : DataCollectionUiEffect
+
+  data class SetAwaitingPhotoCapture(val awaiting: Boolean) : DataCollectionUiEffect
+
+  data class ShowValidationError(val errorResId: Int) : DataCollectionUiEffect
+
+  data object ShowReportExportError : DataCollectionUiEffect
+}
+
 /** View model for the Data Collection fragment. */
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class DataCollectionViewModel
 @Inject
@@ -63,52 +79,175 @@ internal constructor(
   private val savedStateHandle: SavedStateHandle,
   @ApplicationScope private val externalScope: CoroutineScope,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-  private val submissionRepository: SubmissionRepository,
+  private val submissionRepository: SubmissionRepositoryInterface,
   private val submitDataUseCase: SubmitDataUseCase,
   private val offlineUuidGenerator: OfflineUuidGenerator,
-  private val popups: Provider<EphemeralPopups>,
   private val viewModelFactory: ViewModelFactory,
   private val dataCollectionInitializer: DataCollectionInitializer,
+  private val getLoiReportUseCase: GetLoiReportUseCase,
+  private val loiReportExporter: LoiReportExporter,
 ) : AbstractViewModel() {
+
+  private val _uiEffects = Channel<DataCollectionUiEffect>(Channel.BUFFERED)
+  val uiEffects = _uiEffects.receiveAsFlow()
 
   private val _uiState = MutableStateFlow<DataCollectionUiState>(DataCollectionUiState.Loading)
   val uiState: StateFlow<DataCollectionUiState> = _uiState
 
-  val loiNameDialogOpen = mutableStateOf(false)
-  private var shouldLoadFromDraft: Boolean = savedStateHandle[TASK_SHOULD_LOAD_FROM_DRAFT] ?: false
+  private val _loiNameDialogOpen = MutableStateFlow(false)
+  val loiNameDialogOpen: StateFlow<Boolean> = _loiNameDialogOpen.asStateFlow()
+
+  private val _showExitWarning = MutableStateFlow(false)
+  val showExitWarning: StateFlow<Boolean> = _showExitWarning.asStateFlow()
+
+  private val _loiNameDraft = MutableStateFlow("")
+  val loiNameDraft: StateFlow<String> = _loiNameDraft
 
   private val jobId: String = requireNotNull(savedStateHandle[TASK_JOB_ID_KEY])
   private val loiId: String? = savedStateHandle[TASK_LOI_ID_KEY]
-  private val loiName: String? = savedStateHandle[TASK_LOI_NAME_KEY]
 
   private val taskDataHandler = TaskDataHandler()
   private lateinit var taskSequenceHandler: TaskSequenceHandler
   private val taskViewModels = MutableStateFlow(mutableMapOf<String, AbstractTaskViewModel>())
 
-  private val draftLock = Any()
-  @Volatile private var draftCache: List<ValueDelta>? = null
-  @Volatile private var draftMapCache: Map<Pair<String, Task.Type>, TaskData?>? = null
-  @Volatile private var draftsEnabled = true
+  private var draftsEnabled = true
 
   init {
     viewModelScope.launch {
-      val initResult = dataCollectionInitializer.initialize(savedStateHandle, jobId, loiId, loiName)
+      val initResult =
+        dataCollectionInitializer.initialize(
+          savedStateHandle,
+          jobId,
+          loiId,
+          getTypedLoiNameOrEmpty(),
+        )
 
-      if (initResult is DataCollectionUiState.Ready) {
-        taskSequenceHandler = TaskSequenceHandler(initResult.tasks, taskDataHandler)
-      }
-
-      if (initResult is DataCollectionUiState.Error) {
-        Timber.e(initResult.cause, "Initialization failed code=%s", initResult.code)
-      }
-      _uiState.value = initResult
+      _uiState.value =
+        when (val state = initResult.uiState) {
+          is DataCollectionUiState.Ready -> {
+            taskDataHandler.setData(initResult.collectedData)
+            taskSequenceHandler = TaskSequenceHandler(state.tasks, taskDataHandler)
+            setupSession(state)
+          }
+          is DataCollectionUiState.Error -> {
+            Timber.e(state.cause, "Initialization failed code=%s", state.code)
+            state
+          }
+          else -> {
+            state
+          }
+        }
     }
   }
 
-  fun setLoiName(name: String) {
+  private fun setupSession(state: DataCollectionUiState.Ready): DataCollectionUiState.Ready {
+    val taskId = taskSequenceHandler.getResumeTask(state.currentTaskId)
+    if (taskId == state.currentTaskId) return state
+
+    Timber.w("No data restored for task %s; resuming at %s", state.currentTaskId, taskId)
+    return state.withTask(taskId)
+  }
+
+  private fun setLoiName(name: String) {
     savedStateHandle[TASK_LOI_NAME_KEY] = name
     _uiState.update { state ->
       (state as? DataCollectionUiState.Ready)?.copy(loiName = name) ?: state
+    }
+  }
+
+  fun setLoiNameDraft(name: String) {
+    _loiNameDraft.value = name
+  }
+
+  private fun getLoiName(): String {
+    val state = uiState.value
+    return (state as? DataCollectionUiState.Ready)?.loiName ?: getTypedLoiNameOrEmpty()
+  }
+
+  fun openLoiNameDialog() {
+    setLoiNameDraft(getLoiName())
+    _loiNameDialogOpen.value = true
+  }
+
+  fun confirmLoiName(name: String) {
+    _loiNameDialogOpen.value = false
+    setLoiName(name)
+  }
+
+  fun dismissLoiNameDialog(initialName: String) {
+    _loiNameDialogOpen.value = false
+    setLoiNameDraft(initialName)
+  }
+
+  fun showExitWarning() {
+    _showExitWarning.value = true
+  }
+
+  fun dismissExitWarning() {
+    _showExitWarning.value = false
+  }
+
+  fun onCloseClicked() {
+    if (uiState.value is DataCollectionUiState.TaskSubmitted) {
+      exitDataCollection()
+    } else {
+      showExitWarning()
+    }
+  }
+
+  fun confirmExit() {
+    dismissExitWarning()
+    exitDataCollection()
+  }
+
+  fun onBackClicked() {
+    when (val state = _uiState.value) {
+      is DataCollectionUiState.Ready ->
+        if (taskSequenceHandler.isFirstPosition(state.currentTaskId)) showExitWarning()
+        else moveToPreviousTask()
+      is DataCollectionUiState.TaskSubmitted -> exitDataCollection()
+      is DataCollectionUiState.Error,
+      DataCollectionUiState.Loading -> showExitWarning()
+    }
+  }
+
+  private fun exitDataCollection() {
+    viewModelScope.launch { _uiEffects.send(DataCollectionUiEffect.Exit) }
+  }
+
+  private fun openSettings() {
+    viewModelScope.launch { _uiEffects.send(DataCollectionUiEffect.OpenSettings) }
+  }
+
+  private fun setAwaitingPhotoCapture(awaiting: Boolean) {
+    viewModelScope.launch {
+      _uiEffects.send(DataCollectionUiEffect.SetAwaitingPhotoCapture(awaiting))
+    }
+  }
+
+  fun onLoiReportAction(action: LoiReportAction) {
+    val loiReport = (uiState.value as? DataCollectionUiState.TaskSubmitted)?.loiReport
+    viewModelScope.launch {
+      if (loiReport == null || loiReportExporter.export(loiReport, action).isFailure) {
+        _uiEffects.send(DataCollectionUiEffect.ShowReportExportError)
+      }
+    }
+  }
+
+  fun handleLoiNameAction(action: LoiNameAction, taskId: String) {
+    when (action) {
+      is LoiNameAction.Confirmed -> {
+        if (action.name.isNotBlank()) {
+          confirmLoiName(action.name)
+          onNextClicked(taskId)
+        }
+      }
+      is LoiNameAction.Dismissed -> {
+        dismissLoiNameDialog(getLoiName())
+      }
+      is LoiNameAction.Changed -> {
+        setLoiNameDraft(action.name)
+      }
     }
   }
 
@@ -124,14 +263,10 @@ internal constructor(
       }
     } ?: false
 
-  fun isAtFirstTask(): Boolean = withReady { taskSequenceHandler.isFirstPosition(it.currentTaskId) }
-
   fun clearDraftBlocking() {
     suppressDrafts()
     clearDraft()
   }
-
-  fun requireSurveyId(): String = withReady { it.surveyId }
 
   fun saveCurrentState() {
     if (!isReady() || !draftsEnabled) return
@@ -150,7 +285,8 @@ internal constructor(
     moveToTask(withReady { taskSequenceHandler.getPreviousTask(it.currentTaskId) })
   }
 
-  fun onNextClicked(taskViewModel: AbstractTaskViewModel) = withReady { st ->
+  fun onNextClicked(taskId: String) = withReady { uiState ->
+    val taskViewModel = getTaskViewModel(taskId) ?: return@withReady
     validateOrShow(taskViewModel) {
       val task = taskViewModel.task
       val value = taskViewModel.taskTaskData.value
@@ -160,13 +296,22 @@ internal constructor(
         moveToNextTask()
       } else {
         clearDraft()
-        saveChanges(st, getDeltas())
-        _uiState.value = DataCollectionUiState.TaskSubmitted
+        externalScope.launch(ioDispatcher) {
+          val submittedLoiId = saveChanges(uiState, getDeltas())
+          val loiReport =
+            getLoiReportUseCase.invoke(
+              loiName = getTypedLoiNameOrEmpty(),
+              loiId = submittedLoiId,
+              surveyId = uiState.surveyId,
+            )
+          _uiState.value = DataCollectionUiState.TaskSubmitted(loiReport)
+        }
       }
     }
   }
 
-  fun onPreviousClicked(taskViewModel: AbstractTaskViewModel) = withReady { _ ->
+  fun onPreviousClicked(taskId: String) = withReady { _ ->
+    val taskViewModel = getTaskViewModel(taskId) ?: return@withReady
     val task = taskViewModel.task
     val taskValue = taskViewModel.taskTaskData.value
 
@@ -174,7 +319,9 @@ internal constructor(
       if (taskValue?.isNotNullOrEmpty() == true) taskViewModel.validate() else null
 
     if (validationError != null) {
-      popups.get().ErrorPopup().show(validationError)
+      viewModelScope.launch {
+        _uiEffects.send(DataCollectionUiEffect.ShowValidationError(validationError))
+      }
     } else {
       updateDataAndInvalidateTasks(task, taskValue)
       moveToPreviousTask()
@@ -201,11 +348,10 @@ internal constructor(
       }
 
     viewModel?.let { created ->
-      val taskData = if (shouldLoadFromDraft) getValueFromDraft(state.job, task) else null
       created.initialize(
         job = state.job,
         task = task,
-        taskData = taskData,
+        taskData = taskDataHandler.getData(task),
         taskPositionInterface =
           object : TaskPositionInterface {
             override fun isFirst(): Boolean = isFirstPosition(task.id)
@@ -213,8 +359,21 @@ internal constructor(
             override fun isLastWithValue(taskData: TaskData?): Boolean =
               isLastPositionWithValue(task, taskData)
           },
+        surveyId = state.surveyId,
+        eventReporter = { event ->
+          withReadyOrNull { it.currentTaskId }
+            ?.let { taskId ->
+              when (event) {
+                is DataCollectionEvent.NavigatePrevious -> onPreviousClicked(taskId)
+                is DataCollectionEvent.NavigateNext -> onNextClicked(taskId)
+                is DataCollectionEvent.ShowLoiDialog -> openLoiNameDialog()
+                is DataCollectionEvent.OpenSettings -> openSettings()
+                is DataCollectionEvent.SetAwaitingPhotoCapture ->
+                  setAwaitingPhotoCapture(event.awaiting)
+              }
+            }
+        },
       )
-      updateDataAndInvalidateTasks(task, taskData)
       taskViewModels.value[task.id] = created
     }
     viewModel
@@ -233,18 +392,19 @@ internal constructor(
     moveToTask(withReady { taskSequenceHandler.getNextTask(it.currentTaskId) })
   }
 
-  private fun saveChanges(state: DataCollectionUiState.Ready, deltas: List<ValueDelta>) {
-    externalScope.launch(ioDispatcher) {
-      val collectionId = offlineUuidGenerator.generateUuid()
-      submitDataUseCase.invoke(
-        loiId,
-        state.job,
-        state.surveyId,
-        deltas,
-        savedStateHandle[TASK_LOI_NAME_KEY],
-        collectionId,
-      )
-    }
+  private suspend fun saveChanges(
+    state: DataCollectionUiState.Ready,
+    deltas: List<ValueDelta>,
+  ): String {
+    val collectionId = offlineUuidGenerator.generateUuid()
+    return submitDataUseCase.invoke(
+      selectedLoiId = loiId,
+      job = state.job,
+      surveyId = state.surveyId,
+      deltas = deltas,
+      loiName = savedStateHandle[TASK_LOI_NAME_KEY],
+      collectionId = collectionId,
+    )
   }
 
   private fun suppressDrafts() {
@@ -255,11 +415,9 @@ internal constructor(
     val validIds = taskSequenceHandler.getValidTasks().map { it.id }.toSet()
     val safeId = if (taskId in validIds) taskId else validIds.first()
 
-    savedStateHandle[TASK_POSITION_ID] = safeId
+    val newState = st.withTask(safeId)
     saveDraft(safeId)
-
-    val newPos = taskSequenceHandler.getTaskPosition(safeId)
-    _uiState.value = st.copy(currentTaskId = safeId, position = newPos)
+    _uiState.value = newState
   }
 
   private fun getDeltas(): List<ValueDelta> {
@@ -275,7 +433,7 @@ internal constructor(
     val state = uiState.value
 
     if (
-      state == DataCollectionUiState.TaskSubmitted ||
+      state is DataCollectionUiState.TaskSubmitted ||
         deltas.isEmpty() ||
         state !is DataCollectionUiState.Ready
     ) {
@@ -309,54 +467,18 @@ internal constructor(
     return block(s)
   }
 
-  private fun ensureDraftCaches(job: Job) {
-    if (!shouldLoadFromDraft || draftCache != null) return
-
-    val serialized: String = savedStateHandle[TASK_DRAFT_VALUES] ?: ""
-    if (serialized.isEmpty()) {
-      Timber.w("No draft values found; skipping load")
-      synchronized(draftLock) {
-        if (draftCache == null) {
-          draftCache = emptyList()
-          draftMapCache = emptyMap()
-        }
-      }
-      return
-    }
-
-    val parsed =
-      try {
-        SubmissionDeltasConverter.fromString(job, serialized)
-      } catch (e: Exception) {
-        Timber.e(e, "Failed to parse draft submission")
-        emptyList()
-      }
-
-    synchronized(draftLock) {
-      if (draftCache == null) {
-        draftCache = parsed
-        draftMapCache =
-          parsed.associate { (taskId, taskType, value) -> (taskId to taskType) to value }
-      }
-    }
-  }
-
-  private fun getValueFromDraft(job: Job, task: Task): TaskData? {
-    if (!shouldLoadFromDraft) return null
-    ensureDraftCaches(job)
-    val value = draftMapCache?.get(task.id to task.type)
-    if (value == null) Timber.w("Value not found for task $task")
-    else Timber.d("Value $value found for task $task")
-    return value
-  }
-
   private inline fun validateOrShow(taskVm: AbstractTaskViewModel, onValid: () -> Unit) {
     val error = taskVm.validate()
     if (error != null) {
-      popups.get().ErrorPopup().show(error)
+      viewModelScope.launch { _uiEffects.send(DataCollectionUiEffect.ShowValidationError(error)) }
     } else {
       onValid()
     }
+  }
+
+  private fun DataCollectionUiState.Ready.withTask(taskId: String): DataCollectionUiState.Ready {
+    savedStateHandle[TASK_POSITION_ID] = taskId
+    return copy(currentTaskId = taskId, position = taskSequenceHandler.getTaskPosition(taskId))
   }
 
   companion object {
@@ -364,8 +486,6 @@ internal constructor(
     private const val TASK_LOI_ID_KEY = "locationOfInterestId"
     private const val TASK_LOI_NAME_KEY = "locationOfInterestName"
     private const val TASK_POSITION_ID = "currentTaskId"
-    private const val TASK_DRAFT_VALUES = "draftValues"
-    private const val TASK_SHOULD_LOAD_FROM_DRAFT = "shouldLoadFromDraft"
 
     fun getViewModelClass(taskType: Task.Type): Class<out AbstractTaskViewModel> =
       when (taskType) {

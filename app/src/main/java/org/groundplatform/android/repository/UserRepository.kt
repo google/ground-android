@@ -17,17 +17,22 @@ package org.groundplatform.android.repository
 
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.Flow
 import org.groundplatform.android.data.local.LocalValueStore
+import org.groundplatform.android.data.local.room.LocalDatabase
 import org.groundplatform.android.data.local.stores.LocalUserStore
 import org.groundplatform.android.data.remote.RemoteDataStore
-import org.groundplatform.android.model.Role
-import org.groundplatform.android.model.User
-import org.groundplatform.android.model.locationofinterest.LocationOfInterest
-import org.groundplatform.android.model.settings.MeasurementUnits
-import org.groundplatform.android.model.settings.UserSettings
-import org.groundplatform.android.proto.Survey
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.auth.AuthenticationManager
+import org.groundplatform.domain.model.Role
+import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.User
+import org.groundplatform.domain.model.auth.SignInState
+import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
+import org.groundplatform.domain.model.settings.MeasurementUnits
+import org.groundplatform.domain.model.settings.UserSettings
+import org.groundplatform.domain.repository.SurveyRepositoryInterface
+import org.groundplatform.domain.repository.UserRepositoryInterface
 import timber.log.Timber
 
 /**
@@ -42,22 +47,22 @@ constructor(
   private val localValueStore: LocalValueStore,
   private val localUserStore: LocalUserStore,
   private val networkManager: NetworkManager,
-  private val surveyRepository: SurveyRepository,
+  private val surveyRepository: SurveyRepositoryInterface,
   private val remoteDataStore: RemoteDataStore,
-) {
+  private val localDatabase: LocalDatabase,
+) : UserRepositoryInterface {
 
-  fun getSignInState() = authenticationManager.signInState
+  override fun getSignInState(): Flow<SignInState> = authenticationManager.signInState
 
-  fun init() = authenticationManager.init()
+  override fun init() = authenticationManager.init()
 
-  fun signIn() = authenticationManager.signIn()
+  override fun signIn() = authenticationManager.signIn()
 
-  fun signOut() = authenticationManager.signOut()
+  override fun signOut() = authenticationManager.signOut()
 
-  suspend fun getAuthenticatedUser() = authenticationManager.getAuthenticatedUser()
+  override suspend fun getAuthenticatedUser(): User = authenticationManager.getAuthenticatedUser()
 
-  /** Stores the given user to the local and remote dbs. */
-  suspend fun saveUserDetails(user: User) {
+  override suspend fun saveUserDetails(user: User) {
     localUserStore.insertOrUpdateUser(user)
     updateRemoteUserInfo(user)
   }
@@ -77,16 +82,28 @@ constructor(
     }
   }
 
-  suspend fun getUser(userId: String): User = localUserStore.getUser(userId)
+  override suspend fun getUser(userId: String): User = localUserStore.getUser(userId)
 
-  /** Clears all user-specific preferences and settings. */
-  fun clearUserPreferences() = localValueStore.clear()
+  override suspend fun clearUserData() {
+    clearUserPreferences()
+    // TODO: Once multi-user login is supported, avoid clearing local db data. This is
+    //  currently being done to prevent one user's data to be submitted as another user after
+    //  re-login.
+    // Issue URL: https://github.com/google/ground-android/issues/1691
+    localDatabase.clearAllTables()
+  }
 
-  /**
-   * Returns true if the currently logged in user has permissions to write data to the active
-   * survey. If no survey is active at the moment, then it returns false.
-   */
-  suspend fun canUserSubmitData(): Boolean {
+  private fun clearUserPreferences() {
+    val deferredDeeplinkConsumed = localValueStore.isDeferredDeeplinkConsumed
+    localValueStore.clear()
+    if (deferredDeeplinkConsumed) {
+      // A deferred deep link is spent once per install, so signing out must not make an already
+      // consumed one eligible to be consumed again.
+      localValueStore.isDeferredDeeplinkConsumed = true
+    }
+  }
+
+  override suspend fun canUserSubmitData(): Boolean {
     if (
       surveyRepository.activeSurvey?.generalAccess == Survey.GeneralAccess.PUBLIC ||
         surveyRepository.activeSurvey?.generalAccess == Survey.GeneralAccess.UNLISTED
@@ -103,12 +120,7 @@ constructor(
     }
   }
 
-  /**
-   * Returns true if the currently logged in user can delete the given LOI. This is allowed if:
-   * - The user is a survey organizer, OR
-   * - The user created the LOI (data collector who created their own site)
-   */
-  suspend fun canDeleteLoi(loi: LocationOfInterest): Boolean {
+  override suspend fun canDeleteLoi(loi: LocationOfInterest): Boolean {
     if (loi.isPredefined == true) return false
 
     val user = getAuthenticatedUser()
@@ -116,19 +128,28 @@ constructor(
     if (ownerId == user.id) return true
 
     // Check if user is a survey organizer
-    val isOrganizer =
-      runCatching { surveyRepository.activeSurvey?.getRole(user.email) == Role.SURVEY_ORGANIZER }
-        .getOrElse { false }
+    val isOrganizer = runCatching {
+      surveyRepository.activeSurvey?.getRole(user.email) == Role.SURVEY_ORGANIZER
+    }
+      .getOrElse { false }
 
     return isOrganizer
   }
 
-  fun getUserSettings(): UserSettings =
+  override fun getUserSettings(): UserSettings =
     with(localValueStore) {
       UserSettings(
         language = selectedLanguage,
         measurementUnits = MeasurementUnits.valueOf(selectedLengthUnit),
-        shouldUploadPhotosOnWifiOnly = shouldUploadMediaOverUnmeteredConnectionOnly(),
+        shouldUploadPhotosOnWifiOnly = shouldUploadMediaOverUnmeteredConnectionOnly,
       )
     }
+
+  override fun setUserSettings(userSettings: UserSettings) {
+    with(localValueStore) {
+      selectedLanguage = userSettings.language
+      selectedLengthUnit = userSettings.measurementUnits.name
+      shouldUploadMediaOverUnmeteredConnectionOnly = userSettings.shouldUploadPhotosOnWifiOnly
+    }
+  }
 }

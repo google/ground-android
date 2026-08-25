@@ -16,29 +16,7 @@
 package org.groundplatform.android.data.remote.firebase.protobuf
 
 import com.google.protobuf.timestamp
-import java.util.Date
 import kotlinx.collections.immutable.toImmutableMap
-import org.groundplatform.android.model.User
-import org.groundplatform.android.model.geometry.Coordinates
-import org.groundplatform.android.model.geometry.Geometry
-import org.groundplatform.android.model.geometry.LineString
-import org.groundplatform.android.model.geometry.LinearRing
-import org.groundplatform.android.model.geometry.MultiPolygon
-import org.groundplatform.android.model.geometry.Point
-import org.groundplatform.android.model.geometry.Polygon
-import org.groundplatform.android.model.locationofinterest.LoiProperties
-import org.groundplatform.android.model.mutation.LocationOfInterestMutation
-import org.groundplatform.android.model.mutation.Mutation
-import org.groundplatform.android.model.mutation.SubmissionMutation
-import org.groundplatform.android.model.submission.CaptureLocationTaskData
-import org.groundplatform.android.model.submission.DateTimeTaskData
-import org.groundplatform.android.model.submission.GeometryTaskData
-import org.groundplatform.android.model.submission.MultipleChoiceTaskData
-import org.groundplatform.android.model.submission.NumberTaskData
-import org.groundplatform.android.model.submission.PhotoTaskData
-import org.groundplatform.android.model.submission.SkippedTaskData
-import org.groundplatform.android.model.submission.TaskData
-import org.groundplatform.android.model.submission.TextTaskData
 import org.groundplatform.android.proto.LinearRing as LinearRingProto
 import org.groundplatform.android.proto.LocationOfInterest.Property
 import org.groundplatform.android.proto.LocationOfInterest.Source
@@ -59,6 +37,27 @@ import org.groundplatform.android.proto.locationOfInterest
 import org.groundplatform.android.proto.point
 import org.groundplatform.android.proto.submission
 import org.groundplatform.android.proto.taskData
+import org.groundplatform.domain.model.User
+import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.geometry.Geometry
+import org.groundplatform.domain.model.geometry.LineString
+import org.groundplatform.domain.model.geometry.LinearRing
+import org.groundplatform.domain.model.geometry.MultiPolygon
+import org.groundplatform.domain.model.geometry.Point
+import org.groundplatform.domain.model.geometry.Polygon
+import org.groundplatform.domain.model.locationofinterest.LoiProperties
+import org.groundplatform.domain.model.mutation.LocationOfInterestMutation
+import org.groundplatform.domain.model.mutation.Mutation
+import org.groundplatform.domain.model.mutation.SubmissionMutation
+import org.groundplatform.domain.model.submission.CaptureLocationTaskData
+import org.groundplatform.domain.model.submission.DateTimeTaskData
+import org.groundplatform.domain.model.submission.GeometryTaskData
+import org.groundplatform.domain.model.submission.MultipleChoiceTaskData
+import org.groundplatform.domain.model.submission.NumberTaskData
+import org.groundplatform.domain.model.submission.SkippedTaskData
+import org.groundplatform.domain.model.submission.TaskData
+import org.groundplatform.domain.model.submission.TextTaskData
+import org.groundplatform.domain.model.task.PhotoTaskData
 
 fun SubmissionMutation.createSubmissionMessage(user: User) = submission {
   assert(userId == user.id) { "UserId doesn't match: expected $userId, found ${user.id}" }
@@ -69,11 +68,7 @@ fun SubmissionMutation.createSubmissionMessage(user: User) = submission {
   jobId = job.id
   ownerId = me.userId
 
-  deltas.forEach {
-    if (it.newTaskData != null) {
-      taskData.add(toTaskData(it.taskId, it.newTaskData))
-    }
-  }
+  deltas.forEach { it.newTaskData?.let { data -> taskData.add(toTaskData(it.taskId, data)) } }
 
   val auditInfo = createAuditInfoMessage(user, clientTimestamp)
   when (type) {
@@ -112,8 +107,8 @@ fun LocationOfInterestMutation.createLoiMessage(user: User) = locationOfInterest
       created = auditInfo
       lastModified = auditInfo
       source =
-        if (isPredefined == null) Source.SOURCE_UNSPECIFIED
-        else if (isPredefined) Source.IMPORTED else Source.FIELD_DATA
+        isPredefined?.let { if (it) Source.IMPORTED else Source.FIELD_DATA }
+          ?: Source.SOURCE_UNSPECIFIED
     }
     Mutation.Type.UPDATE -> {
       lastModified = auditInfo
@@ -155,7 +150,7 @@ private fun toTaskData(id: String, newTaskData: TaskData) = taskData {
   }
 }
 
-private fun createAuditInfoMessage(user: User, timestamp: Date) = auditInfo {
+private fun createAuditInfoMessage(user: User, timestamp: Long) = auditInfo {
   userId = user.id
   displayName = user.displayName
   emailAddress = user.email
@@ -164,7 +159,7 @@ private fun createAuditInfoMessage(user: User, timestamp: Date) = auditInfo {
   serverTimestamp = timestamp.toMessage()
 }
 
-private fun Date.toMessage() = timestamp { seconds = time / 1000 }
+private fun Long.toMessage() = timestamp { seconds = this@toMessage / 1000 }
 
 private fun Geometry.toMessage() =
   when (this) {

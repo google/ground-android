@@ -21,12 +21,12 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import org.groundplatform.android.model.SurveyListItem
-import org.groundplatform.android.model.toListItem
-import org.groundplatform.android.repository.SurveyRepository
-import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.NetworkStatus
+import org.groundplatform.domain.model.SurveyListItem
+import org.groundplatform.domain.model.toListItem
+import org.groundplatform.domain.repository.SurveyRepositoryInterface
+import org.groundplatform.domain.repository.UserRepositoryInterface
 
 /** Returns a flow of [SurveyListItem] to be displayed to the user. */
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -34,8 +34,8 @@ class ListAvailableSurveysUseCase
 @Inject
 constructor(
   private val networkManager: NetworkManager,
-  private val surveyRepository: SurveyRepository,
-  private val userRepository: UserRepository,
+  private val surveyRepository: SurveyRepositoryInterface,
+  private val userRepository: UserRepositoryInterface,
 ) {
 
   operator fun invoke(): Flow<List<SurveyListItem>> =
@@ -57,10 +57,12 @@ constructor(
     val remoteSurveyFlow = surveyRepository.getRemoteSurveys(user)
 
     return combine(remoteSurveyFlow, getLocalSurveyList()) { remoteSurveys, localSurveys ->
-      val remoteSurveysWithOfflineStatus =
-        remoteSurveys.map { remoteSurvey -> addOfflineStatus(remoteSurvey, localSurveys) }
-      val localOnlySurveys =
-        localSurveys.filter { local -> remoteSurveys.none { it.id == local.id } }
+      val remoteSurveysWithOfflineStatus = remoteSurveys.map { remoteSurvey ->
+        addOfflineStatus(remoteSurvey, localSurveys)
+      }
+      val localOnlySurveys = localSurveys.filter { local ->
+        remoteSurveys.none { it.id == local.id }
+      }
       remoteSurveysWithOfflineStatus + localOnlySurveys
     }
   }

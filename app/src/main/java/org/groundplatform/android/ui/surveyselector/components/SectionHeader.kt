@@ -32,12 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import org.groundplatform.android.R
 
 @Composable
 fun SectionHeader(title: String, expanded: Boolean, isClickable: Boolean, onClick: () -> Unit) {
@@ -61,13 +56,6 @@ fun SectionHeader(title: String, expanded: Boolean, isClickable: Boolean, onClic
       tint = MaterialTheme.colorScheme.onSurfaceVariant,
     )
     Spacer(Modifier.width(8.dp))
-    Text(
-      text = title,
-      fontFamily = FontFamily(Font(R.font.text_500)),
-      lineHeight = 16.sp,
-      fontSize = 16.sp,
-      fontWeight = FontWeight(500),
-      color = MaterialTheme.colorScheme.onSurfaceVariant,
-    )
+    Text(text = title, color = MaterialTheme.colorScheme.onSurfaceVariant)
   }
 }

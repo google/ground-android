@@ -20,9 +20,9 @@ import com.google.firebase.firestore.DocumentSnapshot
 import kotlinx.collections.immutable.toPersistentMap
 import org.groundplatform.android.data.remote.DataStoreException
 import org.groundplatform.android.data.remote.firebase.protobuf.parseFrom
-import org.groundplatform.android.model.job.Job
-import org.groundplatform.android.model.job.Style as StyleModel
 import org.groundplatform.android.proto.Job as JobProto
+import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.job.Style as StyleModel
 
 /** Converts between Firestore documents and [Job] instances. */
 internal object JobConverter {

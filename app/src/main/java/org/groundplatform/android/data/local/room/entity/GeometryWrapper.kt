@@ -15,11 +15,11 @@
  */
 package org.groundplatform.android.data.local.room.entity
 
-import org.groundplatform.android.model.geometry.Geometry
-import org.groundplatform.android.model.geometry.LineString
-import org.groundplatform.android.model.geometry.MultiPolygon
-import org.groundplatform.android.model.geometry.Point
-import org.groundplatform.android.model.geometry.Polygon
+import org.groundplatform.domain.model.geometry.Geometry
+import org.groundplatform.domain.model.geometry.LineString
+import org.groundplatform.domain.model.geometry.MultiPolygon
+import org.groundplatform.domain.model.geometry.Point
+import org.groundplatform.domain.model.geometry.Polygon
 
 data class GeometryWrapper(
   /** Non-null iff this geometry is a point. */

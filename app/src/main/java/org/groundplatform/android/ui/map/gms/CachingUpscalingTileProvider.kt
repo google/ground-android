@@ -25,6 +25,7 @@ import androidx.core.graphics.createBitmap
 import com.google.android.gms.maps.model.Tile
 import com.google.android.gms.maps.model.TileProvider
 import java.io.ByteArrayOutputStream
+import org.groundplatform.android.ui.map.gms.CachingUpscalingTileProvider.Companion.DEFAULT_TILE_SIZE
 import timber.log.Timber
 
 /**
@@ -110,18 +111,17 @@ class CachingUpscalingTileProvider(
       val bytes: ByteArray? = source.getTile(srcX, srcY, zoomThreshold)?.data
       decoded = bytes?.let { BitmapFactory.decodeByteArray(it, 0, it.size) }
 
-      val crop: Rect? =
-        decoded?.let { bmp ->
-          val cw = bmp.width / scale
-          val ch = bmp.height / scale
-          val left = qx * cw
-          val top = qy * ch
-          if (left >= 0 && top >= 0 && left + cw <= bmp.width && top + ch <= bmp.height) {
-            Rect(left, top, left + cw, top + ch)
-          } else {
-            null
-          }
+      val crop: Rect? = decoded?.let { bmp ->
+        val cw = bmp.width / scale
+        val ch = bmp.height / scale
+        val left = qx * cw
+        val top = qy * ch
+        if (left >= 0 && top >= 0 && left + cw <= bmp.width && top + ch <= bmp.height) {
+          Rect(left, top, left + cw, top + ch)
+        } else {
+          null
         }
+      }
 
       result = decoded?.let { d -> crop?.let { c -> drawUpscaled256(d, c) } }
     } catch (_: Throwable) {} finally {

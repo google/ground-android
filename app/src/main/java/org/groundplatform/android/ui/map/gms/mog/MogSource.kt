@@ -16,6 +16,8 @@
 
 package org.groundplatform.android.ui.map.gms.mog
 
+import org.groundplatform.domain.model.imagery.TileCoordinates
+
 /**
  * Provides URLs or relative paths of one or more MOGs partitioned by web mercator tile extents at a
  * particular range of zoom level. Relative paths are assumed to be managed by RemoteStorageManager.

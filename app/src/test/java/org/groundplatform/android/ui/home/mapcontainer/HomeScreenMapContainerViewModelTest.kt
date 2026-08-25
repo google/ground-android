@@ -19,6 +19,7 @@ package org.groundplatform.android.ui.home.mapcontainer
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
+import dagger.hilt.android.testing.UninstallModules
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -26,40 +27,51 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.ADHOC_JOB
+import org.groundplatform.android.FakeData.DATA_SHARING_TERMS
+import org.groundplatform.android.FakeData.JOB
 import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST
 import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST_FEATURE
+import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST_LOI_REPORT
 import org.groundplatform.android.FakeData.SURVEY
 import org.groundplatform.android.FakeData.USER
+import org.groundplatform.android.R
+import org.groundplatform.android.common.Constants.CLUSTERING_ZOOM_THRESHOLD
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
-import org.groundplatform.android.model.geometry.Coordinates
-import org.groundplatform.android.model.map.Bounds
-import org.groundplatform.android.model.map.CameraPosition
-import org.groundplatform.android.repository.LocationOfInterestRepository
-import org.groundplatform.android.repository.SurveyRepository
-import org.groundplatform.android.repository.UserRepository
+import org.groundplatform.android.di.LocationOfInterestRepositoryModule
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
 import org.groundplatform.android.ui.home.mapcontainer.jobs.AdHocDataCollectionButtonData
+import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentState
 import org.groundplatform.android.ui.home.mapcontainer.jobs.SelectedLoiSheetData
 import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
+import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.map.Bounds
+import org.groundplatform.domain.model.map.CameraPosition
+import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
+import org.groundplatform.domain.repository.UserRepositoryInterface
+import org.groundplatform.testing.FakeDataGenerator
+import org.groundplatform.ui.components.loireport.LoiReportAction
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito.`when`
+import org.mockito.Mockito.verify
+import org.mockito.kotlin.any
+import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
+@UninstallModules(LocationOfInterestRepositoryModule::class)
 @RunWith(RobolectricTestRunner::class)
 class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
   @Inject lateinit var viewModel: HomeScreenMapContainerViewModel
-  @Inject lateinit var surveyRepository: SurveyRepository
   @Inject lateinit var authenticationManager: FakeAuthenticationManager
   @Inject lateinit var remoteDataStore: FakeRemoteDataStore
-  @Inject lateinit var userRepository: UserRepository
+  @Inject lateinit var userRepository: UserRepositoryInterface
   @Inject lateinit var activateSurvey: ActivateSurveyUseCase
-  @BindValue @Mock lateinit var loiRepository: LocationOfInterestRepository
+  @BindValue @Mock lateinit var loiRepository: LocationOfInterestRepositoryInterface
 
-  @OptIn(ExperimentalCoroutinesApi::class)
   @Before
   override fun setUp() {
     super.setUp()
@@ -73,8 +85,9 @@ class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
       remoteDataStore.predefinedLois = listOf(LOCATION_OF_INTEREST)
       activateSurvey(SURVEY.id)
       advanceUntilIdle()
-      `when`(loiRepository.getWithinBounds(SURVEY, BOUNDS))
+      whenever(loiRepository.getWithinBounds(SURVEY, BOUNDS))
         .thenReturn(flowOf(listOf(LOCATION_OF_INTEREST)))
+      whenever(loiRepository.getOfflineLoi(any(), any())).thenReturn(LOCATION_OF_INTEREST)
       viewModel.onMapCameraMoved(CAMERA_POSITION)
       advanceUntilIdle()
     }
@@ -83,11 +96,232 @@ class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
   @Test
   fun `renders the job card when zoomed into LOI and clicked on`() = runWithTestDispatcher {
     viewModel.onFeatureClicked(features = setOf(LOCATION_OF_INTEREST_FEATURE))
-    val pair = viewModel.processDataCollectionEntryPoints().first()
-    assertThat(pair.first)
-      .isEqualTo(SelectedLoiSheetData(canCollectData = true, LOCATION_OF_INTEREST, 0, true))
-    assertThat(pair.second)
-      .isEqualTo(listOf(AdHocDataCollectionButtonData(canCollectData = true, ADHOC_JOB)))
+    val state = viewModel.processJobMapComponentState().first()
+    advanceUntilIdle()
+    val actualGeoJson = (state as JobMapComponentState.LoiSelected).loi.loiReport!!.geoJson
+    assertThat(state)
+      .isEqualTo(
+        JobMapComponentState.LoiSelected(
+          SelectedLoiSheetData(
+            canCollectData = true,
+            loi = LOCATION_OF_INTEREST,
+            submissionCount = 0,
+            showDeleteLoiButton = true,
+            loiReport =
+              LOCATION_OF_INTEREST_LOI_REPORT.copy(
+                submissionDetails = null,
+                geoJson = actualGeoJson,
+              ),
+          )
+        )
+      )
+  }
+
+  @Test
+  fun `deleteLoi deletes the loi and deselects it`() = runWithTestDispatcher {
+    viewModel.onFeatureClicked(setOf(LOCATION_OF_INTEREST_FEATURE))
+    assertThat(viewModel.featureClicked.value).isNotNull()
+
+    viewModel.deleteLoi(LOCATION_OF_INTEREST)
+    advanceUntilIdle()
+
+    verify(loiRepository).deleteLoi(LOCATION_OF_INTEREST)
+    assertThat(viewModel.featureClicked.value).isNull()
+  }
+
+  @Test
+  fun `job component state is JobSelectionModal when multiple jobs exist`() =
+    runWithTestDispatcher {
+      val state =
+        JobMapComponentState.AddLoiButton(
+          listOf(
+            AdHocDataCollectionButtonData(canCollectData = true, job = ADHOC_JOB),
+            AdHocDataCollectionButtonData(
+              canCollectData = true,
+              job = ADHOC_JOB.copy(id = "ADHOC_JOB_2", name = "Adhoc Job 2"),
+            ),
+          )
+        )
+
+      val result = viewModel.resolveAddLoiAction(state)
+
+      assertThat(result).isNull()
+      val updatedState = viewModel.processJobMapComponentState().first()
+      assertThat(updatedState).isInstanceOf(JobMapComponentState.JobSelectionModal::class.java)
+    }
+
+  @Test
+  fun `job component state is AddLoiButton when there are adhoc jobs and modal is not shown`() =
+    runWithTestDispatcher {
+      val state = viewModel.processJobMapComponentState().first()
+      assertThat(state).isInstanceOf(JobMapComponentState.AddLoiButton::class.java)
+      val addLoiState = state as JobMapComponentState.AddLoiButton
+      assertThat(addLoiState.jobs.map { it.job }).containsExactly(ADHOC_JOB)
+    }
+
+  @Test
+  fun `job component state is AddLoiButton below clustering threshold`() = runWithTestDispatcher {
+    viewModel.onMapCameraMoved(CAMERA_POSITION.copy(zoomLevel = CLUSTERING_ZOOM_THRESHOLD - 1f))
+    advanceUntilIdle()
+
+    val state = viewModel.processJobMapComponentState().first()
+
+    assertThat(state).isInstanceOf(JobMapComponentState.AddLoiButton::class.java)
+    assertThat((state as JobMapComponentState.AddLoiButton).jobs.map { it.job })
+      .containsExactly(ADHOC_JOB)
+  }
+
+  @Test
+  fun `setJobSelectionModalVisibility hides map actions when modal is shown`() =
+    runWithTestDispatcher {
+      viewModel.setJobSelectionModalVisibility(true)
+
+      assertThat(viewModel.shouldShowMapActions.value).isFalse()
+    }
+
+  @Test
+  fun `setJobSelectionModalVisibility restores map actions when modal is hidden`() =
+    runWithTestDispatcher {
+      viewModel.setJobSelectionModalVisibility(true)
+      viewModel.setJobSelectionModalVisibility(false)
+
+      assertThat(viewModel.shouldShowMapActions.value).isTrue()
+    }
+
+  @Test
+  fun `resolveAddLoiAction returns single job when only one exists`() = runWithTestDispatcher {
+    val state = viewModel.processJobMapComponentState().first()
+    assertThat(state).isInstanceOf(JobMapComponentState.AddLoiButton::class.java)
+
+    val result = viewModel.resolveAddLoiAction(state)
+
+    assertThat(result).isNotNull()
+    assertThat(result!!.job).isEqualTo(ADHOC_JOB)
+    // Modal should not be shown for a single job.
+    val updatedState = viewModel.processJobMapComponentState().first()
+    assertThat(updatedState).isInstanceOf(JobMapComponentState.AddLoiButton::class.java)
+  }
+
+  @Test
+  fun `job component state is Hidden when no data is present`() = runWithTestDispatcher {
+    val emptySurvey = SURVEY.copy(id = "EMPTY_SURVEY", jobMap = mapOf())
+    remoteDataStore.surveys = listOf(emptySurvey)
+    activateSurvey(emptySurvey.id)
+    advanceUntilIdle()
+
+    val state = viewModel.processJobMapComponentState().first()
+    assertThat(state).isEqualTo(JobMapComponentState.Hidden)
+  }
+
+  @Test
+  fun `resolveAddLoiAction returns null when state is not AddLoiButton`() = runWithTestDispatcher {
+    val state = JobMapComponentState.Hidden
+
+    val result = viewModel.resolveAddLoiAction(state)
+
+    assertThat(result).isNull()
+  }
+
+  @Test
+  fun `onCollectData emits ShowError when user cannot collect data`() = runWithTestDispatcher {
+    val cardData = AdHocDataCollectionButtonData(canCollectData = false, job = ADHOC_JOB)
+
+    viewModel.onCollectData(cardData)
+    advanceUntilIdle()
+
+    assertThat(viewModel.uiEffects.first())
+      .isEqualTo(HomeScreenMapContainerUiEffect.ShowError(R.string.collect_data_viewer_error))
+  }
+
+  @Test
+  fun `onCollectData emits ShowError when card has no valid tasks`() = runWithTestDispatcher {
+    val cardData =
+      SelectedLoiSheetData(
+        canCollectData = true,
+        loi = LOCATION_OF_INTEREST,
+        submissionCount = 0,
+        showDeleteLoiButton = false,
+        loiReport = null,
+      )
+
+    viewModel.onCollectData(cardData)
+    advanceUntilIdle()
+
+    assertThat(viewModel.uiEffects.first())
+      .isEqualTo(HomeScreenMapContainerUiEffect.ShowError(R.string.no_tasks_error))
+  }
+
+  @Test
+  fun `onCollectData emits ShowDataSharingTerms when terms not yet accepted`() =
+    runWithTestDispatcher {
+      val cardData = AdHocDataCollectionButtonData(canCollectData = true, job = ADHOC_JOB)
+
+      viewModel.onCollectData(cardData)
+      advanceUntilIdle()
+
+      assertThat(viewModel.uiEffects.first())
+        .isEqualTo(
+          HomeScreenMapContainerUiEffect.ShowDataSharingTerms(cardData, DATA_SHARING_TERMS)
+        )
+    }
+
+  @Test
+  fun `onCollectData emits NavigateToDataCollection when terms already accepted`() =
+    runWithTestDispatcher {
+      viewModel.grantDataSharingConsent()
+      val cardData = AdHocDataCollectionButtonData(canCollectData = true, job = ADHOC_JOB)
+
+      viewModel.onCollectData(cardData)
+      advanceUntilIdle()
+
+      assertThat(viewModel.uiEffects.first())
+        .isEqualTo(HomeScreenMapContainerUiEffect.NavigateToDataCollection(cardData))
+    }
+
+  @Test
+  fun `onCollectData emits ShowError when data sharing terms are invalid`() =
+    runWithTestDispatcher {
+      val survey =
+        SURVEY.copy(
+          id = "INVALID_TERMS_SURVEY",
+          dataSharingTerms = Survey.DataSharingTerms.Custom(""),
+        )
+      remoteDataStore.surveys = listOf(survey)
+      activateSurvey(survey.id)
+      advanceUntilIdle()
+      val cardData = AdHocDataCollectionButtonData(canCollectData = true, job = ADHOC_JOB)
+
+      viewModel.onCollectData(cardData)
+      advanceUntilIdle()
+
+      assertThat(viewModel.uiEffects.first())
+        .isEqualTo(HomeScreenMapContainerUiEffect.ShowError(R.string.invalid_data_sharing_terms))
+    }
+
+  @Test
+  fun `showDataCollectionHint emits ShowInfo for read-only survey with no LOIs`() =
+    runWithTestDispatcher {
+      val readOnlySurvey = SURVEY.copy(id = "READ_ONLY_SURVEY", jobMap = mapOf(JOB.id to JOB))
+      whenever(loiRepository.getValidLois(readOnlySurvey)).thenReturn(flowOf(setOf()))
+      remoteDataStore.surveys = listOf(readOnlySurvey)
+      activateSurvey(readOnlySurvey.id)
+      advanceUntilIdle()
+
+      viewModel.showDataCollectionHint()
+      advanceUntilIdle()
+
+      assertThat(viewModel.uiEffects.first())
+        .isEqualTo(HomeScreenMapContainerUiEffect.ShowInfo(R.string.read_only_data_collection_hint))
+    }
+
+  @Test
+  fun `onLoiReportAction emits ShowError when no LOI is selected`() = runWithTestDispatcher {
+    // No LOI is selected, so there is no report to export.
+    viewModel.onLoiReportAction(LoiReportAction.OnShareClicked(FakeDataGenerator.newSubmission()))
+    advanceUntilIdle()
+
+    assertThat(viewModel.uiEffects.first())
+      .isEqualTo(HomeScreenMapContainerUiEffect.ShowError(R.string.unexpected_error))
   }
 
   companion object {

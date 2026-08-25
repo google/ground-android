@@ -16,51 +16,64 @@
 package org.groundplatform.android.ui.datacollection.tasks.location
 
 import android.location.Location
-import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
-import kotlin.lazy
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import org.groundplatform.android.common.Constants.ACCURACY_THRESHOLD_IN_M
-import org.groundplatform.android.model.geometry.Point
-import org.groundplatform.android.model.submission.CaptureLocationTaskData
-import org.groundplatform.android.model.submission.TaskData
-import org.groundplatform.android.model.submission.isNullOrEmpty
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.AbstractMapTaskViewModel
+import org.groundplatform.android.ui.datacollection.tasks.DataCollectionEvent
 import org.groundplatform.android.ui.datacollection.tasks.LocationLockEnabledState
 import org.groundplatform.android.ui.map.gms.getAccuracyOrNull
 import org.groundplatform.android.ui.map.gms.getAltitudeOrNull
 import org.groundplatform.android.ui.map.gms.toCoordinates
+import org.groundplatform.domain.model.geometry.Point
+import org.groundplatform.domain.model.submission.CaptureLocationTaskData
+import org.groundplatform.domain.model.submission.TaskData
+import org.groundplatform.domain.model.submission.isNullOrEmpty
 
+/**
+ * ViewModel for the Capture Location task.
+ *
+ * Manages the state of the location capture flow, including location lock, accuracy checks, and
+ * action button states.
+ */
 class CaptureLocationTaskViewModel @Inject constructor() : AbstractMapTaskViewModel() {
 
-  private val _lastLocation = MutableStateFlow<Location?>(null)
-  val lastLocation = _lastLocation.asStateFlow()
+  private val _showPermissionDeniedDialog = MutableStateFlow(false)
 
-  val isCaptureEnabled: Flow<Boolean> =
-    _lastLocation.map { location ->
-      val accuracy: Float = location?.getAccuracyOrNull()?.toFloat() ?: Float.MAX_VALUE
-      location != null && accuracy <= ACCURACY_THRESHOLD_IN_M
-    }
+  private val _lastLocation = MutableStateFlow<Location?>(null)
+
+  private val _userDismissedAccuracyCard = MutableStateFlow(false)
+
+  /**
+   * Emits true if the accuracy card should be shown.
+   *
+   * The card is shown when a location is available but not accurate enough, and the user hasn't
+   * dismissed the card yet.
+   */
+  val showAccuracyCard: StateFlow<Boolean> =
+    combine(_lastLocation, _userDismissedAccuracyCard) { location, dismissed ->
+        location != null && !location.isAccurate() && !dismissed
+      }
+      .stateIn(viewModelScope, WhileSubscribed(5_000), false)
 
   override val taskActionButtonStates: StateFlow<List<ButtonActionState>> by lazy {
-    combine(isCaptureEnabled, taskTaskData) { captureEnabled, taskData ->
+    combine(_lastLocation, taskTaskData) { location, taskData ->
         listOf(
           getPreviousButton(),
           getSkipButton(taskData),
           getUndoButton(taskData),
-          getCaptureLocationButton(captureEnabled, taskData),
+          getCaptureLocationButton(location.isAccurate(), taskData),
           getNextButton(taskData, hideIfEmpty = true),
         )
       }
@@ -68,28 +81,40 @@ class CaptureLocationTaskViewModel @Inject constructor() : AbstractMapTaskViewMo
       .stateIn(viewModelScope, WhileSubscribed(5_000), emptyList())
   }
 
+  /** Emits true if the permission denied dialog should be shown. */
+  val showPermissionDeniedDialog: StateFlow<Boolean> = _showPermissionDeniedDialog.asStateFlow()
+
+  init {
+    viewModelScope.launch {
+      enableLocationLockFlow.collect { lockState ->
+        if (lockState == LocationLockEnabledState.NEEDS_ENABLE) {
+          _showPermissionDeniedDialog.value = true
+        }
+      }
+    }
+  }
+
+  fun dismissAccuracyCard() {
+    _userDismissedAccuracyCard.value = true
+  }
+
+  private fun dismissPermissionDeniedDialog() {
+    _showPermissionDeniedDialog.value = false
+  }
+
+  fun onAllowLocationClicked() {
+    dismissPermissionDeniedDialog()
+    eventReporter(DataCollectionEvent.OpenSettings)
+  }
+
   fun updateLocation(location: Location) {
     _lastLocation.update { location }
   }
 
-  @VisibleForTesting
-  fun updateResponse() {
-    val location = _lastLocation.value
-    if (location == null) {
-      updateLocationLock(LocationLockEnabledState.ENABLE)
-    } else {
-      val accuracy = location.getAccuracyOrNull()
-      if (accuracy != null && accuracy > ACCURACY_THRESHOLD_IN_M) {
-        error("Location accuracy $accuracy exceeds threshold $ACCURACY_THRESHOLD_IN_M")
-      }
-      setValue(
-        CaptureLocationTaskData(
-          location = Point(location.toCoordinates()),
-          altitude = location.getAltitudeOrNull(),
-          accuracy = accuracy,
-        )
-      )
-    }
+  private fun updateResponse(location: Location?) {
+    requireNotNull(location)
+    require(location.isAccurate())
+    setValue(location.toTaskData())
   }
 
   private fun getCaptureLocationButton(
@@ -104,9 +129,22 @@ class CaptureLocationTaskViewModel @Inject constructor() : AbstractMapTaskViewMo
 
   override fun onButtonClick(action: ButtonAction) {
     if (action == ButtonAction.CAPTURE_LOCATION) {
-      updateResponse()
+      updateResponse(_lastLocation.value)
     } else {
       super.onButtonClick(action)
     }
   }
+
+  private fun Location?.isAccurate(): Boolean {
+    if (this == null) return false
+    val accuracy = getAccuracyOrNull()?.toFloat() ?: Float.MAX_VALUE
+    return accuracy <= ACCURACY_THRESHOLD_IN_M
+  }
+
+  private fun Location.toTaskData() =
+    CaptureLocationTaskData(
+      location = Point(toCoordinates()),
+      altitude = getAltitudeOrNull(),
+      accuracy = getAccuracyOrNull(),
+    )
 }

@@ -65,8 +65,6 @@
   <string name="tos_title">Termos de serviço</string>
   <string name="agree_terms">Concordar</string>
   <string name="agree_checkbox">Concordo</string>
-  <string name="date">Data</string>
-  <string name="time">Hora</string>
   <!-- Other strings (to be organized) -->
   <string name="sync_status">Estado da sincronização de dados</string>
 
@@ -138,7 +136,6 @@
   <string name="read_only_data_collection_hint">Inquérito apenas para leitura</string>
   <string name="no_submissions">Nenhuma submissão</string>
   <string name="dismiss_info_popup">Ignorar</string>
-  <string name="other">Outro</string>
   <plurals name="submission_count">
     <item quantity="one">%d submissão</item>
     <item quantity="other">%d submissões</item>
@@ -175,7 +172,6 @@
   <string name="visit_website_title">Visitar site</string>
   <string name="accuracy">Precisão:</string>
   <string name="select_language_title">Selecionar idioma</string>
-  <string name="select_language_summary">Selecione o seu idioma preferido</string>
   <!-- Data Sharing Consent Text -->
   <string name="data_sharing_no_terms">*Não há termos para exibir.*</string>
   <string name="data_sharing_private_message">
@@ -188,7 +184,6 @@
   </string>
   <string name="draft_restored">Os dados não salvos foram restaurados</string>
   <string name="load_tos_failed">Não foi possível conectar, tente novamente mais tarde</string>
-  <string name="data_submitted_image">Dados da imagem enviada</string>
   <string name="data_collection_complete">Coleta de dados concluída!</string>
   <string name="data_collection_complete_details">Seus dados foram salvos e serão sincronizados automaticamente quando você estiver online.</string>
 
@@ -210,12 +205,6 @@
   <string name="text_task_data_character_limit">255 caracteres no máx.</string>
   <string name="area_message">Área: %s</string>
 
-  <string name="lang_english">Inglês</string>
-  <string name="lang_french">Francês</string>
-  <string name="lang_spanish">Espanhol</string>
-  <string name="lang_portuguese">Português</string>
-
-  <string name="lang_vietnamese">Vietnamita</string>
   <string name="access_restricted">Restrito</string>
   <string name="access_unlisted">Não listado</string>
   <string name="access_public">Público</string>
@@ -229,7 +218,6 @@
   <string name="dialog_button_update">Atualizar</string>
 
   <string name="select_length_title">Selecionar unidades</string>
-  <string name="select_length_summary">Selecione a sua unidade preferida</string>
   <string name="length_metric">Métrica</string>
   <string name="length_imperial">Imperial</string>
 
@@ -244,4 +232,13 @@
   <string name="recenter">Recentrar</string>
 
   <string name="survey_load_timeout_error">O carregamento da pesquisa expirou. Verifique sua conexão e tente novamente.</string>
+  <string name="camera_launch_failed_title">Erro de câmera</string>
+  <string name="camera_launch_failed_desc">Falha ao abrir a câmera. Por favor, tente novamente.</string>
+  <string name="photo_save_failed_title">Erro ao salvar</string>
+  <string name="photo_save_failed_desc">Falha ao salvar a foto capturada. Por favor, tente novamente.</string>
+  <string name="share_location">Partilhar localização</string>
+
+  <string name="join_survey">Aderir ao inquérito</string>
+  <string name="invalid_survey_qr_code">Código QR de inquérito não reconhecido</string>
+  <string name="join_survey_confirm_title">Aderir a este inquérito?</string>
 </resources>

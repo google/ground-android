@@ -29,31 +29,31 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.data.local.LocalValueStore
-import org.groundplatform.android.model.geometry.Coordinates
-import org.groundplatform.android.model.geometry.LineString
-import org.groundplatform.android.model.geometry.LinearRing
-import org.groundplatform.android.model.geometry.Polygon
-import org.groundplatform.android.model.job.Job
-import org.groundplatform.android.model.job.Style
-import org.groundplatform.android.model.settings.MeasurementUnits
-import org.groundplatform.android.model.submission.DrawAreaTaskData
-import org.groundplatform.android.model.submission.DrawAreaTaskIncompleteData
-import org.groundplatform.android.model.submission.TaskData
-import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
-import org.groundplatform.android.ui.datacollection.tasks.polygon.DrawAreaTaskViewModel.Companion.DISTANCE_THRESHOLD_DP
+import org.groundplatform.android.ui.datacollection.tasks.polygon.PolygonDrawingSession.Companion.DISTANCE_THRESHOLD_DP
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.gms.GmsExt.getShellCoordinates
-import org.junit.Assert.assertThrows
+import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.geometry.LineString
+import org.groundplatform.domain.model.geometry.LinearRing
+import org.groundplatform.domain.model.geometry.Polygon
+import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.job.Style
+import org.groundplatform.domain.model.settings.MeasurementUnits
+import org.groundplatform.domain.model.submission.DrawAreaTaskData
+import org.groundplatform.domain.model.submission.DrawAreaTaskIncompleteData
+import org.groundplatform.domain.model.submission.TaskData
+import org.groundplatform.domain.model.task.Task
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -72,7 +72,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
 
   override fun setUp() {
     super.setUp()
-    mergedFeatureFlow = merge(viewModel.draftArea.filterNotNull(), viewModel.draftUpdates)
+    mergedFeatureFlow = viewModel.draftArea.filterNotNull()
 
     mergedFeatureLiveData = mergedFeatureFlow.asLiveData()
     featureTestObserver = TestObserver.test(mergedFeatureLiveData)
@@ -107,22 +107,46 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
   }
 
   @Test
-  fun `Can add vertex`() {
-    setupViewModel()
-    updateLastVertexAndAdd(COORDINATE_1)
-
-    // One vertex is selected and another is temporary vertex for rendering.
-    assertGeometry(2, isLineString = true)
-  }
-
-  @Test
-  fun `Can add multiple vertices`() {
+  fun `Removing last vertex on complete polygon`() {
     setupViewModel()
     updateLastVertexAndAdd(COORDINATE_1)
     updateLastVertexAndAdd(COORDINATE_2)
     updateLastVertexAndAdd(COORDINATE_3)
+    updateLastVertex(COORDINATE_4, true)
 
-    assertGeometry(4, isLineString = true)
+    viewModel.removeLastVertex()
+
+    assertGeometry(3, isLineString = true)
+  }
+
+  @Test
+  fun `Removing last vertex on one vertex clears geometry`() {
+    setupViewModel()
+    updateLastVertex(COORDINATE_1)
+
+    viewModel.removeLastVertex()
+
+    assertGeometry(0)
+  }
+
+  @Test
+  fun `Removing last vertex on no vertices does nothing`() {
+    setupViewModel()
+
+    viewModel.removeLastVertex()
+
+    assertGeometry(0)
+  }
+
+  @Test
+  fun `Check distance between Vertices`() {
+    setupViewModel()
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+    updateLastVertexAndAdd(COORDINATE_3)
+    updateLastVertex(COORDINATE_4, true)
+
+    assertThat(featureTestObserver.value()?.tooltipText).isEqualTo("3,106,126 m")
   }
 
   @Test
@@ -146,73 +170,6 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     updateLastVertex(COORDINATE_4, true)
 
     assertGeometry(4, isLineString = true)
-  }
-
-  @Test
-  fun `Can remove last vertex on two vertices`() {
-    setupViewModel()
-    updateLastVertexAndAdd(COORDINATE_1)
-
-    viewModel.removeLastVertex()
-
-    assertGeometry(1, isLineString = true)
-  }
-
-  @Test
-  fun `Can remove last vertex on one vertex`() {
-    setupViewModel()
-    updateLastVertex(COORDINATE_1)
-
-    viewModel.removeLastVertex()
-
-    assertGeometry(0, isLineString = true)
-  }
-
-  @Test
-  fun `Removing last vertex on no vertices does nothing`() {
-    setupViewModel()
-    updateLastVertex(COORDINATE_1)
-    viewModel.removeLastVertex()
-
-    viewModel.removeLastVertex()
-
-    assertGeometry(0, isLineString = true)
-  }
-
-  @Test
-  fun `Removing last vertex on complete polygon`() {
-    setupViewModel()
-    updateLastVertexAndAdd(COORDINATE_1)
-    updateLastVertexAndAdd(COORDINATE_2)
-    updateLastVertexAndAdd(COORDINATE_3)
-    updateLastVertex(COORDINATE_4, true)
-
-    viewModel.removeLastVertex()
-
-    assertGeometry(3, isLineString = true)
-  }
-
-  @Test
-  fun `Cannot complete polygon when polygon is not complete`() {
-    setupViewModel()
-    updateLastVertexAndAdd(COORDINATE_1)
-    updateLastVertexAndAdd(COORDINATE_2)
-    updateLastVertex(COORDINATE_3, false)
-
-    assertThrows("Polygon is not complete", IllegalStateException::class.java) {
-      viewModel.completePolygon()
-    }
-  }
-
-  @Test
-  fun `Check distance between Vertices`() {
-    setupViewModel()
-    updateLastVertexAndAdd(COORDINATE_1)
-    updateLastVertexAndAdd(COORDINATE_2)
-    updateLastVertexAndAdd(COORDINATE_3)
-    updateLastVertex(COORDINATE_4, true)
-
-    assertThat(featureTestObserver.value()?.tooltipText).isEqualTo("3,106,126 m")
   }
 
   @Test
@@ -263,6 +220,16 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
   }
 
   @Test
+  fun `Cannot complete polygon when polygon is not complete`() {
+    setupViewModel()
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+    updateLastVertex(COORDINATE_3, false)
+
+    kotlin.test.assertFailsWith<IllegalStateException> { viewModel.completePolygon() }
+  }
+
+  @Test
   fun `Completing a polygon populates polygonArea with the correct value in hectares`() {
     setupViewModel()
     localValueStore.selectedLengthUnit = MeasurementUnits.METRIC.name
@@ -299,91 +266,111 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
   }
 
   @Test
-  fun `redoLastVertex re-adds last vertex`() {
+  fun `First feature is emitted on draftArea`() = runWithTestDispatcher {
     setupViewModel()
     updateLastVertexAndAdd(COORDINATE_1)
     updateLastVertexAndAdd(COORDINATE_2)
+    advanceUntilIdle()
 
-    viewModel.removeLastVertex()
-    assertGeometry(2, isLineString = true)
-
-    viewModel.redoLastVertex()
-    assertGeometry(3, isLineString = true)
+    val feature = viewModel.draftArea.value
+    assertThat(feature).isNotNull()
+    assertThat(feature!!.geometry).isInstanceOf(LineString::class.java)
   }
 
   @Test
-  fun `redoLastVertex when redo stack is empty`() {
+  fun `Tooltip is null for a single vertex`() = runWithTestDispatcher {
     setupViewModel()
     updateLastVertexAndAdd(COORDINATE_1)
+    advanceUntilIdle()
 
-    viewModel.redoLastVertex()
-    assertThat(viewModel.redoVertexStack).isEqualTo(emptyList<Coordinates>())
+    assertThat(viewModel.draftArea.value!!.tooltipText).isNull()
   }
 
-  @OptIn(ExperimentalCoroutinesApi::class)
   @Test
-  fun `First feature is emitted on draftArea and not on draftUpdates`() = runWithTestDispatcher {
-    setupViewModel()
-    updateLastVertexAndAdd(COORDINATE_1)
-    updateLastVertexAndAdd(COORDINATE_2)
-
-    viewModel.draftArea.test {
-      val first = awaitItem()
-      assertThat(first).isNotNull()
-      assertThat(first!!.geometry).isInstanceOf(LineString::class.java)
-      cancelAndIgnoreRemainingEvents()
-    }
-
-    viewModel.draftUpdates.test {
-      expectNoEvents()
-      cancelAndIgnoreRemainingEvents()
-    }
-  }
-
-  @OptIn(ExperimentalCoroutinesApi::class)
-  @Test
-  fun `Subsequent vertex move emits in-place update on draftUpdates with stable tag`() =
+  fun `Subsequent vertex move updates draftArea geometry while keeping a stable tag`() =
     runWithTestDispatcher {
       setupViewModel()
       updateLastVertexAndAdd(COORDINATE_1)
       updateLastVertexAndAdd(COORDINATE_2)
       advanceUntilIdle()
 
-      val initialTag = viewModel.draftArea.first()!!.tag
+      val initialTag = viewModel.draftArea.value!!.tag
 
-      viewModel.draftUpdates.test {
-        updateLastVertex(Coordinates(15.0, 15.0), isNearFirstVertex = false)
-        advanceUntilIdle()
+      updateLastVertex(Coordinates(15.0, 15.0), isNearFirstVertex = false)
+      advanceUntilIdle()
 
-        val upd = awaitItem()
-        assertThat(upd.tag).isEqualTo(initialTag)
-        val ls = upd.geometry as LineString
-        assertThat(ls.coordinates.last()).isEqualTo(Coordinates(15.0, 15.0))
-        assertThat(upd.tooltipText).isNotNull()
-        cancelAndIgnoreRemainingEvents()
-      }
+      val updated = viewModel.draftArea.value!!
+      assertThat(updated.tag).isEqualTo(initialTag)
+      val ls = updated.geometry as LineString
+      assertThat(ls.coordinates.last()).isEqualTo(Coordinates(15.0, 15.0))
+      assertThat(updated.tooltipText).isNotNull()
     }
 
-  @OptIn(ExperimentalCoroutinesApi::class)
   @Test
-  fun `Tooltip updates along with in-place geometry updates`() = runWithTestDispatcher {
+  fun `draftArea always holds the full current geometry`() = runWithTestDispatcher {
     setupViewModel()
     updateLastVertexAndAdd(COORDINATE_1)
     advanceUntilIdle()
-
-    val firstFeature = viewModel.draftArea.first()
-    val firstLine = firstFeature!!.geometry as LineString
-    assertThat(firstLine.coordinates.size).isEqualTo(1)
-    assertThat(firstFeature.tooltipText).isNull()
+    val firstLine = viewModel.draftArea.value!!.geometry as LineString
+    val firstSize = firstLine.coordinates.size
 
     updateLastVertexAndAdd(COORDINATE_2)
+    updateLastVertexAndAdd(COORDINATE_3)
     advanceUntilIdle()
-    val secondFeature = viewModel.draftArea.first()
-    val secondLine = secondFeature!!.geometry as LineString
-    assertThat(secondLine.coordinates.size).isEqualTo(1)
-    assertThat(secondFeature.tooltipText).isNull()
 
-    viewModel.removeLastVertex()
+    val secondLine = viewModel.draftArea.value!!.geometry as LineString
+    assertThat(secondLine.coordinates.size).isGreaterThan(firstSize)
+    assertThat(secondLine.coordinates).contains(COORDINATE_3)
+  }
+
+  @Test
+  fun `Button states survive subscriber teardown and re-subscription after completion`() =
+    runWithTestDispatcher {
+      setupViewModel()
+      updateLastVertexAndAdd(COORDINATE_1)
+      updateLastVertexAndAdd(COORDINATE_2)
+      updateLastVertexAndAdd(COORDINATE_3)
+      updateLastVertex(COORDINATE_4, isNearFirstVertex = true)
+      viewModel.onButtonClick(ButtonAction.COMPLETE)
+      advanceUntilIdle()
+      assertThat(viewModel.isMarkedComplete()).isTrue()
+
+      // First subscriber
+      viewModel.taskActionButtonStates.test {
+        assertThat(awaitItem()).isNotEmpty()
+        cancelAndIgnoreRemainingEvents()
+      }
+
+      // No subscribers for longer than the WhileSubscribed(5_000) timeout
+      advanceTimeBy(6.seconds)
+      advanceUntilIdle()
+
+      // Recreated fragment re-subscribes.
+      val states = viewModel.taskActionButtonStates.first()
+
+      with(requireNotNull(states.find { it.action == ButtonAction.ADD_POINT })) {
+        assertFalse(isVisible)
+      }
+      with(requireNotNull(states.find { it.action == ButtonAction.NEXT })) { assertTrue(isVisible) }
+    }
+
+  @Test
+  fun `isTooClose is true after committing a vertex until the map is moved`() {
+    setupViewModel()
+    updateLastVertexAndAdd(COORDINATE_1)
+
+    assertThat(viewModel.sessionState.value.isTooClose).isTrue()
+  }
+
+  @Test
+  fun `isTooClose is true after adding a vertex if size is greater than 1`() {
+    setupViewModel()
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+
+    viewModel.addLastVertex()
+
+    assertThat(viewModel.sessionState.value.isTooClose).isTrue()
   }
 
   @Test
@@ -392,14 +379,12 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
     updateLastVertexAndAdd(COORDINATE_1)
     updateLastVertexAndAdd(COORDINATE_2)
 
-    // Distance between COORDINATE_2 (10, 10) and COORDINATE_3 (20, 20) is ~14.14
-    // Threshold is 24. So this should be too close.
     updateLastVertex(COORDINATE_3, isNearFirstVertex = false)
     viewModel.updateLastVertexAndMaybeCompletePolygon(COORDINATE_3) { _, _ ->
       DISTANCE_THRESHOLD_DP.toDouble()
     }
 
-    assertThat(viewModel.isTooClose.value).isTrue()
+    assertThat(viewModel.sessionState.value.isTooClose).isTrue()
   }
 
   @Test
@@ -412,29 +397,7 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
       DISTANCE_THRESHOLD_DP.toDouble() + 1
     }
 
-    assertThat(viewModel.isTooClose.value).isFalse()
-  }
-
-  @Test
-  fun `isTooClose is true after adding a vertex if size is greater than 1`() {
-    setupViewModel()
-    updateLastVertexAndAdd(COORDINATE_1)
-    updateLastVertexAndAdd(COORDINATE_2)
-
-    // Add a 3rd vertex.
-    // The logic `_isTooClose.value = vertices.size > 1` in `addLastVertex` should set it to true.
-    viewModel.addLastVertex()
-
-    assertThat(viewModel.isTooClose.value).isTrue()
-  }
-
-  @Test
-  fun `isTooClose is false if only one vertex`() {
-    setupViewModel()
-    updateLastVertexAndAdd(COORDINATE_1)
-
-    // Only 1 vertex.
-    assertThat(viewModel.isTooClose.value).isFalse()
+    assertThat(viewModel.sessionState.value.isTooClose).isFalse()
   }
 
   @Test
@@ -509,9 +472,40 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
 
       val states = viewModel.taskActionButtonStates.first()
 
-      with(requireNotNull(states.find { it.action == ButtonAction.UNDO })) {
+      with(requireNotNull(states.find { it.action == ButtonAction.REDO })) {
         assertTrue(isVisible)
         assertTrue(isEnabled)
+      }
+    }
+
+  @Test
+  fun `REDO button is visible and enabled when there is something to redo even if vertices become empty`() =
+    runWithTestDispatcher {
+      setupViewModel()
+      updateLastVertexAndAdd(COORDINATE_1)
+      viewModel.removeLastVertex()
+      advanceUntilIdle()
+
+      val states = viewModel.taskActionButtonStates.first()
+
+      with(requireNotNull(states.find { it.action == ButtonAction.REDO })) {
+        assertTrue(isVisible)
+        assertTrue(isEnabled)
+      }
+    }
+
+  @Test
+  fun `ADD_POINT is disabled right after committing a vertex and before moving the map`() =
+    runWithTestDispatcher {
+      setupViewModel()
+      viewModel.onCameraMoved(COORDINATE_1)
+
+      viewModel.addLastVertex()
+      advanceUntilIdle()
+
+      val states = viewModel.taskActionButtonStates.first()
+      with(requireNotNull(states.find { it.action == ButtonAction.ADD_POINT })) {
+        assertFalse(isEnabled)
       }
     }
 
@@ -606,6 +600,33 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
   }
 
   @Test
+  fun `redoLastVertex re-adds last vertex`() {
+    setupViewModel()
+    updateLastVertexAndAdd(COORDINATE_1)
+    updateLastVertexAndAdd(COORDINATE_2)
+
+    viewModel.removeLastVertex()
+    assertGeometry(2, isLineString = true)
+
+    viewModel.redoLastVertex()
+    assertGeometry(3, isLineString = true)
+  }
+
+  @Test
+  fun `redoLastVertex when redo stack is empty does nothing`() = runWithTestDispatcher {
+    setupViewModel()
+    updateLastVertexAndAdd(COORDINATE_1)
+    advanceUntilIdle()
+
+    val initialGeometry = featureTestObserver.value()?.geometry
+
+    viewModel.redoLastVertex()
+    advanceUntilIdle()
+
+    assertThat(featureTestObserver.value()?.geometry).isEqualTo(initialGeometry)
+  }
+
+  @Test
   fun `onButtonClick COMPLETE marks the polygon as complete`() = runWithTestDispatcher {
     val polygon =
       Polygon(LinearRing(listOf(COORDINATE_1, COORDINATE_2, COORDINATE_3, COORDINATE_1)))
@@ -671,6 +692,8 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
 
           override fun isLastWithValue(taskData: TaskData?) = false
         },
+      surveyId = "survey_id",
+      eventReporter = {},
     )
   }
 

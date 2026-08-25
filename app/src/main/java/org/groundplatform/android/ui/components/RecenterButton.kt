@@ -29,7 +29,8 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.groundplatform.android.R
-import org.groundplatform.android.ui.theme.AppTheme
+import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
+import org.groundplatform.ui.theme.AppTheme
 
 @Composable
 fun RecenterButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
@@ -56,6 +57,7 @@ fun RecenterButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
 
 @Preview
 @Composable
+@ExcludeFromJacocoGeneratedReport
 private fun RecenterButtonPreview() {
   AppTheme { RecenterButton(onClick = {}) }
 }

@@ -15,6 +15,8 @@
  */
 package org.groundplatform.android.ui.datacollection.components
 
+import androidx.annotation.VisibleForTesting
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,24 +24,34 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
+import org.groundplatform.android.ui.datacollection.TaskPosition
 import org.groundplatform.android.ui.datacollection.tasks.location.LocationAccuracyCard
-import org.groundplatform.android.ui.theme.AppTheme
+import org.groundplatform.ui.theme.AppTheme
+
+@VisibleForTesting const val PROGRESS_BAR_TAG = "task_footer_progress_bar"
 
 @Composable
 fun TaskFooter(
   modifier: Modifier = Modifier,
-  headerCard: (@Composable () -> Unit)? = null,
+  taskPosition: TaskPosition? = null,
+  content: (@Composable () -> Unit)? = null,
   buttonActionStates: List<ButtonActionState>,
   onButtonClicked: (ButtonAction) -> Unit,
 ) {
+  if (taskPosition != null) {
+    TaskProgressBar(taskPosition)
+  }
   Column(modifier = modifier.padding(24.dp).fillMaxWidth()) {
-    if (headerCard != null) {
-      headerCard()
+    if (content != null) {
+      content()
       Spacer(Modifier.height(12.dp))
     }
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -52,6 +64,17 @@ fun TaskFooter(
   }
 }
 
+@Composable
+private fun TaskProgressBar(position: TaskPosition) {
+  val targetProgress = position.relativeIndex.toFloat() / (position.sequenceSize - 1)
+  val progress by animateFloatAsState(targetValue = targetProgress, label = "TaskProgressBar")
+
+  LinearProgressIndicator(
+    progress = { progress },
+    modifier = Modifier.fillMaxWidth().testTag(PROGRESS_BAR_TAG),
+  )
+}
+
 @Preview(showBackground = true)
 @Composable
 @ExcludeFromJacocoGeneratedReport
@@ -59,7 +82,11 @@ private fun TaskFooterNoHeaderPreview() {
   val actions =
     listOf(ButtonAction.PREVIOUS, ButtonAction.UNDO, ButtonAction.REDO, ButtonAction.NEXT)
   AppTheme {
-    TaskFooter(buttonActionStates = actions.map { ButtonActionState(it) }, onButtonClicked = {})
+    TaskFooter(
+      buttonActionStates = actions.map { ButtonActionState(it) },
+      taskPosition = TaskPosition(0, 1, 3),
+      onButtonClicked = {},
+    )
   }
 }
 
@@ -71,8 +98,9 @@ private fun TaskFooterWithHeaderPreview() {
     listOf(ButtonAction.PREVIOUS, ButtonAction.UNDO, ButtonAction.REDO, ButtonAction.NEXT)
   AppTheme {
     TaskFooter(
-      headerCard = { LocationAccuracyCard(onDismiss = {}) },
+      content = { LocationAccuracyCard(onDismiss = {}) },
       buttonActionStates = actions.map { ButtonActionState(it) },
+      taskPosition = TaskPosition(0, 1, 3),
       onButtonClicked = {},
     )
   }

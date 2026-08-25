@@ -17,9 +17,11 @@
 package org.groundplatform.android.ui.map.gms.features
 
 import android.content.Context
+import androidx.annotation.VisibleForTesting
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
+import com.google.maps.android.clustering.algo.NonHierarchicalViewBasedAlgorithm
 import com.google.maps.android.collections.MarkerManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -28,6 +30,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import org.groundplatform.android.di.coroutines.MainScope
+import org.groundplatform.android.ui.IconFactory
 import org.groundplatform.android.ui.map.Feature
 import timber.log.Timber
 
@@ -43,14 +46,15 @@ constructor(
   private val pointRenderer: PointRenderer,
   private val polygonRenderer: PolygonRenderer,
   private val lineStringRenderer: LineStringRenderer,
+  private val iconFactory: IconFactory,
 ) {
   private val features = mutableSetOf<Feature>()
   private val featuresByTag = mutableMapOf<Feature.Tag, Feature>()
 
   private lateinit var map: GoogleMap
   private lateinit var mapsItemManager: MapsItemManager
-  private lateinit var clusterManager: FeatureClusterManager
-  private lateinit var clusterRenderer: FeatureClusterRenderer
+  @VisibleForTesting internal lateinit var clusterManager: FeatureClusterManager
+  @VisibleForTesting internal lateinit var clusterRenderer: FeatureClusterRenderer
 
   private val _markerClicks: MutableSharedFlow<Feature> = MutableSharedFlow()
   val markerClicks = _markerClicks.asSharedFlow()
@@ -69,10 +73,23 @@ constructor(
     featuresByTag.clear()
     mapsItemManager = MapsItemManager(map, pointRenderer, polygonRenderer, lineStringRenderer)
     clusterManager = FeatureClusterManager(context, map, createMarkerManager(map))
-    clusterRenderer = FeatureClusterRenderer(context, map, clusterManager, map.cameraPosition.zoom)
-    clusterRenderer.onClusterItemRendered = { mapsItemManager.setVisible(it, true) }
-    clusterRenderer.onClusterRendered = { mapsItemManager.setVisible(it, false) }
-    clusterManager.renderer = clusterRenderer
+    // Render only visible features; off-screen clusterable features are omitted
+    val algorithm =
+      with(context.resources.displayMetrics) {
+        NonHierarchicalViewBasedAlgorithm<FeatureClusterItem>(
+          (widthPixels / density).toInt(),
+          (heightPixels / density).toInt(),
+        )
+      }
+    clusterManager.setAlgorithm(algorithm)
+    iconFactory.setClusterIconCacheSize(maxVisibleClusters(algorithm))
+    clusterRenderer =
+      clusterManager.createRenderer(
+        zoom = map.cameraPosition.zoom,
+        iconFactory = iconFactory,
+        onClusterRendered = { hideClusterableItem(it) },
+        onClusterItemRendered = { showClusterableItem(it) },
+      )
     this.map = map
   }
 
@@ -97,6 +114,14 @@ constructor(
    * map as needed to sync the map state with the provided collection.
    */
   fun setFeatures(updatedFeatures: Collection<Feature>) {
+    updatedFeatures.forEach { feature ->
+      val existingFeature = featuresByTag[feature.tag]
+      // A non-clustered feature whose tag already exists but whose contents changed can be moved in
+      // place, instead of being removed and re-added (which flickers).
+      val shouldUpdate =
+        existingFeature != null && existingFeature != feature && !feature.clusterable
+      if (shouldUpdate) update(existing = existingFeature, updated = feature)
+    }
     // remove stale
     val removedOrChanged = features - updatedFeatures.toSet()
     removedOrChanged.forEach(this::remove)
@@ -116,17 +141,32 @@ constructor(
     mapsItemManager.getIntersectingPolygonTags(latLng).mapNotNull { featuresByTag[it] }.toSet()
 
   /**
-   * Adds a feature to the map, cluster, and to this class' internal index. Clusterable features are
-   * initialized as hidden so that the clusterer can determine whether they should be shown based on
-   * zoom level.
+   * Adds a feature to the cluster and to this class' internal index. Clusterable feature map items
+   * are created only when drawn individually to reduce heap pressure.
    */
   private fun add(feature: Feature) =
     with(feature) {
       features.add(this)
       featuresByTag[tag] = this
-      if (clusterable) clusterManager.addFeature(this)
-      mapsItemManager.put(this, visible = !clusterable)
+      if (clusterable) {
+        clusterManager.addFeature(this)
+      } else {
+        mapsItemManager.put(this, visible = true)
+      }
     }
+
+  /** Draws a clustered feature individually, creating its map item if it doesn't have one yet. */
+  private fun showClusterableItem(tag: Feature.Tag) {
+    if (mapsItemManager.contains(tag)) {
+      mapsItemManager.setVisible(tag, true)
+    } else {
+      featuresByTag[tag]?.let { mapsItemManager.put(it, visible = true) }
+    }
+  }
+
+  private fun hideClusterableItem(tag: Feature.Tag) {
+    mapsItemManager.remove(tag)
+  }
 
   private fun remove(feature: Feature) =
     with(feature) {
@@ -137,21 +177,24 @@ constructor(
     }
 
   /** Updates the existing feature on the map with it's new properties (geometry, styling, etc). */
-  fun update(feature: Feature) =
-    with(feature) {
-      val prevFeature = featuresByTag[tag]
-      if (prevFeature == null) {
-        Timber.e("Feature not found for update: $tag")
-        return
-      }
+  private fun update(existing: Feature, updated: Feature) {
+    if (!mapsItemManager.update(updated)) return
 
-      features.remove(prevFeature)
-      features.add(this)
-      mapsItemManager.update(this)
-      featuresByTag[tag] = this
-    }
+    features.remove(existing)
+    features.add(updated)
+    featuresByTag[updated.tag] = updated
+  }
 
   fun onCameraIdle() {
     clusterManager.onCameraIdle()
   }
+
+  @VisibleForTesting
+  fun maxVisibleClusters(algorithm: NonHierarchicalViewBasedAlgorithm<*>): Int =
+    with(context.resources.displayMetrics) {
+      val spacingDp = algorithm.maxDistanceBetweenClusteredItems
+      val columns = widthPixels / density / spacingDp
+      val rows = heightPixels / density / spacingDp
+      (columns * rows).toInt()
+    }
 }

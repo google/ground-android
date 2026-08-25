@@ -16,8 +16,8 @@
 
 package org.groundplatform.android.util
 
-import kotlin.test.Test
 import kotlin.test.assertEquals
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
 

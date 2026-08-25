@@ -15,31 +15,41 @@
  */
 package org.groundplatform.android.ui.settings
 
-import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
-import org.groundplatform.android.model.settings.UserSettings
 import org.groundplatform.android.ui.common.AbstractViewModel
-import org.groundplatform.android.usecases.user.GetUserSettingsUseCase
+import org.groundplatform.domain.model.settings.MeasurementUnits
+import org.groundplatform.domain.model.settings.UserSettings
+import org.groundplatform.domain.usecases.user.GetUserSettingsUseCase
+import org.groundplatform.domain.usecases.user.UpdateUserSettingsUseCase
 
+@HiltViewModel
 class SettingsViewModel
 @Inject
-internal constructor(private val getUserSettingsUseCase: GetUserSettingsUseCase) :
-  AbstractViewModel() {
+internal constructor(
+  getUserSettingsUseCase: GetUserSettingsUseCase,
+  private val updateUserSettingsUseCase: UpdateUserSettingsUseCase,
+) : AbstractViewModel() {
 
-  private val _uiState: MutableStateFlow<UserSettings?> = MutableStateFlow(null)
-  val uiState: StateFlow<UserSettings?> = _uiState
+  private val _uiState: MutableStateFlow<UserSettings> = MutableStateFlow(getUserSettingsUseCase())
+  val uiState: StateFlow<UserSettings> = _uiState
 
-  init {
-    refreshUserPreferences()
+  private fun updateState(newUiState: UserSettings) {
+    _uiState.value = newUiState
+    updateUserSettingsUseCase(newUiState)
   }
 
-  fun refreshUserPreferences() {
-    viewModelScope.launch {
-      val prefs = getUserSettingsUseCase.invoke()
-      _uiState.value = prefs
-    }
+  fun updateSelectedLanguage(language: String) {
+    updateState(_uiState.value.copy(language = language))
+  }
+
+  fun updateMeasurementUnits(measurementUnits: MeasurementUnits) {
+    updateState(_uiState.value.copy(measurementUnits = measurementUnits))
+  }
+
+  fun updateUploadMediaOverUnmeteredConnectionOnly(enabled: Boolean) {
+    updateState(_uiState.value.copy(shouldUploadPhotosOnWifiOnly = enabled))
   }
 }

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright 2026 Google LLC
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources>
+  <string name="share">ແບ່ງປັນ</string>
+  <string name="pdf_details_site">ຈຸດເກັບຂໍ້ມູນ: %1$s</string>
+  <string name="pdf_details_data_collector">ຜູ້ເກັບຂໍ້ມູນ: %1$s</string>
+  <string name="scan_this_qr_to_download_geojson">ສະແກນ QR ນີ້ເພື່ອເບິ່ງ GeoJSON</string>
+  <string name="other">ອື່ນໆ</string>
+  <string name="skipped">ຂ້າມໄປແລ້ວ</string>
+  <string name="pdf_altitude">ຄວາມສູງ: %1$s ແມັດ</string>
+  <string name="pdf_accuracy">ຄວາມແມ່ນຍຳ: %1$s ແມັດ</string>
+  <string name="north">ນ</string>
+  <string name="south">ຕ</string>
+  <string name="east">ຕ.ອ</string>
+  <string name="west">ຕ.ຕ</string>
+  <string name="submission">ການສົ່ງຂໍ້ມູນ</string>
+  <string name="survey">ແບບສຳຫຼວດ</string>
+  <string name="job">ພາລະກິດ</string>
+  <string name="pdf_data_collector">ຜູ້ເກັບຂໍ້ມູນ</string>
+  <string name="retry">ລອງໃໝ່</string>
+  <string name="area">ພື້ນທີ່</string>
+  <string name="date">ວັນທີ</string>
+</resources>

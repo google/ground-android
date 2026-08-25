@@ -19,7 +19,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import org.groundplatform.android.data.local.room.fields.OfflineAreaEntityState
-import org.groundplatform.android.model.imagery.OfflineArea
+import org.groundplatform.domain.model.imagery.OfflineArea
 
 /** Represents a [OfflineArea] in the local data store. */
 @Entity(tableName = "offline_area")

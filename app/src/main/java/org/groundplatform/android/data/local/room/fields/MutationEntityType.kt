@@ -19,7 +19,7 @@ import androidx.room.TypeConverter
 import org.groundplatform.android.data.local.room.IntEnum
 import org.groundplatform.android.data.local.room.IntEnum.Companion.fromInt
 import org.groundplatform.android.data.local.room.IntEnum.Companion.toInt
-import org.groundplatform.android.model.mutation.Mutation
+import org.groundplatform.domain.model.mutation.Mutation
 
 /** Defines how Room represents mutation types in the remote sync queue in the local db. */
 enum class MutationEntityType(private val intValue: Int) : IntEnum {

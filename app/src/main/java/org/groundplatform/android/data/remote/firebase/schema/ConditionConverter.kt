@@ -16,11 +16,11 @@
 
 package org.groundplatform.android.data.remote.firebase.schema
 
-import org.groundplatform.android.model.task.Condition
-import org.groundplatform.android.model.task.Condition.MatchType
-import org.groundplatform.android.model.task.Expression
-import org.groundplatform.android.model.task.Expression.ExpressionType
 import org.groundplatform.android.proto.Task
+import org.groundplatform.domain.model.task.Condition
+import org.groundplatform.domain.model.task.Condition.MatchType
+import org.groundplatform.domain.model.task.Expression
+import org.groundplatform.domain.model.task.Expression.ExpressionType
 import timber.log.Timber
 
 /** Converts between Firestore nested objects and [Condition] instances. */
@@ -34,9 +34,10 @@ internal object ConditionConverter {
     val expressions =
       listOf(
         Expression(
-          ExpressionType.ANY_OF_SELECTED,
+          expressionType = ExpressionType.ANY_OF_SELECTED,
           taskId = multipleChoice.taskId,
-          multipleChoice.optionIdsList.toSet(),
+          optionIds = multipleChoice.optionIdsList.toSet(),
+          otherSelected = multipleChoice.otherSelected,
         )
       )
     return Condition(MatchType.MATCH_ANY, expressions)

@@ -37,7 +37,9 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
@@ -45,38 +47,43 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.withIndex
 import kotlinx.coroutines.launch
 import org.groundplatform.android.common.Constants.DEFAULT_LOI_ZOOM_LEVEL
-import org.groundplatform.android.model.Survey
-import org.groundplatform.android.model.geometry.Coordinates
-import org.groundplatform.android.model.imagery.TileSource
-import org.groundplatform.android.model.map.CameraPosition
-import org.groundplatform.android.model.map.MapType
-import org.groundplatform.android.repository.LocationOfInterestRepository
-import org.groundplatform.android.repository.MapStateRepository
-import org.groundplatform.android.repository.OfflineAreaRepository
-import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.system.FINE_LOCATION_UPDATES_REQUEST
 import org.groundplatform.android.system.LocationManager
 import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.system.SettingsManager
 import org.groundplatform.android.ui.components.MapFloatingActionButtonType
 import org.groundplatform.android.ui.map.CameraUpdateRequest
+import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.NewCameraPositionViaBounds
 import org.groundplatform.android.ui.map.NewCameraPositionViaCoordinates
 import org.groundplatform.android.ui.map.NewCameraPositionViaCoordinatesAndZoomLevel
+import org.groundplatform.android.ui.map.gms.GmsExt.contains
 import org.groundplatform.android.ui.map.gms.GmsExt.toBounds
 import org.groundplatform.android.ui.map.gms.toCoordinates
+import org.groundplatform.android.ui.util.getDefaultColor
+import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.imagery.TileSource
+import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
+import org.groundplatform.domain.model.map.CameraPosition
+import org.groundplatform.domain.model.map.MapType
+import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
+import org.groundplatform.domain.repository.MapStateRepositoryInterface
+import org.groundplatform.domain.repository.OfflineAreaRepositoryInterface
+import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import timber.log.Timber
 
+@OptIn(ExperimentalCoroutinesApi::class)
 open class BaseMapViewModel
 @Inject
 constructor(
   private val locationManager: LocationManager,
-  private val mapStateRepository: MapStateRepository,
+  private val mapStateRepository: MapStateRepositoryInterface,
   private val settingsManager: SettingsManager,
-  private val offlineAreaRepository: OfflineAreaRepository,
+  private val offlineAreaRepository: OfflineAreaRepositoryInterface,
   private val permissionsManager: PermissionsManager,
-  private val surveyRepository: SurveyRepository,
-  private val locationOfInterestRepository: LocationOfInterestRepository,
+  private val surveyRepository: SurveyRepositoryInterface,
+  private val locationOfInterestRepository: LocationOfInterestRepositoryInterface,
 ) : AbstractViewModel() {
 
   private val _locationLock: MutableStateFlow<Result<Boolean>> =
@@ -107,7 +114,7 @@ constructor(
       }
       .stateIn(viewModelScope, SharingStarted.Lazily, MapFloatingActionButtonType.LocationNotLocked)
 
-  private val _shouldShowMapActions: MutableStateFlow<Boolean> = MutableStateFlow(false)
+  private val _shouldShowMapActions: MutableStateFlow<Boolean> = MutableStateFlow(true)
   val shouldShowMapActions: StateFlow<Boolean> = _shouldShowMapActions
 
   val showMapTypeSelector: MutableStateFlow<Boolean> = MutableStateFlow(false)
@@ -128,6 +135,34 @@ constructor(
         if (enabled) offlineSources else null
       }
       .asLiveData()
+
+  /**
+   * Read-only LOI features for the active survey which fall within the visible viewport. Lazily
+   * initialized to avoid unnecessary database queries when not rendered.
+   */
+  val existingLoiFeatures: StateFlow<Set<Feature>> by lazy {
+    surveyRepository.activeSurveyFlow
+      .flatMapLatest { survey ->
+        if (survey == null) flowOf(emptySet())
+        else locationOfInterestRepository.getValidLois(survey)
+      }
+      .combine(getCurrentCameraPosition().mapNotNull { it.bounds }.distinctUntilChanged()) {
+        lois,
+        bounds ->
+        lois.filter { bounds.contains(it.geometry) }
+      }
+      .map { lois -> lois.map { it.toFeature() }.toSet() }
+      .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), setOf())
+  }
+
+  private fun LocationOfInterest.toFeature() =
+    Feature(
+      id = id,
+      type = Feature.Type.LOCATION_OF_INTEREST,
+      geometry = geometry,
+      style = Feature.Style(job.getDefaultColor()),
+      clusterable = false,
+    )
 
   /** Returns whether the user has granted fine location permission. */
   fun hasLocationPermission() =
@@ -254,14 +289,13 @@ constructor(
     // Attempt to fetch last saved position from local storage.
     val savedPosition = mapStateRepository.getCameraPosition(survey.id)
     if (savedPosition != null) {
-      return if (savedPosition.zoomLevel == null) {
-        NewCameraPositionViaCoordinates(savedPosition.coordinates)
-      } else
+      return savedPosition.zoomLevel?.let {
         NewCameraPositionViaCoordinatesAndZoomLevel(
           savedPosition.coordinates,
-          savedPosition.zoomLevel,
+          zoomLevel = it,
           isAllowZoomOut = true,
         )
+      } ?: NewCameraPositionViaCoordinates(savedPosition.coordinates)
     }
 
     // Compute the default viewport which includes all LOIs in the given survey.

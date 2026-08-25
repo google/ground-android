@@ -19,7 +19,6 @@ import android.database.sqlite.SQLiteDatabase
 import androidx.room.Room
 import androidx.room.migration.Migration
 import androidx.room.testing.MigrationTestHelper
-import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.IOException
@@ -29,10 +28,11 @@ import org.groundplatform.android.data.local.room.LocalDatabase
 import org.groundplatform.android.data.local.room.migration.MigrationTestDataGenerator.getConditionContentValues
 import org.groundplatform.android.data.local.room.migration.MigrationTestDataGenerator.getExpressionContentValues
 import org.groundplatform.android.data.local.room.migration.MigrationTestDataGenerator.getJobContentValues
+import org.groundplatform.android.data.local.room.migration.MigrationTestDataGenerator.getLocationOfInterestMutationContentValues
 import org.groundplatform.android.data.local.room.migration.MigrationTestDataGenerator.getSurveyContentValues
 import org.groundplatform.android.data.local.room.migration.MigrationTestDataGenerator.getTaskContentValues
-import org.groundplatform.android.model.Survey
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,15 +40,11 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class MigrationTest {
   private val testDatabase = "test.db"
-  private val migrations = arrayOf(Migration_124_125, Migration_125_126)
+  private val migrations = arrayOf(Migration_124_125, Migration_125_126, Migration_126_127)
 
   @get:Rule
   val helper =
-    MigrationTestHelper(
-      instrumentation = InstrumentationRegistry.getInstrumentation(),
-      assetsFolder = LocalDatabase::class.java.canonicalName!!,
-      openFactory = FrameworkSQLiteOpenHelperFactory(),
-    )
+    MigrationTestHelper(InstrumentationRegistry.getInstrumentation(), LocalDatabase::class.java)
 
   @Test
   @Throws(IOException::class)
@@ -119,6 +115,80 @@ class MigrationTest {
 
       close()
     }
+  }
+
+  @Test
+  @Throws(IOException::class)
+  fun migrate126To127() = runBlocking {
+    val completedState = 3
+    val failedState = 2
+    val mediaPendingState = 5
+
+    helper.createDatabase(testDatabase, 126).apply {
+      // Insert LOI mutation with MEDIA_UPLOAD_PENDING status (should be rewritten to COMPLETED)
+      insert(
+        "location_of_interest_mutation",
+        SQLiteDatabase.CONFLICT_REPLACE,
+        getLocationOfInterestMutationContentValues(id = 1L, state = mediaPendingState),
+      )
+      // Insert LOI mutation already COMPLETED (should remain unchanged)
+      insert(
+        "location_of_interest_mutation",
+        SQLiteDatabase.CONFLICT_REPLACE,
+        getLocationOfInterestMutationContentValues(id = 2L, state = completedState),
+      )
+      // Insert LOI mutation with FAILED status (should remain unchanged)
+      insert(
+        "location_of_interest_mutation",
+        SQLiteDatabase.CONFLICT_REPLACE,
+        getLocationOfInterestMutationContentValues(id = 3L, state = failedState),
+      )
+      close()
+    }
+
+    helper.runMigrationsAndValidate(testDatabase, 127, true, *migrations)
+
+    with(getMigratedRoomDatabase(migrations)) {
+      val mutations = locationOfInterestMutationDao().getAllMutationsFlow().first()
+      assertEquals(3, mutations.size)
+
+      // Verify MEDIA_UPLOAD_PENDING was rewritten to COMPLETED
+      assertEquals(completedState, mutations.find { it.id == 1L }?.syncStatus?.intValue())
+      // Verify already COMPLETED remains unchanged
+      assertEquals(completedState, mutations.find { it.id == 2L }?.syncStatus?.intValue())
+      // Verify FAILED remains unchanged
+      assertEquals(failedState, mutations.find { it.id == 3L }?.syncStatus?.intValue())
+
+      close()
+    }
+  }
+
+  @Test
+  @Throws(IOException::class)
+  fun migrate127To128() = runBlocking {
+    val surveyId = "survey"
+    val jobId = "job"
+    val taskId = "task127-128"
+
+    helper.createDatabase(testDatabase, 127).apply {
+      insert("survey", SQLiteDatabase.CONFLICT_REPLACE, getSurveyContentValues(surveyId))
+      insert("job", SQLiteDatabase.CONFLICT_REPLACE, getJobContentValues(jobId, surveyId))
+      insert("task", SQLiteDatabase.CONFLICT_REPLACE, getTaskContentValues(taskId, jobId))
+      insert("condition", SQLiteDatabase.CONFLICT_REPLACE, getConditionContentValues(taskId))
+      insert("expression", SQLiteDatabase.CONFLICT_REPLACE, getExpressionContentValues(taskId))
+      close()
+    }
+
+    val migratedDb = helper.runMigrationsAndValidate(testDatabase, 128, true, *migrations)
+
+    // Beyond the schema, assert the pre-existing row was backfilled with the default (false / 0).
+    migratedDb
+      .query("SELECT other_selected FROM expression WHERE parent_task_id = ?", arrayOf(taskId))
+      .use { cursor ->
+        assertEquals("expected the seeded expression to survive migration", 1, cursor.count)
+        assertTrue(cursor.moveToFirst())
+        assertEquals(0, cursor.getInt(cursor.getColumnIndexOrThrow("other_selected")))
+      }
   }
 
   private fun getMigratedRoomDatabase(migrations: Array<Migration>): LocalDatabase =

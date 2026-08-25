@@ -57,8 +57,6 @@
   <string name="tos_title">Điều khoản dịch vụ</string>
   <string name="agree_terms">Đồng ý</string>
   <string name="agree_checkbox">Tôi đồng ý</string>
-  <string name="date">Ngày</string>
-  <string name="time">Thời gian</string>
   <!-- Other strings (to be organized) -->
   <string name="sync_status">Trạng thái đồng bộ dữ liệu</string>
   <string name="add_point">Thêm điểm</string>
@@ -126,7 +124,6 @@
   <string name="read_only_data_collection_hint">Khảo sát chỉ được phép xem</string>
   <string name="no_submissions">Chưa có bài gửi nào</string>
   <string name="dismiss_info_popup">Đóng lại</string>
-  <string name="other">Khác</string>
   <plurals name="submission_count">
     <item quantity="other">%d bài gửi</item>
   </plurals>
@@ -160,7 +157,6 @@
   <string name="visit_website_title">Truy cập trang web</string>
   <string name="accuracy">Độ chính xác:</string>
   <string name="select_language_title">Chọn ngôn ngữ</string>
-  <string name="select_language_summary">Chọn ngôn ngữ ưu tiên</string>
   <!-- Data Sharing Consent Text -->
   <string name="data_sharing_no_terms">*Không có điều khoản nào để hiển thị*</string>
   <string name="data_sharing_private_message">## Chia sẻ dữ liệu riêng tư
@@ -169,7 +165,6 @@
 \nNgười tổ chức khảo sát có thể chia sẻ và sử dụng dữ liệu công khai theo Giấy phép *Creative Commons CC0 1.0*  </string>
   <string name="draft_restored">Dữ liệu chưa lưu đã được khôi phục</string>
   <string name="load_tos_failed">Không thể kết nối, vui lòng thử lại sau</string>
-  <string name="data_submitted_image">Ảnh đã được gửi kèm dữ liệu</string>
   <string name="data_collection_complete">Thu thập dữ liệu hoàn tất!</string>
   <string name="data_collection_complete_details">Dữ liệu của bạn đã được lưu và sẽ tự động đồng bộ khi bạn trực tuyến.</string>
   <string name="allow_location_confirmation">Cho phép truy cập vị trí</string>
@@ -185,11 +180,6 @@
   <string name="clear">Xóa</string>
   <string name="text_task_data_character_limit">Tối đa 255 ký tự</string>
   <string name="area_message">Diện tích: %s</string>
-  <string name="lang_english">Tiếng Anh</string>
-  <string name="lang_french">Tiếng Pháp</string>
-  <string name="lang_spanish">Tiếng Tây Ban Nha</string>
-  <string name="lang_portuguese">Tiếng Bồ Đào Nha</string>
-  <string name="lang_vietnamese">Tiếng Việt</string>
   <string name="access_restricted">Hạn chế</string>
   <string name="access_unlisted">Không công khai</string>
   <string name="access_public">Công khai</string>
@@ -201,7 +191,6 @@
   <string name="dialog_message_update_required">A new version of the app is available. Please update to continue using the app.</string>
   <string name="dialog_button_update">Cập nhật</string>
   <string name="select_length_title">Chọn đơn vị</string>
-  <string name="select_length_summary">Chọn đơn vị ưa thích của bạn</string>
   <string name="length_metric">Hệ mét</string>
   <string name="length_imperial">Hệ Anh</string>
 
@@ -215,4 +204,13 @@
 
   <string name="recenter">Recenter</string>
   <string name="survey_load_timeout_error">Đã hết thời gian tải khảo sát. Vui lòng kiểm tra kết nối và thử lại.</string>
+  <string name="camera_launch_failed_title">Lỗi máy ảnh</string>
+  <string name="camera_launch_failed_desc">Không thể mở máy ảnh. Vui lòng thử lại.</string>
+  <string name="photo_save_failed_title">Lỗi lưu</string>
+  <string name="photo_save_failed_desc">Không thể lưu ảnh đã chụp. Vui lòng thử lại.</string>
+  <string name="share_location">Chia sẻ vị trí</string>
+
+  <string name="join_survey">Tham gia khảo sát</string>
+  <string name="invalid_survey_qr_code">Không nhận diện được mã QR khảo sát</string>
+  <string name="join_survey_confirm_title">Tham gia khảo sát này?</string>
 </resources>

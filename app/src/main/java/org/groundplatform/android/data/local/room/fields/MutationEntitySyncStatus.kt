@@ -19,7 +19,7 @@ import androidx.room.TypeConverter
 import org.groundplatform.android.data.local.room.IntEnum
 import org.groundplatform.android.data.local.room.IntEnum.Companion.fromInt
 import org.groundplatform.android.data.local.room.IntEnum.Companion.toInt
-import org.groundplatform.android.model.mutation.Mutation.SyncStatus
+import org.groundplatform.domain.model.mutation.Mutation.SyncStatus
 
 /** Mutually exclusive mutations states. */
 enum class MutationEntitySyncStatus(private val intValue: Int, private val enumValue: SyncStatus) :

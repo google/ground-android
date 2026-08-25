@@ -35,19 +35,15 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import java.text.SimpleDateFormat
 import java.util.Date
+import kotlin.time.Clock
 import org.groundplatform.android.R
-import org.groundplatform.android.model.mutation.Mutation
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
-import org.groundplatform.android.ui.theme.AppTheme
+import org.groundplatform.domain.model.mutation.Mutation
+import org.groundplatform.ui.theme.AppTheme
 
 @Composable
 fun SyncListItem(modifier: Modifier, detail: SyncStatusDetail) {
@@ -58,32 +54,23 @@ fun SyncListItem(modifier: Modifier, detail: SyncStatusDetail) {
         Text(
           text = "${date.toFormattedDate()} • ${date.toFormattedTime()}",
           color = MaterialTheme.colorScheme.onSurfaceVariant,
-          fontSize = 12.sp,
-          lineHeight = 16.sp,
-          fontWeight = FontWeight(500),
-          letterSpacing = 0.1.sp,
+          style = MaterialTheme.typography.bodySmall,
         )
         Spacer(Modifier.height(4.dp))
         Text(
           text = "${detail.label} • ${detail.subtitle}",
-          style =
-            TextStyle(
-              fontSize = 16.sp,
-              lineHeight = 24.sp,
-              fontFamily = FontFamily(Font(R.font.text_500)),
-              color = MaterialTheme.colorScheme.onSurface,
-            ),
+          color = MaterialTheme.colorScheme.onSurface,
         )
-        val textStyle =
-          TextStyle(
-            fontSize = 14.sp,
-            lineHeight = 20.sp,
-            fontWeight = FontWeight(400),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-          )
-        Text(text = detail.description, style = textStyle)
+        Text(
+          text = detail.description,
+          style = MaterialTheme.typography.bodyMedium,
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
         Spacer(Modifier.height(4.dp))
-        Text(text = stringResource(id = detail.status.toLabel()), fontSize = 11.sp)
+        Text(
+          text = stringResource(id = detail.status.toLabel()),
+          style = MaterialTheme.typography.bodySmall,
+        )
       }
       Column(modifier = modifier.padding(start = 16.dp).align(alignment = CenterVertically)) {
         StatusIcon(status = detail.status, modifier = Modifier)
@@ -121,15 +108,15 @@ private fun StatusIcon(status: Mutation.SyncStatus, modifier: Modifier = Modifie
 }
 
 @Composable
-private fun Date.toFormattedDate(): String {
+private fun Long.toFormattedDate(): String {
   val locale = LocalConfiguration.current.locales[0]
   val dateFormat = SimpleDateFormat("MMM d, yyyy", locale)
-  return dateFormat.format(this)
+  return dateFormat.format(Date(this))
 }
 
 @Composable
-private fun Date.toFormattedTime(): String =
-  DateFormat.getTimeFormat(LocalContext.current).format(this)
+private fun Long.toFormattedTime(): String =
+  DateFormat.getTimeFormat(LocalContext.current).format(Date(this))
 
 private fun Mutation.SyncStatus.toLabel(): Int =
   when (this) {
@@ -162,7 +149,7 @@ private fun PreviewSyncListItem(
   detail: SyncStatusDetail =
     SyncStatusDetail(
       user = "Jane Doe",
-      timestamp = Date(),
+      timestamp = Clock.System.now().toEpochMilliseconds(),
       label = "Map the farms",
       subtitle = "IDX21311",
       status = Mutation.SyncStatus.PENDING,

@@ -15,32 +15,36 @@
  */
 package org.groundplatform.android.data.remote.firebase
 
+import com.google.firebase.Firebase
 import com.google.firebase.firestore.WriteBatch
 import com.google.firebase.functions.FirebaseFunctions
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.messaging.ktx.messaging
+import com.google.firebase.messaging.messaging
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import org.groundplatform.android.BuildConfig.USE_EMULATORS
 import org.groundplatform.android.data.remote.RemoteDataStore
 import org.groundplatform.android.data.remote.firebase.schema.GroundFirestore
+import org.groundplatform.android.data.remote.firebase.schema.LoiCollectionReference
 import org.groundplatform.android.di.coroutines.IoDispatcher
-import org.groundplatform.android.model.Survey
-import org.groundplatform.android.model.SurveyListItem
-import org.groundplatform.android.model.TermsOfService
-import org.groundplatform.android.model.User
-import org.groundplatform.android.model.mutation.LocationOfInterestMutation
-import org.groundplatform.android.model.mutation.Mutation
-import org.groundplatform.android.model.mutation.SubmissionMutation
-import org.groundplatform.android.model.toListItem
+import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.SurveyListItem
+import org.groundplatform.domain.model.TermsOfService
+import org.groundplatform.domain.model.User
+import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
+import org.groundplatform.domain.model.mutation.LocationOfInterestMutation
+import org.groundplatform.domain.model.mutation.Mutation
+import org.groundplatform.domain.model.mutation.SubmissionMutation
+import org.groundplatform.domain.model.toListItem
 import timber.log.Timber
 
 private const val PROFILE_REFRESH_CLOUD_FUNCTION_NAME = "profile-refresh"
@@ -80,24 +84,37 @@ internal constructor(
     )
   }
 
-  override suspend fun loadPredefinedLois(survey: Survey) =
-    withContext(ioDispatcher) { db().surveys().survey(survey.id).lois().fetchPredefined(survey) }
+  override fun loadPredefinedLois(survey: Survey) =
+    fetchLoiPages(survey) { fetchPredefined(survey) }
 
-  override suspend fun loadUserLois(survey: Survey, ownerUserId: String) =
-    withContext(ioDispatcher) {
-      db().surveys().survey(survey.id).lois().fetchUserDefined(survey, ownerUserId)
-    }
+  override fun loadUserLois(survey: Survey, ownerUserId: String) =
+    fetchLoiPages(survey) { fetchUserDefined(survey, ownerUserId) }
 
-  override suspend fun loadSharedLois(survey: Survey) =
-    withContext(ioDispatcher) { db().surveys().survey(survey.id).lois().fetchSharedLois(survey) }
+  override fun loadSharedLois(survey: Survey) = fetchLoiPages(survey) { fetchSharedLois(survey) }
+
+  /** Emits the pages of LOIs produced by [fetch] against the given survey's LOI collection. */
+  private fun fetchLoiPages(
+    survey: Survey,
+    fetch: LoiCollectionReference.() -> Flow<List<LocationOfInterest>>,
+  ): Flow<List<LocationOfInterest>> = flow {
+    emitAll(db().surveys().survey(survey.id).lois().fetch())
+  }
+    .buffer(1)
+    .flowOn(ioDispatcher)
 
   override suspend fun subscribeToSurveyUpdates(surveyId: String) {
     if (USE_EMULATORS) return
     Timber.d("Subscribing to FCM topic $surveyId")
-    try {
-      Firebase.messaging.subscribeToTopic(surveyId).await()
-    } catch (e: CancellationException) {
-      Timber.i(e, "Subscribing to FCM topic was cancelled")
+    Firebase.messaging.subscribeToTopic(surveyId).addOnFailureListener {
+      Timber.w(it, "Failed to subscribe to FCM topic $surveyId")
+    }
+  }
+
+  override suspend fun unsubscribeFromSurveyUpdates(surveyId: String) {
+    if (USE_EMULATORS) return
+    Timber.d("Unsubscribing from FCM topic $surveyId")
+    Firebase.messaging.unsubscribeFromTopic(surveyId).addOnFailureListener {
+      Timber.w(it, "Failed to unsubscribe from FCM topic $surveyId")
     }
   }
 

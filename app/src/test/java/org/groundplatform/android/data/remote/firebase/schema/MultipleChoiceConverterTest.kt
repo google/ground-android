@@ -18,11 +18,11 @@ package org.groundplatform.android.data.remote.firebase.schema
 import com.google.common.truth.Truth.assertThat
 import kotlinx.collections.immutable.persistentListOf
 import org.groundplatform.android.data.remote.firebase.schema.MultipleChoiceConverter.toMultipleChoice
-import org.groundplatform.android.model.task.MultipleChoice
-import org.groundplatform.android.model.task.Option
 import org.groundplatform.android.proto.Task
 import org.groundplatform.android.proto.TaskKt.MultipleChoiceQuestionKt.option
 import org.groundplatform.android.proto.TaskKt.multipleChoiceQuestion
+import org.groundplatform.domain.model.task.MultipleChoice
+import org.groundplatform.domain.model.task.Option
 import org.junit.Test
 
 class MultipleChoiceConverterTest {

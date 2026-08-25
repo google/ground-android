@@ -17,11 +17,6 @@
 package org.groundplatform.android.util
 
 import java.io.File
-import kotlin.math.ceil
-
-typealias ByteCount = Int
-
-typealias MegabyteCount = Float
 
 /** Return true iff the file is non-null and contains other files. */
 fun File?.isEmpty() = this?.listFiles().isNullOrEmpty()
@@ -30,12 +25,3 @@ fun File?.isEmpty() = this?.listFiles().isNullOrEmpty()
 fun File.deleteIfEmpty() {
   if (isEmpty()) delete()
 }
-
-/** Returns the byte count as an equivalent megabyte count. */
-fun ByteCount.toMb(): MegabyteCount = this / (1024f * 1024f)
-
-/**
- * Returns the number of megabytes a string, replacing smaller sizes with "<1" and rounding up
- * others.
- */
-fun MegabyteCount.toMbString(): String = if (this < 1) "<1" else ceil(this).toInt().toString()

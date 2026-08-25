@@ -21,6 +21,7 @@ import com.google.android.gms.maps.model.TileProvider
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
+import org.groundplatform.domain.model.imagery.TileCoordinates
 import timber.log.Timber
 
 // TODO: Add unit tests.

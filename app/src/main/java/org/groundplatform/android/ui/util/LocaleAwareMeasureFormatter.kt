@@ -23,7 +23,7 @@ import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.floor
 import kotlin.math.pow
-import org.groundplatform.android.model.settings.MeasurementUnits
+import org.groundplatform.domain.model.settings.MeasurementUnits
 
 private const val METERS_TO_FEET = 3.28084
 

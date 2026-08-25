@@ -15,7 +15,7 @@
  */
 package org.groundplatform.android.data.local.stores
 
-import org.groundplatform.android.model.mutation.Mutation
+import org.groundplatform.domain.model.mutation.Mutation
 
 /**
  * A data store capable of applying changes in the form of [Mutation]s to existing data and managing

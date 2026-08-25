@@ -31,18 +31,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import org.groundplatform.android.R
-import org.groundplatform.android.model.SurveyListItem
-import org.groundplatform.android.proto.Survey
+import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.SurveyListItem
 import timber.log.Timber
 
 @Composable
-fun HeaderRow(item: SurveyListItem, menuClick: (String) -> Unit) {
+fun HeaderRow(item: SurveyListItem, menuClick: ((String) -> Unit)? = null) {
   val iconRes = item.generalAccess.iconRes() ?: return
   val labelRes = item.generalAccess.labelString() ?: return
 
@@ -55,9 +51,7 @@ fun HeaderRow(item: SurveyListItem, menuClick: (String) -> Unit) {
 
     Text(
       text = stringResource(labelRes),
-      fontFamily = FontFamily(Font(R.font.text_500)),
-      fontSize = 12.sp,
-      fontWeight = FontWeight.Medium,
+      style = MaterialTheme.typography.bodySmall,
       color = MaterialTheme.colorScheme.onSurfaceVariant,
       modifier = Modifier.padding(start = 4.dp),
     )
@@ -71,15 +65,17 @@ fun HeaderRow(item: SurveyListItem, menuClick: (String) -> Unit) {
         tint = Color(0xff006E2C),
         modifier = Modifier.size(24.dp).padding(end = 4.dp),
       )
-      Icon(
-        painter = painterResource(R.drawable.ic_more_vert),
-        contentDescription = stringResource(R.string.more_options_icon_description),
-        modifier =
-          Modifier.size(24.dp)
-            .clickable { menuClick(item.id) }
-            .padding(end = 4.dp)
-            .testTag("overflow_${item.id}"),
-      )
+      menuClick?.let {
+        Icon(
+          painter = painterResource(R.drawable.ic_more_vert),
+          contentDescription = stringResource(R.string.more_options_icon_description),
+          modifier =
+            Modifier.size(24.dp)
+              .clickable { menuClick(item.id) }
+              .padding(end = 4.dp)
+              .testTag("overflow_${item.id}"),
+        )
+      }
     }
   }
 }

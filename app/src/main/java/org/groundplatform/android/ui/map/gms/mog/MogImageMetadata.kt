@@ -16,6 +16,9 @@
 
 package org.groundplatform.android.ui.map.gms.mog
 
+import org.groundplatform.domain.model.imagery.TiffTag
+import org.groundplatform.domain.model.imagery.TileCoordinates
+
 /** Metadata describing a single full-resolution or overview image in a MOG. */
 data class MogImageMetadata(
   val originTile: TileCoordinates,

@@ -32,12 +32,12 @@ import org.groundplatform.android.data.local.room.dao.SurveyDao
 import org.groundplatform.android.data.local.room.dao.TaskDao
 import org.groundplatform.android.data.local.room.dao.insertOrUpdate
 import org.groundplatform.android.data.local.stores.LocalSurveyStore
-import org.groundplatform.android.model.Survey
-import org.groundplatform.android.model.job.Job
-import org.groundplatform.android.model.task.Condition
-import org.groundplatform.android.model.task.MultipleChoice
-import org.groundplatform.android.model.task.Option
-import org.groundplatform.android.model.task.Task
+import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.task.Condition
+import org.groundplatform.domain.model.task.MultipleChoice
+import org.groundplatform.domain.model.task.Option
+import org.groundplatform.domain.model.task.Task
 
 /** Manages access to [Survey] objects persisted in local storage. */
 @Singleton
@@ -67,15 +67,14 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
    * Attempts to update persisted data associated with a [Survey] in the local database. If the
    * provided survey does not exist, inserts the given survey into the database.
    */
-  override suspend fun insertOrUpdateSurvey(survey: Survey) =
-    localDatabase.withTransaction {
-      // Update survey.
-      surveyDao.insertOrUpdate(survey.toLocalDataStoreObject())
-      // Add or update jobs and tasks.
-      insertOrUpdateJobs(survey.id, survey.jobs)
-      // Delete removed jobs.
-      jobDao.deleteNotIn(survey.id, survey.jobs.map { it.id })
-    }
+  override suspend fun insertOrUpdateSurvey(survey: Survey) = localDatabase.withTransaction {
+    // Update survey.
+    surveyDao.insertOrUpdate(survey.toLocalDataStoreObject())
+    // Add or update jobs and tasks.
+    insertOrUpdateJobs(survey.id, survey.jobs)
+    // Delete removed jobs.
+    jobDao.deleteNotIn(survey.id, survey.jobs.map { it.id })
+  }
 
   /**
    * Returns the [Survey] with the given ID from the local database. Returns `null` if retrieval
@@ -118,14 +117,8 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
 
   private suspend fun insertOrUpdateTask(jobId: String, task: Task) {
     taskDao.insertOrUpdate(task.toLocalDataStoreObject(jobId))
-    if (task.multipleChoice != null) {
-      insertOrUpdateMultipleChoice(task.id, task.multipleChoice)
-    }
-    if (task.condition != null) {
-      insertOrUpdateCondition(task.id, task.condition)
-    } else {
-      deleteCondition(task.id)
-    }
+    task.multipleChoice?.let { insertOrUpdateMultipleChoice(task.id, it) }
+    task.condition?.let { insertOrUpdateCondition(task.id, it) } ?: run { deleteCondition(task.id) }
   }
 
   private suspend fun insertOrUpdateTasks(jobId: String, tasks: Collection<Task>) {
@@ -138,6 +131,7 @@ class RoomSurveyStore @Inject internal constructor() : LocalSurveyStore {
     insertOrUpdateTasks(job.id, job.tasks.values)
   }
 
-  private suspend fun insertOrUpdateJobs(surveyId: String, jobs: Collection<Job>) =
-    jobs.forEach { insertOrUpdateJob(surveyId, it) }
+  private suspend fun insertOrUpdateJobs(surveyId: String, jobs: Collection<Job>) = jobs.forEach {
+    insertOrUpdateJob(surveyId, it)
+  }
 }

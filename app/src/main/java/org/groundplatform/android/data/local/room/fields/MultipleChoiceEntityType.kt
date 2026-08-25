@@ -19,7 +19,7 @@ import androidx.room.TypeConverter
 import org.groundplatform.android.data.local.room.IntEnum
 import org.groundplatform.android.data.local.room.IntEnum.Companion.fromInt
 import org.groundplatform.android.data.local.room.IntEnum.Companion.toInt
-import org.groundplatform.android.model.task.MultipleChoice
+import org.groundplatform.domain.model.task.MultipleChoice
 
 /** Defines how Room represents cardinality types in the local db. */
 enum class MultipleChoiceEntityType(private val intValue: Int) : IntEnum {

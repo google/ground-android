@@ -42,6 +42,7 @@ class FeatureClusterRenderer(
   map: GoogleMap,
   clusterManager: ClusterManager<FeatureClusterItem>,
   private var zoom: Float,
+  private val iconFactory: IconFactory,
 ) : DefaultClusterRenderer<FeatureClusterItem>(context, map, clusterManager) {
   /**
    * Called when the cluster balloon is shown so that implementations can unhide related map items.
@@ -51,8 +52,6 @@ class FeatureClusterRenderer(
    * Called when the cluster balloon is display so that implementations can hide related map items.
    */
   lateinit var onClusterItemRendered: (Feature.Tag) -> Unit
-
-  private val markerIconFactory: IconFactory = IconFactory(context)
 
   private var oldZoom = zoom
 
@@ -77,7 +76,7 @@ class FeatureClusterRenderer(
   private fun createClusterIcon(cluster: Cluster<FeatureClusterItem>): BitmapDescriptor {
     val itemsWithFlag = cluster.items.count { it.feature.flag }
     val totalItems = cluster.items.size
-    return markerIconFactory.getClusterIcon("$itemsWithFlag/$totalItems")
+    return iconFactory.getClusterIcon("$itemsWithFlag/$totalItems")
   }
 
   /**
@@ -125,8 +124,8 @@ class FeatureClusterRenderer(
    *   the clusters differ; false otherwise.
    */
   override fun shouldRender(
-    oldClusters: Set<Cluster<FeatureClusterItem?>?>,
-    newClusters: Set<Cluster<FeatureClusterItem?>?>,
+    oldClusters: Set<Cluster<FeatureClusterItem>>,
+    newClusters: Set<Cluster<FeatureClusterItem>>,
   ): Boolean =
     if (hasRenderingModeChanged()) {
       true

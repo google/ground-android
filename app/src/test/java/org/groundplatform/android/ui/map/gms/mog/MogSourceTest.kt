@@ -17,6 +17,7 @@
 package org.groundplatform.android.ui.map.gms.mog
 
 import com.google.common.truth.Truth.assertThat
+import org.groundplatform.domain.model.imagery.TileCoordinates
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith

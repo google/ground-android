@@ -21,34 +21,30 @@ import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.local.stores.LocalSubmissionStore
 import org.groundplatform.android.data.sync.MutationSyncWorkManager
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
-import org.groundplatform.android.model.Survey
-import org.groundplatform.android.model.locationofinterest.LocationOfInterest
-import org.groundplatform.android.model.mutation.Mutation
-import org.groundplatform.android.model.mutation.Mutation.SyncStatus
-import org.groundplatform.android.model.mutation.SubmissionMutation
-import org.groundplatform.android.model.submission.DraftSubmission
-import org.groundplatform.android.model.submission.Submission
-import org.groundplatform.android.model.submission.ValueDelta
+import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
+import org.groundplatform.domain.model.mutation.Mutation
+import org.groundplatform.domain.model.mutation.Mutation.SyncStatus
+import org.groundplatform.domain.model.mutation.SubmissionMutation
+import org.groundplatform.domain.model.submission.DraftSubmission
+import org.groundplatform.domain.model.submission.ValueDelta
+import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
+import org.groundplatform.domain.repository.SubmissionRepositoryInterface
+import org.groundplatform.domain.repository.UserRepositoryInterface
+import timber.log.Timber
 
-/**
- * Coordinates persistence and retrieval of [Submission] instances from remote, local, and in memory
- * data stores. For more details on this pattern and overall architecture, see
- * https://developer.android.com/jetpack/docs/guide.
- */
 @Singleton
 class SubmissionRepository
 @Inject
 constructor(
   private val localSubmissionStore: LocalSubmissionStore,
   private val localValueStore: LocalValueStore,
-  private val locationOfInterestRepository: LocationOfInterestRepository,
+  private val locationOfInterestRepository: LocationOfInterestRepositoryInterface,
   private val mutationSyncWorkManager: MutationSyncWorkManager,
-  private val userRepository: UserRepository,
+  private val userRepository: UserRepositoryInterface,
   private val uuidGenerator: OfflineUuidGenerator,
-) {
-
-  /** Creates a new submission in the local data store and enqueues a sync worker. */
-  suspend fun saveSubmission(
+) : SubmissionRepositoryInterface {
+  override suspend fun saveSubmission(
     surveyId: String,
     locationOfInterestId: String,
     deltas: List<ValueDelta>,
@@ -71,17 +67,31 @@ constructor(
           collectionId = collectionId,
         )
       applyAndEnqueue(mutation)
-    }
+    } ?: run { Timber.w("Job not found for survey $surveyId and LOI $locationOfInterestId") }
   }
 
-  suspend fun getDraftSubmission(draftSubmissionId: String, survey: Survey): DraftSubmission? =
-    localSubmissionStore.getDraftSubmission(draftSubmissionId = draftSubmissionId, survey = survey)
+  override suspend fun getDraftSubmission(survey: Survey): DraftSubmission? {
+    val draftId = localValueStore.draftSubmissionId
+    val draft =
+      if (draftId.isNullOrEmpty()) null
+      else localSubmissionStore.getDraftSubmission(draftSubmissionId = draftId, survey = survey)
+    if (draft != null && draft.surveyId != survey.id) {
+      Timber.e("Skipping draft submission, survey id doesn't match")
+      return null
+    }
+    return draft
+  }
 
-  suspend fun countDraftSubmissions() = localSubmissionStore.countDraftSubmissions()
+  override suspend fun getDraftSubmissionForSession(
+    survey: Survey,
+    jobId: String,
+    loiId: String?,
+  ): DraftSubmission? =
+    getDraftSubmission(survey)?.takeIf { it.jobId == jobId && it.loiId == loiId }
 
-  fun getDraftSubmissionsId() = localValueStore.draftSubmissionId ?: ""
+  override suspend fun countDraftSubmissions() = localSubmissionStore.countDraftSubmissions()
 
-  suspend fun saveDraftSubmission(
+  override suspend fun saveDraftSubmission(
     jobId: String,
     loiId: String?,
     surveyId: String,
@@ -95,7 +105,7 @@ constructor(
     localValueStore.draftSubmissionId = newId
   }
 
-  suspend fun deleteDraftSubmission() {
+  override suspend fun deleteDraftSubmission() {
     localSubmissionStore.deleteDraftSubmissions()
     localValueStore.draftSubmissionId = null
   }
@@ -105,12 +115,15 @@ constructor(
     mutationSyncWorkManager.enqueueSyncWorker()
   }
 
-  suspend fun getTotalSubmissionCount(loi: LocationOfInterest) =
+  override suspend fun getTotalSubmissionCount(loi: LocationOfInterest) =
     loi.submissionCount + getPendingCreateCount(loi.id) - getPendingDeleteCount(loi.id)
 
-  suspend fun getPendingCreateCount(loiId: String) =
+  override suspend fun getPendingCreateCount(loiId: String) =
     localSubmissionStore.getPendingCreateCount(loiId)
 
   private suspend fun getPendingDeleteCount(loiId: String) =
     localSubmissionStore.getPendingDeleteCount(loiId)
+
+  override suspend fun getSubmissions(loi: LocationOfInterest) =
+    localSubmissionStore.getSubmissions(loi, loi.job.id)
 }

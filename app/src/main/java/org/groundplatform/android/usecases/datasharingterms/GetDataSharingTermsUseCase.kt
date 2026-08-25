@@ -17,25 +17,25 @@ package org.groundplatform.android.usecases.datasharingterms
 
 import javax.inject.Inject
 import org.groundplatform.android.data.local.LocalValueStore
-import org.groundplatform.android.proto.Survey.DataSharingTerms
-import org.groundplatform.android.repository.SurveyRepository
+import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.repository.SurveyRepositoryInterface
 
 class GetDataSharingTermsUseCase
 @Inject
 constructor(
   private val localValueStore: LocalValueStore,
-  private val surveyRepository: SurveyRepository,
+  private val surveyRepository: SurveyRepositoryInterface,
 ) {
 
   /** Returns the data sharing terms for the currently active survey, if not already accepted. */
-  operator fun invoke(): Result<DataSharingTerms?> = runCatching {
+  operator fun invoke(): Result<Survey.DataSharingTerms?> = runCatching {
     val survey = surveyRepository.activeSurvey ?: error("No active survey")
     val sharingTerms = survey.dataSharingTerms
     if (sharingTerms == null || localValueStore.getDataSharingConsent(survey.id)) {
       // User previously agreed to the terms or data sharing terms are missing.
       return Result.success(null)
     }
-    if (sharingTerms.type == DataSharingTerms.Type.CUSTOM && sharingTerms.customText.isBlank()) {
+    if (sharingTerms is Survey.DataSharingTerms.Custom && sharingTerms.text.isBlank()) {
       throw InvalidCustomSharingTermsException()
     }
     return Result.success(sharingTerms)

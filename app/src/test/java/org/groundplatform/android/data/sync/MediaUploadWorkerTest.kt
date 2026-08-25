@@ -16,7 +16,6 @@
 package org.groundplatform.android.data.sync
 
 import android.content.Context
-import android.graphics.Bitmap
 import androidx.test.core.app.ApplicationProvider
 import androidx.work.ListenableWorker
 import androidx.work.WorkerFactory
@@ -24,6 +23,7 @@ import androidx.work.WorkerParameters
 import androidx.work.testing.TestListenableWorkerBuilder
 import com.google.common.truth.Truth.assertWithMessage
 import dagger.hilt.android.testing.HiltAndroidTest
+import java.io.File
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
@@ -36,22 +36,22 @@ import org.groundplatform.android.data.local.stores.LocalUserStore
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.data.remote.FakeRemoteStorageManager
 import org.groundplatform.android.di.coroutines.IoDispatcher
-import org.groundplatform.android.model.mutation.Mutation
-import org.groundplatform.android.model.mutation.Mutation.SyncStatus.COMPLETED
-import org.groundplatform.android.model.mutation.Mutation.SyncStatus.FAILED
-import org.groundplatform.android.model.mutation.Mutation.SyncStatus.IN_PROGRESS
-import org.groundplatform.android.model.mutation.Mutation.SyncStatus.MEDIA_UPLOAD_AWAITING_RETRY
-import org.groundplatform.android.model.mutation.Mutation.SyncStatus.MEDIA_UPLOAD_IN_PROGRESS
-import org.groundplatform.android.model.mutation.Mutation.SyncStatus.MEDIA_UPLOAD_PENDING
-import org.groundplatform.android.model.mutation.Mutation.SyncStatus.PENDING
-import org.groundplatform.android.model.mutation.Mutation.SyncStatus.UNKNOWN
-import org.groundplatform.android.model.mutation.SubmissionMutation
-import org.groundplatform.android.model.submission.PhotoTaskData
-import org.groundplatform.android.model.submission.ValueDelta
-import org.groundplatform.android.model.task.Task
-import org.groundplatform.android.model.task.Task.Type.PHOTO
-import org.groundplatform.android.repository.MutationRepository
-import org.groundplatform.android.repository.UserMediaRepository
+import org.groundplatform.domain.model.mutation.Mutation
+import org.groundplatform.domain.model.mutation.Mutation.SyncStatus.COMPLETED
+import org.groundplatform.domain.model.mutation.Mutation.SyncStatus.FAILED
+import org.groundplatform.domain.model.mutation.Mutation.SyncStatus.IN_PROGRESS
+import org.groundplatform.domain.model.mutation.Mutation.SyncStatus.MEDIA_UPLOAD_AWAITING_RETRY
+import org.groundplatform.domain.model.mutation.Mutation.SyncStatus.MEDIA_UPLOAD_IN_PROGRESS
+import org.groundplatform.domain.model.mutation.Mutation.SyncStatus.MEDIA_UPLOAD_PENDING
+import org.groundplatform.domain.model.mutation.Mutation.SyncStatus.PENDING
+import org.groundplatform.domain.model.mutation.Mutation.SyncStatus.UNKNOWN
+import org.groundplatform.domain.model.mutation.SubmissionMutation
+import org.groundplatform.domain.model.submission.ValueDelta
+import org.groundplatform.domain.model.task.PhotoTaskData
+import org.groundplatform.domain.model.task.Task
+import org.groundplatform.domain.model.task.Task.Type.PHOTO
+import org.groundplatform.domain.repository.MutationRepositoryInterface
+import org.groundplatform.domain.repository.UserMediaRepositoryInterface
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -62,8 +62,8 @@ import org.robolectric.RobolectricTestRunner
 class MediaUploadWorkerTest : BaseHiltTest() {
   private lateinit var context: Context
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
-  @Inject lateinit var mutationRepository: MutationRepository
-  @Inject lateinit var userMediaRepository: UserMediaRepository
+  @Inject lateinit var mutationRepository: MutationRepositoryInterface
+  @Inject lateinit var userMediaRepository: UserMediaRepositoryInterface
   @Inject lateinit var fakeRemoteStorageManager: FakeRemoteStorageManager
   @Inject lateinit var localSubmissionStore: LocalSubmissionStore
   @Inject lateinit var localUserStore: LocalUserStore
@@ -193,15 +193,12 @@ class MediaUploadWorkerTest : BaseHiltTest() {
     localSubmissionStore.applyAndEnqueue(createSubmissionMutation().copy(syncStatus = status))
 
   private suspend fun createSubmissionMutation(photoName: String? = null): SubmissionMutation {
-    val photo =
-      userMediaRepository.savePhoto(
-        Bitmap.createBitmap(1, 1, Bitmap.Config.HARDWARE),
-        TEST_PHOTO_TASK.id,
-      )
+    val photo = userMediaRepository.createImageFile(TEST_PHOTO_TASK.id).value
+    File(photo).writeBytes(ByteArray(0))
 
     return SUBMISSION_MUTATION.copy(
       job = TEST_JOB,
-      deltas = listOf(ValueDelta(PHOTO_TASK_ID, PHOTO, PhotoTaskData(photoName ?: photo.name))),
+      deltas = listOf(ValueDelta(PHOTO_TASK_ID, PHOTO, PhotoTaskData(photoName ?: photo))),
     )
   }
 

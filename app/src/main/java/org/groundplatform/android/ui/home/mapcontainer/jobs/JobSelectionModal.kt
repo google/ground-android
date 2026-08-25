@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android.ui.home.mapcontainer.jobs
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -40,13 +41,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.groundplatform.android.R
-import org.groundplatform.android.model.job.Job
-import org.groundplatform.android.model.job.Style
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
-import org.groundplatform.android.ui.theme.AppTheme
+import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.job.Style
+import org.groundplatform.ui.theme.AppTheme
 
 @Composable
 fun JobSelectionModal(jobs: List<Job>, onJobClicked: (job: Job) -> Unit, onDismiss: () -> Unit) {
+  BackHandler(onBack = onDismiss)
   Column(
     Modifier.fillMaxWidth()
       .background(color = Color.Black.copy(alpha = 0.6f))

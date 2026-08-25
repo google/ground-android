@@ -18,7 +18,7 @@ package org.groundplatform.android.usecases.survey
 
 import javax.inject.Inject
 import org.groundplatform.android.data.sync.SurveySyncWorker
-import org.groundplatform.android.repository.SurveyRepository
+import org.groundplatform.domain.repository.SurveyRepositoryInterface
 
 /**
  * Sets the survey with the specified ID as the currently active.
@@ -32,7 +32,7 @@ class ActivateSurveyUseCase
 @Inject
 constructor(
   private val makeSurveyAvailableOffline: MakeSurveyAvailableOfflineUseCase,
-  private val surveyRepository: SurveyRepository,
+  private val surveyRepository: SurveyRepositoryInterface,
 ) {
 
   /**

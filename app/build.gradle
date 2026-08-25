@@ -13,20 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
-apply plugin: 'kotlin-parcelize'
-apply plugin: 'kotlinx-serialization'
-apply plugin: 'com.google.dagger.hilt.android'
-apply plugin: 'com.google.devtools.ksp'
-apply plugin: 'androidx.room'
-apply plugin: 'com.google.firebase.firebase-perf'
-apply plugin: 'com.google.firebase.crashlytics'
-apply plugin: 'com.google.android.gms.oss-licenses-plugin'
-apply plugin: 'com.google.protobuf'
-apply plugin: 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
-apply plugin: 'org.jetbrains.kotlin.plugin.compose'
+
+plugins {
+    alias libs.plugins.android.application
+    alias libs.plugins.kotlin.parcelize
+    alias libs.plugins.kotlin.serialization
+    alias libs.plugins.hilt.android
+    alias libs.plugins.ksp
+    alias libs.plugins.room
+    alias libs.plugins.firebase.perf
+    alias libs.plugins.firebase.crashlytics
+    alias libs.plugins.oss.licenses
+    alias libs.plugins.protobuf
+    alias libs.plugins.androidx.navigation.safeargs
+    alias libs.plugins.secrets.gradle.plugin
+    alias libs.plugins.compose.compiler
+    alias libs.plugins.google.services
+}
 
 apply from: '../config/checkstyle/checkstyle.gradle'
 apply from: '../config/lint/lint.gradle'
@@ -56,7 +59,8 @@ static def getGitHash() {
 }
 
 android {
-    compileSdk rootProject.androidCompileSdk
+    compileSdk = libs.versions.androidCompileSdk.get().toInteger()
+    compileSdkMinor = libs.versions.androidCompileSdkMinor.get().toInteger()
     sourceSets {
         main {
             proto {
@@ -75,8 +79,8 @@ android {
     }
     defaultConfig {
         applicationId "org.groundplatform.android"
-        minSdkVersion rootProject.androidMinSdk
-        targetSdkVersion rootProject.androidTargetSdk
+        minSdkVersion libs.versions.androidMinSdk.get().toInteger()
+        targetSdkVersion libs.versions.androidTargetSdk.get().toInteger()
 
         versionCode getGitCommitCount()
         versionName "${getGitBranchName()}-${getGitHash()}-debug"
@@ -88,9 +92,11 @@ android {
         buildConfigField "int", "FIRESTORE_EMULATOR_PORT", "8080"
         buildConfigField "int", "AUTH_EMULATOR_PORT", "9099"
         buildConfigField "String", "SIGNUP_FORM_LINK", "\"\""
-        manifestPlaceholders.usesCleartextTraffic = true
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        def secretsFile = rootProject.file('secrets.properties')
+        def secretProps = new Properties()
+        if (secretsFile.exists()) secretsFile.withInputStream { secretProps.load(it) }
+        manifestPlaceholders.MAPS_API_KEY = secretProps.getProperty("MAPS_API_KEY", "DEFAULT_API_KEY")
     }
 
     // Use flag -PtestBuildType with desired variant to change default behavior.
@@ -135,7 +141,6 @@ android {
             dimension "backend"
             versionNameSuffix "-local"
             buildConfigField "boolean", "USE_EMULATORS", "true"
-            manifestPlaceholders.usesCleartextTraffic = true
         }
         dev {
             dimension "backend"
@@ -169,6 +174,12 @@ android {
     }
 
     namespace = 'org.groundplatform.android'
+
+    bundle {
+        language {
+            enableSplit = false
+        }
+    }
 }
 
 configurations {
@@ -177,6 +188,9 @@ configurations {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation project(':core:domain')
+    implementation project(':core:ui')
+    implementation project(':feature:pdf')
     implementation libs.androidx.multidex
     implementation libs.androidx.preference.ktx
 
@@ -215,12 +229,15 @@ dependencies {
     testImplementation libs.androidx.ui.test.junit4
     implementation libs.androidx.navigation.compose
     implementation libs.androidx.hilt.navigation.compose
+    // Compose Multiplatform
+    implementation libs.compose.components.resources
 
     // Images
-    implementation libs.glide
+    implementation libs.coil.compose
 
     // Google Play Services
     implementation libs.play.services.auth
+    implementation libs.play.services.code.scanner
     implementation libs.play.services.location
     implementation libs.play.services.maps
 
@@ -237,10 +254,9 @@ dependencies {
     implementation libs.firebase.config
     implementation libs.firebase.crashlytics
     implementation libs.firebase.firestore
-    implementation libs.firebase.functions.ktx
+    implementation libs.firebase.functions
     implementation libs.firebase.messaging
     implementation libs.firebase.messaging.directboot
-    implementation libs.firebase.messaging.ktx
     implementation libs.firebase.perf
     implementation libs.firebase.storage
 
@@ -279,10 +295,15 @@ dependencies {
     testImplementation libs.androidx.work.testing
 
     // OSS Licenses Plugin
-    implementation libs.play.services.oss.licenses
+    implementation(libs.play.services.oss.licenses) {
+        // We use only the View-based OSS Licenses UI. Exclude the Compose UI's alpha material3 to
+        // avoid conflicts with the compose BOM.
+        exclude group: 'androidx.compose.material3'
+    }
 
     // Markdown Parser
     implementation libs.markdown
+    testImplementation project(':core:testing')
 
     // Testing
     androidTestImplementation libs.androidx.junit
@@ -320,6 +341,7 @@ dependencies {
     }
 
     // Fragments
+    implementation libs.androidx.fragment.compose
     debugImplementation libs.androidx.fragment.testing.manifest
 
     // TODO: Move protos into shared module and set correct path here.
@@ -328,6 +350,9 @@ dependencies {
 
     // Pulls protodefs from the specified commit in the ground-platform repo.
     groundProtoJar libs.ground.platform
+
+    // Deferred deeplinks
+    implementation libs.android.install.referrer
 }
 
 protobuf {
@@ -365,14 +390,8 @@ task extractGroundProtoJar(type: Copy) {
     include "**/*.proto"
 }
 
-apply plugin: 'androidx.navigation.safeargs'
-
-// This must be last to avoid dependency collisions.
-// https://developers.google.com/android/guides/google-services-plugin#introduction
-apply plugin: 'com.google.gms.google-services'
-
 kotlin {
-    jvmToolchain rootProject.jvmToolchainVersion
+    jvmToolchain libs.versions.jvmToolchainVersion.get().toInteger()
 }
 
 secrets {
@@ -384,3 +403,4 @@ secrets {
     // checked in version control.
     defaultPropertiesFileName = "local.defaults.properties"
 }
+

@@ -15,37 +15,29 @@
  */
 package org.groundplatform.android.ui.home
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.core.view.GravityCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.google.android.material.imageview.ShapeableImageView
-import com.google.android.material.navigation.NavigationView
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.launch
-import org.groundplatform.android.BuildConfig
 import org.groundplatform.android.R
-import org.groundplatform.android.data.local.room.converter.SubmissionDeltasConverter
 import org.groundplatform.android.databinding.HomeScreenFragBinding
-import org.groundplatform.android.databinding.NavDrawerHeaderBinding
-import org.groundplatform.android.model.User
-import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.common.BackPressListener
 import org.groundplatform.android.ui.common.EphemeralPopups
-import org.groundplatform.android.ui.components.ConfirmationDialog
-import org.groundplatform.android.ui.main.MainViewModel
 import org.groundplatform.android.util.setComposableContent
-import org.groundplatform.android.util.systemInsets
 
 /**
  * Fragment containing the map container and location of interest sheet fragments and NavigationView
@@ -53,18 +45,14 @@ import org.groundplatform.android.util.systemInsets
  * fragments (e.g., view submission and edit submission) at runtime.
  */
 @AndroidEntryPoint
-class HomeScreenFragment :
-  AbstractFragment(), BackPressListener, NavigationView.OnNavigationItemSelectedListener {
+class HomeScreenFragment : AbstractFragment(), BackPressListener {
 
   @Inject lateinit var ephemeralPopups: EphemeralPopups
-  @Inject lateinit var userRepository: UserRepository
   private lateinit var binding: HomeScreenFragBinding
   private lateinit var homeScreenViewModel: HomeScreenViewModel
-  private lateinit var user: User
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    getViewModel(MainViewModel::class.java).windowInsets.observe(this) { onApplyWindowInsets(it) }
     homeScreenViewModel = getViewModel(HomeScreenViewModel::class.java)
   }
 
@@ -76,31 +64,84 @@ class HomeScreenFragment :
     super.onCreateView(inflater, container, savedInstanceState)
     binding = HomeScreenFragBinding.inflate(inflater, container, false)
     binding.lifecycleOwner = this
-    lifecycleScope.launch { homeScreenViewModel.openDrawerRequestsFlow.collect { openDrawer() } }
     return binding.root
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    // Ensure nav drawer cannot be swiped out, which would conflict with map pan gestures.
-    binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-    homeScreenViewModel.showOfflineAreaMenuItem.observe(viewLifecycleOwner) {
-      binding.navView.menu.findItem(R.id.nav_offline_areas).isEnabled = it
-    }
+    val binding = binding
 
-    binding.navView.setNavigationItemSelectedListener(this)
-    val navHeader = binding.navView.getHeaderView(0)
-    navHeader.findViewById<TextView>(R.id.switch_survey_button).setOnClickListener {
-      findNavController()
-        .navigate(
-          HomeScreenFragmentDirections.actionHomeScreenFragmentToSurveySelectorFragment(false)
+    setupComposeView(binding)
+    setupDrawerContent(binding)
+    restoreDraftSubmission(binding)
+  }
+
+  private fun setupComposeView(binding: HomeScreenFragBinding) {
+    binding.composeView.setComposableContent {
+      LaunchedEffect(Unit) { homeScreenViewModel.openDrawerRequestsFlow.collect { openDrawer() } }
+      SetupUserConfirmationDialog()
+    }
+  }
+
+  private fun setupDrawerContent(binding: HomeScreenFragBinding) {
+    binding.drawerView.setComposableContent {
+      val drawerState by homeScreenViewModel.drawerState.collectAsStateWithLifecycle()
+
+      drawerState?.let { state ->
+        HomeDrawer(
+          user = state.user,
+          survey = state.survey,
+          versionText = String.format(getString(R.string.build), state.appVersion),
+          onAction = { action ->
+            when (action) {
+              HomeDrawerAction.OnSwitchSurvey -> {
+                navigateToSurveySelector()
+              }
+              HomeDrawerAction.OnNavigateToOfflineAreas -> {
+                lifecycleScope.launch {
+                  if (homeScreenViewModel.getOfflineAreas().isEmpty())
+                    findNavController()
+                      .navigate(HomeScreenFragmentDirections.showOfflineAreaSelector())
+                  else findNavController().navigate(HomeScreenFragmentDirections.showOfflineAreas())
+                }
+                closeDrawer()
+              }
+              HomeDrawerAction.OnNavigateToSyncStatus -> {
+                findNavController().navigate(HomeScreenFragmentDirections.showSyncStatus())
+                closeDrawer()
+              }
+              HomeDrawerAction.OnNavigateToSettings -> {
+                findNavController()
+                  .navigate(
+                    HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity()
+                  )
+                closeDrawer()
+              }
+              HomeDrawerAction.OnNavigateToAbout -> {
+                findNavController().navigate(HomeScreenFragmentDirections.showAbout())
+                closeDrawer()
+              }
+              HomeDrawerAction.OnNavigateToTerms -> {
+                findNavController().navigate(HomeScreenFragmentDirections.showTermsOfService(true))
+                closeDrawer()
+              }
+              HomeDrawerAction.OnOpenPlayStore -> {
+                openPlayStore()
+              }
+              HomeDrawerAction.OnSignOut -> {
+                homeScreenViewModel.showSignOutConfirmation()
+              }
+              HomeDrawerAction.OnUserDetails -> {
+                homeScreenViewModel.showUserDetails()
+              }
+            }
+          },
         )
+      }
     }
-    viewLifecycleOwner.lifecycleScope.launch { user = userRepository.getAuthenticatedUser() }
-    navHeader.findViewById<ShapeableImageView>(R.id.user_image).setOnClickListener {
-      showSignOutConfirmationDialogs()
-    }
-    updateNavHeader()
+  }
+
+  private fun restoreDraftSubmission(binding: HomeScreenFragBinding) {
     // Re-open data collection screen if draft submission is present.
     viewLifecycleOwner.lifecycleScope.launch {
       homeScreenViewModel.getDraftSubmission()?.let { draft ->
@@ -110,9 +151,6 @@ class HomeScreenFragment :
               draft.loiId,
               draft.loiName ?: "",
               draft.jobId,
-              true,
-              SubmissionDeltasConverter.toString(draft.deltas),
-              draft.currentTaskId ?: "",
             )
           )
 
@@ -127,28 +165,7 @@ class HomeScreenFragment :
         }
       }
     }
-
-    val navigationView = view.findViewById<NavigationView>(R.id.nav_view)
-    val menuItem = navigationView.menu.findItem(R.id.nav_log_version)
-    menuItem.title = String.format(getString(R.string.build), BuildConfig.VERSION_NAME)
   }
-
-  private fun updateNavHeader() =
-    lifecycleScope.launch {
-      val navHeader = binding.navView.getHeaderView(0)
-      val headerBinding = NavDrawerHeaderBinding.bind(navHeader)
-      headerBinding.user = userRepository.getAuthenticatedUser()
-      homeScreenViewModel.surveyRepository.activeSurveyFlow.collect {
-        if (it == null) {
-          headerBinding.surveyInfo.visibility = View.GONE
-          headerBinding.noSurveysInfo.visibility = View.VISIBLE
-        } else {
-          headerBinding.noSurveysInfo.visibility = View.GONE
-          headerBinding.surveyInfo.visibility = View.VISIBLE
-          headerBinding.survey = it
-        }
-      }
-    }
 
   private fun openDrawer() {
     binding.drawerLayout.openDrawer(GravityCompat.START)
@@ -158,77 +175,44 @@ class HomeScreenFragment :
     binding.drawerLayout.closeDrawer(GravityCompat.START)
   }
 
-  private fun onApplyWindowInsets(insets: WindowInsetsCompat) {
-    val headerView = binding.navView.getHeaderView(0)
-    headerView.setPadding(0, insets.systemInsets().top, 0, 0)
+  private fun navigateToSurveySelector() {
+    findNavController()
+      .navigate(
+        HomeScreenFragmentDirections.actionHomeScreenFragmentToSurveySelectorFragment(false)
+      )
+  }
+
+  private fun openPlayStore() {
+    closeDrawer()
+    openPlayStore(requireContext().packageName, ::startActivity)
   }
 
   override fun onBack(): Boolean = false
 
-  override fun onNavigationItemSelected(item: MenuItem): Boolean {
-    when (item.itemId) {
-      R.id.sync_status -> {
-        findNavController().navigate(HomeScreenFragmentDirections.showSyncStatus())
-      }
-      R.id.nav_offline_areas -> {
-        lifecycleScope.launch {
-          if (homeScreenViewModel.getOfflineAreas().isEmpty())
-            findNavController().navigate(HomeScreenFragmentDirections.showOfflineAreaSelector())
-          else findNavController().navigate(HomeScreenFragmentDirections.showOfflineAreas())
-        }
-      }
-      R.id.nav_settings -> {
-        findNavController()
-          .navigate(HomeScreenFragmentDirections.actionHomeScreenFragmentToSettingsActivity())
-      }
-      R.id.about -> {
-        findNavController().navigate(HomeScreenFragmentDirections.showAbout())
-      }
-      R.id.terms_of_service -> {
-        findNavController().navigate(HomeScreenFragmentDirections.showTermsOfService(true))
-      }
-    }
-    closeDrawer()
-    return true
+  @Composable
+  private fun SetupUserConfirmationDialog() {
+    val state by homeScreenViewModel.accountDialogState.collectAsStateWithLifecycle()
+    val user by homeScreenViewModel.user.collectAsStateWithLifecycle(null)
+
+    UserAccountDialogs(
+      state = state,
+      user = user,
+      onSignOut = { homeScreenViewModel.signOut() },
+      onShowSignOutConfirmation = { homeScreenViewModel.showSignOutConfirmation() },
+      onDismiss = { homeScreenViewModel.dismissLogoutDialog() },
+    )
   }
+}
 
-  private fun showSignOutConfirmationDialogs() {
-    val showUserDetailsDialog = mutableStateOf(false)
-    val showSignOutDialog = mutableStateOf(false)
-
-    fun showUserDetailsDialog() {
-      showUserDetailsDialog.value = true
-      showSignOutDialog.value = false
-    }
-
-    fun showSignOutDialog() {
-      showUserDetailsDialog.value = false
-      showSignOutDialog.value = true
-    }
-
-    fun hideAllDialogs() {
-      showUserDetailsDialog.value = false
-      showSignOutDialog.value = false
-    }
-
-    // Init state for composition
-    showUserDetailsDialog()
-
-    // Note: Adding a compose view to the fragment's view dynamically causes the navigation click to
-    // stop working after 1st time. Revisit this once the navigation drawer is also generated using
-    // compose.
-    binding.composeView.setComposableContent {
-      if (showUserDetailsDialog.value) {
-        UserDetailsDialog(user, { showSignOutDialog() }, { hideAllDialogs() })
-      }
-      if (showSignOutDialog.value) {
-        ConfirmationDialog(
-          title = R.string.sign_out_dialog_title,
-          description = R.string.sign_out_dialog_body,
-          confirmButtonText = R.string.sign_out,
-          onConfirmClicked = { homeScreenViewModel.signOut() },
-        )
-      }
-    }
+internal fun openPlayStore(packageName: String, startActivity: (Intent) -> Unit) {
+  try {
+    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$packageName")))
+  } catch (_: ActivityNotFoundException) {
+    startActivity(
+      Intent(
+        Intent.ACTION_VIEW,
+        Uri.parse("https://play.google.com/store/apps/details?id=$packageName"),
+      )
+    )
   }
 }

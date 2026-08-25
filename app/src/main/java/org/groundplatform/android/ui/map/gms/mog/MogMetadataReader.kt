@@ -20,6 +20,8 @@ import com.google.common.io.LittleEndianDataInputStream
 import java.io.DataInput
 import java.io.DataInputStream
 import java.nio.charset.StandardCharsets
+import org.groundplatform.domain.model.imagery.TiffTag
+import org.groundplatform.domain.model.imagery.TiffTagDataType
 
 private const val NULL_CHAR = 0.toChar()
 

@@ -16,30 +16,29 @@
 package org.groundplatform.android.ui.main
 
 import android.net.Uri
-import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.groundplatform.android.BuildConfig
-import org.groundplatform.android.common.Constants.SURVEY_PATH_SEGMENT
 import org.groundplatform.android.di.coroutines.IoDispatcher
-import org.groundplatform.android.model.User
-import org.groundplatform.android.repository.TermsOfServiceRepository
-import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.auth.AuthenticationManager
-import org.groundplatform.android.system.auth.SignInState
+import org.groundplatform.android.system.deeplink.PlayInstallReferrerService
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.common.SharedViewModel
-import org.groundplatform.android.usecases.session.ClearUserSessionUseCase
 import org.groundplatform.android.usecases.survey.ReactivateLastSurveyUseCase
+import org.groundplatform.android.util.SurveyDeepLinkParser
+import org.groundplatform.domain.model.User
+import org.groundplatform.domain.model.auth.SignInState
+import org.groundplatform.domain.repository.TermsOfServiceRepositoryInterface
+import org.groundplatform.domain.repository.UserRepositoryInterface
+import org.groundplatform.domain.usecases.user.ClearUserSessionUseCase
 import timber.log.Timber
 
 /** Top-level view model representing state of the [MainActivity] shared by all fragments. */
@@ -48,19 +47,18 @@ class MainViewModel
 @Inject
 constructor(
   private val clearUserSessionUseCase: ClearUserSessionUseCase,
-  private val userRepository: UserRepository,
-  private val termsOfServiceRepository: TermsOfServiceRepository,
+  private val userRepository: UserRepositoryInterface,
+  private val termsOfServiceRepository: TermsOfServiceRepositoryInterface,
   private val reactivateLastSurvey: ReactivateLastSurveyUseCase,
+  private val surveyDeepLinkParser: SurveyDeepLinkParser,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
   private val remoteConfig: FirebaseRemoteConfig,
   authenticationManager: AuthenticationManager,
+  private val playInstallReferrerService: PlayInstallReferrerService,
 ) : AbstractViewModel() {
 
-  private val _navigationRequests: MutableSharedFlow<MainUiState?> = MutableSharedFlow()
-  var navigationRequests: SharedFlow<MainUiState?> = _navigationRequests.asSharedFlow()
-
-  /** The window insets determined by the activity. */
-  val windowInsets: MutableLiveData<WindowInsetsCompat> = MutableLiveData()
+  private val _uiEffects = Channel<MainUiEffect>(Channel.BUFFERED)
+  val uiEffects: Flow<MainUiEffect> = _uiEffects.receiveAsFlow()
 
   private val _deepLinkUri = MutableStateFlow<Uri?>(null)
 
@@ -68,9 +66,7 @@ constructor(
     viewModelScope.launch {
       // TODO: Check auth status whenever fragments resumes
       // Issue URL: https://github.com/google/ground-android/issues/2624
-      authenticationManager.signInState.collect {
-        _navigationRequests.emit(onSignInStateChange(it))
-      }
+      authenticationManager.signInState.collect { onSignInStateChange(it) }
     }
   }
 
@@ -80,51 +76,52 @@ constructor(
     _deepLinkUri.value = uri
   }
 
-  private suspend fun onSignInStateChange(signInState: SignInState): MainUiState? =
+  private suspend fun onSignInStateChange(signInState: SignInState) {
     when (signInState) {
       is SignInState.SignedIn -> onUserSignedIn(signInState.user)
       is SignInState.SignedOut -> onUserSignedOut()
-      else -> null
+      else -> {}
     }
+  }
 
-  private fun onUserSignedOut(): MainUiState {
+  private suspend fun onUserSignedOut() {
     // Scope of subscription is until view model is cleared. Dispose it manually otherwise, firebase
     // attempts to maintain a connection even after user has logged out and throws an error.
     viewModelScope.launch { withContext(ioDispatcher) { clearUserSessionUseCase() } }
-    return MainUiState.OnUserSignedOut
+    _uiEffects.send(MainUiEffect.SignedOut)
   }
 
-  private suspend fun onUserSignedIn(user: User): MainUiState =
-    try {
-      userRepository.saveUserDetails(user)
-      if (!isTosAccepted()) {
-        MainUiState.TosNotAccepted
-      } else if (isDeepLinkAvailable()) {
-        val deepLinkUri = _deepLinkUri.value
-        val pathSegments = deepLinkUri?.pathSegments ?: emptyList()
-
-        val surveyId =
-          pathSegments
-            .indexOf(SURVEY_PATH_SEGMENT)
-            .takeIf { it != -1 }
-            ?.let { pathSegments.getOrNull(it + 1) }
-
-        if (!surveyId.isNullOrBlank()) {
-          MainUiState.ActiveSurveyById(surveyId)
-        } else {
-          MainUiState.NoActiveSurvey
+  private suspend fun onUserSignedIn(user: User) {
+    val destination =
+      try {
+        userRepository.saveUserDetails(user)
+        when {
+          !isTosAccepted() -> {
+            MainUiEffect.StartDestination.TermsOfService
+          }
+          isDeepLinkAvailable() -> {
+            val surveyId = _deepLinkUri.value?.let { surveyDeepLinkParser.parse(it) }
+            surveyId?.let { MainUiEffect.StartDestination.ActiveSurvey(it) }
+              ?: MainUiEffect.StartDestination.SurveySelector
+          }
+          else -> {
+            val deferredSurveyId = playInstallReferrerService.getDeferredSurveyId()
+            when {
+              deferredSurveyId != null ->
+                MainUiEffect.StartDestination.ActiveSurvey(deferredSurveyId)
+              reactivateLastSurvey() -> MainUiEffect.StartDestination.Home
+              else -> MainUiEffect.StartDestination.SurveySelector
+            }
+          }
         }
-      } else if (!reactivateLastSurvey()) {
-        MainUiState.NoActiveSurvey
-      } else {
-        // Everything is fine, show the home screen
-        MainUiState.ShowHomeScreen
+      } catch (e: Throwable) {
+        Timber.e(e)
+        // TODO: Display some error dialog to the user with a helpful user-readable message.
+        onUserSignedOut()
+        return
       }
-    } catch (e: Throwable) {
-      Timber.e(e)
-      // TODO: Display some error dialog to the user with a helpful user-readable message.
-      onUserSignedOut()
-    }
+    _uiEffects.send(MainUiEffect.OpenStartDestination(destination))
+  }
 
   /** Returns true if the user has already accepted the Terms of Service. */
   private fun isTosAccepted(): Boolean = termsOfServiceRepository.isTermsOfServiceAccepted

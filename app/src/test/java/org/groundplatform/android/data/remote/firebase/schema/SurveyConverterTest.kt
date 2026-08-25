@@ -20,11 +20,12 @@ import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.DocumentSnapshot
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.data.remote.firebase.protobuf.toFirestoreMap
+import org.groundplatform.android.data.remote.firebase.protobuf.toProto
 import org.groundplatform.android.proto.Role
-import org.groundplatform.android.proto.Survey
+import org.groundplatform.android.proto.Survey as SurveyProto
 import org.groundplatform.android.proto.Survey.DataVisibility.DATA_VISIBILITY_UNSPECIFIED
-import org.groundplatform.android.proto.copy
 import org.groundplatform.android.proto.survey
+import org.groundplatform.domain.model.Survey
 import org.junit.Test
 import org.mockito.Mockito.mock
 import org.mockito.kotlin.whenever
@@ -38,17 +39,17 @@ class SurveyConverterTest {
         name = SURVEY.title
         description = SURVEY.description
         acl.put(USER.email, Role.DATA_COLLECTOR)
-        dataSharingTerms = DATA_SHARING_TERMS.copy {}
-        generalAccess = FAKE_GENERAL_ACCESS
+        dataSharingTerms = DATA_SHARING_TERMS.toProto()
+        generalAccess = FAKE_GENERAL_ACCESS.toProto()
         dataVisibility = DATA_VISIBILITY_UNSPECIFIED
       }
       val snapshot = createSurveyProtoDocumentSnapshot(surveyProto)
       assertThat(SurveyConverter.toSurvey(snapshot, listOf(JOB, ADHOC_JOB)))
-        .isEqualTo(SURVEY.copy(dataVisibility = DATA_VISIBILITY_UNSPECIFIED))
+        .isEqualTo(SURVEY.copy(dataVisibility = Survey.DataVisibility.UNSPECIFIED))
     }
   }
 
-  private fun createSurveyProtoDocumentSnapshot(surveyProto: Survey): DocumentSnapshot {
+  private fun createSurveyProtoDocumentSnapshot(surveyProto: SurveyProto): DocumentSnapshot {
     val snapshot = mock(DocumentSnapshot::class.java)
     whenever(snapshot.id).thenReturn(FakeData.SURVEY.id)
     whenever(snapshot.exists()).thenReturn(true)

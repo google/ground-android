@@ -25,15 +25,15 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import org.groundplatform.android.R
-import org.groundplatform.android.model.job.Job
-import org.groundplatform.android.model.submission.SkippedTaskData
-import org.groundplatform.android.model.submission.TaskData
-import org.groundplatform.android.model.submission.isNotNullOrEmpty
-import org.groundplatform.android.model.submission.isNullOrEmpty
-import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
+import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.submission.SkippedTaskData
+import org.groundplatform.domain.model.submission.TaskData
+import org.groundplatform.domain.model.submission.isNotNullOrEmpty
+import org.groundplatform.domain.model.submission.isNullOrEmpty
+import org.groundplatform.domain.model.task.Task
 
 /** Defines the state of an inflated [Task] and controls its UI. */
 abstract class AbstractTaskViewModel internal constructor() : AbstractViewModel() {
@@ -42,6 +42,9 @@ abstract class AbstractTaskViewModel internal constructor() : AbstractViewModel(
   private val _taskDataFlow: MutableStateFlow<TaskData?> = MutableStateFlow(null)
   val taskTaskData: StateFlow<TaskData?> = _taskDataFlow.asStateFlow()
 
+  private val _showInstructionsDialog = MutableStateFlow(false)
+  val showInstructionsDialog = _showInstructionsDialog.asStateFlow()
+
   open val taskActionButtonStates: StateFlow<List<ButtonActionState>> by lazy {
     taskTaskData
       .map { getButtonStates(it) }
@@ -49,24 +52,38 @@ abstract class AbstractTaskViewModel internal constructor() : AbstractViewModel(
       .stateIn(viewModelScope, WhileSubscribed(5_000), emptyList())
   }
 
+  lateinit var surveyId: String
   lateinit var task: Task
   private lateinit var taskPositionInterface: TaskPositionInterface
+  protected lateinit var eventReporter: (DataCollectionEvent) -> Unit
+
+  fun dismissInstructions() {
+    _showInstructionsDialog.value = false
+  }
+
+  fun showInstructions() {
+    _showInstructionsDialog.value = true
+  }
 
   open fun initialize(
     job: Job,
     task: Task,
     taskData: TaskData?,
     taskPositionInterface: TaskPositionInterface,
+    surveyId: String,
+    eventReporter: (DataCollectionEvent) -> Unit,
   ) {
+    this.surveyId = surveyId
     this.task = task
     this.taskPositionInterface = taskPositionInterface
+    this.eventReporter = eventReporter
     setValue(taskData)
   }
 
   /**
    * Returns the list of button states for the given task data.
    *
-   * By default it returns a list of [ButtonAction.PREVIOUS], [ButtonAction.SKIP] (if applicable),
+   * By default, it returns a list of [ButtonAction.PREVIOUS], [ButtonAction.SKIP] (if applicable),
    * [ButtonAction.NEXT]/[ButtonAction.DONE]. Override this method to customize button
    * configuration.
    */
@@ -84,14 +101,14 @@ abstract class AbstractTaskViewModel internal constructor() : AbstractViewModel(
    * user.
    */
   open fun validate(task: Task, taskData: TaskData?): Int? {
-    // Empty response for a required task.
-    if (task.isRequired && (taskData == null || taskData.isEmpty())) {
+    if (task.isRequired && taskData.isNullOrEmpty()) {
       return R.string.required_task
     }
     return null
   }
 
   fun setSkipped() {
+    check(hasNoData()) { "User should not be able to skip a task with data." }
     setValue(SkippedTaskData())
   }
 
@@ -144,11 +161,36 @@ abstract class AbstractTaskViewModel internal constructor() : AbstractViewModel(
       isVisible = isVisible,
     )
 
+  /**
+   * Handles the user's click on a button action.
+   *
+   * @param action the specific [ButtonAction] that was clicked.
+   */
   open fun onButtonClick(action: ButtonAction) {
-    if (action == ButtonAction.UNDO) {
-      clearResponse()
-    } else {
-      // Subclasses handle other actions
+    when (action) {
+      ButtonAction.DONE,
+      ButtonAction.NEXT -> {
+        if (task.isAddLoiTask) {
+          eventReporter(DataCollectionEvent.ShowLoiDialog)
+        } else {
+          eventReporter(DataCollectionEvent.NavigateNext)
+        }
+      }
+
+      ButtonAction.PREVIOUS -> {
+        eventReporter(DataCollectionEvent.NavigatePrevious)
+      }
+
+      ButtonAction.SKIP -> {
+        setSkipped()
+        eventReporter(DataCollectionEvent.NavigateNext)
+      }
+
+      ButtonAction.UNDO -> {
+        clearResponse()
+      }
+
+      else -> {}
     }
   }
 }

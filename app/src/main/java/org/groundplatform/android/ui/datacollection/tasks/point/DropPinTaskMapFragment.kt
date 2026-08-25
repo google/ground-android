@@ -15,16 +15,14 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks.point
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.asFlow
-import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
-import kotlinx.coroutines.launch
-import org.groundplatform.android.model.map.CameraPosition
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.MapFragment
+import org.groundplatform.domain.model.map.CameraPosition
 
 @AndroidEntryPoint
 class DropPinTaskMapFragment @Inject constructor() :
@@ -34,15 +32,11 @@ class DropPinTaskMapFragment @Inject constructor() :
     super.onMapReady(map)
 
     // Disable pan/zoom gestures if a marker has been placed on the map.
-    lifecycleScope.launch {
-      taskViewModel.features.asFlow().collect { features ->
-        updateGestures(features, taskViewModel.captureLocation)
-      }
-    }
+    launchWhenStarted { taskViewModel.features.collect { features -> updateGestures(features) } }
   }
 
-  private fun updateGestures(features: Set<Feature>, captureLocation: Boolean) {
-    if (features.isNotEmpty() || captureLocation) {
+  private fun updateGestures(features: Set<Feature>) {
+    if (features.isNotEmpty()) {
       map.disableGestures()
     } else {
       map.enableGestures()
@@ -54,7 +48,12 @@ class DropPinTaskMapFragment @Inject constructor() :
     taskViewModel.updateCameraPosition(position)
   }
 
-  override fun renderFeatures(): LiveData<Set<Feature>> = taskViewModel.features
+  override fun renderFeatures(): Flow<Set<Feature>> =
+    combine(getMapViewModel().existingLoiFeatures, taskViewModel.features) {
+      loiFeatures,
+      pinFeatures ->
+      loiFeatures + pinFeatures
+    }
 
   override fun setDefaultViewPort() {
     val feature = taskViewModel.features.value?.firstOrNull() ?: return

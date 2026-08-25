@@ -28,11 +28,15 @@ import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.local.stores.LocalSurveyStore
 import org.groundplatform.android.data.local.stores.LocalUserStore
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
-import org.groundplatform.android.model.Role
-import org.groundplatform.android.proto.Survey
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
-import org.groundplatform.android.system.auth.SignInState
+import org.groundplatform.domain.model.Role
+import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.auth.SignInState
+import org.groundplatform.domain.model.settings.MeasurementUnits
+import org.groundplatform.domain.model.settings.UserSettings
+import org.groundplatform.domain.repository.SurveyRepositoryInterface
+import org.groundplatform.domain.repository.UserRepositoryInterface
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -47,8 +51,8 @@ class UserRepositoryTest : BaseHiltTest() {
   @Inject lateinit var localUserStore: LocalUserStore
   @Inject lateinit var localSurveyStore: LocalSurveyStore
   @Inject lateinit var localValueStore: LocalValueStore
-  @Inject lateinit var surveyRepository: SurveyRepository
-  @Inject lateinit var userRepository: UserRepository
+  @Inject lateinit var surveyRepository: SurveyRepositoryInterface
+  @Inject lateinit var userRepository: UserRepositoryInterface
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
 
   @BindValue @Mock lateinit var networkManager: NetworkManager
@@ -89,13 +93,41 @@ class UserRepositoryTest : BaseHiltTest() {
     }
 
   @Test
-  fun `clearUserPreferences() clears lastActiveSurveyId`() {
+  fun `clearUserData() clears lastActiveSurveyId`() = runWithTestDispatcher {
     localValueStore.lastActiveSurveyId = "foo"
 
-    userRepository.clearUserPreferences()
+    userRepository.clearUserData()
 
     assertThat(localValueStore.lastActiveSurveyId).isEmpty()
   }
+
+  @Test
+  fun `clearUserData() clears the local database`() = runWithTestDispatcher {
+    localSurveyStore.insertOrUpdateSurvey(FakeData.SURVEY)
+
+    userRepository.clearUserData()
+
+    assertThat(localSurveyStore.surveys.first()).isEmpty()
+  }
+
+  @Test
+  fun `clearUserData() retains an already consumed deferred deep link`() = runWithTestDispatcher {
+    localValueStore.isDeferredDeeplinkConsumed = true
+
+    userRepository.clearUserData()
+
+    assertThat(localValueStore.isDeferredDeeplinkConsumed).isTrue()
+  }
+
+  @Test
+  fun `clearUserData() leaves an unconsumed deferred deep link unconsumed`() =
+    runWithTestDispatcher {
+      localValueStore.isDeferredDeeplinkConsumed = false
+
+      userRepository.clearUserData()
+
+      assertThat(localValueStore.isDeferredDeeplinkConsumed).isFalse()
+    }
 
   @Test
   fun `canUserSubmitData() when user has permissions returns true`() = runWithTestDispatcher {
@@ -171,5 +203,29 @@ class UserRepositoryTest : BaseHiltTest() {
     surveyRepository.activateSurvey(survey.id)
 
     assertThat(userRepository.canUserSubmitData()).isFalse()
+  }
+
+  @Test
+  fun `getUserSettings() returns correct settings`() {
+    localValueStore.selectedLanguage = "fr"
+    localValueStore.selectedLengthUnit = MeasurementUnits.IMPERIAL.name
+    localValueStore.shouldUploadMediaOverUnmeteredConnectionOnly = true
+
+    val settings = userRepository.getUserSettings()
+
+    assertThat(settings.language).isEqualTo("fr")
+    assertThat(settings.measurementUnits).isEqualTo(MeasurementUnits.IMPERIAL)
+    assertThat(settings.shouldUploadPhotosOnWifiOnly).isTrue()
+  }
+
+  @Test
+  fun `setUserSettings() updates local store`() {
+    val settings = UserSettings("fr", MeasurementUnits.IMPERIAL, true)
+
+    userRepository.setUserSettings(settings)
+
+    assertThat(localValueStore.selectedLanguage).isEqualTo("fr")
+    assertThat(localValueStore.selectedLengthUnit).isEqualTo(MeasurementUnits.IMPERIAL.name)
+    assertThat(localValueStore.shouldUploadMediaOverUnmeteredConnectionOnly).isTrue()
   }
 }

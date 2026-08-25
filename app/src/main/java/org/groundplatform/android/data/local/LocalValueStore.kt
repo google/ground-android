@@ -22,10 +22,12 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import org.groundplatform.android.common.Constants.DEFAULT_MAP_TYPE
 import org.groundplatform.android.common.PrefKeys
-import org.groundplatform.android.model.map.CameraPosition
-import org.groundplatform.android.model.settings.MeasurementUnits
 import org.groundplatform.android.util.allowThreadDiskReads
 import org.groundplatform.android.util.allowThreadDiskWrites
+import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.map.Bounds
+import org.groundplatform.domain.model.map.CameraPosition
+import org.groundplatform.domain.model.settings.MeasurementUnits
 import timber.log.Timber
 
 /**
@@ -115,12 +117,22 @@ constructor(private val preferences: SharedPreferences, private val locale: Loca
       preferences.edit { putString(PrefKeys.MEASUREMENT_UNITS, value) }
     }
 
+  var shouldUploadMediaOverUnmeteredConnectionOnly: Boolean
+    get() = allowThreadDiskReads { preferences.getBoolean(PrefKeys.UPLOAD_MEDIA, false) }
+    set(value) = allowThreadDiskWrites {
+      preferences.edit { putBoolean(PrefKeys.UPLOAD_MEDIA, value) }
+    }
+
+  var isDeferredDeeplinkConsumed: Boolean
+    get() = allowThreadDiskReads {
+      preferences.getBoolean(PrefKeys.DEFERRED_DEEPLINK_CONSUMED, false)
+    }
+    set(value) = allowThreadDiskWrites {
+      preferences.edit { putBoolean(PrefKeys.DEFERRED_DEEPLINK_CONSUMED, value) }
+    }
+
   /** Removes all values stored in the local store. */
   fun clear() = allowThreadDiskWrites { preferences.edit { clear() } }
-
-  fun shouldUploadMediaOverUnmeteredConnectionOnly(): Boolean = allowThreadDiskReads {
-    preferences.getBoolean(PrefKeys.UPLOAD_MEDIA, false)
-  }
 
   fun clearLastCameraPosition(surveyId: String) = allowThreadDiskReads {
     preferences.edit { remove(PrefKeys.LAST_VIEWPORT_PREFIX + surveyId) }
@@ -129,14 +141,17 @@ constructor(private val preferences: SharedPreferences, private val locale: Loca
   fun setLastCameraPosition(surveyId: String, cameraPosition: CameraPosition) =
     allowThreadDiskReads {
       preferences.edit {
-        putString(PrefKeys.LAST_VIEWPORT_PREFIX + surveyId, cameraPosition.serialize())
+        putString(
+          PrefKeys.LAST_VIEWPORT_PREFIX + surveyId,
+          getSerializedCameraPosition(cameraPosition),
+        )
       }
     }
 
   fun getLastCameraPosition(surveyId: String): CameraPosition? = allowThreadDiskReads {
     try {
       val stringVal = preferences.getString(PrefKeys.LAST_VIEWPORT_PREFIX + surveyId, "").orEmpty()
-      CameraPosition.deserialize(stringVal)
+      getDeserializedCameraPosition(stringVal)
     } catch (e: NumberFormatException) {
       Timber.e(e, "Invalid camera pos in prefs")
       null
@@ -153,4 +168,43 @@ constructor(private val preferences: SharedPreferences, private val locale: Loca
   fun getDataSharingConsent(surveyId: String): Boolean = allowThreadDiskReads {
     return preferences.getBoolean(PrefKeys.DATA_SHARING_CONSENT_PREFIX + surveyId, false)
   }
+
+  private fun getSerializedCameraPosition(cameraPosition: CameraPosition): String =
+    with(cameraPosition) {
+      arrayOf<Any>(
+          coordinates.lat.toString(),
+          coordinates.lng.toString(),
+          zoomLevel.toString(),
+          bounds?.south.toString(),
+          bounds?.west.toString(),
+          bounds?.north.toString(),
+          bounds?.east.toString(),
+        )
+        .joinToString { it.toString() }
+    }
+
+  private fun getDeserializedCameraPosition(serializedValue: String): CameraPosition? =
+    runCatching {
+      if (serializedValue.isEmpty()) return null
+      val parts = serializedValue.split(",")
+      val lat = parts[0].trim().toDouble()
+      val long = parts[1].trim().toDouble()
+      val zoomLevel = parts[2].trim().toFloatOrNull()
+      val south = parts[3].trim().toDoubleOrNull()
+      val west = parts[4].trim().toDoubleOrNull()
+      val north = parts[5].trim().toDoubleOrNull()
+      val east = parts[6].trim().toDoubleOrNull()
+
+      var bounds: Bounds? = null
+      if (south != null && west != null && north != null && east != null) {
+        bounds = Bounds(south, west, north, east)
+      }
+
+      return CameraPosition(Coordinates(lat, long), zoomLevel, bounds)
+    }
+    .getOrElse { exception ->
+      Timber.e(exception)
+      // Prevent app from crashing if we are unable to parse the camera position
+      null
+    }
 }

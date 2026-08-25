@@ -23,6 +23,9 @@
     <item>@string/lang_spanish</item>
     <item>@string/lang_portuguese</item>
     <item>@string/lang_vietnamese</item>
+    <item>@string/lang_thai</item>
+    <item>@string/lang_lao</item>
+    <item>@string/lang_khmer</item>
   </string-array>
   <string-array name="language_entry_values">
     <item>en</item>
@@ -30,6 +33,9 @@
     <item>es</item>
     <item>pt</item>
     <item>vi</item>
+    <item>th</item>
+    <item>lo</item>
+    <item>km</item>
   </string-array>
   <string-array name="length_entries">
     <item>@string/length_metric</item>

@@ -15,20 +15,17 @@
  */
 package org.groundplatform.android.ui.home.mapcontainer
 
-import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import dagger.hilt.android.testing.HiltAndroidTest
-import kotlin.test.Test
 import kotlin.test.assertTrue
-import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.ADHOC_JOB
 import org.groundplatform.android.R
+import org.groundplatform.android.getString
 import org.groundplatform.android.ui.components.LOCATION_LOCKED_TEST_TAG
 import org.groundplatform.android.ui.components.LOCATION_NOT_LOCKED_TEST_TAG
 import org.groundplatform.android.ui.components.MapFloatingActionButtonType
@@ -36,14 +33,13 @@ import org.groundplatform.android.ui.home.mapcontainer.jobs.AdHocDataCollectionB
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentAction
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentState
 import org.junit.Rule
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
-@HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-class HomeScreenMapContainerScreenTest : BaseHiltTest() {
-
-  @get:Rule override val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+class HomeScreenMapContainerScreenTest {
+  @get:Rule val composeTestRule = createComposeRule()
 
   @Test
   fun `Should show all map actions button when shouldShowMapActions = true`() {
@@ -91,18 +87,14 @@ class HomeScreenMapContainerScreenTest : BaseHiltTest() {
   fun `Should display the recenter button`() {
     setContent(shouldShowRecenterButton = true)
 
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.recenter))
-      .assertIsDisplayed()
+    composeTestRule.onNodeWithText(getString(R.string.recenter)).assertIsDisplayed()
   }
 
   @Test
   fun `Should not display the recenter button`() {
     setContent(shouldShowRecenterButton = false)
 
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.recenter))
-      .assertIsNotDisplayed()
+    composeTestRule.onNodeWithText(getString(R.string.recenter)).assertIsNotDisplayed()
   }
 
   @Test
@@ -145,9 +137,7 @@ class HomeScreenMapContainerScreenTest : BaseHiltTest() {
     val performedActions = mutableListOf<BaseMapAction>()
     setContent(onBaseMapAction = { performedActions += it })
 
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.recenter))
-      .performClick()
+    composeTestRule.onNodeWithText(getString(R.string.recenter)).performClick()
 
     assertTrue(performedActions.contains(BaseMapAction.OnLocationLockClicked))
     assert(performedActions.size == 1)
@@ -158,18 +148,15 @@ class HomeScreenMapContainerScreenTest : BaseHiltTest() {
     val performedActions = mutableListOf<JobMapComponentAction>()
     setContent(
       jobComponentState =
-        JobMapComponentState(
-          adHocDataCollectionButtonData =
-            listOf(AdHocDataCollectionButtonData(canCollectData = true, job = ADHOC_JOB))
+        JobMapComponentState.AddLoiButton(
+          jobs = listOf(AdHocDataCollectionButtonData(canCollectData = true, job = ADHOC_JOB))
         ),
       onJobComponentAction = { performedActions += it },
     )
 
-    composeTestRule
-      .onNodeWithContentDescription(composeTestRule.activity.getString(R.string.add_site))
-      .performClick()
+    composeTestRule.onNodeWithContentDescription(getString(R.string.add_site)).performClick()
 
-    assertTrue(performedActions.last() is JobMapComponentAction.OnJobSelected)
+    assertTrue(performedActions.last() is JobMapComponentAction.OnAddLoiButtonClicked)
   }
 
   private fun setContent(
@@ -177,7 +164,7 @@ class HomeScreenMapContainerScreenTest : BaseHiltTest() {
       MapFloatingActionButtonType.LocationNotLocked,
     shouldShowMapActions: Boolean = true,
     shouldShowRecenterButton: Boolean = true,
-    jobComponentState: JobMapComponentState = JobMapComponentState(),
+    jobComponentState: JobMapComponentState = JobMapComponentState.Hidden,
     onBaseMapAction: (BaseMapAction) -> Unit = {},
     onJobComponentAction: (JobMapComponentAction) -> Unit = {},
   ) {
@@ -189,6 +176,7 @@ class HomeScreenMapContainerScreenTest : BaseHiltTest() {
         jobComponentState = jobComponentState,
         onBaseMapAction = onBaseMapAction,
         onJobComponentAction = onJobComponentAction,
+        onLoiReportAction = {},
       )
     }
   }

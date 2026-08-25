@@ -21,7 +21,7 @@ import kotlinx.serialization.decodeFromByteArray
 import kotlinx.serialization.encodeToByteArray
 import kotlinx.serialization.protobuf.ProtoBuf
 import org.groundplatform.android.data.local.room.entity.GeometryWrapper
-import org.groundplatform.android.model.geometry.Geometry
+import org.groundplatform.domain.model.geometry.Geometry
 import org.json.JSONException
 import timber.log.Timber
 

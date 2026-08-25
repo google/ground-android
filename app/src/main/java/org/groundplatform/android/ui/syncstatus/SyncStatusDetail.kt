@@ -15,9 +15,8 @@
  */
 package org.groundplatform.android.ui.syncstatus
 
-import java.util.Date
-import org.groundplatform.android.model.mutation.Mutation
-import org.groundplatform.android.model.submission.UploadQueueEntry
+import org.groundplatform.domain.model.mutation.Mutation
+import org.groundplatform.domain.model.submission.UploadQueueEntry
 
 /**
  * Defines the set of data needed to display the human-readable status of a queued
@@ -29,7 +28,7 @@ data class SyncStatusDetail(
   /** The underlying status of an upload. */
   val status: Mutation.SyncStatus,
   /** The instant at which this change was initiated on the client device. */
-  val timestamp: Date,
+  val timestamp: Long,
   /** A human-readable label summarizing what data changed. */
   val label: String,
   /** A human-readable label providing further information on the change. */

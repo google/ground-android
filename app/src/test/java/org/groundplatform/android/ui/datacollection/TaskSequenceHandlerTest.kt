@@ -17,13 +17,13 @@ package org.groundplatform.android.ui.datacollection
 
 import com.google.common.truth.Truth.assertThat
 import kotlinx.collections.immutable.persistentListOf
-import org.groundplatform.android.model.submission.MultipleChoiceTaskData
-import org.groundplatform.android.model.task.Condition
-import org.groundplatform.android.model.task.Expression
-import org.groundplatform.android.model.task.MultipleChoice
-import org.groundplatform.android.model.task.Option
-import org.groundplatform.android.model.task.Task
-import org.groundplatform.android.model.task.Task.Type
+import org.groundplatform.domain.model.submission.MultipleChoiceTaskData
+import org.groundplatform.domain.model.task.Condition
+import org.groundplatform.domain.model.task.Expression
+import org.groundplatform.domain.model.task.MultipleChoice
+import org.groundplatform.domain.model.task.Option
+import org.groundplatform.domain.model.task.Task
+import org.groundplatform.domain.model.task.Task.Type
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -54,13 +54,18 @@ class TaskSequenceHandlerTest {
   private val taskDataHandler = TaskDataHandler()
   private val taskSequenceHandler = TaskSequenceHandler(allTasks, taskDataHandler)
 
-  private fun createTask(taskId: String, index: Int, condition: Condition? = null) =
+  private fun createTask(
+    taskId: String,
+    index: Int,
+    condition: Condition? = null,
+    isRequired: Boolean = true,
+  ) =
     Task(
       taskId,
       index,
       Type.MULTIPLE_CHOICE,
       label = "",
-      true,
+      isRequired,
       multipleChoice = multipleChoice,
       condition = condition,
     )
@@ -287,6 +292,41 @@ class TaskSequenceHandlerTest {
     assertThrows(IllegalArgumentException::class.java) {
       taskSequenceHandler.getTaskPosition(conditionalTask.id)
     }
+  }
+
+  @Test
+  fun `getResumeTask returns the given task when the ones before it are answered`() {
+    taskDataHandler.setData(task1, MultipleChoiceTaskData(multipleChoice, listOf(option1.id)))
+
+    assertThat(taskSequenceHandler.getResumeTask(task2.id)).isEqualTo(task2.id)
+  }
+
+  @Test
+  fun `getResumeTask returns the first unanswered task before the given one`() {
+    assertThat(taskSequenceHandler.getResumeTask(task2.id)).isEqualTo(task1.id)
+  }
+
+  @Test
+  fun `getResumeTask ignores unanswered optional tasks`() {
+    val optionalTask = createTask(taskId = "optional", index = 0, isRequired = false)
+    val handler = TaskSequenceHandler(listOf(optionalTask, task2), taskDataHandler)
+
+    assertThat(handler.getResumeTask(task2.id)).isEqualTo(task2.id)
+  }
+
+  @Test
+  fun `getResumeTask returns the given task when it is the first one`() {
+    assertThat(taskSequenceHandler.getResumeTask(task1.id)).isEqualTo(task1.id)
+  }
+
+  @Test
+  fun `getResumeTask returns the first task when the given one is not in the sequence`() {
+    assertThat(taskSequenceHandler.getResumeTask(conditionalTask.id)).isEqualTo(task1.id)
+  }
+
+  @Test
+  fun `getResumeTask throws error for invalid task id`() {
+    assertThrows(IllegalArgumentException::class.java) { taskSequenceHandler.getResumeTask("") }
   }
 
   @Test

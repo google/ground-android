@@ -28,7 +28,8 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.groundplatform.android.R
-import org.groundplatform.android.ui.theme.AppTheme
+import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
+import org.groundplatform.ui.theme.AppTheme
 
 const val OPEN_NAV_DRAWER_TEST_TAG = "open_nav_drawer"
 const val CHOOSE_MAP_TYPE_TEST_TAG = "choose_map_type"
@@ -86,6 +87,7 @@ sealed class MapFloatingActionButtonType(
 
 @Preview
 @Composable
+@ExcludeFromJacocoGeneratedReport
 private fun MapFloatingActionButtonPreview() {
   AppTheme {
     MapFloatingActionButton(type = MapFloatingActionButtonType.LocationLocked(), onClick = {})

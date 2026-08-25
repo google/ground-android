@@ -21,15 +21,19 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import org.groundplatform.android.R
 import org.groundplatform.android.common.Constants
-import org.groundplatform.android.model.job.Job
-import org.groundplatform.android.model.submission.MultipleChoiceTaskData
-import org.groundplatform.android.model.submission.MultipleChoiceTaskData.Companion.fromList
-import org.groundplatform.android.model.submission.TaskData
-import org.groundplatform.android.model.task.MultipleChoice.Cardinality.SELECT_MULTIPLE
-import org.groundplatform.android.model.task.Option
-import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
+import org.groundplatform.android.ui.datacollection.tasks.DataCollectionEvent
 import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
+import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.submission.MultipleChoiceTaskData
+import org.groundplatform.domain.model.submission.MultipleChoiceTaskData.Companion.OTHER_ID
+import org.groundplatform.domain.model.submission.MultipleChoiceTaskData.Companion.OTHER_PREFIX
+import org.groundplatform.domain.model.submission.MultipleChoiceTaskData.Companion.OTHER_SUFFIX
+import org.groundplatform.domain.model.submission.MultipleChoiceTaskData.Companion.fromList
+import org.groundplatform.domain.model.submission.TaskData
+import org.groundplatform.domain.model.task.MultipleChoice.Cardinality.SELECT_MULTIPLE
+import org.groundplatform.domain.model.task.Option
+import org.groundplatform.domain.model.task.Task
 
 class MultipleChoiceTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
 
@@ -44,8 +48,10 @@ class MultipleChoiceTaskViewModel @Inject constructor() : AbstractTaskViewModel(
     task: Task,
     taskData: TaskData?,
     taskPositionInterface: TaskPositionInterface,
+    surveyId: String,
+    eventReporter: (DataCollectionEvent) -> Unit,
   ) {
-    super.initialize(job, task, taskData, taskPositionInterface)
+    super.initialize(job, task, taskData, taskPositionInterface, surveyId, eventReporter)
     loadPendingSelections()
     updateMultipleChoiceItems()
   }
@@ -168,11 +174,5 @@ class MultipleChoiceTaskViewModel @Inject constructor() : AbstractTaskViewModel(
         selectedIds.add(OTHER_ID)
       } else selectedIds.add(it)
     }
-  }
-
-  companion object {
-    const val OTHER_ID: String = "OTHER_ID"
-    const val OTHER_PREFIX: String = "[ "
-    const val OTHER_SUFFIX: String = " ]"
   }
 }

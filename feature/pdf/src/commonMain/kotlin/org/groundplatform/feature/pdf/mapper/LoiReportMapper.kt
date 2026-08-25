@@ -1,0 +1,158 @@
+/*
+ * Copyright 2026 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.groundplatform.feature.pdf.mapper
+
+import ground_android.core.ui.generated.resources.Res
+import ground_android.core.ui.generated.resources.area
+import ground_android.core.ui.generated.resources.date
+import ground_android.core.ui.generated.resources.job
+import ground_android.core.ui.generated.resources.pdf_data_collector
+import ground_android.core.ui.generated.resources.scan_this_qr_to_download_geojson
+import ground_android.core.ui.generated.resources.submission
+import ground_android.core.ui.generated.resources.survey
+import org.groundplatform.domain.model.geometry.Polygon
+import org.groundplatform.domain.model.locationofinterest.LoiReport
+import org.groundplatform.domain.model.submission.Submission
+import org.groundplatform.domain.usecases.user.GetUserSettingsUseCase
+import org.groundplatform.domain.util.calculateShoelacePolygonArea
+import org.groundplatform.feature.pdf.PdfExportService
+import org.groundplatform.feature.pdf.model.SubmissionPdfDocument
+import org.groundplatform.feature.pdf.model.SubmissionPdfDocument.Footer
+import org.groundplatform.feature.pdf.model.SubmissionPdfDocument.Header
+import org.groundplatform.feature.pdf.model.SubmissionPdfDocument.QrBlock
+import org.groundplatform.feature.pdf.model.SubmissionPdfDocument.Row
+import org.groundplatform.feature.pdf.model.SubmissionPdfDocument.Table
+import org.groundplatform.ui.util.DateFormatter
+import org.groundplatform.ui.util.StringResolver
+import org.groundplatform.ui.util.getFormattedArea
+
+/** Maps an [LoiReport] and its [Submission] to a [PdfExportService.Request]. */
+class LoiReportMapper(
+  private val taskValueMapper: TaskValueMapper,
+  private val strings: StringResolver,
+  private val dateFormatter: DateFormatter,
+  private val getUserSettings: GetUserSettingsUseCase,
+) {
+
+  suspend fun map(loiReport: LoiReport, submission: Submission): PdfExportService.Request? {
+    val details = loiReport.submissionDetails ?: return null
+    val rows = buildRows(submission)
+    val document =
+      SubmissionPdfDocument(
+        header = buildHeader(details, loiReport.loiName, submission),
+        qrBlock = buildQrBlock(loiReport.loiName),
+        footer = buildFooter(details),
+        table =
+          Table(
+            submissionLabel = strings.resolve(Res.string.submission),
+            loiName = loiReport.loiName,
+            jobLabel = strings.resolve(Res.string.job),
+            jobName = submission.jobName(),
+            rows = rows,
+          ),
+        mapBlock = buildMapBlock(details),
+      )
+
+    val fileName =
+      listOf(details.surveyName, loiReport.loiName, details.userName)
+        .map { it.filter(::isSafeFileChar) }
+        .filter { it.isNotBlank() }
+        .joinToString("_")
+        .take(60) + "_${submission.id}"
+
+    return PdfExportService.Request(
+      document = document,
+      qrContent = loiReport.geoJson.toString(),
+      fileName = fileName,
+    )
+  }
+
+  private suspend fun buildHeader(
+    details: LoiReport.SubmissionDetails,
+    loiName: String,
+    submission: Submission,
+  ): Header =
+    Header(
+      surveyLabel = strings.resolve(Res.string.survey),
+      surveyName = details.surveyName,
+      submissionLabel = strings.resolve(Res.string.submission),
+      submissionName = loiName,
+      dateLabel = strings.resolve(Res.string.date),
+      timestamp =
+        "${dateFormatter.formatDate(submission.lastModified.clientTimestamp)} " +
+          dateFormatter.formatTime(submission.lastModified.clientTimestamp),
+    )
+
+  private fun Submission.jobName(): String = job.name ?: job.id
+
+  private suspend fun buildQrBlock(loiName: String): QrBlock =
+    QrBlock(
+      submissionName = loiName,
+      scanCaption = strings.resolve(Res.string.scan_this_qr_to_download_geojson),
+    )
+
+  private suspend fun buildFooter(details: LoiReport.SubmissionDetails): Footer =
+    Footer(
+      dataCollectorLabel = strings.resolve(Res.string.pdf_data_collector),
+      dataCollectorName = details.userName,
+      userEmail = details.userEmail,
+    )
+
+  private suspend fun buildRows(submission: Submission): List<Row> =
+    submission.job.tasksSorted
+      .filter { !it.isOmittedFromDocExport() }
+      .mapNotNull { task ->
+        submission.data.getValue(task.id)?.let { value ->
+          Row(question = task.label, answer = taskValueMapper.map(task, value))
+        }
+      }
+
+  private suspend fun buildMapBlock(
+    submissionDetails: LoiReport.SubmissionDetails
+  ): SubmissionPdfDocument.MapBlock {
+    val areaInSquareMeters =
+      (submissionDetails.geometry as? Polygon)?.let { geometry ->
+        calculateShoelacePolygonArea(geometry.shell.coordinates).takeIf { it > 0.0 }
+      }
+    return SubmissionPdfDocument.MapBlock(
+      geometry = submissionDetails.geometry,
+      style = submissionDetails.style,
+      area =
+        areaInSquareMeters?.let {
+          SubmissionPdfDocument.Area(
+            label = strings.resolve(Res.string.area),
+            value = getFormattedArea(areaInSquareMeters, getUserSettings().measurementUnits),
+          )
+        },
+    )
+  }
+
+  /**
+   * Allows Unicode letters, digits, combining marks, hyphens, and underscores while rejecting
+   * characters reserved or unsafe in file paths.
+   */
+  private fun isSafeFileChar(c: Char): Boolean =
+    c.isLetterOrDigit() || c.category in COMBINING_MARK_CATEGORIES || c in "_-"
+
+  private companion object {
+    val COMBINING_MARK_CATEGORIES =
+      setOf(
+        CharCategory.NON_SPACING_MARK,
+        CharCategory.COMBINING_SPACING_MARK,
+        CharCategory.ENCLOSING_MARK,
+      )
+  }
+}

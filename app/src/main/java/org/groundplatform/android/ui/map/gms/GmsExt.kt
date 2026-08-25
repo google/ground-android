@@ -16,14 +16,15 @@
 package org.groundplatform.android.ui.map.gms
 
 import com.google.android.gms.maps.model.LatLngBounds
-import org.groundplatform.android.model.geometry.Coordinates
-import org.groundplatform.android.model.geometry.Geometry
-import org.groundplatform.android.model.geometry.LineString
-import org.groundplatform.android.model.geometry.LinearRing
-import org.groundplatform.android.model.geometry.MultiPolygon
-import org.groundplatform.android.model.geometry.Point
-import org.groundplatform.android.model.geometry.Polygon
-import org.groundplatform.android.model.map.Bounds
+import com.google.maps.android.SphericalUtil.computeArea
+import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.geometry.Geometry
+import org.groundplatform.domain.model.geometry.LineString
+import org.groundplatform.domain.model.geometry.LinearRing
+import org.groundplatform.domain.model.geometry.MultiPolygon
+import org.groundplatform.domain.model.geometry.Point
+import org.groundplatform.domain.model.geometry.Polygon
+import org.groundplatform.domain.model.map.Bounds
 
 /** Extensions for indirectly using GMS functions in map-provider agnostic codebase. */
 object GmsExt {
@@ -56,5 +57,16 @@ object GmsExt {
       is LinearRing -> coordinates
       is Polygon -> getShellCoordinates()
       is MultiPolygon -> polygons.flatMap { it.getShellCoordinates() }
+    }
+
+  fun Geometry.area(): Double =
+    when (this) {
+      is Point -> 0.0
+      is LineString -> 0.0
+      is LinearRing -> 0.0
+      is Polygon ->
+        computeArea(shell.coordinates.toLatLngList()) -
+          holes.sumOf { computeArea(it.coordinates.toLatLngList()) }
+      is MultiPolygon -> polygons.sumOf { it.area() }
     }
 }

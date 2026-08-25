@@ -15,22 +15,38 @@
  */
 package org.groundplatform.android.ui.surveyselector
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.flowWithLifecycle
 import org.groundplatform.android.R
+import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.components.LoadingDialog
 import org.groundplatform.android.ui.components.Toolbar
+import org.groundplatform.android.ui.surveyselector.components.JoinSurveyDialog
 import org.groundplatform.android.ui.surveyselector.components.SurveyEmptyState
 import org.groundplatform.android.ui.surveyselector.components.SurveySectionList
+import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.SurveyListItem
+import org.groundplatform.ui.theme.AppTheme
 
 /**
  * Stateful composable that handles ViewModel interactions and side effects for the Survey Selector
@@ -46,17 +62,17 @@ import org.groundplatform.android.ui.surveyselector.components.SurveySectionList
 fun SurveySelectorScreen(
   onBack: () -> Unit,
   onNavigateToHomeScreen: () -> Unit,
-  onError: (Throwable) -> Unit,
+  onError: (SurveySelectorEvent.ErrorType) -> Unit,
   viewModel: SurveySelectorViewModel = hiltViewModel(),
 ) {
   val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-  // Collect and handle one-shot events in a LaunchedEffect
-  LaunchedEffect(Unit) {
-    viewModel.events.collect { event ->
+  val lifecycle = LocalLifecycleOwner.current.lifecycle
+  LaunchedEffect(lifecycle) {
+    viewModel.events.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect { event ->
       when (event) {
         is SurveySelectorEvent.NavigateToHome -> onNavigateToHomeScreen()
-        is SurveySelectorEvent.ShowError -> onError(event.error)
+        is SurveySelectorEvent.ShowError -> onError(event.errorType)
       }
     }
   }
@@ -67,6 +83,13 @@ fun SurveySelectorScreen(
     onSignOut = viewModel::signOut,
     onConfirmDelete = viewModel::confirmDelete,
     onCardClick = viewModel::activateSurvey,
+    onQrJoinAction = { action ->
+      when (action) {
+        QrJoinAction.ScanQrCode -> viewModel.joinSurveyByQrCode()
+        QrJoinAction.Confirm -> viewModel.confirmJoinSurvey()
+        QrJoinAction.Dismiss -> viewModel.dismissJoinSurveyConfirmation()
+      }
+    },
   )
 }
 
@@ -78,20 +101,39 @@ fun SurveySelectorScreen(
  * @param onSignOut Callback when the user attempts to sign out from the empty state.
  * @param onConfirmDelete Callback when a local survey deletion is confirmed.
  * @param onCardClick Callback when a survey card is clicked to activate it.
+ * @param onQrJoinAction Callback when the user triggers any of the actions in the flow of joining a
+ *   survey by QR code
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SurveySelectorScreen(
+@VisibleForTesting
+fun SurveySelectorScreen(
   uiState: SurveySelectorUiState,
   onBack: () -> Unit,
   onSignOut: () -> Unit,
   onConfirmDelete: (String) -> Unit,
   onCardClick: (String) -> Unit,
+  onQrJoinAction: (QrJoinAction) -> Unit,
 ) {
   Scaffold(
     topBar = {
       Toolbar(stringRes = R.string.surveys, showNavigationIcon = true, iconClick = onBack)
-    }
+    },
+    floatingActionButton = {
+      if (!uiState.isLoading) {
+        ExtendedFloatingActionButton(
+          onClick = { onQrJoinAction(QrJoinAction.ScanQrCode) },
+          icon = {
+            Icon(
+              painter = painterResource(id = R.drawable.ic_qr_code_scanner),
+              contentDescription = null,
+              tint = Color.Black,
+            )
+          },
+          text = { Text(stringResource(R.string.join_survey)) },
+        )
+      }
+    },
   ) { innerPadding ->
     Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
       when {
@@ -110,6 +152,90 @@ private fun SurveySelectorScreen(
       if (uiState.isLoading) {
         LoadingDialog(R.string.loading)
       }
+
+      uiState.pendingJoinSurvey?.let { pending ->
+        JoinSurveyDialog(
+          surveyListItem = pending,
+          onDismiss = { onQrJoinAction(QrJoinAction.Dismiss) },
+          onConfirm = { onQrJoinAction(QrJoinAction.Confirm) },
+        )
+      }
     }
+  }
+}
+
+/** Actions emitted during scanning a survey QR code -> confirm -> join flow. */
+sealed interface QrJoinAction {
+  data object ScanQrCode : QrJoinAction
+
+  data object Confirm : QrJoinAction
+
+  data object Dismiss : QrJoinAction
+}
+
+@Composable
+@Preview(showBackground = true, showSystemUi = true)
+@ExcludeFromJacocoGeneratedReport
+private fun PreviewSurveySelectorScreenEmpty() {
+  AppTheme {
+    SurveySelectorScreen(
+      uiState = SurveySelectorUiState(),
+      onBack = {},
+      onSignOut = {},
+      onConfirmDelete = {},
+      onCardClick = {},
+      onQrJoinAction = {},
+    )
+  }
+}
+
+@Composable
+@Preview(showBackground = true, showSystemUi = true)
+@ExcludeFromJacocoGeneratedReport
+private fun PreviewSurveySelectorScreenWithSurveys() {
+  val dummySurveys =
+    listOf(
+      SurveyListItem("1", "Tree Survey", "Track tree growth", true, Survey.GeneralAccess.PUBLIC),
+      SurveyListItem(
+        "2",
+        "Water Survey",
+        "Check water quality",
+        false,
+        Survey.GeneralAccess.RESTRICTED,
+      ),
+    )
+
+  val uiState =
+    SurveySelectorUiState(
+      onDeviceSurveys = dummySurveys,
+      sharedSurveys = emptyList(),
+      publicSurveys = dummySurveys,
+    )
+
+  AppTheme {
+    SurveySelectorScreen(
+      uiState = uiState,
+      onBack = {},
+      onSignOut = {},
+      onConfirmDelete = {},
+      onCardClick = {},
+      onQrJoinAction = {},
+    )
+  }
+}
+
+@Composable
+@Preview(showBackground = true, showSystemUi = true)
+@ExcludeFromJacocoGeneratedReport
+private fun PreviewSurveySelectorScreenLoading() {
+  AppTheme {
+    SurveySelectorScreen(
+      uiState = SurveySelectorUiState(isLoading = true),
+      onBack = {},
+      onSignOut = {},
+      onConfirmDelete = {},
+      onCardClick = {},
+      onQrJoinAction = {},
+    )
   }
 }

@@ -45,36 +45,34 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
-import org.groundplatform.android.model.AuditInfo
-import org.groundplatform.android.model.User
-import org.groundplatform.android.model.geometry.Coordinates
-import org.groundplatform.android.model.geometry.Point
-import org.groundplatform.android.model.job.Job
-import org.groundplatform.android.model.job.Style
-import org.groundplatform.android.model.job.getDefaultColor
-import org.groundplatform.android.model.locationofinterest.LocationOfInterest
-import org.groundplatform.android.model.task.Task
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.common.LocationOfInterestHelper
 import org.groundplatform.android.ui.components.ConfirmationDialog
-import org.groundplatform.android.ui.theme.AppTheme
+import org.groundplatform.android.ui.util.getDefaultColor
+import org.groundplatform.domain.model.User
+import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.geometry.Point
+import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.job.Style
+import org.groundplatform.domain.model.locationofinterest.AuditInfo
+import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
+import org.groundplatform.domain.model.task.Task
+import org.groundplatform.ui.components.ShareButton
+import org.groundplatform.ui.theme.AppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoiJobSheet(
-  loi: LocationOfInterest,
-  canUserSubmitData: Boolean,
-  submissionCount: Int,
-  showDeleteLoiButton: Boolean = false,
+  state: SelectedLoiSheetData,
   onCollectClicked: () -> Unit,
   onDeleteClicked: (() -> Unit)? = null,
   onDismiss: () -> Unit,
+  onShareClicked: () -> Unit,
 ) {
   val scope = rememberCoroutineScope()
-  val sheetState = rememberModalBottomSheetState()
+  val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
   ModalBottomSheet(
     onDismissRequest = onDismiss,
@@ -82,9 +80,18 @@ fun LoiJobSheet(
     containerColor = MaterialTheme.colorScheme.surface,
     dragHandle = { BottomSheetDefaults.DragHandle(width = 32.dp) },
   ) {
-    ModalContents(loi, canUserSubmitData, submissionCount, showDeleteLoiButton, onDeleteClicked) {
-      scope.launch { sheetState.hide() }.invokeOnCompletion { onCollectClicked() }
-    }
+    ModalContents(
+      loi = state.loi,
+      canUserSubmitData = state.canCollectData,
+      submissionCount = state.submissionCount,
+      showDeleteLoiButton = state.showDeleteLoiButton,
+      showShareButton = state.loiReport != null,
+      onDeleteClicked = onDeleteClicked,
+      onCollectClicked = {
+        scope.launch { sheetState.hide() }.invokeOnCompletion { onCollectClicked() }
+      },
+      onShareClicked = onShareClicked,
+    )
   }
 }
 
@@ -94,8 +101,10 @@ private fun ModalContents(
   canUserSubmitData: Boolean,
   submissionCount: Int,
   showDeleteLoiButton: Boolean,
+  showShareButton: Boolean,
   onDeleteClicked: (() -> Unit)?,
   onCollectClicked: () -> Unit,
+  onShareClicked: () -> Unit,
 ) {
   val resources = LocalContext.current.resources
   val loiHelper = remember(resources) { LocationOfInterestHelper(resources) }
@@ -108,7 +117,9 @@ private fun ModalContents(
       loi = loi,
       submissionCount = submissionCount,
       canUserSubmitData = canUserSubmitData,
+      showShareButton = showShareButton,
       onCollectClicked = onCollectClicked,
+      onShareClicked = onShareClicked,
     )
     DeleteSiteSection(
       showDeleteLoiButton = showDeleteLoiButton,
@@ -130,7 +141,11 @@ private fun ModalContents(
 @Composable
 private fun JobName(loiHelper: LocationOfInterestHelper, loi: LocationOfInterest) {
   loiHelper.getJobName(loi)?.let {
-    Text(it, color = MaterialTheme.colorScheme.onSurface, fontSize = 18.sp)
+    Text(
+      it,
+      color = MaterialTheme.colorScheme.onSurface,
+      style = MaterialTheme.typography.titleMedium,
+    )
   }
 }
 
@@ -150,7 +165,7 @@ private fun LoiHeader(loiHelper: LocationOfInterestHelper, loi: LocationOfIntere
     Text(
       loiHelper.getDisplayLoiName(loi),
       color = MaterialTheme.colorScheme.onSurface,
-      fontSize = 28.sp,
+      style = MaterialTheme.typography.headlineMedium,
     )
   }
 }
@@ -160,25 +175,32 @@ private fun SubmissionRow(
   loi: LocationOfInterest,
   submissionCount: Int,
   canUserSubmitData: Boolean,
+  showShareButton: Boolean,
   onCollectClicked: () -> Unit,
+  onShareClicked: () -> Unit,
 ) {
-  Row(
-    modifier = Modifier.fillMaxWidth(),
-    verticalAlignment = Alignment.Top,
-    horizontalArrangement = Arrangement.SpaceBetween,
-  ) {
+  Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.Top) {
     Text(
       if (submissionCount <= 0) stringResource(R.string.no_submissions)
       else pluralStringResource(R.plurals.submission_count, submissionCount, submissionCount),
       color = MaterialTheme.colorScheme.onSurface,
-      fontSize = 16.sp,
+      style = MaterialTheme.typography.bodyLarge,
     )
 
-    // NOTE(#2539): Avoid crash when there are no non-LOI tasks.
-    val showAddData = canUserSubmitData && loi.job.hasNonLoiTasks() && loi.isPredefined == true
-    if (showAddData) {
-      Button(onClick = onCollectClicked) {
-        Text(stringResource(R.string.add_data), modifier = Modifier.padding(4.dp), fontSize = 18.sp)
+    Row(
+      modifier = Modifier.padding(top = 16.dp).fillMaxWidth(),
+      horizontalArrangement = Arrangement.End,
+    ) {
+      if (showShareButton) {
+        ShareButton(onClick = onShareClicked)
+      }
+
+      // NOTE(#2539): Avoid crash when there are no non-LOI tasks.
+      val showAddData = canUserSubmitData && loi.job.hasNonLoiTasks() && loi.isPredefined == true
+      if (showAddData) {
+        Button(modifier = Modifier.padding(start = 8.dp), onClick = onCollectClicked) {
+          Text(stringResource(R.string.add_data), modifier = Modifier.padding(4.dp))
+        }
       }
     }
   }
@@ -240,8 +262,11 @@ private fun PreviewModalContentsWhenJobHasNoTasks() {
       canUserSubmitData = true,
       submissionCount = 0,
       showDeleteLoiButton = false,
+      showShareButton = true,
       onDeleteClicked = null,
-    ) {}
+      onShareClicked = {},
+      onCollectClicked = {},
+    )
   }
 }
 
@@ -282,8 +307,11 @@ private fun PreviewModalContentsWhenUserCannotSubmitData() {
       canUserSubmitData = false,
       submissionCount = 1,
       showDeleteLoiButton = false,
+      showShareButton = true,
       onDeleteClicked = null,
-    ) {}
+      onShareClicked = {},
+      onCollectClicked = {},
+    )
   }
 }
 
@@ -326,8 +354,11 @@ private fun PreviewModalContentsWhenJobHasTasks() {
       canUserSubmitData = true,
       submissionCount = 20,
       showDeleteLoiButton = false,
+      showShareButton = true,
       onDeleteClicked = null,
-    ) {}
+      onShareClicked = {},
+      onCollectClicked = {},
+    )
   }
 }
 
@@ -369,8 +400,11 @@ private fun PreviewModalContentsWhenJobHasTasksAndIsPredefined() {
       loi = loi,
       canUserSubmitData = true,
       submissionCount = 20,
-      showDeleteLoiButton = false,
+      showDeleteLoiButton = true,
+      showShareButton = true,
       onDeleteClicked = null,
-    ) {}
+      onShareClicked = {},
+      onCollectClicked = {},
+    )
   }
 }

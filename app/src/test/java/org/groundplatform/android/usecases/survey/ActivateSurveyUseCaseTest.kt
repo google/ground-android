@@ -26,7 +26,7 @@ import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.SURVEY
 import org.groundplatform.android.data.local.stores.LocalSurveyStore
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
-import org.groundplatform.android.repository.SurveyRepository
+import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,7 +38,7 @@ import org.robolectric.RobolectricTestRunner
 class ActivateSurveyUseCaseTest : BaseHiltTest() {
   @Inject lateinit var activateSurvey: ActivateSurveyUseCase
   @Inject lateinit var localSurveyStore: LocalSurveyStore
-  @Inject lateinit var surveyRepository: SurveyRepository
+  @Inject lateinit var surveyRepository: SurveyRepositoryInterface
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
 
   @Before

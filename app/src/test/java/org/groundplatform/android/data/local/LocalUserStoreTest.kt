@@ -21,7 +21,7 @@ import javax.inject.Inject
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.data.local.stores.LocalUserStore
-import org.groundplatform.android.model.User
+import org.groundplatform.domain.model.User
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner

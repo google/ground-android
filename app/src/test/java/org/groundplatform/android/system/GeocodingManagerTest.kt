@@ -24,9 +24,9 @@ import javax.inject.Inject
 import kotlin.test.assertEquals
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.di.SystemModule
-import org.groundplatform.android.model.geometry.Coordinates
-import org.groundplatform.android.model.map.Bounds
 import org.groundplatform.android.ui.map.gms.GmsExt.center
+import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.map.Bounds
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.anyInt

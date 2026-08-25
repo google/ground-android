@@ -19,10 +19,10 @@ package org.groundplatform.android.data.remote.firebase.schema
 import com.google.common.truth.Truth.assertThat
 import com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode
 import kotlin.test.assertNull
-import org.groundplatform.android.model.task.Condition
-import org.groundplatform.android.model.task.Expression
 import org.groundplatform.android.proto.TaskKt.condition
 import org.groundplatform.android.proto.TaskKt.multipleChoiceSelection
+import org.groundplatform.domain.model.task.Condition
+import org.groundplatform.domain.model.task.Expression
 import org.junit.Test
 
 const val TASK_ID = "task-id-123"
@@ -57,6 +57,49 @@ class ConditionConverterTest {
             ),
           )
         )
+    }
+  }
+
+  @OptIn(OnlyForUseByGeneratedProtoCode::class)
+  @Test
+  fun `toCondition() carries otherSelected from proto`() {
+    with(ConditionConverter) {
+      val conditionProto = condition {
+        multipleChoice = multipleChoiceSelection {
+          taskId = TASK_ID
+          optionIds.add("optionId1")
+          otherSelected = true
+        }
+      }
+      assertThat(conditionProto.toCondition())
+        .isEqualTo(
+          Condition(
+            Condition.MatchType.MATCH_ANY,
+            listOf(
+              Expression(
+                Expression.ExpressionType.ANY_OF_SELECTED,
+                taskId = TASK_ID,
+                optionIds = setOf("optionId1"),
+                otherSelected = true,
+              )
+            ),
+          )
+        )
+    }
+  }
+
+  @OptIn(OnlyForUseByGeneratedProtoCode::class)
+  @Test
+  fun `toCondition() defaults otherSelected to false when absent`() {
+    with(ConditionConverter) {
+      val conditionProto = condition {
+        multipleChoice = multipleChoiceSelection {
+          taskId = TASK_ID
+          optionIds.add("optionId1")
+        }
+      }
+      val expression = conditionProto.toCondition()?.expressions?.single()
+      assertThat(expression?.otherSelected).isFalse()
     }
   }
 }

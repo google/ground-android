@@ -19,7 +19,6 @@ import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
-import kotlin.test.Test
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
@@ -27,10 +26,11 @@ import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.FAKE_GENERAL_ACCESS
 import org.groundplatform.android.data.local.stores.LocalSurveyStore
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
-import org.groundplatform.android.model.Survey
-import org.groundplatform.android.model.toListItem
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.NetworkStatus
+import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.toListItem
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.kotlin.whenever

@@ -20,11 +20,11 @@ import com.google.firebase.firestore.DocumentSnapshot
 import kotlinx.collections.immutable.toPersistentMap
 import org.groundplatform.android.data.remote.DataStoreException
 import org.groundplatform.android.data.remote.firebase.protobuf.parseFrom
-import org.groundplatform.android.model.Survey as SurveyModel
-import org.groundplatform.android.model.job.Job
+import org.groundplatform.android.data.remote.firebase.protobuf.toModel
 import org.groundplatform.android.proto.Survey as SurveyProto
-import org.groundplatform.android.proto.Survey
 import org.groundplatform.android.proto.Survey.DataVisibility
+import org.groundplatform.domain.model.Survey as SurveyModel
+import org.groundplatform.domain.model.job.Job
 
 /** Converts between Firestore documents and [SurveyModel] instances. */
 internal object SurveyConverter {
@@ -35,9 +35,9 @@ internal object SurveyConverter {
 
     val surveyFromProto = parseSurveyFromDocument(doc)
     val jobMap = convertJobsToMap(jobs)
-    val dataSharingTerms = getDataSharingTerms(surveyFromProto)
-    val generalAccess = getGeneralAccess(surveyFromProto)
-    val dataVisibility = surveyFromProto.dataVisibility ?: DataVisibility.CONTRIBUTOR_AND_ORGANIZERS
+    val dataSharingTerms = surveyFromProto.dataSharingTerms.toModel()
+    val generalAccess = surveyFromProto.generalAccess.toModel()
+    val dataVisibility = surveyFromProto.dataVisibility.toModel()
 
     return createSurveyModel(
       doc,
@@ -56,25 +56,14 @@ internal object SurveyConverter {
   /** Convert a list of jobs into a map for easy lookup. */
   private fun convertJobsToMap(jobs: List<Job>): Map<String, Job> = jobs.associateBy { it.id }
 
-  /** Extract dataSharingTerms from survey. */
-  private fun getDataSharingTerms(surveyProto: SurveyProto): Survey.DataSharingTerms? =
-    if (surveyProto.dataSharingTerms.type == Survey.DataSharingTerms.Type.TYPE_UNSPECIFIED) {
-      null
-    } else {
-      surveyProto.dataSharingTerms
-    }
-
-  private fun getGeneralAccess(surveyProto: SurveyProto): SurveyProto.GeneralAccess =
-    surveyProto.generalAccess
-
   /** Build SurveyModel from parsed data. */
   private fun createSurveyModel(
     doc: DocumentSnapshot,
     surveyProto: SurveyProto,
     jobMap: Map<String, Job>,
-    dataSharingTerms: Survey.DataSharingTerms?,
-    generalAccess: SurveyProto.GeneralAccess,
-    dataVisibility: DataVisibility,
+    dataSharingTerms: SurveyModel.DataSharingTerms?,
+    generalAccess: SurveyModel.GeneralAccess,
+    dataVisibility: SurveyModel.DataVisibility,
   ): SurveyModel =
     SurveyModel(
       id = surveyProto.id.ifEmpty { doc.id },

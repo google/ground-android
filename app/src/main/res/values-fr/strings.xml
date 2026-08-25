@@ -57,8 +57,6 @@
   <string name="tos_title">Conditions générales</string>
   <string name="agree_terms">Accepter</string>
   <string name="agree_checkbox">J&#8217;accepte</string>
-  <string name="date">Date</string>
-  <string name="time">l&#8217;heure</string>
   <!-- Other strings (to be organized) -->
   <string name="sync_status">État de synchronisation</string>
   <string name="add_point">Ajouter point</string>
@@ -126,7 +124,6 @@
   <string name="read_only_data_collection_hint">L&#8217;enquête est en lecture seule</string>
   <string name="no_submissions">Aucune soumission</string>
   <string name="dismiss_info_popup">Rejeter</string>
-  <string name="other">Autres</string>
   <plurals name="submission_count">
     <item quantity="one">%d soumission</item>
     <item quantity="other">%d soumissions</item>
@@ -161,7 +158,6 @@
   <string name="visit_website_title">Visiter le site web</string>
   <string name="accuracy">Précision :</string>
   <string name="select_language_title">Choix de la langue</string>
-  <string name="select_language_summary">Choisissez votre langue</string>
   <!-- Data Sharing Consent Text -->
   <string name="data_sharing_no_terms">*Aucune condition à afficher.*</string>
   <string name="data_sharing_private_message">
@@ -174,7 +170,6 @@
   </string>
   <string name="draft_restored">Données non sauvegardées ont été restaurées</string>
   <string name="load_tos_failed">Impossible de se connecter, réessayer plus tard</string>
-  <string name="data_submitted_image">Données d&#8217;image soumises</string>
   <string name="data_collection_complete">Collecte des données terminée !</string>
   <string name="data_collection_complete_details">Vos données ont été sauvegardées et seront automatiquement synchronisées lorsque vous serez en ligne.</string>
   <string name="allow_location_confirmation">Autoriser la localisation</string>
@@ -190,11 +185,7 @@
   <string name="clear">Claire</string>
   <string name="text_task_data_character_limit">255 caractères maximum</string>
   <string name="area_message">Surface: %s</string>
-  <string name="lang_english">Anglais</string>
-  <string name="lang_french">Français</string>
-  <string name="lang_spanish">Espagnol</string>
-  <string name="lang_portuguese">Portugais</string>
-  <string name="lang_vietnamese">Vietnamien</string>
+
   <string name="access_restricted">Restreint</string>
   <string name="access_unlisted">Non répertorié</string>
   <string name="access_public">Public</string>
@@ -207,7 +198,6 @@
   <string name="dialog_button_update">Mettre à jour</string>
 
   <string name="select_length_title">Sélectionner les unités</string>
-  <string name="select_length_summary">Sélectionnez votre unité préférée</string>
   <string name="length_metric">Métrique</string>
   <string name="length_imperial">Impérial</string>
 
@@ -221,4 +211,13 @@
 
   <string name="recenter">Recentrer</string>
   <string name="survey_load_timeout_error">Le chargement du sondage a expiré. Veuillez vérifier votre connexion et réessayer.</string>
+  <string name="camera_launch_failed_title">Erreur de caméra</string>
+  <string name="camera_launch_failed_desc">Impossible d&#8217;ouvrir la caméra. Veuillez réessayer.</string>
+  <string name="photo_save_failed_title">Erreur d&#8217;enregistrement</string>
+  <string name="photo_save_failed_desc">Impossible d&#8217;enregistrer la photo capturée. Veuillez réessayer.</string>
+  <string name="share_location">Partager l&#8217;emplacement</string>
+
+  <string name="join_survey">Rejoindre une enquête</string>
+  <string name="invalid_survey_qr_code">Code QR d&#8217;enquête non reconnu</string>
+  <string name="join_survey_confirm_title">Rejoindre cette enquête ?</string>
 </resources>

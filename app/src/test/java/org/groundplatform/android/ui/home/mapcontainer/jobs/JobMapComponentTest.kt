@@ -16,61 +16,60 @@
 
 package org.groundplatform.android.ui.home.mapcontainer.jobs
 
-import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import dagger.hilt.android.testing.HiltAndroidTest
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import androidx.compose.ui.test.performScrollTo
+import ground_android.core.ui.generated.resources.Res
+import ground_android.core.ui.generated.resources.share
 import kotlin.test.assertTrue
-import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.ADHOC_JOB
 import org.groundplatform.android.FakeData.JOB
 import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST
-import org.groundplatform.android.FakeData.newTask
+import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST_LOI_REPORT
 import org.groundplatform.android.R
+import org.groundplatform.android.getString
+import org.groundplatform.testing.FakeDataGenerator.newTask
+import org.groundplatform.ui.components.qrcode.TEST_TAG_GROUND_QR_CODE
 import org.junit.Rule
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
-@HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-class JobMapComponentTest : BaseHiltTest() {
-  @get:Rule override val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+class JobMapComponentTest {
+  @get:Rule val composeTestRule = createComposeRule()
 
   @Test
   fun `ActionButton to add new LOI is shown when there is data`() {
     setContent(
-      JobMapComponentState(
-        adHocDataCollectionButtonData =
-          listOf(AdHocDataCollectionButtonData(canCollectData = true, job = ADHOC_JOB))
+      JobMapComponentState.AddLoiButton(
+        jobs = listOf(AdHocDataCollectionButtonData(canCollectData = true, job = ADHOC_JOB))
       )
     )
 
-    composeTestRule
-      .onNodeWithContentDescription(composeTestRule.activity.getString(R.string.add_site))
-      .assertIsDisplayed()
+    composeTestRule.onNodeWithContentDescription(getString(R.string.add_site)).assertIsDisplayed()
   }
 
   @Test
-  fun `ActionButton to add new LOI is not shown when there is no data`() {
-    setContent(JobMapComponentState())
+  fun `ActionButton to add new LOI is not shown when the state is Hidden`() {
+    setContent(JobMapComponentState.Hidden)
 
     composeTestRule
-      .onNodeWithContentDescription(composeTestRule.activity.getString(R.string.add_site))
+      .onNodeWithContentDescription(getString(R.string.add_site))
       .assertIsNotDisplayed()
   }
 
   @Test
-  fun `Clicking button to add new LOI opens the job selection modal if there are multiple jobs`() {
+  fun `Should list all available jobs when JobSelectionModal state is triggered`() {
     val performedActions = mutableListOf<JobMapComponentAction>()
     setContent(
-      JobMapComponentState(
-        adHocDataCollectionButtonData =
+      JobMapComponentState.JobSelectionModal(
+        jobs =
           listOf(
             AdHocDataCollectionButtonData(
               canCollectData = true,
@@ -85,28 +84,19 @@ class JobMapComponentTest : BaseHiltTest() {
       onAction = { performedActions += it },
     )
 
-    composeTestRule
-      .onNodeWithContentDescription(composeTestRule.activity.getString(R.string.add_site))
-      .performClick()
-
     composeTestRule.onNodeWithText("Job 1").assertIsDisplayed()
     composeTestRule.onNodeWithText("Job 2").assertIsDisplayed()
     composeTestRule
-      .onNodeWithContentDescription(composeTestRule.activity.getString(R.string.add_site))
+      .onNodeWithContentDescription(getString(R.string.add_site))
       .assertIsNotDisplayed()
-    assertTrue(
-      performedActions.any {
-        it is JobMapComponentAction.OnJobSelectionModalVisibilityChanged && it.isShown
-      }
-    )
   }
 
   @Test
   fun `Clicking a job in the job selection modal triggers a JobSelected action`() {
     val performedActions = mutableListOf<JobMapComponentAction>()
     setContent(
-      JobMapComponentState(
-        adHocDataCollectionButtonData =
+      JobMapComponentState.JobSelectionModal(
+        jobs =
           listOf(
             AdHocDataCollectionButtonData(
               canCollectData = true,
@@ -120,10 +110,6 @@ class JobMapComponentTest : BaseHiltTest() {
       ),
       onAction = { performedActions += it },
     )
-
-    composeTestRule
-      .onNodeWithContentDescription(composeTestRule.activity.getString(R.string.add_site))
-      .performClick()
 
     composeTestRule.onNodeWithText("Job 1").performClick()
 
@@ -132,49 +118,53 @@ class JobMapComponentTest : BaseHiltTest() {
     assertTrue(
       performedActions.any { it is JobMapComponentAction.OnJobSelected && it.job.name == "Job 1" }
     )
-    assertEquals(
-      (performedActions.last() as JobMapComponentAction.OnJobSelectionModalVisibilityChanged)
-        .isShown,
-      false,
-    )
   }
 
   @Test
-  fun `Clicking button to add new LOI triggers the JobSelected action immediately`() {
+  fun `Dismissing job selection modal triggers OnJobSelectionModalDismissed action`() {
     val performedActions = mutableListOf<JobMapComponentAction>()
     setContent(
-      JobMapComponentState(
-        adHocDataCollectionButtonData =
-          listOf(AdHocDataCollectionButtonData(canCollectData = true, job = ADHOC_JOB))
+      JobMapComponentState.JobSelectionModal(
+        jobs = listOf(AdHocDataCollectionButtonData(canCollectData = true, job = ADHOC_JOB))
       ),
       onAction = { performedActions += it },
     )
 
-    composeTestRule
-      .onNodeWithContentDescription(composeTestRule.activity.getString(R.string.add_site))
-      .performClick()
+    composeTestRule.onNodeWithContentDescription(getString(R.string.close)).performClick()
+
+    assertTrue(performedActions.any { it is JobMapComponentAction.OnJobSelectionModalDismissed })
+  }
+
+  @Test
+  fun `Clicking button to add new LOI triggers the OnAddLoiButtonClicked action`() {
+    val performedActions = mutableListOf<JobMapComponentAction>()
+    setContent(
+      JobMapComponentState.AddLoiButton(
+        jobs = listOf(AdHocDataCollectionButtonData(canCollectData = true, job = ADHOC_JOB))
+      ),
+      onAction = { performedActions += it },
+    )
+
+    composeTestRule.onNodeWithContentDescription(getString(R.string.add_site)).performClick()
 
     composeTestRule.onNodeWithText(ADHOC_JOB.name!!).assertDoesNotExist()
-    assertTrue(
-      performedActions.any {
-        it is JobMapComponentAction.OnJobSelected && it.job.id == ADHOC_JOB.id
-      }
-    )
-    assertTrue(
-      performedActions.none {
-        it is JobMapComponentAction.OnJobSelectionModalVisibilityChanged && it.isShown
-      }
-    )
+    assertTrue(performedActions.any { it is JobMapComponentAction.OnAddLoiButtonClicked })
   }
 
   @Test
   fun `LoiJobSheet should be shown when there is a selected LOI`() {
     val selectedLoiSheetData =
-      SelectedLoiSheetData(canCollectData = true, LOCATION_OF_INTEREST, 0, true)
-    setContent(JobMapComponentState(selectedLoi = selectedLoiSheetData))
+      SelectedLoiSheetData(
+        canCollectData = true,
+        LOCATION_OF_INTEREST,
+        0,
+        true,
+        LOCATION_OF_INTEREST_LOI_REPORT,
+      )
+    setContent(JobMapComponentState.LoiSelected(selectedLoiSheetData))
 
     composeTestRule
-      .onNodeWithContentDescription(composeTestRule.activity.getString(R.string.add_site))
+      .onNodeWithContentDescription(getString(R.string.add_site))
       .assertIsNotDisplayed()
     composeTestRule.onNodeWithText(selectedLoiSheetData.loi.job.name!!).assertIsDisplayed()
   }
@@ -183,18 +173,20 @@ class JobMapComponentTest : BaseHiltTest() {
   fun `Clicking to delete site in the LoiJobSheet should dispatch the OnDeleteSiteClicked action`() {
     val performedActions = mutableListOf<JobMapComponentAction>()
     val selectedLoiSheetData =
-      SelectedLoiSheetData(canCollectData = true, LOCATION_OF_INTEREST, 0, true)
+      SelectedLoiSheetData(
+        canCollectData = true,
+        LOCATION_OF_INTEREST,
+        0,
+        true,
+        LOCATION_OF_INTEREST_LOI_REPORT,
+      )
     setContent(
-      state = JobMapComponentState(selectedLoi = selectedLoiSheetData),
+      state = JobMapComponentState.LoiSelected(selectedLoiSheetData),
       onAction = { performedActions += it },
     )
 
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.delete_site))
-      .performClick()
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.delete))
-      .performClick()
+    composeTestRule.onNodeWithText(getString(R.string.delete_site)).performClick()
+    composeTestRule.onNodeWithText(getString(R.string.delete)).performClick()
 
     assertTrue(
       performedActions.any {
@@ -217,15 +209,14 @@ class JobMapComponentTest : BaseHiltTest() {
           ),
         submissionCount = 20,
         showDeleteLoiButton = false,
+        loiReport = LOCATION_OF_INTEREST_LOI_REPORT,
       )
     setContent(
-      state = JobMapComponentState(selectedLoi = selectedLoiSheetData),
+      state = JobMapComponentState.LoiSelected(selectedLoiSheetData),
       onAction = { performedActions += it },
     )
 
-    composeTestRule
-      .onNodeWithText(composeTestRule.activity.getString(R.string.add_data))
-      .performClick()
+    composeTestRule.onNodeWithText(getString(R.string.add_data)).performClick()
 
     composeTestRule.waitForIdle()
 
@@ -236,10 +227,66 @@ class JobMapComponentTest : BaseHiltTest() {
     )
   }
 
+  @Test
+  fun `Clicking on the Share button should display the ShareLocationModal`() {
+    val loiSheetData =
+      SelectedLoiSheetData(
+        canCollectData = true,
+        LOCATION_OF_INTEREST,
+        0,
+        true,
+        LOCATION_OF_INTEREST_LOI_REPORT,
+      )
+    composeTestRule.setContent {
+      JobMapComponent(
+        state = JobMapComponentState.LoiSelected(loiSheetData),
+        onJobComponentAction = {},
+        onLoiReportAction = {},
+      )
+    }
+
+    composeTestRule.onNodeWithText(getString(Res.string.share)).performClick()
+
+    composeTestRule.onNodeWithText(getString(R.string.share_location)).assertIsDisplayed()
+    composeTestRule.onNodeWithTag(TEST_TAG_GROUND_QR_CODE).assertIsDisplayed()
+  }
+
+  @Test
+  fun `Clicking on the Close button on the ShareLocationModal should close it`() {
+    val loiSheetData =
+      SelectedLoiSheetData(
+        canCollectData = true,
+        LOCATION_OF_INTEREST,
+        0,
+        true,
+        LOCATION_OF_INTEREST_LOI_REPORT,
+      )
+    composeTestRule.setContent {
+      JobMapComponent(
+        state = JobMapComponentState.LoiSelected(loiSheetData),
+        onJobComponentAction = {},
+        onLoiReportAction = {},
+      )
+    }
+
+    composeTestRule.onNodeWithText(getString(Res.string.share)).performClick()
+    composeTestRule.onNodeWithText(getString(R.string.close)).performScrollTo().performClick()
+    composeTestRule.waitForIdle()
+
+    composeTestRule.onNodeWithText(loiSheetData.loi.job.name!!).assertIsDisplayed()
+    composeTestRule.onNodeWithTag(TEST_TAG_GROUND_QR_CODE).assertDoesNotExist()
+  }
+
   private fun setContent(
     state: JobMapComponentState,
     onAction: (JobMapComponentAction) -> Unit = {},
   ) {
-    composeTestRule.setContent { JobMapComponent(state = state, onAction = { onAction(it) }) }
+    composeTestRule.setContent {
+      JobMapComponent(
+        state = state,
+        onJobComponentAction = { onAction(it) },
+        onLoiReportAction = {},
+      )
+    }
   }
 }

@@ -73,8 +73,9 @@ class ActivityStreams @Inject constructor(@ApplicationScope private val scope: C
   }
 
   /** Emits [Activity.onActivityResult] events where `requestCode` matches the specified value. */
-  fun getActivityResults(requestCode: Int): Flow<ActivityResult> =
-    _activityResults.filter { it.requestCode == requestCode }
+  fun getActivityResults(requestCode: Int): Flow<ActivityResult> = _activityResults.filter {
+    it.requestCode == requestCode
+  }
 
   // TODO: Define and handle timeouts.
   // Issue URL: https://github.com/google/ground-android/issues/723

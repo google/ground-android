@@ -20,6 +20,7 @@ import androidx.core.content.edit
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.FirebaseFirestoreException
+import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlin.test.assertFailsWith
@@ -29,13 +30,16 @@ import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.data.local.room.LocalDataStoreException
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
-import org.groundplatform.android.repository.TermsOfServiceRepository
-import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
-import org.groundplatform.android.system.auth.SignInState
+import org.groundplatform.android.system.deeplink.PlayInstallReferrerService
+import org.groundplatform.domain.model.auth.SignInState
+import org.groundplatform.domain.repository.TermsOfServiceRepositoryInterface
+import org.groundplatform.domain.repository.UserRepositoryInterface
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -43,12 +47,14 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class MainViewModelTest : BaseHiltTest() {
 
+  @BindValue @JvmField val playInstallReferrerService: PlayInstallReferrerService = mock()
+
   @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
   @Inject lateinit var viewModel: MainViewModel
   @Inject lateinit var sharedPreferences: SharedPreferences
-  @Inject lateinit var tosRepository: TermsOfServiceRepository
-  @Inject lateinit var userRepository: UserRepository
+  @Inject lateinit var tosRepository: TermsOfServiceRepositoryInterface
+  @Inject lateinit var userRepository: UserRepositoryInterface
 
   @Before
   override fun setUp() {
@@ -77,11 +83,11 @@ class MainViewModelTest : BaseHiltTest() {
   fun `sign in updated on sign out`() = runWithTestDispatcher {
     setupUserPreferences()
 
-    viewModel.navigationRequests.test {
+    viewModel.uiEffects.test {
       fakeAuthenticationManager.signOut()
       advanceUntilIdle()
 
-      assertThat(awaitItem()).isEqualTo(MainUiState.OnUserSignedOut)
+      assertThat(awaitItem()).isEqualTo(MainUiEffect.SignedOut)
       verifyUserPreferencesCleared()
       verifyUserNotSaved()
       assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
@@ -91,19 +97,15 @@ class MainViewModelTest : BaseHiltTest() {
   @Test
   fun `navigation redirects to signing in state when authentication in progress`() =
     runWithTestDispatcher {
-      viewModel.navigationRequests.test {
+      viewModel.uiEffects.test {
         fakeAuthenticationManager.setState(SignInState.SigningIn)
         advanceUntilIdle()
 
-        assertThat(awaitItem()).isEqualTo(null)
+        expectNoEvents()
         verifyUserNotSaved()
         assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
       }
     }
-
-  // TODO: Add back testSignInStateChanged_onSignedIn_whenTosAcceptedAndActiveSurveyAvailable
-  //   once reactivate last survey is implemented.
-  // Issue URL: https://github.com/google/ground-android/issues/1612
 
   @Test
   fun `navigation redirects to TOS screen when signed in but terms not accepted`() =
@@ -111,11 +113,14 @@ class MainViewModelTest : BaseHiltTest() {
       tosRepository.isTermsOfServiceAccepted = false
       fakeRemoteDataStore.termsOfService = Result.success(FakeData.TERMS_OF_SERVICE)
 
-      viewModel.navigationRequests.test {
+      viewModel.uiEffects.test {
         fakeAuthenticationManager.signIn()
         advanceUntilIdle()
 
-        assertThat(awaitItem()).isEqualTo(MainUiState.TosNotAccepted)
+        assertThat(awaitItem())
+          .isEqualTo(
+            MainUiEffect.OpenStartDestination(MainUiEffect.StartDestination.TermsOfService)
+          )
         verifyUserSaved()
         assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
       }
@@ -126,11 +131,12 @@ class MainViewModelTest : BaseHiltTest() {
     tosRepository.isTermsOfServiceAccepted = false
     fakeRemoteDataStore.termsOfService = null
 
-    viewModel.navigationRequests.test {
+    viewModel.uiEffects.test {
       fakeAuthenticationManager.signIn()
       advanceUntilIdle()
 
-      assertThat(awaitItem()).isEqualTo(MainUiState.TosNotAccepted)
+      assertThat(awaitItem())
+        .isEqualTo(MainUiEffect.OpenStartDestination(MainUiEffect.StartDestination.TermsOfService))
       verifyUserSaved()
       assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
     }
@@ -148,13 +154,16 @@ class MainViewModelTest : BaseHiltTest() {
           )
         )
 
-      viewModel.navigationRequests.test {
+      viewModel.uiEffects.test {
         fakeAuthenticationManager.signIn()
         advanceUntilIdle()
         // TODO: Update these implementation to make it clearer why this would be the case.
         // Issue URL: https://github.com/google/ground-android/issues/2667
         assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
-        assertThat(awaitItem()).isEqualTo(MainUiState.TosNotAccepted)
+        assertThat(awaitItem())
+          .isEqualTo(
+            MainUiEffect.OpenStartDestination(MainUiEffect.StartDestination.TermsOfService)
+          )
       }
     }
 
@@ -163,12 +172,51 @@ class MainViewModelTest : BaseHiltTest() {
     tosRepository.isTermsOfServiceAccepted = false
     fakeRemoteDataStore.termsOfService = Result.failure(Error("user error"))
 
-    viewModel.navigationRequests.test {
+    viewModel.uiEffects.test {
       fakeAuthenticationManager.signIn()
       advanceUntilIdle()
 
       assertThat(tosRepository.isTermsOfServiceAccepted).isFalse()
-      assertThat(awaitItem()).isEqualTo(MainUiState.TosNotAccepted)
+      assertThat(awaitItem())
+        .isEqualTo(MainUiEffect.OpenStartDestination(MainUiEffect.StartDestination.TermsOfService))
     }
+  }
+
+  @Test
+  fun `navigation redirects to deferred deep link survey when install referrer has survey id`() =
+    runWithTestDispatcher {
+      tosRepository.isTermsOfServiceAccepted = true
+      whenever(playInstallReferrerService.getDeferredSurveyId()).thenReturn(SURVEY_ID)
+
+      viewModel.uiEffects.test {
+        fakeAuthenticationManager.signIn()
+        advanceUntilIdle()
+
+        assertThat(awaitItem())
+          .isEqualTo(
+            MainUiEffect.OpenStartDestination(MainUiEffect.StartDestination.ActiveSurvey(SURVEY_ID))
+          )
+      }
+    }
+
+  @Test
+  fun `navigation falls back to survey selector when install referrer has no survey id`() =
+    runWithTestDispatcher {
+      tosRepository.isTermsOfServiceAccepted = true
+      whenever(playInstallReferrerService.getDeferredSurveyId()).thenReturn(null)
+
+      viewModel.uiEffects.test {
+        fakeAuthenticationManager.signIn()
+        advanceUntilIdle()
+
+        assertThat(awaitItem())
+          .isEqualTo(
+            MainUiEffect.OpenStartDestination(MainUiEffect.StartDestination.SurveySelector)
+          )
+      }
+    }
+
+  companion object {
+    private const val SURVEY_ID = "survey_123"
   }
 }

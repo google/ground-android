@@ -17,7 +17,7 @@ package org.groundplatform.android.common
 
 import android.content.Context
 import org.groundplatform.android.BuildConfig
-import org.groundplatform.android.model.map.MapType
+import org.groundplatform.domain.model.map.MapType
 
 /** Application constants. */
 object Constants {
@@ -26,11 +26,11 @@ object Constants {
   const val SHARED_PREFS_MODE = Context.MODE_PRIVATE
 
   // Local db settings.
-  const val DB_VERSION = 126
+  const val DB_VERSION = 128
   const val DB_NAME = "ground.db"
 
   // Firebase Cloud Firestore settings.
-  const val FIRESTORE_LOGGING_ENABLED = true
+  val FIRESTORE_LOGGING_ENABLED = !isReleaseBuild()
 
   // Photos
   const val PHOTO_EXT = ".jpg"
@@ -63,5 +63,5 @@ object Constants {
   const val ACCURACY_THRESHOLD_IN_M = 15.0f
 
   // TODO: Move to a util class
-  fun isReleaseBuild(): Boolean = BuildConfig.BUILD_TYPE.contentEquals("release")
+  @JvmStatic fun isReleaseBuild(): Boolean = BuildConfig.BUILD_TYPE.contentEquals("release")
 }

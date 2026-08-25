@@ -15,8 +15,9 @@
  */
 package org.groundplatform.android.ui.datacollection
 
-import org.groundplatform.android.model.job.Job
-import org.groundplatform.android.model.task.Task
+import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.locationofinterest.LoiReport
+import org.groundplatform.domain.model.task.Task
 
 /**
  * Top-level UI state for the Data Collection flow.
@@ -27,7 +28,6 @@ import org.groundplatform.android.model.task.Task
  * Typical transitions:
  * - [Loading] → [Ready] (happy path)
  * - [Loading] → [Error] (boot failures)
- * - [Ready] → [TaskUpdated] → [Ready] (when task sequence/position changes)
  * - [Ready] → [TaskSubmitted] (on successful submission)
  */
 sealed interface DataCollectionUiState {
@@ -72,20 +72,11 @@ sealed interface DataCollectionUiState {
     DataCollectionUiState
 
   /**
-   * Ephemeral state emitted when a task update causes navigation or sequence changes (e.g.,
-   * next/previous validation alters the current position). The view can react (animate/scroll) and
-   * then immediately transition back to [Ready] with the new position.
-   *
-   * @property position Updated navigation/position metadata after the change.
-   */
-  data class TaskUpdated(val position: TaskPosition) : DataCollectionUiState
-
-  /**
    * Terminal state indicating that submission succeeded. The view should display a success
    * affordance or navigate away (e.g., back to the home screen) and must not attempt to read or
    * save further draft data for this session.
    */
-  data object TaskSubmitted : DataCollectionUiState
+  data class TaskSubmitted(val loiReport: LoiReport?) : DataCollectionUiState
 }
 
 /** Stable, UI-mappable error codes for data collection bootstrapping and flow. */

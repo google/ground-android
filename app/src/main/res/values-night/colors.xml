@@ -39,7 +39,6 @@
   <color name="md_theme_onBackground">#E2E3DD</color>
   <color name="md_theme_surface">#111411</color>
   <color name="md_theme_onSurface">#C6C7C2</color>
-  <color name="md_theme_on_surface_disabled">#1EC6C7C2</color>
   <color name="md_theme_surfaceVariant">#424940</color>
   <color name="md_theme_onSurfaceVariant">#C1C9BE</color>
   <color name="md_theme_inverseSurface">#E2E3DD</color>

@@ -20,9 +20,9 @@ import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.groundplatform.android.BaseHiltTest
-import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.android.system.GoogleApiManager
 import org.groundplatform.android.ui.common.EphemeralPopups
+import org.groundplatform.domain.repository.UserRepositoryInterface
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -33,9 +33,8 @@ import org.robolectric.RobolectricTestRunner
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class StartupViewModelTest : BaseHiltTest() {
-
   @Mock private lateinit var googleApiManager: GoogleApiManager
-  @Mock private lateinit var userRepository: UserRepository
+  @Mock private lateinit var userRepository: UserRepositoryInterface
   @Mock private lateinit var popups: EphemeralPopups
 
   private lateinit var viewModel: StartupViewModel

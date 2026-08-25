@@ -16,38 +16,35 @@
 package org.groundplatform.android.data.local.room.converter
 
 import com.google.common.truth.Truth.assertThat
-import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.collections.immutable.persistentListOf
-import org.groundplatform.android.BaseHiltTest
-import org.groundplatform.android.FakeData
-import org.groundplatform.android.model.geometry.Coordinates
-import org.groundplatform.android.model.geometry.LineString
-import org.groundplatform.android.model.geometry.LinearRing
-import org.groundplatform.android.model.geometry.Point
-import org.groundplatform.android.model.geometry.Polygon
-import org.groundplatform.android.model.submission.DateTimeTaskData
-import org.groundplatform.android.model.submission.DrawAreaTaskData
-import org.groundplatform.android.model.submission.DrawAreaTaskIncompleteData
-import org.groundplatform.android.model.submission.DropPinTaskData
-import org.groundplatform.android.model.submission.MultipleChoiceTaskData
-import org.groundplatform.android.model.submission.NumberTaskData
-import org.groundplatform.android.model.submission.TaskData
-import org.groundplatform.android.model.submission.TextTaskData
-import org.groundplatform.android.model.task.MultipleChoice
-import org.groundplatform.android.model.task.Option
-import org.groundplatform.android.model.task.Task
+import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.geometry.LineString
+import org.groundplatform.domain.model.geometry.LinearRing
+import org.groundplatform.domain.model.geometry.Point
+import org.groundplatform.domain.model.geometry.Polygon
+import org.groundplatform.domain.model.submission.DateTimeTaskData
+import org.groundplatform.domain.model.submission.DrawAreaTaskData
+import org.groundplatform.domain.model.submission.DrawAreaTaskIncompleteData
+import org.groundplatform.domain.model.submission.DropPinTaskData
+import org.groundplatform.domain.model.submission.MultipleChoiceTaskData
+import org.groundplatform.domain.model.submission.NumberTaskData
+import org.groundplatform.domain.model.submission.TaskData
+import org.groundplatform.domain.model.submission.TextTaskData
+import org.groundplatform.domain.model.task.MultipleChoice
+import org.groundplatform.domain.model.task.Option
+import org.groundplatform.domain.model.task.Task
+import org.groundplatform.testing.FakeDataGenerator
 import org.json.JSONArray
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
 
-@HiltAndroidTest
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class ValueJsonConverterTest(
   private val task: Task,
   private val taskData: TaskData,
   private val input: Any,
-) : BaseHiltTest() {
+) {
 
   @Test
   fun `to json object`() {
@@ -129,39 +126,39 @@ class ValueJsonConverterTest(
     fun data() =
       listOf(
         arrayOf(
-          FakeData.newTask(type = Task.Type.TEXT),
+          FakeDataGenerator.newTask(type = Task.Type.TEXT),
           TextTaskData.fromString("sample text"),
           "sample text",
         ),
         arrayOf(
-          FakeData.newTask(type = Task.Type.MULTIPLE_CHOICE),
+          FakeDataGenerator.newTask(type = Task.Type.MULTIPLE_CHOICE),
           singleChoiceResponse,
           singleChoiceResponseJson,
         ),
         arrayOf(
-          FakeData.newTask(type = Task.Type.MULTIPLE_CHOICE),
+          FakeDataGenerator.newTask(type = Task.Type.MULTIPLE_CHOICE),
           multipleChoiceTaskData,
           multipleChoiceResponseJson,
         ),
         arrayOf(
-          FakeData.newTask(type = Task.Type.NUMBER),
+          FakeDataGenerator.newTask(type = Task.Type.NUMBER),
           NumberTaskData.fromNumber("12345.0"),
           12345.0,
         ),
-        arrayOf(FakeData.newTask(type = Task.Type.DATE), dateTimeOption, dateTimeResponse),
-        arrayOf(FakeData.newTask(type = Task.Type.TIME), dateTimeOption, dateTimeResponse),
+        arrayOf(FakeDataGenerator.newTask(type = Task.Type.DATE), dateTimeOption, dateTimeResponse),
+        arrayOf(FakeDataGenerator.newTask(type = Task.Type.TIME), dateTimeOption, dateTimeResponse),
         arrayOf(
-          FakeData.newTask(type = Task.Type.DROP_PIN),
+          FakeDataGenerator.newTask(type = Task.Type.DROP_PIN),
           dropPinTaskResponse,
           dropPinGeometryTaskResponseString,
         ),
         arrayOf(
-          FakeData.newTask(type = Task.Type.DRAW_AREA),
+          FakeDataGenerator.newTask(type = Task.Type.DRAW_AREA),
           drawAreaTaskResponse,
           polygonGeometryTaskResponseString,
         ),
         arrayOf(
-          FakeData.newTask(type = Task.Type.DRAW_AREA),
+          FakeDataGenerator.newTask(type = Task.Type.DRAW_AREA),
           incompleteDrawAreaTaskResponse,
           lineStringGeometryTaskResponseString,
         ),

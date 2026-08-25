@@ -23,16 +23,17 @@ import androidx.work.ListenableWorker.Result.success
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import java.io.File
 import java.io.FileNotFoundException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import org.groundplatform.android.data.remote.RemoteStorageManager
 import org.groundplatform.android.di.coroutines.IoDispatcher
-import org.groundplatform.android.model.mutation.SubmissionMutation
-import org.groundplatform.android.model.submission.PhotoTaskData
-import org.groundplatform.android.repository.MutationRepository
-import org.groundplatform.android.repository.UserMediaRepository
 import org.groundplatform.android.util.priority
+import org.groundplatform.domain.model.mutation.SubmissionMutation
+import org.groundplatform.domain.model.task.PhotoTaskData
+import org.groundplatform.domain.repository.MutationRepositoryInterface
+import org.groundplatform.domain.repository.UserMediaRepositoryInterface
 import timber.log.Timber
 
 /**
@@ -51,8 +52,8 @@ constructor(
   @Assisted context: Context,
   @Assisted workerParams: WorkerParameters,
   private val remoteStorageManager: RemoteStorageManager,
-  private val mutationRepository: MutationRepository,
-  private val userMediaRepository: UserMediaRepository,
+  private val mutationRepository: MutationRepositoryInterface,
+  private val userMediaRepository: UserMediaRepositoryInterface,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : CoroutineWorker(context, workerParams) {
 
@@ -91,7 +92,7 @@ constructor(
   private suspend fun uploadPhotoMedia(photoTaskData: PhotoTaskData): kotlin.Result<Unit> {
     try {
       val path = photoTaskData.remoteFilename
-      val photoFile = userMediaRepository.getLocalFileFromRemotePath(path)
+      val photoFile = File(userMediaRepository.getLocalFileFromRemotePath(path).value)
       Timber.d("Starting photo upload. local path: ${photoFile.path}, remote path: $path")
       if (!photoFile.exists()) {
         throw FileNotFoundException(photoFile.path)

@@ -22,7 +22,7 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import org.groundplatform.android.data.local.room.fields.EntityDeletionState
-import org.groundplatform.android.model.locationofinterest.LoiProperties
+import org.groundplatform.domain.model.locationofinterest.LoiProperties
 
 /**
  * Defines how Room persists LOIs in the local db. By default, Room uses the name of object fields

@@ -15,7 +15,7 @@
  */
 package org.groundplatform.android.ui.datacollection.tasks
 
-import org.groundplatform.android.model.submission.TaskData
+import org.groundplatform.domain.model.submission.TaskData
 
 /**
  * Interface for querying the position of a task within a sequence.

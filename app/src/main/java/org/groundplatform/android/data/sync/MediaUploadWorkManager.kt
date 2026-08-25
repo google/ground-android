@@ -27,7 +27,7 @@ class MediaUploadWorkManager
 constructor(private val workManager: WorkManager, private val localValueStore: LocalValueStore) {
 
   private fun preferredNetworkType(): NetworkType =
-    if (localValueStore.shouldUploadMediaOverUnmeteredConnectionOnly()) NetworkType.UNMETERED
+    if (localValueStore.shouldUploadMediaOverUnmeteredConnectionOnly) NetworkType.UNMETERED
     else NetworkType.CONNECTED
 
   /**

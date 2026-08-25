@@ -19,4 +19,7 @@
   <external-files-path
     name="photos"
     path="Pictures" />
+  <cache-path
+    name="reports"
+    path="reports/" />
 </paths>
