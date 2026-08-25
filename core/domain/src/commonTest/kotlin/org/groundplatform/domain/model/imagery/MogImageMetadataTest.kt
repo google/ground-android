@@ -89,4 +89,49 @@ class MogImageMetadataTest {
   fun `hashCode() throws error`() {
     assertFailsWith<UnsupportedOperationException> { testMogImageMetadata.hashCode() }
   }
+
+  @Test
+  fun `fromTiffTags creates MogImageMetadata correctly`() {
+    val tagMap =
+      mapOf(
+        TiffTag.TileWidth to 256,
+        TiffTag.TileLength to 256,
+        TiffTag.TileOffsets to listOf(100L, 200L),
+        TiffTag.TileByteCounts to listOf(1000L, 2000L),
+        TiffTag.ImageWidth to 512,
+        TiffTag.ImageLength to 512,
+        TiffTag.JPEGTables to listOf(1, 2, 3),
+        TiffTag.GdalNodata to "0",
+      )
+    val originTile = TileCoordinates(5, 5, 5)
+    val metadata = MogImageMetadata.fromTiffTags(originTile, tagMap)
+
+    assertEquals(originTile, metadata.originTile)
+    assertEquals(256, metadata.tileWidth)
+    assertEquals(256, metadata.tileLength)
+    assertEquals(listOf(100L, 200L), metadata.tileOffsets)
+    assertEquals(listOf(1000L, 2000L), metadata.byteCounts)
+    assertEquals(512, metadata.imageWidth)
+    assertEquals(512, metadata.imageLength)
+    assertEquals(3, metadata.jpegTables.size)
+    assertEquals(0, metadata.noDataValue)
+  }
+
+  @Test
+  fun `fromTiffTags handles missing optional tags`() {
+    val tagMap =
+      mapOf(
+        TiffTag.TileWidth to 256,
+        TiffTag.TileLength to 256,
+        TiffTag.TileOffsets to listOf(100L),
+        TiffTag.TileByteCounts to listOf(1000L),
+        TiffTag.ImageWidth to 256,
+        TiffTag.ImageLength to 256,
+      )
+    val originTile = TileCoordinates(1, 2, 3)
+    val metadata = MogImageMetadata.fromTiffTags(originTile, tagMap)
+
+    assertEquals(0, metadata.jpegTables.size)
+    assertNull(metadata.noDataValue)
+  }
 }

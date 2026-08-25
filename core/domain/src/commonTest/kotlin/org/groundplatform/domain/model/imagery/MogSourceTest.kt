@@ -58,4 +58,12 @@ class MogSourceTest {
       mogSource.getMogBoundsForTile(TileCoordinates(10, 20, 6)),
     )
   }
+
+  @Test
+  fun `list minZoom, maxZoom, and zoomRange return correct values`() {
+    val sources = listOf(MogSource(0..4, "overview.tif"), MogSource(5..14, "{x}/{y}.tif"))
+    assertEquals(0, sources.minZoom())
+    assertEquals(14, sources.maxZoom())
+    assertEquals(0..14, sources.zoomRange())
+  }
 }
