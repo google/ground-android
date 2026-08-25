@@ -26,12 +26,12 @@ import org.groundplatform.android.data.local.stores.LocalOfflineAreaStore
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.android.system.GeocodingManager
 import org.groundplatform.android.ui.map.gms.mog.MogClient
-import org.groundplatform.android.ui.map.gms.mog.MogCollection
-import org.groundplatform.android.ui.map.gms.mog.MogSource
-import org.groundplatform.android.ui.map.gms.mog.MogTilesRequest
 import org.groundplatform.android.ui.map.gms.mog.getTilePath
 import org.groundplatform.android.ui.util.FileUtil
 import org.groundplatform.domain.model.imagery.LocalTileSource
+import org.groundplatform.domain.model.imagery.MogCollection
+import org.groundplatform.domain.model.imagery.MogSource
+import org.groundplatform.domain.model.imagery.MogTilesRequest
 import org.groundplatform.domain.model.imagery.OfflineArea
 import org.groundplatform.domain.model.map.Bounds
 import org.junit.Before
