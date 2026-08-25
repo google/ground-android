@@ -22,11 +22,15 @@ import org.groundplatform.android.ui.map.gms.toGoogleMapsObject
 
 /** A [ClusterItem] implementation for clustering map [Feature]s. */
 data class FeatureClusterItem(val feature: Feature) : ClusterItem {
-  override fun getPosition(): LatLng = feature.geometry.center().toGoogleMapsObject()
+  override val position: LatLng
+    get() = feature.geometry.center().toGoogleMapsObject()
 
-  override fun getTitle(): String? = null
+  override val title: String?
+    get() = null
 
-  override fun getSnippet(): String? = null
+  override val snippet: String?
+    get() = null
 
-  override fun getZIndex(): Float? = null
+  override val zIndex: Float?
+    get() = null
 }
