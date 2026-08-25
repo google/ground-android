@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,12 @@
  * limitations under the License.
  */
 
-package org.groundplatform.android.ui.map.gms.mog
+package org.groundplatform.domain.model.imagery
 
-import com.google.common.truth.Truth.assertThat
-import org.groundplatform.domain.model.imagery.TileCoordinates
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.mockito.junit.MockitoJUnitRunner
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
-@RunWith(MockitoJUnitRunner::class)
-class MogTileRequestTest {
+class MogTilesRequestTest {
 
   @Test
   fun `consolidate does not merge different URLs with consecutive ranges`() {
@@ -34,8 +30,10 @@ class MogTileRequestTest {
     val request2 = MogTilesRequest("http://url2", listOf(tile2))
     val request3 = MogTilesRequest("http://url3", listOf(tile3))
 
-    assertThat(listOf(request1, request2, request3).consolidate(0))
-      .containsExactly(request1, request2, request3)
+    assertEquals(
+      listOf(request1, request2, request3),
+      listOf(request1, request2, request3).consolidate(0),
+    )
   }
 
   @Test
@@ -45,7 +43,7 @@ class MogTileRequestTest {
     val request1 = MogTilesRequest("http://url", listOf(tile1))
     val request2 = MogTilesRequest("http://url", listOf(tile2))
 
-    assertThat(listOf(request1, request2).consolidate(0)).containsExactly(request1, request2)
+    assertEquals(listOf(request1, request2), listOf(request1, request2).consolidate(0))
   }
 
   @Test
@@ -57,8 +55,10 @@ class MogTileRequestTest {
     val request2 = MogTilesRequest("http://url", listOf(tile2))
     val request3 = MogTilesRequest("http://url", listOf(tile3))
 
-    assertThat(listOf(request1, request2, request3).consolidate(0))
-      .containsExactly(MogTilesRequest("http://url", listOf(tile1, tile2, tile3)))
+    assertEquals(
+      listOf(MogTilesRequest("http://url", listOf(tile1, tile2, tile3))),
+      listOf(request1, request2, request3).consolidate(0),
+    )
   }
 
   @Test
@@ -68,8 +68,10 @@ class MogTileRequestTest {
     val request1 = MogTilesRequest("http://url", listOf(tile1))
     val request2 = MogTilesRequest("http://url", listOf(tile2))
 
-    assertThat(listOf(request1, request2).consolidate(2))
-      .containsExactly(MogTilesRequest("http://url", listOf(tile1, tile2)))
+    assertEquals(
+      listOf(MogTilesRequest("http://url", listOf(tile1, tile2))),
+      listOf(request1, request2).consolidate(2),
+    )
   }
 
   private fun newTileMetadata(byteRange: IntRange): MogTileMetadata =

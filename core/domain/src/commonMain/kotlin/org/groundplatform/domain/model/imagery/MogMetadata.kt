@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package org.groundplatform.android.ui.map.gms.mog
-
-import org.groundplatform.domain.model.imagery.TileCoordinates
+package org.groundplatform.domain.model.imagery
 
 /**
  * Contiguous tiles are fetched in a single request. To minimize the number of server requests, we

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,41 +14,33 @@
  * limitations under the License.
  */
 
-package org.groundplatform.android.ui.map.gms.mog
+package org.groundplatform.domain.model.imagery
 
-import com.google.common.truth.Truth.assertThat
-import org.groundplatform.domain.model.imagery.TileCoordinates
-import org.junit.Assert.assertThrows
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.mockito.junit.MockitoJUnitRunner
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
-@RunWith(MockitoJUnitRunner::class)
 class MogSourceTest {
   private val mogSource = MogSource(5..7, "url/{x}/{y}.tif")
 
   @Test
   fun `getMogPath throws an error when zoom is less than min zoom`() {
-    assertThrows(IllegalStateException::class.java) {
-      mogSource.getMogPath(TileCoordinates(250, 500, 2))
-    }
+    assertFailsWith<IllegalStateException> { mogSource.getMogPath(TileCoordinates(250, 500, 2)) }
   }
 
   @Test
   fun `getMogPath returns path when zoom is equal to min zoom`() {
-    assertThat(mogSource.getMogPath(TileCoordinates(250, 500, 5))).isEqualTo("url/250/500.tif")
+    assertEquals("url/250/500.tif", mogSource.getMogPath(TileCoordinates(250, 500, 5)))
   }
 
   @Test
   fun `getMogPath throws an error when zoom is greater than max zoom`() {
-    assertThrows(IllegalStateException::class.java) {
-      mogSource.getMogPath(TileCoordinates(2500, 5000, 9))
-    }
+    assertFailsWith<IllegalStateException> { mogSource.getMogPath(TileCoordinates(2500, 5000, 9)) }
   }
 
   @Test
   fun `getMogBoundsForTile throws an error when zoom is LessThanMinZoom`() {
-    assertThrows(IllegalStateException::class.java) {
+    assertFailsWith<IllegalStateException> {
       mogSource.getMogBoundsForTile(TileCoordinates(10, 20, 4))
     }
   }
@@ -56,12 +48,14 @@ class MogSourceTest {
   @Test
   fun `getMogBoundsForTile returnsSameCoordinates when zoom is EqualToMinZoom`() {
     val testCoords = TileCoordinates(10, 20, 5)
-    assertThat(mogSource.getMogBoundsForTile(testCoords)).isEqualTo(testCoords)
+    assertEquals(testCoords, mogSource.getMogBoundsForTile(testCoords))
   }
 
   @Test
   fun `getMogBoundsForTile returnsScaledCoordinates when zoom is MoreThanMinZoom`() {
-    assertThat(mogSource.getMogBoundsForTile(TileCoordinates(10, 20, 6)))
-      .isEqualTo(TileCoordinates(5, 10, 5))
+    assertEquals(
+      TileCoordinates(5, 10, 5),
+      mogSource.getMogBoundsForTile(TileCoordinates(10, 20, 6)),
+    )
   }
 }

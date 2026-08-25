@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.ui.map.gms.mog
 
-import com.google.common.truth.Truth.assertThat
-import org.groundplatform.domain.model.imagery.TileCoordinates
-import org.junit.Assert.assertThrows
-import org.junit.Test
+package org.groundplatform.domain.model.imagery
+
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class MogImageMetadataTest {
 
@@ -37,27 +40,27 @@ class MogImageMetadataTest {
 
   @Test
   fun `hasTile() returns true when coords in range`() {
-    assertThat(testMogImageMetadata.hasTile(12, 12)).isTrue()
+    assertTrue(testMogImageMetadata.hasTile(12, 12))
   }
 
   @Test
   fun `hasTile() returns false when X coord out of range`() {
-    assertThat(testMogImageMetadata.hasTile(16, 12)).isFalse()
+    assertFalse(testMogImageMetadata.hasTile(16, 12))
   }
 
   @Test
   fun `hasTile() returns false when Y coord out of range`() {
-    assertThat(testMogImageMetadata.hasTile(12, 16)).isFalse()
+    assertFalse(testMogImageMetadata.hasTile(12, 16))
   }
 
   @Test
   fun `getByteRange() returns null when coords out of range`() {
-    assertThat(testMogImageMetadata.getByteRange(12, 16)).isNull()
+    assertNull(testMogImageMetadata.getByteRange(12, 16))
   }
 
   @Test
   fun `getByteRange() throws error when index out of bounds`() {
-    assertThrows(IllegalArgumentException::class.java) {
+    assertFailsWith<IllegalArgumentException> {
       testMogImageMetadata
         .copy(tileOffsets = LongRange(1, 12).toList(), byteCounts = LongRange(1, 12).toList())
         .getByteRange(13, 13)
@@ -66,17 +69,17 @@ class MogImageMetadataTest {
 
   @Test
   fun `getByteRange() returns correct range`() {
-    assertThat(
-        testMogImageMetadata
-          .copy(tileOffsets = LongRange(1, 12).toList(), byteCounts = LongRange(1, 12).toList())
-          .getByteRange(11, 11)
-      )
-      .isEqualTo(LongRange(6, 11))
+    assertEquals(
+      LongRange(6, 11),
+      testMogImageMetadata
+        .copy(tileOffsets = LongRange(1, 12).toList(), byteCounts = LongRange(1, 12).toList())
+        .getByteRange(11, 11),
+    )
   }
 
   @Test
   fun `equals() throws error`() {
-    assertThrows(UnsupportedOperationException::class.java) {
+    assertFailsWith<UnsupportedOperationException> {
       @Suppress("UnusedEquals")
       testMogImageMetadata.equals(testMogImageMetadata.copy(tileWidth = 100))
     }
@@ -84,6 +87,6 @@ class MogImageMetadataTest {
 
   @Test
   fun `hashCode() throws error`() {
-    assertThrows(UnsupportedOperationException::class.java) { testMogImageMetadata.hashCode() }
+    assertFailsWith<UnsupportedOperationException> { testMogImageMetadata.hashCode() }
   }
 }

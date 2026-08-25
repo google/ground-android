@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.ui.map.gms.mog
 
-import org.groundplatform.domain.model.imagery.TileCoordinates
-import org.junit.Assert.assertThrows
-import org.junit.Test
+package org.groundplatform.domain.model.imagery
+
+import kotlin.test.Test
+import kotlin.test.assertFailsWith
 
 class MogTileMetadataTest {
 
@@ -26,13 +26,13 @@ class MogTileMetadataTest {
 
   @Test
   fun `equals when throws error`() {
-    assertThrows(UnsupportedOperationException::class.java) {
+    assertFailsWith<UnsupportedOperationException> {
       testMogTileMetadata.equals(testMogTileMetadata.copy(width = 100))
     }
   }
 
   @Test
   fun `hashcode when throws error`() {
-    assertThrows(UnsupportedOperationException::class.java) { testMogTileMetadata.hashCode() }
+    assertFailsWith<UnsupportedOperationException> { testMogTileMetadata.hashCode() }
   }
 }
