@@ -54,7 +54,7 @@ class FeatureManagerTest {
   @Suppress("UNCHECKED_CAST")
   private val clusterAlgorithm
     get() =
-      featureManager.clusterManager.algorithm
+      featureManager.clusterManager.gmsClusterManager.algorithm
         as NonHierarchicalViewBasedAlgorithm<FeatureClusterItem>
 
   @Before

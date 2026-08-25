@@ -51,7 +51,7 @@ class FeatureClusterManagerTest {
   @Test
   fun `addFeature() adds clusterable features to cluster manager`() {
     featureClusterManager.addFeature(FakeData.LOCATION_OF_INTEREST_FEATURE)
-    assertThat(featureClusterManager.algorithm.items)
+    assertThat(featureClusterManager.gmsClusterManager.algorithm.items)
       .contains(FakeData.LOCATION_OF_INTEREST_CLUSTER_ITEM)
   }
 
@@ -62,6 +62,6 @@ class FeatureClusterManagerTest {
     )
     featureClusterManager.removeFeature(FakeData.LOCATION_OF_INTEREST_FEATURE.tag)
 
-    assertThat(featureClusterManager.algorithm.items).isEmpty()
+    assertThat(featureClusterManager.gmsClusterManager.algorithm.items).isEmpty()
   }
 }
