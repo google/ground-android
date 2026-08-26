@@ -28,9 +28,8 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import org.groundplatform.domain.system.NetworkManagerInterface
+import org.groundplatform.domain.system.NetworkStatus
 import timber.log.Timber
-
-typealias NetworkStatus = org.groundplatform.domain.system.NetworkStatus
 
 /** Android implementation of [NetworkManagerInterface] using [ConnectivityManager]. */
 @Singleton

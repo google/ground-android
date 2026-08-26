@@ -80,6 +80,7 @@ class FakeSurveyRepository : SurveyRepositoryInterface {
 
   override suspend fun clearActiveSurvey() {
     _activeSurveyFlow.value = null
+    lastActiveSurveyId = ""
   }
 
   override fun isSurveyActive(surveyId: String): Boolean = _activeSurveyFlow.value?.id == surveyId

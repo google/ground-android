@@ -29,10 +29,10 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.system.NetworkManager
-import org.groundplatform.android.system.NetworkStatus
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
 import org.groundplatform.android.testrules.FragmentScenarioRule
 import org.groundplatform.domain.model.auth.SignInState
+import org.groundplatform.domain.system.NetworkStatus
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Rule

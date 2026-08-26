@@ -51,6 +51,7 @@ class ClearUserSessionUseCaseTest {
     useCase()
 
     assertNull(surveyRepository.activeSurvey)
+    assertEquals("", surveyRepository.lastActiveSurveyId)
   }
 
   @Test
