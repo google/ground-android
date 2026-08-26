@@ -41,7 +41,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
 import org.groundplatform.android.common.Constants.CLUSTERING_ZOOM_THRESHOLD
-import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.system.LocationManager
 import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.system.SettingsManager
@@ -55,7 +54,6 @@ import org.groundplatform.android.ui.home.mapcontainer.jobs.SelectedLoiSheetData
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.gms.GmsExt.area
 import org.groundplatform.android.ui.util.getDefaultColor
-import org.groundplatform.android.usecases.datasharingterms.GetDataSharingTermsUseCase
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
@@ -66,6 +64,7 @@ import org.groundplatform.domain.repository.SubmissionRepositoryInterface
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
 import org.groundplatform.domain.usecases.GetLoiReportUseCase
+import org.groundplatform.domain.usecases.survey.GetDataSharingTermsUseCase
 import org.groundplatform.feature.pdf.LoiReportExporter
 import org.groundplatform.ui.components.loireport.LoiReportAction
 import timber.log.Timber
@@ -85,7 +84,6 @@ internal constructor(
   permissionsManager: PermissionsManager,
   private val surveyRepository: SurveyRepositoryInterface,
   private val userRepository: UserRepositoryInterface,
-  private val localValueStore: LocalValueStore,
   private val locationOfInterestHelper: LocationOfInterestHelper,
   private val getLoiReportUseCase: GetLoiReportUseCase,
   private val loiReportExporter: LoiReportExporter,
@@ -300,9 +298,10 @@ internal constructor(
     featureClicked.value = features.minByOrNull { it.geometry.area() }
   }
 
+  /** Records user consent to the data sharing terms of the active survey. */
   fun grantDataSharingConsent() {
     val survey = requireNotNull(surveyRepository.activeSurvey)
-    localValueStore.setDataSharingConsent(survey.id, true)
+    surveyRepository.setDataSharingConsent(survey.id, true)
   }
 
   /**

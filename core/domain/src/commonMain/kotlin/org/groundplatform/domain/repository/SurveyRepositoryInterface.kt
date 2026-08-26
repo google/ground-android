@@ -48,4 +48,10 @@ interface SurveyRepositoryInterface {
   suspend fun subscribeToSurveyUpdates(surveyId: String)
 
   suspend fun unsubscribeFromSurveyUpdates(surveyId: String)
+
+  /** Returns true if the user has agreed to data sharing terms for the given [surveyId]. */
+  fun getDataSharingConsent(surveyId: String): Boolean
+
+  /** Records the user's [consent] to data sharing terms for the given [surveyId]. */
+  fun setDataSharingConsent(surveyId: String, consent: Boolean)
 }

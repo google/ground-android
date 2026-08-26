@@ -40,6 +40,8 @@ class FakeSurveyRepository : SurveyRepositoryInterface {
 
   val onGetRemoteSurveyCall = FakeCall<String, Survey?> { id -> remoteSurveys.find { it.id == id } }
 
+  private val dataSharingConsentMap = mutableMapOf<String, Boolean>()
+
   override suspend fun saveSurvey(survey: Survey) {
     offlineSurveys = offlineSurveys + survey
   }
@@ -74,5 +76,12 @@ class FakeSurveyRepository : SurveyRepositoryInterface {
 
   override suspend fun unsubscribeFromSurveyUpdates(surveyId: String) {
     subscribedSurveyIds.remove(surveyId)
+  }
+
+  override fun getDataSharingConsent(surveyId: String): Boolean =
+    dataSharingConsentMap[surveyId] ?: false
+
+  override fun setDataSharingConsent(surveyId: String, consent: Boolean) {
+    dataSharingConsentMap[surveyId] = consent
   }
 }
