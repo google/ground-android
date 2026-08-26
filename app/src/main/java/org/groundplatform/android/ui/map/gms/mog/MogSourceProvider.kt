@@ -15,6 +15,8 @@
  */
 package org.groundplatform.android.ui.map.gms.mog
 
+import org.groundplatform.domain.model.imagery.MogSource
+
 /**
  * Provides [MogSource]s for MOG (Map Overlay GeoTIFF) collections.
  *

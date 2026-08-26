@@ -19,6 +19,7 @@ package org.groundplatform.android.ui.map.gms.mog
 import java.io.InputStream
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import org.groundplatform.domain.model.imagery.MogTileMetadata
 import timber.log.Timber
 
 // TODO: Add unit tests.

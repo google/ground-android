@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package org.groundplatform.android.ui.map.gms.mog
-
-import org.groundplatform.domain.model.imagery.TileCoordinates
+package org.groundplatform.domain.model.imagery
 
 /** Metadata for the tiles with the specified coordinates provided by the specified MOG. */
 data class MogTileMetadata(
