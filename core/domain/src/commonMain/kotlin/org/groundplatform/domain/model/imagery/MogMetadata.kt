@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package org.groundplatform.android.ui.map.gms.mog
-
-import org.groundplatform.domain.model.imagery.TileCoordinates
+package org.groundplatform.domain.model.imagery
 
 /**
  * Contiguous tiles are fetched in a single request. To minimize the number of server requests, we

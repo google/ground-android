@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package org.groundplatform.android.ui.map.gms.mog
-
-import org.groundplatform.domain.model.imagery.TileCoordinates
+package org.groundplatform.domain.model.imagery
 
 /**
  * Provides URLs or relative paths of one or more MOGs partitioned by web mercator tile extents at a

@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 
-package org.groundplatform.android.ui.map.gms.mog
-
-import org.groundplatform.domain.model.imagery.TiffTag
-import org.groundplatform.domain.model.imagery.TileCoordinates
+package org.groundplatform.domain.model.imagery
 
 /** Metadata describing a single full-resolution or overview image in a MOG. */
 data class MogImageMetadata(

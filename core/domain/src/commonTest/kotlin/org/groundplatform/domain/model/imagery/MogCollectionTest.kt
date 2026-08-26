@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.ui.map.gms.mog
 
-import com.google.common.truth.Truth.assertThat
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.mockito.junit.MockitoJUnitRunner
+package org.groundplatform.domain.model.imagery
+
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 const val TEST_WORLD_URL = "world_url/5/world.tif"
 const val TEST_HIGH_RES_URL = "high_res_url/5/{x}/{y}.tif"
@@ -29,12 +29,11 @@ val MOG_SOURCE_0_TO_4 = MogSource(IntRange(0, TEST_HIGH_RES_MIN_ZOOM - 1), TEST_
 val MOG_SOURCE_5_TO_14 =
   MogSource(IntRange(TEST_HIGH_RES_MIN_ZOOM, TEST_HIGH_RES_MAX_ZOOM), TEST_HIGH_RES_URL)
 
-@RunWith(MockitoJUnitRunner::class)
 class MogCollectionTest {
 
   private lateinit var mogCollection: MogCollection
 
-  @Before
+  @BeforeTest
   fun setUp() {
     mogCollection = MogCollection(listOf(MOG_SOURCE_0_TO_4, MOG_SOURCE_5_TO_14))
   }
@@ -42,18 +41,18 @@ class MogCollectionTest {
   @Test
   fun `getMogSource returns source for valid zoom level 1`() {
     val mogSource = mogCollection.getMogSource(4)
-    assertThat(mogSource).isEqualTo(MOG_SOURCE_0_TO_4)
+    assertEquals(MOG_SOURCE_0_TO_4, mogSource)
   }
 
   @Test
   fun `getMogSource returns source for valid zoom level 2`() {
     val mogSource = mogCollection.getMogSource(5)
-    assertThat(mogSource).isEqualTo(MOG_SOURCE_5_TO_14)
+    assertEquals(MOG_SOURCE_5_TO_14, mogSource)
   }
 
   @Test
   fun `getMogSource returns null for invalid zoom level`() {
     val mogSource = mogCollection.getMogSource(15)
-    assertThat(mogSource).isNull()
+    assertNull(mogSource)
   }
 }

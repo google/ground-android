@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.groundplatform.android.ui.map.gms.mog
+package org.groundplatform.domain.model.imagery
 
 /** A collection of Maps Optimized GeoTIFFs (MOGs). */
 class MogCollection(val sources: List<MogSource>) {

@@ -23,9 +23,9 @@ import kotlinx.coroutines.CoroutineDispatcher
 import org.groundplatform.android.data.remote.RemoteStorageManager
 import org.groundplatform.android.di.coroutines.IoDispatcher
 import org.groundplatform.android.ui.map.gms.mog.MogClient
-import org.groundplatform.android.ui.map.gms.mog.MogCollection
 import org.groundplatform.android.ui.map.gms.mog.MogSourceProvider
 import org.groundplatform.android.ui.map.gms.mog.MogTileProvider
+import org.groundplatform.domain.model.imagery.MogCollection
 
 @InstallIn(SingletonComponent::class)
 @Module

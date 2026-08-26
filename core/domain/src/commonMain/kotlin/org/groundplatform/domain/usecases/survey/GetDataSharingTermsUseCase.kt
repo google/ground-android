@@ -13,25 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.usecases.datasharingterms
 
-import javax.inject.Inject
-import org.groundplatform.android.data.local.LocalValueStore
+package org.groundplatform.domain.usecases.survey
+
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
 
-class GetDataSharingTermsUseCase
-@Inject
-constructor(
-  private val localValueStore: LocalValueStore,
-  private val surveyRepository: SurveyRepositoryInterface,
-) {
+/**
+ * Returns the data sharing terms for the currently active survey, if not already accepted.
+ *
+ * Returns [Result.success] with `null` if the survey has no terms or the user has already accepted
+ * them. Returns [Result.failure] with [InvalidCustomSharingTermsException] if custom terms text is
+ * blank, or [IllegalStateException] if no survey is currently active.
+ */
+class GetDataSharingTermsUseCase(private val surveyRepository: SurveyRepositoryInterface) {
 
-  /** Returns the data sharing terms for the currently active survey, if not already accepted. */
   operator fun invoke(): Result<Survey.DataSharingTerms?> = runCatching {
     val survey = surveyRepository.activeSurvey ?: error("No active survey")
     val sharingTerms = survey.dataSharingTerms
-    if (sharingTerms == null || localValueStore.getDataSharingConsent(survey.id)) {
+    if (sharingTerms == null || surveyRepository.getDataSharingConsent(survey.id)) {
       // User previously agreed to the terms or data sharing terms are missing.
       return Result.success(null)
     }
@@ -41,5 +41,6 @@ constructor(
     return Result.success(sharingTerms)
   }
 
+  /** Thrown when a survey defines custom data sharing terms with blank text. */
   class InvalidCustomSharingTermsException : Exception()
 }

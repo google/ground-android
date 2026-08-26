@@ -18,6 +18,7 @@ package org.groundplatform.android.ui.map.gms.mog
 
 import android.graphics.Color
 import com.google.android.gms.maps.model.Tile
+import org.groundplatform.domain.model.imagery.MogTileMetadata
 
 /** Metadata and image data for a single tile. */
 class MogTile(val metadata: MogTileMetadata, val data: ByteArray) {

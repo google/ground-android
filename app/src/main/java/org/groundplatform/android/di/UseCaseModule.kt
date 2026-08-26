@@ -27,6 +27,7 @@ import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
 import org.groundplatform.domain.usecases.GetLoiReportUseCase
 import org.groundplatform.domain.usecases.submission.SubmitDataUseCase
+import org.groundplatform.domain.usecases.survey.GetDataSharingTermsUseCase
 import org.groundplatform.domain.usecases.survey.GetSurveyListItemUseCase
 import org.groundplatform.domain.usecases.survey.RemoveOfflineSurveyUseCase
 import org.groundplatform.domain.usecases.survey.SyncSurveyUseCase
@@ -90,4 +91,8 @@ object UseCaseModule {
     surveyRepository: SurveyRepositoryInterface,
     mapStateRepository: MapStateRepositoryInterface,
   ) = RemoveOfflineSurveyUseCase(surveyRepository, mapStateRepository)
+
+  @Provides
+  fun providesGetDataSharingTermsUseCase(surveyRepository: SurveyRepositoryInterface) =
+    GetDataSharingTermsUseCase(surveyRepository)
 }
