@@ -14,24 +14,22 @@
  * limitations under the License.
  */
 
-package org.groundplatform.android.usecases.survey
+package org.groundplatform.domain.usecases.survey
 
-import javax.inject.Inject
-import org.groundplatform.android.data.remote.RemoteDataStore
 import org.groundplatform.domain.model.Survey
-import org.groundplatform.domain.usecases.survey.SyncSurveyUseCase
+import org.groundplatform.domain.repository.SurveyRepositoryInterface
 
 /**
  * Makes the survey with the specified ID and related LOIs available offline. Subscribes to updates
- * from the remote server so that they may be re-fetched on change. Throws an error if the survey
- * cannot be retrieved, or `null` if not found in the remote db.
+ * from the remote server so that they may be re-fetched on change.
+ *
+ * Returns the [Survey] if found and synced, or `null` if not found in the remote db. Throws an
+ * error if the survey cannot be retrieved.
  */
-class MakeSurveyAvailableOfflineUseCase
-@Inject
-constructor(
-  private val remoteDataStore: RemoteDataStore,
+class MakeSurveyAvailableOfflineUseCase(
+  private val surveyRepository: SurveyRepositoryInterface,
   private val syncSurvey: SyncSurveyUseCase,
 ) {
   suspend operator fun invoke(surveyId: String): Survey? =
-    syncSurvey(surveyId)?.also { remoteDataStore.subscribeToSurveyUpdates(surveyId) }
+    syncSurvey(surveyId)?.also { surveyRepository.subscribeToSurveyUpdates(surveyId) }
 }

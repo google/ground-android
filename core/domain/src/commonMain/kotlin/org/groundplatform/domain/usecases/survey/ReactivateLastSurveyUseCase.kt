@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package org.groundplatform.android.usecases.survey
+package org.groundplatform.domain.usecases.survey
 
-import javax.inject.Inject
-import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
 
-/** Attempts to reactivate the last survey. If survey is already active, does nothing. */
-class ReactivateLastSurveyUseCase
-@Inject
-constructor(
+/**
+ * Attempts to reactivate the last survey. If a survey is already active, does nothing.
+ *
+ * Returns `true` if a survey is or was activated, `false` if there is no previous survey to
+ * reactivate.
+ */
+class ReactivateLastSurveyUseCase(
   private val activateSurvey: ActivateSurveyUseCase,
-  private val localValueStore: LocalValueStore,
   private val surveyRepository: SurveyRepositoryInterface,
 ) {
 
@@ -34,7 +34,7 @@ constructor(
       // Skip if there is an active survey.
       return true
     }
-    val lastActiveSurveyId = localValueStore.lastActiveSurveyId
+    val lastActiveSurveyId = surveyRepository.lastActiveSurveyId
     if (lastActiveSurveyId.isEmpty()) {
       // Nothing to be re-activated.
       return false

@@ -34,12 +34,12 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.withTimeout
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.system.GmsQrCodeScanner
-import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
-import org.groundplatform.android.usecases.survey.ListAvailableSurveysUseCase
 import org.groundplatform.android.util.SurveyDeepLinkParser
+import org.groundplatform.android.usecases.survey.ListAvailableSurveysUseCase
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.SurveyListItem
 import org.groundplatform.domain.repository.UserRepositoryInterface
+import org.groundplatform.domain.usecases.survey.ActivateSurveyUseCase
 import org.groundplatform.domain.usecases.survey.GetSurveyListItemUseCase
 import org.groundplatform.domain.usecases.survey.RemoveOfflineSurveyUseCase
 import org.junit.Before

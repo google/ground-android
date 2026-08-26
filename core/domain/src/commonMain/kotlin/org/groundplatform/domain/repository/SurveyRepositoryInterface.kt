@@ -27,6 +27,9 @@ interface SurveyRepositoryInterface {
   /** The currently active survey, or `null` if no survey is active. */
   val activeSurvey: Survey?
 
+  /** The ID of the last survey successfully activated by the user, or empty string if none. */
+  val lastActiveSurveyId: String
+
   suspend fun saveSurvey(survey: Survey)
 
   suspend fun getRemoteSurvey(surveyId: String): Survey?
@@ -43,6 +46,7 @@ interface SurveyRepositoryInterface {
 
   suspend fun clearActiveSurvey()
 
+  /** Returns true if the survey with [surveyId] is currently active. */
   fun isSurveyActive(surveyId: String): Boolean
 
   suspend fun subscribeToSurveyUpdates(surveyId: String)

@@ -19,7 +19,6 @@ import kotlin.collections.plus
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flowOf
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.SurveyListItem
 import org.groundplatform.domain.model.User
@@ -31,9 +30,23 @@ class FakeSurveyRepository : SurveyRepositoryInterface {
   override val activeSurvey: Survey?
     get() = _activeSurveyFlow.value
 
-  var offlineSurveys: List<Survey> = emptyList()
+  override var lastActiveSurveyId: String = ""
+
+  val offlineSurveysFlow = MutableStateFlow<List<Survey>>(emptyList())
+  var offlineSurveys: List<Survey>
+    get() = offlineSurveysFlow.value
+    set(value) {
+      offlineSurveysFlow.value = value
+    }
+
   var remoteSurveys: List<Survey> = emptyList()
-  var remoteListItems: List<SurveyListItem> = emptyList()
+
+  val remoteListItemsFlow = MutableStateFlow<List<SurveyListItem>>(emptyList())
+  var remoteListItems: List<SurveyListItem>
+    get() = remoteListItemsFlow.value
+    set(value) {
+      remoteListItemsFlow.value = value
+    }
 
   /** Ids of surveys currently subscribed to via [subscribeToSurveyUpdates]. */
   val subscribedSurveyIds = mutableSetOf<String>()
@@ -43,18 +56,18 @@ class FakeSurveyRepository : SurveyRepositoryInterface {
   private val dataSharingConsentMap = mutableMapOf<String, Boolean>()
 
   override suspend fun saveSurvey(survey: Survey) {
-    offlineSurveys = offlineSurveys + survey
+    offlineSurveys = offlineSurveys.filterNot { it.id == survey.id } + survey
   }
 
   override suspend fun getRemoteSurvey(surveyId: String): Survey? = onGetRemoteSurveyCall(surveyId)
 
-  override fun getRemoteSurveys(user: User): Flow<List<SurveyListItem>> = flowOf(remoteListItems)
+  override fun getRemoteSurveys(user: User): Flow<List<SurveyListItem>> = remoteListItemsFlow
 
   override suspend fun getOfflineSurvey(surveyId: String): Survey? = offlineSurveys.find {
     it.id == surveyId
   }
 
-  override fun getOfflineSurveys(): Flow<List<Survey>> = flowOf(offlineSurveys)
+  override fun getOfflineSurveys(): Flow<List<Survey>> = offlineSurveysFlow
 
   override suspend fun removeOfflineSurvey(surveyId: String) {
     offlineSurveys = offlineSurveys.filterNot { it.id == surveyId }
@@ -62,6 +75,7 @@ class FakeSurveyRepository : SurveyRepositoryInterface {
 
   override suspend fun activateSurvey(surveyId: String) {
     _activeSurveyFlow.value = offlineSurveys.find { it.id == surveyId }
+    lastActiveSurveyId = surveyId
   }
 
   override suspend fun clearActiveSurvey() {

@@ -27,8 +27,11 @@ import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
 import org.groundplatform.domain.usecases.GetLoiReportUseCase
 import org.groundplatform.domain.usecases.submission.SubmitDataUseCase
+import org.groundplatform.domain.usecases.survey.ActivateSurveyUseCase
 import org.groundplatform.domain.usecases.survey.GetDataSharingTermsUseCase
 import org.groundplatform.domain.usecases.survey.GetSurveyListItemUseCase
+import org.groundplatform.domain.usecases.survey.MakeSurveyAvailableOfflineUseCase
+import org.groundplatform.domain.usecases.survey.ReactivateLastSurveyUseCase
 import org.groundplatform.domain.usecases.survey.RemoveOfflineSurveyUseCase
 import org.groundplatform.domain.usecases.survey.SyncSurveyUseCase
 import org.groundplatform.domain.usecases.user.ClearUserSessionUseCase
@@ -95,4 +98,22 @@ object UseCaseModule {
   @Provides
   fun providesGetDataSharingTermsUseCase(surveyRepository: SurveyRepositoryInterface) =
     GetDataSharingTermsUseCase(surveyRepository)
+
+  @Provides
+  fun providesMakeSurveyAvailableOfflineUseCase(
+    surveyRepository: SurveyRepositoryInterface,
+    syncSurvey: SyncSurveyUseCase,
+  ) = MakeSurveyAvailableOfflineUseCase(surveyRepository, syncSurvey)
+
+  @Provides
+  fun providesActivateSurveyUseCase(
+    makeSurveyAvailableOffline: MakeSurveyAvailableOfflineUseCase,
+    surveyRepository: SurveyRepositoryInterface,
+  ) = ActivateSurveyUseCase(makeSurveyAvailableOffline, surveyRepository)
+
+  @Provides
+  fun providesReactivateLastSurveyUseCase(
+    activateSurvey: ActivateSurveyUseCase,
+    surveyRepository: SurveyRepositoryInterface,
+  ) = ReactivateLastSurveyUseCase(activateSurvey, surveyRepository)
 }
