@@ -132,4 +132,11 @@ constructor(
   override suspend fun unsubscribeFromSurveyUpdates(surveyId: String) {
     remoteDataStore.unsubscribeFromSurveyUpdates(surveyId)
   }
+
+  override fun getDataSharingConsent(surveyId: String): Boolean =
+    localValueStore.getDataSharingConsent(surveyId)
+
+  override fun setDataSharingConsent(surveyId: String, consent: Boolean) {
+    localValueStore.setDataSharingConsent(surveyId, consent)
+  }
 }
