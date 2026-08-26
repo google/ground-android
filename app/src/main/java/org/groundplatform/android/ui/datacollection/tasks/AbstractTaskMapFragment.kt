@@ -36,7 +36,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
-import org.groundplatform.android.common.Constants.ACCURACY_THRESHOLD_IN_M
 import org.groundplatform.android.databinding.MapTaskFragBinding
 import org.groundplatform.android.ui.common.AbstractMapContainerFragment
 import org.groundplatform.android.ui.common.BaseMapViewModel
@@ -52,6 +51,7 @@ import org.groundplatform.android.ui.map.gms.toCoordinates
 import org.groundplatform.android.util.setComposableContent
 import org.groundplatform.android.util.toDmsFormat
 import org.groundplatform.domain.model.map.CameraPosition
+import org.groundplatform.domain.util.Constants.ACCURACY_THRESHOLD_IN_M
 import org.jetbrains.annotations.MustBeInvokedByOverriders
 
 abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :

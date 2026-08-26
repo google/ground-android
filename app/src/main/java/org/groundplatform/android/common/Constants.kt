@@ -17,7 +17,6 @@ package org.groundplatform.android.common
 
 import android.content.Context
 import org.groundplatform.android.BuildConfig
-import org.groundplatform.domain.model.map.MapType
 
 /** Application constants. */
 object Constants {
@@ -35,16 +34,6 @@ object Constants {
   // Photos
   const val PHOTO_EXT = ".jpg"
 
-  // Map Settings
-  /** Default zoom level used when panning and zooming the map to a specific position. */
-  const val DEFAULT_LOI_ZOOM_LEVEL = 18.0f
-
-  /**
-   * Map zoom level threshold for cluster rendering. When the user is zoomed out at this level or
-   * lower, renders markers as clusters, otherwise, we render them as individual markers.
-   */
-  const val CLUSTERING_ZOOM_THRESHOLD = 14f
-
   /**
    * The path segment used in deep‑link URIs to identify the survey screen.
    *
@@ -52,15 +41,6 @@ object Constants {
    * to determine whether to navigate to the survey flow.
    */
   const val SURVEY_PATH_SEGMENT = "survey"
-
-  /** Limit on the permitted character length for free text question responses. */
-  const val TEXT_DATA_CHAR_LIMIT = 255
-
-  /** Default map type used when map is displayed. */
-  val DEFAULT_MAP_TYPE = MapType.TERRAIN
-
-  /** Accuracy threshold in meters. */
-  const val ACCURACY_THRESHOLD_IN_M = 15.0f
 
   // TODO: Move to a util class
   @JvmStatic fun isReleaseBuild(): Boolean = BuildConfig.BUILD_TYPE.contentEquals("release")

@@ -13,13 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.ui.common
+package org.groundplatform.domain.model.map
 
-import org.groundplatform.domain.model.map.MapType
-
-/** Configuration to apply on the rendered base map. */
+/**
+ * Configuration applied to a rendered base map.
+ *
+ * @property showOfflineImagery Whether to display offline imagery tiles on the map.
+ * @property overrideMapType Explicit map type to force, or `null` to follow user/system preference.
+ * @property allowGestures Whether user map gestures (panning, pinch-to-zoom) are enabled.
+ * @property allowRotateGestures Whether map rotation gestures are enabled.
+ */
 data class MapConfig(
-  val showOfflineImagery: Boolean,
+  val showOfflineImagery: Boolean = true,
   val overrideMapType: MapType? = null,
   val allowGestures: Boolean = true,
   val allowRotateGestures: Boolean = true,

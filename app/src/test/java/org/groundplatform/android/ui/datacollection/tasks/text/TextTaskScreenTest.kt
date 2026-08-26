@@ -25,7 +25,6 @@ import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import com.google.common.truth.Truth.assertThat
 import org.groundplatform.android.R
-import org.groundplatform.android.common.Constants
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.ButtonActionStateChecker
@@ -35,6 +34,7 @@ import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.submission.TextTaskData
 import org.groundplatform.domain.model.task.Task
+import org.groundplatform.domain.util.Constants
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

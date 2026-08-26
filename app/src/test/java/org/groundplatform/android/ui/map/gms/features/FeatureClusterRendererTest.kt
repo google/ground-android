@@ -22,8 +22,8 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.clustering.Cluster
 import com.google.maps.android.clustering.ClusterManager
 import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST_CLUSTER_ITEM
-import org.groundplatform.android.common.Constants.CLUSTERING_ZOOM_THRESHOLD
 import org.groundplatform.android.ui.IconFactory
+import org.groundplatform.domain.util.Constants.CLUSTERING_ZOOM_THRESHOLD
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
