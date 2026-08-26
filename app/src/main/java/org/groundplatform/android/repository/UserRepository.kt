@@ -22,7 +22,6 @@ import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.local.room.LocalDatabase
 import org.groundplatform.android.data.local.stores.LocalUserStore
 import org.groundplatform.android.data.remote.RemoteDataStore
-import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.auth.AuthenticationManager
 import org.groundplatform.domain.model.Role
 import org.groundplatform.domain.model.Survey
@@ -33,6 +32,7 @@ import org.groundplatform.domain.model.settings.MeasurementUnits
 import org.groundplatform.domain.model.settings.UserSettings
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
+import org.groundplatform.domain.system.NetworkManagerInterface
 import timber.log.Timber
 
 /**
@@ -46,7 +46,7 @@ constructor(
   private val authenticationManager: AuthenticationManager,
   private val localValueStore: LocalValueStore,
   private val localUserStore: LocalUserStore,
-  private val networkManager: NetworkManager,
+  private val networkManager: NetworkManagerInterface,
   private val surveyRepository: SurveyRepositoryInterface,
   private val remoteDataStore: RemoteDataStore,
   private val localDatabase: LocalDatabase,

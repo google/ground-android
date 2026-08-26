@@ -27,7 +27,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.system.LocationManager
-import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.system.SettingsManager
 import org.groundplatform.android.ui.offlineareas.selector.model.OfflineAreaSelectorEvent
@@ -39,6 +38,8 @@ import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterfac
 import org.groundplatform.domain.repository.MapStateRepositoryInterface
 import org.groundplatform.domain.repository.OfflineAreaRepositoryInterface
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
+import org.groundplatform.domain.system.NetworkStatus
+import org.groundplatform.testing.FakeNetworkManager
 import org.groundplatform.ui.util.toMbString
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -61,7 +62,7 @@ class OfflineAreaSelectorViewModelTest : BaseHiltTest() {
   @Mock private lateinit var settingsManager: SettingsManager
   @Mock private lateinit var permissionsManager: PermissionsManager
   @Mock private lateinit var locationOfInterestRepository: LocationOfInterestRepositoryInterface
-  @Mock private lateinit var networkManager: NetworkManager
+  private val networkManager = FakeNetworkManager()
 
   private lateinit var viewModel: OfflineAreaSelectorViewModel
 
@@ -340,7 +341,9 @@ class OfflineAreaSelectorViewModelTest : BaseHiltTest() {
   ) {
     whenever(offlineAreaRepository.hasHiResImagery(any())).thenReturn(hasHiResImagery)
     whenever(offlineAreaRepository.estimateSizeOnDisk(any())).thenReturn(estimatedSizeOnDisk)
-    whenever(networkManager.isNetworkConnected()).thenReturn(isNetworkConnected)
+    networkManager.setNetworkStatus(
+      if (isNetworkConnected) NetworkStatus.AVAILABLE else NetworkStatus.UNAVAILABLE
+    )
     whenever(offlineAreaRepository.downloadTiles(any())).thenReturn(downloadProgressFlow)
   }
 
