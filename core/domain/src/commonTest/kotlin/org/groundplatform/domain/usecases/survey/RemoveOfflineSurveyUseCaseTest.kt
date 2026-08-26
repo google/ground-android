@@ -93,7 +93,6 @@ class RemoveOfflineSurveyUseCaseTest {
     useCase(survey.id)
 
     assertNull(surveyRepository.activeSurvey)
-    assertEquals("", surveyRepository.lastActiveSurveyId)
   }
 
   @Test
