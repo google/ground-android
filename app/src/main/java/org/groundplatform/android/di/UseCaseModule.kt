@@ -25,11 +25,13 @@ import org.groundplatform.domain.repository.OfflineAreaRepositoryInterface
 import org.groundplatform.domain.repository.SubmissionRepositoryInterface
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
+import org.groundplatform.domain.system.NetworkManagerInterface
 import org.groundplatform.domain.usecases.GetLoiReportUseCase
 import org.groundplatform.domain.usecases.submission.SubmitDataUseCase
 import org.groundplatform.domain.usecases.survey.ActivateSurveyUseCase
 import org.groundplatform.domain.usecases.survey.GetDataSharingTermsUseCase
 import org.groundplatform.domain.usecases.survey.GetSurveyListItemUseCase
+import org.groundplatform.domain.usecases.survey.ListAvailableSurveysUseCase
 import org.groundplatform.domain.usecases.survey.MakeSurveyAvailableOfflineUseCase
 import org.groundplatform.domain.usecases.survey.ReactivateLastSurveyUseCase
 import org.groundplatform.domain.usecases.survey.RemoveOfflineSurveyUseCase
@@ -116,4 +118,11 @@ object UseCaseModule {
     activateSurvey: ActivateSurveyUseCase,
     surveyRepository: SurveyRepositoryInterface,
   ) = ReactivateLastSurveyUseCase(activateSurvey, surveyRepository)
+
+  @Provides
+  fun providesListAvailableSurveysUseCase(
+    networkManager: NetworkManagerInterface,
+    surveyRepository: SurveyRepositoryInterface,
+    userRepository: UserRepositoryInterface,
+  ) = ListAvailableSurveysUseCase(networkManager, surveyRepository, userRepository)
 }
