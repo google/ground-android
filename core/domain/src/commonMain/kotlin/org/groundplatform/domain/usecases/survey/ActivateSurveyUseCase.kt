@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-package org.groundplatform.android.usecases.survey
+package org.groundplatform.domain.usecases.survey
 
-import javax.inject.Inject
-import org.groundplatform.android.data.sync.SurveySyncWorker
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
 
 /**
@@ -25,19 +23,15 @@ import org.groundplatform.domain.repository.SurveyRepositoryInterface
  *
  * First attempts to load the survey from the local db. If not present, fetches from remote and
  * activates offline sync. Throws an error if the survey isn't found or cannot be made available
- * offline. Activating a survey which is already available offline doesn't force a re-sync, since
- * this is handled by [SurveySyncWorker].
+ * offline. Activating a survey which is already available offline doesn't force a re-sync.
+ *
+ * Returns `true` if the survey was successfully activated or was already active, otherwise `false`.
  */
-class ActivateSurveyUseCase
-@Inject
-constructor(
+class ActivateSurveyUseCase(
   private val makeSurveyAvailableOffline: MakeSurveyAvailableOfflineUseCase,
   private val surveyRepository: SurveyRepositoryInterface,
 ) {
 
-  /**
-   * @return `true` if the survey was successfully activated or was already active, otherwise false.
-   */
   suspend operator fun invoke(surveyId: String): Boolean {
     if (surveyRepository.isSurveyActive(surveyId)) {
       // Do nothing if survey is already active.

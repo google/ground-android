@@ -13,27 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.usecases.survey
+package org.groundplatform.domain.usecases.survey
 
-import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import org.groundplatform.android.system.NetworkManager
-import org.groundplatform.android.system.NetworkStatus
 import org.groundplatform.domain.model.SurveyListItem
 import org.groundplatform.domain.model.toListItem
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
+import org.groundplatform.domain.system.NetworkManagerInterface
+import org.groundplatform.domain.system.NetworkStatus
 
-/** Returns a flow of [SurveyListItem] to be displayed to the user. */
+/**
+ * Returns a flow of [SurveyListItem]s available to the current user.
+ *
+ * When network connectivity is available, lists remote surveys merged with local offline
+ * availability status. When offline, lists only local surveys available on the device.
+ */
 @OptIn(ExperimentalCoroutinesApi::class)
-class ListAvailableSurveysUseCase
-@Inject
-constructor(
-  private val networkManager: NetworkManager,
+class ListAvailableSurveysUseCase(
+  private val networkManager: NetworkManagerInterface,
   private val surveyRepository: SurveyRepositoryInterface,
   private val userRepository: UserRepositoryInterface,
 ) {
@@ -57,16 +59,15 @@ constructor(
     val remoteSurveyFlow = surveyRepository.getRemoteSurveys(user)
 
     return combine(remoteSurveyFlow, getLocalSurveyList()) { remoteSurveys, localSurveys ->
+      val localSurveyIds = localSurveys.map { it.id }.toSet()
+      val remoteSurveyIds = remoteSurveys.map { it.id }.toSet()
+
       val remoteSurveysWithOfflineStatus = remoteSurveys.map { remoteSurvey ->
-        addOfflineStatus(remoteSurvey, localSurveys)
+        remoteSurvey.copy(availableOffline = remoteSurvey.id in localSurveyIds)
       }
-      val localOnlySurveys = localSurveys.filter { local ->
-        remoteSurveys.none { it.id == local.id }
-      }
+      val localOnlySurveys = localSurveys.filter { it.id !in remoteSurveyIds }
+
       remoteSurveysWithOfflineStatus + localOnlySurveys
     }
   }
-
-  private fun addOfflineStatus(remoteSurvey: SurveyListItem, localSurveys: List<SurveyListItem>) =
-    remoteSurvey.copy(availableOffline = localSurveys.any { it.id == remoteSurvey.id })
 }

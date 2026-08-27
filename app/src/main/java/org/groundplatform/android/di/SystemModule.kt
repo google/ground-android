@@ -17,12 +17,15 @@ package org.groundplatform.android.di
 
 import android.content.Context
 import android.location.Geocoder
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
+import org.groundplatform.android.system.NetworkManager
+import org.groundplatform.domain.system.NetworkManagerInterface
 
 @InstallIn(SingletonComponent::class)
 @Module
@@ -33,4 +36,12 @@ object SystemModule {
   fun provideGeocoder(@ApplicationContext context: Context): Geocoder {
     return Geocoder(context)
   }
+}
+
+@InstallIn(SingletonComponent::class)
+@Module
+abstract class NetworkManagerModule {
+  @Binds
+  @Singleton
+  abstract fun bindNetworkManager(networkManager: NetworkManager): NetworkManagerInterface
 }

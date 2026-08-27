@@ -46,7 +46,6 @@ import org.groundplatform.android.getString
 import org.groundplatform.android.testrules.FragmentScenarioRule
 import org.groundplatform.android.ui.datacollection.tasks.point.DropPinTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.polygon.DrawAreaTaskViewModel
-import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.Point
@@ -67,6 +66,7 @@ import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterfac
 import org.groundplatform.domain.repository.MutationRepositoryInterface
 import org.groundplatform.domain.repository.SubmissionRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
+import org.groundplatform.domain.usecases.survey.ActivateSurveyUseCase
 import org.groundplatform.feature.pdf.LoiReportExporter
 import org.groundplatform.testing.FakeDataGenerator
 import org.groundplatform.ui.components.loireport.LoiReportAction
