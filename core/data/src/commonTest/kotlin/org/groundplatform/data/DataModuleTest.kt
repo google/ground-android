@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Google LLC
+ * Copyright 2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,14 @@
  * limitations under the License.
  */
 
-pluginManagement {
-    repositories {
-        gradlePluginPortal()
-        google()
-        mavenCentral()
-    }
-}
+package org.groundplatform.data
 
-plugins {
-    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
-}
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
-include ':app', ':e2eTest'
-include ':core:ui'
-include ':core:domain'
-include ':core:data'
-include ':core:testing'
-include ':feature:pdf'
+class DataModuleTest {
+  @Test
+  fun moduleName_isCorrect() {
+    assertEquals("core:data", DataModule.MODULE_NAME)
+  }
+}
