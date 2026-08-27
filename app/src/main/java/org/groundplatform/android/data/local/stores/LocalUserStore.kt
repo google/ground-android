@@ -15,7 +15,6 @@
  */
 package org.groundplatform.android.data.local.stores
 
-import org.groundplatform.android.data.local.room.LocalDataStoreException
 import org.groundplatform.domain.model.User
 
 /** Provides access to [User] data in local storage. */

@@ -126,9 +126,11 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
 
   override suspend fun findByLocationOfInterestId(
     id: String,
-    vararg states: MutationEntitySyncStatus,
-  ): List<LocationOfInterestMutationEntity> =
-    locationOfInterestMutationDao.getMutations(id, *states)
+    vararg states: Mutation.SyncStatus,
+  ): List<LocationOfInterestMutation> =
+    locationOfInterestMutationDao
+      .getMutations(id, states.map { MutationEntitySyncStatus.fromMutationSyncStatus(it) })
+      .map { it.toModelObject() }
 
   override suspend fun insertOrUpdate(loi: LocationOfInterest) {
     require(!loi.geometry.isEmpty()) { "Cannot save LOI with empty geometry" }

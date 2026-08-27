@@ -32,7 +32,6 @@ import org.groundplatform.android.data.local.room.converter.toLocalDataStoreObje
 import org.groundplatform.android.data.local.room.dao.LocationOfInterestDao
 import org.groundplatform.android.data.local.room.dao.MAX_SQL_VARIABLES
 import org.groundplatform.android.data.local.room.fields.EntityDeletionState
-import org.groundplatform.android.data.local.room.fields.MutationEntitySyncStatus
 import org.groundplatform.android.data.local.room.stores.RoomLocationOfInterestStore
 import org.groundplatform.android.data.local.stores.LocalLocationOfInterestStore
 import org.groundplatform.android.data.local.stores.LocalSubmissionStore
@@ -376,14 +375,14 @@ class LocalLocationOfInterestStoreTest : BaseHiltTest() {
       assertThat(
           localLoiStore.findByLocationOfInterestId(
             FakeData.LOI_ID,
-            MutationEntitySyncStatus.PENDING,
+            Mutation.SyncStatus.PENDING,
           )
         )
         .hasSize(1)
       assertThat(
           localSubmissionStore.findByLocationOfInterestId(
             FakeData.LOI_ID,
-            MutationEntitySyncStatus.PENDING,
+            Mutation.SyncStatus.PENDING,
           )
         )
         .hasSize(1)

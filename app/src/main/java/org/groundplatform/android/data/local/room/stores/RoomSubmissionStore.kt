@@ -198,12 +198,14 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
   override fun getSubmissionMutationsByLoiIdFlow(
     survey: Survey,
     locationOfInterestId: String,
-    vararg allowedStates: MutationEntitySyncStatus,
+    vararg allowedStates: Mutation.SyncStatus,
   ): Flow<List<SubmissionMutation>> =
-    submissionMutationDao.findByLoiIdFlow(locationOfInterestId, *allowedStates).map {
-      list: List<SubmissionMutationEntity> ->
-      list.map { it.toModelObject(survey) }
-    }
+    submissionMutationDao
+      .findByLoiIdFlow(
+        locationOfInterestId,
+        allowedStates.map { MutationEntitySyncStatus.fromMutationSyncStatus(it) },
+      )
+      .map { list: List<SubmissionMutationEntity> -> list.map { it.toModelObject(survey) } }
 
   override suspend fun applyAndEnqueue(mutation: SubmissionMutation) {
     try {
@@ -239,9 +241,14 @@ class RoomSubmissionStore @Inject internal constructor() : LocalSubmissionStore 
 
   override suspend fun findByLocationOfInterestId(
     loidId: String,
-    vararg states: MutationEntitySyncStatus,
-  ): List<SubmissionMutationEntity> =
-    submissionMutationDao.findByLocationOfInterestId(loidId, *states)
+    vararg states: Mutation.SyncStatus,
+  ): List<SubmissionMutation> =
+    submissionMutationDao
+      .findByLocationOfInterestId(
+        loidId,
+        states.map { MutationEntitySyncStatus.fromMutationSyncStatus(it) },
+      )
+      .mapNotNull { convertMutation(it) }
 
   override suspend fun getPendingCreateCount(loiId: String): Int =
     submissionMutationDao.getSubmissionMutationCount(

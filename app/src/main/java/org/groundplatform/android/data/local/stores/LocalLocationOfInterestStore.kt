@@ -16,11 +16,10 @@
 package org.groundplatform.android.data.local.stores
 
 import kotlinx.coroutines.flow.Flow
-import org.groundplatform.android.data.local.room.entity.LocationOfInterestMutationEntity
-import org.groundplatform.android.data.local.room.fields.MutationEntitySyncStatus
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
 import org.groundplatform.domain.model.mutation.LocationOfInterestMutation
+import org.groundplatform.domain.model.mutation.Mutation.SyncStatus
 
 interface LocalLocationOfInterestStore :
   LocalMutationStore<LocationOfInterestMutation, LocationOfInterest> {
@@ -57,8 +56,8 @@ interface LocalLocationOfInterestStore :
 
   suspend fun findByLocationOfInterestId(
     id: String,
-    vararg states: MutationEntitySyncStatus,
-  ): List<LocationOfInterestMutationEntity>
+    vararg states: SyncStatus,
+  ): List<LocationOfInterestMutation>
 
   suspend fun insertOrUpdate(loi: LocationOfInterest)
 

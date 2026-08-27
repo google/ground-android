@@ -16,10 +16,9 @@
 package org.groundplatform.android.data.local.stores
 
 import kotlinx.coroutines.flow.Flow
-import org.groundplatform.android.data.local.room.entity.SubmissionMutationEntity
-import org.groundplatform.android.data.local.room.fields.MutationEntitySyncStatus
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
+import org.groundplatform.domain.model.mutation.Mutation.SyncStatus
 import org.groundplatform.domain.model.mutation.SubmissionMutation
 import org.groundplatform.domain.model.submission.DraftSubmission
 import org.groundplatform.domain.model.submission.Submission
@@ -50,7 +49,7 @@ interface LocalSubmissionStore : LocalMutationStore<SubmissionMutation, Submissi
   fun getSubmissionMutationsByLoiIdFlow(
     survey: Survey,
     locationOfInterestId: String,
-    vararg allowedStates: MutationEntitySyncStatus,
+    vararg allowedStates: SyncStatus,
   ): Flow<List<SubmissionMutation>>
 
   /**
@@ -63,8 +62,8 @@ interface LocalSubmissionStore : LocalMutationStore<SubmissionMutation, Submissi
 
   suspend fun findByLocationOfInterestId(
     loidId: String,
-    vararg states: MutationEntitySyncStatus,
-  ): List<SubmissionMutationEntity>
+    vararg states: SyncStatus,
+  ): List<SubmissionMutation>
 
   suspend fun getPendingCreateCount(loiId: String): Int
 

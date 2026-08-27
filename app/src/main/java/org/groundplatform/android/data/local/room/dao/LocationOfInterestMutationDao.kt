@@ -37,6 +37,6 @@ interface LocationOfInterestMutationDao : BaseDao<LocationOfInterestMutationEnti
   )
   suspend fun getMutations(
     locationOfInterestId: String,
-    vararg allowedStates: MutationEntitySyncStatus,
+    allowedStates: List<MutationEntitySyncStatus>,
   ): List<LocationOfInterestMutationEntity>
 }

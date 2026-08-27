@@ -26,7 +26,6 @@ import org.groundplatform.android.FakeData.FAKE_GENERAL_ACCESS
 import org.groundplatform.android.data.local.room.LocalDataStoreException
 import org.groundplatform.android.data.local.room.dao.SubmissionDao
 import org.groundplatform.android.data.local.room.fields.EntityDeletionState
-import org.groundplatform.android.data.local.room.fields.MutationEntitySyncStatus
 import org.groundplatform.android.data.local.stores.LocalLocationOfInterestStore
 import org.groundplatform.android.data.local.stores.LocalSubmissionStore
 import org.groundplatform.android.data.local.stores.LocalSurveyStore
@@ -75,7 +74,7 @@ class LocalSubmissionStoreTest : BaseHiltTest() {
       .getSubmissionMutationsByLoiIdFlow(
         TEST_SURVEY,
         TEST_LOI_MUTATION.locationOfInterestId,
-        MutationEntitySyncStatus.PENDING,
+        Mutation.SyncStatus.PENDING,
       )
       .test { assertThat(expectMostRecentItem()).isEqualTo(listOf(TEST_SUBMISSION_MUTATION)) }
     val loi = localLoiStore.getLocationOfInterest(TEST_SURVEY, FakeData.LOI_ID)!!
@@ -100,7 +99,7 @@ class LocalSubmissionStoreTest : BaseHiltTest() {
       .getSubmissionMutationsByLoiIdFlow(
         TEST_SURVEY,
         TEST_LOI_MUTATION.locationOfInterestId,
-        MutationEntitySyncStatus.PENDING,
+        Mutation.SyncStatus.PENDING,
       )
       .test {
         assertThat(expectMostRecentItem()).isEqualTo(listOf(TEST_SUBMISSION_MUTATION, mutation))
