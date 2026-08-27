@@ -28,6 +28,7 @@ import org.groundplatform.domain.model.imagery.MogCollection
 import org.groundplatform.domain.model.imagery.MogImageMetadata
 import org.groundplatform.domain.model.imagery.MogMetadata
 import org.groundplatform.domain.model.imagery.MogSource
+import org.groundplatform.domain.model.imagery.MogTile
 import org.groundplatform.domain.model.imagery.MogTileMetadata
 import org.groundplatform.domain.model.imagery.MogTilesRequest
 import org.groundplatform.domain.model.imagery.TileCoordinates

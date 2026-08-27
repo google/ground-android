@@ -22,7 +22,6 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.cancellable
 import kotlinx.coroutines.flow.flow
 import org.groundplatform.domain.model.imagery.MogTilesRequest
-import org.groundplatform.domain.model.imagery.TileCoordinates
 import timber.log.Timber
 
 /**
@@ -51,5 +50,3 @@ class MogTileDownloader(private val client: MogClient, private val outputBasePat
   }
     .cancellable()
 }
-
-fun TileCoordinates.getTilePath() = "$zoom/$x/$y.jpg"

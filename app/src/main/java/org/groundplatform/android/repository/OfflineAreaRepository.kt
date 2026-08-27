@@ -30,7 +30,6 @@ import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.android.system.GeocodingManager
 import org.groundplatform.android.ui.map.gms.mog.MogClient
 import org.groundplatform.android.ui.map.gms.mog.MogTileDownloader
-import org.groundplatform.android.ui.map.gms.mog.getTilePath
 import org.groundplatform.android.util.deleteIfEmpty
 import org.groundplatform.android.util.rangeOf
 import org.groundplatform.domain.model.imagery.LocalTileSource

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,28 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.ui.map.gms.mog
 
-import com.google.common.truth.Truth.assertThat
-import org.groundplatform.domain.model.imagery.MogTileMetadata
-import org.groundplatform.domain.model.imagery.TileCoordinates
-import org.junit.Test
+package org.groundplatform.domain.model.imagery
+
+import kotlin.test.Test
+import kotlin.test.assertTrue
 
 class MogTileTest {
 
   @Test
-  fun `toGmsTile() returns valid tile`() {
+  fun `buildJfifFile() returns valid JFIF bytes`() {
     val mogTile = MogTile(MOG_TILE_METADATA, byteArrayOf(0, 1, 2, 3, 4))
-    val gmsTile = mogTile.toGmsTile()
-    assertThat(gmsTile.width).isEqualTo(WIDTH)
-    assertThat(gmsTile.height).isEqualTo(HEIGHT)
-    assertThat(gmsTile.data).isEqualTo(EXPECTED_DATA)
-  }
-
-  @Test
-  fun `getProcessedImageData() returns valid JPEG data`() {
-    val mogTile = MogTile(MOG_TILE_METADATA, byteArrayOf(0, 1, 2, 3, 4))
-    assertThat(mogTile.getProcessedImageData()).isEqualTo(EXPECTED_DATA)
+    assertTrue(mogTile.buildJfifFile().contentEquals(EXPECTED_DATA))
   }
 
   companion object {

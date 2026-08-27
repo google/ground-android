@@ -27,7 +27,6 @@ import org.groundplatform.android.data.local.stores.LocalOfflineAreaStore
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.android.system.GeocodingManager
 import org.groundplatform.android.ui.map.gms.mog.MogClient
-import org.groundplatform.android.ui.map.gms.mog.getTilePath
 import org.groundplatform.domain.model.imagery.LocalTileSource
 import org.groundplatform.domain.model.imagery.MogCollection
 import org.groundplatform.domain.model.imagery.MogSource
