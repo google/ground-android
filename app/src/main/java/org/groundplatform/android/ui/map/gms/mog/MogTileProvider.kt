@@ -32,6 +32,10 @@ class MogTileProvider(
   private val coroutineDispatcher: CoroutineDispatcher,
 ) : TileProvider {
 
+  /** The maximum zoom level supported by the underlying MOG collection. */
+  val maxZoom: Int
+    get() = client.collection.maxZoom
+
   override fun getTile(x: Int, y: Int, zoom: Int): Tile? =
     runBlocking(coroutineDispatcher) {
       val tileCoordinates = TileCoordinates(x, y, zoom)

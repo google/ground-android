@@ -48,7 +48,6 @@ import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.MapFragment
 import org.groundplatform.android.ui.map.gms.features.FeatureManager
-import org.groundplatform.android.ui.map.gms.mog.MogSourceProvider.DEFAULT_MOG_MAX_ZOOM
 import org.groundplatform.android.ui.map.gms.mog.MogTileProvider
 import org.groundplatform.android.util.invert
 import org.groundplatform.android.util.systemInsets
@@ -289,7 +288,7 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   }
 
   private fun addRemoteMogTileOverlay() {
-    val tileProvider = CachingUpscalingTileProvider(mogTileProvider, DEFAULT_MOG_MAX_ZOOM)
+    val tileProvider = CachingUpscalingTileProvider(mogTileProvider, mogTileProvider.maxZoom)
     addTileOverlay(tileProvider)
   }
 

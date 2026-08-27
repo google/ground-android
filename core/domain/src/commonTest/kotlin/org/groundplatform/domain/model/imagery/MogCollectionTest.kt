@@ -55,4 +55,19 @@ class MogCollectionTest {
     val mogSource = mogCollection.getMogSource(15)
     assertNull(mogSource)
   }
+
+  @Test
+  fun `minZoom returns minimum zoom across all sources`() {
+    assertEquals(0, mogCollection.minZoom)
+  }
+
+  @Test
+  fun `maxZoom returns maximum zoom across all sources`() {
+    assertEquals(14, mogCollection.maxZoom)
+  }
+
+  @Test
+  fun `zoomRange returns full zoom range across all sources`() {
+    assertEquals(0..14, mogCollection.zoomRange)
+  }
 }

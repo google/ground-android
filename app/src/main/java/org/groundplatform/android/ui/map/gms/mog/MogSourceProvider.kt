@@ -28,7 +28,7 @@ import org.groundplatform.domain.model.imagery.MogSource
 object MogSourceProvider {
 
   private const val DEFAULT_MOG_MIN_ZOOM = 8
-  const val DEFAULT_MOG_MAX_ZOOM = 14
+  private const val DEFAULT_MOG_MAX_ZOOM = 14
 
   // TODO: Make sub-paths configurable and stop hardcoding here.
   // Issue URL: https://github.com/google/ground-android/issues/1730
