@@ -25,14 +25,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.test.runTest
 import org.groundplatform.data.DataStoreException
-import org.groundplatform.data.stores.LocalValueStore
+import org.groundplatform.data.FakeLocalValueStore
 import org.groundplatform.data.stores.RemoteDataStore
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.SurveyListItem
 import org.groundplatform.domain.model.TermsOfService
 import org.groundplatform.domain.model.User
 import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
-import org.groundplatform.domain.model.map.CameraPosition
 import org.groundplatform.domain.model.mutation.Mutation
 import org.groundplatform.domain.system.NetworkStatus
 import org.groundplatform.testing.FakeNetworkManager
@@ -40,7 +39,7 @@ import org.groundplatform.testing.FakeNetworkManager
 class TermsOfServiceRepositoryTest {
   private val fakeNetworkManager = FakeNetworkManager(NetworkStatus.AVAILABLE)
   private val fakeRemoteDataStore = TestRemoteDataStore()
-  private val fakeLocalValueStore = TestLocalValueStore()
+  private val fakeLocalValueStore = FakeLocalValueStore()
   private val repository =
     TermsOfServiceRepository(fakeNetworkManager, fakeRemoteDataStore, fakeLocalValueStore)
 
@@ -108,32 +107,5 @@ class TermsOfServiceRepositoryTest {
     override suspend fun unsubscribeFromSurveyUpdates(surveyId: String) = Unit
 
     override suspend fun refreshUserProfile() = Unit
-  }
-
-  private class TestLocalValueStore : LocalValueStore {
-    override var lastActiveSurveyId: String = ""
-    override var mapType: Int = 0
-    override var isLocationLockEnabled: Boolean = false
-    override var isTermsOfServiceAccepted: Boolean = false
-    override var isOfflineImageryEnabled: Boolean = true
-    override var drawAreaInstructionsShown: Boolean = false
-    override var dropPinInstructionsShown: Boolean = false
-    override var draftSubmissionId: String? = null
-    override var selectedLanguage: String = "en"
-    override var selectedLengthUnit: String = "m"
-    override var shouldUploadMediaOverUnmeteredConnectionOnly: Boolean = false
-    override var isDeferredDeeplinkConsumed: Boolean = false
-
-    override fun clear() = Unit
-
-    override fun clearLastCameraPosition(surveyId: String) = Unit
-
-    override fun setLastCameraPosition(surveyId: String, cameraPosition: CameraPosition) = Unit
-
-    override fun getLastCameraPosition(surveyId: String): CameraPosition? = null
-
-    override fun setDataSharingConsent(surveyId: String, consent: Boolean) = Unit
-
-    override fun getDataSharingConsent(surveyId: String): Boolean = false
   }
 }

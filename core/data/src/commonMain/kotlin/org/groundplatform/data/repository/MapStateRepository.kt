@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.repository
+package org.groundplatform.data.repository
 
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,8 +24,7 @@ import org.groundplatform.domain.model.map.CameraPosition
 import org.groundplatform.domain.model.map.MapType
 import org.groundplatform.domain.repository.MapStateRepositoryInterface
 
-@Singleton
-class MapStateRepository @Inject constructor(private val localValueStore: LocalValueStore) :
+class MapStateRepository(private val localValueStore: LocalValueStore) :
   MapStateRepositoryInterface {
 
   private val _mapType = MutableStateFlow(mapType)

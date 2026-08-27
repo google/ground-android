@@ -22,13 +22,13 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import jakarta.inject.Singleton
 import org.groundplatform.android.repository.LocationOfInterestRepository
-import org.groundplatform.android.repository.MapStateRepository
 import org.groundplatform.android.repository.MutationRepository
 import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.android.repository.SubmissionRepository
 import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.repository.UserMediaRepository
 import org.groundplatform.android.repository.UserRepository
+import org.groundplatform.data.repository.MapStateRepository
 import org.groundplatform.data.repository.TermsOfServiceRepository
 import org.groundplatform.data.stores.LocalValueStore
 import org.groundplatform.data.stores.RemoteDataStore
@@ -77,10 +77,11 @@ abstract class SubmissionRepositoryModule {
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class MapStateRepositoryModule {
-  @Binds
+object MapStateRepositoryModule {
+  @Provides
   @Singleton
-  abstract fun bindMapStateRepository(impl: MapStateRepository): MapStateRepositoryInterface
+  fun provideMapStateRepository(localValueStore: LocalValueStore): MapStateRepositoryInterface =
+    MapStateRepository(localValueStore)
 }
 
 @Module
