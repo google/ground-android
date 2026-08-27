@@ -28,12 +28,12 @@ class MogTile(val metadata: MogTileMetadata, val data: ByteArray) {
       .dropLast(2) // Drop trailing EOI.
       .toByteArray()
 
-  fun toGmsTile(): Tile {
+  fun toGmsTile(): Tile = Tile(metadata.width, metadata.height, getProcessedImageData())
+
+  fun getProcessedImageData(): ByteArray {
     val noData = metadata.noDataValue
-    val imageData =
-      if (noData == null) buildJfifFile()
-      else maskNoDataValues(buildJfifFile(), Color.rgb(noData, noData, noData))
-    return Tile(metadata.width, metadata.height, imageData)
+    return if (noData == null) buildJfifFile()
+    else maskNoDataValues(buildJfifFile(), Color.rgb(noData, noData, noData))
   }
 
   private fun maskNoDataValues(jfifData: ByteArray, noDataColor: Int): ByteArray =

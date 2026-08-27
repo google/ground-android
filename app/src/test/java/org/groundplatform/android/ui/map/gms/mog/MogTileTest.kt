@@ -31,6 +31,12 @@ class MogTileTest {
     assertThat(gmsTile.data).isEqualTo(EXPECTED_DATA)
   }
 
+  @Test
+  fun `getProcessedImageData() returns valid JPEG data`() {
+    val mogTile = MogTile(MOG_TILE_METADATA, byteArrayOf(0, 1, 2, 3, 4))
+    assertThat(mogTile.getProcessedImageData()).isEqualTo(EXPECTED_DATA)
+  }
+
   companion object {
     private const val WIDTH = 100
     private const val HEIGHT = 200

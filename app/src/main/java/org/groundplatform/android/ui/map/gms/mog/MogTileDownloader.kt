@@ -43,8 +43,7 @@ class MogTileDownloader(private val client: MogClient, private val outputBasePat
       currentCoroutineContext().ensureActive()
       val outFile = File(outputBasePath, tile.metadata.tileCoordinates.getTilePath())
       outFile.parentFile?.mkdirs()
-      val gmsTile = tile.toGmsTile()
-      val data = gmsTile.data!!
+      val data = tile.getProcessedImageData()
       outFile.writeBytes(data)
       Timber.d("Saved ${data.size} bytes to ${outFile.path}")
       emit(data.size)
