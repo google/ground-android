@@ -21,15 +21,18 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import jakarta.inject.Singleton
+import kotlinx.coroutines.CoroutineScope
+import org.groundplatform.android.di.coroutines.ApplicationScope
 import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.MutationRepository
 import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.android.repository.SubmissionRepository
-import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.repository.UserMediaRepository
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.data.repository.MapStateRepository
+import org.groundplatform.data.repository.SurveyRepository
 import org.groundplatform.data.repository.TermsOfServiceRepository
+import org.groundplatform.data.stores.LocalSurveyStore
 import org.groundplatform.data.stores.LocalValueStore
 import org.groundplatform.data.stores.RemoteDataStore
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
@@ -41,6 +44,7 @@ import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.repository.TermsOfServiceRepositoryInterface
 import org.groundplatform.domain.repository.UserMediaRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
+import org.groundplatform.domain.system.CrashLogger
 import org.groundplatform.domain.system.NetworkManagerInterface
 
 @Module
@@ -61,10 +65,17 @@ abstract class UserRepositoryModule {
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class SurveyRepositoryModule {
-  @Binds
+object SurveyRepositoryModule {
+  @Provides
   @Singleton
-  abstract fun bindSurveyRepository(impl: SurveyRepository): SurveyRepositoryInterface
+  fun provideSurveyRepository(
+    @ApplicationScope externalScope: CoroutineScope,
+    crashLogger: CrashLogger,
+    localSurveyStore: LocalSurveyStore,
+    localValueStore: LocalValueStore,
+    remoteDataStore: RemoteDataStore,
+  ): SurveyRepositoryInterface =
+    SurveyRepository(externalScope, crashLogger, localSurveyStore, localValueStore, remoteDataStore)
 }
 
 @Module

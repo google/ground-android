@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.repository
+package org.groundplatform.data.repository
 
-import javax.inject.Inject
-import javax.inject.Singleton
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.TimeoutCancellationException
@@ -31,8 +30,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withTimeout
-import org.groundplatform.android.FirebaseCrashLogger
-import org.groundplatform.android.di.coroutines.ApplicationScope
 import org.groundplatform.data.stores.LocalSurveyStore
 import org.groundplatform.data.stores.LocalValueStore
 import org.groundplatform.data.stores.RemoteDataStore
@@ -40,18 +37,15 @@ import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.SurveyListItem
 import org.groundplatform.domain.model.User
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
-import timber.log.Timber
+import org.groundplatform.domain.system.CrashLogger
 
 private const val ACTIVATE_SURVEY_TIMEOUT_MILLS: Long = 3 * 1000
 private const val LOAD_REMOTE_SURVEY_TIMEOUT_MILLS: Long = 30 * 1000
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@Singleton
-class SurveyRepository
-@Inject
-constructor(
-  @ApplicationScope private val externalScope: CoroutineScope,
-  private val firebaseCrashLogger: FirebaseCrashLogger,
+class SurveyRepository(
+  private val externalScope: CoroutineScope,
+  private val crashLogger: CrashLogger,
   private val localSurveyStore: LocalSurveyStore,
   private val localValueStore: LocalValueStore,
   private val remoteDataStore: RemoteDataStore,
@@ -112,11 +106,11 @@ constructor(
         }
       }
     } catch (e: TimeoutCancellationException) {
-      Timber.e(e, "Failed to get survey due to timeout")
+      Logger.e("Failed to get survey due to timeout", e)
     }
 
     if (isSurveyActive(surveyId) || surveyId.isBlank()) {
-      firebaseCrashLogger.setSelectedSurveyId(surveyId)
+      crashLogger.setSelectedSurveyId(surveyId)
       localValueStore.lastActiveSurveyId = surveyId
     }
   }

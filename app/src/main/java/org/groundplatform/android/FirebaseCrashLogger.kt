@@ -20,9 +20,10 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import javax.inject.Inject
 import javax.inject.Singleton
 import org.groundplatform.android.common.Constants.isReleaseBuild
+import org.groundplatform.domain.system.CrashLogger
 
 @Singleton
-class FirebaseCrashLogger @Inject constructor() {
+class FirebaseCrashLogger @Inject constructor() : CrashLogger {
 
   private val crashlytics by lazy { FirebaseCrashlytics.getInstance() }
 
@@ -33,11 +34,11 @@ class FirebaseCrashLogger @Inject constructor() {
     }
   }
 
-  fun setSelectedSurveyId(surveyId: String?) {
+  override fun setSelectedSurveyId(surveyId: String?) {
     setCustomKeys { key("selectedSurveyId", surveyId ?: "") }
   }
 
-  fun setScreenName(viewClass: String) {
+  override fun setScreenName(viewClass: String) {
     setCustomKeys { key("screenName", viewClass) }
   }
 

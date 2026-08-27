@@ -21,24 +21,17 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.test.runTest
 import org.groundplatform.data.DataStoreException
 import org.groundplatform.data.FakeLocalValueStore
-import org.groundplatform.data.stores.RemoteDataStore
-import org.groundplatform.domain.model.Survey
-import org.groundplatform.domain.model.SurveyListItem
+import org.groundplatform.data.FakeRemoteDataStore
 import org.groundplatform.domain.model.TermsOfService
-import org.groundplatform.domain.model.User
-import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
-import org.groundplatform.domain.model.mutation.Mutation
 import org.groundplatform.domain.system.NetworkStatus
 import org.groundplatform.testing.FakeNetworkManager
 
 class TermsOfServiceRepositoryTest {
   private val fakeNetworkManager = FakeNetworkManager(NetworkStatus.AVAILABLE)
-  private val fakeRemoteDataStore = TestRemoteDataStore()
+  private val fakeRemoteDataStore = FakeRemoteDataStore()
   private val fakeLocalValueStore = FakeLocalValueStore()
   private val repository =
     TermsOfServiceRepository(fakeNetworkManager, fakeRemoteDataStore, fakeLocalValueStore)
@@ -68,7 +61,8 @@ class TermsOfServiceRepositoryTest {
 
   @Test
   fun getTermsOfService_whenRequestFails_throwsError() = runTest {
-    fakeRemoteDataStore.termsOfServiceResult = Result.failure(RuntimeException("Network error"))
+    fakeRemoteDataStore.termsOfServiceResult =
+      Result.failure<TermsOfService?>(RuntimeException("Network error"))
 
     assertFailsWith<RuntimeException> { repository.getTermsOfService() }
   }
@@ -80,32 +74,5 @@ class TermsOfServiceRepositoryTest {
 
     repository.isTermsOfServiceAccepted = false
     assertFalse(repository.isTermsOfServiceAccepted)
-  }
-
-  private class TestRemoteDataStore : RemoteDataStore {
-    var termsOfServiceResult: Result<TermsOfService?> = Result.success(null)
-
-    override suspend fun loadTermsOfService(): TermsOfService? = termsOfServiceResult.getOrThrow()
-
-    override fun getRestrictedSurveyList(user: User): Flow<List<SurveyListItem>> = emptyFlow()
-
-    override fun getPublicSurveyList(): Flow<List<SurveyListItem>> = emptyFlow()
-
-    override suspend fun loadSurvey(surveyId: String): Survey? = null
-
-    override fun loadPredefinedLois(survey: Survey): Flow<List<LocationOfInterest>> = emptyFlow()
-
-    override fun loadUserLois(survey: Survey, ownerUserId: String): Flow<List<LocationOfInterest>> =
-      emptyFlow()
-
-    override fun loadSharedLois(survey: Survey): Flow<List<LocationOfInterest>> = emptyFlow()
-
-    override suspend fun applyMutations(mutations: List<Mutation>, user: User) = Unit
-
-    override suspend fun subscribeToSurveyUpdates(surveyId: String) = Unit
-
-    override suspend fun unsubscribeFromSurveyUpdates(surveyId: String) = Unit
-
-    override suspend fun refreshUserProfile() = Unit
   }
 }

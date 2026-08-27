@@ -24,7 +24,9 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
+import org.groundplatform.android.FirebaseCrashLogger
 import org.groundplatform.android.system.NetworkManager
+import org.groundplatform.domain.system.CrashLogger
 import org.groundplatform.domain.system.NetworkManagerInterface
 
 @InstallIn(SingletonComponent::class)
@@ -44,4 +46,10 @@ abstract class NetworkManagerModule {
   @Binds
   @Singleton
   abstract fun bindNetworkManager(networkManager: NetworkManager): NetworkManagerInterface
+}
+
+@InstallIn(SingletonComponent::class)
+@Module
+abstract class CrashLoggerModule {
+  @Binds @Singleton abstract fun bindCrashLogger(impl: FirebaseCrashLogger): CrashLogger
 }
