@@ -27,7 +27,6 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import org.groundplatform.android.di.coroutines.IoDispatcher
 import org.groundplatform.android.system.LocationManager
-import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.system.SettingsManager
 import org.groundplatform.android.ui.common.BaseMapViewModel
@@ -42,6 +41,7 @@ import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterfac
 import org.groundplatform.domain.repository.MapStateRepositoryInterface
 import org.groundplatform.domain.repository.OfflineAreaRepositoryInterface
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
+import org.groundplatform.domain.system.NetworkManagerInterface
 import org.groundplatform.ui.util.toMbString
 import timber.log.Timber
 
@@ -60,7 +60,7 @@ internal constructor(
   settingsManager: SettingsManager,
   permissionsManager: PermissionsManager,
   locationOfInterestRepository: LocationOfInterestRepositoryInterface,
-  private val networkManager: NetworkManager,
+  private val networkManager: NetworkManagerInterface,
 ) :
   BaseMapViewModel(
     locationManager,

@@ -20,11 +20,11 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
-import org.groundplatform.android.system.NetworkManager
-import org.groundplatform.android.system.NetworkStatus
 import org.groundplatform.domain.model.User
 import org.groundplatform.domain.model.auth.SignInState
 import org.groundplatform.domain.repository.UserRepositoryInterface
+import org.groundplatform.domain.system.NetworkStatus
+import org.groundplatform.testing.FakeNetworkManager
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -37,19 +37,16 @@ import org.mockito.junit.MockitoJUnitRunner
 @RunWith(MockitoJUnitRunner::class)
 class SignInViewModelTest {
 
-  @Mock private lateinit var networkManager: NetworkManager
+  private val networkManager = FakeNetworkManager(NetworkStatus.UNAVAILABLE)
   @Mock private lateinit var userRepository: UserRepositoryInterface
 
   private lateinit var viewModel: SignInViewModel
 
   private val signInStateFlow = MutableStateFlow<SignInState>(SignInState.SignedOut)
-  private val networkStatusFlow = MutableStateFlow(NetworkStatus.UNAVAILABLE)
 
   @Before
   fun setUp() {
     `when`(userRepository.getSignInState()).thenReturn(signInStateFlow)
-    `when`(networkManager.networkStatusFlow).thenReturn(networkStatusFlow)
-    `when`(networkManager.isNetworkConnected()).thenReturn(false)
 
     viewModel = SignInViewModel(networkManager, userRepository)
   }
@@ -73,10 +70,10 @@ class SignInViewModelTest {
     viewModel.networkAvailable.test {
       assertThat(awaitItem()).isFalse()
 
-      networkStatusFlow.value = NetworkStatus.AVAILABLE
+      networkManager.setNetworkStatus(NetworkStatus.AVAILABLE)
       assertThat(awaitItem()).isTrue()
 
-      networkStatusFlow.value = NetworkStatus.UNAVAILABLE
+      networkManager.setNetworkStatus(NetworkStatus.UNAVAILABLE)
       assertThat(awaitItem()).isFalse()
     }
   }

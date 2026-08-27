@@ -34,23 +34,24 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.R
 import org.groundplatform.android.di.SurveyRepositoryModule
 import org.groundplatform.android.di.UserRepositoryModule
+import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
 import org.groundplatform.android.testrules.FragmentScenarioRule
 import org.groundplatform.android.ui.surveyselector.components.SURVEY_LIST_TEST_TAG
 import org.groundplatform.android.ui.surveyselector.components.formatSectionTitle
-import org.groundplatform.android.usecases.survey.ActivateSurveyUseCase
-import org.groundplatform.android.usecases.survey.ListAvailableSurveysUseCase
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.SurveyListItem
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
+import org.groundplatform.domain.system.NetworkStatus
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -71,8 +72,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
 
   @BindValue @Mock lateinit var surveyRepository: SurveyRepositoryInterface
   @BindValue @Mock lateinit var userRepository: UserRepositoryInterface
-  @BindValue @Mock lateinit var activateSurvey: ActivateSurveyUseCase
-  @BindValue @Mock lateinit var listAvailableSurveysUseCase: ListAvailableSurveysUseCase
+  @BindValue @Mock lateinit var networkManager: NetworkManager
   @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
 
   private lateinit var fragment: SurveySelectorFragment
@@ -85,6 +85,8 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   override fun setUp() {
     super.setUp()
     fakeAuthenticationManager.setUser(TEST_USER)
+    whenever(networkManager.networkStatusFlow).thenReturn(flowOf(NetworkStatus.AVAILABLE))
+    runBlocking { whenever(userRepository.getAuthenticatedUser()).thenReturn(TEST_USER) }
   }
 
   @Test
@@ -139,7 +141,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   @Test
   fun `Click activates survey`() = runWithTestDispatcher {
     setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
-    whenever(activateSurvey(TEST_SURVEY_2.id)).thenReturn(true)
+    whenever(surveyRepository.isSurveyActive(TEST_SURVEY_2.id)).thenReturn(true)
 
     fragmentScenario.launchFragmentWithNavController<SurveySelectorFragment>(
       fragmentArgs = bundleOf(Pair("shouldExitApp", false), Pair("surveyId", "")),
@@ -158,7 +160,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
 
   @Test
   fun `Click activates survey when active survey fails`() = runWithTestDispatcher {
-    whenever(activateSurvey(any())).thenThrow(Error("Some exception"))
+    whenever(surveyRepository.isSurveyActive(any())).thenThrow(Error("Some exception"))
 
     setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
 
@@ -172,7 +174,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     advanceUntilIdle()
 
     // Assert survey is activated.
-    verify(activateSurvey).invoke(TEST_SURVEY_2.id)
+    verify(surveyRepository).isSurveyActive(TEST_SURVEY_2.id)
     // Assert that navigation to home screen was not requested
     assertThat(navController.currentDestination?.id).isEqualTo(R.id.surveySelectorFragment)
     // Error toast message
@@ -217,8 +219,14 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
   @Test
   fun `activateSurvey is called when surveyId arg is non-blank`() = runWithTestDispatcher {
     setSurveyList(listOf(TEST_SURVEY_1, TEST_SURVEY_2))
-    setUpFragment(bundleOf(Pair("shouldExitApp", false), Pair("surveyId", TEST_SURVEY_1.id)))
-    verify(activateSurvey).invoke(TEST_SURVEY_1.id)
+    whenever(surveyRepository.isSurveyActive(TEST_SURVEY_1.id)).thenReturn(true)
+    fragmentScenario.launchFragmentWithNavController<SurveySelectorFragment>(
+      fragmentArgs = bundleOf(Pair("shouldExitApp", false), Pair("surveyId", TEST_SURVEY_1.id)),
+      destId = R.id.surveySelectorFragment,
+      navControllerCallback = { navController = it },
+    )
+    advanceUntilIdle()
+    verify(surveyRepository).isSurveyActive(TEST_SURVEY_1.id)
   }
 
   private fun setUpFragment(
@@ -232,8 +240,15 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     advanceUntilIdle()
   }
 
-  private fun setSurveyList(surveys: List<SurveyListItem>) = runWithTestDispatcher {
-    whenever(listAvailableSurveysUseCase()).thenReturn(listOf(surveys).asFlow())
+  private fun setSurveyList(surveys: List<SurveyListItem>) {
+    val localSurveys =
+      surveys
+        .filter { it.availableOffline }
+        .map { item ->
+          FakeData.SURVEY.copy(id = item.id, title = item.title, description = item.description)
+        }
+    whenever(surveyRepository.getOfflineSurveys()).thenReturn(flowOf(localSurveys))
+    whenever(surveyRepository.getRemoteSurveys(TEST_USER)).thenReturn(flowOf(surveys))
   }
 
   companion object {

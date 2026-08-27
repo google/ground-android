@@ -22,9 +22,9 @@ import kotlinx.coroutines.withTimeout
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.remote.DataStoreException
 import org.groundplatform.android.data.remote.RemoteDataStore
-import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.domain.model.TermsOfService
 import org.groundplatform.domain.repository.TermsOfServiceRepositoryInterface
+import org.groundplatform.domain.system.NetworkManagerInterface
 import timber.log.Timber
 
 private const val LOAD_REMOTE_SURVEY_TERMS_OF_SERVICE_TIMEOUT_MILLIS: Long = 30 * 1000
@@ -33,7 +33,7 @@ private const val LOAD_REMOTE_SURVEY_TERMS_OF_SERVICE_TIMEOUT_MILLIS: Long = 30 
 class TermsOfServiceRepository
 @Inject
 constructor(
-  private val networkManager: NetworkManager,
+  private val networkManager: NetworkManagerInterface,
   private val remoteDataStore: RemoteDataStore,
   private val localValueStore: LocalValueStore,
 ) : TermsOfServiceRepositoryInterface {

@@ -27,17 +27,15 @@ import javax.inject.Singleton
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import org.groundplatform.domain.system.NetworkManagerInterface
+import org.groundplatform.domain.system.NetworkStatus
 import timber.log.Timber
 
-enum class NetworkStatus {
-  AVAILABLE,
-  UNAVAILABLE,
-}
-
-/** Abstracts access to network state. */
+/** Android implementation of [NetworkManagerInterface] using [ConnectivityManager]. */
 @Singleton
-class NetworkManager @Inject constructor(@ApplicationContext private val context: Context) {
-  val networkStatusFlow = initNetworkStatusFlow()
+class NetworkManager @Inject constructor(@ApplicationContext private val context: Context) :
+  NetworkManagerInterface {
+  override val networkStatusFlow = initNetworkStatusFlow()
 
   private fun initNetworkStatusFlow(): Flow<NetworkStatus> {
     val connectivityManager = context.getSystemService(ConnectivityManager::class.java)
@@ -64,7 +62,7 @@ class NetworkManager @Inject constructor(@ApplicationContext private val context
 
   /** Returns true if the device has internet connectivity, false otherwise. */
   @RequiresPermission("android.permission.ACCESS_NETWORK_STATE")
-  fun isNetworkConnected(): Boolean {
+  override fun isNetworkConnected(): Boolean {
     val connectivityManager =
       context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     val activeNetwork = connectivityManager.activeNetwork

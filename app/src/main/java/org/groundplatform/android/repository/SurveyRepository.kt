@@ -66,6 +66,9 @@ constructor(
   override val activeSurvey: Survey?
     get() = activeSurveyFlow.value
 
+  override val lastActiveSurveyId: String
+    get() = localValueStore.lastActiveSurveyId
+
   override suspend fun saveSurvey(survey: Survey) = localSurveyStore.insertOrUpdateSurvey(survey)
 
   override suspend fun getRemoteSurvey(surveyId: String): Survey? =
