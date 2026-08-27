@@ -15,6 +15,7 @@
  */
 package org.groundplatform.domain.model.map
 
+import kotlin.math.cos
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.Geometry
 import org.groundplatform.domain.model.geometry.LineString
@@ -22,6 +23,7 @@ import org.groundplatform.domain.model.geometry.LinearRing
 import org.groundplatform.domain.model.geometry.MultiPolygon
 import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.geometry.Polygon
+import org.groundplatform.domain.model.imagery.toRadians
 
 /**
  * Represents a rectangular bound on a map. A bounds may be constructed using only southwest and
@@ -74,6 +76,14 @@ data class Bounds(val southwest: Coordinates, val northeast: Coordinates) {
           lng
         }
       return Coordinates(centerLat, centerLng)
+    }
+
+  /** East–west span of the bounds in meters, measured as the arc along the center latitude. */
+  val widthMeters: Double
+    get() {
+      val centerLat = (north + south) / 2
+      val earthRadius = 6378137.0
+      return earthRadius * (east - west).toRadians() * cos(centerLat.toRadians())
     }
 
   /**

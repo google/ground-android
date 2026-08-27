@@ -27,6 +27,7 @@ import org.groundplatform.domain.model.geometry.LinearRing
 import org.groundplatform.domain.model.geometry.MultiPolygon
 import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.geometry.Polygon
+import org.groundplatform.domain.model.imagery.toRadians
 
 class BoundsTest {
 
@@ -363,5 +364,47 @@ class BoundsTest {
       )
     val result = Bounds.fromGeometry(polygon)
     assertEquals(Bounds(south = 10.0, west = 20.0, north = 30.0, east = 40.0), result)
+  }
+
+  @Test
+  fun `widthMeters spans one degree of longitude at the equator`() {
+    val bounds = Bounds(south = -0.5, west = 0.0, north = 0.5, east = 1.0)
+
+    assertEquals(EARTH_RADIUS * 1.0.toRadians(), bounds.widthMeters, absoluteTolerance = 0.001)
+  }
+
+  @Test
+  fun `widthMeters at sixty degrees north is half the width at the equator`() {
+    val atEquator = Bounds(south = -0.5, west = 0.0, north = 0.5, east = 1.0)
+    val atSixtyNorth = Bounds(south = 59.5, west = 0.0, north = 60.5, east = 1.0)
+
+    assertEquals(atEquator.widthMeters / 2, atSixtyNorth.widthMeters, absoluteTolerance = 0.001)
+  }
+
+  @Test
+  fun `widthMeters measures at the center latitude, not at an edge`() {
+    // 30° is the center of 0°..60°, so the box and its center line must measure the same.
+    val box = Bounds(south = 0.0, west = 0.0, north = 60.0, east = 1.0)
+    val centerLine = Bounds(south = 30.0, west = 0.0, north = 30.0, east = 1.0)
+
+    assertEquals(centerLine.widthMeters, box.widthMeters, absoluteTolerance = 0.001)
+  }
+
+  @Test
+  fun `widthMeters is zero when the east and west edges meet`() {
+    val bounds = Bounds(south = 10.0, west = 20.0, north = 11.0, east = 20.0)
+
+    assertEquals(0.0, bounds.widthMeters, absoluteTolerance = 0.001)
+  }
+
+  @Test
+  fun `widthMeters is negative for bounds that wrap the antimeridian`() {
+    val bounds = Bounds(south = -0.5, west = 170.0, north = 0.5, east = -170.0)
+
+    assertEquals(EARTH_RADIUS * (-340.0).toRadians(), bounds.widthMeters, absoluteTolerance = 0.001)
+  }
+
+  private companion object {
+    const val EARTH_RADIUS = 6_378_137.0
   }
 }
