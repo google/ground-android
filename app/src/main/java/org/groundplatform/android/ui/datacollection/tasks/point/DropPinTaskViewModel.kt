@@ -21,7 +21,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
@@ -30,6 +29,7 @@ import org.groundplatform.android.ui.datacollection.tasks.DataCollectionEvent
 import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.util.getDefaultColor
+import org.groundplatform.data.stores.LocalValueStore
 import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.submission.DropPinTaskData

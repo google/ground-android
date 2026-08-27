@@ -21,7 +21,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import org.groundplatform.android.data.local.LocalValueStore
+import org.groundplatform.data.stores.LocalValueStore
 import org.groundplatform.domain.model.map.CameraPosition
 import org.groundplatform.domain.model.map.MapType
 import org.groundplatform.domain.repository.MapStateRepositoryInterface

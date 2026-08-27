@@ -17,10 +17,10 @@ package org.groundplatform.android.repository
 
 import javax.inject.Inject
 import javax.inject.Singleton
-import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.sync.MutationSyncWorkManager
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.data.stores.LocalSubmissionStore
+import org.groundplatform.data.stores.LocalValueStore
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
 import org.groundplatform.domain.model.mutation.Mutation

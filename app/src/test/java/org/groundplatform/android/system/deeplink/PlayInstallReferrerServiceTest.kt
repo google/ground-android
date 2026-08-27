@@ -25,7 +25,7 @@ import com.android.installreferrer.api.ReferrerDetails
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import org.groundplatform.android.data.local.LocalValueStore
+import org.groundplatform.data.stores.LocalValueStore
 import org.junit.After
 import org.junit.Before
 import org.junit.Test

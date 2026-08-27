@@ -31,7 +31,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
-import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.android.ui.common.SharedViewModel
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
@@ -45,6 +44,7 @@ import org.groundplatform.android.ui.util.VibrationHelper
 import org.groundplatform.android.ui.util.getDefaultColor
 import org.groundplatform.android.util.distanceTo
 import org.groundplatform.android.util.penult
+import org.groundplatform.data.stores.LocalValueStore
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.LineString
 import org.groundplatform.domain.model.geometry.LinearRing

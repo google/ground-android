@@ -27,7 +27,7 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 import org.groundplatform.android.common.Constants.isReleaseBuild
-import org.groundplatform.android.data.local.LocalValueStore
+import org.groundplatform.data.stores.LocalValueStore
 import timber.log.Timber
 
 @HiltAndroidApp

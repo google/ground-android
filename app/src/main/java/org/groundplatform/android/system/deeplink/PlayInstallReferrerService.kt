@@ -25,7 +25,7 @@ import javax.inject.Singleton
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.withTimeoutOrNull
-import org.groundplatform.android.data.local.LocalValueStore
+import org.groundplatform.data.stores.LocalValueStore
 import timber.log.Timber
 
 @Singleton

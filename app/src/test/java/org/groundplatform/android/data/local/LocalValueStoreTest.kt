@@ -21,6 +21,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import java.util.Locale
 import org.groundplatform.android.common.PrefKeys
+import org.groundplatform.data.stores.LocalValueStore
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.map.Bounds
 import org.groundplatform.domain.model.map.CameraPosition
@@ -41,7 +42,7 @@ class LocalValueStoreTest {
       ApplicationProvider.getApplicationContext<android.content.Context>()
         .getSharedPreferences("test_prefs", android.content.Context.MODE_PRIVATE)
     sharedPreferences.edit { clear() }
-    localValueStore = LocalValueStore(sharedPreferences, Locale.getDefault())
+    localValueStore = SharedPreferencesLocalValueStore(sharedPreferences, Locale.getDefault())
   }
 
   @Test

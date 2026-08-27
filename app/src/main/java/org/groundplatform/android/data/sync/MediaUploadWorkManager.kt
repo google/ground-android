@@ -19,7 +19,7 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.WorkManager
 import javax.inject.Inject
-import org.groundplatform.android.data.local.LocalValueStore
+import org.groundplatform.data.stores.LocalValueStore
 
 /** Enqueues media upload work to be performed in the background. */
 class MediaUploadWorkManager

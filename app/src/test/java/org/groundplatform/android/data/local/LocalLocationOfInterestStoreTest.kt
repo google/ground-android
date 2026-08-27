@@ -39,6 +39,7 @@ import org.groundplatform.data.stores.LocalLocationOfInterestStore
 import org.groundplatform.data.stores.LocalSubmissionStore
 import org.groundplatform.data.stores.LocalSurveyStore
 import org.groundplatform.data.stores.LocalUserStore
+import org.groundplatform.data.stores.LocalValueStore
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.User
 import org.groundplatform.domain.model.geometry.Coordinates

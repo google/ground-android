@@ -19,8 +19,8 @@ package org.groundplatform.android.repository
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.withTimeout
-import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.remote.DataStoreException
+import org.groundplatform.data.stores.LocalValueStore
 import org.groundplatform.data.stores.RemoteDataStore
 import org.groundplatform.domain.model.TermsOfService
 import org.groundplatform.domain.repository.TermsOfServiceRepositoryInterface

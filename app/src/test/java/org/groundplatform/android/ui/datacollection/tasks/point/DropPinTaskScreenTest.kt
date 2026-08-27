@@ -26,12 +26,12 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.JOB
 import org.groundplatform.android.R
-import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.getString
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.ButtonActionStateChecker
 import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
+import org.groundplatform.data.stores.LocalValueStore
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.map.CameraPosition
