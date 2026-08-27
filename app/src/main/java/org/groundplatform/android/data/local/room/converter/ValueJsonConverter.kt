@@ -17,9 +17,9 @@
 package org.groundplatform.android.data.local.room.converter
 
 import kotlinx.collections.immutable.toPersistentList
-import org.groundplatform.android.data.remote.DataStoreException
 import org.groundplatform.android.data.remote.firebase.schema.CaptureLocationResultConverter.toCaptureLocationTaskData
 import org.groundplatform.android.data.remote.firebase.schema.CaptureLocationResultConverter.toJSONObject
+import org.groundplatform.data.DataStoreException
 import org.groundplatform.domain.model.geometry.LineString
 import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.geometry.Polygon
@@ -75,28 +75,28 @@ internal object ValueJsonConverter {
 
     return when (task.type) {
       Task.Type.TEXT -> {
-        DataStoreException.checkType(String::class.java, obj)
+        checkType(String::class.java, obj)
         TextTaskData.fromString(obj as String)
       }
       Task.Type.PHOTO -> {
-        DataStoreException.checkType(String::class.java, obj)
+        checkType(String::class.java, obj)
         PhotoTaskData(obj as String)
       }
       Task.Type.MULTIPLE_CHOICE -> {
-        DataStoreException.checkType(JSONArray::class.java, obj)
+        checkType(JSONArray::class.java, obj)
         MultipleChoiceTaskData.fromList(task.multipleChoice, toList(obj as JSONArray))
       }
       Task.Type.NUMBER -> {
-        DataStoreException.checkType(Number::class.java, obj)
+        checkType(Number::class.java, obj)
         NumberTaskData.fromNumber(obj.toString())
       }
       Task.Type.DATE,
       Task.Type.TIME -> {
-        DataStoreException.checkType(Long::class.java, obj)
+        checkType(Long::class.java, obj)
         DateTimeTaskData.fromMillis(obj as Long)
       }
       Task.Type.DRAW_AREA -> {
-        DataStoreException.checkType(String::class.java, obj)
+        checkType(String::class.java, obj)
         val geometry = GeometryWrapperTypeConverter.fromString(obj as String)?.getGeometry()
         DataStoreException.checkNotNull(geometry, "Missing geometry in draw area task result")
         when (geometry) {
@@ -109,14 +109,14 @@ internal object ValueJsonConverter {
         }
       }
       Task.Type.DROP_PIN -> {
-        DataStoreException.checkType(String::class.java, obj)
+        checkType(String::class.java, obj)
         val geometry = GeometryWrapperTypeConverter.fromString(obj as String)?.getGeometry()
         DataStoreException.checkNotNull(geometry, "Missing geometry in drop pin task result")
-        DataStoreException.checkType(Point::class.java, geometry!!)
+        checkType(Point::class.java, geometry!!)
         DropPinTaskData(geometry as Point)
       }
       Task.Type.CAPTURE_LOCATION -> {
-        DataStoreException.checkType(JSONObject::class.java, obj)
+        checkType(JSONObject::class.java, obj)
         (obj as JSONObject).toCaptureLocationTaskData()
       }
       Task.Type.INSTRUCTIONS -> {
@@ -126,6 +126,16 @@ internal object ValueJsonConverter {
         throw DataStoreException("Unknown type in task: " + obj.javaClass.name)
       }
     }
+  }
+
+  private fun <T : Any> checkType(expectedType: Class<*>, obj: T): T {
+    if (obj.javaClass == java.lang.Long::class.java && expectedType == Long::class.java) {
+      return obj
+    }
+    if (!expectedType.isAssignableFrom(obj.javaClass)) {
+      throw DataStoreException("Expected ${expectedType.name}, got ${obj.javaClass.name}")
+    }
+    return obj
   }
 
   private fun toList(jsonArray: JSONArray): List<String> {

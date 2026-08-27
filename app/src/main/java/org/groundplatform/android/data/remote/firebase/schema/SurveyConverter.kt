@@ -18,11 +18,11 @@ package org.groundplatform.android.data.remote.firebase.schema
 
 import com.google.firebase.firestore.DocumentSnapshot
 import kotlinx.collections.immutable.toPersistentMap
-import org.groundplatform.android.data.remote.DataStoreException
 import org.groundplatform.android.data.remote.firebase.protobuf.parseFrom
 import org.groundplatform.android.data.remote.firebase.protobuf.toModel
 import org.groundplatform.android.proto.Survey as SurveyProto
 import org.groundplatform.android.proto.Survey.DataVisibility
+import org.groundplatform.data.DataStoreException
 import org.groundplatform.domain.model.Survey as SurveyModel
 import org.groundplatform.domain.model.job.Job
 

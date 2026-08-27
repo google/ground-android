@@ -16,10 +16,10 @@
 package org.groundplatform.android.data.remote.firebase.schema
 
 import com.google.firebase.firestore.DocumentSnapshot
-import org.groundplatform.android.data.remote.DataStoreException
 import org.groundplatform.android.data.remote.firebase.protobuf.parseFrom
 import org.groundplatform.android.proto.LocationOfInterest as LocationOfInterestProto
 import org.groundplatform.android.proto.LocationOfInterest.Source
+import org.groundplatform.data.DataStoreException
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.locationofinterest.LOI_ID_PROPERTY
 import org.groundplatform.domain.model.locationofinterest.LOI_NAME_PROPERTY

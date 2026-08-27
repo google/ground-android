@@ -17,6 +17,7 @@ package org.groundplatform.android.di
 
 import dagger.Binds
 import dagger.Module
+import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import jakarta.inject.Singleton
@@ -26,9 +27,11 @@ import org.groundplatform.android.repository.MutationRepository
 import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.android.repository.SubmissionRepository
 import org.groundplatform.android.repository.SurveyRepository
-import org.groundplatform.android.repository.TermsOfServiceRepository
 import org.groundplatform.android.repository.UserMediaRepository
 import org.groundplatform.android.repository.UserRepository
+import org.groundplatform.data.repository.TermsOfServiceRepository
+import org.groundplatform.data.stores.LocalValueStore
+import org.groundplatform.data.stores.RemoteDataStore
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import org.groundplatform.domain.repository.MapStateRepositoryInterface
 import org.groundplatform.domain.repository.MutationRepositoryInterface
@@ -38,6 +41,7 @@ import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.repository.TermsOfServiceRepositoryInterface
 import org.groundplatform.domain.repository.UserMediaRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
+import org.groundplatform.domain.system.NetworkManagerInterface
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -89,12 +93,15 @@ abstract class MutationRepositoryModule {
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class TermsOfServiceRepositoryModule {
-  @Binds
+object TermsOfServiceRepositoryModule {
+  @Provides
   @Singleton
-  abstract fun bindTermsOfServiceRepository(
-    impl: TermsOfServiceRepository
-  ): TermsOfServiceRepositoryInterface
+  fun provideTermsOfServiceRepository(
+    networkManager: NetworkManagerInterface,
+    remoteDataStore: RemoteDataStore,
+    localValueStore: LocalValueStore,
+  ): TermsOfServiceRepositoryInterface =
+    TermsOfServiceRepository(networkManager, remoteDataStore, localValueStore)
 }
 
 @Module

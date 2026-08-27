@@ -14,25 +14,20 @@
  * limitations under the License.
  */
 
-package org.groundplatform.android.repository
+package org.groundplatform.data.repository
 
-import javax.inject.Inject
-import javax.inject.Singleton
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.withTimeout
-import org.groundplatform.android.data.remote.DataStoreException
+import org.groundplatform.data.DataStoreException
 import org.groundplatform.data.stores.LocalValueStore
 import org.groundplatform.data.stores.RemoteDataStore
 import org.groundplatform.domain.model.TermsOfService
 import org.groundplatform.domain.repository.TermsOfServiceRepositoryInterface
 import org.groundplatform.domain.system.NetworkManagerInterface
-import timber.log.Timber
 
 private const val LOAD_REMOTE_SURVEY_TERMS_OF_SERVICE_TIMEOUT_MILLIS: Long = 30 * 1000
 
-@Singleton
-class TermsOfServiceRepository
-@Inject
-constructor(
+class TermsOfServiceRepository(
   private val networkManager: NetworkManagerInterface,
   private val remoteDataStore: RemoteDataStore,
   private val localValueStore: LocalValueStore,
@@ -50,7 +45,7 @@ constructor(
     }
 
     return withTimeout(LOAD_REMOTE_SURVEY_TERMS_OF_SERVICE_TIMEOUT_MILLIS) {
-      Timber.d("Loading Terms of Service")
+      Logger.d("Loading Terms of Service")
       remoteDataStore.loadTermsOfService()
     }
   }

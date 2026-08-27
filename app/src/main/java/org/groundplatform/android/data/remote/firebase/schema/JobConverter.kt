@@ -18,9 +18,9 @@ package org.groundplatform.android.data.remote.firebase.schema
 
 import com.google.firebase.firestore.DocumentSnapshot
 import kotlinx.collections.immutable.toPersistentMap
-import org.groundplatform.android.data.remote.DataStoreException
 import org.groundplatform.android.data.remote.firebase.protobuf.parseFrom
 import org.groundplatform.android.proto.Job as JobProto
+import org.groundplatform.data.DataStoreException
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.job.Style as StyleModel
 

@@ -15,13 +15,13 @@
  */
 package org.groundplatform.android.data.remote.firebase.schema
 
-import org.groundplatform.android.data.remote.DataStoreException
 import org.groundplatform.android.proto.Coordinates as CoordinatesProto
 import org.groundplatform.android.proto.Geometry as GeometryProto
 import org.groundplatform.android.proto.LinearRing as LinearRingProto
 import org.groundplatform.android.proto.MultiPolygon as MultiPolygonProto
 import org.groundplatform.android.proto.Point as PointProto
 import org.groundplatform.android.proto.Polygon as PolygonProto
+import org.groundplatform.data.DataStoreException
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.Geometry
 import org.groundplatform.domain.model.geometry.LinearRing

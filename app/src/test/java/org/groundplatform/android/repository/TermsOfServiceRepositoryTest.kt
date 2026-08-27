@@ -23,9 +23,9 @@ import javax.inject.Inject
 import kotlinx.coroutines.runBlocking
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
-import org.groundplatform.android.data.remote.DataStoreException
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.system.NetworkManager
+import org.groundplatform.data.DataStoreException
 import org.groundplatform.domain.repository.TermsOfServiceRepositoryInterface
 import org.junit.Assert.assertThrows
 import org.junit.Test
