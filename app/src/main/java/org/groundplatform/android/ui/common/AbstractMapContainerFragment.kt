@@ -35,7 +35,7 @@ import org.groundplatform.android.ui.map.NewCameraPositionViaCoordinatesAndZoomL
 import org.groundplatform.android.util.createComposeView
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.map.Bounds
-import org.groundplatform.domain.model.map.MapConfig
+import org.groundplatform.ui.map.MapConfig
 import timber.log.Timber
 
 /** Injects a [MapFragment] in the container with id "map" and provides shared map functionality. */

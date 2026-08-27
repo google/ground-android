@@ -21,7 +21,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment
 import org.groundplatform.android.ui.map.MapFragment
-import org.groundplatform.domain.model.map.MapConfig
+import org.groundplatform.ui.map.MapConfig
 
 @AndroidEntryPoint
 class CaptureLocationTaskMapFragment @Inject constructor() :

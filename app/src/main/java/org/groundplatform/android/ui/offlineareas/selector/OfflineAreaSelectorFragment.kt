@@ -43,8 +43,8 @@ import org.groundplatform.android.ui.offlineareas.selector.model.OfflineAreaSele
 import org.groundplatform.android.ui.offlineareas.selector.model.OfflineAreaSelectorState
 import org.groundplatform.android.util.renderComposableDialog
 import org.groundplatform.android.util.setComposableContent
-import org.groundplatform.domain.model.map.MapConfig
 import org.groundplatform.domain.model.map.MapType
+import org.groundplatform.ui.map.MapConfig
 
 /** Map UI used to select areas for download and viewing offline. */
 @AndroidEntryPoint
