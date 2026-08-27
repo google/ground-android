@@ -31,12 +31,12 @@ import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.SURVEY
 import org.groundplatform.android.FakeData.USER
 import org.groundplatform.android.R
-import org.groundplatform.android.data.local.stores.LocalLocationOfInterestStore
-import org.groundplatform.android.data.local.stores.LocalSubmissionStore
-import org.groundplatform.android.data.local.stores.LocalSurveyStore
-import org.groundplatform.android.data.local.stores.LocalUserStore
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.testrules.FragmentScenarioRule
+import org.groundplatform.data.stores.LocalLocationOfInterestStore
+import org.groundplatform.data.stores.LocalSubmissionStore
+import org.groundplatform.data.stores.LocalSurveyStore
+import org.groundplatform.data.stores.LocalUserStore
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.repository.SurveyRepositoryInterface

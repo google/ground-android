@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.data.local.stores
+package org.groundplatform.data.stores
 
 import kotlinx.coroutines.flow.Flow
 import org.groundplatform.domain.model.Survey

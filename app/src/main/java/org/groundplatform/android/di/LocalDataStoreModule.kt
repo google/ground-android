@@ -41,11 +41,11 @@ import org.groundplatform.android.data.local.room.stores.RoomOfflineAreaStore
 import org.groundplatform.android.data.local.room.stores.RoomSubmissionStore
 import org.groundplatform.android.data.local.room.stores.RoomSurveyStore
 import org.groundplatform.android.data.local.room.stores.RoomUserStore
-import org.groundplatform.android.data.local.stores.LocalLocationOfInterestStore
-import org.groundplatform.android.data.local.stores.LocalOfflineAreaStore
-import org.groundplatform.android.data.local.stores.LocalSubmissionStore
-import org.groundplatform.android.data.local.stores.LocalSurveyStore
-import org.groundplatform.android.data.local.stores.LocalUserStore
+import org.groundplatform.data.stores.LocalLocationOfInterestStore
+import org.groundplatform.data.stores.LocalOfflineAreaStore
+import org.groundplatform.data.stores.LocalSubmissionStore
+import org.groundplatform.data.stores.LocalSurveyStore
+import org.groundplatform.data.stores.LocalUserStore
 
 @InstallIn(SingletonComponent::class)
 @Module

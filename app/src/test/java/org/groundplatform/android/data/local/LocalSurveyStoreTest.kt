@@ -22,7 +22,7 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.first
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.SURVEY
-import org.groundplatform.android.data.local.stores.LocalSurveyStore
+import org.groundplatform.data.stores.LocalSurveyStore
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.job.Style
 import org.groundplatform.domain.model.task.Condition

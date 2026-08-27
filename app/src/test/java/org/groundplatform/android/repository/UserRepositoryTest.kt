@@ -25,11 +25,11 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.data.local.LocalValueStore
-import org.groundplatform.android.data.local.stores.LocalSurveyStore
-import org.groundplatform.android.data.local.stores.LocalUserStore
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
+import org.groundplatform.data.stores.LocalSurveyStore
+import org.groundplatform.data.stores.LocalUserStore
 import org.groundplatform.domain.model.Role
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.auth.SignInState

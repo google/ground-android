@@ -30,12 +30,12 @@ import javax.inject.Singleton
 import org.groundplatform.android.BuildConfig.EMULATOR_HOST
 import org.groundplatform.android.BuildConfig.FIRESTORE_EMULATOR_PORT
 import org.groundplatform.android.BuildConfig.USE_EMULATORS
-import org.groundplatform.android.data.remote.RemoteDataStore
 import org.groundplatform.android.data.remote.RemoteStorageManager
 import org.groundplatform.android.data.remote.firebase.FirebaseStorageManager
 import org.groundplatform.android.data.remote.firebase.FirestoreDataStore
 import org.groundplatform.android.data.remote.firebase.FirestoreUuidGenerator
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
+import org.groundplatform.data.stores.RemoteDataStore
 
 @InstallIn(SingletonComponent::class)
 @Module

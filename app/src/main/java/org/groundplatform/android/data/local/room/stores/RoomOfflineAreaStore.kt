@@ -24,7 +24,7 @@ import org.groundplatform.android.data.local.room.converter.toOfflineAreaEntity
 import org.groundplatform.android.data.local.room.dao.OfflineAreaDao
 import org.groundplatform.android.data.local.room.dao.insertOrUpdate
 import org.groundplatform.android.data.local.room.entity.OfflineAreaEntity
-import org.groundplatform.android.data.local.stores.LocalOfflineAreaStore
+import org.groundplatform.data.stores.LocalOfflineAreaStore
 import org.groundplatform.domain.model.imagery.OfflineArea
 
 @Singleton

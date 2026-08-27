@@ -19,10 +19,10 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
-import org.groundplatform.android.data.local.stores.LocalLocationOfInterestStore
-import org.groundplatform.android.data.local.stores.LocalSubmissionStore
-import org.groundplatform.android.data.remote.RemoteDataStore
 import org.groundplatform.android.system.auth.AuthenticationManager
+import org.groundplatform.data.stores.LocalLocationOfInterestStore
+import org.groundplatform.data.stores.LocalSubmissionStore
+import org.groundplatform.data.stores.RemoteDataStore
 import org.groundplatform.domain.model.User
 import org.groundplatform.domain.model.mutation.LocationOfInterestMutation
 import org.groundplatform.domain.model.mutation.Mutation

@@ -29,13 +29,13 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
-import org.groundplatform.android.data.local.stores.LocalLocationOfInterestStore
-import org.groundplatform.android.data.local.stores.LocalSubmissionStore
-import org.groundplatform.android.data.local.stores.LocalSurveyStore
-import org.groundplatform.android.data.local.stores.LocalUserStore
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.data.remote.FakeRemoteStorageManager
 import org.groundplatform.android.di.coroutines.IoDispatcher
+import org.groundplatform.data.stores.LocalLocationOfInterestStore
+import org.groundplatform.data.stores.LocalSubmissionStore
+import org.groundplatform.data.stores.LocalSurveyStore
+import org.groundplatform.data.stores.LocalUserStore
 import org.groundplatform.domain.model.mutation.Mutation
 import org.groundplatform.domain.model.mutation.Mutation.SyncStatus.COMPLETED
 import org.groundplatform.domain.model.mutation.Mutation.SyncStatus.FAILED

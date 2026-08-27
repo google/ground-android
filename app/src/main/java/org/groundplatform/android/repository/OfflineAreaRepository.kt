@@ -23,7 +23,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.mapNotNull
-import org.groundplatform.android.data.local.stores.LocalOfflineAreaStore
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.android.system.GeocodingManager
 import org.groundplatform.android.ui.map.gms.mog.MogClient
@@ -32,6 +31,7 @@ import org.groundplatform.android.ui.map.gms.mog.getTilePath
 import org.groundplatform.android.ui.util.FileUtil
 import org.groundplatform.android.util.deleteIfEmpty
 import org.groundplatform.android.util.rangeOf
+import org.groundplatform.data.stores.LocalOfflineAreaStore
 import org.groundplatform.domain.model.imagery.LocalTileSource
 import org.groundplatform.domain.model.imagery.OfflineArea
 import org.groundplatform.domain.model.imagery.TileSource

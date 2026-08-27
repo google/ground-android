@@ -22,12 +22,12 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
-import org.groundplatform.android.data.local.stores.LocalOfflineAreaStore
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.android.system.GeocodingManager
 import org.groundplatform.android.ui.map.gms.mog.MogClient
 import org.groundplatform.android.ui.map.gms.mog.getTilePath
 import org.groundplatform.android.ui.util.FileUtil
+import org.groundplatform.data.stores.LocalOfflineAreaStore
 import org.groundplatform.domain.model.imagery.LocalTileSource
 import org.groundplatform.domain.model.imagery.MogCollection
 import org.groundplatform.domain.model.imagery.MogSource

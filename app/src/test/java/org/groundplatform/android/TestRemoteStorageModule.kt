@@ -22,11 +22,11 @@ import dagger.hilt.testing.TestInstallIn
 import javax.inject.Singleton
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.data.remote.FakeRemoteStorageManager
-import org.groundplatform.android.data.remote.RemoteDataStore
 import org.groundplatform.android.data.remote.RemoteStorageManager
 import org.groundplatform.android.data.uuid.FakeUuidGenerator
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.android.di.RemotePersistenceModule
+import org.groundplatform.data.stores.RemoteDataStore
 
 @Module
 @TestInstallIn(

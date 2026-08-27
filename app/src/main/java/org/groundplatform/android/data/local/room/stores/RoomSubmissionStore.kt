@@ -37,8 +37,8 @@ import org.groundplatform.android.data.local.room.fields.EntityDeletionState
 import org.groundplatform.android.data.local.room.fields.MutationEntitySyncStatus
 import org.groundplatform.android.data.local.room.fields.MutationEntityType
 import org.groundplatform.android.data.local.room.fields.UserDetails
-import org.groundplatform.android.data.local.stores.LocalSubmissionStore
 import org.groundplatform.android.util.Debug.logOnFailure
+import org.groundplatform.data.stores.LocalSubmissionStore
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.User
 import org.groundplatform.domain.model.job.Job

@@ -33,12 +33,12 @@ import org.groundplatform.android.data.local.room.dao.LocationOfInterestDao
 import org.groundplatform.android.data.local.room.dao.MAX_SQL_VARIABLES
 import org.groundplatform.android.data.local.room.fields.EntityDeletionState
 import org.groundplatform.android.data.local.room.stores.RoomLocationOfInterestStore
-import org.groundplatform.android.data.local.stores.LocalLocationOfInterestStore
-import org.groundplatform.android.data.local.stores.LocalSubmissionStore
-import org.groundplatform.android.data.local.stores.LocalSurveyStore
-import org.groundplatform.android.data.local.stores.LocalUserStore
 import org.groundplatform.android.proto.geometry
 import org.groundplatform.android.ui.map.gms.GmsExt.getShellCoordinates
+import org.groundplatform.data.stores.LocalLocationOfInterestStore
+import org.groundplatform.data.stores.LocalSubmissionStore
+import org.groundplatform.data.stores.LocalSurveyStore
+import org.groundplatform.data.stores.LocalUserStore
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.User
 import org.groundplatform.domain.model.geometry.Coordinates

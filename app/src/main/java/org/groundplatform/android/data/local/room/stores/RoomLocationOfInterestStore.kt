@@ -32,8 +32,8 @@ import org.groundplatform.android.data.local.room.entity.LocationOfInterestEntit
 import org.groundplatform.android.data.local.room.entity.LocationOfInterestMutationEntity
 import org.groundplatform.android.data.local.room.fields.EntityDeletionState
 import org.groundplatform.android.data.local.room.fields.MutationEntitySyncStatus
-import org.groundplatform.android.data.local.stores.LocalLocationOfInterestStore
 import org.groundplatform.android.util.Debug.logOnFailure
+import org.groundplatform.data.stores.LocalLocationOfInterestStore
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
 import org.groundplatform.domain.model.mutation.LocationOfInterestMutation

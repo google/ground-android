@@ -32,10 +32,10 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import org.groundplatform.android.BuildConfig.USE_EMULATORS
-import org.groundplatform.android.data.remote.RemoteDataStore
 import org.groundplatform.android.data.remote.firebase.schema.GroundFirestore
 import org.groundplatform.android.data.remote.firebase.schema.LoiCollectionReference
 import org.groundplatform.android.di.coroutines.IoDispatcher
+import org.groundplatform.data.stores.RemoteDataStore
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.SurveyListItem
 import org.groundplatform.domain.model.TermsOfService

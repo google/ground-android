@@ -31,7 +31,7 @@ import org.groundplatform.android.data.local.room.dao.OptionDao
 import org.groundplatform.android.data.local.room.dao.SurveyDao
 import org.groundplatform.android.data.local.room.dao.TaskDao
 import org.groundplatform.android.data.local.room.dao.insertOrUpdate
-import org.groundplatform.android.data.local.stores.LocalSurveyStore
+import org.groundplatform.data.stores.LocalSurveyStore
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.task.Condition
