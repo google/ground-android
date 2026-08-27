@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.groundplatform.android.ui.map.gms.mog
+package org.groundplatform.android.util.image
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -22,11 +22,12 @@ import android.graphics.Color
 import android.os.Build
 import java.io.ByteArrayOutputStream
 
-/** Utility for modifying images. */
-object ImageEditor {
+/** Utility for transforming map tile images. */
+object TileImageTransformer {
   /**
-   * Decodes the provided source image, making all pixels for which the provided lambda returns
-   * `true` fully transparent (alpha = 0). Returns the modified images as a byte array.
+   * Decodes the provided source tile image, making all pixels for which the provided lambda returns
+   * `true` fully transparent (alpha = 0). Returns the modified tile image compressed as a WEBP byte
+   * array for Maps SDK compatibility.
    */
   fun setTransparentIf(
     sourceImage: ByteArray,

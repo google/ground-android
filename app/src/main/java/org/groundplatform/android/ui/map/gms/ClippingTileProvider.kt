@@ -20,8 +20,8 @@ import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.Tile
 import com.google.android.gms.maps.model.TileProvider
 import com.google.android.gms.maps.model.TileProvider.NO_TILE
-import org.groundplatform.android.ui.map.gms.mog.ImageEditor
 import org.groundplatform.android.ui.map.gms.mog.toPixelBounds
+import org.groundplatform.android.util.image.TileImageTransformer
 import org.groundplatform.domain.model.imagery.TileCoordinates
 import org.groundplatform.domain.model.imagery.toPixelCoordinate
 
@@ -45,7 +45,7 @@ class ClippingTileProvider(
   private fun clipToBounds(tileCoords: TileCoordinates, tile: Tile): Tile {
     if (tile.data == null) return NO_TILE
     val output =
-      ImageEditor.setTransparentIf(tile.data!!) { _, x, y ->
+      TileImageTransformer.setTransparentIf(tile.data!!) { _, x, y ->
         val pixelCoords = tileCoords.toPixelCoordinate(x, y)
         pixelBounds.none { it.contains(pixelCoords) }
       }

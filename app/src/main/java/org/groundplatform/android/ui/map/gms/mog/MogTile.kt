@@ -18,6 +18,7 @@ package org.groundplatform.android.ui.map.gms.mog
 
 import android.graphics.Color
 import com.google.android.gms.maps.model.Tile
+import org.groundplatform.android.util.image.TileImageTransformer
 import org.groundplatform.domain.model.imagery.MogTileMetadata
 
 /** Metadata and image data for a single tile. */
@@ -37,7 +38,9 @@ class MogTile(val metadata: MogTileMetadata, val data: ByteArray) {
   }
 
   private fun maskNoDataValues(jfifData: ByteArray, noDataColor: Int): ByteArray =
-    ImageEditor.setTransparentIf(jfifData) { bitmap, x, y -> bitmap.getPixel(x, y) == noDataColor }
+    TileImageTransformer.setTransparentIf(jfifData) { bitmap, x, y ->
+      bitmap.getPixel(x, y) == noDataColor
+    }
 
   private fun buildJfifFile(): ByteArray =
     START_OF_IMAGE +
