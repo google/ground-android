@@ -35,6 +35,7 @@ import org.groundplatform.android.ui.map.NewCameraPositionViaCoordinatesAndZoomL
 import org.groundplatform.android.util.createComposeView
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.map.Bounds
+import org.groundplatform.ui.map.MapConfig
 import timber.log.Timber
 
 /** Injects a [MapFragment] in the container with id "map" and provides shared map functionality. */
@@ -90,8 +91,9 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     val config = getMapConfig()
 
     // Map type
-    if (config.overrideMapType != null) {
-      map.mapType = config.overrideMapType
+    val overrideMapType = config.overrideMapType
+    if (overrideMapType != null) {
+      map.mapType = overrideMapType
     } else {
       launchWhenStarted { viewModel.mapType.collect { map.mapType = it } }
     }
@@ -190,6 +192,6 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
   open fun getMapConfig() = DEFAULT_MAP_CONFIG
 
   companion object {
-    private val DEFAULT_MAP_CONFIG: MapConfig = MapConfig(showOfflineImagery = true)
+    private val DEFAULT_MAP_CONFIG: MapConfig = MapConfig()
   }
 }

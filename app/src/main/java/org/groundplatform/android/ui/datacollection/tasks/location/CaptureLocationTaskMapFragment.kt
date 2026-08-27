@@ -19,9 +19,9 @@ import android.os.Bundle
 import android.view.View
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
-import org.groundplatform.android.ui.common.MapConfig
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment
 import org.groundplatform.android.ui.map.MapFragment
+import org.groundplatform.ui.map.MapConfig
 
 @AndroidEntryPoint
 class CaptureLocationTaskMapFragment @Inject constructor() :

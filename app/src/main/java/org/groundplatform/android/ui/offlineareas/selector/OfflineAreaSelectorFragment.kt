@@ -36,7 +36,6 @@ import org.groundplatform.android.databinding.OfflineAreaSelectorFragBinding
 import org.groundplatform.android.ui.common.AbstractMapContainerFragment
 import org.groundplatform.android.ui.common.BaseMapViewModel
 import org.groundplatform.android.ui.common.EphemeralPopups
-import org.groundplatform.android.ui.common.MapConfig
 import org.groundplatform.android.ui.components.MapFloatingActionButton
 import org.groundplatform.android.ui.home.mapcontainer.HomeScreenMapContainerViewModel
 import org.groundplatform.android.ui.map.MapFragment
@@ -45,6 +44,7 @@ import org.groundplatform.android.ui.offlineareas.selector.model.OfflineAreaSele
 import org.groundplatform.android.util.renderComposableDialog
 import org.groundplatform.android.util.setComposableContent
 import org.groundplatform.domain.model.map.MapType
+import org.groundplatform.ui.map.MapConfig
 
 /** Map UI used to select areas for download and viewing offline. */
 @AndroidEntryPoint

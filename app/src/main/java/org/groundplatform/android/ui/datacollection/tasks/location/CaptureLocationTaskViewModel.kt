@@ -27,7 +27,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.groundplatform.android.common.Constants.ACCURACY_THRESHOLD_IN_M
 import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.AbstractMapTaskViewModel
@@ -40,6 +39,7 @@ import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.submission.CaptureLocationTaskData
 import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.submission.isNullOrEmpty
+import org.groundplatform.domain.util.Constants.ACCURACY_THRESHOLD_IN_M
 
 /**
  * ViewModel for the Capture Location task.

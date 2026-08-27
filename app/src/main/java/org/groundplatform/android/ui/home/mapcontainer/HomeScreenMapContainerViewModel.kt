@@ -40,7 +40,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
-import org.groundplatform.android.common.Constants.CLUSTERING_ZOOM_THRESHOLD
 import org.groundplatform.android.system.LocationManager
 import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.system.SettingsManager
@@ -65,6 +64,7 @@ import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
 import org.groundplatform.domain.usecases.GetLoiReportUseCase
 import org.groundplatform.domain.usecases.survey.GetDataSharingTermsUseCase
+import org.groundplatform.domain.util.Constants.CLUSTERING_ZOOM_THRESHOLD
 import org.groundplatform.feature.pdf.LoiReportExporter
 import org.groundplatform.ui.components.loireport.LoiReportAction
 import timber.log.Timber

@@ -35,7 +35,6 @@ import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST_LOI_REPORT
 import org.groundplatform.android.FakeData.SURVEY
 import org.groundplatform.android.FakeData.USER
 import org.groundplatform.android.R
-import org.groundplatform.android.common.Constants.CLUSTERING_ZOOM_THRESHOLD
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.di.LocationOfInterestRepositoryModule
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
@@ -49,6 +48,7 @@ import org.groundplatform.domain.model.map.CameraPosition
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
 import org.groundplatform.domain.usecases.survey.ActivateSurveyUseCase
+import org.groundplatform.domain.util.Constants.CLUSTERING_ZOOM_THRESHOLD
 import org.groundplatform.testing.FakeDataGenerator
 import org.groundplatform.ui.components.loireport.LoiReportAction
 import org.junit.Before

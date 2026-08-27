@@ -20,7 +20,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import org.groundplatform.android.R
-import org.groundplatform.android.common.Constants
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.DataCollectionEvent
 import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
@@ -34,6 +33,7 @@ import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.task.MultipleChoice.Cardinality.SELECT_MULTIPLE
 import org.groundplatform.domain.model.task.Option
 import org.groundplatform.domain.model.task.Task
+import org.groundplatform.domain.util.Constants
 
 class MultipleChoiceTaskViewModel @Inject constructor() : AbstractTaskViewModel() {
 

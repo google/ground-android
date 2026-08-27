@@ -43,10 +43,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ground_android.core.ui.generated.resources.Res
 import ground_android.core.ui.generated.resources.other
-import org.groundplatform.android.common.Constants
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.domain.model.task.MultipleChoice
 import org.groundplatform.domain.model.task.Option
+import org.groundplatform.domain.util.Constants
 import org.groundplatform.ui.theme.AppTheme
 import org.jetbrains.compose.resources.stringResource
 
