@@ -127,7 +127,7 @@ data class Bounds(val southwest: Coordinates, val northeast: Coordinates) {
 
   companion object {
     /** Returns a [Bounds] enclosing the given geometry, or null if empty. */
-    fun fromGeometry(geometry: Geometry): Bounds? = fromCoordinates(geometry.getShellCoordinates())
+    fun fromGeometry(geometry: Geometry): Bounds? = fromCoordinates(geometry.shellCoordinates)
 
     private fun isLongitudeContained(lng: Double, west: Double, east: Double): Boolean =
       if (west <= east) lng in west..east else lng >= west || lng <= east
@@ -172,6 +172,6 @@ data class Bounds(val southwest: Coordinates, val northeast: Coordinates) {
 
     /** Returns a [Bounds] enclosing all geometries in the collection, or null if empty. */
     fun fromGeometries(geometries: Iterable<Geometry>): Bounds? =
-      fromCoordinates(geometries.flatMap { it.getShellCoordinates() })
+      fromCoordinates(geometries.flatMap { it.shellCoordinates })
   }
 }

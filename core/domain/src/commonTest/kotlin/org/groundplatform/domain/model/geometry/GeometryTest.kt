@@ -34,7 +34,7 @@ class GeometryTest {
     assertFalse(point.isEmpty())
     assertEquals(c1, point.center())
     assertEquals(0.0, point.area())
-    assertEquals(listOf(c1), point.getShellCoordinates())
+    assertEquals(listOf(c1), point.shellCoordinates)
   }
 
   @Test
@@ -42,7 +42,7 @@ class GeometryTest {
     val lineString = LineString.lineStringOf(c1, c2, c3)
     assertFalse(lineString.isEmpty())
     assertEquals(0.0, lineString.area())
-    assertEquals(listOf(c1, c2, c3), lineString.getShellCoordinates())
+    assertEquals(listOf(c1, c2, c3), lineString.shellCoordinates)
     assertFalse(lineString.isClosed())
   }
 
@@ -76,7 +76,7 @@ class GeometryTest {
   fun lineString_empty_properties() {
     val emptyLineString = LineString(emptyList())
     assertTrue(emptyLineString.isEmpty())
-    assertEquals(emptyList(), emptyLineString.getShellCoordinates())
+    assertEquals(emptyList(), emptyLineString.shellCoordinates)
     assertEquals(0.0, emptyLineString.area())
   }
 
@@ -84,7 +84,7 @@ class GeometryTest {
   fun linearRing_empty_properties() {
     val emptyRing = LinearRing(emptyList())
     assertTrue(emptyRing.isEmpty())
-    assertEquals(emptyList(), emptyRing.getShellCoordinates())
+    assertEquals(emptyList(), emptyRing.shellCoordinates)
     assertEquals(0.0, emptyRing.area())
   }
 
@@ -103,8 +103,8 @@ class GeometryTest {
       )
     val polygon = Polygon(shell, listOf(hole))
 
-    assertEquals(shell.coordinates, polygon.getShellCoordinates())
-    assertFalse(polygon.getShellCoordinates().contains(Coordinates(0.2, 0.2)))
+    assertEquals(shell.coordinates, polygon.shellCoordinates)
+    assertFalse(polygon.shellCoordinates.contains(Coordinates(0.2, 0.2)))
   }
 
   @Test
@@ -122,7 +122,7 @@ class GeometryTest {
   fun multiPolygon_empty_properties() {
     val emptyMultiPolygon = MultiPolygon(emptyList())
     assertTrue(emptyMultiPolygon.isEmpty())
-    assertEquals(emptyList(), emptyMultiPolygon.getShellCoordinates())
+    assertEquals(emptyList(), emptyMultiPolygon.shellCoordinates)
     assertEquals(0.0, emptyMultiPolygon.area())
   }
 
@@ -134,6 +134,6 @@ class GeometryTest {
     val p2 = Polygon(shell2)
     val multiPolygon = MultiPolygon(listOf(p1, p2))
 
-    assertEquals(shell1.coordinates + shell2.coordinates, multiPolygon.getShellCoordinates())
+    assertEquals(shell1.coordinates + shell2.coordinates, multiPolygon.shellCoordinates)
   }
 }

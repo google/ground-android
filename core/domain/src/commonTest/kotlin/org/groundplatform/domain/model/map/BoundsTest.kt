@@ -102,25 +102,25 @@ class BoundsTest {
   }
 
   @Test
-  fun getShellCoordinates_returnsExpectedCoordinates() {
+  fun shellCoordinates_returnsExpectedCoordinates() {
     val c1 = Coordinates(1.0, 2.0)
     val c2 = Coordinates(3.0, 4.0)
     val c3 = Coordinates(1.0, 2.0)
 
     val point = Point(c1)
-    assertEquals(listOf(c1), point.getShellCoordinates())
+    assertEquals(listOf(c1), point.shellCoordinates)
 
     val lineString = LineString.lineStringOf(c1, c2)
-    assertEquals(listOf(c1, c2), lineString.getShellCoordinates())
+    assertEquals(listOf(c1, c2), lineString.shellCoordinates)
 
     val linearRing = LinearRing(listOf(c1, c2, c3))
-    assertEquals(listOf(c1, c2, c3), linearRing.getShellCoordinates())
+    assertEquals(listOf(c1, c2, c3), linearRing.shellCoordinates)
 
     val polygon = Polygon(linearRing)
-    assertEquals(listOf(c1, c2, c3), polygon.getShellCoordinates())
+    assertEquals(listOf(c1, c2, c3), polygon.shellCoordinates)
 
     val multiPolygon = MultiPolygon(listOf(polygon))
-    assertEquals(listOf(c1, c2, c3), multiPolygon.getShellCoordinates())
+    assertEquals(listOf(c1, c2, c3), multiPolygon.shellCoordinates)
   }
 
   @Test

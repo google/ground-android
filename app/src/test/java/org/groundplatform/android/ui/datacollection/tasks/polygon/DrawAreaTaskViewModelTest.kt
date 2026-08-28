@@ -653,8 +653,8 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
 
     val geometry = featureTestObserver.value()?.geometry
     assertNotNull(geometry)
-    assertWithMessage(geometry.getShellCoordinates().toString())
-      .that(geometry.getShellCoordinates().size)
+    assertWithMessage(geometry.shellCoordinates.toString())
+      .that(geometry.shellCoordinates.size)
       .isEqualTo(expectedVerticesCount)
     assertThat(geometry)
       .isInstanceOf(

@@ -174,7 +174,7 @@ class LocalLocationOfInterestStoreTest : BaseHiltTest() {
     val newLoi = loi.copy(geometry = Polygon(LinearRing(TEST_POLYGON_2)))
     localLoiStore.merge(newLoi)
     val newLoi2 = localLoiStore.getLocationOfInterest(TEST_SURVEY, FakeData.LOI_ID)
-    assertThat(newLoi2?.geometry?.getShellCoordinates()).isEqualTo(TEST_POLYGON_2)
+    assertThat(newLoi2?.geometry?.shellCoordinates).isEqualTo(TEST_POLYGON_2)
   }
 
   @Test

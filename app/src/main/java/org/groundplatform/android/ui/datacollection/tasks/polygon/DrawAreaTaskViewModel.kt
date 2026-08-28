@@ -143,7 +143,7 @@ internal constructor(
         updateVertices(taskData.lineString.coordinates)
       }
       is DrawAreaTaskData -> {
-        updateVertices(taskData.area.getShellCoordinates())
+        updateVertices(taskData.area.shellCoordinates)
         try {
           completePolygon()
         } catch (e: IllegalStateException) {
