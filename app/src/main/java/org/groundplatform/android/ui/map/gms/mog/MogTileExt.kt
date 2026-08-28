@@ -30,7 +30,8 @@ fun MogTile.toGmsTile(): Tile = Tile(metadata.width, metadata.height, getProcess
  */
 fun MogTile.getProcessedImageData(): ByteArray {
   val noData = metadata.noDataValue ?: return buildJfifFile()
+  val noDataColor = Color.rgb(noData, noData, noData)
   return TileImageTransformer.setTransparentIf(buildJfifFile()) { bitmap, x, y ->
-    bitmap.getPixel(x, y) == Color.rgb(noData, noData, noData)
+    bitmap.getPixel(x, y) == noDataColor
   }
 }
