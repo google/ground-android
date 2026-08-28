@@ -58,7 +58,7 @@ class DrawAreaTaskMapFragment @Inject constructor() :
   override fun setDefaultViewPort() {
     val feature = taskViewModel.draftArea.value
     val geometry = feature?.geometry ?: return
-    val bounds = Bounds.fromCoordinates(geometry.getShellCoordinates()) ?: return
+    val bounds = Bounds.fromGeometry(geometry) ?: return
     moveToBounds(bounds, padding = 200, shouldAnimate = false)
   }
 

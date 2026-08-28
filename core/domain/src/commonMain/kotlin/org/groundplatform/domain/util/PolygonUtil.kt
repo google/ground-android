@@ -30,7 +30,9 @@ private const val DEG_TO_RAD = PI / 180.0
 private fun polarTriangleArea(tan1: Double, lng1: Double, tan2: Double, lng2: Double): Double {
   val deltaLng = lng1 - lng2
   val t = tan1 * tan2
-  return 2.0 * atan2(t * sin(deltaLng), 1.0 + t * cos(deltaLng))
+  val num = t * sin(deltaLng)
+  val denom = 1.0 + t * cos(deltaLng)
+  return if (abs(num) < 1e-15 && abs(denom) < 1e-15) 0.0 else 2.0 * atan2(num, denom)
 }
 
 /**

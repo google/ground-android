@@ -50,7 +50,7 @@ constructor(
   suspend fun getAreaName(bounds: Bounds): String {
     // Get potential addresses of five sample points: the centroid and the four vertices of the
     // bounding box.
-    val samplePoints = bounds.corners + bounds.center()
+    val samplePoints = bounds.corners + bounds.center
     val samplePointAddresses =
       withContext(ioDispatcher) { samplePoints.map { fetchAddressesBlocking(it) } }
     val nameComponents =

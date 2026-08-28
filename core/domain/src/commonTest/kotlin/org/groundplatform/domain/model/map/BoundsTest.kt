@@ -126,7 +126,7 @@ class BoundsTest {
   @Test
   fun center_standardBounds() {
     assertEquals(Coordinates(20.0, 30.0), bounds.center)
-    assertEquals(Coordinates(20.0, 30.0), bounds.center())
+    @Suppress("DEPRECATION") assertEquals(Coordinates(20.0, 30.0), bounds.center())
   }
 
   @Test
@@ -138,14 +138,154 @@ class BoundsTest {
   }
 
   @Test
+  fun center_antiMeridianCrossing_lngGreaterThan180SubBranch() {
+    // west = 170.0, east = -150.0.
+    // (170.0 + -150.0 + 360.0) / 2.0 = 190.0 > 180.0 -> lng becomes 190.0 - 360.0 = -170.0
+    val bounds = Bounds(south = -10.0, west = 170.0, north = 10.0, east = -150.0)
+    assertEquals(Coordinates(0.0, -170.0), bounds.center)
+    @Suppress("DEPRECATION") assertEquals(Coordinates(0.0, -170.0), bounds.center())
+  }
+
+  @Test
+  fun center_negativeLongitudesAndEquatorCrossing() {
+    val bounds = Bounds(south = -30.0, west = -120.0, north = 10.0, east = -60.0)
+    assertEquals(Coordinates(-10.0, -90.0), bounds.center)
+  }
+
+  @Test
+  fun center_zeroWidthBounds() {
+    val singlePointBounds = Bounds(south = 15.0, west = 25.0, north = 15.0, east = 25.0)
+    assertEquals(Coordinates(15.0, 25.0), singlePointBounds.center)
+  }
+
+  @Test
+  fun shrink_standardBounds() {
+    val shrunk = bounds.shrink(0.5)
+    // original: south = 10, west = 20, north = 30, east = 40. latSpan = 20, lngSpan = 20.
+    // offset = 20 * 0.5 * 0.5 = 5.
+    assertEquals(Bounds(south = 15.0, west = 25.0, north = 25.0, east = 35.0), shrunk)
+  }
+
+  @Test
+  fun shrink_antiMeridianCrossingBounds() {
+    val bounds = Bounds(south = -10.0, west = 170.0, north = 10.0, east = -170.0)
+    // span = 20. offset = 5. newWest = 175, newEast = -175.
+    val shrunk = bounds.shrink(0.5)
+    assertEquals(Bounds(south = -5.0, west = 175.0, north = 5.0, east = -175.0), shrunk)
+  }
+
+  @Test
+  fun contains_coordinates_antiMeridianBoundaries() {
+    val antiMeridianBounds = Bounds(south = -10.0, west = 170.0, north = 10.0, east = -170.0)
+
+    assertTrue(antiMeridianBounds.contains(Coordinates(0.0, 170.0)))
+    assertTrue(antiMeridianBounds.contains(Coordinates(0.0, -170.0)))
+    assertTrue(antiMeridianBounds.contains(Coordinates(0.0, 180.0)))
+    assertTrue(antiMeridianBounds.contains(Coordinates(0.0, -180.0)))
+    assertFalse(antiMeridianBounds.contains(Coordinates(0.0, 169.9999)))
+    assertFalse(antiMeridianBounds.contains(Coordinates(0.0, -169.9999)))
+
+    // Latitude out of range when lng is inside
+    assertFalse(antiMeridianBounds.contains(Coordinates(15.0, 175.0)))
+    assertFalse(antiMeridianBounds.contains(Coordinates(-15.0, -175.0)))
+  }
+
+  @Test
+  fun contains_coordinates_zeroWidthBounds() {
+    val zeroBounds = Bounds(south = 10.0, west = 20.0, north = 10.0, east = 20.0)
+    assertTrue(zeroBounds.contains(Coordinates(10.0, 20.0)))
+    assertFalse(zeroBounds.contains(Coordinates(10.0, 20.001)))
+    assertFalse(zeroBounds.contains(Coordinates(10.001, 20.0)))
+  }
+
+  @Test
+  fun contains_linearRingGeometry() {
+    val ringInside =
+      LinearRing(listOf(Coordinates(15.0, 25.0), Coordinates(25.0, 25.0), Coordinates(15.0, 25.0)))
+    val ringOutside =
+      LinearRing(listOf(Coordinates(0.0, 0.0), Coordinates(5.0, 0.0), Coordinates(0.0, 0.0)))
+    val emptyRing = LinearRing(emptyList())
+
+    assertTrue(bounds.contains(ringInside))
+    assertFalse(bounds.contains(ringOutside))
+    assertFalse(bounds.contains(emptyRing))
+  }
+
+  @Test
+  fun contains_multiPolygonGeometry() {
+    val shellOutside =
+      LinearRing(listOf(Coordinates(0.0, 0.0), Coordinates(5.0, 0.0), Coordinates(0.0, 0.0)))
+    val shellInside =
+      LinearRing(listOf(Coordinates(20.0, 30.0), Coordinates(25.0, 30.0), Coordinates(20.0, 30.0)))
+
+    val multiPolygonAllOutside = MultiPolygon(listOf(Polygon(shellOutside)))
+    val multiPolygonPartialInside =
+      MultiPolygon(listOf(Polygon(shellOutside), Polygon(shellInside)))
+    val emptyMultiPolygon = MultiPolygon(emptyList())
+
+    assertFalse(bounds.contains(multiPolygonAllOutside))
+    assertTrue(bounds.contains(multiPolygonPartialInside))
+    assertFalse(bounds.contains(emptyMultiPolygon))
+  }
+
+  @Test
+  fun contains_geometry_emptyLineStringReturnsFalse() {
+    assertFalse(bounds.contains(LineString(emptyList())))
+  }
+
+  @Test
+  fun contains_polygon_holeVerticesInsideIgnored() {
+    val shellOutside =
+      LinearRing(
+        listOf(
+          Coordinates(0.0, 0.0),
+          Coordinates(0.0, 5.0),
+          Coordinates(5.0, 5.0),
+          Coordinates(5.0, 0.0),
+          Coordinates(0.0, 0.0),
+        )
+      )
+    val holeInside =
+      LinearRing(
+        listOf(
+          Coordinates(20.0, 30.0),
+          Coordinates(20.0, 35.0),
+          Coordinates(25.0, 35.0),
+          Coordinates(20.0, 30.0),
+        )
+      )
+    val polygon = Polygon(shellOutside, listOf(holeInside))
+    assertFalse(bounds.contains(polygon))
+  }
+
+  @Test
   fun fromCoordinates_emptyCoordinates_returnsNull() {
     assertEquals(null, Bounds.fromCoordinates(emptyList()))
     assertEquals(null, Bounds.fromGeometries(emptyList()))
   }
 
   @Test
+  fun fromCoordinates_singleCoordinate() {
+    val single = listOf(Coordinates(12.0, 34.0))
+    val result = Bounds.fromCoordinates(single)
+    assertEquals(Bounds(south = 12.0, west = 34.0, north = 12.0, east = 34.0), result)
+  }
+
+  @Test
   fun fromCoordinates_standard() {
     val coords = listOf(Coordinates(10.0, 40.0), Coordinates(30.0, 20.0))
+    val result = Bounds.fromCoordinates(coords)
+    assertEquals(Bounds(south = 10.0, west = 20.0, north = 30.0, east = 40.0), result)
+  }
+
+  @Test
+  fun fromCoordinates_containedPointsDoNotExpandBounds() {
+    val coords =
+      listOf(
+        Coordinates(10.0, 20.0),
+        Coordinates(30.0, 40.0),
+        Coordinates(20.0, 30.0),
+      )
     val result = Bounds.fromCoordinates(coords)
     assertEquals(Bounds(south = 10.0, west = 20.0, north = 30.0, east = 40.0), result)
   }
@@ -158,7 +298,51 @@ class BoundsTest {
   }
 
   @Test
-  fun fromGeometries_geometry() {
+  fun fromCoordinates_antiMeridianContainedPointsAndExpansion() {
+    val coords =
+      listOf(
+        Coordinates(0.0, 175.0),
+        Coordinates(0.0, -175.0),
+        Coordinates(0.0, 178.0),
+        Coordinates(0.0, -178.0),
+        Coordinates(-10.0, 170.0),
+        Coordinates(10.0, -170.0),
+      )
+    val result = Bounds.fromCoordinates(coords)
+    assertEquals(Bounds(south = -10.0, west = 170.0, north = 10.0, east = -170.0), result)
+  }
+
+  @Test
+  fun fromCoordinates_antiMeridianDualRepresentationNoExplosion() {
+    val coords = listOf(Coordinates(0.0, -180.0), Coordinates(0.0, 180.0))
+    val result = Bounds.fromCoordinates(coords)
+    assertEquals(Bounds(south = 0.0, west = -180.0, north = 0.0, east = -180.0), result)
+  }
+
+  @Test
+  fun fromCoordinates_exactOppositeLongitudesTieBreaker() {
+    val coords = listOf(Coordinates(0.0, 0.0), Coordinates(0.0, 180.0))
+    val result = Bounds.fromCoordinates(coords)
+    assertEquals(Bounds(south = 0.0, west = 0.0, north = 0.0, east = 180.0), result)
+  }
+
+  @Test
+  fun fromGeometries_geometriesWithNoCoordinatesReturnsNull() {
+    val emptyGeometries =
+      listOf(LineString(emptyList()), LinearRing(emptyList()), MultiPolygon(emptyList()))
+    assertEquals(null, Bounds.fromGeometries(emptyGeometries))
+  }
+
+  @Test
+  fun fromGeometries_heterogeneousCollection() {
+    val point = Point(Coordinates(-10.0, -20.0))
+    val lineString = LineString.lineStringOf(Coordinates(10.0, 20.0), Coordinates(30.0, 40.0))
+    val result = Bounds.fromGeometries(listOf(point, lineString))
+    assertEquals(Bounds(south = -10.0, west = -20.0, north = 30.0, east = 40.0), result)
+  }
+
+  @Test
+  fun fromGeometry_singleGeometry() {
     val polygon =
       Polygon(
         LinearRing(
@@ -170,11 +354,7 @@ class BoundsTest {
           )
         )
       )
-    val result = Bounds.fromCoordinates(polygon.getShellCoordinates())
+    val result = Bounds.fromGeometry(polygon)
     assertEquals(Bounds(south = 10.0, west = 20.0, north = 30.0, east = 40.0), result)
-    assertEquals(
-      Bounds(south = 10.0, west = 20.0, north = 30.0, east = 40.0),
-      Bounds.fromGeometries(listOf(polygon)),
-    )
   }
 }

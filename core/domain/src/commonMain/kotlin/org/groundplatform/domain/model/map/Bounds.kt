@@ -17,6 +17,11 @@ package org.groundplatform.domain.model.map
 
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.Geometry
+import org.groundplatform.domain.model.geometry.LineString
+import org.groundplatform.domain.model.geometry.LinearRing
+import org.groundplatform.domain.model.geometry.MultiPolygon
+import org.groundplatform.domain.model.geometry.Point
+import org.groundplatform.domain.model.geometry.Polygon
 
 /**
  * Represents a rectangular bound on a map. A bounds may be constructed using only southwest and
@@ -77,10 +82,15 @@ data class Bounds(val southwest: Coordinates, val northeast: Coordinates) {
    */
   fun shrink(factor: Double): Bounds {
     val latOffset = (north - south) * factor * 0.5
-    val lngOffset = (east - west) * factor * 0.5
+    val lngSpan = if (west <= east) east - west else 360.0 - (west - east)
+    val lngOffset = lngSpan * factor * 0.5
+    var newWest = west + lngOffset
+    if (newWest > 180.0) newWest -= 360.0 else if (newWest < -180.0) newWest += 360.0
+    var newEast = east - lngOffset
+    if (newEast > 180.0) newEast -= 360.0 else if (newEast < -180.0) newEast += 360.0
     return Bounds(
-      Coordinates(south + latOffset, west + lngOffset),
-      Coordinates(north - latOffset, east - lngOffset),
+      Coordinates(south + latOffset, newWest),
+      Coordinates(north - latOffset, newEast),
     )
   }
 
@@ -88,18 +98,40 @@ data class Bounds(val southwest: Coordinates, val northeast: Coordinates) {
   fun contains(coordinates: Coordinates): Boolean {
     val lat = coordinates.lat
     val lng = coordinates.lng
-    val latInRange = lat in south..north
-    val lngInRange = if (west <= east) lng in west..east else lng >= west || lng <= east
-    return latInRange && lngInRange
+    if (lat !in south..north) return false
+    return if (west <= east) {
+      lng in west..east ||
+        (lng == 180.0 && -180.0 in west..east) ||
+        (lng == -180.0 && 180.0 in west..east)
+    } else {
+      lng >= west ||
+        lng <= east ||
+        (lng == 180.0 && (-180.0 >= west || -180.0 <= east)) ||
+        (lng == -180.0 && (180.0 >= west || 180.0 <= east))
+    }
   }
 
   /** Returns true if any vertex of the given [Geometry] is within these bounds. */
-  fun contains(geometry: Geometry): Boolean = geometry.getShellCoordinates().any { contains(it) }
+  fun contains(geometry: Geometry): Boolean =
+    when (geometry) {
+      is Point -> contains(geometry.coordinates)
+      is LineString -> geometry.coordinates.any { contains(it) }
+      is LinearRing -> geometry.coordinates.any { contains(it) }
+      is Polygon -> geometry.shell.coordinates.any { contains(it) }
+      is MultiPolygon -> geometry.polygons.any { contains(it) }
+    }
 
   /** Returns the center coordinates of these bounds. */
+  @Deprecated("Use center property instead", ReplaceWith("center"))
   fun center(): Coordinates = center
 
   companion object {
+    /** Returns a [Bounds] enclosing the given geometry, or null if empty. */
+    fun fromGeometry(geometry: Geometry): Bounds? = fromCoordinates(geometry.getShellCoordinates())
+
+    private fun isLongitudeContained(lng: Double, west: Double, east: Double): Boolean =
+      if (west <= east) lng in west..east else lng >= west || lng <= east
+
     /**
      * Returns a [Bounds] enclosing all the given coordinates, or null if the collection is empty.
      *
@@ -121,10 +153,13 @@ data class Bounds(val southwest: Coordinates, val northeast: Coordinates) {
         maxLat = maxOf(maxLat, point.lat)
         val lng = point.lng
 
-        val isContained = if (west <= east) lng in west..east else lng >= west || lng <= east
-        if (!isContained) {
+        if (!isLongitudeContained(lng, west, east)) {
           val distWest = (west - lng).mod(360.0)
           val distEast = (lng - east).mod(360.0)
+          if (distWest == 0.0 || distEast == 0.0) {
+            // Point is coincident with west or east boundary modulo 360 (e.g. -180.0 vs 180.0).
+            continue
+          }
           if (distWest < distEast) {
             west = lng
           } else {
