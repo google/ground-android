@@ -29,11 +29,6 @@ import org.groundplatform.domain.model.map.Bounds
 /** Extensions for indirectly using GMS functions in map-provider agnostic codebase. */
 object GmsExt {
 
-  fun Bounds.contains(geometry: Geometry): Boolean {
-    val latLngBounds = toGoogleMapsObject()
-    return geometry.getShellCoordinates().any { latLngBounds.contains(it.toLatLng()) }
-  }
-
   fun Bounds.center(): Coordinates = toGoogleMapsObject().center.toModelObject()
 
   fun List<Geometry>.toBounds(): Bounds? {
@@ -48,16 +43,6 @@ object GmsExt {
 
     return null
   }
-
-  /** Returns the list of [Coordinates] in the geometry or in the outer shell of the geometry. */
-  fun Geometry.getShellCoordinates(): List<Coordinates> =
-    when (this) {
-      is Point -> listOf(coordinates)
-      is LineString -> coordinates
-      is LinearRing -> coordinates
-      is Polygon -> getShellCoordinates()
-      is MultiPolygon -> polygons.flatMap { it.getShellCoordinates() }
-    }
 
   fun Geometry.area(): Double =
     when (this) {

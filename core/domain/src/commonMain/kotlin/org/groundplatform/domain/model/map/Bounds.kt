@@ -16,6 +16,7 @@
 package org.groundplatform.domain.model.map
 
 import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.geometry.Geometry
 
 /**
  * Represents a rectangular bound on a map. A bounds may be constructed using only southwest and
@@ -67,4 +68,16 @@ data class Bounds(val southwest: Coordinates, val northeast: Coordinates) {
       Coordinates(north - latOffset, east - lngOffset),
     )
   }
+
+  /** Returns true if the given [Coordinates] is within these bounds. */
+  fun contains(coordinates: Coordinates): Boolean {
+    val lat = coordinates.lat
+    val lng = coordinates.lng
+    val latInRange = lat in south..north
+    val lngInRange = if (west <= east) lng in west..east else lng >= west || lng <= east
+    return latInRange && lngInRange
+  }
+
+  /** Returns true if any vertex of the given [Geometry] is within these bounds. */
+  fun contains(geometry: Geometry): Boolean = geometry.getShellCoordinates().any { contains(it) }
 }

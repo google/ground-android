@@ -31,6 +31,9 @@ sealed interface Geometry {
   /** Returns true if there are one or more vertices in the geometry. */
   fun isEmpty(): Boolean
 
+  /** Returns the list of [Coordinates] in the geometry or in the outer shell of the geometry. */
+  fun getShellCoordinates(): List<Coordinates>
+
   /** Validates that the current [Geometry] is well-formed. */
   fun validate() {
     // default no-op implementation
@@ -49,7 +52,7 @@ data class Polygon(val shell: LinearRing, val holes: List<LinearRing> = listOf()
 
   override fun isEmpty() = shell.isEmpty()
 
-  fun getShellCoordinates() = shell.coordinates
+  override fun getShellCoordinates(): List<Coordinates> = shell.coordinates
 }
 
 /** Represents a single point. */
@@ -60,6 +63,8 @@ data class Point(val coordinates: Coordinates) : Geometry {
   override fun center(): Coordinates = coordinates
 
   override fun isEmpty() = false
+
+  override fun getShellCoordinates(): List<Coordinates> = listOf(coordinates)
 }
 
 /** A collection of [Polygon]s. */
@@ -70,6 +75,10 @@ data class MultiPolygon(val polygons: List<Polygon>) : Geometry {
   override fun center(): Coordinates = polygons.map { it.center() }.centerOrError()
 
   override fun isEmpty() = polygons.all { it.isEmpty() }
+
+  override fun getShellCoordinates(): List<Coordinates> = polygons.flatMap {
+    it.getShellCoordinates()
+  }
 }
 
 /** A sequence of two or more vertices modelling an OCG style line string. */
@@ -80,6 +89,8 @@ data class LineString(val coordinates: List<Coordinates>) : Geometry {
   override fun center(): Coordinates = coordinates.centerOrError()
 
   override fun isEmpty() = coordinates.isEmpty()
+
+  override fun getShellCoordinates(): List<Coordinates> = coordinates
 
   fun isClosed(): Boolean = isClosed(coordinates)
 
@@ -103,6 +114,8 @@ data class LinearRing(val coordinates: List<Coordinates>) : Geometry {
   override fun center(): Coordinates = coordinates.centerOrError()
 
   override fun isEmpty() = coordinates.isEmpty()
+
+  override fun getShellCoordinates(): List<Coordinates> = coordinates
 
   override fun validate() {
     // TODO: Check for vertices count > 3

@@ -56,7 +56,6 @@ import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.NewCameraPositionViaBounds
 import org.groundplatform.android.ui.map.NewCameraPositionViaCoordinates
 import org.groundplatform.android.ui.map.NewCameraPositionViaCoordinatesAndZoomLevel
-import org.groundplatform.android.ui.map.gms.GmsExt.contains
 import org.groundplatform.android.ui.map.gms.GmsExt.toBounds
 import org.groundplatform.android.ui.map.gms.toCoordinates
 import org.groundplatform.android.ui.util.getDefaultColor

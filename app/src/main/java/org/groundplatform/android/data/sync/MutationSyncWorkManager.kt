@@ -18,9 +18,11 @@ package org.groundplatform.android.data.sync
 import androidx.work.ExistingWorkPolicy
 import androidx.work.WorkManager
 import javax.inject.Inject
+import org.groundplatform.domain.system.sync.MutationSyncManager
 
 /** Enqueues data sync work to be done in the background. */
-class MutationSyncWorkManager @Inject constructor(private val workManager: WorkManager) {
+class MutationSyncWorkManager @Inject constructor(private val workManager: WorkManager) :
+  MutationSyncManager {
 
   /**
    * Enqueues a worker that sends changes made locally to the remote data store once a network
@@ -31,7 +33,7 @@ class MutationSyncWorkManager @Inject constructor(private val workManager: WorkM
    * worker again on each new mutation. This simplifies the worker implementation and avoids race
    * conditions in the rare event the worker finishes just when new mutations are added to the db.
    */
-  fun enqueueSyncWorker() {
+  override fun enqueueSync() {
     val request =
       WorkRequestBuilder().setWorkerClass(LocalMutationSyncWorker::class.java).buildWorkerRequest()
     workManager.enqueueUniqueWork(
@@ -40,4 +42,6 @@ class MutationSyncWorkManager @Inject constructor(private val workManager: WorkM
       request,
     )
   }
+
+  fun enqueueSyncWorker() = enqueueSync()
 }

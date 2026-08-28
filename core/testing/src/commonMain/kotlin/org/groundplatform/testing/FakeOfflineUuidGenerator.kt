@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google LLC
+ * Copyright 2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.data.uuid
 
-typealias OfflineUuidGenerator = org.groundplatform.domain.system.uuid.OfflineUuidGenerator
+package org.groundplatform.testing
+
+import org.groundplatform.domain.system.uuid.OfflineUuidGenerator
+
+class FakeOfflineUuidGenerator(var nextUuid: String = "uuid") : OfflineUuidGenerator {
+  override suspend fun generateUuid(): String = nextUuid
+}

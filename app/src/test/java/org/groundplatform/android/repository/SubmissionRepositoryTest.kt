@@ -19,6 +19,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.runTest
 import org.groundplatform.android.data.sync.MutationSyncWorkManager
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
+import org.groundplatform.data.repository.SubmissionRepository
 import org.groundplatform.data.stores.LocalSubmissionStore
 import org.groundplatform.data.stores.LocalValueStore
 import org.groundplatform.domain.model.User
@@ -94,7 +95,7 @@ class SubmissionRepositoryTest {
       assertThat(userId).isEqualTo(TEST_USER.id)
       assertThat(collectionId).isEqualTo(collectionId)
     }
-    verify(mutationSyncWorkManager).enqueueSyncWorker()
+    verify(mutationSyncWorkManager).enqueueSync()
   }
 
   @Test
@@ -109,7 +110,7 @@ class SubmissionRepositoryTest {
     )
 
     verify(localSubmissionStore, never()).applyAndEnqueue(any())
-    verify(mutationSyncWorkManager, never()).enqueueSyncWorker()
+    verify(mutationSyncWorkManager, never()).enqueueSync()
   }
 
   @Test

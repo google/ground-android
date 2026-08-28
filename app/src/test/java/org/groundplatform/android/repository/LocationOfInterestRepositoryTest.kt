@@ -128,12 +128,12 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   fun `apply and enqueue when enqueues worker`() = runWithTestDispatcher {
     locationOfInterestRepository.applyAndEnqueue(mutation)
 
-    verify(mockWorkManager).enqueueSyncWorker()
+    verify(mockWorkManager).enqueueSync()
   }
 
   @Test
   fun `apply and enqueue when returns error on worker sync failure`() = runWithTestDispatcher {
-    `when`(mockWorkManager.enqueueSyncWorker()).thenThrow(Error())
+    `when`(mockWorkManager.enqueueSync()).thenThrow(Error())
 
     assertFailsWith<Error> {
       locationOfInterestRepository.applyAndEnqueue(
@@ -141,7 +141,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
       )
     }
 
-    verify(mockWorkManager, times(1)).enqueueSyncWorker()
+    verify(mockWorkManager, times(1)).enqueueSync()
   }
 
   @Test

@@ -13,18 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.repository
+package org.groundplatform.data.repository
 
-import javax.inject.Inject
-import javax.inject.Singleton
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
-import org.groundplatform.android.data.sync.MutationSyncWorkManager
-import org.groundplatform.android.data.uuid.OfflineUuidGenerator
-import org.groundplatform.android.system.auth.AuthenticationManager
-import org.groundplatform.android.ui.map.gms.GmsExt.contains
 import org.groundplatform.data.stores.LocalLocationOfInterestStore
 import org.groundplatform.data.stores.LocalSurveyStore
 import org.groundplatform.data.stores.RemoteDataStore
@@ -40,21 +35,20 @@ import org.groundplatform.domain.model.mutation.Mutation
 import org.groundplatform.domain.model.mutation.Mutation.SyncStatus
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
-import timber.log.Timber
+import org.groundplatform.domain.system.auth.AuthenticationManager
+import org.groundplatform.domain.system.sync.MutationSyncManager
+import org.groundplatform.domain.system.uuid.OfflineUuidGenerator
 
 /**
  * Coordinates persistence and retrieval of [LocationOfInterest] instances from remote, local, and
  * in memory data stores. For more details on this pattern and overall architecture, see
  * https://developer.android.com/jetpack/docs/guide.
  */
-@Singleton
-class LocationOfInterestRepository
-@Inject
-constructor(
+class LocationOfInterestRepository(
   private val localSurveyStore: LocalSurveyStore,
   private val localLoiStore: LocalLocationOfInterestStore,
   private val remoteDataStore: RemoteDataStore,
-  private val mutationSyncWorkManager: MutationSyncWorkManager,
+  private val mutationSyncManager: MutationSyncManager,
   private val userRepository: UserRepositoryInterface,
   private val uuidGenerator: OfflineUuidGenerator,
   private val authenticationManager: AuthenticationManager,
@@ -104,9 +98,9 @@ constructor(
     val locationOfInterest = survey?.let { localLoiStore.getLocationOfInterest(it, loiId) }
 
     if (survey == null) {
-      Timber.e("Survey not found: $surveyId")
+      Logger.e { "Survey not found: $surveyId" }
     } else if (locationOfInterest == null) {
-      Timber.e("LOI not found for survey $surveyId: LOI ID $loiId")
+      Logger.e { "LOI not found for survey $surveyId: LOI ID $loiId" }
     }
     return locationOfInterest
   }
@@ -164,7 +158,7 @@ constructor(
     }
 
     localLoiStore.applyAndEnqueue(mutation)
-    mutationSyncWorkManager.enqueueSyncWorker()
+    mutationSyncManager.enqueueSync()
   }
 
   override suspend fun hasValidLois(surveyId: String): Boolean =
@@ -177,7 +171,7 @@ constructor(
         .filter { loi ->
           val isValid = !loi.geometry.isEmpty()
           if (!isValid) {
-            Timber.w("Filtering out LOI ${loi.id} with empty coordinates: $loi")
+            Logger.w { "Filtering out LOI ${loi.id} with empty coordinates: $loi" }
           }
           isValid
         }

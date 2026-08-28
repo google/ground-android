@@ -13,12 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.repository
+package org.groundplatform.data.repository
 
-import javax.inject.Inject
-import javax.inject.Singleton
-import org.groundplatform.android.data.sync.MutationSyncWorkManager
-import org.groundplatform.android.data.uuid.OfflineUuidGenerator
+import co.touchlab.kermit.Logger
 import org.groundplatform.data.stores.LocalSubmissionStore
 import org.groundplatform.data.stores.LocalValueStore
 import org.groundplatform.domain.model.Survey
@@ -31,16 +28,14 @@ import org.groundplatform.domain.model.submission.ValueDelta
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import org.groundplatform.domain.repository.SubmissionRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
-import timber.log.Timber
+import org.groundplatform.domain.system.sync.MutationSyncManager
+import org.groundplatform.domain.system.uuid.OfflineUuidGenerator
 
-@Singleton
-class SubmissionRepository
-@Inject
-constructor(
+class SubmissionRepository(
   private val localSubmissionStore: LocalSubmissionStore,
   private val localValueStore: LocalValueStore,
   private val locationOfInterestRepository: LocationOfInterestRepositoryInterface,
-  private val mutationSyncWorkManager: MutationSyncWorkManager,
+  private val mutationSyncManager: MutationSyncManager,
   private val userRepository: UserRepositoryInterface,
   private val uuidGenerator: OfflineUuidGenerator,
 ) : SubmissionRepositoryInterface {
@@ -67,7 +62,7 @@ constructor(
           collectionId = collectionId,
         )
       applyAndEnqueue(mutation)
-    } ?: run { Timber.w("Job not found for survey $surveyId and LOI $locationOfInterestId") }
+    } ?: run { Logger.w { "Job not found for survey $surveyId and LOI $locationOfInterestId" } }
   }
 
   override suspend fun getDraftSubmission(survey: Survey): DraftSubmission? {
@@ -76,7 +71,7 @@ constructor(
       if (draftId.isNullOrEmpty()) null
       else localSubmissionStore.getDraftSubmission(draftSubmissionId = draftId, survey = survey)
     if (draft != null && draft.surveyId != survey.id) {
-      Timber.e("Skipping draft submission, survey id doesn't match")
+      Logger.e { "Skipping draft submission, survey id doesn't match" }
       return null
     }
     return draft
@@ -112,7 +107,7 @@ constructor(
 
   private suspend fun applyAndEnqueue(mutation: SubmissionMutation) {
     localSubmissionStore.applyAndEnqueue(mutation)
-    mutationSyncWorkManager.enqueueSyncWorker()
+    mutationSyncManager.enqueueSync()
   }
 
   override suspend fun getTotalSubmissionCount(loi: LocationOfInterest) =

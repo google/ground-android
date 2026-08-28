@@ -22,13 +22,14 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import jakarta.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
+import org.groundplatform.android.data.sync.MutationSyncWorkManager
 import org.groundplatform.android.di.coroutines.ApplicationScope
-import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.OfflineAreaRepository
-import org.groundplatform.android.repository.SubmissionRepository
 import org.groundplatform.android.repository.UserMediaRepository
+import org.groundplatform.data.repository.LocationOfInterestRepository
 import org.groundplatform.data.repository.MapStateRepository
 import org.groundplatform.data.repository.MutationRepository
+import org.groundplatform.data.repository.SubmissionRepository
 import org.groundplatform.data.repository.SurveyRepository
 import org.groundplatform.data.repository.TermsOfServiceRepository
 import org.groundplatform.data.repository.UserRepository
@@ -51,15 +52,31 @@ import org.groundplatform.domain.repository.UserRepositoryInterface
 import org.groundplatform.domain.system.CrashLogger
 import org.groundplatform.domain.system.NetworkManagerInterface
 import org.groundplatform.domain.system.auth.AuthenticationManager
+import org.groundplatform.domain.system.uuid.OfflineUuidGenerator
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class LocationOfInterestRepositoryModule {
-  @Binds
+object LocationOfInterestRepositoryModule {
+  @Provides
   @Singleton
-  abstract fun bindLocationOfInterestRepository(
-    impl: LocationOfInterestRepository
-  ): LocationOfInterestRepositoryInterface
+  fun provideLocationOfInterestRepository(
+    localSurveyStore: LocalSurveyStore,
+    localLoiStore: LocalLocationOfInterestStore,
+    remoteDataStore: RemoteDataStore,
+    mutationSyncWorkManager: MutationSyncWorkManager,
+    userRepository: UserRepositoryInterface,
+    uuidGenerator: OfflineUuidGenerator,
+    authenticationManager: AuthenticationManager,
+  ): LocationOfInterestRepositoryInterface =
+    LocationOfInterestRepository(
+      localSurveyStore,
+      localLoiStore,
+      remoteDataStore,
+      mutationSyncWorkManager,
+      userRepository,
+      uuidGenerator,
+      authenticationManager,
+    )
 }
 
 @Module
@@ -104,10 +121,25 @@ object SurveyRepositoryModule {
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class SubmissionRepositoryModule {
-  @Binds
+object SubmissionRepositoryModule {
+  @Provides
   @Singleton
-  abstract fun bindSubmissionRepository(impl: SubmissionRepository): SubmissionRepositoryInterface
+  fun provideSubmissionRepository(
+    localSubmissionStore: LocalSubmissionStore,
+    localValueStore: LocalValueStore,
+    locationOfInterestRepository: LocationOfInterestRepositoryInterface,
+    mutationSyncWorkManager: MutationSyncWorkManager,
+    userRepository: UserRepositoryInterface,
+    uuidGenerator: OfflineUuidGenerator,
+  ): SubmissionRepositoryInterface =
+    SubmissionRepository(
+      localSubmissionStore,
+      localValueStore,
+      locationOfInterestRepository,
+      mutationSyncWorkManager,
+      userRepository,
+      uuidGenerator,
+    )
 }
 
 @Module
