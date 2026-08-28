@@ -24,14 +24,16 @@ import jakarta.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import org.groundplatform.android.di.coroutines.ApplicationScope
 import org.groundplatform.android.repository.LocationOfInterestRepository
-import org.groundplatform.android.repository.MutationRepository
 import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.android.repository.SubmissionRepository
 import org.groundplatform.android.repository.UserMediaRepository
 import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.data.repository.MapStateRepository
+import org.groundplatform.data.repository.MutationRepository
 import org.groundplatform.data.repository.SurveyRepository
 import org.groundplatform.data.repository.TermsOfServiceRepository
+import org.groundplatform.data.stores.LocalLocationOfInterestStore
+import org.groundplatform.data.stores.LocalSubmissionStore
 import org.groundplatform.data.stores.LocalSurveyStore
 import org.groundplatform.data.stores.LocalValueStore
 import org.groundplatform.data.stores.RemoteDataStore
@@ -97,10 +99,21 @@ object MapStateRepositoryModule {
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class MutationRepositoryModule {
-  @Binds
+object MutationRepositoryModule {
+  @Provides
   @Singleton
-  abstract fun bindMutationRepository(impl: MutationRepository): MutationRepositoryInterface
+  fun provideMutationRepository(
+    localLocationOfInterestStore: LocalLocationOfInterestStore,
+    localSubmissionStore: LocalSubmissionStore,
+    remoteDataStore: RemoteDataStore,
+    userRepository: UserRepositoryInterface,
+  ): MutationRepositoryInterface =
+    MutationRepository(
+      localLocationOfInterestStore,
+      localSubmissionStore,
+      remoteDataStore,
+      userRepository,
+    )
 }
 
 @Module

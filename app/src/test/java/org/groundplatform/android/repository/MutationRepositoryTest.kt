@@ -19,7 +19,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
-import org.groundplatform.android.system.auth.AuthenticationManager
+import org.groundplatform.data.repository.MutationRepository
 import org.groundplatform.data.stores.LocalLocationOfInterestStore
 import org.groundplatform.data.stores.LocalSubmissionStore
 import org.groundplatform.data.stores.RemoteDataStore
@@ -55,7 +55,6 @@ import org.mockito.kotlin.whenever
 @RunWith(MockitoJUnitRunner::class)
 class MutationRepositoryTest {
 
-  @Mock private lateinit var authenticationManager: AuthenticationManager
   @Mock private lateinit var localLoiStore: LocalLocationOfInterestStore
   @Mock private lateinit var localSubmissionStore: LocalSubmissionStore
   @Mock private lateinit var remoteDataStore: RemoteDataStore
@@ -67,7 +66,6 @@ class MutationRepositoryTest {
   fun setUp() {
     repository =
       MutationRepository(
-        authenticationManager,
         localLoiStore,
         localSubmissionStore,
         remoteDataStore,
@@ -321,7 +319,6 @@ class MutationRepositoryTest {
     loiMutations: List<LocationOfInterestMutation> = emptyList(),
     submissionMutations: List<SubmissionMutation> = emptyList(),
   ) {
-    whenever(authenticationManager.getAuthenticatedUser()).thenReturn(user)
     whenever(userRepository.getAuthenticatedUser()).thenReturn(user)
     whenever(localLoiStore.getAllMutationsFlow()).thenReturn(flowOf(loiMutations))
     whenever(localSubmissionStore.getAllMutationsFlow()).thenReturn(flowOf(submissionMutations))

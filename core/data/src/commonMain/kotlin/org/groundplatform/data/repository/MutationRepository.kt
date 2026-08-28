@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-package org.groundplatform.android.repository
+package org.groundplatform.data.repository
 
-import javax.inject.Inject
-import javax.inject.Singleton
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
-import org.groundplatform.android.system.auth.AuthenticationManager
-import org.groundplatform.android.util.priority
 import org.groundplatform.data.stores.LocalLocationOfInterestStore
 import org.groundplatform.data.stores.LocalSubmissionStore
 import org.groundplatform.data.stores.RemoteDataStore
@@ -42,13 +39,8 @@ import org.groundplatform.domain.model.mutation.SubmissionMutation
 import org.groundplatform.domain.model.submission.UploadQueueEntry
 import org.groundplatform.domain.repository.MutationRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
-import timber.log.Timber
 
-@Singleton
-class MutationRepository
-@Inject
-constructor(
-  private val authenticationManager: AuthenticationManager,
+class MutationRepository(
   private val localLocationOfInterestStore: LocalLocationOfInterestStore,
   private val localSubmissionStore: LocalSubmissionStore,
   private val remoteDataStore: RemoteDataStore,
@@ -81,7 +73,7 @@ constructor(
     loiMutations: List<LocationOfInterestMutation>,
     submissionMutations: List<SubmissionMutation>,
   ): List<UploadQueueEntry> {
-    val user = authenticationManager.getAuthenticatedUser()
+    val user = userRepository.getAuthenticatedUser()
     val loiMutationMap = loiMutations.filterByUser(user).associateBy { it.collectionId }
     val submissionMutationMap =
       submissionMutations.filterByUser(user).associateBy { it.collectionId }
@@ -101,7 +93,7 @@ constructor(
   private fun <T : Mutation> List<T>.filterByUser(user: User): List<T> {
     val (validMutations, invalidMutations) = partition { it.userId == user.id }
     if (invalidMutations.isNotEmpty()) {
-      Timber.e("Mutation(s) not deleted on sign-out")
+      Logger.e("Mutation(s) not deleted on sign-out")
     }
     return validMutations
   }
@@ -134,7 +126,7 @@ constructor(
       // Mark all mutations as having failed since the remote datastore only commits when all
       // mutations have succeeded.
       markAsFailed(mutations, t)
-      Timber.log(t.priority(), t, "Failed to sync local data")
+      Logger.e("Failed to sync local data", t)
       MutationRepositoryInterface.MutationResult.Failure
     }
 
