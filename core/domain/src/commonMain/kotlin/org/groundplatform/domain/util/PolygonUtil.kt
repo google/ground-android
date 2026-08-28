@@ -60,42 +60,6 @@ fun calculateSphericalPolygonArea(
 }
 
 /**
- * Calculates the area of a polygon using the Shoelace formula.
- *
- * This function computes the area of a simple, non-self-intersecting polygon based on its vertex
- * coordinates. The first coordinate is used as a reference to convert all other points to meters.
- *
- * @param coordinates A list of [org.groundplatform.domain.model.geometry.Coordinates] representing
- *   the vertices of the polygon. The list must contain at least three points; otherwise, the
- *   function returns 0.0.
- * @return The area of the polygon in square meters.
- */
-fun calculateShoelacePolygonArea(coordinates: List<Coordinates>): Double {
-  if (coordinates.size < 3) return 0.0
-
-  val reference = coordinates[0]
-  val points = coordinates.map { toMeters(reference, it) }
-
-  return abs(
-    points.indices.sumOf { i ->
-      val j = (i + 1) % points.size
-      points[i].first * points[j].second - points[j].first * points[i].second
-    }
-  ) / 2.0
-}
-
-/** Converts geographic coordinate to meters relative to reference point. */
-private fun toMeters(reference: Coordinates, point: Coordinates): Pair<Double, Double> {
-  val earthRadius = 6378137.0
-  val toRad = PI / 180.0
-  val avgLat = (reference.lat + point.lat) / 2.0
-
-  val dX = (point.lng - reference.lng) * earthRadius * cos(avgLat * toRad) * toRad
-  val dY = (point.lat - reference.lat) * earthRadius * toRad
-  return Pair(dX, dY)
-}
-
-/**
  * Checks if a polygon is self-intersecting.
  *
  * @param vertices Polygon vertices
