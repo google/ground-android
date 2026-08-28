@@ -17,8 +17,45 @@ package org.groundplatform.domain.util
 
 import kotlin.math.PI
 import kotlin.math.abs
+import kotlin.math.atan2
 import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.tan
 import org.groundplatform.domain.model.geometry.Coordinates
+
+/** Earth's mean radius in meters used for spherical calculations. */
+private const val EARTH_RADIUS_METERS = 6371009.0
+private const val DEG_TO_RAD = PI / 180.0
+
+private fun polarTriangleArea(tan1: Double, lng1: Double, tan2: Double, lng2: Double): Double {
+  val deltaLng = lng1 - lng2
+  val t = tan1 * tan2
+  return 2.0 * atan2(t * sin(deltaLng), 1.0 + t * cos(deltaLng))
+}
+
+/**
+ * Returns the area of a closed path on Earth's surface in square meters, assuming a spherical
+ * Earth.
+ */
+fun calculateSphericalPolygonArea(
+  coordinates: List<Coordinates>,
+  radius: Double = EARTH_RADIUS_METERS,
+): Double {
+  val size = coordinates.size
+  if (size < 3) return 0.0
+  var total = 0.0
+  val prev = coordinates[size - 1]
+  var prevTanLat = tan((PI / 2.0 - prev.lat * DEG_TO_RAD) / 2.0)
+  var prevLng = prev.lng * DEG_TO_RAD
+  for (point in coordinates) {
+    val tanLat = tan((PI / 2.0 - point.lat * DEG_TO_RAD) / 2.0)
+    val lng = point.lng * DEG_TO_RAD
+    total += polarTriangleArea(tanLat, lng, prevTanLat, prevLng)
+    prevTanLat = tanLat
+    prevLng = lng
+  }
+  return abs(total * (radius * radius))
+}
 
 /**
  * Calculates the area of a polygon using the Shoelace formula.

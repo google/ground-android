@@ -39,7 +39,6 @@ import org.groundplatform.android.data.local.stores.LocalSubmissionStore
 import org.groundplatform.android.data.local.stores.LocalSurveyStore
 import org.groundplatform.android.data.local.stores.LocalUserStore
 import org.groundplatform.android.proto.geometry
-import org.groundplatform.android.ui.map.gms.GmsExt.getShellCoordinates
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.User
 import org.groundplatform.domain.model.geometry.Coordinates

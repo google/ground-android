@@ -15,8 +15,10 @@
  */
 package org.groundplatform.domain.model.geometry
 
+import kotlin.math.max
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import org.groundplatform.domain.util.calculateSphericalPolygonArea
 import org.groundplatform.domain.util.isClosed
 
 /** A common ancestor for all geometry types. */
@@ -30,6 +32,15 @@ sealed interface Geometry {
 
   /** Returns true if there are one or more vertices in the geometry. */
   fun isEmpty(): Boolean
+
+  /** Returns the list of [Coordinates] in the geometry or in the outer shell of the geometry. */
+  fun getShellCoordinates(): List<Coordinates>
+
+  /**
+   * Returns the geodesic area of the geometry in square meters, or 0.0 for 0-dimensional and
+   * 1-dimensional geometries.
+   */
+  fun area(): Double
 
   /** Validates that the current [Geometry] is well-formed. */
   fun validate() {
@@ -49,7 +60,9 @@ data class Polygon(val shell: LinearRing, val holes: List<LinearRing> = listOf()
 
   override fun isEmpty() = shell.isEmpty()
 
-  fun getShellCoordinates() = shell.coordinates
+  override fun getShellCoordinates(): List<Coordinates> = shell.coordinates
+
+  override fun area(): Double = max(0.0, shell.area() - holes.sumOf { it.area() })
 }
 
 /** Represents a single point. */
@@ -60,6 +73,10 @@ data class Point(val coordinates: Coordinates) : Geometry {
   override fun center(): Coordinates = coordinates
 
   override fun isEmpty() = false
+
+  override fun getShellCoordinates(): List<Coordinates> = listOf(coordinates)
+
+  override fun area(): Double = 0.0
 }
 
 /** A collection of [Polygon]s. */
@@ -70,6 +87,12 @@ data class MultiPolygon(val polygons: List<Polygon>) : Geometry {
   override fun center(): Coordinates = polygons.map { it.center() }.centerOrError()
 
   override fun isEmpty() = polygons.all { it.isEmpty() }
+
+  override fun getShellCoordinates(): List<Coordinates> = polygons.flatMap {
+    it.getShellCoordinates()
+  }
+
+  override fun area(): Double = polygons.sumOf { it.area() }
 }
 
 /** A sequence of two or more vertices modelling an OCG style line string. */
@@ -80,6 +103,10 @@ data class LineString(val coordinates: List<Coordinates>) : Geometry {
   override fun center(): Coordinates = coordinates.centerOrError()
 
   override fun isEmpty() = coordinates.isEmpty()
+
+  override fun getShellCoordinates(): List<Coordinates> = coordinates
+
+  override fun area(): Double = 0.0
 
   fun isClosed(): Boolean = isClosed(coordinates)
 
@@ -103,6 +130,10 @@ data class LinearRing(val coordinates: List<Coordinates>) : Geometry {
   override fun center(): Coordinates = coordinates.centerOrError()
 
   override fun isEmpty() = coordinates.isEmpty()
+
+  override fun getShellCoordinates(): List<Coordinates> = coordinates
+
+  override fun area(): Double = calculateSphericalPolygonArea(coordinates)
 
   override fun validate() {
     // TODO: Check for vertices count > 3

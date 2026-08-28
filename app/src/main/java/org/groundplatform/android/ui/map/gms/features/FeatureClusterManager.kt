@@ -26,7 +26,6 @@ import com.google.maps.android.collections.MarkerManager
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.IconFactory
 import org.groundplatform.android.ui.map.Feature
-import org.groundplatform.android.ui.map.gms.GmsExt.toBounds
 import org.groundplatform.android.ui.map.gms.toGoogleMapsObject
 import org.groundplatform.domain.model.map.Bounds
 
@@ -86,7 +85,7 @@ class FeatureClusterManager(
 
   /** Pan and zoom the camera to the bounds of features contained in the selected cluster. */
   private fun onClusterClick(cluster: Cluster<FeatureClusterItem>): Boolean {
-    cluster.items.map { it.feature.geometry }.toBounds()?.let { animateCamera(it) }
+    Bounds.fromGeometries(cluster.items.map { it.feature.geometry })?.let { animateCamera(it) }
     return true
   }
 

@@ -56,14 +56,13 @@ import org.groundplatform.android.ui.map.Feature
 import org.groundplatform.android.ui.map.NewCameraPositionViaBounds
 import org.groundplatform.android.ui.map.NewCameraPositionViaCoordinates
 import org.groundplatform.android.ui.map.NewCameraPositionViaCoordinatesAndZoomLevel
-import org.groundplatform.android.ui.map.gms.GmsExt.contains
-import org.groundplatform.android.ui.map.gms.GmsExt.toBounds
 import org.groundplatform.android.ui.map.gms.toCoordinates
 import org.groundplatform.android.ui.util.getDefaultColor
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.imagery.TileSource
 import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
+import org.groundplatform.domain.model.map.Bounds
 import org.groundplatform.domain.model.map.CameraPosition
 import org.groundplatform.domain.model.map.MapType
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
@@ -300,7 +299,9 @@ constructor(
 
     // Compute the default viewport which includes all LOIs in the given survey.
     val geometries = locationOfInterestRepository.getValidLois(survey).first().map { it.geometry }
-    return geometries.toBounds()?.let { NewCameraPositionViaBounds(bounds = it, padding = 100) }
+    return Bounds.fromGeometries(geometries)?.let {
+      NewCameraPositionViaBounds(bounds = it, padding = 100)
+    }
   }
 
   /** Called when the map camera is moved. */
