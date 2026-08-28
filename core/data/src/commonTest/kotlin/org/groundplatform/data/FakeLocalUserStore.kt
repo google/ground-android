@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.system.auth
 
-typealias AuthenticationManager = org.groundplatform.domain.system.auth.AuthenticationManager
+package org.groundplatform.data
+
+import org.groundplatform.data.stores.LocalUserStore
+import org.groundplatform.domain.model.User
+
+class FakeLocalUserStore : LocalUserStore {
+  private val users = mutableMapOf<String, User>()
+
+  override suspend fun insertOrUpdateUser(user: User) {
+    users[user.id] = user
+  }
+
+  override suspend fun getUser(id: String): User = users[id] ?: error("User not found: $id")
+
+  override suspend fun getUserOrNull(id: String): User? = users[id]
+}

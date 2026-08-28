@@ -23,6 +23,7 @@ import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 import org.groundplatform.android.data.local.SharedPreferencesLocalValueStore
 import org.groundplatform.android.data.local.room.LocalDatabase
+import org.groundplatform.android.data.local.room.RoomLocalDatabase
 import org.groundplatform.android.data.local.room.dao.ConditionDao
 import org.groundplatform.android.data.local.room.dao.DraftSubmissionDao
 import org.groundplatform.android.data.local.room.dao.ExpressionDao
@@ -72,6 +73,12 @@ abstract class LocalDataStoreModule {
   @Binds
   @Singleton
   abstract fun localValueStore(store: SharedPreferencesLocalValueStore): LocalValueStore
+
+  @Binds
+  @Singleton
+  abstract fun localDatabase(
+    database: RoomLocalDatabase
+  ): org.groundplatform.data.stores.LocalDatabase
 
   companion object {
     @Provides

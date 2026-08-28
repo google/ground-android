@@ -31,6 +31,7 @@ class FakeRemoteDataStore : RemoteDataStore {
   val subscribedSurveyUpdates = mutableListOf<String>()
   val unsubscribedSurveyUpdates = mutableListOf<String>()
   val appliedMutations = mutableListOf<Mutation>()
+  var refreshUserProfileCount = 0
 
   override suspend fun loadTermsOfService(): TermsOfService? = termsOfServiceResult.getOrThrow()
 
@@ -61,5 +62,7 @@ class FakeRemoteDataStore : RemoteDataStore {
     unsubscribedSurveyUpdates.add(surveyId)
   }
 
-  override suspend fun refreshUserProfile() = Unit
+  override suspend fun refreshUserProfile() {
+    refreshUserProfileCount++
+  }
 }

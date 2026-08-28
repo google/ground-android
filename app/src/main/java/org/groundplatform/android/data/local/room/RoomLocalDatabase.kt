@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.system.auth
 
-typealias AuthenticationManager = org.groundplatform.domain.system.auth.AuthenticationManager
+package org.groundplatform.android.data.local.room
+
+import javax.inject.Inject
+import javax.inject.Singleton
+
+@Singleton
+class RoomLocalDatabase @Inject constructor(private val roomDb: LocalDatabase) :
+  org.groundplatform.data.stores.LocalDatabase {
+  override fun clearAllTables() {
+    roomDb.clearAllTables()
+  }
+}

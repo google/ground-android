@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.system.auth
+package org.groundplatform.domain.system.auth
 
-typealias AuthenticationManager = org.groundplatform.domain.system.auth.AuthenticationManager
+import kotlinx.coroutines.flow.Flow
+import org.groundplatform.domain.model.User
+import org.groundplatform.domain.model.auth.SignInState
+
+interface AuthenticationManager {
+  val signInState: Flow<SignInState>
+
+  /** Must be called before looking up auth state or logged-in user. */
+  fun init()
+
+  fun signIn()
+
+  fun signOut()
+
+  /** Returns the logged-in user. */
+  suspend fun getAuthenticatedUser(): User
+}

@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.repository
+package org.groundplatform.data.repository
 
-import javax.inject.Inject
-import javax.inject.Singleton
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.flow.Flow
-import org.groundplatform.android.data.local.room.LocalDatabase
-import org.groundplatform.android.system.auth.AuthenticationManager
+import org.groundplatform.data.stores.LocalDatabase
 import org.groundplatform.data.stores.LocalUserStore
 import org.groundplatform.data.stores.LocalValueStore
 import org.groundplatform.data.stores.RemoteDataStore
@@ -33,16 +31,13 @@ import org.groundplatform.domain.model.settings.UserSettings
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
 import org.groundplatform.domain.system.NetworkManagerInterface
-import timber.log.Timber
+import org.groundplatform.domain.system.auth.AuthenticationManager
 
 /**
  * Coordinates persistence of [User] instance in local data store. For more details on this pattern
  * and overall architecture, see https://developer.android.com/jetpack/docs/guide.
  */
-@Singleton
-class UserRepository
-@Inject
-constructor(
+class UserRepository(
   private val authenticationManager: AuthenticationManager,
   private val localValueStore: LocalValueStore,
   private val localUserStore: LocalUserStore,
@@ -70,14 +65,14 @@ constructor(
   /** Attempts to refresh current user's profile in remote database if network is available. */
   private suspend fun updateRemoteUserInfo(user: User) {
     if (!networkManager.isNetworkConnected()) {
-      Timber.d("Skipped refreshing user profile as device is offline.")
+      Logger.d { "Skipped refreshing user profile as device is offline." }
       return
     }
     if (!user.isAnonymous) {
       runCatching { remoteDataStore.refreshUserProfile() }
         .fold(
-          { Timber.i("Profile refreshed") },
-          { throwable -> Timber.e(throwable, "Failed to refresh profile") },
+          { Logger.i { "Profile refreshed" } },
+          { throwable -> Logger.e(throwable) { "Failed to refresh profile" } },
         )
     }
   }
@@ -115,7 +110,7 @@ constructor(
     return try {
       surveyRepository.activeSurvey?.getRole(user.email) != Role.VIEWER
     } catch (e: IllegalStateException) {
-      Timber.e(e, "Error getting role for user $user")
+      Logger.e(e) { "Error getting role for user $user" }
       false
     }
   }

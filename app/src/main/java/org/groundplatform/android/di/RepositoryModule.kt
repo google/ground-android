@@ -27,14 +27,16 @@ import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.OfflineAreaRepository
 import org.groundplatform.android.repository.SubmissionRepository
 import org.groundplatform.android.repository.UserMediaRepository
-import org.groundplatform.android.repository.UserRepository
 import org.groundplatform.data.repository.MapStateRepository
 import org.groundplatform.data.repository.MutationRepository
 import org.groundplatform.data.repository.SurveyRepository
 import org.groundplatform.data.repository.TermsOfServiceRepository
+import org.groundplatform.data.repository.UserRepository
+import org.groundplatform.data.stores.LocalDatabase
 import org.groundplatform.data.stores.LocalLocationOfInterestStore
 import org.groundplatform.data.stores.LocalSubmissionStore
 import org.groundplatform.data.stores.LocalSurveyStore
+import org.groundplatform.data.stores.LocalUserStore
 import org.groundplatform.data.stores.LocalValueStore
 import org.groundplatform.data.stores.RemoteDataStore
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
@@ -48,6 +50,7 @@ import org.groundplatform.domain.repository.UserMediaRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
 import org.groundplatform.domain.system.CrashLogger
 import org.groundplatform.domain.system.NetworkManagerInterface
+import org.groundplatform.domain.system.auth.AuthenticationManager
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -61,8 +64,27 @@ abstract class LocationOfInterestRepositoryModule {
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class UserRepositoryModule {
-  @Binds @Singleton abstract fun bindUserRepository(impl: UserRepository): UserRepositoryInterface
+object UserRepositoryModule {
+  @Provides
+  @Singleton
+  fun provideUserRepository(
+    authenticationManager: AuthenticationManager,
+    localValueStore: LocalValueStore,
+    localUserStore: LocalUserStore,
+    networkManager: NetworkManagerInterface,
+    surveyRepository: SurveyRepositoryInterface,
+    remoteDataStore: RemoteDataStore,
+    localDatabase: LocalDatabase,
+  ): UserRepositoryInterface =
+    UserRepository(
+      authenticationManager,
+      localValueStore,
+      localUserStore,
+      networkManager,
+      surveyRepository,
+      remoteDataStore,
+      localDatabase,
+    )
 }
 
 @Module
