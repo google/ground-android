@@ -19,6 +19,7 @@ package org.groundplatform.domain.model.map
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.LineString
@@ -102,25 +103,33 @@ class BoundsTest {
   }
 
   @Test
-  fun shellCoordinates_returnsExpectedCoordinates() {
+  fun fromGeometry_returnsExpectedBounds() {
     val c1 = Coordinates(1.0, 2.0)
     val c2 = Coordinates(3.0, 4.0)
     val c3 = Coordinates(1.0, 2.0)
 
     val point = Point(c1)
-    assertEquals(listOf(c1), point.shellCoordinates)
+    assertEquals(Bounds(1.0, 2.0, 1.0, 2.0), Bounds.fromGeometry(point))
 
     val lineString = LineString.lineStringOf(c1, c2)
-    assertEquals(listOf(c1, c2), lineString.shellCoordinates)
+    assertEquals(Bounds(1.0, 2.0, 3.0, 4.0), Bounds.fromGeometry(lineString))
 
     val linearRing = LinearRing(listOf(c1, c2, c3))
-    assertEquals(listOf(c1, c2, c3), linearRing.shellCoordinates)
+    assertEquals(Bounds(1.0, 2.0, 3.0, 4.0), Bounds.fromGeometry(linearRing))
 
     val polygon = Polygon(linearRing)
-    assertEquals(listOf(c1, c2, c3), polygon.shellCoordinates)
+    assertEquals(Bounds(1.0, 2.0, 3.0, 4.0), Bounds.fromGeometry(polygon))
 
     val multiPolygon = MultiPolygon(listOf(polygon))
-    assertEquals(listOf(c1, c2, c3), multiPolygon.shellCoordinates)
+    assertEquals(Bounds(1.0, 2.0, 3.0, 4.0), Bounds.fromGeometry(multiPolygon))
+  }
+
+  @Test
+  fun fromGeometries_returnsExpectedBounds() {
+    val p = Point(Coordinates(1.0, 2.0))
+    val ls = LineString.lineStringOf(Coordinates(5.0, 6.0), Coordinates(7.0, 8.0))
+    assertEquals(Bounds(1.0, 2.0, 7.0, 8.0), Bounds.fromGeometries(listOf(p, ls)))
+    assertNull(Bounds.fromGeometries(emptyList()))
   }
 
   @Test

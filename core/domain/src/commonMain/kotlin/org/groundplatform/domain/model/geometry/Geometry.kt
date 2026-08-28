@@ -25,9 +25,6 @@ import org.groundplatform.domain.util.isClosed
 /** A common ancestor for all geometry types. */
 @Serializable
 sealed interface Geometry {
-  /** The list of [Coordinates] in the geometry or forming the outer shell of the geometry. */
-  val shellCoordinates: List<Coordinates>
-
   /** Returns true if this geometry contains no coordinates or vertices. */
   fun isEmpty(): Boolean
 
@@ -57,9 +54,6 @@ sealed interface Geometry {
 @SerialName("polygon")
 data class Polygon(val shell: LinearRing, val holes: List<LinearRing> = listOf()) : Geometry {
 
-  override val shellCoordinates: List<Coordinates>
-    get() = shell.coordinates
-
   override fun isEmpty(): Boolean = shell.isEmpty()
 
   override fun center(): Coordinates = shell.center()
@@ -71,9 +65,6 @@ data class Polygon(val shell: LinearRing, val holes: List<LinearRing> = listOf()
 @Serializable
 @SerialName("point")
 data class Point(val coordinates: Coordinates) : Geometry {
-
-  override val shellCoordinates: List<Coordinates>
-    get() = listOf(coordinates)
 
   override fun isEmpty(): Boolean = false
 
@@ -87,9 +78,6 @@ data class Point(val coordinates: Coordinates) : Geometry {
 @SerialName("multi_polygon")
 data class MultiPolygon(val polygons: List<Polygon>) : Geometry {
 
-  override val shellCoordinates: List<Coordinates>
-    get() = polygons.flatMap { it.shellCoordinates }
-
   override fun isEmpty(): Boolean = polygons.all { it.isEmpty() }
 
   override fun center(): Coordinates = polygons.map { it.center() }.centerOrError()
@@ -101,9 +89,6 @@ data class MultiPolygon(val polygons: List<Polygon>) : Geometry {
 @Serializable
 @SerialName("line_string")
 data class LineString(val coordinates: List<Coordinates>) : Geometry {
-
-  override val shellCoordinates: List<Coordinates>
-    get() = coordinates
 
   override fun isEmpty(): Boolean = coordinates.isEmpty()
 
@@ -129,9 +114,6 @@ data class LinearRing(val coordinates: List<Coordinates>) : Geometry {
   init {
     validate()
   }
-
-  override val shellCoordinates: List<Coordinates>
-    get() = coordinates
 
   override fun isEmpty(): Boolean = coordinates.isEmpty()
 

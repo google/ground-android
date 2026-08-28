@@ -127,7 +127,14 @@ data class Bounds(val southwest: Coordinates, val northeast: Coordinates) {
 
   companion object {
     /** Returns a [Bounds] enclosing the given geometry, or null if empty. */
-    fun fromGeometry(geometry: Geometry): Bounds? = fromCoordinates(geometry.shellCoordinates)
+    fun fromGeometry(geometry: Geometry): Bounds? =
+      when (geometry) {
+        is Point -> fromCoordinates(listOf(geometry.coordinates))
+        is LineString -> fromCoordinates(geometry.coordinates)
+        is LinearRing -> fromCoordinates(geometry.coordinates)
+        is Polygon -> fromCoordinates(geometry.shell.coordinates)
+        is MultiPolygon -> fromGeometries(geometry.polygons)
+      }
 
     private fun isLongitudeContained(lng: Double, west: Double, east: Double): Boolean =
       if (west <= east) lng in west..east else lng >= west || lng <= east
@@ -171,7 +178,19 @@ data class Bounds(val southwest: Coordinates, val northeast: Coordinates) {
     }
 
     /** Returns a [Bounds] enclosing all geometries in the collection, or null if empty. */
-    fun fromGeometries(geometries: Iterable<Geometry>): Bounds? =
-      fromCoordinates(geometries.flatMap { it.shellCoordinates })
+    fun fromGeometries(geometries: Iterable<Geometry>): Bounds? {
+      val allCoordinates = mutableListOf<Coordinates>()
+      fun collect(geom: Geometry) {
+        when (geom) {
+          is Point -> allCoordinates.add(geom.coordinates)
+          is LineString -> allCoordinates.addAll(geom.coordinates)
+          is LinearRing -> allCoordinates.addAll(geom.coordinates)
+          is Polygon -> allCoordinates.addAll(geom.shell.coordinates)
+          is MultiPolygon -> geom.polygons.forEach(::collect)
+        }
+      }
+      geometries.forEach(::collect)
+      return fromCoordinates(allCoordinates)
+    }
   }
 }
