@@ -121,10 +121,6 @@ data class Bounds(val southwest: Coordinates, val northeast: Coordinates) {
       is MultiPolygon -> geometry.polygons.any { contains(it) }
     }
 
-  /** Returns the center coordinates of these bounds. */
-  @Deprecated("Use center property instead", ReplaceWith("center"))
-  fun center(): Coordinates = center
-
   companion object {
     /** Returns a [Bounds] enclosing the given geometry, or null if empty. */
     fun fromGeometry(geometry: Geometry): Bounds? =

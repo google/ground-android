@@ -135,7 +135,6 @@ class BoundsTest {
   @Test
   fun center_standardBounds() {
     assertEquals(Coordinates(20.0, 30.0), bounds.center)
-    @Suppress("DEPRECATION") assertEquals(Coordinates(20.0, 30.0), bounds.center())
   }
 
   @Test
@@ -152,7 +151,6 @@ class BoundsTest {
     // (170.0 + -150.0 + 360.0) / 2.0 = 190.0 > 180.0 -> lng becomes 190.0 - 360.0 = -170.0
     val bounds = Bounds(south = -10.0, west = 170.0, north = 10.0, east = -150.0)
     assertEquals(Coordinates(0.0, -170.0), bounds.center)
-    @Suppress("DEPRECATION") assertEquals(Coordinates(0.0, -170.0), bounds.center())
   }
 
   @Test
