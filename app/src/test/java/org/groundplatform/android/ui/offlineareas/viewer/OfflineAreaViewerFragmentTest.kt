@@ -16,14 +16,19 @@
 package org.groundplatform.android.ui.offlineareas.viewer
 
 import android.os.Bundle
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.isEnabled
-import androidx.test.espresso.matcher.ViewMatchers.isNotEnabled
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertTextContains
+import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.navigation.NavController
+import androidx.navigation.fragment.findNavController
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
@@ -34,7 +39,6 @@ import org.groundplatform.android.FakeData.OFFLINE_AREA
 import org.groundplatform.android.R
 import org.groundplatform.android.data.local.stores.LocalOfflineAreaStore
 import org.groundplatform.android.testrules.FragmentScenarioRule
-import org.groundplatform.android.util.view.isGone
 import org.groundplatform.domain.model.map.MapType
 import org.groundplatform.ui.map.MapConfig
 import org.junit.Rule
@@ -46,44 +50,74 @@ import org.robolectric.RobolectricTestRunner
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
 class OfflineAreaViewerFragmentTest : BaseHiltTest() {
+
   @get:Rule val fragmentScenario = FragmentScenarioRule()
+  @get:Rule val composeTestRule = createComposeRule()
 
   @Inject lateinit var localOfflineAreaStore: LocalOfflineAreaStore
   private lateinit var fragment: OfflineAreaViewerFragment
+  private lateinit var navController: NavController
 
   @Test
   fun `RemoveButton is displayed and enable`() = runWithTestDispatcher {
     setupFragment()
-    onView(withId(R.id.remove_button)).check(matches(isDisplayed()))
-    onView(withId(R.id.remove_button)).check(matches(isEnabled()))
+    composeTestRule
+      .onNodeWithTag(OFFLINE_AREA_VIEWER_REMOVE_BUTTON_TEST_TAG)
+      .assertIsDisplayed()
+      .assertIsEnabled()
   }
 
   @Test
   fun `All values are correctly displayed`() = runWithTestDispatcher {
     setupFragment()
-    onView(withId(R.id.offline_area_name_text)).check(matches(withText(OFFLINE_AREA.name)))
-    onView(withId(R.id.offline_area_size_on_device)).check(matches(withText("<1\u00A0MB on disk")))
-    onView(withId(R.id.remove_button))
-      .check(matches(withText(fragment.getString(R.string.offline_area_viewer_remove_button))))
-    onView(withId(R.id.offline_area_viewer_toolbar))
-      .check(
-        matches(hasDescendant(withText(fragment.getString(R.string.offline_area_viewer_title))))
-      )
+    composeTestRule
+      .onNodeWithTag(OFFLINE_AREA_VIEWER_NAME_TEST_TAG)
+      .assertTextEquals(OFFLINE_AREA.name)
+    composeTestRule
+      .onNodeWithTag(OFFLINE_AREA_VIEWER_SIZE_TEST_TAG)
+      .assertTextEquals("<1\u00A0MB on disk")
+    composeTestRule
+      .onNodeWithTag(OFFLINE_AREA_VIEWER_REMOVE_BUTTON_TEST_TAG)
+      .assertTextContains(fragment.getString(R.string.offline_area_viewer_remove_button))
+    composeTestRule
+      .onNodeWithText(fragment.getString(R.string.offline_area_viewer_title))
+      .assertIsDisplayed()
   }
 
   @Test
   fun `When no offline areas available`() = runWithTestDispatcher {
     setupFragmentWithoutDb()
     advanceUntilIdle()
-    onView(withId(R.id.offline_area_viewer_toolbar))
-      .check(
-        matches(hasDescendant(withText(fragment.getString(R.string.offline_area_viewer_title))))
-      )
-    onView(withId(R.id.offline_area_name_text)).check(matches(withText("")))
-    onView(withId(R.id.offline_area_size_on_device)).check(matches(isGone()))
-    onView(withId(R.id.remove_button)).check(matches(isNotEnabled()))
-    onView(withId(R.id.remove_button))
-      .check(matches(withText(fragment.getString(R.string.offline_area_viewer_remove_button))))
+    composeTestRule
+      .onNodeWithText(fragment.getString(R.string.offline_area_viewer_title))
+      .assertIsDisplayed()
+    composeTestRule.onNodeWithTag(OFFLINE_AREA_VIEWER_NAME_TEST_TAG).assertTextEquals("")
+    composeTestRule.onNodeWithTag(OFFLINE_AREA_VIEWER_SIZE_TEST_TAG).assertIsNotDisplayed()
+    composeTestRule.onNodeWithTag(OFFLINE_AREA_VIEWER_REMOVE_BUTTON_TEST_TAG).assertIsNotEnabled()
+    composeTestRule
+      .onNodeWithTag(OFFLINE_AREA_VIEWER_REMOVE_BUTTON_TEST_TAG)
+      .assertTextContains(fragment.getString(R.string.offline_area_viewer_remove_button))
+  }
+
+  @Test
+  fun `Clicking remove button deletes area and navigates up`() = runWithTestDispatcher {
+    setupFragment()
+    composeTestRule.onNodeWithTag(OFFLINE_AREA_VIEWER_REMOVE_BUTTON_TEST_TAG).performClick()
+    advanceUntilIdle()
+
+    assertThat(localOfflineAreaStore.getOfflineAreaById(OFFLINE_AREA.id)).isNull()
+    assertThat(navController.currentDestination?.id).isNotEqualTo(R.id.offline_area_viewer_fragment)
+  }
+
+  @Test
+  fun `Clicking back button in toolbar navigates up`() = runWithTestDispatcher {
+    setupFragment()
+    advanceUntilIdle()
+
+    composeTestRule.onNodeWithContentDescription("Back").performClick()
+    advanceUntilIdle()
+
+    assertThat(navController.currentDestination?.id).isNotEqualTo(R.id.offline_area_viewer_fragment)
   }
 
   @Test
@@ -114,6 +148,7 @@ class OfflineAreaViewerFragmentTest : BaseHiltTest() {
       destId = R.id.offline_area_viewer_fragment,
     ) {
       fragment = this as OfflineAreaViewerFragment
+      navController = fragment.findNavController()
     }
   }
 }
