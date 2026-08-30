@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.ui.offlineareas.selector.model
+package org.groundplatform.android.ui.offlineareas.selector
+
+import androidx.compose.runtime.Immutable
 
 /**
  * Represents the complete UI state of the Offline Area Selector screen.
@@ -23,20 +25,24 @@ package org.groundplatform.android.ui.offlineareas.selector.model
  * @property downloadState Represents the current state of the download operation, whether a
  *   download is in progress and its progress.
  */
+@Immutable
 data class OfflineAreaSelectorState(
   val bottomTextState: BottomTextState? = null,
   val downloadState: DownloadState = DownloadState.Idle,
 ) {
+  val isDownloadButtonEnabled: Boolean
+    get() = bottomTextState is BottomTextState.AreaSize && downloadState is DownloadState.Idle
+
   sealed class BottomTextState {
-    object Loading : BottomTextState()
+    data object Loading : BottomTextState()
 
     data class AreaSize(val size: String) : BottomTextState()
 
-    object NoImageryAvailable : BottomTextState()
+    data object NoImageryAvailable : BottomTextState()
 
-    object AreaTooLarge : BottomTextState()
+    data object AreaTooLarge : BottomTextState()
 
-    object NetworkError : BottomTextState()
+    data object NetworkError : BottomTextState()
   }
 
   sealed class DownloadState {
@@ -44,6 +50,4 @@ data class OfflineAreaSelectorState(
 
     data class InProgress(val progress: Float) : DownloadState()
   }
-
-  fun isDownloadButtonEnabled(): Boolean = bottomTextState is BottomTextState.AreaSize
 }
