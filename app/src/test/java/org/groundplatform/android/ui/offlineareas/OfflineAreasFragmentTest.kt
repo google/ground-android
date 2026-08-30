@@ -13,23 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.groundplatform.android.ui.offlineareas
 
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.isDisplayed
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onChildAt
 import androidx.compose.ui.test.onChildren
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.navigation.NavController
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
@@ -52,27 +49,33 @@ class OfflineAreasFragmentTest : BaseHiltTest() {
   @get:Rule val composeTestRule = createComposeRule()
   @get:Rule val fragmentScenario = FragmentScenarioRule()
 
-  private lateinit var fragment: OfflineAreasFragment
-
   @Inject lateinit var localOfflineAreaStore: LocalOfflineAreaStore
   private lateinit var navController: NavController
 
   @Test
-  fun `Toolbar text is displayed`() {
+  fun `Toolbar text is displayed`() = runWithTestDispatcher {
     setupFragment()
-    onView(withId(R.id.offline_areas_toolbar))
-      .check(matches(hasDescendant(withText(fragment.getString(R.string.offline_map_imagery)))))
+    advanceUntilIdle()
+    composeTestRule.onNodeWithText("Offline map imagery").assertIsDisplayed()
   }
 
   @Test
-  fun `Heading text is displayed`() {
+  fun `Empty state text is displayed when no areas`() = runWithTestDispatcher {
     setupFragment()
-    onView(withId(R.id.offline_areas_list_title))
-      .check(matches(withText(fragment.getString(R.string.offline_downloaded_areas))))
-    onView(withId(R.id.offline_areas_list_tip))
-      .check(matches(withText(fragment.getString(R.string.offline_area_list_tip))))
-    onView(withId(R.id.no_areas_downloaded_message))
-      .check(matches(withText(fragment.getString(R.string.no_basemaps_downloaded))))
+    advanceUntilIdle()
+    composeTestRule.onNodeWithText("No map imagery downloaded for offline use").assertIsDisplayed()
+  }
+
+  @Test
+  fun `Heading text is displayed when areas present`() = runWithTestDispatcher {
+    localOfflineAreaStore.insertOrUpdate(OFFLINE_AREA)
+    advanceUntilIdle()
+
+    setupFragment()
+    advanceUntilIdle()
+
+    composeTestRule.onNodeWithText("Downloaded areas").assertIsDisplayed()
+    composeTestRule.onNodeWithText("Available for offline viewing").assertIsDisplayed()
   }
 
   @Test
@@ -84,33 +87,66 @@ class OfflineAreasFragmentTest : BaseHiltTest() {
       destId = R.id.offline_areas_fragment,
       navControllerCallback = { navController = it },
     )
+    advanceUntilIdle()
 
-    onView(withId(R.id.floatingActionButton)).perform(click())
+    composeTestRule.onNodeWithTag(OFFLINE_AREAS_SELECT_FAB_TEST_TAG).performClick()
+    advanceUntilIdle()
+
     assertThat(navController.currentDestination?.id).isEqualTo(R.id.offline_area_selector_fragment)
   }
 
   @Test
-  fun `List is Displayed`() = runWithTestDispatcher {
-    setupFragment()
-
+  fun `Clicking list item should navigate to viewer`() = runWithTestDispatcher {
     localOfflineAreaStore.insertOrUpdate(OFFLINE_AREA)
     advanceUntilIdle()
 
+    fragmentScenario.launchFragmentWithNavController<OfflineAreasFragment>(
+      destId = R.id.offline_areas_fragment,
+      navControllerCallback = { navController = it },
+    )
+    advanceUntilIdle()
+
+    composeTestRule.onNodeWithText("Test Area").performClick()
+    advanceUntilIdle()
+
+    assertThat(navController.currentDestination?.id).isEqualTo(R.id.offline_area_viewer_fragment)
+  }
+
+  @Test
+  fun `List is Displayed`() = runWithTestDispatcher {
+    localOfflineAreaStore.insertOrUpdate(OFFLINE_AREA)
+    advanceUntilIdle()
+
+    setupFragment()
+    advanceUntilIdle()
+
     // List is displayed
-    composeTestRule.onNodeWithTag("offline area list").assertIsDisplayed()
+    composeTestRule.onNodeWithTag(OFFLINE_AREAS_LIST_TEST_TAG).assertIsDisplayed()
 
     // Has exactly one item
-    composeTestRule.onNodeWithTag("offline area list").onChildren().assertCountEquals(1)
-    composeTestRule.onNodeWithTag("offline area list").onChildAt(0).isDisplayed()
+    composeTestRule.onNodeWithTag(OFFLINE_AREAS_LIST_TEST_TAG).onChildren().assertCountEquals(1)
+    composeTestRule.onNodeWithTag(OFFLINE_AREAS_LIST_TEST_TAG).onChildAt(0).isDisplayed()
 
     // Matches item's text
     composeTestRule.onNodeWithText("Test Area").isDisplayed()
     composeTestRule.onNodeWithText("<1\u00A0MB").isDisplayed()
   }
 
+  @Test
+  fun `Clicking back button in toolbar navigates up`() = runWithTestDispatcher {
+    fragmentScenario.launchFragmentWithNavController<OfflineAreasFragment>(
+      destId = R.id.offline_areas_fragment,
+      navControllerCallback = { navController = it },
+    )
+    advanceUntilIdle()
+
+    composeTestRule.onNodeWithContentDescription("Back").performClick()
+    advanceUntilIdle()
+
+    assertThat(navController.currentDestination?.id).isNotEqualTo(R.id.offline_areas_fragment)
+  }
+
   private fun setupFragment() {
-    fragmentScenario.launchFragmentInHiltContainer<OfflineAreasFragment> {
-      fragment = this as OfflineAreasFragment
-    }
+    fragmentScenario.launchFragmentInHiltContainer<OfflineAreasFragment>()
   }
 }

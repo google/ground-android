@@ -19,21 +19,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
-import org.groundplatform.android.databinding.OfflineAreasFragBinding
 import org.groundplatform.android.ui.common.AbstractFragment
 import org.groundplatform.android.util.setComposableContent
 
@@ -58,36 +52,36 @@ class OfflineAreasFragment : AbstractFragment() {
     savedInstanceState: Bundle?,
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
-    val binding = OfflineAreasFragBinding.inflate(inflater, container, false)
-    binding.viewModel = viewModel
-    binding.lifecycleOwner = this
-    binding.offlineAreasListComposeView.setComposableContent { ShowOfflineAreas() }
-
-    getAbstractActivity().setSupportActionBar(binding.offlineAreasToolbar)
-
-    return binding.root
-  }
-
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
-    lifecycleScope.launch {
-      viewModel.navigateToOfflineAreaSelector.collectLatest {
-        val navController = findNavController()
-        if (navController.currentDestination?.id == R.id.offline_areas_fragment) {
-          navController.navigate(OfflineAreasFragmentDirections.showOfflineAreaSelector())
-        }
+    return ComposeView(requireContext()).apply {
+      setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+      setComposableContent {
+        OfflineAreasScreen(
+          viewModel = viewModel,
+          onAreaClick = { areaId ->
+            val navController = findNavController()
+            if (navController.currentDestination?.id == R.id.offline_areas_fragment) {
+              navController.navigate(OfflineAreasFragmentDirections.viewOfflineArea(areaId))
+            }
+          },
+          onNavigateUp = {
+            val navController = findNavController()
+            if (navController.currentDestination?.id == R.id.offline_areas_fragment) {
+              navController.navigateUp()
+            }
+          },
+        )
       }
     }
   }
 
-  @Composable
-  private fun ShowOfflineAreas() {
-    val list by viewModel.offlineAreas.observeAsState()
-    list?.let {
-      LazyColumn(Modifier.fillMaxSize().testTag("offline area list")) {
-        items(it) {
-          OfflineAreaListItem(offlineAreaDetails = it) { areaId ->
-            findNavController().navigate(OfflineAreasFragmentDirections.viewOfflineArea(areaId))
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+    viewLifecycleOwner.lifecycleScope.launch {
+      viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        viewModel.navigateToOfflineAreaSelector.collect {
+          val navController = findNavController()
+          if (navController.currentDestination?.id == R.id.offline_areas_fragment) {
+            navController.navigate(OfflineAreasFragmentDirections.showOfflineAreaSelector())
           }
         }
       }

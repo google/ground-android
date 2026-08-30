@@ -64,27 +64,6 @@
     <item name="colorPrimaryInverse">@color/md_theme_inversePrimary</item>
   </style>
 
-  <style name="TextAppearance.App.TitleMedium" parent="TextAppearance.Material3.TitleMedium">
-    <item name="fontFamily">@font/text_700</item>
-    <item name="android:textColor">?attr/colorOnSurface</item>
-  </style>
-
-  <style name="TextAppearance.App.TitleLarge" parent="TextAppearance.Material3.TitleLarge">
-    <item name="fontFamily">@font/text_700</item>
-  </style>
-
-  <style name="TextAppearance.App.TitleLarge.OnSurface">
-    <item name="android:textColor">?attr/colorOnSurface</item>
-  </style>
-
-  <style name="TextAppearance.App.BodySmall" parent="TextAppearance.Material3.BodySmall">
-    <item name="fontFamily">@font/text_500</item>
-  </style>
-
-  <style name="TextAppearance.App.BodyMedium" parent="TextAppearance.Material3.BodyMedium">
-    <item name="fontFamily">@font/text_500</item>
-    <item name="android:textColor">?attr/colorOnSurface</item>
-  </style>
 
   <style name="Widget.App.Toolbar" parent="Widget.Material3.Toolbar">
     <item name="background">?attr/colorSurfaceContainer</item>
@@ -94,17 +73,6 @@
 
   <style name="Widget.App.Toolbar.Button.Navigation" parent="Widget.AppCompat.Toolbar.Button.Navigation">
     <item name="tint">?attr/colorOnSurface</item>
-  </style>
-
-  <style name="Widget.App.Button.IconButton" parent="Widget.Material3.Button.IconButton">
-    <item name="iconSize">24sp</item>
-    <item name="iconTint">?attr/colorOnSurface</item>
-  </style>
-
-  <style name="Widget.App.Button.IconButton.Destructive">
-    <item name="backgroundTint">?attr/colorErrorContainer</item>
-    <item name="iconTint">?attr/colorOnErrorContainer</item>
-    <item name="android:textColor">?attr/colorOnErrorContainer</item>
   </style>
 
   <style name="TextAppearance.App.MapClusterLabel" parent="TextAppearance.Material3.LabelMedium">
