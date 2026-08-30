@@ -22,7 +22,6 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.cancellable
 import kotlinx.coroutines.flow.flow
 import org.groundplatform.domain.model.imagery.MogTilesRequest
-import org.groundplatform.domain.model.imagery.TileCoordinates
 import timber.log.Timber
 
 /**
@@ -43,8 +42,7 @@ class MogTileDownloader(private val client: MogClient, private val outputBasePat
       currentCoroutineContext().ensureActive()
       val outFile = File(outputBasePath, tile.metadata.tileCoordinates.getTilePath())
       outFile.parentFile?.mkdirs()
-      val gmsTile = tile.toGmsTile()
-      val data = gmsTile.data!!
+      val data = tile.getProcessedImageData()
       outFile.writeBytes(data)
       Timber.d("Saved ${data.size} bytes to ${outFile.path}")
       emit(data.size)
@@ -52,5 +50,3 @@ class MogTileDownloader(private val client: MogClient, private val outputBasePat
   }
     .cancellable()
 }
-
-fun TileCoordinates.getTilePath() = "$zoom/$x/$y.jpg"

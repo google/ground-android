@@ -36,6 +36,11 @@ class TileCoordinatesTest {
   }
 
   @Test
+  fun `getTilePath returns formatted path`() {
+    assertEquals("10/100/200.jpg", TileCoordinates(100, 200, 10).getTilePath())
+  }
+
+  @Test
   fun `returns tiles within bounds correctly`() {
     val tiles = TileCoordinates.withinBounds(Bounds(10.0, 10.0, 11.0, 11.0), 10)
 

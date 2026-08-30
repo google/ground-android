@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android.repository
 
+import android.content.Context
 import com.google.common.truth.Truth.assertThat
 import java.io.File
 import java.io.IOException
@@ -26,8 +27,6 @@ import org.groundplatform.android.data.local.stores.LocalOfflineAreaStore
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.android.system.GeocodingManager
 import org.groundplatform.android.ui.map.gms.mog.MogClient
-import org.groundplatform.android.ui.map.gms.mog.getTilePath
-import org.groundplatform.android.ui.util.FileUtil
 import org.groundplatform.domain.model.imagery.LocalTileSource
 import org.groundplatform.domain.model.imagery.MogCollection
 import org.groundplatform.domain.model.imagery.MogSource
@@ -56,8 +55,8 @@ class OfflineAreaRepositoryTest {
 
   @get:Rule val tempFolder: TemporaryFolder = TemporaryFolder()
 
+  @Mock private lateinit var context: Context
   @Mock private lateinit var localOfflineAreaStore: LocalOfflineAreaStore
-  @Mock private lateinit var fileUtil: FileUtil
   @Mock private lateinit var geocodingManager: GeocodingManager
   @Mock private lateinit var offlineUuidGenerator: OfflineUuidGenerator
 
@@ -66,12 +65,12 @@ class OfflineAreaRepositoryTest {
 
   @Before
   fun setUp() {
-    whenever(fileUtil.getFilesDir()).thenReturn(tempFolder.root)
+    whenever(context.filesDir).thenReturn(tempFolder.root)
     mogClient = spy(MogClient(TEST_COLLECTION, mock()))
     repository =
       OfflineAreaRepository(
+        context,
         localOfflineAreaStore,
-        fileUtil,
         geocodingManager,
         mogClient,
         offlineUuidGenerator,

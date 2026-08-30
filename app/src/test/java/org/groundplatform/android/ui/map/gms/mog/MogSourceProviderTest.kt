@@ -16,6 +16,7 @@
 package org.groundplatform.android.ui.map.gms.mog
 
 import com.google.common.truth.Truth.assertThat
+import org.groundplatform.domain.model.imagery.maxZoom
 import org.junit.Test
 
 class MogSourceProviderTest {
@@ -41,6 +42,6 @@ class MogSourceProviderTest {
 
   @Test
   fun defaultMogSources_maxZoomIsCorrect() {
-    assertThat(MogSourceProvider.DEFAULT_MOG_MAX_ZOOM).isEqualTo(14)
+    assertThat(MogSourceProvider.defaultMogSources.maxZoom()).isEqualTo(14)
   }
 }

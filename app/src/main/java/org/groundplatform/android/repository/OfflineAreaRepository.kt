@@ -15,6 +15,8 @@
  */
 package org.groundplatform.android.repository
 
+import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import java.io.IOException
 import javax.inject.Inject
@@ -28,8 +30,6 @@ import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.android.system.GeocodingManager
 import org.groundplatform.android.ui.map.gms.mog.MogClient
 import org.groundplatform.android.ui.map.gms.mog.MogTileDownloader
-import org.groundplatform.android.ui.map.gms.mog.getTilePath
-import org.groundplatform.android.ui.util.FileUtil
 import org.groundplatform.android.util.deleteIfEmpty
 import org.groundplatform.android.util.rangeOf
 import org.groundplatform.domain.model.imagery.LocalTileSource
@@ -47,8 +47,8 @@ private const val AREA_NAME_SENSITIVITY = 0.5
 class OfflineAreaRepository
 @Inject
 constructor(
+  @ApplicationContext private val context: Context,
   private val localOfflineAreaStore: LocalOfflineAreaStore,
-  private val fileUtil: FileUtil,
   private val geocodingManager: GeocodingManager,
   private val mogClient: MogClient,
   private val offlineUuidGenerator: OfflineUuidGenerator,
@@ -89,7 +89,7 @@ constructor(
 
   // TODO: Generate local tiles path based on source base path.
   // Issue URL: https://github.com/google/ground-android/issues/1730
-  private fun getLocalTileDirectory(): File = File(fileUtil.getFilesDir(), "tiles")
+  private fun getLocalTileDirectory(): File = File(context.filesDir, "tiles")
 
   private fun getLocalTileSourcePath(): String = getLocalTileDirectory().path
 

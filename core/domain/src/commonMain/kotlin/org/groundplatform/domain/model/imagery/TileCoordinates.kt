@@ -34,6 +34,9 @@ data class TileCoordinates(val x: Int, val y: Int, val zoom: Int) {
 
   override fun toString(): String = "($x, $y) at zoom $zoom"
 
+  /** Returns the relative path for the tile file in the format `{zoom}/{x}/{y}.jpg`. */
+  fun getTilePath(): String = "$zoom/$x/$y.jpg"
+
   companion object {
     /**
      * Returns the coordinates of the tile at a particular zoom containing the specified latitude

@@ -18,5 +18,14 @@ package org.groundplatform.domain.model.imagery
 
 /** A collection of Maps Optimized GeoTIFFs (MOGs). */
 class MogCollection(val sources: List<MogSource>) {
+  val minZoom: Int
+    get() = sources.minZoom()
+
+  val maxZoom: Int
+    get() = sources.maxZoom()
+
+  val zoomRange: IntRange
+    get() = sources.zoomRange()
+
   fun getMogSource(zoom: Int) = sources.firstOrNull { it.zoomRange.contains(zoom) }
 }
