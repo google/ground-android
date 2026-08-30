@@ -15,26 +15,35 @@
  */
 package org.groundplatform.domain.model.geometry
 
+import kotlin.math.max
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import org.groundplatform.domain.model.map.Bounds
+import org.groundplatform.domain.util.calculateSphericalPolygonArea
 import org.groundplatform.domain.util.isClosed
 
 /** A common ancestor for all geometry types. */
 @Serializable
 sealed interface Geometry {
-  /**
-   * Returns the center coordinates of the geometry. It may or may not be within the geometry bounds
-   * if the shape is irregular.
-   */
-  fun center(): Coordinates
-
-  /** Returns true if there are one or more vertices in the geometry. */
+  /** Returns true if this geometry contains no coordinates or vertices. */
   fun isEmpty(): Boolean
 
   /** Validates that the current [Geometry] is well-formed. */
   fun validate() {
     // default no-op implementation
   }
+
+  /**
+   * Returns the center coordinates of the geometry. It may or may not be within the geometry bounds
+   * if the shape is irregular.
+   */
+  fun center(): Coordinates
+
+  /**
+   * Returns the geodesic area of the geometry in square meters, or 0.0 for 0-dimensional and
+   * 1-dimensional geometries.
+   */
+  fun area(): Double
 }
 
 /**
@@ -45,11 +54,11 @@ sealed interface Geometry {
 @SerialName("polygon")
 data class Polygon(val shell: LinearRing, val holes: List<LinearRing> = listOf()) : Geometry {
 
+  override fun isEmpty(): Boolean = shell.isEmpty()
+
   override fun center(): Coordinates = shell.center()
 
-  override fun isEmpty() = shell.isEmpty()
-
-  fun getShellCoordinates() = shell.coordinates
+  override fun area(): Double = max(0.0, shell.area() - holes.sumOf { it.area() })
 }
 
 /** Represents a single point. */
@@ -57,9 +66,11 @@ data class Polygon(val shell: LinearRing, val holes: List<LinearRing> = listOf()
 @SerialName("point")
 data class Point(val coordinates: Coordinates) : Geometry {
 
+  override fun isEmpty(): Boolean = false
+
   override fun center(): Coordinates = coordinates
 
-  override fun isEmpty() = false
+  override fun area(): Double = 0.0
 }
 
 /** A collection of [Polygon]s. */
@@ -67,9 +78,11 @@ data class Point(val coordinates: Coordinates) : Geometry {
 @SerialName("multi_polygon")
 data class MultiPolygon(val polygons: List<Polygon>) : Geometry {
 
+  override fun isEmpty(): Boolean = polygons.all { it.isEmpty() }
+
   override fun center(): Coordinates = polygons.map { it.center() }.centerOrError()
 
-  override fun isEmpty() = polygons.all { it.isEmpty() }
+  override fun area(): Double = polygons.sumOf { it.area() }
 }
 
 /** A sequence of two or more vertices modelling an OCG style line string. */
@@ -77,9 +90,11 @@ data class MultiPolygon(val polygons: List<Polygon>) : Geometry {
 @SerialName("line_string")
 data class LineString(val coordinates: List<Coordinates>) : Geometry {
 
+  override fun isEmpty(): Boolean = coordinates.isEmpty()
+
   override fun center(): Coordinates = coordinates.centerOrError()
 
-  override fun isEmpty() = coordinates.isEmpty()
+  override fun area(): Double = 0.0
 
   fun isClosed(): Boolean = isClosed(coordinates)
 
@@ -100,9 +115,7 @@ data class LinearRing(val coordinates: List<Coordinates>) : Geometry {
     validate()
   }
 
-  override fun center(): Coordinates = coordinates.centerOrError()
-
-  override fun isEmpty() = coordinates.isEmpty()
+  override fun isEmpty(): Boolean = coordinates.isEmpty()
 
   override fun validate() {
     // TODO: Check for vertices count > 3
@@ -114,6 +127,10 @@ data class LinearRing(val coordinates: List<Coordinates>) : Geometry {
       throw InvalidGeometryException("Invalid linear ring")
     }
   }
+
+  override fun center(): Coordinates = coordinates.centerOrError()
+
+  override fun area(): Double = calculateSphericalPolygonArea(coordinates)
 
   /**
    * Returns *synthetic* coordinates containing the maximum `x` and `y` coordinates of this ring.
@@ -145,20 +162,10 @@ data class LinearRing(val coordinates: List<Coordinates>) : Geometry {
 }
 
 /**
- * Returns the center coordinates of the bounding box from the given list of coordinates. This
- * mirrors the behavior of `LatLngBounds.center`, but is implemented in pure Kotlin and does not
- * depend on Google Maps classes to keep this a pure domain module
- *
- * Note: This might return an unexpected result for oddly shaped polygons. Check if this can be
- * replaced with a centroid. See (#1737) for more info.
+ * Returns the center coordinates of the bounding box from the given list of coordinates. Properly
+ * handles anti-meridian crossings.
  */
 private fun List<Coordinates>?.centerOrError(): Coordinates {
   if (this.isNullOrEmpty()) error("missing vertices")
-
-  val minLat = this.minOf { it.lat }
-  val maxLat = this.maxOf { it.lat }
-  val minLng = this.minOf { it.lng }
-  val maxLng = this.maxOf { it.lng }
-
-  return Coordinates(lat = (minLat + maxLat) / 2.0, lng = (minLng + maxLng) / 2.0)
+  return Bounds.fromCoordinates(this)?.center ?: error("missing vertices")
 }

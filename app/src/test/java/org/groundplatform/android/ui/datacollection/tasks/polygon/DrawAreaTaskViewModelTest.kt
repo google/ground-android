@@ -42,7 +42,6 @@ import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 import org.groundplatform.android.ui.datacollection.tasks.polygon.PolygonDrawingSession.Companion.DISTANCE_THRESHOLD_DP
 import org.groundplatform.android.ui.map.Feature
-import org.groundplatform.android.ui.map.gms.GmsExt.getShellCoordinates
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.LineString
 import org.groundplatform.domain.model.geometry.LinearRing
@@ -654,9 +653,14 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
 
     val geometry = featureTestObserver.value()?.geometry
     assertNotNull(geometry)
-    assertWithMessage(geometry.getShellCoordinates().toString())
-      .that(geometry.getShellCoordinates().size)
-      .isEqualTo(expectedVerticesCount)
+    val vertices =
+      when (geometry) {
+        is LineString -> geometry.coordinates
+        is LinearRing -> geometry.coordinates
+        is Polygon -> geometry.shell.coordinates
+        else -> emptyList()
+      }
+    assertWithMessage(vertices.toString()).that(vertices.size).isEqualTo(expectedVerticesCount)
     assertThat(geometry)
       .isInstanceOf(
         when {

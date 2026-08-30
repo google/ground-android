@@ -25,7 +25,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import org.groundplatform.android.R
 import org.groundplatform.android.di.coroutines.IoDispatcher
-import org.groundplatform.android.ui.map.gms.GmsExt.center
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.map.Bounds
 import timber.log.Timber
@@ -51,7 +50,7 @@ constructor(
   suspend fun getAreaName(bounds: Bounds): String {
     // Get potential addresses of five sample points: the centroid and the four vertices of the
     // bounding box.
-    val samplePoints = bounds.corners + bounds.center()
+    val samplePoints = bounds.corners + bounds.center
     val samplePointAddresses =
       withContext(ioDispatcher) { samplePoints.map { fetchAddressesBlocking(it) } }
     val nameComponents =

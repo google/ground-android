@@ -17,43 +17,46 @@ package org.groundplatform.domain.util
 
 import kotlin.math.PI
 import kotlin.math.abs
+import kotlin.math.atan2
 import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.tan
 import org.groundplatform.domain.model.geometry.Coordinates
 
-/**
- * Calculates the area of a polygon using the Shoelace formula.
- *
- * This function computes the area of a simple, non-self-intersecting polygon based on its vertex
- * coordinates. The first coordinate is used as a reference to convert all other points to meters.
- *
- * @param coordinates A list of [org.groundplatform.domain.model.geometry.Coordinates] representing
- *   the vertices of the polygon. The list must contain at least three points; otherwise, the
- *   function returns 0.0.
- * @return The area of the polygon in square meters.
- */
-fun calculateShoelacePolygonArea(coordinates: List<Coordinates>): Double {
-  if (coordinates.size < 3) return 0.0
+/** Earth's mean radius in meters used for spherical calculations. */
+private const val EARTH_RADIUS_METERS = 6371009.0
+private const val DEG_TO_RAD = PI / 180.0
 
-  val reference = coordinates[0]
-  val points = coordinates.map { toMeters(reference, it) }
-
-  return abs(
-    points.indices.sumOf { i ->
-      val j = (i + 1) % points.size
-      points[i].first * points[j].second - points[j].first * points[i].second
-    }
-  ) / 2.0
+private fun polarTriangleArea(tan1: Double, lng1: Double, tan2: Double, lng2: Double): Double {
+  val deltaLng = lng1 - lng2
+  val t = tan1 * tan2
+  val num = t * sin(deltaLng)
+  val denom = 1.0 + t * cos(deltaLng)
+  return if (abs(num) < 1e-15 && abs(denom) < 1e-15) 0.0 else 2.0 * atan2(num, denom)
 }
 
-/** Converts geographic coordinate to meters relative to reference point. */
-private fun toMeters(reference: Coordinates, point: Coordinates): Pair<Double, Double> {
-  val earthRadius = 6378137.0
-  val toRad = PI / 180.0
-  val avgLat = (reference.lat + point.lat) / 2.0
-
-  val dX = (point.lng - reference.lng) * earthRadius * cos(avgLat * toRad) * toRad
-  val dY = (point.lat - reference.lat) * earthRadius * toRad
-  return Pair(dX, dY)
+/**
+ * Returns the area of a closed path on Earth's surface in square meters, assuming a spherical
+ * Earth.
+ */
+fun calculateSphericalPolygonArea(
+  coordinates: List<Coordinates>,
+  radius: Double = EARTH_RADIUS_METERS,
+): Double {
+  val size = coordinates.size
+  if (size < 3) return 0.0
+  var total = 0.0
+  val prev = coordinates[size - 1]
+  var prevTanLat = tan((PI / 2.0 - prev.lat * DEG_TO_RAD) / 2.0)
+  var prevLng = prev.lng * DEG_TO_RAD
+  for (point in coordinates) {
+    val tanLat = tan((PI / 2.0 - point.lat * DEG_TO_RAD) / 2.0)
+    val lng = point.lng * DEG_TO_RAD
+    total += polarTriangleArea(tanLat, lng, prevTanLat, prevLng)
+    prevTanLat = tanLat
+    prevLng = lng
+  }
+  return abs(total * (radius * radius))
 }
 
 /**

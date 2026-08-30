@@ -27,7 +27,6 @@ import org.groundplatform.android.data.remote.RemoteDataStore
 import org.groundplatform.android.data.sync.MutationSyncWorkManager
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.android.system.auth.AuthenticationManager
-import org.groundplatform.android.ui.map.gms.GmsExt.contains
 import org.groundplatform.domain.model.Role
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.geometry.Geometry

@@ -290,7 +290,7 @@ class LoiReportMapperTest {
 
     val mapBlock = mapper.map(report, submission)!!.document.mapBlock!!
 
-    assertEquals("2.48 ac", mapBlock.area!!.value)
+    assertEquals("2.47 ac", mapBlock.area!!.value)
   }
 
   @Test

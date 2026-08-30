@@ -56,7 +56,6 @@ import org.groundplatform.domain.model.submission.DrawAreaTaskIncompleteData
 import org.groundplatform.domain.model.submission.TaskData
 import org.groundplatform.domain.model.task.Task
 import org.groundplatform.domain.usecases.user.GetUserSettingsUseCase
-import org.groundplatform.domain.util.calculateShoelacePolygonArea
 import org.groundplatform.ui.util.getFormattedArea
 import org.jetbrains.annotations.VisibleForTesting
 import timber.log.Timber
@@ -143,7 +142,7 @@ internal constructor(
         updateVertices(taskData.lineString.coordinates)
       }
       is DrawAreaTaskData -> {
-        updateVertices(taskData.area.getShellCoordinates())
+        updateVertices(taskData.area.shell.coordinates)
         try {
           completePolygon()
         } catch (e: IllegalStateException) {
@@ -280,9 +279,9 @@ internal constructor(
     syncSessionState()
 
     refreshMap()
-    setValue(DrawAreaTaskData(Polygon(LinearRing(session.vertices))))
-    val areaInSquareMeters = calculateShoelacePolygonArea(session.vertices)
-    _polygonArea.value = getFormattedArea(areaInSquareMeters, measurementUnits)
+    val polygon = Polygon(LinearRing(session.vertices))
+    setValue(DrawAreaTaskData(polygon))
+    _polygonArea.value = getFormattedArea(polygon.area(), measurementUnits)
   }
 
   /**

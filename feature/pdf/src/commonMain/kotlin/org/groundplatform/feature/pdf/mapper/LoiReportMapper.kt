@@ -27,7 +27,6 @@ import org.groundplatform.domain.model.geometry.Polygon
 import org.groundplatform.domain.model.locationofinterest.LoiReport
 import org.groundplatform.domain.model.submission.Submission
 import org.groundplatform.domain.usecases.user.GetUserSettingsUseCase
-import org.groundplatform.domain.util.calculateShoelacePolygonArea
 import org.groundplatform.feature.pdf.PdfExportService
 import org.groundplatform.feature.pdf.model.SubmissionPdfDocument
 import org.groundplatform.feature.pdf.model.SubmissionPdfDocument.Footer
@@ -125,7 +124,7 @@ class LoiReportMapper(
   ): SubmissionPdfDocument.MapBlock {
     val areaInSquareMeters =
       (submissionDetails.geometry as? Polygon)?.let { geometry ->
-        calculateShoelacePolygonArea(geometry.shell.coordinates).takeIf { it > 0.0 }
+        geometry.area().takeIf { it > 0.0 }
       }
     return SubmissionPdfDocument.MapBlock(
       geometry = submissionDetails.geometry,

@@ -39,7 +39,6 @@ import org.groundplatform.android.data.local.stores.LocalSubmissionStore
 import org.groundplatform.android.data.local.stores.LocalSurveyStore
 import org.groundplatform.android.data.local.stores.LocalUserStore
 import org.groundplatform.android.proto.geometry
-import org.groundplatform.android.ui.map.gms.GmsExt.getShellCoordinates
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.User
 import org.groundplatform.domain.model.geometry.Coordinates
@@ -175,7 +174,7 @@ class LocalLocationOfInterestStoreTest : BaseHiltTest() {
     val newLoi = loi.copy(geometry = Polygon(LinearRing(TEST_POLYGON_2)))
     localLoiStore.merge(newLoi)
     val newLoi2 = localLoiStore.getLocationOfInterest(TEST_SURVEY, FakeData.LOI_ID)
-    assertThat(newLoi2?.geometry?.getShellCoordinates()).isEqualTo(TEST_POLYGON_2)
+    assertThat((newLoi2?.geometry as? Polygon)?.shell?.coordinates).isEqualTo(TEST_POLYGON_2)
   }
 
   @Test

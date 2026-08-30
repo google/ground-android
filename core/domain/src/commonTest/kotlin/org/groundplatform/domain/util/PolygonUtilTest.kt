@@ -116,26 +116,18 @@ class PolygonUtilTest {
   }
 
   @Test
-  fun `calculateShoelacePolygonArea should return correct area for simple square`() {
+  fun calculateSphericalPolygonArea_smallSquare() {
     val coordinates =
       listOf(
         Coordinates(0.0, 0.0),
         Coordinates(0.0, 0.00001),
         Coordinates(0.00001, 0.00001),
         Coordinates(0.00001, 0.0),
-        Coordinates(0.0, 0.0), // Closing the polygon
+        Coordinates(0.0, 0.0),
       )
 
-    val area = calculateShoelacePolygonArea(coordinates)
-    assertEquals(1.24, area, 0.01) // Allowing minor floating-point error
-  }
-
-  @Test
-  fun `calculateShoelacePolygonArea should return 0 for less than 3 points`() {
-    val coordinates = listOf(Coordinates(24.523740, 73.606673), Coordinates(24.523736, 73.606803))
-
-    val area = calculateShoelacePolygonArea(coordinates)
-    assertEquals(0.0, area, 0.01)
+    val area = calculateSphericalPolygonArea(coordinates)
+    assertEquals(1.24, area, 0.01)
   }
 
   @Test
@@ -168,6 +160,105 @@ class PolygonUtilTest {
     assertFalse(isClosed(THREE_POINTS))
     assertFalse(isClosed(SINGLE_POINT))
     assertFalse(isClosed(emptyList()))
+  }
+
+  @Test
+  fun calculateSphericalPolygonArea_lessThanThreeCoordinates_returnsZero() {
+    assertEquals(0.0, calculateSphericalPolygonArea(emptyList()))
+    assertEquals(0.0, calculateSphericalPolygonArea(listOf(Coordinates(0.0, 0.0))))
+    assertEquals(
+      0.0,
+      calculateSphericalPolygonArea(listOf(Coordinates(0.0, 0.0), Coordinates(1.0, 1.0))),
+    )
+  }
+
+  @Test
+  fun calculateSphericalPolygonArea_unitSphereOctantTriangle() {
+    val octantVertices =
+      listOf(
+        Coordinates(lat = 0.0, lng = 0.0),
+        Coordinates(lat = 0.0, lng = 90.0),
+        Coordinates(lat = 90.0, lng = 0.0),
+      )
+
+    val areaUnitSphere = calculateSphericalPolygonArea(octantVertices, radius = 1.0)
+    assertEquals(kotlin.math.PI / 2.0, areaUnitSphere, 1e-9)
+
+    val areaRadiusTwo = calculateSphericalPolygonArea(octantVertices, radius = 2.0)
+    assertEquals(2.0 * kotlin.math.PI, areaRadiusTwo, 1e-9)
+  }
+
+  @Test
+  fun calculateSphericalPolygonArea_orientationInvariance() {
+    val ccw =
+      listOf(
+        Coordinates(0.0, 0.0),
+        Coordinates(0.0, 90.0),
+        Coordinates(90.0, 0.0),
+      )
+    val cw =
+      listOf(
+        Coordinates(0.0, 0.0),
+        Coordinates(90.0, 0.0),
+        Coordinates(0.0, 90.0),
+      )
+
+    val areaCcw = calculateSphericalPolygonArea(ccw, radius = 1.0)
+    val areaCw = calculateSphericalPolygonArea(cw, radius = 1.0)
+    assertEquals(areaCcw, areaCw, 1e-9)
+  }
+
+  @Test
+  fun calculateSphericalPolygonArea_openAndClosedLoopsProduceSameArea() {
+    val open =
+      listOf(
+        Coordinates(0.0, 0.0),
+        Coordinates(0.0, 1.0),
+        Coordinates(1.0, 1.0),
+        Coordinates(1.0, 0.0),
+      )
+    val closed = open + open.first()
+
+    val openArea = calculateSphericalPolygonArea(open)
+    val closedArea = calculateSphericalPolygonArea(closed)
+    assertEquals(closedArea, openArea, 1e-6)
+  }
+
+  @Test
+  fun calculateSphericalPolygonArea_collinearPoints_returnsZero() {
+    val collinear =
+      listOf(
+        Coordinates(0.0, 0.0),
+        Coordinates(0.0, 10.0),
+        Coordinates(0.0, 20.0),
+      )
+    assertEquals(0.0, calculateSphericalPolygonArea(collinear), 1e-9)
+  }
+
+  @Test
+  fun calculateSphericalPolygonArea_antiMeridianCrossing() {
+    val polygon =
+      listOf(
+        Coordinates(0.0, 179.0),
+        Coordinates(0.0, -179.0),
+        Coordinates(10.0, -179.0),
+        Coordinates(10.0, 179.0),
+      )
+    val area = calculateSphericalPolygonArea(polygon)
+    assertTrue(area > 0.0)
+  }
+
+  @Test
+  fun calculateSphericalPolygonArea_southernAndWesternHemispheres() {
+    val polygon =
+      listOf(
+        Coordinates(-20.0, -50.0),
+        Coordinates(-20.0, -40.0),
+        Coordinates(-10.0, -40.0),
+        Coordinates(-10.0, -50.0),
+      )
+    val area = calculateSphericalPolygonArea(polygon)
+    assertTrue(area > 0.0)
   }
 
   companion object {
