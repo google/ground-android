@@ -30,6 +30,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.withStarted
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import kotlinx.coroutines.flow.Flow
@@ -153,8 +154,7 @@ abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
       getMapViewModel().getCurrentCameraPosition().collect { onMapCameraMoved(it) }
     }
     launchWhenStarted { renderFeatures().collect { map.setFeatures(it) } }
-    // Allow the fragment to restore map viewport to previously drawn feature.
-    launchWhenStarted { setDefaultViewPort() }
+    lifecycleScope.launch { withStarted { setDefaultViewPort() } }
   }
 
   /** Must be overridden by subclasses. */
