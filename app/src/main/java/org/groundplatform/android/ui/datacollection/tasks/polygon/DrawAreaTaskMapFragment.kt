@@ -24,7 +24,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskMapFragment
 import org.groundplatform.android.ui.map.Feature
-import org.groundplatform.domain.model.map.Bounds
+import org.groundplatform.android.ui.map.NewCameraPositionViaCoordinates
 import org.groundplatform.domain.model.map.CameraPosition
 
 @AndroidEntryPoint
@@ -51,15 +51,15 @@ class DrawAreaTaskMapFragment @Inject constructor() :
     }
 
     launchWhenStarted {
-      taskViewModel.cameraMoveEvents.collect { coordinates -> moveToPosition(coordinates) }
+      taskViewModel.cameraMoveEvents.collect { coordinates ->
+        applyCameraUpdateRequest(NewCameraPositionViaCoordinates(coordinates, shouldAnimate = true))
+      }
     }
   }
 
   override fun setDefaultViewPort() {
-    val feature = taskViewModel.draftArea.value
-    val geometry = feature?.geometry ?: return
-    val bounds = Bounds.fromGeometry(geometry) ?: return
-    moveToBounds(bounds, padding = 200, shouldAnimate = false)
+    val request = taskViewModel.getDefaultViewPort() ?: return
+    applyCameraUpdateRequest(request)
   }
 
   override fun renderFeatures(): Flow<Set<Feature>> =
