@@ -33,8 +33,6 @@ import org.groundplatform.android.ui.map.NewCameraPositionViaBounds
 import org.groundplatform.android.ui.map.NewCameraPositionViaCoordinates
 import org.groundplatform.android.ui.map.NewCameraPositionViaCoordinatesAndZoomLevel
 import org.groundplatform.android.util.createComposeView
-import org.groundplatform.domain.model.geometry.Coordinates
-import org.groundplatform.domain.model.map.Bounds
 import org.groundplatform.ui.map.MapConfig
 import timber.log.Timber
 
@@ -79,7 +77,7 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     launchWhenStarted { map.startDragEvents.collect { viewModel.onMapDragged() } }
     launchWhenStarted { viewModel.locationLock.collect { onLocationLockStateChange(it, map) } }
     launchWhenStarted {
-      viewModel.getCameraUpdateRequests().collect { onCameraUpdateRequest(it, map) }
+      viewModel.getCameraUpdateRequests().collect { applyCameraUpdateRequest(it) }
     }
 
     applyMapConfig(map)
@@ -153,17 +151,8 @@ abstract class AbstractMapContainerFragment : AbstractFragment() {
     Toast.makeText(context, messageId, Toast.LENGTH_LONG).show()
   }
 
-  /** Moves the camera to the given bounds. */
-  fun moveToBounds(bounds: Bounds, padding: Int, shouldAnimate: Boolean) {
-    onCameraUpdateRequest(NewCameraPositionViaBounds(bounds, padding, shouldAnimate), map)
-  }
-
-  /** Moves the camera to a given position. */
-  fun moveToPosition(coordinates: Coordinates) {
-    onCameraUpdateRequest(NewCameraPositionViaCoordinates(coordinates, shouldAnimate = true), map)
-  }
-
-  private fun onCameraUpdateRequest(request: CameraUpdateRequest, map: MapFragment) {
+  /** Moves the camera as described by the given [CameraUpdateRequest]. */
+  fun applyCameraUpdateRequest(request: CameraUpdateRequest) {
     Timber.v("Update camera: $request")
     when (request) {
       is NewCameraPositionViaCoordinates -> {
