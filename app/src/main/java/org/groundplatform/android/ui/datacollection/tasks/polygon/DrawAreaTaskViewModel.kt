@@ -39,7 +39,10 @@ import org.groundplatform.android.ui.datacollection.components.ButtonActionState
 import org.groundplatform.android.ui.datacollection.tasks.AbstractMapTaskViewModel
 import org.groundplatform.android.ui.datacollection.tasks.DataCollectionEvent
 import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
+import org.groundplatform.android.ui.map.CameraUpdateRequest
 import org.groundplatform.android.ui.map.Feature
+import org.groundplatform.android.ui.map.NewCameraPositionViaBounds
+import org.groundplatform.android.ui.map.NewCameraPositionViaCoordinates
 import org.groundplatform.android.ui.util.LocaleAwareMeasureFormatter
 import org.groundplatform.android.ui.util.VibrationHelper
 import org.groundplatform.android.ui.util.getDefaultColor
@@ -50,6 +53,7 @@ import org.groundplatform.domain.model.geometry.LineString
 import org.groundplatform.domain.model.geometry.LinearRing
 import org.groundplatform.domain.model.geometry.Polygon
 import org.groundplatform.domain.model.job.Job
+import org.groundplatform.domain.model.map.Bounds
 import org.groundplatform.domain.model.settings.MeasurementUnits
 import org.groundplatform.domain.model.submission.DrawAreaTaskData
 import org.groundplatform.domain.model.submission.DrawAreaTaskIncompleteData
@@ -122,6 +126,19 @@ internal constructor(
       }
       .distinctUntilChanged()
       .stateIn(viewModelScope, WhileSubscribed(5_000), emptyList())
+  }
+
+  /** Restores the viewport to the area drawn so far or null if nothing has been drawn yet. */
+  fun getDefaultViewPort(): CameraUpdateRequest? {
+    val vertices = session.vertices.distinct()
+    return when (vertices.size) {
+      0 -> null
+      1 -> NewCameraPositionViaCoordinates(vertices.first())
+      else ->
+        Bounds.fromCoordinates(vertices)?.let {
+          NewCameraPositionViaBounds(it, padding = 200, shouldAnimate = false)
+        }
+    }
   }
 
   override fun initialize(

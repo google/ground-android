@@ -42,12 +42,15 @@ import org.groundplatform.android.ui.datacollection.components.ButtonAction
 import org.groundplatform.android.ui.datacollection.tasks.TaskPositionInterface
 import org.groundplatform.android.ui.datacollection.tasks.polygon.PolygonDrawingSession.Companion.DISTANCE_THRESHOLD_DP
 import org.groundplatform.android.ui.map.Feature
+import org.groundplatform.android.ui.map.NewCameraPositionViaBounds
+import org.groundplatform.android.ui.map.NewCameraPositionViaCoordinates
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.LineString
 import org.groundplatform.domain.model.geometry.LinearRing
 import org.groundplatform.domain.model.geometry.Polygon
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.job.Style
+import org.groundplatform.domain.model.map.Bounds
 import org.groundplatform.domain.model.settings.MeasurementUnits
 import org.groundplatform.domain.model.submission.DrawAreaTaskData
 import org.groundplatform.domain.model.submission.DrawAreaTaskIncompleteData
@@ -103,6 +106,47 @@ class DrawAreaTaskViewModelTest : BaseHiltTest() {
 
     assertGeometry(3, isLineString = true)
     assertThat(viewModel.isMarkedComplete()).isFalse()
+  }
+
+  @Test
+  fun `getDefaultViewPort returns null when nothing has been drawn`() {
+    setupViewModel()
+
+    assertThat(viewModel.getDefaultViewPort()).isNull()
+  }
+
+  @Test
+  fun `getDefaultViewPort centers on the first vertex`() {
+    setupViewModel()
+
+    updateLastVertexAndAdd(COORDINATE_1)
+
+    assertThat(viewModel.getDefaultViewPort())
+      .isEqualTo(NewCameraPositionViaCoordinates(COORDINATE_1))
+  }
+
+  @Test
+  fun `getDefaultViewPort centers on a restored draft of a single vertex`() {
+    setupViewModel(taskData = DrawAreaTaskIncompleteData(LineString(listOf(COORDINATE_1))))
+
+    assertThat(viewModel.getDefaultViewPort())
+      .isEqualTo(NewCameraPositionViaCoordinates(COORDINATE_1))
+  }
+
+  @Test
+  fun `getDefaultViewPort fits the camera to a draft covering an area`() {
+    setupViewModel()
+    updateLastVertexAndAdd(COORDINATE_1)
+
+    updateLastVertex(COORDINATE_2)
+
+    assertThat(viewModel.getDefaultViewPort())
+      .isEqualTo(
+        NewCameraPositionViaBounds(
+          Bounds.fromCoordinates(listOf(COORDINATE_1, COORDINATE_2))!!,
+          padding = 200,
+        )
+      )
   }
 
   @Test
