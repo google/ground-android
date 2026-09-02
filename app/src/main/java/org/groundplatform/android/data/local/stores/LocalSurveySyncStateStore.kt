@@ -13,8 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.data.local.room.stores
+package org.groundplatform.android.data.local.stores
 
-class RoomSyncStateStore {
+import org.groundplatform.android.data.local.room.entity.SurveySyncStateEntity
+import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.SurveySyncState
 
+interface LocalSurveySyncStateStore {
+  suspend fun get(surveyId: String): SurveySyncState?
+
+  suspend fun recordIncrementalSync(
+    surveyId: String,
+    latestLoiServerTimestamp: Long,
+  )
+
+  suspend fun recordFullSync(
+    surveyId: String,
+    latestLoiServerTimestamp: Long,
+    dataVisibility: Survey.DataVisibility?,
+  )
 }

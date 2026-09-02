@@ -34,17 +34,20 @@ import org.groundplatform.android.data.local.room.dao.OptionDao
 import org.groundplatform.android.data.local.room.dao.SubmissionDao
 import org.groundplatform.android.data.local.room.dao.SubmissionMutationDao
 import org.groundplatform.android.data.local.room.dao.SurveyDao
+import org.groundplatform.android.data.local.room.dao.SurveySyncStateDao
 import org.groundplatform.android.data.local.room.dao.TaskDao
 import org.groundplatform.android.data.local.room.dao.UserDao
 import org.groundplatform.android.data.local.room.stores.RoomLocationOfInterestStore
 import org.groundplatform.android.data.local.room.stores.RoomOfflineAreaStore
 import org.groundplatform.android.data.local.room.stores.RoomSubmissionStore
 import org.groundplatform.android.data.local.room.stores.RoomSurveyStore
+import org.groundplatform.android.data.local.room.stores.RoomSurveySyncStateStore
 import org.groundplatform.android.data.local.room.stores.RoomUserStore
 import org.groundplatform.android.data.local.stores.LocalLocationOfInterestStore
 import org.groundplatform.android.data.local.stores.LocalOfflineAreaStore
 import org.groundplatform.android.data.local.stores.LocalSubmissionStore
 import org.groundplatform.android.data.local.stores.LocalSurveyStore
+import org.groundplatform.android.data.local.stores.LocalSurveySyncStateStore
 import org.groundplatform.android.data.local.stores.LocalUserStore
 
 @InstallIn(SingletonComponent::class)
@@ -66,6 +69,8 @@ abstract class LocalDataStoreModule {
   @Binds @Singleton abstract fun surveyStore(store: RoomSurveyStore): LocalSurveyStore
 
   @Binds @Singleton abstract fun userStore(store: RoomUserStore): LocalUserStore
+
+  @Binds @Singleton abstract fun surveySyncStateStore(store: RoomSurveySyncStateStore): LocalSurveySyncStateStore
 
   companion object {
     @Provides
@@ -136,6 +141,11 @@ abstract class LocalDataStoreModule {
     @Provides
     fun expressionDao(localDatabase: LocalDatabase): ExpressionDao {
       return localDatabase.expressionDao()
+    }
+
+    @Provides
+    fun surveySyncStoreDao(localDatabase: LocalDatabase): SurveySyncStateDao {
+      return localDatabase.surveySyncStateDao()
     }
   }
 }
