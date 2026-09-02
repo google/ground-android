@@ -25,7 +25,7 @@ import org.groundplatform.domain.model.mutation.LocationOfInterestMutation
 
 interface LocationOfInterestRepositoryInterface {
   /** Mirrors locations of interest in the specified survey from the remote db into the local db. */
-  suspend fun syncLocationsOfInterest(survey: Survey)
+  suspend fun syncLocationsOfInterest(survey: Survey, forceFullSync: Boolean)
 
   /** This only works if the survey and location of interests are already cached to local db. */
   suspend fun getOfflineLoi(surveyId: String, loiId: String): LocationOfInterest?

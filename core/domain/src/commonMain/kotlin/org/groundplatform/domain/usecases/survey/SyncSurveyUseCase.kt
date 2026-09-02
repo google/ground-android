@@ -33,17 +33,17 @@ class SyncSurveyUseCase(
   private val surveyRepository: SurveyRepositoryInterface,
 ) {
 
-  suspend operator fun invoke(surveyId: String): Survey? =
-    fetchSurvey(surveyId)?.also { syncSurvey(it) }
+  suspend operator fun invoke(surveyId: String, forceFullSync: Boolean): Survey? =
+    fetchSurvey(surveyId)?.also { syncSurvey(it, forceFullSync) }
 
   private suspend fun fetchSurvey(surveyId: String): Survey? {
     Logger.d("Loading survey $surveyId")
     return surveyRepository.getRemoteSurvey(surveyId)
   }
 
-  private suspend fun syncSurvey(survey: Survey) {
+  private suspend fun syncSurvey(survey: Survey, forceFullSync: Boolean) {
     surveyRepository.saveSurvey(survey)
-    loiRepository.syncLocationsOfInterest(survey)
-    Logger.d("Synced survey ${survey.id}")
+    loiRepository.syncLocationsOfInterest(survey, forceFullSync)
+    Logger.d("Synced survey ${survey.id}, forceFullSync=$forceFullSync")
   }
 }

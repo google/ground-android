@@ -45,7 +45,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
       return
     }
     Timber.v("Message received from topic ${remoteMessage.from}")
-    surveySyncService.enqueueSync(surveyId)
+    surveySyncService.enqueueSync(surveyId, remoteMessage.data["deleted"].toBoolean())
   }
 
   override fun onNewToken(token: String) {

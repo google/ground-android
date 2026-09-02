@@ -30,8 +30,8 @@ class SurveySyncService @Inject constructor(private val workManager: WorkManager
    *
    * @return The id of the worker request, used in tests to retrieve the worker status.
    */
-  fun enqueueSync(surveyId: String): UUID {
-    val inputData = SurveySyncWorker.createInputData(surveyId)
+  fun enqueueSync(surveyId: String, forceFullSync: Boolean): UUID {
+    val inputData = SurveySyncWorker.createInputData(surveyId, forceFullSync)
     val request =
       WorkRequestBuilder()
         .setWorkerClass(SurveySyncWorker::class.java)

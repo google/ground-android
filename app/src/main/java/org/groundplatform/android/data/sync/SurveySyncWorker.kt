@@ -45,6 +45,7 @@ constructor(
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : CoroutineWorker(context, params) {
   private val surveyId: String? = params.inputData.getString(SURVEY_ID_PARAM_KEY)
+  private val forceFullSync: Boolean = params.inputData.getBoolean(FORCE_FULL_SYNC_PARAM_KEY, false)
 
   override suspend fun doWork(): Result = withContext(ioDispatcher) { doWorkInternal() }
 
@@ -62,7 +63,7 @@ constructor(
         surveyRepository.unsubscribeFromSurveyUpdates(surveyId)
       } else {
         Timber.d("Syncing survey $surveyId")
-        syncSurvey(surveyId)
+        syncSurvey(surveyId, forceFullSync)
       }
       success()
     } catch (t: Throwable) {
@@ -74,9 +75,13 @@ constructor(
   companion object {
     /** The key in worker input data containing the id of the survey to be synced. */
     internal const val SURVEY_ID_PARAM_KEY = "surveyId"
+    internal const val FORCE_FULL_SYNC_PARAM_KEY = "forceFullSync"
 
     /** Returns a new work [Data] object containing the specified survey id. */
-    fun createInputData(surveyId: String): Data =
-      Data.Builder().putString(SURVEY_ID_PARAM_KEY, surveyId).build()
+    fun createInputData(surveyId: String, forceFullSync: Boolean): Data =
+      Data.Builder()
+        .putString(SURVEY_ID_PARAM_KEY, surveyId)
+        .putBoolean(FORCE_FULL_SYNC_PARAM_KEY, forceFullSync)
+        .build()
   }
 }
