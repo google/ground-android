@@ -36,5 +36,5 @@ data class SurveySyncStateEntity(
   @ColumnInfo(name = "survey_id") @PrimaryKey val surveyId: String,
   @ColumnInfo(name = "latest_loi_server_timestamp") val latestLoiServerTimestamp: Long,
   @ColumnInfo(name = "last_full_sync_client_timestamp") val lastFullSyncClientTimestamp: Long,
-  @ColumnInfo(name = "synced_data_visibility") val syncedDataVisibility: String,
+  @ColumnInfo(name = "synced_data_visibility") val syncedDataVisibility: Int?,
 )

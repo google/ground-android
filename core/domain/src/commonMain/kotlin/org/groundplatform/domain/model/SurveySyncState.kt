@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.data.local.room.stores
+package org.groundplatform.domain.model
 
-class RoomSyncStateStore {
-
-}
+data class SurveySyncState(
+  val surveyId: String,
+  val latestLoiServerTimestamp: Long,
+  val lastFullSyncClientTimestamp: Long,
+  val syncedDataVisibility: Survey.DataVisibility?,
+)
