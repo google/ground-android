@@ -37,6 +37,7 @@ import org.groundplatform.android.data.local.room.dao.OptionDao
 import org.groundplatform.android.data.local.room.dao.SubmissionDao
 import org.groundplatform.android.data.local.room.dao.SubmissionMutationDao
 import org.groundplatform.android.data.local.room.dao.SurveyDao
+import org.groundplatform.android.data.local.room.dao.SurveySyncStateDao
 import org.groundplatform.android.data.local.room.dao.TaskDao
 import org.groundplatform.android.data.local.room.dao.UserDao
 import org.groundplatform.android.data.local.room.entity.ConditionEntity
@@ -51,6 +52,7 @@ import org.groundplatform.android.data.local.room.entity.OptionEntity
 import org.groundplatform.android.data.local.room.entity.SubmissionEntity
 import org.groundplatform.android.data.local.room.entity.SubmissionMutationEntity
 import org.groundplatform.android.data.local.room.entity.SurveyEntity
+import org.groundplatform.android.data.local.room.entity.SurveySyncStateEntity
 import org.groundplatform.android.data.local.room.entity.TaskEntity
 import org.groundplatform.android.data.local.room.entity.UserEntity
 import org.groundplatform.android.data.local.room.fields.EntityDeletionState
@@ -87,6 +89,7 @@ import org.groundplatform.android.data.local.room.fields.TileSetEntityState
       UserEntity::class,
       ConditionEntity::class,
       ExpressionEntity::class,
+      SurveySyncStateEntity::class,
     ],
   version = Constants.DB_VERSION,
   exportSchema = true,
@@ -97,6 +100,7 @@ import org.groundplatform.android.data.local.room.fields.TileSetEntityState
       AutoMigration(from = 122, to = 123),
       AutoMigration(from = 123, to = 124),
       AutoMigration(from = 127, to = 128),
+      AutoMigration(from = 128, to = 129),
     ],
 )
 @TypeConverters(
@@ -143,4 +147,6 @@ abstract class LocalDatabase : RoomDatabase() {
   abstract fun conditionDao(): ConditionDao
 
   abstract fun expressionDao(): ExpressionDao
+
+  abstract fun surveySyncStateDao(): SurveySyncStateDao
 }
