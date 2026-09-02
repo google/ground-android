@@ -84,13 +84,14 @@ internal constructor(
     )
   }
 
-  override fun loadPredefinedLois(survey: Survey) =
-    fetchLoiPages(survey) { fetchPredefined(survey) }
+  override fun loadPredefinedLois(survey: Survey, fromTimestamp: Long?) =
+    fetchLoiPages(survey) { fetchPredefined(survey, fromTimestamp) }
 
-  override fun loadUserLois(survey: Survey, ownerUserId: String) =
-    fetchLoiPages(survey) { fetchUserDefined(survey, ownerUserId) }
+  override fun loadUserLois(survey: Survey, ownerUserId: String, fromTimestamp: Long?) =
+    fetchLoiPages(survey) { fetchUserDefined(survey, ownerUserId, fromTimestamp) }
 
-  override fun loadSharedLois(survey: Survey) = fetchLoiPages(survey) { fetchSharedLois(survey) }
+  override fun loadSharedLois(survey: Survey, fromTimestamp: Long?) =
+    fetchLoiPages(survey) { fetchSharedLois(survey, fromTimestamp) }
 
   /** Emits the pages of LOIs produced by [fetch] against the given survey's LOI collection. */
   private fun fetchLoiPages(
