@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 129,
-    "identityHash": "d29749b85ad91481ce460981e82740be",
+    "identityHash": "fe1334c01a767da11a41a4bf7878daaf",
     "entities": [
       {
         "tableName": "draft_submission",
@@ -1121,7 +1121,7 @@
       },
       {
         "tableName": "survey_sync_state",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`survey_id` TEXT NOT NULL, `latest_loi_server_timestamp` INTEGER NOT NULL, `last_full_sync_client_timestamp` INTEGER NOT NULL, `synced_data_visibility` TEXT NOT NULL, PRIMARY KEY(`survey_id`), FOREIGN KEY(`survey_id`) REFERENCES `survey`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`survey_id` TEXT NOT NULL, `latest_loi_server_timestamp` INTEGER NOT NULL, `last_full_sync_client_timestamp` INTEGER NOT NULL, `synced_data_visibility` INTEGER, PRIMARY KEY(`survey_id`), FOREIGN KEY(`survey_id`) REFERENCES `survey`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "surveyId",
@@ -1144,8 +1144,7 @@
           {
             "fieldPath": "syncedDataVisibility",
             "columnName": "synced_data_visibility",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "INTEGER"
           }
         ],
         "primaryKey": {
@@ -1171,7 +1170,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd29749b85ad91481ce460981e82740be')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'fe1334c01a767da11a41a4bf7878daaf')"
     ]
   }
 }
