@@ -54,7 +54,7 @@ object LoiConverter {
     // Degrade gracefully when audit info missing in remote db.
     val created = AuditInfoConverter.toAuditInfo(loiProto.created)
     val lastModified =
-      if (loiProto.lastModified != null) {
+      if (loiProto.hasLastModified()) {
         AuditInfoConverter.toAuditInfo(loiProto.lastModified)
       } else {
         created
