@@ -17,8 +17,10 @@ package org.groundplatform.android.ui.offlineareas.viewer
 
 import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -68,8 +70,8 @@ constructor(
   private val _uiState = MutableStateFlow(OfflineAreaViewerState())
   val uiState: StateFlow<OfflineAreaViewerState> = _uiState.asStateFlow()
 
-  private val navigateUpChannel = Channel<Unit>(Channel.BUFFERED)
-  val navigateUp = navigateUpChannel.receiveAsFlow()
+  private val uiEventChannel = Channel<OfflineAreaViewerEvent>(Channel.BUFFERED)
+  val uiEvent: Flow<OfflineAreaViewerEvent> = uiEventChannel.receiveAsFlow()
 
   /** Initialize the view model with the given arguments. */
   fun initialize(offlineAreaId: String) {
@@ -84,7 +86,7 @@ constructor(
             areaSize = size,
           )
         }
-      } ?: run { navigateUpChannel.send(Unit) }
+      } ?: run { uiEventChannel.send(OfflineAreaViewerEvent.NavigateUp) }
     }
   }
 
@@ -104,12 +106,13 @@ constructor(
       Timber.d("Removing offline area ${deletedArea.name}")
       offlineAreaRepository.removeFromDevice(deletedArea)
       _uiState.update { it.copy(isProgressOverlayVisible = false, area = null) }
-      navigateUpChannel.send(Unit)
-    } catch (e: kotlinx.coroutines.CancellationException) {
+      uiEventChannel.send(OfflineAreaViewerEvent.NavigateUp)
+    } catch (e: CancellationException) {
       throw e
     } catch (e: Exception) {
       Timber.e(e, "Failed to remove offline area")
       _uiState.update { it.copy(isProgressOverlayVisible = false) }
+      uiEventChannel.send(OfflineAreaViewerEvent.RemoveFailed)
     }
   }
 }

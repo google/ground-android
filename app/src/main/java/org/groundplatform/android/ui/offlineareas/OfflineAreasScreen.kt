@@ -53,6 +53,7 @@ import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.components.Toolbar
 import org.groundplatform.ui.theme.AppTheme
+import org.groundplatform.ui.theme.sizes
 
 const val OFFLINE_AREAS_LIST_TEST_TAG = "offline area list"
 const val OFFLINE_AREAS_SELECT_FAB_TEST_TAG = "offline_areas_select_fab"
@@ -108,6 +109,7 @@ fun OfflineAreasScreen(
       Toolbar(
         stringRes = R.string.offline_map_imagery,
         showNavigationIcon = true,
+        titleCentered = true,
         iconClick = onNavigateUp,
       )
     },
@@ -165,7 +167,7 @@ private fun OfflineAreasEmptyView() {
     Image(
       painter = painterResource(R.drawable.offline_map_imagery),
       contentDescription = stringResource(R.string.offline_map_imagery_no_areas_downloaded_image),
-      modifier = Modifier.size(200.dp),
+      modifier = Modifier.size(MaterialTheme.sizes.offlineAreaEmptyStateImageSize),
     )
     Text(
       text = stringResource(R.string.no_basemaps_downloaded),
@@ -228,7 +230,7 @@ private fun OfflineAreaListItem(
       imageVector = ImageVector.vectorResource(id = R.drawable.ic_offline_pin),
       contentDescription = stringResource(id = R.string.offline_area_list_item_icon),
       tint = MaterialTheme.colorScheme.primary,
-      modifier = Modifier.size(24.dp),
+      modifier = Modifier.size(MaterialTheme.sizes.offlineAreaItemIconSize),
     )
 
     Column(

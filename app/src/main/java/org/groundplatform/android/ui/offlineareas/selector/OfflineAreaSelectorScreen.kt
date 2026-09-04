@@ -26,12 +26,17 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -112,6 +117,7 @@ fun OfflineAreaSelectorScreen(
       Toolbar(
         stringRes = R.string.offline_area_selector_title,
         showNavigationIcon = false,
+        titleCentered = true,
         iconClick = {},
       )
 
@@ -196,11 +202,14 @@ private fun OfflineAreaSelectorButtons(
 ) {
   Surface(
     color = MaterialTheme.colorScheme.surfaceContainer,
-    modifier = Modifier.fillMaxWidth().height(90.dp),
+    modifier = Modifier.fillMaxWidth(),
   ) {
     Row(
-      modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 16.dp),
-      verticalAlignment = Alignment.Top,
+      modifier =
+        Modifier.fillMaxWidth()
+          .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom))
+          .padding(horizontal = 16.dp, vertical = 16.dp),
+      verticalAlignment = Alignment.CenterVertically,
       horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
       OutlinedButton(
@@ -240,6 +249,7 @@ private fun getBottomTextMessage(state: OfflineAreaSelectorState.BottomTextState
     null -> ""
   }
 
+@VisibleForTesting
 @Composable
 fun DownloadProgressDialog(
   progress: Float,

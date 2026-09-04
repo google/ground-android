@@ -107,18 +107,18 @@ class OfflineAreaViewerViewModelTest : BaseHiltTest() {
       offlineAreaViewerViewModel.initialize("id_1")
       advanceUntilIdle()
 
-      offlineAreaViewerViewModel.navigateUp.test {
+      offlineAreaViewerViewModel.uiEvent.test {
         offlineAreaViewerViewModel.onRemoveButtonClick()
         advanceUntilIdle()
 
-        assertThat(awaitItem()).isEqualTo(Unit)
+        assertThat(awaitItem()).isEqualTo(OfflineAreaViewerEvent.NavigateUp)
         assertThat(offlineAreaViewerViewModel.uiState.value.isProgressOverlayVisible).isFalse()
         assertThat(offlineAreaViewerViewModel.uiState.value.area).isNull()
       }
     }
 
   @Test
-  fun `remove downloaded area failure resets progress overlay and does not navigate up`() =
+  fun `remove downloaded area failure resets progress overlay and emits RemoveFailed event`() =
     runWithTestDispatcher {
       val mockRepo =
         org.mockito.kotlin.mock<
@@ -145,22 +145,23 @@ class OfflineAreaViewerViewModelTest : BaseHiltTest() {
       testViewModel.initialize("id_1")
       advanceUntilIdle()
 
-      testViewModel.navigateUp.test {
+      testViewModel.uiEvent.test {
         testViewModel.onRemoveButtonClick()
         advanceUntilIdle()
 
         assertThat(testViewModel.uiState.value.isProgressOverlayVisible).isFalse()
+        assertThat(awaitItem()).isEqualTo(OfflineAreaViewerEvent.RemoveFailed)
         expectNoEvents()
       }
     }
 
   @Test
   fun `initialize with non-existent area triggers navigateUp`() = runWithTestDispatcher {
-    offlineAreaViewerViewModel.navigateUp.test {
+    offlineAreaViewerViewModel.uiEvent.test {
       offlineAreaViewerViewModel.initialize("non_existent")
       advanceUntilIdle()
 
-      assertThat(awaitItem()).isEqualTo(Unit)
+      assertThat(awaitItem()).isEqualTo(OfflineAreaViewerEvent.NavigateUp)
     }
   }
 }

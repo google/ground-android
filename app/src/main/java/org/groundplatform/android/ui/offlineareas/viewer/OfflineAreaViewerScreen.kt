@@ -24,12 +24,17 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
@@ -58,6 +63,7 @@ import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.imagery.OfflineArea
 import org.groundplatform.domain.model.map.Bounds
 import org.groundplatform.ui.theme.AppTheme
+import org.groundplatform.ui.theme.sizes
 
 const val OFFLINE_AREA_VIEWER_NAME_TEST_TAG = "offline_area_viewer_name"
 const val OFFLINE_AREA_VIEWER_SIZE_TEST_TAG = "offline_area_viewer_size"
@@ -90,6 +96,7 @@ fun OfflineAreaViewerScreen(
       Toolbar(
         stringRes = R.string.offline_area_viewer_title,
         showNavigationIcon = true,
+        titleCentered = true,
         iconClick = { if (!uiState.isProgressOverlayVisible) onNavigateUp() },
       )
 
@@ -118,7 +125,7 @@ fun OfflineAreaViewerScreen(
         contentAlignment = Alignment.Center,
       ) {
         CircularProgressIndicator(
-          modifier = Modifier.size(64.dp),
+          modifier = Modifier.size(MaterialTheme.sizes.offlineAreaViewerProgressIndicatorSize),
           color = MaterialTheme.colorScheme.primary,
         )
       }
@@ -137,7 +144,10 @@ private fun OfflineAreaDetailsCard(
   Surface(modifier = modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.surface) {
     Column(
       modifier =
-        Modifier.fillMaxWidth().padding(horizontal = 24.dp).padding(top = 40.dp, bottom = 48.dp),
+        Modifier.fillMaxWidth()
+          .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom))
+          .padding(horizontal = 24.dp)
+          .padding(top = 40.dp, bottom = 48.dp),
       horizontalAlignment = Alignment.CenterHorizontally,
     ) {
       Text(

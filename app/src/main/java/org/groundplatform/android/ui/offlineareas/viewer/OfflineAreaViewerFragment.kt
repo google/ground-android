@@ -33,6 +33,7 @@ import org.groundplatform.android.R
 import org.groundplatform.android.databinding.BasemapLayoutBinding
 import org.groundplatform.android.ui.common.AbstractMapContainerFragment
 import org.groundplatform.android.ui.common.BaseMapViewModel
+import org.groundplatform.android.ui.common.EphemeralPopups
 import org.groundplatform.android.ui.map.MapFragment
 import org.groundplatform.android.util.setComposableContent
 import org.groundplatform.domain.model.map.MapType
@@ -42,6 +43,7 @@ import org.groundplatform.ui.map.MapConfig
 @AndroidEntryPoint
 class OfflineAreaViewerFragment @Inject constructor() : AbstractMapContainerFragment() {
 
+  @Inject lateinit var popups: EphemeralPopups
   private lateinit var viewModel: OfflineAreaViewerViewModel
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -90,9 +92,16 @@ class OfflineAreaViewerFragment @Inject constructor() : AbstractMapContainerFrag
     super.onViewCreated(view, savedInstanceState)
     viewLifecycleOwner.lifecycleScope.launch {
       viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-        viewModel.navigateUp.collect {
-          if (findNavController().currentDestination?.id == R.id.offline_area_viewer_fragment) {
-            findNavController().navigateUp()
+        viewModel.uiEvent.collect { event ->
+          when (event) {
+            OfflineAreaViewerEvent.NavigateUp -> {
+              if (findNavController().currentDestination?.id == R.id.offline_area_viewer_fragment) {
+                findNavController().navigateUp()
+              }
+            }
+            OfflineAreaViewerEvent.RemoveFailed -> {
+              popups.ErrorPopup().unknownError()
+            }
           }
         }
       }
