@@ -16,7 +16,10 @@
 package org.groundplatform.domain.usecases.survey
 
 import co.touchlab.kermit.Logger
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.days
 import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.SurveySyncMode
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
 
@@ -33,17 +36,34 @@ class SyncSurveyUseCase(
   private val surveyRepository: SurveyRepositoryInterface,
 ) {
 
-  suspend operator fun invoke(surveyId: String, forceFullSync: Boolean): Survey? =
-    fetchSurvey(surveyId)?.also { syncSurvey(it, forceFullSync) }
+  suspend operator fun invoke(surveyId: String): Survey? =
+    fetchSurvey(surveyId)?.also { syncSurvey(it) }
 
   private suspend fun fetchSurvey(surveyId: String): Survey? {
     Logger.d("Loading survey $surveyId")
     return surveyRepository.getRemoteSurvey(surveyId)
   }
 
-  private suspend fun syncSurvey(survey: Survey, forceFullSync: Boolean) {
+  private suspend fun syncSurvey(survey: Survey) {
     surveyRepository.saveSurvey(survey)
-    loiRepository.syncLocationsOfInterest(survey, forceFullSync)
-    Logger.d("Synced survey ${survey.id}, forceFullSync=$forceFullSync")
+    val result = loiRepository.syncLocationsOfInterest(survey, syncMode(survey))
+    surveyRepository.recordSyncState(survey, result)
+    Logger.d("Synced survey ${survey.id}")
+  }
+
+  private suspend fun syncMode(survey: Survey): SurveySyncMode {
+    val syncState = surveyRepository.getSyncState(survey.id)
+    return when {
+      syncState == null -> SurveySyncMode.Full
+      survey.dataVisibility != syncState.syncedDataVisibility -> SurveySyncMode.Full
+      Clock.System.now().toEpochMilliseconds() - syncState.lastFullSyncClientTimestamp >
+        FULL_SYNC_INTERVAL_MILLIS -> SurveySyncMode.Full
+      else -> SurveySyncMode.Incremental(syncState.latestLoiServerTimestamp)
+    }
+  }
+
+  private companion object {
+    // An undelivered FCM is stored for a max of 28 days
+    val FULL_SYNC_INTERVAL_MILLIS = 28.days.inWholeMilliseconds
   }
 }

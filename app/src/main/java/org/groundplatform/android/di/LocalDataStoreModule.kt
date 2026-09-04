@@ -70,7 +70,9 @@ abstract class LocalDataStoreModule {
 
   @Binds @Singleton abstract fun userStore(store: RoomUserStore): LocalUserStore
 
-  @Binds @Singleton abstract fun surveySyncStateStore(store: RoomSurveySyncStateStore): LocalSurveySyncStateStore
+  @Binds
+  @Singleton
+  abstract fun surveySyncStateStore(store: RoomSurveySyncStateStore): LocalSurveySyncStateStore
 
   companion object {
     @Provides

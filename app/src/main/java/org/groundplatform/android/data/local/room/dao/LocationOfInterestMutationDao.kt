@@ -39,4 +39,15 @@ interface LocationOfInterestMutationDao : BaseDao<LocationOfInterestMutationEnti
     locationOfInterestId: String,
     vararg allowedStates: MutationEntitySyncStatus,
   ): List<LocationOfInterestMutationEntity>
+
+  /** Returns the IDs of the survey's LOIs which have a mutation in one of the given states. */
+  @Query(
+    "SELECT DISTINCT location_of_interest_id FROM location_of_interest_mutation " +
+      "WHERE survey_id = :surveyId " +
+      "AND state IN (:allowedStates)"
+  )
+  suspend fun getLocationOfInterestIds(
+    surveyId: String,
+    vararg allowedStates: MutationEntitySyncStatus,
+  ): List<String>
 }

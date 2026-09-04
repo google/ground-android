@@ -146,9 +146,20 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
   override suspend fun deleteNotIn(surveyId: String, ids: List<String>) {
     val idsToKeep = ids.toSet()
     localDatabase.withTransaction {
+      // NOTE(#2652): Never delete an LOI with unsynced changes, including one saved while the
+      // caller was still fetching. Dropping it here would take its queued mutation along with it,
+      // since mutations cascade on the LOI they point at.
+      val pendingIds =
+        locationOfInterestMutationDao
+          .getLocationOfInterestIds(
+            surveyId,
+            MutationEntitySyncStatus.PENDING,
+            MutationEntitySyncStatus.IN_PROGRESS,
+          )
+          .toSet()
       locationOfInterestDao
         .getIds(surveyId)
-        .filterNot { it in idsToKeep }
+        .filterNot { it in idsToKeep || it in pendingIds }
         .chunked(MAX_SQL_VARIABLES)
         .forEach { locationOfInterestDao.deleteByIds(it) }
     }

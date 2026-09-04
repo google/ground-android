@@ -412,7 +412,7 @@ fun SurveyEntityAndRelations.toModelObject(): Survey {
       ?.let { DataSharingTerms.parseFrom(surveyEntity.dataSharingTerms) }
       ?.toModel(),
     surveyEntity.generalAccess.toGeneralAccess(),
-    surveyEntity.dataVisibility?.toDataVisibility()
+    surveyEntity.dataVisibility?.toDataVisibility(),
   )
 }
 

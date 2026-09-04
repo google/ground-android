@@ -39,8 +39,8 @@ import org.groundplatform.android.data.remote.RemoteDataStore
 import org.groundplatform.android.di.coroutines.ApplicationScope
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.SurveyListItem
-import org.groundplatform.domain.model.SurveySyncState
 import org.groundplatform.domain.model.SurveySyncMode
+import org.groundplatform.domain.model.SurveySyncState
 import org.groundplatform.domain.model.User
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
@@ -94,7 +94,10 @@ constructor(
   override suspend fun getSyncState(surveyId: String): SurveySyncState? =
     localSurveySyncStateStore.get(surveyId)
 
-  override suspend fun recordSyncState(survey: Survey, loiSyncResult: LocationOfInterestRepositoryInterface.SyncResult) {
+  override suspend fun recordSyncState(
+    survey: Survey,
+    loiSyncResult: LocationOfInterestRepositoryInterface.SyncResult,
+  ) {
     when (loiSyncResult.mode) {
       is SurveySyncMode.Full ->
         localSurveySyncStateStore.recordFullSync(
@@ -103,7 +106,10 @@ constructor(
           survey.dataVisibility,
         )
       is SurveySyncMode.Incremental ->
-        localSurveySyncStateStore.recordIncrementalSync(survey.id, loiSyncResult.latestLoiServerTimestamp)
+        localSurveySyncStateStore.recordIncrementalSync(
+          survey.id,
+          loiSyncResult.latestLoiServerTimestamp,
+        )
     }
   }
 

@@ -17,22 +17,19 @@ package org.groundplatform.android.repository
 
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.time.Clock
-import kotlin.time.Duration.Companion.days
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import org.groundplatform.android.data.local.stores.LocalLocationOfInterestStore
 import org.groundplatform.android.data.local.stores.LocalSurveyStore
-import org.groundplatform.android.data.local.stores.LocalSurveySyncStateStore
 import org.groundplatform.android.data.remote.RemoteDataStore
 import org.groundplatform.android.data.sync.MutationSyncWorkManager
 import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.android.system.auth.AuthenticationManager
 import org.groundplatform.domain.model.Role
 import org.groundplatform.domain.model.Survey
-import org.groundplatform.domain.model.SurveySyncState
+import org.groundplatform.domain.model.SurveySyncMode
 import org.groundplatform.domain.model.geometry.Geometry
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
@@ -61,18 +58,30 @@ constructor(
   private val userRepository: UserRepositoryInterface,
   private val uuidGenerator: OfflineUuidGenerator,
   private val authenticationManager: AuthenticationManager,
-  private val localSurveySyncStateStore: LocalSurveySyncStateStore,
 ) : LocationOfInterestRepositoryInterface {
-  override suspend fun syncLocationsOfInterest(survey: Survey, forceFullSync: Boolean) {
+  override suspend fun syncLocationsOfInterest(
+    survey: Survey,
+    mode: SurveySyncMode,
+  ): LocationOfInterestRepositoryInterface.SyncResult {
     val ownerUserId = authenticationManager.getAuthenticatedUser().id
-    val currentSurveySyncState = localSurveySyncStateStore.get(survey.id)
-    val syncFromTimestamp =
-      getSyncStartTimestamp(
-        survey = survey,
-        currentSurveySyncState = currentSurveySyncState,
-        forceFullSync = forceFullSync,
-      )
 
+    val missedDeletion =
+      mode is SurveySyncMode.Incremental && hasMissedDeletion(survey, ownerUserId)
+    if (missedDeletion) {
+      Timber.d("Reading all of survey ${survey.id}, local LOIs outnumber the remote ones")
+    }
+
+    val effectiveMode = if (missedDeletion) SurveySyncMode.Full else mode
+
+    return LocationOfInterestRepositoryInterface.SyncResult(
+      mode = effectiveMode,
+      latestLoiServerTimestamp = syncLois(survey, ownerUserId, effectiveMode),
+    )
+  }
+
+  /** Reads the survey's LOIs into the local db, returning the newest server timestamp it saw. */
+  private suspend fun syncLois(survey: Survey, ownerUserId: String, mode: SurveySyncMode): Long {
+    val syncFromTimestamp = (mode as? SurveySyncMode.Incremental)?.fromTimestamp
     // Single-page buffering. Persist immediately to avoid OOM on geometry-heavy surveys.
     val syncedLoiIds = mutableSetOf<String>()
     var newestLoiTimestamp = syncFromTimestamp ?: 0L
@@ -95,40 +104,33 @@ constructor(
       savePages(remoteDataStore.loadUserLois(survey, ownerUserId, syncFromTimestamp))
     }
 
-    if (syncFromTimestamp == null) {
-      val mutations = localLoiStore.getAllSurveyMutations(survey).firstOrNull().orEmpty()
-
-      // NOTE(#2652): Don't delete pending locations of interest, since we can accidentally delete
-      // them here if we get to this routine before they can be synced up to the remote database.
-      val pendingLois =
-        mutations
-          .asSequence()
-          .filter { it.syncStatus in setOf(SyncStatus.PENDING, SyncStatus.IN_PROGRESS) }
-          .map { it.locationOfInterestId }
-          .toList()
-
-      // Delete LOIs in local db not returned in latest list from server, skipping pending
-      // mutations.
-      localLoiStore.deleteNotIn(survey.id, syncedLoiIds.toList() + pendingLois)
-      localSurveySyncStateStore.recordFullSync(survey.id, newestLoiTimestamp, survey.dataVisibility)
-    } else {
-      localSurveySyncStateStore.recordIncrementalSync(survey.id, newestLoiTimestamp)
+    if (mode is SurveySyncMode.Full) {
+      // NOTE(#2652): Delete LOIs in local db not returned in latest list from server. The store
+      // keeps the ones with unsynced local changes, since dropping one would lose the mutation
+      // before it reaches the server.
+      localLoiStore.deleteNotIn(survey.id, syncedLoiIds.toList())
     }
+
+    return newestLoiTimestamp
   }
 
-  private fun getSyncStartTimestamp(
-    survey: Survey,
-    currentSurveySyncState: SurveySyncState?,
-    forceFullSync: Boolean,
-  ): Long? =
-    when {
-      forceFullSync -> null
-      currentSurveySyncState == null -> null
-      survey.dataVisibility != currentSurveySyncState.syncedDataVisibility -> null
-      Clock.System.now().toEpochMilliseconds() -
-        currentSurveySyncState.lastFullSyncClientTimestamp > FULL_SYNC_INTERVAL_MILLIS -> null
-      else -> currentSurveySyncState.latestLoiServerTimestamp
-    }
+  /** Returns whether the local db holds an LOI which a full sync would find gone from remote. */
+  private suspend fun hasMissedDeletion(survey: Survey, ownerUserId: String): Boolean {
+    val mutations = localLoiStore.getAllSurveyMutations(survey).firstOrNull().orEmpty()
+
+    // Number of distinct LOIs with a pending or in-progress local mutation that isn't a delete.
+    val pendingNonDeletedLoiCount =
+      mutations
+        .asSequence()
+        .filter { it.syncStatus in setOf(SyncStatus.PENDING, SyncStatus.IN_PROGRESS) }
+        .filterNot { it.type == Mutation.Type.DELETE }
+        .map { it.locationOfInterestId }
+        .distinct()
+        .count()
+
+    return remoteDataStore.countLois(survey, ownerUserId) <
+      localLoiStore.getLoiCount(survey.id) - pendingNonDeletedLoiCount
+  }
 
   override suspend fun getOfflineLoi(surveyId: String, loiId: String): LocationOfInterest? {
     val survey = localSurveyStore.getSurveyById(surveyId)
@@ -246,10 +248,5 @@ constructor(
 
     val mutation = loi.toMutation(Mutation.Type.DELETE, user.id)
     applyAndEnqueue(mutation)
-  }
-
-  companion object {
-    // An undelivered FCM is stored for a max of 28 days
-    private val FULL_SYNC_INTERVAL_MILLIS = 28.days.inWholeMilliseconds
   }
 }
