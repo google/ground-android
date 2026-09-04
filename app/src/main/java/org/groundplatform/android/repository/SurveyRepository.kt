@@ -34,11 +34,15 @@ import kotlinx.coroutines.withTimeout
 import org.groundplatform.android.FirebaseCrashLogger
 import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.local.stores.LocalSurveyStore
+import org.groundplatform.android.data.local.stores.LocalSurveySyncStateStore
 import org.groundplatform.android.data.remote.RemoteDataStore
 import org.groundplatform.android.di.coroutines.ApplicationScope
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.SurveyListItem
+import org.groundplatform.domain.model.SurveySyncState
+import org.groundplatform.domain.model.SurveySyncMode
 import org.groundplatform.domain.model.User
+import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import timber.log.Timber
 
@@ -53,6 +57,7 @@ constructor(
   @ApplicationScope private val externalScope: CoroutineScope,
   private val firebaseCrashLogger: FirebaseCrashLogger,
   private val localSurveyStore: LocalSurveyStore,
+  private val localSurveySyncStateStore: LocalSurveySyncStateStore,
   private val localValueStore: LocalValueStore,
   private val remoteDataStore: RemoteDataStore,
 ) : SurveyRepositoryInterface {
@@ -85,6 +90,22 @@ constructor(
     localSurveyStore.getSurveyById(surveyId)
 
   override fun getOfflineSurveys(): Flow<List<Survey>> = localSurveyStore.surveys
+
+  override suspend fun getSyncState(surveyId: String): SurveySyncState? =
+    localSurveySyncStateStore.get(surveyId)
+
+  override suspend fun recordSyncState(survey: Survey, loiSyncResult: LocationOfInterestRepositoryInterface.SyncResult) {
+    when (loiSyncResult.mode) {
+      is SurveySyncMode.Full ->
+        localSurveySyncStateStore.recordFullSync(
+          survey.id,
+          loiSyncResult.latestLoiServerTimestamp,
+          survey.dataVisibility,
+        )
+      is SurveySyncMode.Incremental ->
+        localSurveySyncStateStore.recordIncrementalSync(survey.id, loiSyncResult.latestLoiServerTimestamp)
+    }
+  }
 
   override suspend fun removeOfflineSurvey(surveyId: String) {
     getOfflineSurvey(surveyId)?.let { localSurveyStore.deleteSurvey(it) }
