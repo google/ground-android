@@ -31,5 +31,5 @@ class MakeSurveyAvailableOfflineUseCase(
   private val syncSurvey: SyncSurveyUseCase,
 ) {
   suspend operator fun invoke(surveyId: String): Survey? =
-    syncSurvey(surveyId)?.also { surveyRepository.subscribeToSurveyUpdates(surveyId) }
+    syncSurvey(surveyId = surveyId)?.also { surveyRepository.subscribeToSurveyUpdates(surveyId) }
 }

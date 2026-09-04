@@ -35,6 +35,7 @@ import org.groundplatform.android.data.local.room.entity.StyleEntity
 import org.groundplatform.android.data.local.room.entity.SubmissionEntity
 import org.groundplatform.android.data.local.room.entity.SubmissionMutationEntity
 import org.groundplatform.android.data.local.room.entity.SurveyEntity
+import org.groundplatform.android.data.local.room.entity.SurveySyncStateEntity
 import org.groundplatform.android.data.local.room.entity.TaskEntity
 import org.groundplatform.android.data.local.room.entity.UserEntity
 import org.groundplatform.android.data.local.room.fields.EntityDeletionState
@@ -55,6 +56,7 @@ import org.groundplatform.android.data.remote.firebase.protobuf.toProto
 import org.groundplatform.android.proto.Survey as SurveyProto
 import org.groundplatform.android.proto.Survey.DataSharingTerms
 import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.SurveySyncState
 import org.groundplatform.domain.model.User
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.Geometry
@@ -410,8 +412,13 @@ fun SurveyEntityAndRelations.toModelObject(): Survey {
       ?.let { DataSharingTerms.parseFrom(surveyEntity.dataSharingTerms) }
       ?.toModel(),
     surveyEntity.generalAccess.toGeneralAccess(),
+    surveyEntity.dataVisibility?.toDataVisibility(),
   )
 }
+
+fun Int.toDataVisibility(): Survey.DataVisibility =
+  SurveyProto.DataVisibility.entries.find { it.number == this }?.toModel()
+    ?: Survey.DataVisibility.UNSPECIFIED
 
 fun Int.toGeneralAccess(): Survey.GeneralAccess =
   SurveyProto.GeneralAccess.entries.find { it.number == this }?.toModel()
@@ -432,6 +439,22 @@ fun Survey.toLocalDataStoreObject() =
     dataSharingTerms = dataSharingTerms?.toProto()?.toByteArray(),
     generalAccess = generalAccess.toProto().ordinal,
     dataVisibility = dataVisibility?.toProto()?.ordinal,
+  )
+
+fun SurveySyncStateEntity.toModelObject(): SurveySyncState =
+  SurveySyncState(
+    surveyId = surveyId,
+    lastFullSyncClientTimestamp = lastFullSyncClientTimestamp,
+    latestLoiServerTimestamp = latestLoiServerTimestamp,
+    syncedDataVisibility = syncedDataVisibility?.toDataVisibility(),
+  )
+
+fun SurveySyncState.toLocalDataStoreObject() =
+  SurveySyncStateEntity(
+    surveyId = surveyId,
+    lastFullSyncClientTimestamp = lastFullSyncClientTimestamp,
+    latestLoiServerTimestamp = latestLoiServerTimestamp,
+    syncedDataVisibility = syncedDataVisibility?.toProto()?.ordinal,
   )
 
 fun Task.toLocalDataStoreObject(jobId: String?) =

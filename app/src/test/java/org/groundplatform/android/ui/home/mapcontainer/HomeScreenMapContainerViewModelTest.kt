@@ -42,10 +42,12 @@ import org.groundplatform.android.ui.home.mapcontainer.jobs.AdHocDataCollectionB
 import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentState
 import org.groundplatform.android.ui.home.mapcontainer.jobs.SelectedLoiSheetData
 import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.SurveySyncMode
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.map.Bounds
 import org.groundplatform.domain.model.map.CameraPosition
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
+import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface.SyncResult
 import org.groundplatform.domain.repository.UserRepositoryInterface
 import org.groundplatform.domain.usecases.survey.ActivateSurveyUseCase
 import org.groundplatform.domain.util.Constants.CLUSTERING_ZOOM_THRESHOLD
@@ -83,6 +85,9 @@ class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
       // Setup survey and LOIs
       remoteDataStore.surveys = listOf(SURVEY)
       remoteDataStore.predefinedLois = listOf(LOCATION_OF_INTEREST)
+      // Activating a survey syncs its LOIs, and the sync reports back where it left off.
+      whenever(loiRepository.syncLocationsOfInterest(any(), any()))
+        .thenReturn(SyncResult(SurveySyncMode.Full, latestLoiServerTimestamp = 0))
       activateSurvey(SURVEY.id)
       advanceUntilIdle()
       whenever(loiRepository.getWithinBounds(SURVEY, BOUNDS))

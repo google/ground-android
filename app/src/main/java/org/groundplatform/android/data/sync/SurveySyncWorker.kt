@@ -75,7 +75,7 @@ constructor(
     /** The key in worker input data containing the id of the survey to be synced. */
     internal const val SURVEY_ID_PARAM_KEY = "surveyId"
 
-    /** Returns a new work [Data] object containing the specified survey id. */
+    /** Returns a new work [Data] object requesting a sync of the specified survey. */
     fun createInputData(surveyId: String): Data =
       Data.Builder().putString(SURVEY_ID_PARAM_KEY, surveyId).build()
   }

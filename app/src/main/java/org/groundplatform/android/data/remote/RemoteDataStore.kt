@@ -50,15 +50,22 @@ interface RemoteDataStore {
   suspend fun loadTermsOfService(): TermsOfService?
 
   /** Returns predefined LOIs in the specified survey. Main-safe. */
-  fun loadPredefinedLois(survey: Survey): Flow<List<LocationOfInterest>>
+  fun loadPredefinedLois(survey: Survey, fromTimestamp: Long?): Flow<List<LocationOfInterest>>
 
   /** Returns LOIs owned by the specified user in the specified survey. Main-safe. */
-  fun loadUserLois(survey: Survey, ownerUserId: String): Flow<List<LocationOfInterest>>
+  fun loadUserLois(
+    survey: Survey,
+    ownerUserId: String,
+    fromTimestamp: Long?,
+  ): Flow<List<LocationOfInterest>>
 
   /**
    * Returns LOIs that have been marked as shared for other participants of the specified survey.
    */
-  fun loadSharedLois(survey: Survey): Flow<List<LocationOfInterest>>
+  fun loadSharedLois(survey: Survey, fromTimestamp: Long?): Flow<List<LocationOfInterest>>
+
+  /** Returns how many LOIs a sync of the specified survey would fetch. Main-safe. */
+  suspend fun countLois(survey: Survey, ownerUserId: String): Long
 
   /**
    * Applies the provided mutations to the remote data store in a single batched transaction. If one

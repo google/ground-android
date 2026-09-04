@@ -71,7 +71,6 @@ class ModelToProtoExtKtTest {
             emailAddress = user.email
             photoUrl = ""
             clientTimestamp = timestamp { seconds = 987654321L }
-            serverTimestamp = timestamp { seconds = 987654321L }
           }
           lastModified = auditInfo {
             userId = "userId"
@@ -79,7 +78,6 @@ class ModelToProtoExtKtTest {
             emailAddress = user.email
             photoUrl = ""
             clientTimestamp = timestamp { seconds = 987654321L }
-            serverTimestamp = timestamp { seconds = 987654321L }
           }
           customTag = "customId"
           source = LocationOfInterest.Source.FIELD_DATA
@@ -123,7 +121,6 @@ class ModelToProtoExtKtTest {
             emailAddress = user.email
             photoUrl = ""
             clientTimestamp = timestamp { seconds = 987654321L }
-            serverTimestamp = timestamp { seconds = 987654321L }
           }
           lastModified = auditInfo {
             userId = "userId"
@@ -131,7 +128,6 @@ class ModelToProtoExtKtTest {
             emailAddress = user.email
             photoUrl = ""
             clientTimestamp = timestamp { seconds = 987654321L }
-            serverTimestamp = timestamp { seconds = 987654321L }
           }
           customTag = "customId"
           geometry = geometry {
@@ -182,7 +178,6 @@ class ModelToProtoExtKtTest {
             emailAddress = user.email
             photoUrl = ""
             clientTimestamp = timestamp { seconds = 987654321L }
-            serverTimestamp = timestamp { seconds = 987654321L }
           }
           lastModified = auditInfo {
             userId = "userId"
@@ -190,7 +185,6 @@ class ModelToProtoExtKtTest {
             emailAddress = user.email
             photoUrl = ""
             clientTimestamp = timestamp { seconds = 987654321L }
-            serverTimestamp = timestamp { seconds = 987654321L }
           }
           customTag = "customId"
           geometry = geometry {
@@ -242,7 +236,6 @@ class ModelToProtoExtKtTest {
             emailAddress = user.email
             photoUrl = ""
             clientTimestamp = timestamp { seconds = 987654321L }
-            serverTimestamp = timestamp { seconds = 987654321L }
           }
           lastModified = auditInfo {
             userId = "userId"
@@ -250,7 +243,6 @@ class ModelToProtoExtKtTest {
             emailAddress = user.email
             photoUrl = ""
             clientTimestamp = timestamp { seconds = 987654321L }
-            serverTimestamp = timestamp { seconds = 987654321L }
           }
           customTag = "customId"
           geometry = geometry {
@@ -302,7 +294,6 @@ class ModelToProtoExtKtTest {
             emailAddress = user.email
             photoUrl = ""
             clientTimestamp = timestamp { seconds = 987654321L }
-            serverTimestamp = timestamp { seconds = 987654321L }
           }
           customTag = "customId"
           geometry = geometry {

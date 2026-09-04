@@ -330,6 +330,19 @@ class LocalLocationOfInterestStoreTest : BaseHiltTest() {
   }
 
   @Test
+  fun `deleteNotIn keeps LOIs with unsynced mutations`() = runWithTestDispatcher {
+    localUserStore.insertOrUpdateUser(TEST_USER)
+    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
+    // Saved locally and still queued for upload, so no list from the server can mention it.
+    localLoiStore.applyAndEnqueue(TEST_LOI_MUTATION)
+
+    localLoiStore.deleteNotIn(TEST_SURVEY.id, emptyList())
+
+    assertThat(localLoiStore.getValidLois(TEST_SURVEY).first().map { it.id })
+      .containsExactly(TEST_LOI_MUTATION.locationOfInterestId)
+  }
+
+  @Test
   fun `deleteNotIn leaves LOIs of other surveys untouched`() = runWithTestDispatcher {
     localUserStore.insertOrUpdateUser(TEST_USER)
     localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)

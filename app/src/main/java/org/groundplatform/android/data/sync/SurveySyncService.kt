@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android.data.sync
 
+import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
 import androidx.work.WorkManager
 import java.util.UUID
@@ -30,8 +31,10 @@ class SurveySyncService @Inject constructor(private val workManager: WorkManager
    *
    * @return The id of the worker request, used in tests to retrieve the worker status.
    */
-  fun enqueueSync(surveyId: String): UUID {
-    val inputData = SurveySyncWorker.createInputData(surveyId)
+  fun enqueueSync(surveyId: String): UUID =
+    enqueue(surveyId, SurveySyncWorker.createInputData(surveyId))
+
+  private fun enqueue(surveyId: String, inputData: Data): UUID {
     val request =
       WorkRequestBuilder()
         .setWorkerClass(SurveySyncWorker::class.java)

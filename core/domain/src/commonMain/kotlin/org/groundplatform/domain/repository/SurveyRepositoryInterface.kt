@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.SurveyListItem
+import org.groundplatform.domain.model.SurveySyncState
 import org.groundplatform.domain.model.User
 
 /** Maintains the state of currently active survey. */
@@ -31,6 +32,15 @@ interface SurveyRepositoryInterface {
   val lastActiveSurveyId: String
 
   suspend fun saveSurvey(survey: Survey)
+
+  /** Returns what the last sync of the given survey left behind, or null if none has run. */
+  suspend fun getSyncState(surveyId: String): SurveySyncState?
+
+  /** Records where [loiSyncResult] left the sync of [survey], for the next one to resume from. */
+  suspend fun recordSyncState(
+    survey: Survey,
+    loiSyncResult: LocationOfInterestRepositoryInterface.SyncResult,
+  )
 
   suspend fun getRemoteSurvey(surveyId: String): Survey?
 

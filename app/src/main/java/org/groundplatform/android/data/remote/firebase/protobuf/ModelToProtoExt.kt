@@ -156,7 +156,6 @@ private fun createAuditInfoMessage(user: User, timestamp: Long) = auditInfo {
   emailAddress = user.email
   photoUrl = user.photoUrl ?: photoUrl
   clientTimestamp = timestamp.toMessage()
-  serverTimestamp = timestamp.toMessage()
 }
 
 private fun Long.toMessage() = timestamp { seconds = this@toMessage / 1000 }

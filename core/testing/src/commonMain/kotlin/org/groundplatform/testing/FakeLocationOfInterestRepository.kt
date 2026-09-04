@@ -18,6 +18,7 @@ package org.groundplatform.testing
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.SurveySyncMode
 import org.groundplatform.domain.model.geometry.Geometry
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
@@ -29,10 +30,20 @@ class FakeLocationOfInterestRepository : LocationOfInterestRepositoryInterface {
   var offlineLoi = FakeDataGenerator.newLocationOfInterest()
   var hasValidLois = true
 
+  var syncResult: LocationOfInterestRepositoryInterface.SyncResult? = null
+
   val syncLocationsOfInterestCall = FakeCall<Survey, Unit> {}
 
-  override suspend fun syncLocationsOfInterest(survey: Survey) {
+  var lastSyncMode: SurveySyncMode? = null
+
+  override suspend fun syncLocationsOfInterest(
+    survey: Survey,
+    mode: SurveySyncMode,
+  ): LocationOfInterestRepositoryInterface.SyncResult {
+    lastSyncMode = mode
     syncLocationsOfInterestCall(survey)
+    return syncResult
+      ?: LocationOfInterestRepositoryInterface.SyncResult(mode, latestLoiServerTimestamp = 0)
   }
 
   override suspend fun getOfflineLoi(surveyId: String, loiId: String): LocationOfInterest =

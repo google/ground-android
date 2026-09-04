@@ -29,6 +29,7 @@ import org.groundplatform.android.data.uuid.OfflineUuidGenerator
 import org.groundplatform.android.system.auth.AuthenticationManager
 import org.groundplatform.domain.model.Role
 import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.SurveySyncMode
 import org.groundplatform.domain.model.geometry.Geometry
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
@@ -58,44 +59,77 @@ constructor(
   private val uuidGenerator: OfflineUuidGenerator,
   private val authenticationManager: AuthenticationManager,
 ) : LocationOfInterestRepositoryInterface {
-  override suspend fun syncLocationsOfInterest(survey: Survey) {
+  override suspend fun syncLocationsOfInterest(
+    survey: Survey,
+    mode: SurveySyncMode,
+  ): LocationOfInterestRepositoryInterface.SyncResult {
     val ownerUserId = authenticationManager.getAuthenticatedUser().id
 
+    val missedDeletion =
+      mode is SurveySyncMode.Incremental && hasMissedDeletion(survey, ownerUserId)
+    if (missedDeletion) {
+      Timber.d("Reading all of survey ${survey.id}, local LOIs outnumber the remote ones")
+    }
+
+    val effectiveMode = if (missedDeletion) SurveySyncMode.Full else mode
+
+    return LocationOfInterestRepositoryInterface.SyncResult(
+      mode = effectiveMode,
+      latestLoiServerTimestamp = syncLois(survey, ownerUserId, effectiveMode),
+    )
+  }
+
+  /** Reads the survey's LOIs into the local db, returning the newest server timestamp it saw. */
+  private suspend fun syncLois(survey: Survey, ownerUserId: String, mode: SurveySyncMode): Long {
+    val syncFromTimestamp = (mode as? SurveySyncMode.Incremental)?.fromTimestamp
     // Single-page buffering. Persist immediately to avoid OOM on geometry-heavy surveys.
     val syncedLoiIds = mutableSetOf<String>()
-    syncedLoiIds += savePages(remoteDataStore.loadPredefinedLois(survey))
-    // Shared LOIs are visible to all survey participants, so a user's own LOIs are already
-    // included.
-    syncedLoiIds +=
-      if (survey.dataVisibility == Survey.DataVisibility.ALL_SURVEY_PARTICIPANTS) {
-        savePages(remoteDataStore.loadSharedLois(survey))
-      } else {
-        savePages(remoteDataStore.loadUserLois(survey, ownerUserId))
-      }
+    var newestLoiTimestamp = syncFromTimestamp ?: 0L
 
+    suspend fun savePages(pages: Flow<List<LocationOfInterest>>) {
+      pages.collect { page ->
+        localLoiStore.insertOrUpdateAll(page)
+        syncedLoiIds += page.map { it.id }
+        newestLoiTimestamp =
+          maxOf(
+            newestLoiTimestamp,
+            page.maxOfOrNull { it.lastModified.serverTimestamp ?: 0L } ?: 0L,
+          )
+      }
+    }
+    savePages(remoteDataStore.loadPredefinedLois(survey, syncFromTimestamp))
+    if (survey.dataVisibility == Survey.DataVisibility.ALL_SURVEY_PARTICIPANTS) {
+      savePages(remoteDataStore.loadSharedLois(survey, syncFromTimestamp))
+    } else {
+      savePages(remoteDataStore.loadUserLois(survey, ownerUserId, syncFromTimestamp))
+    }
+
+    if (mode is SurveySyncMode.Full) {
+      // NOTE(#2652): Delete LOIs in local db not returned in latest list from server. The store
+      // keeps the ones with unsynced local changes, since dropping one would lose the mutation
+      // before it reaches the server.
+      localLoiStore.deleteNotIn(survey.id, syncedLoiIds.toList())
+    }
+
+    return newestLoiTimestamp
+  }
+
+  /** Returns whether the local db holds an LOI which a full sync would find gone from remote. */
+  private suspend fun hasMissedDeletion(survey: Survey, ownerUserId: String): Boolean {
     val mutations = localLoiStore.getAllSurveyMutations(survey).firstOrNull().orEmpty()
 
-    // NOTE(#2652): Don't delete pending locations of interest, since we can accidentally delete
-    // them here if we get to this routine before they can be synced up to the remote database.
-    val pendingLois =
+    // Number of distinct LOIs with a pending or in-progress local mutation that isn't a delete.
+    val pendingNonDeletedLoiCount =
       mutations
         .asSequence()
         .filter { it.syncStatus in setOf(SyncStatus.PENDING, SyncStatus.IN_PROGRESS) }
+        .filterNot { it.type == Mutation.Type.DELETE }
         .map { it.locationOfInterestId }
-        .toList()
+        .distinct()
+        .count()
 
-    // Delete LOIs in local db not returned in latest list from server, skipping pending mutations.
-    localLoiStore.deleteNotIn(survey.id, syncedLoiIds.toList() + pendingLois)
-  }
-
-  /** Saves each page of [pages] as it arrives, returning the ids of every LOI saved. */
-  private suspend fun savePages(pages: Flow<List<LocationOfInterest>>): Set<String> {
-    val savedIds = mutableSetOf<String>()
-    pages.collect { page ->
-      localLoiStore.insertOrUpdateAll(page)
-      savedIds += page.map { it.id }
-    }
-    return savedIds
+    return remoteDataStore.countLois(survey, ownerUserId) <
+      localLoiStore.getLoiCount(survey.id) - pendingNonDeletedLoiCount
   }
 
   override suspend fun getOfflineLoi(surveyId: String, loiId: String): LocationOfInterest? {

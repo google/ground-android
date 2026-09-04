@@ -21,7 +21,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.SurveyListItem
+import org.groundplatform.domain.model.SurveySyncState
 import org.groundplatform.domain.model.User
+import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface.SyncResult
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
 
 class FakeSurveyRepository : SurveyRepositoryInterface {
@@ -41,6 +43,10 @@ class FakeSurveyRepository : SurveyRepositoryInterface {
 
   var remoteSurveys: List<Survey> = emptyList()
 
+  var syncState: SurveySyncState? = null
+
+  var lastRecordedSyncState: SyncResult? = null
+
   val remoteListItemsFlow = MutableStateFlow<List<SurveyListItem>>(emptyList())
   var remoteListItems: List<SurveyListItem>
     get() = remoteListItemsFlow.value
@@ -57,6 +63,12 @@ class FakeSurveyRepository : SurveyRepositoryInterface {
 
   override suspend fun saveSurvey(survey: Survey) {
     offlineSurveys = offlineSurveys.filterNot { it.id == survey.id } + survey
+  }
+
+  override suspend fun getSyncState(surveyId: String): SurveySyncState? = syncState
+
+  override suspend fun recordSyncState(survey: Survey, loiSyncResult: SyncResult) {
+    lastRecordedSyncState = loiSyncResult
   }
 
   override suspend fun getRemoteSurvey(surveyId: String): Survey? = onGetRemoteSurveyCall(surveyId)

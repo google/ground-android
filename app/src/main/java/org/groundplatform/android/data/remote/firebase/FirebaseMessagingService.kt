@@ -45,6 +45,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
       return
     }
     Timber.v("Message received from topic ${remoteMessage.from}")
+
     surveySyncService.enqueueSync(surveyId)
   }
 
