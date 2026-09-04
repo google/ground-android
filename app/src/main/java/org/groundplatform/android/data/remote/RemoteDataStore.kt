@@ -64,6 +64,9 @@ interface RemoteDataStore {
    */
   fun loadSharedLois(survey: Survey, fromTimestamp: Long?): Flow<List<LocationOfInterest>>
 
+  /** Returns how many LOIs a sync of the specified survey would fetch. Main-safe. */
+  suspend fun countLois(survey: Survey, ownerUserId: String): Long
+
   /**
    * Applies the provided mutations to the remote data store in a single batched transaction. If one
    * update fails, none of the mutations will be applied.

@@ -23,6 +23,8 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.emitAll
@@ -35,6 +37,7 @@ import org.groundplatform.android.BuildConfig.USE_EMULATORS
 import org.groundplatform.android.data.remote.RemoteDataStore
 import org.groundplatform.android.data.remote.firebase.schema.GroundFirestore
 import org.groundplatform.android.data.remote.firebase.schema.LoiCollectionReference
+import org.groundplatform.android.data.remote.firebase.schema.LoiQueryScope
 import org.groundplatform.android.di.coroutines.IoDispatcher
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.SurveyListItem
@@ -85,13 +88,28 @@ internal constructor(
   }
 
   override fun loadPredefinedLois(survey: Survey, fromTimestamp: Long?) =
-    fetchLoiPages(survey) { fetchPredefined(survey, fromTimestamp) }
+    fetchLoiPages(survey) { fetch(survey, LoiQueryScope.Predefined, fromTimestamp) }
 
   override fun loadUserLois(survey: Survey, ownerUserId: String, fromTimestamp: Long?) =
-    fetchLoiPages(survey) { fetchUserDefined(survey, ownerUserId, fromTimestamp) }
+    fetchLoiPages(survey) { fetch(survey, LoiQueryScope.UserDefined(ownerUserId), fromTimestamp) }
 
   override fun loadSharedLois(survey: Survey, fromTimestamp: Long?) =
-    fetchLoiPages(survey) { fetchSharedLois(survey, fromTimestamp) }
+    fetchLoiPages(survey) { fetch(survey, LoiQueryScope.Shared, fromTimestamp) }
+
+  override suspend fun countLois(survey: Survey, ownerUserId: String): Long =
+    withContext(ioDispatcher) {
+      val lois = db().surveys().survey(survey.id).lois()
+      val fieldData =
+        if (survey.dataVisibility == Survey.DataVisibility.ALL_SURVEY_PARTICIPANTS) {
+          LoiQueryScope.Shared
+        } else {
+          LoiQueryScope.UserDefined(ownerUserId)
+        }
+      // A round trip each, and neither needs the other's answer.
+      listOf(async { lois.count(LoiQueryScope.Predefined) }, async { lois.count(fieldData) })
+        .awaitAll()
+        .sum()
+    }
 
   /** Emits the pages of LOIs produced by [fetch] against the given survey's LOI collection. */
   private fun fetchLoiPages(
