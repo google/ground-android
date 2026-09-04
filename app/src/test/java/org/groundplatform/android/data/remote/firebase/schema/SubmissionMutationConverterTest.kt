@@ -23,7 +23,6 @@ import org.groundplatform.android.data.remote.firebase.protobuf.createSubmission
 import org.groundplatform.android.data.remote.firebase.protobuf.toFirestoreMap
 import org.groundplatform.android.proto.AuditInfo.CLIENT_TIMESTAMP_FIELD_NUMBER
 import org.groundplatform.android.proto.AuditInfo.DISPLAY_NAME_FIELD_NUMBER
-import org.groundplatform.android.proto.AuditInfo.SERVER_TIMESTAMP_FIELD_NUMBER
 import org.groundplatform.android.proto.AuditInfo.USER_ID_FIELD_NUMBER
 import org.groundplatform.android.proto.Coordinates.LATITUDE_FIELD_NUMBER
 import org.groundplatform.android.proto.Coordinates.LONGITUDE_FIELD_NUMBER
@@ -363,7 +362,6 @@ class SubmissionMutationConverterTest {
       USER_ID_FIELD_NUMBER.toString() to user.id,
       DISPLAY_NAME_FIELD_NUMBER.toString() to user.displayName,
       CLIENT_TIMESTAMP_FIELD_NUMBER.toString() to mapOf("1" to 987654321L),
-      SERVER_TIMESTAMP_FIELD_NUMBER.toString() to mapOf("1" to 987654321L),
     )
 
   @Test

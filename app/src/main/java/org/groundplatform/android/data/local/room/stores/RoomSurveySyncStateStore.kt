@@ -34,10 +34,7 @@ constructor(private val surveySyncStateDao: SurveySyncStateDao) : LocalSurveySyn
     return entity?.toModelObject()
   }
 
-  override suspend fun recordIncrementalSync(
-    surveyId: String,
-    latestLoiServerTimestamp: Long,
-  ) {
+  override suspend fun recordIncrementalSync(surveyId: String, latestLoiServerTimestamp: Long) {
     surveySyncStateDao.updateLatestLoiServerTimestamp(surveyId, latestLoiServerTimestamp)
   }
 

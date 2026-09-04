@@ -25,6 +25,9 @@ import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.SURVEY
 import org.groundplatform.android.data.local.stores.LocalSurveyStore
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
+import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.SurveySyncMode
+import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface.SyncResult
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.usecases.survey.ActivateSurveyUseCase
 import org.junit.Before
@@ -46,6 +49,57 @@ class SurveyRepositoryTest : BaseHiltTest() {
     super.setUp()
     fakeRemoteDataStore.surveys = listOf(SURVEY)
   }
+
+  @Test
+  fun `getSyncState returns null for a survey which has never been synced`() =
+    runWithTestDispatcher {
+      localSurveyStore.insertOrUpdateSurvey(SURVEY)
+
+      assertThat(surveyRepository.getSyncState(SURVEY.id)).isNull()
+    }
+
+  @Test
+  fun `recordSyncState stores the timestamp and the visibility after a full read`() =
+    runWithTestDispatcher {
+      val survey = SURVEY.copy(dataVisibility = Survey.DataVisibility.ALL_SURVEY_PARTICIPANTS)
+      localSurveyStore.insertOrUpdateSurvey(survey)
+
+      surveyRepository.recordSyncState(
+        survey,
+        SyncResult(SurveySyncMode.Full, TEST_LATEST_LOI_TIMESTAMP),
+      )
+
+      val state = checkNotNull(surveyRepository.getSyncState(survey.id))
+      assertThat(state.latestLoiServerTimestamp).isEqualTo(TEST_LATEST_LOI_TIMESTAMP)
+      assertThat(state.syncedDataVisibility).isEqualTo(survey.dataVisibility)
+      assertThat(state.lastFullSyncClientTimestamp).isGreaterThan(0)
+    }
+
+  @Test
+  fun `recordSyncState updates only the timestamp after an incremental read`() =
+    runWithTestDispatcher {
+      val survey = SURVEY.copy(dataVisibility = Survey.DataVisibility.ALL_SURVEY_PARTICIPANTS)
+      localSurveyStore.insertOrUpdateSurvey(survey)
+      surveyRepository.recordSyncState(
+        survey,
+        SyncResult(SurveySyncMode.Full, TEST_LATEST_LOI_TIMESTAMP),
+      )
+      val afterFullRead = checkNotNull(surveyRepository.getSyncState(survey.id))
+
+      surveyRepository.recordSyncState(
+        survey,
+        SyncResult(
+          SurveySyncMode.Incremental(TEST_LATEST_LOI_TIMESTAMP),
+          TEST_LATEST_LOI_TIMESTAMP + 1,
+        ),
+      )
+
+      val state = checkNotNull(surveyRepository.getSyncState(survey.id))
+      assertThat(state.latestLoiServerTimestamp).isEqualTo(TEST_LATEST_LOI_TIMESTAMP + 1)
+      assertThat(state.lastFullSyncClientTimestamp)
+        .isEqualTo(afterFullRead.lastFullSyncClientTimestamp)
+      assertThat(state.syncedDataVisibility).isEqualTo(afterFullRead.syncedDataVisibility)
+    }
 
   @Test
   fun `setting selectedSurveyId updates the active survey`() = runWithTestDispatcher {
@@ -95,4 +149,8 @@ class SurveyRepositoryTest : BaseHiltTest() {
         surveyRepository.getRemoteSurvey(SURVEY.id)
       }
     }
+
+  companion object {
+    private const val TEST_LATEST_LOI_TIMESTAMP = 987654321L
+  }
 }

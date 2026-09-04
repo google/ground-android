@@ -22,7 +22,6 @@ import org.groundplatform.android.FakeData
 import org.groundplatform.android.FakeData.LOCATION_OF_INTEREST_NAME
 import org.groundplatform.android.proto.AuditInfo.CLIENT_TIMESTAMP_FIELD_NUMBER
 import org.groundplatform.android.proto.AuditInfo.DISPLAY_NAME_FIELD_NUMBER
-import org.groundplatform.android.proto.AuditInfo.SERVER_TIMESTAMP_FIELD_NUMBER
 import org.groundplatform.android.proto.AuditInfo.USER_ID_FIELD_NUMBER
 import org.groundplatform.android.proto.Coordinates.LATITUDE_FIELD_NUMBER
 import org.groundplatform.android.proto.Coordinates.LONGITUDE_FIELD_NUMBER
@@ -155,7 +154,6 @@ class LoiMutationConverterTest {
           USER_ID_FIELD_NUMBER.toString() to TEST_USER.id,
           DISPLAY_NAME_FIELD_NUMBER.toString() to TEST_USER.displayName,
           CLIENT_TIMESTAMP_FIELD_NUMBER.toString() to mapOf("1" to 987654321L),
-          SERVER_TIMESTAMP_FIELD_NUMBER.toString() to mapOf("1" to 987654321L),
         )
       )
     assertThat(map[CREATED_FIELD_NUMBER.toString()])
@@ -177,7 +175,6 @@ class LoiMutationConverterTest {
           USER_ID_FIELD_NUMBER.toString() to TEST_USER.id,
           DISPLAY_NAME_FIELD_NUMBER.toString() to TEST_USER.displayName,
           CLIENT_TIMESTAMP_FIELD_NUMBER.toString() to mapOf("1" to 987654321L),
-          SERVER_TIMESTAMP_FIELD_NUMBER.toString() to mapOf("1" to 987654321L),
         )
       )
   }

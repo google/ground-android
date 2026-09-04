@@ -22,6 +22,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlinx.coroutines.test.runTest
+import org.groundplatform.domain.model.SurveySyncMode
 import org.groundplatform.testing.FakeDataGenerator
 import org.groundplatform.testing.FakeLocationOfInterestRepository
 import org.groundplatform.testing.FakeSurveyRepository
@@ -44,6 +45,18 @@ class ActivateSurveyUseCaseTest {
     assertTrue(result)
     assertEquals(survey, surveyRepository.activeSurvey)
     assertEquals(survey, surveyRepository.getOfflineSurvey(survey.id))
+  }
+
+  @Test
+  fun `Do a full sync on a survey which isn't available offline yet`() = runTest {
+    val survey = FakeDataGenerator.newSurvey(id = "survey-1")
+    surveyRepository.remoteSurveys = listOf(survey)
+
+    activateSurvey(survey.id)
+
+    // Nothing of the survey is stored yet, so there is no cursor to resume from: removing a survey
+    // takes its sync state along with it.
+    assertEquals(SurveySyncMode.Full, loiRepository.lastSyncMode)
   }
 
   @Test

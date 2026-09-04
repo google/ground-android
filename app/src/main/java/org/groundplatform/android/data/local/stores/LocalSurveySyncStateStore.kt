@@ -15,17 +15,13 @@
  */
 package org.groundplatform.android.data.local.stores
 
-import org.groundplatform.android.data.local.room.entity.SurveySyncStateEntity
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.SurveySyncState
 
 interface LocalSurveySyncStateStore {
   suspend fun get(surveyId: String): SurveySyncState?
 
-  suspend fun recordIncrementalSync(
-    surveyId: String,
-    latestLoiServerTimestamp: Long,
-  )
+  suspend fun recordIncrementalSync(surveyId: String, latestLoiServerTimestamp: Long)
 
   suspend fun recordFullSync(
     surveyId: String,
