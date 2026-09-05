@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Google LLC
+ * Copyright 2026 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.ui.offlineareas.selector.model
 
-sealed class OfflineAreaSelectorEvent {
+package org.groundplatform.android.ui.offlineareas
 
-  data object NavigateOfflineAreaBackToHomeScreen : OfflineAreaSelectorEvent()
+import androidx.compose.runtime.Immutable
 
-  data object NavigateUp : OfflineAreaSelectorEvent()
-
-  data object NetworkUnavailable : OfflineAreaSelectorEvent()
-
-  data object DownloadError : OfflineAreaSelectorEvent()
+/** Represents the UI state for the Offline Areas list screen. */
+@Immutable
+data class OfflineAreasState(
+  val offlineAreas: List<OfflineAreaDetails> = emptyList(),
+  val isLoading: Boolean = true,
+) {
+  val isEmpty: Boolean
+    get() = !isLoading && offlineAreas.isEmpty()
 }

@@ -15,14 +15,15 @@
  */
 package org.groundplatform.android.ui.offlineareas
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.domain.model.imagery.OfflineArea
@@ -38,28 +39,28 @@ class OfflineAreasViewModel
 internal constructor(private val offlineAreaRepository: OfflineAreaRepositoryInterface) :
   AbstractViewModel() {
 
-  /**
-   * Returns the current list of downloaded offline map imagery areas available for viewing. If an
-   * unexpected error accessing the local store is encountered, emits an empty list, circumventing
-   * the error.
-   */
-  val offlineAreas: LiveData<List<OfflineAreaDetails>>
+  val uiState: StateFlow<OfflineAreasState> =
+    offlineAreaRepository
+      .offlineAreas()
+      .map { list ->
+        OfflineAreasState(
+          offlineAreas = list.map { toOfflineAreaDetails(it) },
+          isLoading = false,
+        )
+      }
+      .stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = OfflineAreasState(isLoading = true),
+      )
 
-  val showList: LiveData<Boolean>
-  val showNoAreasMessage: LiveData<Boolean>
-  val showProgressSpinner: LiveData<Boolean>
+  private val navigateToOfflineAreaSelectorChannel = Channel<Unit>(Channel.BUFFERED)
+  val navigateToOfflineAreaSelector: Flow<Unit> =
+    navigateToOfflineAreaSelectorChannel.receiveAsFlow()
 
-  private val _navigateToOfflineAreaSelector =
-    MutableSharedFlow<Unit>(extraBufferCapacity = 1, replay = 0)
-  val navigateToOfflineAreaSelector = _navigateToOfflineAreaSelector.asSharedFlow()
-
-  init {
-    val offlineAreas =
-      offlineAreaRepository.offlineAreas().map { list -> list.map { toOfflineAreaDetails(it) } }
-    this.offlineAreas = offlineAreas.asLiveData()
-    showProgressSpinner = offlineAreas.map { false }.onStart { emit(true) }.asLiveData()
-    showNoAreasMessage = offlineAreas.map { it.isEmpty() }.onStart { emit(false) }.asLiveData()
-    showList = offlineAreas.map { it.isNotEmpty() }.onStart { emit(false) }.asLiveData()
+  /** Navigate to the area selector for offline map imagery. */
+  fun showOfflineAreaSelector() {
+    viewModelScope.launch { navigateToOfflineAreaSelectorChannel.send(Unit) }
   }
 
   private fun toOfflineAreaDetails(offlineArea: OfflineArea) =
@@ -67,9 +68,4 @@ internal constructor(private val offlineAreaRepository: OfflineAreaRepositoryInt
 
   private fun OfflineArea.getSizeOnDevice() =
     offlineAreaRepository.sizeOnDevice(this).toMb().toMbString()
-
-  /** Navigate to the area selector for offline map imagery. */
-  fun showOfflineAreaSelector() {
-    viewModelScope.launch { _navigateToOfflineAreaSelector.emit(Unit) }
-  }
 }

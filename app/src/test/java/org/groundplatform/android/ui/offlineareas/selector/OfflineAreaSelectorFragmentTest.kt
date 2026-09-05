@@ -13,23 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.groundplatform.android.ui.offlineareas.selector
 
-import androidx.compose.ui.test.isDisplayed
-import androidx.compose.ui.test.isNotDisplayed
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.isEnabled
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -46,12 +43,10 @@ import org.groundplatform.android.di.OfflineAreaRepositoryModule
 import org.groundplatform.android.getString
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.testrules.FragmentScenarioRule
-import org.groundplatform.android.ui.offlineareas.selector.model.OfflineAreaSelectorState
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.map.Bounds
 import org.groundplatform.domain.model.map.CameraPosition
 import org.groundplatform.domain.repository.OfflineAreaRepositoryInterface
-import org.hamcrest.CoreMatchers.not
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -92,61 +87,68 @@ class OfflineAreaSelectorFragmentTest : BaseHiltTest() {
 
   @Test
   fun `all the buttons are visible`() {
-    onView(withId(R.id.download_button)).check(matches(isDisplayed()))
-    onView(withId(R.id.cancel_button)).check(matches(isDisplayed()))
-    onView(withId(R.id.cancel_button)).check(matches(isEnabled()))
+    composeTestRule
+      .onNodeWithTag(OFFLINE_AREA_SELECTOR_DOWNLOAD_BUTTON_TEST_TAG)
+      .assertIsDisplayed()
+    composeTestRule
+      .onNodeWithTag(OFFLINE_AREA_SELECTOR_CANCEL_BUTTON_TEST_TAG)
+      .assertIsDisplayed()
+      .assertIsEnabled()
   }
 
   @Test
   fun `default value of bottomText`() {
-    onView(withId(R.id.bottom_text)).check(matches(withText("")))
+    composeTestRule.onNodeWithTag(OFFLINE_AREA_SELECTOR_BOTTOM_TEXT_TEST_TAG).assertTextEquals("")
   }
 
   @Test
   fun `toolbar text should be correct`() {
-    onView(withId(R.id.offline_area_selector_toolbar))
-      .check(
-        matches(hasDescendant(withText(fragment.getString(R.string.offline_area_selector_title))))
-      )
+    composeTestRule
+      .onNodeWithText(fragment.getString(R.string.offline_area_selector_title))
+      .assertIsDisplayed()
   }
 
   @Test
   fun `download button should be disabled and not clickable by default`() {
-    onView(withId(R.id.download_button)).check(matches(isDisplayed()))
-    onView(withId(R.id.download_button)).check(matches(not(isEnabled())))
+    composeTestRule
+      .onNodeWithTag(OFFLINE_AREA_SELECTOR_DOWNLOAD_BUTTON_TEST_TAG)
+      .assertIsDisplayed()
+      .assertIsNotEnabled()
   }
 
   @Test
   fun `bottom text should be empty by default`() {
-    onView(withId(R.id.bottom_text)).check(matches(withText("")))
+    composeTestRule.onNodeWithTag(OFFLINE_AREA_SELECTOR_BOTTOM_TEXT_TEST_TAG).assertTextEquals("")
   }
 
   @Test
   fun `stopDownloading cancels active download and updates UI state`() = runWithTestDispatcher {
     val progressFlow = MutableSharedFlow<Pair<Int, Int>>()
     setupMocks(downloadProgressFlow = progressFlow)
-    composeTestRule.setContent { DownloadProgressDialog(0f, {}) }
 
     viewModel.onMapCameraMoved(CAMERA_POSITION)
     advanceUntilIdle()
 
-    onView(withId(R.id.download_button))
-      .check(matches(isDisplayed()))
-      .check(matches(isEnabled()))
-      .perform(click())
+    composeTestRule
+      .onNodeWithTag(OFFLINE_AREA_SELECTOR_DOWNLOAD_BUTTON_TEST_TAG)
+      .assertIsDisplayed()
+      .assertIsEnabled()
+      .performClick()
     advanceUntilIdle()
 
     composeTestRule
       .onNodeWithText(getString(R.string.offline_map_imagery_download_progress_dialog_message))
-      .isDisplayed()
+      .assertIsDisplayed()
 
     progressFlow.emit(Pair(50, 100))
     advanceUntilIdle()
 
-    composeTestRule.onNodeWithText(getString(R.string.cancel)).performClick()
+    composeTestRule.onNodeWithTag(DOWNLOAD_PROGRESS_DIALOG_CANCEL_BUTTON_TEST_TAG).performClick()
     progressFlow.emit(Pair(75, 100))
 
-    composeTestRule.onNodeWithText(getString(R.string.cancel)).isNotDisplayed()
+    composeTestRule
+      .onNodeWithTag(DOWNLOAD_PROGRESS_DIALOG_CANCEL_BUTTON_TEST_TAG)
+      .assertIsNotDisplayed()
 
     val state = viewModel.uiState.value
     assert(state.downloadState is OfflineAreaSelectorState.DownloadState.Idle)
@@ -160,10 +162,11 @@ class OfflineAreaSelectorFragmentTest : BaseHiltTest() {
 
     viewModel.onMapCameraMoved(CAMERA_POSITION)
     advanceUntilIdle()
-    onView(withId(R.id.download_button))
-      .check(matches(isDisplayed()))
-      .check(matches(isEnabled()))
-      .perform(click())
+    composeTestRule
+      .onNodeWithTag(OFFLINE_AREA_SELECTOR_DOWNLOAD_BUTTON_TEST_TAG)
+      .assertIsDisplayed()
+      .assertIsEnabled()
+      .performClick()
     advanceUntilIdle()
 
     assertThat(ShadowToast.shownToastCount()).isEqualTo(1)
@@ -179,10 +182,11 @@ class OfflineAreaSelectorFragmentTest : BaseHiltTest() {
 
     viewModel.onMapCameraMoved(CAMERA_POSITION)
     advanceUntilIdle()
-    onView(withId(R.id.download_button))
-      .check(matches(isDisplayed()))
-      .check(matches(isEnabled()))
-      .perform(click())
+    composeTestRule
+      .onNodeWithTag(OFFLINE_AREA_SELECTOR_DOWNLOAD_BUTTON_TEST_TAG)
+      .assertIsDisplayed()
+      .assertIsEnabled()
+      .performClick()
     advanceUntilIdle()
 
     assertThat(ShadowToast.shownToastCount()).isEqualTo(1)
@@ -198,10 +202,11 @@ class OfflineAreaSelectorFragmentTest : BaseHiltTest() {
 
     viewModel.onMapCameraMoved(CAMERA_POSITION)
     advanceUntilIdle()
-    onView(withId(R.id.download_button))
-      .check(matches(isDisplayed()))
-      .check(matches(isEnabled()))
-      .perform(click())
+    composeTestRule
+      .onNodeWithTag(OFFLINE_AREA_SELECTOR_DOWNLOAD_BUTTON_TEST_TAG)
+      .assertIsDisplayed()
+      .assertIsEnabled()
+      .performClick()
     advanceUntilIdle()
 
     assertThat(navController.currentDestination!!.id).isEqualTo(R.id.home_screen_fragment)
@@ -213,7 +218,7 @@ class OfflineAreaSelectorFragmentTest : BaseHiltTest() {
 
     viewModel.onMapCameraMoved(CAMERA_POSITION)
     advanceUntilIdle()
-    onView(withId(R.id.cancel_button)).perform(click())
+    composeTestRule.onNodeWithTag(OFFLINE_AREA_SELECTOR_CANCEL_BUTTON_TEST_TAG).performClick()
     advanceUntilIdle()
 
     assertThat(navController.currentDestination?.id)
