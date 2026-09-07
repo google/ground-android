@@ -26,7 +26,9 @@ import androidx.work.ListenableWorker.Result.success
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withContext
 import org.groundplatform.android.di.coroutines.IoDispatcher
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
@@ -65,8 +67,24 @@ constructor(
         syncSurvey(surveyId)
       }
       success()
+    } catch (t: TimeoutCancellationException) {
+      // Sync timed out, count as a failed attempt.
+      retryOrGiveUp(t)
+    } catch (t: CancellationException) {
+      // WorkManager stopped the execution, it will handle rescheduling itself.
+      throw t
     } catch (t: Throwable) {
-      Timber.e(t, "Failed to sync survey $surveyId, retrying")
+      retryOrGiveUp(t)
+    }
+  }
+
+  private fun retryOrGiveUp(t: Throwable): Result {
+    val attempt = runAttemptCount + 1
+    return if (attempt >= MAX_SYNC_ATTEMPTS) {
+      Timber.e(t, "Failed to sync survey $surveyId after $attempt attempts, giving up")
+      failure()
+    } else {
+      Timber.w(t, "Failed to sync survey $surveyId (attempt $attempt), retrying")
       retry()
     }
   }
@@ -74,6 +92,12 @@ constructor(
   companion object {
     /** The key in worker input data containing the id of the survey to be synced. */
     internal const val SURVEY_ID_PARAM_KEY = "surveyId"
+
+    /**
+     * How many times to run a sync before giving up. Each run re-reads every location of interest
+     * in the survey, so retrying forever is expensive.
+     */
+    internal const val MAX_SYNC_ATTEMPTS = 5
 
     /** Returns a new work [Data] object containing the specified survey id. */
     fun createInputData(surveyId: String): Data =
