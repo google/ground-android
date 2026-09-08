@@ -29,5 +29,7 @@ object TestFirebaseModule {
 
   @Provides
   fun provideFirebaseRemoteConfig(): FirebaseRemoteConfig =
-    Mockito.mock(FirebaseRemoteConfig::class.java)
+    Mockito.mock(FirebaseRemoteConfig::class.java).apply {
+      Mockito.`when`(getString(Mockito.anyString())).thenReturn("")
+    }
 }

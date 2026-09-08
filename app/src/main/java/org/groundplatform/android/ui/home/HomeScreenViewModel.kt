@@ -17,7 +17,6 @@ package org.groundplatform.android.ui.home
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
@@ -51,8 +50,6 @@ import org.groundplatform.domain.repository.UserRepositoryInterface
 
 data class HomeDrawerState(val user: User, val survey: Survey?, val appVersion: String)
 
-private const val AWAITING_PHOTO_CAPTURE_KEY = "awaiting_photo_capture"
-
 @SharedViewModel
 class HomeScreenViewModel
 @Inject
@@ -66,7 +63,6 @@ internal constructor(
   val userRepository: UserRepositoryInterface,
 ) : AbstractViewModel() {
 
-  private val savedStateHandle: SavedStateHandle = SavedStateHandle()
   private val _openDrawerRequests: MutableSharedFlow<Unit> = MutableSharedFlow()
   val openDrawerRequestsFlow: SharedFlow<Unit> = _openDrawerRequests.asSharedFlow()
 
@@ -89,11 +85,7 @@ internal constructor(
    * from a photo capture task—we do it this way because saving instance state bundles across fragments
    * does not prove simple.
    * */
-  var awaitingPhotoCapture: Boolean
-    get() = savedStateHandle[AWAITING_PHOTO_CAPTURE_KEY] ?: false
-    set(newValue) {
-      savedStateHandle[AWAITING_PHOTO_CAPTURE_KEY] = newValue
-    }
+  var awaitingPhotoCapture: Boolean = false
 
   init {
     viewModelScope.launch { kickLocalMutationSyncWorkers() }

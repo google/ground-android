@@ -17,6 +17,7 @@
 package org.groundplatform.android.ui.map.gms.mog
 
 import android.graphics.Color
+import androidx.core.graphics.get
 import com.google.android.gms.maps.model.Tile
 import org.groundplatform.android.util.image.TileImageTransformer
 import org.groundplatform.domain.model.imagery.MogTile
@@ -32,6 +33,6 @@ fun MogTile.getProcessedImageData(): ByteArray {
   val noData = metadata.noDataValue ?: return buildJfifFile()
   val noDataColor = Color.rgb(noData, noData, noData)
   return TileImageTransformer.setTransparentIf(buildJfifFile()) { bitmap, x, y ->
-    bitmap.getPixel(x, y) == noDataColor
+    bitmap[x, y] == noDataColor
   }
 }

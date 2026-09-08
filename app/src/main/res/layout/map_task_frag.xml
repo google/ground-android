@@ -76,6 +76,7 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:background="@android:color/white"
+      android:baselineAligned="false"
       android:orientation="horizontal"
       android:padding="8dp">
 

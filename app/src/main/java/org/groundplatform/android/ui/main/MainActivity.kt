@@ -18,11 +18,11 @@ package org.groundplatform.android.ui.main
 import android.app.AlertDialog
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -210,15 +210,13 @@ class MainActivity : AbstractActivity() {
       .setPositiveButton(R.string.dialog_button_update) { _, _ ->
         val appPackageName = packageName
         try {
-          startActivity(
-            Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$appPackageName"))
-          )
+          startActivity(Intent(Intent.ACTION_VIEW, "market://details?id=$appPackageName".toUri()))
         } catch (e: ActivityNotFoundException) {
           Timber.e("Not able to open play store: $e")
           startActivity(
             Intent(
               Intent.ACTION_VIEW,
-              Uri.parse("https://play.google.com/store/apps/details?id=$appPackageName"),
+              "https://play.google.com/store/apps/details?id=$appPackageName".toUri(),
             )
           )
         }
