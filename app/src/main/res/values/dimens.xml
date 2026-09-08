@@ -23,7 +23,6 @@
   <item name="selected_marker_scale_factor" format="float" type="dimen">1.5</item>
 
   <!-- Task selection tabs -->
-  <dimen name="map_btn_margin_bottom">48dp</dimen>
   <dimen name="toolbar_elevation">4dp</dimen>
 
   <!-- LOI bottom card -->

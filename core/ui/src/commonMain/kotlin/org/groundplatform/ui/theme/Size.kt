@@ -32,6 +32,9 @@ data class Size(
   val taskViewPadding: Dp = 16.dp,
   val settingsItemIconSize: Dp = 24.dp,
   val settingsItemIconEndPadding: Dp = 16.dp,
+  val offlineAreaItemIconSize: Dp = 24.dp,
+  val offlineAreaEmptyStateImageSize: Dp = 200.dp,
+  val offlineAreaViewerProgressIndicatorSize: Dp = 64.dp,
 )
 
 internal val LocalSizes = compositionLocalOf { Size() }

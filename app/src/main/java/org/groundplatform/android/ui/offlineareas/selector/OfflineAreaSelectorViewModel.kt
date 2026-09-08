@@ -15,23 +15,24 @@
  */
 package org.groundplatform.android.ui.offlineareas.selector
 
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.groundplatform.android.di.coroutines.IoDispatcher
 import org.groundplatform.android.system.LocationManager
 import org.groundplatform.android.system.PermissionsManager
 import org.groundplatform.android.system.SettingsManager
 import org.groundplatform.android.ui.common.BaseMapViewModel
-import org.groundplatform.android.ui.offlineareas.selector.model.OfflineAreaSelectorEvent
-import org.groundplatform.android.ui.offlineareas.selector.model.OfflineAreaSelectorState
 import org.groundplatform.domain.model.imagery.RemoteMogTileSource
 import org.groundplatform.domain.model.imagery.TileSource
 import org.groundplatform.domain.model.map.Bounds
@@ -75,44 +76,58 @@ internal constructor(
   val remoteTileSource: TileSource = RemoteMogTileSource
 
   private var viewport: Bounds? = null
+  private var updateDownloadSizeJob: Job? = null
+
+  @get:VisibleForTesting
+  internal var downloadJob: Job? = null
+    private set
 
   private val _uiState = MutableStateFlow(OfflineAreaSelectorState())
   val uiState: StateFlow<OfflineAreaSelectorState> = _uiState
 
-  private val _uiEvent = MutableSharedFlow<OfflineAreaSelectorEvent>(replay = 0)
-  val uiEvent = _uiEvent.asSharedFlow()
-
-  var downloadJob: Job? = null
+  private val uiEventChannel = Channel<OfflineAreaSelectorEvent>(Channel.BUFFERED)
+  val uiEvent: Flow<OfflineAreaSelectorEvent> = uiEventChannel.receiveAsFlow()
 
   fun onDownloadClick() {
     if (!networkManager.isNetworkConnected()) {
-      viewModelScope.launch { _uiEvent.emit(OfflineAreaSelectorEvent.NetworkUnavailable) }
+      viewModelScope.launch { uiEventChannel.send(OfflineAreaSelectorEvent.NetworkUnavailable) }
       return
     }
 
-    if (viewport == null) {
-      // Download was likely clicked before map was ready.
+    val currentViewport = viewport
+    if (
+      currentViewport == null ||
+        _uiState.value.downloadState is OfflineAreaSelectorState.DownloadState.InProgress
+    ) {
+      // Download was likely clicked before map was ready or already in progress.
       return
     }
 
-    _uiState.value =
-      _uiState.value.copy(downloadState = OfflineAreaSelectorState.DownloadState.InProgress(0f))
+    _uiState.update {
+      it.copy(downloadState = OfflineAreaSelectorState.DownloadState.InProgress(0f))
+    }
     downloadJob =
       viewModelScope.launch(ioDispatcher) {
-        offlineAreaRepository
-          .downloadTiles(viewport!!)
-          .catch {
-            _uiState.value =
-              _uiState.value.copy(downloadState = OfflineAreaSelectorState.DownloadState.Idle)
-            _uiEvent.emit(OfflineAreaSelectorEvent.DownloadError)
-            Timber.d("Download Stopped by $it ")
-          }
-          .collect { (bytesDownloaded, totalBytes) ->
+        try {
+          var totalDownloaded = 0
+          offlineAreaRepository.downloadTiles(currentViewport).collect {
+            (bytesDownloaded, totalBytes) ->
+            totalDownloaded = bytesDownloaded
             updateDownloadProgress(bytesDownloaded, totalBytes)
           }
-        _uiState.value =
-          _uiState.value.copy(downloadState = OfflineAreaSelectorState.DownloadState.Idle)
-        _uiEvent.emit(OfflineAreaSelectorEvent.NavigateOfflineAreaBackToHomeScreen)
+          _uiState.update { it.copy(downloadState = OfflineAreaSelectorState.DownloadState.Idle) }
+          if (totalDownloaded > 0) {
+            uiEventChannel.send(OfflineAreaSelectorEvent.NavigateOfflineAreaBackToHomeScreen)
+          } else {
+            uiEventChannel.send(OfflineAreaSelectorEvent.DownloadError)
+          }
+        } catch (e: CancellationException) {
+          throw e
+        } catch (e: Exception) {
+          Timber.e(e, "Download failed")
+          _uiState.update { it.copy(downloadState = OfflineAreaSelectorState.DownloadState.Idle) }
+          uiEventChannel.send(OfflineAreaSelectorEvent.DownloadError)
+        }
       }
   }
 
@@ -123,25 +138,25 @@ internal constructor(
       } else {
         0f
       }
-    _uiState.value =
-      _uiState.value.copy(
-        downloadState = OfflineAreaSelectorState.DownloadState.InProgress(progressValue)
-      )
+    _uiState.update {
+      it.copy(downloadState = OfflineAreaSelectorState.DownloadState.InProgress(progressValue))
+    }
   }
 
   fun onCancelClick() {
-    viewModelScope.launch { _uiEvent.emit(OfflineAreaSelectorEvent.NavigateUp) }
+    viewModelScope.launch { uiEventChannel.send(OfflineAreaSelectorEvent.NavigateUp) }
   }
 
   fun stopDownloading() {
     downloadJob?.cancel()
     downloadJob = null
-    _uiState.value =
-      _uiState.value.copy(downloadState = OfflineAreaSelectorState.DownloadState.Idle)
+    _uiState.update { it.copy(downloadState = OfflineAreaSelectorState.DownloadState.Idle) }
   }
 
   override fun onMapDragged() {
-    _uiState.value = _uiState.value.copy(bottomTextState = null)
+    updateDownloadSizeJob?.cancel()
+    updateDownloadSizeJob = null
+    _uiState.update { it.copy(bottomTextState = null) }
     super.onMapDragged()
   }
 
@@ -150,14 +165,19 @@ internal constructor(
 
     val bounds = newCameraPosition.bounds
     val zoomLevel = newCameraPosition.zoomLevel
-    if (bounds == null || zoomLevel == null) return
-    if (zoomLevel < MIN_DOWNLOAD_ZOOM_LEVEL) {
-      onLargeAreaSelected()
+    if (bounds == null || zoomLevel == null || zoomLevel < MIN_DOWNLOAD_ZOOM_LEVEL) {
+      updateDownloadSizeJob?.cancel()
+      updateDownloadSizeJob = null
+      viewport = null
+      if (bounds != null && zoomLevel != null && zoomLevel < MIN_DOWNLOAD_ZOOM_LEVEL) {
+        onLargeAreaSelected()
+      }
       return
     }
 
     viewport = bounds
-    viewModelScope.launch(ioDispatcher) { updateDownloadSize(bounds) }
+    updateDownloadSizeJob?.cancel()
+    updateDownloadSizeJob = viewModelScope.launch(ioDispatcher) { updateDownloadSize(bounds) }
   }
 
   private suspend fun updateDownloadSize(bounds: Bounds) {
@@ -172,8 +192,7 @@ internal constructor(
       onUnavailableAreaSelected()
       return
     }
-    _uiState.value =
-      _uiState.value.copy(bottomTextState = OfflineAreaSelectorState.BottomTextState.Loading)
+    _uiState.update { it.copy(bottomTextState = OfflineAreaSelectorState.BottomTextState.Loading) }
 
     offlineAreaRepository
       .estimateSizeOnDisk(bounds)
@@ -192,26 +211,28 @@ internal constructor(
   }
 
   private fun onUpdateDownloadSizeError() {
-    _uiState.value =
-      _uiState.value.copy(bottomTextState = OfflineAreaSelectorState.BottomTextState.NetworkError)
+    _uiState.update {
+      it.copy(bottomTextState = OfflineAreaSelectorState.BottomTextState.NetworkError)
+    }
   }
 
   private fun onUnavailableAreaSelected() {
-    _uiState.value =
-      _uiState.value.copy(
-        bottomTextState = OfflineAreaSelectorState.BottomTextState.NoImageryAvailable
-      )
+    _uiState.update {
+      it.copy(bottomTextState = OfflineAreaSelectorState.BottomTextState.NoImageryAvailable)
+    }
   }
 
   private fun onDownloadableAreaSelected(sizeInMb: Float) {
-    _uiState.value =
-      _uiState.value.copy(
+    _uiState.update {
+      it.copy(
         bottomTextState = OfflineAreaSelectorState.BottomTextState.AreaSize(sizeInMb.toMbString())
       )
+    }
   }
 
   private fun onLargeAreaSelected() {
-    _uiState.value =
-      _uiState.value.copy(bottomTextState = OfflineAreaSelectorState.BottomTextState.AreaTooLarge)
+    _uiState.update {
+      it.copy(bottomTextState = OfflineAreaSelectorState.BottomTextState.AreaTooLarge)
+    }
   }
 }
