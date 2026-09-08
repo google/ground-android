@@ -119,12 +119,10 @@ internal constructor(
   }
 
   /** Attempts to return draft submission for the currently active active survey. */
-  suspend fun getDraftSubmission(): DraftSubmission? {
+  suspend fun getDraftSubmission(): DraftSubmission? =
     // TODO: Check whether the previous user id matches with current user or not.
     // Issue URL: https://github.com/google/ground-android/issues/2903
-    val survey = surveyRepository.activeSurveyFlow.first() ?: return null
-    return submissionRepository.getDraftSubmission(survey)
-  }
+    surveyRepository.activeSurveyFlow.first()?.let { submissionRepository.getDraftSubmission(it) }
 
   fun openNavDrawer() {
     viewModelScope.launch { _openDrawerRequests.emit(Unit) }

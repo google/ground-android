@@ -152,9 +152,10 @@ class GoogleMapsFragment : SupportMapFragment(), MapFragment {
   ) {
     containerFragment.replaceFragment(containerId, this)
     getMapAsync { googleMap: GoogleMap ->
-      if (view == null) return@getMapAsync
-      onMapReady(googleMap)
-      onMapReadyCallback(this)
+      if (view != null) {
+        onMapReady(googleMap)
+        onMapReadyCallback(this)
+      }
     }
   }
 
