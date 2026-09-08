@@ -15,6 +15,7 @@
  */
 package org.groundplatform.android.ui.syncstatus
 
+import androidx.compose.runtime.Immutable
 import org.groundplatform.domain.model.mutation.Mutation
 import org.groundplatform.domain.model.submission.UploadQueueEntry
 
@@ -22,6 +23,7 @@ import org.groundplatform.domain.model.submission.UploadQueueEntry
  * Defines the set of data needed to display the human-readable status of a queued
  * [UploadQueueEntry].
  */
+@Immutable
 data class SyncStatusDetail(
   /** The username of the user who made this change. */
   val user: String,
