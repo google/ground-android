@@ -26,8 +26,12 @@ import androidx.work.ListenableWorker.Result.success
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import org.groundplatform.android.di.coroutines.IoDispatcher
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.usecases.survey.SyncSurveyUseCase
@@ -54,19 +58,42 @@ constructor(
       return failure()
     }
 
+    if (runAttemptCount >= MAX_SYNC_ATTEMPTS) {
+      Timber.e("Giving up sync of survey $surveyId after $runAttemptCount attempts")
+      return failure()
+    }
+
     return try {
-      if (surveyRepository.getOfflineSurvey(surveyId) == null) {
-        Timber.w(
-          "Ignoring sync for survey $surveyId, no longer available offline. Retrying unsubscribe from updates."
-        )
-        surveyRepository.unsubscribeFromSurveyUpdates(surveyId)
-      } else {
-        Timber.d("Syncing survey $surveyId")
-        syncSurvey(surveyId)
+      withTimeout(SYNC_TIMEOUT_MILLIS.milliseconds) {
+        if (surveyRepository.getOfflineSurvey(surveyId) == null) {
+          Timber.w(
+            "Ignoring sync for survey $surveyId, no longer available offline. Retrying unsubscribe from updates."
+          )
+          surveyRepository.unsubscribeFromSurveyUpdates(surveyId)
+        } else {
+          Timber.d("Syncing survey $surveyId")
+          syncSurvey(surveyId)
+        }
       }
       success()
+    } catch (t: TimeoutCancellationException) {
+      // Sync timed out, count as a failed attempt.
+      retryOrGiveUp(t)
+    } catch (t: CancellationException) {
+      // WorkManager stopped the execution, it will handle rescheduling itself.
+      throw t
     } catch (t: Throwable) {
-      Timber.e(t, "Failed to sync survey $surveyId, retrying")
+      retryOrGiveUp(t)
+    }
+  }
+
+  private fun retryOrGiveUp(t: Throwable): Result {
+    val attempt = runAttemptCount + 1
+    return if (attempt >= MAX_SYNC_ATTEMPTS) {
+      Timber.e(t, "Failed to sync survey $surveyId after $attempt attempts, giving up")
+      failure()
+    } else {
+      Timber.w(t, "Failed to sync survey $surveyId (attempt $attempt), retrying")
       retry()
     }
   }
@@ -74,6 +101,18 @@ constructor(
   companion object {
     /** The key in worker input data containing the id of the survey to be synced. */
     internal const val SURVEY_ID_PARAM_KEY = "surveyId"
+
+    /**
+     * How many times to run a sync before giving up. Each run re-reads every location of interest
+     * in the survey, so retrying forever is expensive.
+     */
+    internal const val MAX_SYNC_ATTEMPTS = 5
+
+    /**
+     * How long a sync may run before it is abandoned. Kept under WorkManager's 10 minute limit so
+     * that we time out before the system kills the worker.
+     */
+    internal const val SYNC_TIMEOUT_MILLIS = 8 * 60 * 1000L
 
     /** Returns a new work [Data] object containing the specified survey id. */
     fun createInputData(surveyId: String): Data =
