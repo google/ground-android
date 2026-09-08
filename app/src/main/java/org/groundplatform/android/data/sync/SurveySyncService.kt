@@ -35,16 +35,25 @@ class SurveySyncService @Inject constructor(private val workManager: WorkManager
     val request =
       WorkRequestBuilder()
         .setWorkerClass(SurveySyncWorker::class.java)
+        .setInitialDelay(SYNC_DELAY_MILLIS)
         .buildWorkerRequest(inputData)
     workManager
       .enqueueUniqueWork(
         "${SurveySyncWorker::class.java}#${surveyId}",
-        ExistingWorkPolicy.APPEND,
+        ExistingWorkPolicy.KEEP,
         request,
       )
       .result
       .get()
     Timber.d("Survey sync enqueued for $surveyId")
     return request.id
+  }
+
+  companion object {
+    /**
+     * How long to wait before syncing. A single change often triggers several updates in quick
+     * succession, and each run re-reads the whole survey, so it is cheaper to let them settle.
+     */
+    private const val SYNC_DELAY_MILLIS = 10_000L
   }
 }
