@@ -21,10 +21,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
@@ -32,16 +30,12 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
-import org.groundplatform.android.databinding.OfflineAreaSelectorFragBinding
+import org.groundplatform.android.databinding.BasemapLayoutBinding
 import org.groundplatform.android.ui.common.AbstractMapContainerFragment
 import org.groundplatform.android.ui.common.BaseMapViewModel
 import org.groundplatform.android.ui.common.EphemeralPopups
-import org.groundplatform.android.ui.components.MapFloatingActionButton
 import org.groundplatform.android.ui.home.mapcontainer.HomeScreenMapContainerViewModel
 import org.groundplatform.android.ui.map.MapFragment
-import org.groundplatform.android.ui.offlineareas.selector.model.OfflineAreaSelectorEvent
-import org.groundplatform.android.ui.offlineareas.selector.model.OfflineAreaSelectorState
-import org.groundplatform.android.util.renderComposableDialog
 import org.groundplatform.android.util.setComposableContent
 import org.groundplatform.domain.model.map.MapType
 import org.groundplatform.ui.map.MapConfig
@@ -55,8 +49,6 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
 
   @Inject lateinit var popups: EphemeralPopups
 
-  private lateinit var binding: OfflineAreaSelectorFragBinding
-
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     mapContainerViewModel = getViewModel(HomeScreenMapContainerViewModel::class.java)
@@ -69,54 +61,48 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
     savedInstanceState: Bundle?,
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
-    binding = OfflineAreaSelectorFragBinding.inflate(inflater, container, false)
+    val binding = BasemapLayoutBinding.inflate(inflater, container, false)
+    binding.composeContent.apply {
+      setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+      setComposableContent { OfflineAreaSelectorScreen(viewModel = viewModel) }
+    }
     return binding.root
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    binding.locationLockBtn.apply {
-      setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-      setComposableContent {
-        val locationLockButton by viewModel.locationLockIconType.collectAsStateWithLifecycle()
-
-        MapFloatingActionButton(
-          type = locationLockButton,
-          onClick = { viewModel.onLocationLockClick() },
-        )
-      }
-    }
-    binding.downloadButton.setOnClickListener { viewModel.onDownloadClick() }
-    binding.cancelButton.setOnClickListener { viewModel.onCancelClick() }
-    setupDownloadProgressDialog()
     setupObservers()
   }
 
   private fun setupObservers() {
     viewLifecycleOwner.lifecycleScope.launch {
       viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-        launch { viewModel.uiState.collect { updateUi(it) } }
-
-        launch {
-          viewModel.uiEvent.collect {
-            when (it) {
-              is OfflineAreaSelectorEvent.NavigateOfflineAreaBackToHomeScreen -> {
+        viewModel.uiEvent.collect {
+          when (it) {
+            is OfflineAreaSelectorEvent.NavigateOfflineAreaBackToHomeScreen -> {
+              if (
+                findNavController().currentDestination?.id == R.id.offline_area_selector_fragment
+              ) {
                 findNavController()
                   .navigate(OfflineAreaSelectorFragmentDirections.offlineAreaBackToHomescreen())
               }
+            }
 
-              is OfflineAreaSelectorEvent.NavigateUp -> {
+            is OfflineAreaSelectorEvent.NavigateUp -> {
+              if (
+                findNavController().currentDestination?.id == R.id.offline_area_selector_fragment
+              ) {
                 findNavController().navigateUp()
               }
+            }
 
-              OfflineAreaSelectorEvent.NetworkUnavailable -> {
-                popups.ErrorPopup().show(R.string.connect_to_download_message)
-              }
+            OfflineAreaSelectorEvent.NetworkUnavailable -> {
+              popups.ErrorPopup().show(R.string.connect_to_download_message)
+            }
 
-              OfflineAreaSelectorEvent.DownloadError -> {
-                Toast.makeText(context, R.string.offline_area_download_error, Toast.LENGTH_LONG)
-                  .show()
-              }
+            OfflineAreaSelectorEvent.DownloadError -> {
+              Toast.makeText(context, R.string.offline_area_download_error, Toast.LENGTH_LONG)
+                .show()
             }
           }
         }
@@ -135,53 +121,12 @@ class OfflineAreaSelectorFragment : AbstractMapContainerFragment() {
   override fun onMapReady(map: MapFragment) {
     // Observe events emitted by the ViewModel.
     viewLifecycleOwner.lifecycleScope.launch {
-      mapContainerViewModel.mapLoiFeatures.collect { map.setFeatures(it) }
+      viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        mapContainerViewModel.mapLoiFeatures.collect { map.setFeatures(it) }
+      }
     }
     map.addTileOverlay(viewModel.remoteTileSource)
   }
 
   override fun getMapViewModel(): BaseMapViewModel = viewModel
-
-  private fun updateUi(state: OfflineAreaSelectorState) {
-    binding.bottomText.text =
-      when (state.bottomTextState) {
-        is OfflineAreaSelectorState.BottomTextState.AreaSize ->
-          resources.getString(R.string.selected_offline_area_size, state.bottomTextState.size)
-
-        OfflineAreaSelectorState.BottomTextState.AreaTooLarge ->
-          resources.getString(R.string.selected_offline_area_too_large)
-
-        OfflineAreaSelectorState.BottomTextState.Loading ->
-          resources.getString(
-            R.string.selected_offline_area_size,
-            resources.getString(R.string.offline_area_size_loading_symbol),
-          )
-
-        OfflineAreaSelectorState.BottomTextState.NetworkError ->
-          resources.getString(R.string.connect_to_download_message)
-
-        OfflineAreaSelectorState.BottomTextState.NoImageryAvailable ->
-          resources.getString(R.string.no_imagery_available_for_area)
-
-        null -> ""
-      }
-
-    with(binding.downloadButton) {
-      isEnabled = state.isDownloadButtonEnabled()
-      isClickable = state.isDownloadButtonEnabled()
-    }
-  }
-
-  private fun setupDownloadProgressDialog() {
-    renderComposableDialog {
-      val state by viewModel.uiState.collectAsStateWithLifecycle()
-      val downloadState = state.downloadState
-      if (downloadState is OfflineAreaSelectorState.DownloadState.InProgress) {
-        DownloadProgressDialog(
-          progress = downloadState.progress,
-          onDismiss = { viewModel.stopDownloading() },
-        )
-      }
-    }
-  }
 }
