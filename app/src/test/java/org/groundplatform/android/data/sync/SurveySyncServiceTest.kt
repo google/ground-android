@@ -31,6 +31,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -44,6 +45,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.robolectric.RobolectricTestRunner
 
@@ -99,10 +101,54 @@ class SurveySyncServiceTest : BaseHiltTest() {
     val requestId = service.enqueueSync(surveyId)
 
     // Tell the testing framework that the constraints have been met and to run the worker.
+    testDriver.setInitialDelayMet(requestId)
     testDriver.setAllConstraintsMet(requestId)
     advanceUntilIdle()
 
     verify(syncSurvey).invoke(surveyId)
     assertEquals(WorkInfo.State.SUCCEEDED, workManager.getWorkInfoById(requestId).await()?.state)
+  }
+
+  @Test
+  fun `runs only 1 sync when getting a burst of multiple enqueueSync calls`() =
+    runWithTestDispatcher {
+      val surveyId = "survey1000"
+      `when`(surveyRepository.getOfflineSurvey(surveyId)).thenReturn(SURVEY)
+      `when`(syncSurvey(surveyId)).thenReturn(SURVEY)
+
+      val service = SurveySyncService(workManager)
+      val firstRequestId = service.enqueueSync(surveyId)
+      val secondRequestId = service.enqueueSync(surveyId)
+      val thirdRequestId = service.enqueueSync(surveyId)
+
+      // The later requests are discarded rather than queued behind the first.
+      assertNull(workManager.getWorkInfoById(secondRequestId).await())
+      assertNull(workManager.getWorkInfoById(thirdRequestId).await())
+
+      testDriver.setInitialDelayMet(firstRequestId)
+      testDriver.setAllConstraintsMet(firstRequestId)
+      advanceUntilIdle()
+
+      verify(syncSurvey, times(1)).invoke(surveyId)
+    }
+
+  @Test
+  fun `enqueues a new sync once the previous one has finished`() = runWithTestDispatcher {
+    val surveyId = "survey1000"
+    `when`(surveyRepository.getOfflineSurvey(surveyId)).thenReturn(SURVEY)
+    `when`(syncSurvey(surveyId)).thenReturn(SURVEY)
+
+    val service = SurveySyncService(workManager)
+    val firstRequestId = service.enqueueSync(surveyId)
+    testDriver.setInitialDelayMet(firstRequestId)
+    testDriver.setAllConstraintsMet(firstRequestId)
+    advanceUntilIdle()
+
+    val secondRequestId = service.enqueueSync(surveyId)
+    testDriver.setInitialDelayMet(secondRequestId)
+    testDriver.setAllConstraintsMet(secondRequestId)
+    advanceUntilIdle()
+
+    verify(syncSurvey, times(2)).invoke(surveyId)
   }
 }

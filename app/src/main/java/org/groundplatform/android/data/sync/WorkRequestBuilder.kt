@@ -45,8 +45,20 @@ class WorkRequestBuilder {
    */
   private var networkType: NetworkType = DEFAULT_NETWORK_TYPE
 
+  /** How long to wait before running the worker. Zero means run as soon as constraints allow. */
+  private var initialDelayMillis: Long = 0
+
   fun setNetworkType(networkType: NetworkType): WorkRequestBuilder {
     this.networkType = networkType
+    return this
+  }
+
+  /**
+   * Delays the first run of the worker. Use with ExistingWorkPolicy.KEEP to let a burst of requests
+   * collapse into a single run that sees the state left by the whole burst.
+   */
+  fun setInitialDelay(delayMillis: Long): WorkRequestBuilder {
+    this.initialDelayMillis = delayMillis
     return this
   }
 
@@ -69,6 +81,10 @@ class WorkRequestBuilder {
 
     if (inputData != null) {
       builder.setInputData(inputData)
+    }
+
+    if (initialDelayMillis > 0) {
+      builder.setInitialDelay(initialDelayMillis, TimeUnit.MILLISECONDS)
     }
 
     return builder.build()
