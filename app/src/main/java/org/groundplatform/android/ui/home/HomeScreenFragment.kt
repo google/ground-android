@@ -17,7 +17,6 @@ package org.groundplatform.android.ui.home
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -25,6 +24,7 @@ import android.view.ViewGroup
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.core.net.toUri
 import androidx.core.view.GravityCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -206,12 +206,12 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener {
 
 internal fun openPlayStore(packageName: String, startActivity: (Intent) -> Unit) {
   try {
-    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$packageName")))
+    startActivity(Intent(Intent.ACTION_VIEW, "market://details?id=$packageName".toUri()))
   } catch (_: ActivityNotFoundException) {
     startActivity(
       Intent(
         Intent.ACTION_VIEW,
-        Uri.parse("https://play.google.com/store/apps/details?id=$packageName"),
+        "https://play.google.com/store/apps/details?id=$packageName".toUri(),
       )
     )
   }

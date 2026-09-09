@@ -50,19 +50,28 @@ object SubmissionDataConverter {
       val jsonObject = JSONObject(jsonString)
       val keys = jsonObject.keys()
       while (keys.hasNext()) {
-        try {
-          val taskId = keys.next()
-          val task = job.getTask(taskId)
-          ValueJsonConverter.toResponse(task, jsonObject[taskId])?.let { map[taskId] = it }
-        } catch (e: LocalDataConsistencyException) {
-          Timber.d("Bad submission data in local db: ${e.message}")
-        } catch (e: Job.TaskNotFoundException) {
-          Timber.d(e, "Ignoring data for unknown task")
-        }
+        val taskId = keys.next()
+        parseTaskData(job, jsonObject, taskId)?.let { (id, taskData) -> map[id] = taskData }
       }
     } catch (e: JSONException) {
       Timber.e(e, "Error parsing JSON string")
     }
     return SubmissionData(map.toPersistentMap())
   }
+
+  private fun parseTaskData(
+    job: Job,
+    jsonObject: JSONObject,
+    taskId: String,
+  ): Pair<String, TaskData>? =
+    try {
+      val task = job.getTask(taskId)
+      ValueJsonConverter.toResponse(task, jsonObject[taskId])?.let { Pair(taskId, it) }
+    } catch (e: LocalDataConsistencyException) {
+      Timber.d("Bad submission data in local db: ${e.message}")
+      null
+    } catch (e: Job.TaskNotFoundException) {
+      Timber.d(e, "Ignoring data for unknown task")
+      null
+    }
 }

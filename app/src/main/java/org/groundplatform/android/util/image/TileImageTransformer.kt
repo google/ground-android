@@ -20,6 +20,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Build
+import androidx.core.graphics.set
 import java.io.ByteArrayOutputStream
 
 /** Utility for transforming map tile images. */
@@ -40,7 +41,7 @@ object TileImageTransformer {
     for (y in 0 until bitmap.height) {
       for (x in 0 until bitmap.width) {
         if (isTransparent(bitmap, x, y)) {
-          bitmap.setPixel(x, y, Color.TRANSPARENT)
+          bitmap[x, y] = Color.TRANSPARENT
         }
       }
     }

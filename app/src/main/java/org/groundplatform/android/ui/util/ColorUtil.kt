@@ -16,12 +16,13 @@
 package org.groundplatform.android.ui.util
 
 import android.graphics.Color
+import androidx.core.graphics.toColorInt
 import org.groundplatform.domain.model.job.Job
 import timber.log.Timber
 
 fun Job.getDefaultColor(): Int =
   try {
-    Color.parseColor(style?.color ?: "")
+    (style?.color ?: "").toColorInt()
   } catch (t: Throwable) {
     Timber.w(t, "Invalid or missing color ${style?.color} in job $id")
     Color.BLACK
