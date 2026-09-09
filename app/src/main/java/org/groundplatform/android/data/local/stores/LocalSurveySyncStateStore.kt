@@ -18,14 +18,31 @@ package org.groundplatform.android.data.local.stores
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.SurveySyncState
 
+/**
+ * Provides access to [SurveySyncState] data in local storage.
+ *
+ * This keeps track of the latest LOI server timestamp that has been synced for a survey so a later
+ * sync can fetch only data that changed after that point.
+ */
 interface LocalSurveySyncStateStore {
+  /** Returns the sync state of the given survey, or null if it has never been fully synced. */
   suspend fun get(surveyId: String): SurveySyncState?
 
+  /**
+   * Records the latest LOI server timestamp for an incremental sync without changing the rest of
+   * the survey's sync state. Does nothing if the survey has never been fully synced.
+   */
   suspend fun recordIncrementalSync(
     surveyId: String,
     latestLoiServerTimestamp: Long,
   )
 
+  /**
+   * Records that the survey's LOIs were fully reconciled and replaces any existing state for it.
+   * [latestLoiServerTimestamp] becomes the latest server timestamp used for later incremental
+   * syncs, and [dataVisibility] stores the visibility used to fetch the data so later changes can
+   * be detected.
+   */
   suspend fun recordFullSync(
     surveyId: String,
     latestLoiServerTimestamp: Long,
