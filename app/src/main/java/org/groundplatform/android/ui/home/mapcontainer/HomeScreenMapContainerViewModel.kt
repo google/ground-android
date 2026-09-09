@@ -240,9 +240,7 @@ internal constructor(
                 loi.geometry
                   .area()
                   .takeIf { it > 0.0 }
-                  ?.let {
-                    getFormattedArea(it, getUserSettingsUseCase().measurementUnits)
-                  },
+                  ?.let { getFormattedArea(it, getUserSettingsUseCase().measurementUnits) },
             )
           }
 

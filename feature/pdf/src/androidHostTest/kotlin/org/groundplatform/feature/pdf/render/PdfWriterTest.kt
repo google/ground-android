@@ -100,19 +100,19 @@ class PdfWriterTest {
   fun `draws the submission title above the table with the job below it`() {
     val canvas = renderDocument(SINGLE_PAGE_DOCUMENT)
 
-    val jobLineIndex = canvas.drawnText.indexOf("${TABLE.jobLabel}: ${TABLE.jobName}")
+    val jobLineIndex = canvas.drawnText.indexOf(JOB_LINE)
     assertTrue(jobLineIndex > 0)
-    assertEquals("${TABLE.submissionLabel}: ${TABLE.loiName}", canvas.drawnText[jobLineIndex - 1])
+    assertEquals(SUBMISSION_LINE, canvas.drawnText[jobLineIndex - 1])
   }
 
   @Test
   fun `draws the area between the submission title and the job line`() {
     val canvas = renderDocument(SINGLE_PAGE_DOCUMENT.copy(mapBlock = MAP_BLOCK))
 
-    val areaLineIndex = canvas.drawnText.indexOf("${AREA.label}: ${AREA.value}")
+    val areaLineIndex = canvas.drawnText.indexOf(AREA_LINE)
     assertTrue(areaLineIndex > 0)
-    assertEquals("${TABLE.submissionLabel}: ${TABLE.loiName}", canvas.drawnText[areaLineIndex - 1])
-    assertEquals("${TABLE.jobLabel}: ${TABLE.jobName}", canvas.drawnText[areaLineIndex + 1])
+    assertEquals(SUBMISSION_LINE, canvas.drawnText[areaLineIndex - 1])
+    assertEquals(JOB_LINE, canvas.drawnText[areaLineIndex + 1])
   }
 
   @Test
@@ -243,7 +243,7 @@ class PdfWriterTest {
     val canvas = renderDocument(tableless, pdfImageSet(qr = pdfImage()))
 
     assertEquals(listOf(1), canvas.startedPageNumbers)
-    assertFalse(canvas.drawnText.contains("${TABLE.submissionLabel}: ${TABLE.loiName}"))
+    assertFalse(canvas.drawnText.contains(SUBMISSION_LINE))
   }
 
   private fun renderDocument(
@@ -328,6 +328,10 @@ class PdfWriterTest {
         jobName = "Job name",
         rows = emptyList(),
       )
+
+    val SUBMISSION_LINE = "${TABLE.submissionLabel}: ${TABLE.loiName}"
+    val AREA_LINE = "${AREA.label}: ${AREA.value}"
+    val JOB_LINE = "${TABLE.jobLabel}: ${TABLE.jobName}"
 
     val EMPTY_DOCUMENT =
       SubmissionPdfDocument(

@@ -244,6 +244,7 @@ private val user = User(id = "user", email = "user@email.com", displayName = "Us
 private val auditInfo = AuditInfo(user)
 private const val SURVEY_ID = "survey"
 private const val TASK_ID = "task 1"
+private const val AREA = "1.20 ha"
 private val loiReport =
   LoiReport(
     loiName = "Point A",
@@ -282,7 +283,7 @@ private fun PreviewModalContentsWhenJobHasNoTasks() {
           submissionCount = 0,
           showDeleteLoiButton = false,
           loiReport = loiReport,
-          formattedArea = "1.20 ha",
+          formattedArea = AREA,
         ),
       onDeleteClicked = null,
       onShareClicked = {},
@@ -331,7 +332,7 @@ private fun PreviewModalContentsWhenUserCannotSubmitData() {
           submissionCount = 1,
           showDeleteLoiButton = false,
           loiReport = loiReport,
-          formattedArea = "1.20 ha",
+          formattedArea = AREA,
         ),
       onDeleteClicked = null,
       onShareClicked = {},
@@ -382,7 +383,7 @@ private fun PreviewModalContentsWhenJobHasTasks() {
           submissionCount = 20,
           showDeleteLoiButton = false,
           loiReport = loiReport,
-          formattedArea = "1.20 ha",
+          formattedArea = AREA,
         ),
       onDeleteClicked = null,
       onShareClicked = {},
@@ -433,7 +434,7 @@ private fun PreviewModalContentsWhenJobHasTasksAndIsPredefined() {
           submissionCount = 20,
           showDeleteLoiButton = true,
           loiReport = loiReport,
-          formattedArea = "1.20 ha",
+          formattedArea = AREA,
         ),
       onDeleteClicked = null,
       onShareClicked = {},
