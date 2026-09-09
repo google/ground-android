@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.groundplatform.android.ui.datacollection.tasks
+package org.groundplatform.android.ui.datacollection.tasks.map
 
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -27,6 +26,8 @@ import org.groundplatform.android.getString
 import org.groundplatform.android.ui.components.LOCATION_LOCKED_TEST_TAG
 import org.groundplatform.android.ui.components.LOCATION_NOT_LOCKED_TEST_TAG
 import org.groundplatform.android.ui.components.MapFloatingActionButtonType
+import org.groundplatform.android.ui.datacollection.tasks.map.components.LocationInfo
+import org.groundplatform.android.ui.datacollection.tasks.map.components.LocationInfoCardTestTags
 import org.groundplatform.ui.theme.AppTheme
 import org.junit.Rule
 import org.junit.Test
@@ -132,11 +133,11 @@ class TaskMapScreenTest {
   fun `Location info card is not displayed when locationInfo is null`() {
     setContent(locationInfo = null)
 
-    composeTestRule.onNodeWithTag(TaskMapScreenTestTags.LOCATION_INFO_CARD).assertDoesNotExist()
+    composeTestRule.onNodeWithTag(LocationInfoCardTestTags.LOCATION_INFO_CARD).assertDoesNotExist()
   }
 
   @Test
-  fun `Location info card is displayed with current location and accuracy when accuracy is provided`() {
+  fun `Location info card is displayed when locationInfo is not null`() {
     val locationInfo =
       LocationInfo(
         titleRes = R.string.current_location,
@@ -146,45 +147,6 @@ class TaskMapScreenTest {
       )
     setContent(locationInfo = locationInfo)
 
-    composeTestRule.onNodeWithTag(TaskMapScreenTestTags.LOCATION_INFO_CARD).assertIsDisplayed()
-    composeTestRule
-      .onNodeWithTag(TaskMapScreenTestTags.CURRENT_LOCATION_TITLE)
-      .assertIsDisplayed()
-      .assertTextEquals(getString(R.string.current_location))
-    composeTestRule
-      .onNodeWithTag(TaskMapScreenTestTags.CURRENT_LOCATION_VALUE)
-      .assertIsDisplayed()
-      .assertTextEquals("29º58’15” N  114º36’17”W")
-    composeTestRule
-      .onNodeWithTag(TaskMapScreenTestTags.ACCURACY_TITLE)
-      .assertIsDisplayed()
-      .assertTextEquals(getString(R.string.accuracy))
-    composeTestRule
-      .onNodeWithTag(TaskMapScreenTestTags.ACCURACY_VALUE)
-      .assertIsDisplayed()
-      .assertTextEquals("3m")
-  }
-
-  @Test
-  fun `Location info card is displayed with map location and no accuracy when accuracy is null`() {
-    val locationInfo =
-      LocationInfo(
-        titleRes = R.string.map_location,
-        locationText = "29º58’15” N  114º36’17”W",
-        accuracyText = null,
-      )
-    setContent(locationInfo = locationInfo)
-
-    composeTestRule.onNodeWithTag(TaskMapScreenTestTags.LOCATION_INFO_CARD).assertIsDisplayed()
-    composeTestRule
-      .onNodeWithTag(TaskMapScreenTestTags.CURRENT_LOCATION_TITLE)
-      .assertIsDisplayed()
-      .assertTextEquals(getString(R.string.map_location))
-    composeTestRule
-      .onNodeWithTag(TaskMapScreenTestTags.CURRENT_LOCATION_VALUE)
-      .assertIsDisplayed()
-      .assertTextEquals("29º58’15” N  114º36’17”W")
-    composeTestRule.onNodeWithTag(TaskMapScreenTestTags.ACCURACY_TITLE).assertDoesNotExist()
-    composeTestRule.onNodeWithTag(TaskMapScreenTestTags.ACCURACY_VALUE).assertDoesNotExist()
+    composeTestRule.onNodeWithTag(LocationInfoCardTestTags.LOCATION_INFO_CARD).assertIsDisplayed()
   }
 }
