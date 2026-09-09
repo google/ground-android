@@ -20,10 +20,17 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import org.groundplatform.android.data.local.stores.LocalLocationOfInterestStore
 import org.groundplatform.android.data.sync.SurveySyncService
+import org.groundplatform.android.di.coroutines.ApplicationScope
 import timber.log.Timber
 
 const val TOPIC_PREFIX = "/topics/"
+
+private const val LOI_ID_KEY = "loiId"
+private const val DELETED_KEY = "deleted"
 
 /**
  * Listens to messages from Firebase Cloud Messaging, and enqueuing re-sync of survey metadata when
@@ -33,6 +40,8 @@ const val TOPIC_PREFIX = "/topics/"
 class FirebaseMessagingService : FirebaseMessagingService() {
 
   @Inject lateinit var surveySyncService: SurveySyncService
+  @Inject lateinit var localLoiStore: LocalLocationOfInterestStore
+  @Inject @ApplicationScope lateinit var externalScope: CoroutineScope
 
   /**
    * Processes new messages, enqueuing a worker to sync the survey with the id specified in the
@@ -45,6 +54,12 @@ class FirebaseMessagingService : FirebaseMessagingService() {
       return
     }
     Timber.v("Message received from topic ${remoteMessage.from}")
+
+    // Dropping it here spares the sync the full read it would take to notice the deletion.
+    remoteMessage.data[LOI_ID_KEY]
+      ?.takeIf { remoteMessage.data[DELETED_KEY].toBoolean() }
+      ?.let { externalScope.launch { localLoiStore.safeDeleteLocalLoi(it) } }
+
     surveySyncService.enqueueSync(surveyId)
   }
 

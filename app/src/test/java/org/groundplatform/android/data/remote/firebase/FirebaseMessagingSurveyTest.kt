@@ -17,6 +17,9 @@
 package org.groundplatform.android.data.remote.firebase
 
 import com.google.firebase.messaging.RemoteMessage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import org.groundplatform.android.data.local.stores.LocalLocationOfInterestStore
 import org.groundplatform.android.data.sync.SurveySyncService
 import org.junit.Before
 import org.junit.Rule
@@ -30,12 +33,14 @@ import org.mockito.Mockito.`when`
 import org.mockito.junit.MockitoJUnit
 import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.junit.MockitoRule
+import org.mockito.kotlin.verifyBlocking
 
 @RunWith(MockitoJUnitRunner::class)
 class FirebaseMessagingSurveyTest {
   @JvmField @Rule val rule: MockitoRule = MockitoJUnit.rule()
   @Mock private lateinit var surveySyncService: SurveySyncService
   @Mock private lateinit var remoteMessage: RemoteMessage
+  @Mock private lateinit var localLoiStore: LocalLocationOfInterestStore
 
   private lateinit var messagingService: FirebaseMessagingService
 
@@ -43,6 +48,8 @@ class FirebaseMessagingSurveyTest {
   fun setUp() {
     messagingService = FirebaseMessagingService()
     messagingService.surveySyncService = surveySyncService
+    messagingService.localLoiStore = localLoiStore
+    messagingService.externalScope = CoroutineScope(UnconfinedTestDispatcher())
   }
 
   @Test
@@ -53,6 +60,26 @@ class FirebaseMessagingSurveyTest {
     messagingService.onMessageReceived(remoteMessage)
 
     verify(surveySyncService).enqueueSync(surveyId)
+  }
+
+  @Test
+  fun `drops an loi the message reports as deleted`() {
+    `when`(remoteMessage.from).thenReturn("/topics/survey")
+    `when`(remoteMessage.data).thenReturn(mapOf("loiId" to "loi1", "deleted" to "true"))
+
+    messagingService.onMessageReceived(remoteMessage)
+
+    verifyBlocking(localLoiStore) { safeDeleteLocalLoi("loi1") }
+  }
+
+  @Test
+  fun `keeps an loi the message only reports as changed`() {
+    `when`(remoteMessage.from).thenReturn("/topics/survey")
+    `when`(remoteMessage.data).thenReturn(mapOf("loiId" to "loi1"))
+
+    messagingService.onMessageReceived(remoteMessage)
+
+    verifyBlocking(localLoiStore, never()) { safeDeleteLocalLoi(anyString()) }
   }
 
   @Test

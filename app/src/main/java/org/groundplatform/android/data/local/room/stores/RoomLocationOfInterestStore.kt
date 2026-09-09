@@ -115,6 +115,19 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
     locationOfInterestDao.findById(locationOfInterestId)?.let { locationOfInterestDao.delete(it) }
   }
 
+  override suspend fun safeDeleteLocalLoi(locationOfInterestId: String) {
+    // One transaction, so a mutation saved right now can't be cascaded away by the delete.
+    localDatabase.withTransaction {
+      val pending =
+        locationOfInterestMutationDao.getMutations(
+          locationOfInterestId,
+          MutationEntitySyncStatus.PENDING,
+          MutationEntitySyncStatus.IN_PROGRESS,
+        )
+      if (pending.isEmpty()) deleteLocationOfInterest(locationOfInterestId)
+    }
+  }
+
   override fun getAllSurveyMutations(survey: Survey): Flow<List<LocationOfInterestMutation>> =
     locationOfInterestMutationDao.getAllMutationsFlow().map { mutations ->
       mutations.filter { it.surveyId == survey.id }.map { it.toModelObject() }

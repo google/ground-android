@@ -46,6 +46,9 @@ interface LocalLocationOfInterestStore :
   /** Deletes LOI from local database. */
   suspend fun deleteLocationOfInterest(locationOfInterestId: String)
 
+  /** Deletes LOI from local database, keeping it if it has changes still waiting to upload. */
+  suspend fun safeDeleteLocalLoi(locationOfInterestId: String)
+
   /**
    * Returns a [Flow] that emits a [List] of all [LocationOfInterestMutation]s stored in the local
    * db related to a given [Survey]. A new [List] is emitted on each change to the underlying saved
