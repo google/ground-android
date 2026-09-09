@@ -30,7 +30,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
@@ -40,14 +39,11 @@ import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.ui.theme.AppTheme
 
-@VisibleForTesting
-object LocationInfoCardTestTags {
-  const val LOCATION_INFO_CARD = "location_info_card"
-  const val CURRENT_LOCATION_TITLE = "location_info_card_title"
-  const val CURRENT_LOCATION_VALUE = "location_info_card_value"
-  const val ACCURACY_TITLE = "location_info_card_accuracy_title"
-  const val ACCURACY_VALUE = "location_info_card_accuracy_value"
-}
+@VisibleForTesting const val LOCATION_INFO_CARD_TEST_TAG = "location_info_card"
+@VisibleForTesting const val CURRENT_LOCATION_TITLE_TEST_TAG = "location_info_card_title"
+@VisibleForTesting const val CURRENT_LOCATION_VALUE_TEST_TAG = "location_info_card_value"
+@VisibleForTesting const val ACCURACY_TITLE_TEST_TAG = "location_info_card_accuracy_title"
+@VisibleForTesting const val ACCURACY_VALUE_TEST_TAG = "location_info_card_accuracy_value"
 
 @Immutable
 data class LocationInfo(
@@ -60,10 +56,12 @@ data class LocationInfo(
 /** A floating card displaying current/map coordinates and GPS accuracy. */
 @Composable
 fun LocationInfoCard(locationInfo: LocationInfo, modifier: Modifier = Modifier) {
+  val hasAccuracy = !locationInfo.accuracyText.isNullOrBlank()
+
   Card(
-    modifier = modifier.testTag(LocationInfoCardTestTags.LOCATION_INFO_CARD),
+    modifier = modifier.testTag(LOCATION_INFO_CARD_TEST_TAG),
     shape = RoundedCornerShape(8.dp),
-    colors = CardDefaults.cardColors(containerColor = Color.White),
+    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
   ) {
     Row(
       modifier = Modifier.fillMaxWidth().padding(8.dp),
@@ -71,36 +69,36 @@ fun LocationInfoCard(locationInfo: LocationInfo, modifier: Modifier = Modifier) 
     ) {
       Column(
         modifier =
-          if (locationInfo.accuracyText != null) {
+          if (hasAccuracy) {
             Modifier.weight(0.75f)
           } else {
-            Modifier.fillMaxWidth()
+            Modifier.weight(1f)
           }
       ) {
         Text(
           text = stringResource(locationInfo.titleRes),
           style = MaterialTheme.typography.labelSmall,
-          color = Color(0xFF5E5E5E),
-          modifier = Modifier.testTag(LocationInfoCardTestTags.CURRENT_LOCATION_TITLE),
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+          modifier = Modifier.testTag(CURRENT_LOCATION_TITLE_TEST_TAG),
         )
         Text(
           text = locationInfo.locationText,
           style = MaterialTheme.typography.labelMedium,
-          color = Color(0xFF424940),
-          modifier = Modifier.testTag(LocationInfoCardTestTags.CURRENT_LOCATION_VALUE),
+          color = MaterialTheme.colorScheme.onSurface,
+          modifier = Modifier.testTag(CURRENT_LOCATION_VALUE_TEST_TAG),
         )
       }
 
-      if (locationInfo.accuracyText != null) {
+      if (hasAccuracy) {
         Column(modifier = Modifier.weight(0.25f)) {
           Text(
             text = stringResource(R.string.accuracy),
             style = MaterialTheme.typography.labelSmall,
-            color = Color(0xFF5E5E5E),
-            modifier = Modifier.testTag(LocationInfoCardTestTags.ACCURACY_TITLE),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.testTag(ACCURACY_TITLE_TEST_TAG),
           )
           Text(
-            text = locationInfo.accuracyText,
+            text = locationInfo.accuracyText.orEmpty(),
             style = MaterialTheme.typography.labelMedium,
             color =
               colorResource(
@@ -110,7 +108,7 @@ fun LocationInfoCard(locationInfo: LocationInfo, modifier: Modifier = Modifier) 
                   R.color.accuracy_bad
                 }
               ),
-            modifier = Modifier.testTag(LocationInfoCardTestTags.ACCURACY_VALUE),
+            modifier = Modifier.testTag(ACCURACY_VALUE_TEST_TAG),
           )
         }
       }

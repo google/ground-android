@@ -65,14 +65,14 @@ abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
     dataCollectionViewModel.getTaskViewModel(taskId) as TVM
   }
 
+  protected val taskId: String by lazy {
+    arguments?.getString(DataCollectionFragment.TASK_ID) ?: error("null taskId fragment arg")
+  }
+
   private lateinit var viewModel: BaseMapViewModel
 
   private val _isCenterMarkerVisible = MutableStateFlow(true)
   private val _locationInfo = MutableStateFlow<LocationInfo?>(null)
-
-  protected val taskId: String by lazy {
-    arguments?.getString(DataCollectionFragment.TASK_ID) ?: error("null taskId fragment arg")
-  }
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -106,22 +106,37 @@ abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
       }
     }
 
+    return binding.root
+  }
+
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+
     viewLifecycleOwner.lifecycleScope.launch {
-      repeatOnLifecycle(Lifecycle.State.STARTED) {
+      viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
         getMapViewModel().location.collect {
-          val locationText = it?.toCoordinates()?.toDmsFormat()
+          if (getMapViewModel().locationLock.value.getOrDefault(false)) {
+            val locationText = it?.toCoordinates()?.toDmsFormat()
+            val accuracy = it?.getAccuracyOrNull()
+            val accuracyText =
+              accuracy?.let { value -> ACCURACY_FORMATTER.format(value) + "m" } ?: "?"
 
-          val df = DecimalFormat("#.##")
-          df.roundingMode = RoundingMode.DOWN
-          val accuracy = it?.getAccuracyOrNull()
-          val accuracyText = accuracy?.let { value -> df.format(value) + "m" } ?: "?"
-
-          updateLocationInfoCard(R.string.current_location, locationText, accuracyText, accuracy)
+            updateLocationInfoCard(
+              R.string.current_location,
+              locationText,
+              accuracyText,
+              accuracy,
+            )
+          }
         }
       }
     }
+  }
 
-    return binding.root
+  override fun onDestroyView() {
+    super.onDestroyView()
+    _locationInfo.value = null
+    _isCenterMarkerVisible.value = true
   }
 
   override fun getMapViewModel(): BaseMapViewModel = viewModel
@@ -176,5 +191,10 @@ abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
       return
     }
     updateLocationInfoCard(R.string.map_location, position.coordinates.toDmsFormat())
+  }
+
+  companion object {
+    private val ACCURACY_FORMATTER =
+      DecimalFormat("#.##").apply { roundingMode = RoundingMode.DOWN }
   }
 }

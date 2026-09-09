@@ -41,10 +41,7 @@ import org.groundplatform.android.ui.datacollection.tasks.map.components.Locatio
 import org.groundplatform.android.ui.datacollection.tasks.map.components.LocationInfoCard
 import org.groundplatform.ui.theme.AppTheme
 
-@VisibleForTesting
-object TaskMapScreenTestTags {
-  const val CENTER_MARKER = "task_map_center_marker"
-}
+@VisibleForTesting const val TASK_MAP_CENTER_MARKER_TEST_TAG = "task_map_center_marker"
 
 /**
  * Screen overlay for map-based tasks, including center crosshairs, map type button, recenter
@@ -52,13 +49,13 @@ object TaskMapScreenTestTags {
  */
 @Composable
 fun TaskMapScreen(
-  modifier: Modifier = Modifier,
   locationLockButtonType: MapFloatingActionButtonType,
   shouldShowRecenter: Boolean,
   isCenterMarkerVisible: Boolean,
   locationInfo: LocationInfo?,
   onMapTypeClicked: () -> Unit,
   onLocationLockClicked: () -> Unit,
+  modifier: Modifier = Modifier,
 ) {
   Box(modifier = modifier.fillMaxSize()) {
     if (isCenterMarkerVisible) {
@@ -66,7 +63,7 @@ fun TaskMapScreen(
         painter = painterResource(R.drawable.ic_plus_sign),
         contentDescription = null,
         modifier =
-          Modifier.align(Alignment.Center).scale(0.5f).testTag(TaskMapScreenTestTags.CENTER_MARKER),
+          Modifier.align(Alignment.Center).scale(0.5f).testTag(TASK_MAP_CENTER_MARKER_TEST_TAG),
       )
     }
 

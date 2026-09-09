@@ -26,8 +26,8 @@ import org.groundplatform.android.getString
 import org.groundplatform.android.ui.components.LOCATION_LOCKED_TEST_TAG
 import org.groundplatform.android.ui.components.LOCATION_NOT_LOCKED_TEST_TAG
 import org.groundplatform.android.ui.components.MapFloatingActionButtonType
+import org.groundplatform.android.ui.datacollection.tasks.map.components.LOCATION_INFO_CARD_TEST_TAG
 import org.groundplatform.android.ui.datacollection.tasks.map.components.LocationInfo
-import org.groundplatform.android.ui.datacollection.tasks.map.components.LocationInfoCardTestTags
 import org.groundplatform.ui.theme.AppTheme
 import org.junit.Rule
 import org.junit.Test
@@ -66,14 +66,14 @@ class TaskMapScreenTest {
   fun `Center marker is displayed when isCenterMarkerVisible is true`() {
     setContent(isCenterMarkerVisible = true)
 
-    composeTestRule.onNodeWithTag(TaskMapScreenTestTags.CENTER_MARKER).assertIsDisplayed()
+    composeTestRule.onNodeWithTag(TASK_MAP_CENTER_MARKER_TEST_TAG).assertIsDisplayed()
   }
 
   @Test
   fun `Center marker is not displayed when isCenterMarkerVisible is false`() {
     setContent(isCenterMarkerVisible = false)
 
-    composeTestRule.onNodeWithTag(TaskMapScreenTestTags.CENTER_MARKER).assertDoesNotExist()
+    composeTestRule.onNodeWithTag(TASK_MAP_CENTER_MARKER_TEST_TAG).assertDoesNotExist()
   }
 
   @Test
@@ -123,17 +123,23 @@ class TaskMapScreenTest {
   }
 
   @Test
-  fun `Location lock button is displayed with correct icon when locked`() {
-    setContent(locationLockButtonType = MapFloatingActionButtonType.LocationLocked())
+  fun `Location lock button is displayed with correct icon when locked and clicking triggers callback`() {
+    var locationLockClicked = false
+    setContent(
+      locationLockButtonType = MapFloatingActionButtonType.LocationLocked(),
+      onLocationLockClicked = { locationLockClicked = true },
+    )
 
-    composeTestRule.onNodeWithTag(LOCATION_LOCKED_TEST_TAG).assertIsDisplayed()
+    composeTestRule.onNodeWithTag(LOCATION_LOCKED_TEST_TAG).assertIsDisplayed().performClick()
+
+    assertThat(locationLockClicked).isTrue()
   }
 
   @Test
   fun `Location info card is not displayed when locationInfo is null`() {
     setContent(locationInfo = null)
 
-    composeTestRule.onNodeWithTag(LocationInfoCardTestTags.LOCATION_INFO_CARD).assertDoesNotExist()
+    composeTestRule.onNodeWithTag(LOCATION_INFO_CARD_TEST_TAG).assertDoesNotExist()
   }
 
   @Test
@@ -147,6 +153,29 @@ class TaskMapScreenTest {
       )
     setContent(locationInfo = locationInfo)
 
-    composeTestRule.onNodeWithTag(LocationInfoCardTestTags.LOCATION_INFO_CARD).assertIsDisplayed()
+    composeTestRule.onNodeWithTag(LOCATION_INFO_CARD_TEST_TAG).assertIsDisplayed()
+  }
+
+  @Test
+  fun `Recenter button and info card are both displayed when requested`() {
+    val locationInfo =
+      LocationInfo(
+        titleRes = R.string.current_location,
+        locationText = "29º58’15” N  114º36’17”W",
+        accuracyText = "3m",
+        isAccuracyGood = true,
+      )
+    var locationLockClicked = false
+    setContent(
+      shouldShowRecenter = true,
+      locationInfo = locationInfo,
+      onLocationLockClicked = { locationLockClicked = true },
+    )
+
+    composeTestRule.onNodeWithText(getString(R.string.recenter)).assertIsDisplayed()
+    composeTestRule.onNodeWithTag(LOCATION_INFO_CARD_TEST_TAG).assertIsDisplayed()
+    composeTestRule.onNodeWithTag(LOCATION_NOT_LOCKED_TEST_TAG).assertIsDisplayed().performClick()
+
+    assertThat(locationLockClicked).isTrue()
   }
 }
