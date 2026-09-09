@@ -89,6 +89,10 @@ constructor(
       savePages(remoteDataStore.loadUserLois(survey, ownerUserId, syncFromTimestamp))
     }
 
+    Timber.d(
+      "Synced ${syncedLoiIds.size} LOIs of survey. Newest server timestamp $newestLoiTimestamp"
+    )
+
     if (mode is SurveySyncMode.Full) {
       // NOTE(#2652): Don't delete pending locations of interest, since we can accidentally delete
       // them here if we get to this routine before they can be synced up to the remote database.

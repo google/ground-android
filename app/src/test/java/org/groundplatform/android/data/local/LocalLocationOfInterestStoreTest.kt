@@ -213,17 +213,16 @@ class LocalLocationOfInterestStoreTest : BaseHiltTest() {
   }
 
   @Test
-  fun safeDeleteLocalLoi() =
-    runWithTestDispatcher {
-      localUserStore.insertOrUpdateUser(TEST_USER)
-      localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
-      // Saved straight to the db, so nothing is queued for upload.
-      localLoiStore.insertOrUpdate(FakeData.LOCATION_OF_INTEREST)
+  fun safeDeleteLocalLoi() = runWithTestDispatcher {
+    localUserStore.insertOrUpdateUser(TEST_USER)
+    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
+    // Saved straight to the db, so nothing is queued for upload.
+    localLoiStore.insertOrUpdate(FakeData.LOCATION_OF_INTEREST)
 
-      localLoiStore.safeDeleteLocalLoi(FakeData.LOI_ID)
+    localLoiStore.safeDeleteLocalLoi(FakeData.LOI_ID)
 
-      assertThat(localLoiStore.getLocationOfInterest(TEST_SURVEY, FakeData.LOI_ID)).isNull()
-    }
+    assertThat(localLoiStore.getLocationOfInterest(TEST_SURVEY, FakeData.LOI_ID)).isNull()
+  }
 
   @Test
   fun `deleteUnlessPendingUpload keeps an loi whose changes are still waiting`() =
