@@ -19,6 +19,8 @@ import android.graphics.Bitmap
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.feature.pdf.model.SubmissionPdfDocument
 import org.groundplatform.feature.pdf.render.image.PdfImage
 import org.groundplatform.feature.pdf.render.image.PdfImageSet
@@ -101,6 +103,23 @@ class PdfWriterTest {
     val jobLineIndex = canvas.drawnText.indexOf("${TABLE.jobLabel}: ${TABLE.jobName}")
     assertTrue(jobLineIndex > 0)
     assertEquals("${TABLE.submissionLabel}: ${TABLE.loiName}", canvas.drawnText[jobLineIndex - 1])
+  }
+
+  @Test
+  fun `draws the area between the submission title and the job line`() {
+    val canvas = renderDocument(SINGLE_PAGE_DOCUMENT.copy(mapBlock = MAP_BLOCK))
+
+    val areaLineIndex = canvas.drawnText.indexOf("${AREA.label}: ${AREA.value}")
+    assertTrue(areaLineIndex > 0)
+    assertEquals("${TABLE.submissionLabel}: ${TABLE.loiName}", canvas.drawnText[areaLineIndex - 1])
+    assertEquals("${TABLE.jobLabel}: ${TABLE.jobName}", canvas.drawnText[areaLineIndex + 1])
+  }
+
+  @Test
+  fun `draws no area line when the document has no area`() {
+    val canvas = renderDocument(SINGLE_PAGE_DOCUMENT.copy(mapBlock = MAP_BLOCK.copy(area = null)))
+
+    assertFalse(canvas.drawnText.any { it.startsWith(AREA.label) })
   }
 
   @Test
@@ -291,6 +310,15 @@ class PdfWriterTest {
       )
 
     val QR_BLOCK = SubmissionPdfDocument.QrBlock(submissionName = "Plot 42", scanCaption = "Scan")
+
+    val AREA = SubmissionPdfDocument.Area(label = "Area", value = "1.00 ha")
+
+    val MAP_BLOCK =
+      SubmissionPdfDocument.MapBlock(
+        geometry = Point(Coordinates(0.0, 0.0)),
+        style = null,
+        area = AREA,
+      )
 
     val TABLE =
       SubmissionPdfDocument.Table(
