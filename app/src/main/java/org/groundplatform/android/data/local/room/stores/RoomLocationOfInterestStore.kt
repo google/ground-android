@@ -32,6 +32,7 @@ import org.groundplatform.android.data.local.room.entity.LocationOfInterestEntit
 import org.groundplatform.android.data.local.room.entity.LocationOfInterestMutationEntity
 import org.groundplatform.android.data.local.room.fields.EntityDeletionState
 import org.groundplatform.android.data.local.room.fields.MutationEntitySyncStatus
+import org.groundplatform.android.data.local.room.fields.MutationEntityType
 import org.groundplatform.android.data.local.stores.LocalLocationOfInterestStore
 import org.groundplatform.android.util.Debug.logOnFailure
 import org.groundplatform.domain.model.Survey
@@ -142,6 +143,14 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
     }
     locationOfInterestDao.upsertAll(entities)
   }
+
+  override suspend fun countPendingNonDeletedLois(surveyId: String): Int =
+    locationOfInterestMutationDao.countLocationOfInterestIds(
+      surveyId,
+      MutationEntityType.DELETE,
+      MutationEntitySyncStatus.PENDING,
+      MutationEntitySyncStatus.IN_PROGRESS,
+    )
 
   override suspend fun deleteNotIn(surveyId: String, ids: List<String>) {
     val idsToKeep = ids.toSet()

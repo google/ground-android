@@ -20,6 +20,7 @@ import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 import org.groundplatform.android.data.local.room.entity.LocationOfInterestMutationEntity
 import org.groundplatform.android.data.local.room.fields.MutationEntitySyncStatus
+import org.groundplatform.android.data.local.room.fields.MutationEntityType
 
 /**
  * Provides low-level read/write operations of [LocationOfInterestMutationEntity] to/from the local
@@ -39,4 +40,17 @@ interface LocationOfInterestMutationDao : BaseDao<LocationOfInterestMutationEnti
     locationOfInterestId: String,
     vararg allowedStates: MutationEntitySyncStatus,
   ): List<LocationOfInterestMutationEntity>
+
+  /** Returns how many of the survey's LOIs hold a mutation of another type in one of the states. */
+  @Query(
+    "SELECT COUNT(DISTINCT location_of_interest_id) FROM location_of_interest_mutation " +
+      "WHERE survey_id = :surveyId " +
+      "AND type != :excludedType " +
+      "AND state IN (:allowedStates)"
+  )
+  suspend fun countLocationOfInterestIds(
+    surveyId: String,
+    excludedType: MutationEntityType,
+    vararg allowedStates: MutationEntitySyncStatus,
+  ): Int
 }
