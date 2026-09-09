@@ -46,10 +46,13 @@ import org.groundplatform.domain.model.mutation.Mutation
 import org.groundplatform.ui.theme.AppTheme
 
 @Composable
-fun SyncListItem(modifier: Modifier, detail: SyncStatusDetail) {
-  Column {
-    Row(modifier.fillMaxWidth().padding(top = 8.dp, end = 24.dp, bottom = 8.dp, start = 16.dp)) {
-      Column(modifier.weight(1f)) {
+fun SyncListItem(
+  detail: SyncStatusDetail,
+  modifier: Modifier = Modifier,
+) {
+  Column(modifier = modifier) {
+    Row(Modifier.fillMaxWidth().padding(top = 8.dp, end = 24.dp, bottom = 8.dp, start = 16.dp)) {
+      Column(modifier = Modifier.weight(1f)) {
         val date = detail.timestamp
         Text(
           text = "${date.toFormattedDate()} • ${date.toFormattedTime()}",
@@ -72,7 +75,7 @@ fun SyncListItem(modifier: Modifier, detail: SyncStatusDetail) {
           style = MaterialTheme.typography.bodySmall,
         )
       }
-      Column(modifier = modifier.padding(start = 16.dp).align(alignment = CenterVertically)) {
+      Column(modifier = Modifier.padding(start = 16.dp).align(alignment = CenterVertically)) {
         StatusIcon(status = detail.status, modifier = Modifier)
       }
     }
@@ -156,5 +159,5 @@ private fun PreviewSyncListItem(
       description = "Lacuna Fund Cocoa Mapping",
     )
 ) {
-  AppTheme { SyncListItem(Modifier, detail) }
+  AppTheme { SyncListItem(detail) }
 }

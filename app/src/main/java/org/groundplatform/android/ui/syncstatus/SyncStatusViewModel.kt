@@ -15,10 +15,12 @@
  */
 package org.groundplatform.android.ui.syncstatus
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import org.groundplatform.android.ui.common.AbstractViewModel
 import org.groundplatform.android.ui.common.LocationOfInterestHelper
 import org.groundplatform.domain.model.mutation.LocationOfInterestMutation
@@ -47,15 +49,18 @@ internal constructor(
   private val surveyRepository: SurveyRepositoryInterface,
 ) : AbstractViewModel() {
 
-  /**
-   * A complete list of [SyncStatusDetail] indicating the current status of local changes being
-   * synced to remote servers.
-   */
-  internal val uploadStatus: LiveData<List<SyncStatusDetail>> =
+  /** The current UI state representing local changes being synced to remote servers. */
+  val uiState: StateFlow<SyncStatusState> =
     mutationRepository
       .getUploadQueueFlow()
-      .map { it.mapNotNull { upload -> toSyncStatusDetail(upload) } }
-      .asLiveData()
+      .map { queue ->
+        SyncStatusState(items = queue.mapNotNull { upload -> toSyncStatusDetail(upload) })
+      }
+      .stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = SyncStatusState(),
+      )
 
   private suspend fun toSyncStatusDetail(uploadQueueEntry: UploadQueueEntry): SyncStatusDetail? {
     val mutation =
