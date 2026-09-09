@@ -18,7 +18,6 @@ package org.groundplatform.android.ui.home
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -47,6 +46,7 @@ import org.groundplatform.domain.repository.OfflineAreaRepositoryInterface
 import org.groundplatform.domain.repository.SubmissionRepositoryInterface
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
+import javax.inject.Inject
 
 data class HomeDrawerState(val user: User, val survey: Survey?, val appVersion: String)
 
@@ -79,12 +79,7 @@ internal constructor(
   // Issue URL: https://github.com/google/ground-android/issues/1730
   val showOfflineAreaMenuItem: LiveData<Boolean> = MutableLiveData(true)
 
-  /* Indicates the application is being restored after a photo capture.
-   *
-   * We need to persist this state here to control [HomeScreenFragement] UI treatments when returning
-   * from a photo capture task—we do it this way because saving instance state bundles across fragments
-   * does not prove simple.
-   * */
+  // Indicates whether the application is being restored after a photo capture.
   var awaitingPhotoCapture: Boolean = false
 
   init {
