@@ -80,7 +80,7 @@ fun SyncStatusScreen(
         iconClick = onNavigateUp,
       )
     },
-    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+    containerColor = MaterialTheme.colorScheme.background,
   ) { innerPadding ->
     LazyColumn(
       modifier = Modifier.fillMaxSize().padding(innerPadding).testTag(SYNC_STATUS_LIST_TEST_TAG)
