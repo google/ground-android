@@ -285,46 +285,50 @@ internal constructor(
     moveToTask(withReady { taskSequenceHandler.getPreviousTask(it.currentTaskId) })
   }
 
-  fun onNextClicked(taskId: String) = withReady { uiState ->
-    val taskViewModel = getTaskViewModel(taskId) ?: return@withReady
-    validateOrShow(taskViewModel) {
-      val task = taskViewModel.task
-      val value = taskViewModel.taskTaskData.value
-      updateDataAndInvalidateTasks(task, value)
+  fun onNextClicked(taskId: String) {
+    val taskViewModel = getTaskViewModel(taskId) ?: return
+    withReady { uiState ->
+      validateOrShow(taskViewModel) {
+        val task = taskViewModel.task
+        val value = taskViewModel.taskTaskData.value
+        updateDataAndInvalidateTasks(task, value)
 
-      if (!taskSequenceHandler.isLastPosition(task.id)) {
-        moveToNextTask()
-      } else {
-        clearDraft()
-        externalScope.launch(ioDispatcher) {
-          val submittedLoiId = saveChanges(uiState, getDeltas())
-          val loiReport =
-            getLoiReportUseCase.invoke(
-              loiName = getTypedLoiNameOrEmpty(),
-              loiId = submittedLoiId,
-              surveyId = uiState.surveyId,
-            )
-          _uiState.value = DataCollectionUiState.TaskSubmitted(loiReport)
+        if (!taskSequenceHandler.isLastPosition(task.id)) {
+          moveToNextTask()
+        } else {
+          clearDraft()
+          externalScope.launch(ioDispatcher) {
+            val submittedLoiId = saveChanges(uiState, getDeltas())
+            val loiReport =
+              getLoiReportUseCase.invoke(
+                loiName = getTypedLoiNameOrEmpty(),
+                loiId = submittedLoiId,
+                surveyId = uiState.surveyId,
+              )
+            _uiState.value = DataCollectionUiState.TaskSubmitted(loiReport)
+          }
         }
       }
     }
   }
 
-  fun onPreviousClicked(taskId: String) = withReady { _ ->
-    val taskViewModel = getTaskViewModel(taskId) ?: return@withReady
-    val task = taskViewModel.task
-    val taskValue = taskViewModel.taskTaskData.value
+  fun onPreviousClicked(taskId: String) {
+    val taskViewModel = getTaskViewModel(taskId) ?: return
+    withReady { _ ->
+      val task = taskViewModel.task
+      val taskValue = taskViewModel.taskTaskData.value
 
-    val validationError =
-      if (taskValue?.isNotNullOrEmpty() == true) taskViewModel.validate() else null
+      val validationError =
+        if (taskValue?.isNotNullOrEmpty() == true) taskViewModel.validate() else null
 
-    if (validationError != null) {
-      viewModelScope.launch {
-        _uiEffects.send(DataCollectionUiEffect.ShowValidationError(validationError))
+      if (validationError != null) {
+        viewModelScope.launch {
+          _uiEffects.send(DataCollectionUiEffect.ShowValidationError(validationError))
+        }
+      } else {
+        updateDataAndInvalidateTasks(task, taskValue)
+        moveToPreviousTask()
       }
-    } else {
-      updateDataAndInvalidateTasks(task, taskValue)
-      moveToPreviousTask()
     }
   }
 
