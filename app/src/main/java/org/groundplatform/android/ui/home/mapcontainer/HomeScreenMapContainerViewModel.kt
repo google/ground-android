@@ -63,9 +63,11 @@ import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
 import org.groundplatform.domain.usecases.GetLoiReportUseCase
 import org.groundplatform.domain.usecases.survey.GetDataSharingTermsUseCase
+import org.groundplatform.domain.usecases.user.GetUserSettingsUseCase
 import org.groundplatform.domain.util.Constants.CLUSTERING_ZOOM_THRESHOLD
 import org.groundplatform.feature.pdf.LoiReportExporter
 import org.groundplatform.ui.components.loireport.LoiReportAction
+import org.groundplatform.ui.util.getFormattedArea
 import timber.log.Timber
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -85,6 +87,7 @@ internal constructor(
   private val userRepository: UserRepositoryInterface,
   private val locationOfInterestHelper: LocationOfInterestHelper,
   private val getLoiReportUseCase: GetLoiReportUseCase,
+  private val getUserSettingsUseCase: GetUserSettingsUseCase,
   private val loiReportExporter: LoiReportExporter,
 ) :
   BaseMapViewModel(
@@ -233,6 +236,13 @@ internal constructor(
               submissionCount = submissionRepository.getTotalSubmissionCount(loi),
               showDeleteLoiButton = canDelete,
               loiReport = loiReport,
+              formattedArea =
+                loi.geometry
+                  .area()
+                  .takeIf { it > 0.0 }
+                  ?.let {
+                    getFormattedArea(it, getUserSettingsUseCase().measurementUnits)
+                  },
             )
           }
 
