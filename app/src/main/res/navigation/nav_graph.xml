@@ -82,8 +82,7 @@
   <fragment
     android:id="@+id/sync_status_fragment"
     android:name="org.groundplatform.android.ui.syncstatus.SyncStatusFragment"
-    android:label="@string/sync_status"
-    tools:layout="@layout/sync_status_frag" />
+    android:label="@string/sync_status" />
   <navigation
     android:id="@+id/data_collection"
     app:startDestination="@id/data_collection_fragment">

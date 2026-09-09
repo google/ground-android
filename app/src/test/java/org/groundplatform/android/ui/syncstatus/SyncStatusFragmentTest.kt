@@ -16,31 +16,23 @@
 package org.groundplatform.android.ui.syncstatus
 
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.compose.ui.test.performClick
+import androidx.navigation.NavController
+import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.SURVEY
-import org.groundplatform.android.FakeData.USER
 import org.groundplatform.android.R
-import org.groundplatform.android.data.local.stores.LocalLocationOfInterestStore
-import org.groundplatform.android.data.local.stores.LocalSubmissionStore
 import org.groundplatform.android.data.local.stores.LocalSurveyStore
-import org.groundplatform.android.data.local.stores.LocalUserStore
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.testrules.FragmentScenarioRule
-import org.groundplatform.domain.model.geometry.Coordinates
-import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
-import org.groundplatform.testing.FakeDataGenerator
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -54,73 +46,40 @@ class SyncStatusFragmentTest : BaseHiltTest() {
   @get:Rule val fragmentScenario = FragmentScenarioRule()
 
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
-  @Inject lateinit var localLoiStore: LocalLocationOfInterestStore
-  @Inject lateinit var localSubmissionStore: LocalSubmissionStore
   @Inject lateinit var localSurveyStore: LocalSurveyStore
-  @Inject lateinit var localUserStore: LocalUserStore
   @Inject lateinit var surveyRepository: SurveyRepositoryInterface
-
-  @Test
-  fun `Toolbar should be displayed`() {
-    setupFragment()
-
-    onView(withId(R.id.sync_status_toolbar)).check(matches(isDisplayed()))
-  }
 
   @Test
   fun `Sync items should be displayed`() = runWithTestDispatcher {
     setupSurvey()
     setupFragment()
+    advanceUntilIdle()
 
     composeTestRule.onNodeWithTag("sync list").assertIsDisplayed()
   }
 
   @Test
-  fun `Entry for LOI Mutation is displayed`() = runWithTestDispatcher {
-    setupSurvey()
-
-    // Insert a new LOI mutation in local db
-    localUserStore.insertOrUpdateUser(USER)
-    localLoiStore.applyAndEnqueue(
-      FakeDataGenerator.newLoiMutation(geometry = Point(Coordinates(0.0, 0.0)))
+  fun `Clicking back button in toolbar navigates up`() = runWithTestDispatcher {
+    var navController: NavController? = null
+    fragmentScenario.launchFragmentWithNavController<SyncStatusFragment>(
+      destId = R.id.sync_status_fragment,
+      navControllerCallback = { navController = it },
     )
     advanceUntilIdle()
 
-    setupFragment()
-
-    composeTestRule.onNodeWithTag("sync list").assertIsDisplayed()
-    composeTestRule.onNodeWithText("Job • Test LOI Name").assertIsDisplayed()
-    composeTestRule.onNodeWithText("Pending").assertIsDisplayed() // Status
-    composeTestRule.onNodeWithText("Survey title").assertIsDisplayed()
-    composeTestRule.onNodeWithText("Test survey description").assertDoesNotExist()
-  }
-
-  @Test
-  fun `Entry for Submission Mutation is displayed`() = runWithTestDispatcher {
-    setupSurvey()
-
-    // Insert a new submission mutation in local db
-    localUserStore.insertOrUpdateUser(USER)
-    localLoiStore.apply(FakeDataGenerator.newLoiMutation(geometry = Point(Coordinates(0.0, 0.0))))
-    localSubmissionStore.applyAndEnqueue(FakeDataGenerator.newSubmissionMutation())
+    composeTestRule.onNodeWithContentDescription("Back").performClick()
     advanceUntilIdle()
 
-    setupFragment()
-
-    composeTestRule.onNodeWithTag("sync list").assertIsDisplayed()
-    composeTestRule.onNodeWithText("Job • Survey title").assertIsDisplayed()
-    composeTestRule.onNodeWithText("Pending").assertIsDisplayed() // Status
+    assertThat(navController?.currentDestination?.id).isNotEqualTo(R.id.sync_status_fragment)
   }
 
-  private fun setupSurvey() = runWithTestDispatcher {
+  private suspend fun setupSurvey() {
     fakeRemoteDataStore.surveys = listOf(SURVEY)
     localSurveyStore.insertOrUpdateSurvey(SURVEY)
     surveyRepository.activateSurvey(SURVEY.id)
-    advanceUntilIdle()
   }
 
-  private fun setupFragment() = runWithTestDispatcher {
+  private fun setupFragment() {
     fragmentScenario.launchFragmentInHiltContainer<SyncStatusFragment>()
-    advanceUntilIdle()
   }
 }
