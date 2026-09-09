@@ -40,7 +40,6 @@ import androidx.compose.ui.test.performTextInput
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -53,7 +52,6 @@ import org.groundplatform.android.ui.datacollection.tasks.multiplechoice.OTHER_I
 import org.groundplatform.android.ui.datacollection.tasks.multiplechoice.SELECT_MULTIPLE_RADIO_TEST_TAG
 import org.groundplatform.android.ui.datacollection.tasks.number.INPUT_NUMBER_TEST_TAG
 import org.groundplatform.android.ui.datacollection.tasks.text.INPUT_TEXT_TEST_TAG
-import org.hamcrest.CoreMatchers.not
 
 /** Helper class for interacting with the data collection tasks and verifying the ui state. */
 class TaskFragmentRunner(
@@ -168,22 +166,6 @@ class TaskFragmentRunner(
 
   internal fun validateTextDoesNotExist(text: String): TaskFragmentRunner {
     composeTestRule.onNodeWithText(text).assertDoesNotExist()
-    return this
-  }
-
-  internal fun assertInfoCardHidden(): TaskFragmentRunner {
-    onView(withId(R.id.infoCard)).check(matches(not(isDisplayed())))
-    return this
-  }
-
-  internal fun assertInfoCardShown(
-    title: String,
-    location: String,
-    accuracy: String,
-  ): TaskFragmentRunner {
-    onView(withId(R.id.current_location_title)).check(matches(withText(title)))
-    onView(withId(R.id.current_location_value)).check(matches(withText(location)))
-    onView(withId(R.id.accuracy_value)).check(matches(withText(accuracy)))
     return this
   }
 

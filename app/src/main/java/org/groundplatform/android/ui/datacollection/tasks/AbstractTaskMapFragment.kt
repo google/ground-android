@@ -20,11 +20,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.StringRes
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -34,15 +31,13 @@ import androidx.lifecycle.withStarted
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
-import org.groundplatform.android.databinding.MapTaskFragBinding
+import org.groundplatform.android.databinding.BasemapLayoutBinding
 import org.groundplatform.android.ui.common.AbstractMapContainerFragment
 import org.groundplatform.android.ui.common.BaseMapViewModel
-import org.groundplatform.android.ui.components.MapFloatingActionButton
-import org.groundplatform.android.ui.components.MapFloatingActionButtonType
-import org.groundplatform.android.ui.components.RecenterButton
 import org.groundplatform.android.ui.datacollection.DataCollectionFragment
 import org.groundplatform.android.ui.datacollection.DataCollectionViewModel
 import org.groundplatform.android.ui.map.Feature
@@ -58,8 +53,6 @@ import org.jetbrains.annotations.MustBeInvokedByOverriders
 abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
   AbstractMapContainerFragment() {
 
-  protected lateinit var binding: MapTaskFragBinding
-
   protected val dataCollectionViewModel: DataCollectionViewModel by
     hiltNavGraphViewModels(R.id.data_collection)
 
@@ -71,6 +64,9 @@ abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
   }
 
   private lateinit var viewModel: BaseMapViewModel
+
+  private val _isCenterMarkerVisible = MutableStateFlow(true)
+  private val _locationInfo = MutableStateFlow<LocationInfo?>(null)
 
   protected val taskId: String by lazy {
     arguments?.getString(DataCollectionFragment.TASK_ID) ?: error("null taskId fragment arg")
@@ -88,8 +84,25 @@ abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
 
-    binding = MapTaskFragBinding.inflate(inflater, container, false)
-    setupMapActionButtons()
+    val binding = BasemapLayoutBinding.inflate(inflater, container, false)
+    binding.composeContent.apply {
+      setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+      setComposableContent {
+        val locationLockButton by viewModel.locationLockIconType.collectAsStateWithLifecycle()
+        val shouldShowRecenter by viewModel.shouldShowRecenterButton.collectAsStateWithLifecycle()
+        val isCenterMarkerVisible by _isCenterMarkerVisible.collectAsStateWithLifecycle()
+        val locationInfo by _locationInfo.collectAsStateWithLifecycle()
+
+        TaskMapScreen(
+          locationLockButtonType = locationLockButton,
+          shouldShowRecenter = shouldShowRecenter,
+          isCenterMarkerVisible = isCenterMarkerVisible,
+          locationInfo = locationInfo,
+          onMapTypeClicked = { showMapTypeSelectorDialog() },
+          onLocationLockClicked = { viewModel.onLocationLockClick() },
+        )
+      }
+    }
 
     viewLifecycleOwner.lifecycleScope.launch {
       repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -107,43 +120,6 @@ abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
     }
 
     return binding.root
-  }
-
-  private fun setupMapActionButtons() {
-    binding.mapTypeBtn.apply {
-      setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-      setComposableContent {
-        MapFloatingActionButton(
-          type = MapFloatingActionButtonType.MapType,
-          onClick = { showMapTypeSelectorDialog() },
-        )
-      }
-    }
-
-    binding.locationLockBtn.apply {
-      setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-      setComposableContent {
-        val locationLockButton by viewModel.locationLockIconType.collectAsStateWithLifecycle()
-
-        MapFloatingActionButton(
-          type = locationLockButton,
-          onClick = { viewModel.onLocationLockClick() },
-        )
-      }
-    }
-
-    binding.recenterBtn.apply {
-      setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-      setComposableContent {
-        val shouldShowRecenter by viewModel.shouldShowRecenterButton.collectAsStateWithLifecycle()
-
-        if (shouldShowRecenter)
-          RecenterButton(
-            modifier = Modifier.padding(start = 20.dp),
-            onClick = { viewModel.onLocationLockClick() },
-          )
-      }
-    }
   }
 
   override fun getMapViewModel(): BaseMapViewModel = viewModel
@@ -171,34 +147,24 @@ abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
     locationText: String?,
     accuracyText: String? = null,
     accuracyInMeters: Double? = null,
-  ) =
-    with(binding) {
-      if (locationText.isNullOrEmpty()) {
-        infoCard.visibility = View.GONE
-      } else {
-        infoCard.visibility = View.VISIBLE
-        currentLocationTitle.text = getString(title)
-        currentLocationValue.text = locationText
-      }
-
-      if (accuracyText.isNullOrEmpty()) {
-        accuracy.visibility = View.GONE
-      } else {
-        accuracy.visibility = View.VISIBLE
-        accuracyTitle.setText(R.string.accuracy)
-        accuracyValue.text = accuracyText
-        val color =
-          if (accuracyInMeters == null || accuracyInMeters > ACCURACY_THRESHOLD_IN_M) {
-            R.color.accuracy_bad
-          } else {
-            R.color.accuracy_good
-          }
-        accuracyValue.setTextColor(resources.getColor(color, null))
-      }
+  ) {
+    if (locationText.isNullOrEmpty()) {
+      _locationInfo.value = null
+      return
     }
 
+    val isGood = accuracyInMeters != null && accuracyInMeters <= ACCURACY_THRESHOLD_IN_M
+    _locationInfo.value =
+      LocationInfo(
+        titleRes = title,
+        locationText = locationText,
+        accuracyText = accuracyText,
+        isAccuracyGood = isGood,
+      )
+  }
+
   fun setCenterMarkerVisibility(visible: Boolean) {
-    binding.centerMarker.visibility = if (visible) View.VISIBLE else View.GONE
+    _isCenterMarkerVisible.value = visible
   }
 
   @MustBeInvokedByOverriders
