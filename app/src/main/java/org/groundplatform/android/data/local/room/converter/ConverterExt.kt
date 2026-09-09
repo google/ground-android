@@ -454,7 +454,7 @@ fun SurveySyncState.toLocalDataStoreObject() =
     surveyId = surveyId,
     lastFullSyncClientTimestamp = lastFullSyncClientTimestamp,
     latestLoiServerTimestamp = latestLoiServerTimestamp,
-    syncedDataVisibility = syncedDataVisibility?.toProto()?.ordinal,
+    syncedDataVisibility = syncedDataVisibility?.toProto()?.number,
   )
 
 fun Task.toLocalDataStoreObject(jobId: String?) =
