@@ -152,7 +152,7 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
       MutationEntitySyncStatus.IN_PROGRESS,
     )
 
-  override suspend fun deleteNotIn(surveyId: String, ids: List<String>) {
+  override suspend fun deleteNotIn(surveyId: String, ids: Collection<String>) {
     val idsToKeep = ids.toSet()
     localDatabase.withTransaction {
       locationOfInterestDao

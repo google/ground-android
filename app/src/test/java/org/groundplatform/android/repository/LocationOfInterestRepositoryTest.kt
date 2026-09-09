@@ -33,12 +33,15 @@ import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.data.sync.MutationSyncWorkManager
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
 import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.SurveySyncMode
 import org.groundplatform.domain.model.geometry.Coordinates
 import org.groundplatform.domain.model.geometry.LinearRing
 import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.geometry.Polygon
 import org.groundplatform.domain.model.map.Bounds
 import org.groundplatform.domain.model.mutation.Mutation.Type.CREATE
+import org.groundplatform.domain.model.mutation.Mutation.Type.DELETE
+import org.groundplatform.domain.model.mutation.Mutation.Type.UPDATE
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import org.groundplatform.domain.repository.MutationRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
@@ -153,7 +156,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
         listOf(TEST_AREA_OF_INTEREST_1, TEST_AREA_OF_INTEREST_2),
       )
 
-    locationOfInterestRepository.syncLocationsOfInterest(TEST_SURVEY)
+    locationOfInterestRepository.syncLocationsOfInterest(TEST_SURVEY, SurveySyncMode.Full)
 
     assertThat(locationOfInterestRepository.getValidLois(TEST_SURVEY).first())
       .containsExactlyElementsIn(TEST_LOCATIONS_OF_INTEREST)
@@ -172,7 +175,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
       savedWhenPageRequested += localLoiStore.getLoiCount(TEST_SURVEY.id)
     }
 
-    locationOfInterestRepository.syncLocationsOfInterest(TEST_SURVEY)
+    locationOfInterestRepository.syncLocationsOfInterest(TEST_SURVEY, SurveySyncMode.Full)
 
     assertThat(savedWhenPageRequested).containsExactly(0, 2, 3).inOrder()
   }
@@ -186,7 +189,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
     }
 
     assertFailsWith<TestSyncException> {
-      locationOfInterestRepository.syncLocationsOfInterest(TEST_SURVEY)
+      locationOfInterestRepository.syncLocationsOfInterest(TEST_SURVEY, SurveySyncMode.Full)
     }
 
     val lois = locationOfInterestRepository.getValidLois(TEST_SURVEY).first()
@@ -203,7 +206,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
     // Sync again, with the server now returning two of them across separate pages.
     fakeRemoteDataStore.predefinedLoiPages =
       flowOf(listOf(TEST_POINT_OF_INTEREST_1), listOf(TEST_AREA_OF_INTEREST_2))
-    locationOfInterestRepository.syncLocationsOfInterest(TEST_SURVEY)
+    locationOfInterestRepository.syncLocationsOfInterest(TEST_SURVEY, SurveySyncMode.Full)
 
     assertThat(locationOfInterestRepository.getValidLois(TEST_SURVEY).first())
       .containsExactly(TEST_POINT_OF_INTEREST_1, TEST_AREA_OF_INTEREST_2)
@@ -216,7 +219,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
       if (it.id == updated.id) updated else it
     }
 
-    locationOfInterestRepository.syncLocationsOfInterest(TEST_SURVEY)
+    locationOfInterestRepository.syncLocationsOfInterest(TEST_SURVEY, SurveySyncMode.Full)
 
     val lois = locationOfInterestRepository.getValidLois(TEST_SURVEY).first()
     assertThat(lois).contains(updated)
@@ -231,10 +234,117 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
     locationOfInterestRepository.applyAndEnqueue(pending.toMutation(CREATE, TEST_USER.id))
 
     fakeRemoteDataStore.predefinedLois = listOf(TEST_POINT_OF_INTEREST_1)
-    locationOfInterestRepository.syncLocationsOfInterest(TEST_SURVEY)
+    locationOfInterestRepository.syncLocationsOfInterest(TEST_SURVEY, SurveySyncMode.Full)
 
     assertThat(locationOfInterestRepository.getOfflineLoi(TEST_SURVEY.id, pending.id))
       .isEqualTo(pending)
+  }
+
+  @Test
+  fun `Incremental sync keeps the lois which were already stored intact`() = runWithTestDispatcher {
+    val newLoi = createPoint("6", COORDINATE_2)
+    fakeRemoteDataStore.predefinedLois = listOf(newLoi)
+
+    locationOfInterestRepository.syncLocationsOfInterest(
+      TEST_SURVEY,
+      SurveySyncMode.Incremental(SERVER_TIMESTAMP),
+    )
+
+    // LOIs missing from an incremental response are left alone, not deleted.
+    assertThat(locationOfInterestRepository.getValidLois(TEST_SURVEY).first())
+      .containsExactlyElementsIn(TEST_LOCATIONS_OF_INTEREST + newLoi)
+  }
+
+  @Test
+  fun `sync reports the newest server timestamp it has seen`() = runWithTestDispatcher {
+    val loi = createPoint("6", COORDINATE_2)
+    fakeRemoteDataStore.predefinedLois =
+      listOf(loi.copy(lastModified = loi.lastModified.copy(serverTimestamp = SERVER_TIMESTAMP)))
+
+    val result =
+      locationOfInterestRepository.syncLocationsOfInterest(
+        TEST_SURVEY,
+        SurveySyncMode.Incremental(0),
+      )
+
+    assertThat(result).isEqualTo(SERVER_TIMESTAMP)
+  }
+
+  @Test
+  fun `a shrunken remote loi count is reported as a missed deletion`() = runWithTestDispatcher {
+    fakeRemoteDataStore.loiCount = { (TEST_LOCATIONS_OF_INTEREST.size - 1).toLong() }
+
+    assertThat(locationOfInterestRepository.hasMissedRemoteDeletions(TEST_SURVEY)).isTrue()
+  }
+
+  @Test
+  fun `sync keeps local lois when the counts agree`() = runWithTestDispatcher {
+    // Nothing changed remotely, so the incremental fetch comes back empty.
+    fakeRemoteDataStore.predefinedLois = emptyList()
+    fakeRemoteDataStore.loiCount = { TEST_LOCATIONS_OF_INTEREST.size.toLong() }
+
+    locationOfInterestRepository.syncLocationsOfInterest(TEST_SURVEY, SurveySyncMode.Incremental(0))
+
+    assertThat(locationOfInterestRepository.getValidLois(TEST_SURVEY).first())
+      .containsExactlyElementsIn(TEST_LOCATIONS_OF_INTEREST)
+  }
+
+  @Test
+  fun `sync ignores a local count inflated by lois still waiting to upload`() =
+    runWithTestDispatcher {
+      // Created locally and not yet uploaded, so the server cannot know about it.
+      val pending =
+        LOCATION_OF_INTEREST.copy(customId = "", lastModified = LOCATION_OF_INTEREST.created)
+      locationOfInterestRepository.applyAndEnqueue(pending.toMutation(CREATE, TEST_USER.id))
+      fakeRemoteDataStore.predefinedLois = emptyList()
+      fakeRemoteDataStore.loiCount = { TEST_LOCATIONS_OF_INTEREST.size.toLong() }
+
+      locationOfInterestRepository.syncLocationsOfInterest(
+        TEST_SURVEY,
+        SurveySyncMode.Incremental(0),
+      )
+
+      assertThat(locationOfInterestRepository.getValidLois(TEST_SURVEY).first())
+        .containsAtLeastElementsIn(TEST_LOCATIONS_OF_INTEREST)
+    }
+
+  @Test
+  fun `a count gap left by an loi held back by a pending mutation is not a missed deletion`() =
+    runWithTestDispatcher {
+      locationOfInterestRepository.applyAndEnqueue(
+        TEST_POINT_OF_INTEREST_1.toMutation(UPDATE, TEST_USER.id)
+      )
+      fakeRemoteDataStore.loiCount = { (TEST_LOCATIONS_OF_INTEREST.size - 1).toLong() }
+
+      assertThat(locationOfInterestRepository.hasMissedRemoteDeletions(TEST_SURVEY)).isFalse()
+    }
+
+  @Test
+  fun `a missed deletion is still reported while a delete waits to upload`() =
+    runWithTestDispatcher {
+      // Deleted locally, so it already left the local count and can't hide the missed deletion.
+      locationOfInterestRepository.applyAndEnqueue(
+        TEST_POINT_OF_INTEREST_2.toMutation(DELETE, TEST_USER.id)
+      )
+      val remaining =
+        TEST_LOCATIONS_OF_INTEREST - TEST_POINT_OF_INTEREST_1 - TEST_POINT_OF_INTEREST_2
+      fakeRemoteDataStore.loiCount = { remaining.size.toLong() }
+
+      assertThat(locationOfInterestRepository.hasMissedRemoteDeletions(TEST_SURVEY)).isTrue()
+    }
+
+  @Test
+  fun `sync reads the lois it was asked for without counting them`() = runWithTestDispatcher {
+    var counted = 0
+    fakeRemoteDataStore.loiCount = {
+      counted++
+      TEST_LOCATIONS_OF_INTEREST.size.toLong()
+    }
+
+    locationOfInterestRepository.syncLocationsOfInterest(TEST_SURVEY, SurveySyncMode.Full)
+    locationOfInterestRepository.syncLocationsOfInterest(TEST_SURVEY, SurveySyncMode.Incremental(0))
+
+    assertThat(counted).isEqualTo(0)
   }
 
   @Test
@@ -377,6 +487,7 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
     private val COORDINATE_1 = Coordinates(-20.0, -20.0)
     private val COORDINATE_2 = Coordinates(0.0, 0.0)
     private val COORDINATE_3 = Coordinates(20.0, 20.0)
+    private const val SERVER_TIMESTAMP = 1_700_000_000_000
 
     private val AREA_OF_INTEREST = FakeData.AREA_OF_INTEREST
     private val LOCATION_OF_INTEREST = FakeData.LOCATION_OF_INTEREST

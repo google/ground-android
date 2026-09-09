@@ -56,6 +56,7 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
   val loadUserLoisCall = FakeCall<Survey, List<LocationOfInterest>> { userLois }
 
   val loadSharedLoisCall = FakeCall<Survey, List<LocationOfInterest>> { sharedLois }
+  var loiCount: (Survey) -> Long = { Long.MAX_VALUE }
 
   override fun getRestrictedSurveyList(user: User): Flow<List<SurveyListItem>> =
     flowOf(surveys.map { it.toListItem(false) })
@@ -67,8 +68,10 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
 
   override suspend fun loadTermsOfService(): TermsOfService? = termsOfService?.getOrThrow()
 
-  override fun loadPredefinedLois(survey: Survey): Flow<List<LocationOfInterest>> =
-    predefinedLoiPages ?: flowOf(predefinedLois)
+  override fun loadPredefinedLois(
+    survey: Survey,
+    fromTimestamp: Long?,
+  ): Flow<List<LocationOfInterest>> = predefinedLoiPages ?: flowOf(predefinedLois)
 
   override suspend fun applyMutations(mutations: List<Mutation>, user: User) {
     if (applyMutationError != null) {
@@ -88,12 +91,16 @@ class FakeRemoteDataStore @Inject internal constructor() : RemoteDataStore {
     userProfileRefreshCount++
   }
 
-  override fun loadUserLois(survey: Survey, ownerUserId: String): Flow<List<LocationOfInterest>> =
-    flow {
-      emit(loadUserLoisCall(survey))
-    }
+  override fun loadUserLois(
+    survey: Survey,
+    ownerUserId: String,
+    fromTimestamp: Long?,
+  ): Flow<List<LocationOfInterest>> = flow { emit(loadUserLoisCall(survey)) }
 
-  override fun loadSharedLois(survey: Survey): Flow<List<LocationOfInterest>> = flow {
-    emit(loadSharedLoisCall(survey))
-  }
+  override fun loadSharedLois(
+    survey: Survey,
+    fromTimestamp: Long?,
+  ): Flow<List<LocationOfInterest>> = flow { emit(loadSharedLoisCall(survey)) }
+
+  override suspend fun countLois(survey: Survey, ownerUserId: String): Long = loiCount(survey)
 }

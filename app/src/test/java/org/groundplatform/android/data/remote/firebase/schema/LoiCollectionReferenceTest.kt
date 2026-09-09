@@ -17,6 +17,9 @@ package org.groundplatform.android.data.remote.firebase.schema
 
 import com.google.android.gms.tasks.Tasks
 import com.google.common.truth.Truth.assertThat
+import com.google.firebase.firestore.AggregateQuery
+import com.google.firebase.firestore.AggregateQuerySnapshot
+import com.google.firebase.firestore.AggregateSource
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldPath
@@ -45,6 +48,7 @@ import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
@@ -80,7 +84,8 @@ class LoiCollectionReferenceTest {
   fun `fetch stops after a page shorter than the page size`() = runTest {
     pages = mockPages(3)
 
-    val emitted = loiCollectionReference.fetchPredefined(SURVEY).toList()
+    val emitted =
+      loiCollectionReference.fetch(SURVEY, LoiQueryScope.Predefined, fromTimestamp = null).toList()
 
     assertThat(emitted.flatten().map { it.id }).containsExactly("loi0", "loi1", "loi2").inOrder()
     assertThat(pagesFetched).isEqualTo(1)
@@ -90,7 +95,8 @@ class LoiCollectionReferenceTest {
   fun `fetch keeps requesting while pages come back full`() = runTest {
     pages = mockPages(PAGE_SIZE, PAGE_SIZE, 2)
 
-    val emitted = loiCollectionReference.fetchPredefined(SURVEY).toList()
+    val emitted =
+      loiCollectionReference.fetch(SURVEY, LoiQueryScope.Predefined, fromTimestamp = null).toList()
 
     // One emission per page, and the short third page ends it.
     assertThat(emitted.map { it.size }).containsExactly(PAGE_SIZE, PAGE_SIZE, 2).inOrder()
@@ -100,17 +106,19 @@ class LoiCollectionReferenceTest {
   @Test
   fun `fetch resumes each page after the last document of the previous one`() = runTest {
     pages = mockPages(PAGE_SIZE, 1)
+    val lastOfFirstPage = pages.first().last()
 
-    loiCollectionReference.fetchPredefined(SURVEY).toList()
+    loiCollectionReference.fetch(SURVEY, LoiQueryScope.Predefined, fromTimestamp = null).toList()
 
-    verify(mockQuery).startAfter("loi${PAGE_SIZE - 1}")
+    verify(mockQuery).startAfter(lastOfFirstPage)
   }
 
   @Test
   fun `fetch emits nothing when the collection is empty`() = runTest {
     pages = mockPages(0)
 
-    val emitted = loiCollectionReference.fetchPredefined(SURVEY).toList()
+    val emitted =
+      loiCollectionReference.fetch(SURVEY, LoiQueryScope.Predefined, fromTimestamp = null).toList()
 
     assertThat(emitted).isEmpty()
     assertThat(pagesFetched).isEqualTo(1)
@@ -122,7 +130,8 @@ class LoiCollectionReferenceTest {
     val brokenFirst = listOf(mockDocument("broken", jobId = "job the survey does not have"))
     pages = listOf(brokenFirst + fullPage.drop(1), lastPage)
 
-    val emitted = loiCollectionReference.fetchPredefined(SURVEY).toList()
+    val emitted =
+      loiCollectionReference.fetch(SURVEY, LoiQueryScope.Predefined, fromTimestamp = null).toList()
 
     assertThat(emitted.first()).hasSize(PAGE_SIZE - 1)
     assertThat(emitted.flatten().map { it.id }).doesNotContain("broken")
@@ -133,20 +142,78 @@ class LoiCollectionReferenceTest {
   fun `fetch orders by document id and limits each page`() = runTest {
     pages = mockPages(1)
 
-    loiCollectionReference.fetchPredefined(SURVEY).toList()
+    loiCollectionReference.fetch(SURVEY, LoiQueryScope.Predefined, fromTimestamp = null).toList()
 
     verify(mockQuery).orderBy(FieldPath.documentId())
     verify(mockQuery).limit(PAGE_SIZE.toLong())
   }
 
   @Test
+  fun `fetch from a timestamp asks only for lois modified since then`() = runTest {
+    pages = mockPages(1)
+
+    loiCollectionReference
+      .fetch(SURVEY, LoiQueryScope.Predefined, fromTimestamp = 987_654_321_000)
+      .toList()
+
+    verify(mockQuery).whereGreaterThanOrEqualTo(LAST_MODIFIED_SERVER_SECONDS, 987_654_321L)
+    verify(mockQuery).orderBy(LAST_MODIFIED_SERVER_SECONDS)
+    verify(mockQuery, never()).orderBy(FieldPath.documentId())
+  }
+
+  @Test
+  fun `fetch for one owner asks only for their lois`() = runTest {
+    pages = mockPages(1)
+
+    loiCollectionReference
+      .fetch(SURVEY, LoiQueryScope.UserDefined("user-1"), fromTimestamp = null)
+      .toList()
+
+    verify(mockQuery).whereEqualTo(OWNER_FIELD, "user-1")
+  }
+
+  @Test
+  fun `fetch for shared lois asks for every owner's`() = runTest {
+    pages = mockPages(1)
+
+    loiCollectionReference.fetch(SURVEY, LoiQueryScope.Shared, fromTimestamp = null).toList()
+
+    verify(mockQuery, never()).whereEqualTo(eq(OWNER_FIELD), any())
+  }
+
+  @Test
+  fun `count for one owner counts only their lois`() = runTest {
+    mockAggregateCount(42L)
+
+    assertThat(loiCollectionReference.count(LoiQueryScope.UserDefined("user-1"))).isEqualTo(42L)
+    verify(mockQuery).whereEqualTo(OWNER_FIELD, "user-1")
+  }
+
+  @Test
+  fun `count returns the aggregated document count without fetching them`() = runTest {
+    mockAggregateCount(42L)
+
+    assertThat(loiCollectionReference.count(LoiQueryScope.Predefined)).isEqualTo(42L)
+    assertThat(pagesFetched).isEqualTo(0)
+  }
+
+  @Test
   fun `fetch is lazy until collected`() = runTest {
     pages = mockPages(1)
 
-    loiCollectionReference.fetchPredefined(SURVEY)
+    loiCollectionReference.fetch(SURVEY, LoiQueryScope.Predefined, fromTimestamp = null)
 
     verify(mockQuery, never()).get()
     assertThat(pagesFetched).isEqualTo(0)
+  }
+
+  private fun mockAggregateCount(count: Long) {
+    val aggregateSnapshot = mock<AggregateQuerySnapshot> { on { this.count } doReturn count }
+    val aggregateQuery =
+      mock<AggregateQuery> {
+        on { get(AggregateSource.SERVER) } doReturn Tasks.forResult(aggregateSnapshot)
+      }
+    whenever(mockQuery.count()).thenReturn(aggregateQuery)
   }
 
   private fun mockPages(vararg sizes: Int): List<List<DocumentSnapshot>> {

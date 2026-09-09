@@ -65,7 +65,7 @@ interface LocalLocationOfInterestStore :
   /** Inserts or updates all the given LOIs in a single transaction. */
   suspend fun insertOrUpdateAll(lois: List<LocationOfInterest>)
 
-  suspend fun deleteNotIn(surveyId: String, ids: List<String>)
+  suspend fun deleteNotIn(surveyId: String, ids: Collection<String>)
 
   /**
    * Returns the number of survey LOIs with a pending local change that has not yet been synced,

@@ -16,7 +16,10 @@
 package org.groundplatform.domain.usecases.survey
 
 import co.touchlab.kermit.Logger
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.days
 import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.SurveySyncMode
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
 
@@ -43,7 +46,26 @@ class SyncSurveyUseCase(
 
   private suspend fun syncSurvey(survey: Survey) {
     surveyRepository.saveSurvey(survey)
-    loiRepository.syncLocationsOfInterest(survey)
+    val mode = syncMode(survey)
+    val latestLoiServerTimestamp = loiRepository.syncLocationsOfInterest(survey, mode)
+    surveyRepository.recordSyncState(survey, mode, latestLoiServerTimestamp)
     Logger.d("Synced survey ${survey.id}")
+  }
+
+  private suspend fun syncMode(survey: Survey): SurveySyncMode {
+    val syncState = surveyRepository.getSyncState(survey.id)
+    return when {
+      syncState == null -> SurveySyncMode.Full
+      survey.dataVisibility != syncState.syncedDataVisibility -> SurveySyncMode.Full
+      Clock.System.now().toEpochMilliseconds() - syncState.lastFullSyncClientTimestamp >
+        FULL_SYNC_INTERVAL_MILLIS -> SurveySyncMode.Full
+      loiRepository.hasMissedRemoteDeletions(survey) -> SurveySyncMode.Full
+      else -> SurveySyncMode.Incremental(syncState.latestLoiServerTimestamp)
+    }
+  }
+
+  internal companion object {
+    // Periodic full survey reads prevent local incremental syncs from drifting from the server.
+    val FULL_SYNC_INTERVAL_MILLIS = 7.days.inWholeMilliseconds
   }
 }
