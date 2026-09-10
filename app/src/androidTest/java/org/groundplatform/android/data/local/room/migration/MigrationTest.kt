@@ -191,6 +191,28 @@ class MigrationTest {
       }
   }
 
+  @Test
+  @Throws(IOException::class)
+  fun migrate128To129() = runBlocking {
+    val surveyId = "survey128-129"
+
+    helper.createDatabase(testDatabase, 128).apply {
+      insert("survey", SQLiteDatabase.CONFLICT_REPLACE, getSurveyContentValues(surveyId))
+      close()
+    }
+
+    // Validates the migrated schema against 129, which adds the survey sync state table.
+    val migratedDb = helper.runMigrationsAndValidate(testDatabase, 129, true, *migrations)
+
+    // Nothing has been synced yet, so the new table is there and empty.
+    migratedDb.query("SELECT survey_id FROM survey_sync_state").use { cursor ->
+      assertEquals("expected no sync state before the first sync", 0, cursor.count)
+    }
+    migratedDb.query("SELECT id FROM survey WHERE id = ?", arrayOf(surveyId)).use { cursor ->
+      assertEquals("expected the seeded survey to survive migration", 1, cursor.count)
+    }
+  }
+
   private fun getMigratedRoomDatabase(migrations: Array<Migration>): LocalDatabase =
     Room.databaseBuilder(
         InstrumentationRegistry.getInstrumentation().targetContext,

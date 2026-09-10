@@ -344,6 +344,60 @@ class LocalLocationOfInterestStoreTest : BaseHiltTest() {
   }
 
   @Test
+  fun `countPendingNonDeletedLois counts an loi with unsynced changes once`() =
+    runWithTestDispatcher {
+      localUserStore.insertOrUpdateUser(TEST_USER)
+      localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
+      localLoiStore.insertOrUpdate(testLoi("queued"))
+      localLoiStore.enqueue(queuedMutation("queued"))
+      // A second queued change to the same LOI must not count it twice.
+      localLoiStore.enqueue(
+        queuedMutation("queued", type = Mutation.Type.UPDATE, status = SyncStatus.IN_PROGRESS)
+      )
+
+      assertThat(localLoiStore.countPendingNonDeletedLois(TEST_SURVEY.id)).isEqualTo(1)
+    }
+
+  @Test
+  fun `countPendingNonDeletedLois skips queued deletes and synced changes`() =
+    runWithTestDispatcher {
+      localUserStore.insertOrUpdateUser(TEST_USER)
+      localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
+      localLoiStore.insertOrUpdate(testLoi("going away"))
+      localLoiStore.insertOrUpdate(testLoi("settled"))
+      localLoiStore.enqueue(queuedMutation("going away", type = Mutation.Type.DELETE))
+      localLoiStore.enqueue(queuedMutation("settled", status = SyncStatus.COMPLETED))
+
+      assertThat(localLoiStore.countPendingNonDeletedLois(TEST_SURVEY.id)).isEqualTo(0)
+    }
+
+  @Test
+  fun `countPendingNonDeletedLois still counts an loi that is also queued for both creation and deletion`() =
+    runWithTestDispatcher {
+      localUserStore.insertOrUpdateUser(TEST_USER)
+      localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
+      localLoiStore.insertOrUpdate(testLoi("both"))
+      localLoiStore.enqueue(queuedMutation("both"))
+      // The delete row is skipped, but the create is not.
+      localLoiStore.enqueue(queuedMutation("both", type = Mutation.Type.DELETE))
+
+      assertThat(localLoiStore.countPendingNonDeletedLois(TEST_SURVEY.id)).isEqualTo(1)
+    }
+
+  @Test
+  fun `countPendingNonDeletedLois only counts the survey it was asked about`() =
+    runWithTestDispatcher {
+      localUserStore.insertOrUpdateUser(TEST_USER)
+      localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
+      localSurveyStore.insertOrUpdateSurvey(OTHER_SURVEY)
+      localLoiStore.insertOrUpdate(testLoi("other", surveyId = OTHER_SURVEY.id))
+      localLoiStore.enqueue(queuedMutation("other", surveyId = OTHER_SURVEY.id))
+
+      assertThat(localLoiStore.countPendingNonDeletedLois(TEST_SURVEY.id)).isEqualTo(0)
+      assertThat(localLoiStore.countPendingNonDeletedLois(OTHER_SURVEY.id)).isEqualTo(1)
+    }
+
+  @Test
   fun `insertOrUpdateAll inserts new LOIs and updates existing ones`() = runWithTestDispatcher {
     localUserStore.insertOrUpdateUser(TEST_USER)
     localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
@@ -411,6 +465,22 @@ class LocalLocationOfInterestStoreTest : BaseHiltTest() {
       store.locationOfInterestDao = real
     }
   }
+
+  /** A mutation queued against an existing LOI, without touching the LOI itself. */
+  private fun queuedMutation(
+    loiId: String,
+    surveyId: String = TEST_SURVEY.id,
+    type: Mutation.Type = Mutation.Type.CREATE,
+    status: SyncStatus = SyncStatus.PENDING,
+  ) =
+    FakeDataGenerator.newLoiMutation(
+        mutationType = type,
+        syncStatus = status,
+        surveyId = surveyId,
+        locationOfInterestId = loiId,
+        geometry = TEST_POINT,
+      )
+      .copy(id = null)
 
   private fun testLoi(
     id: String,
