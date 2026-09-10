@@ -21,6 +21,8 @@ import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
 import javax.inject.Inject
 import kotlin.test.assertFailsWith
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.days
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -271,6 +273,33 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
   }
 
   @Test
+  fun `sync caps a future server timestamp at the current time`() = runWithTestDispatcher {
+    // Uploaded by a device whose clock is set ahead.
+    val loi = createPoint("6", COORDINATE_2)
+    val future = Clock.System.now().toEpochMilliseconds() + 365.days.inWholeMilliseconds
+    fakeRemoteDataStore.predefinedLois =
+      listOf(loi.copy(lastModified = loi.lastModified.copy(serverTimestamp = future)))
+
+    val result =
+      locationOfInterestRepository.syncLocationsOfInterest(
+        TEST_SURVEY,
+        SurveySyncMode.Incremental(0),
+      )
+
+    assertThat(result).isAtMost(Clock.System.now().toEpochMilliseconds())
+  }
+
+  @Test
+  fun `a pending edit does not hide a missed deletion`() = runWithTestDispatcher {
+    // The server already has this LOI, only an edit to it is waiting to upload.
+    val edited = TEST_LOCATIONS_OF_INTEREST.first()
+    locationOfInterestRepository.applyAndEnqueue(edited.toMutation(UPDATE, TEST_USER.id))
+    fakeRemoteDataStore.loiCount = { (TEST_LOCATIONS_OF_INTEREST.size - 1).toLong() }
+
+    assertThat(locationOfInterestRepository.hasMissedRemoteDeletions(TEST_SURVEY)).isTrue()
+  }
+
+  @Test
   fun `a shrunken remote loi count is reported as a missed deletion`() = runWithTestDispatcher {
     fakeRemoteDataStore.loiCount = { (TEST_LOCATIONS_OF_INTEREST.size - 1).toLong() }
 
@@ -309,12 +338,13 @@ class LocationOfInterestRepositoryTest : BaseHiltTest() {
     }
 
   @Test
-  fun `a count gap left by an loi held back by a pending mutation is not a missed deletion`() =
+  fun `a count gap left by an loi waiting to upload is not a missed deletion`() =
     runWithTestDispatcher {
-      locationOfInterestRepository.applyAndEnqueue(
-        TEST_POINT_OF_INTEREST_1.toMutation(UPDATE, TEST_USER.id)
-      )
-      fakeRemoteDataStore.loiCount = { (TEST_LOCATIONS_OF_INTEREST.size - 1).toLong() }
+      // Created locally and not uploaded yet, so the server can't have it.
+      val pending =
+        LOCATION_OF_INTEREST.copy(customId = "", lastModified = LOCATION_OF_INTEREST.created)
+      locationOfInterestRepository.applyAndEnqueue(pending.toMutation(CREATE, TEST_USER.id))
+      fakeRemoteDataStore.loiCount = { TEST_LOCATIONS_OF_INTEREST.size.toLong() }
 
       assertThat(locationOfInterestRepository.hasMissedRemoteDeletions(TEST_SURVEY)).isFalse()
     }

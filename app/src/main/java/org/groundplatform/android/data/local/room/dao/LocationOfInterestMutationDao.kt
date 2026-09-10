@@ -41,16 +41,16 @@ interface LocationOfInterestMutationDao : BaseDao<LocationOfInterestMutationEnti
     vararg allowedStates: MutationEntitySyncStatus,
   ): List<LocationOfInterestMutationEntity>
 
-  /** Returns how many of the survey's LOIs hold a mutation of another type in one of the states. */
+  /** Returns how many of the survey's LOIs have a [type] mutation in one of [allowedStates]. */
   @Query(
     "SELECT COUNT(DISTINCT location_of_interest_id) FROM location_of_interest_mutation " +
       "WHERE survey_id = :surveyId " +
-      "AND type != :excludedType " +
+      "AND type = :type " +
       "AND state IN (:allowedStates)"
   )
   suspend fun countLocationOfInterestIds(
     surveyId: String,
-    excludedType: MutationEntityType,
+    type: MutationEntityType,
     vararg allowedStates: MutationEntitySyncStatus,
   ): Int
 }

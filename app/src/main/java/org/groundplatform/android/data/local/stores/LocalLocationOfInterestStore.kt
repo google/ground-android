@@ -70,9 +70,6 @@ interface LocalLocationOfInterestStore :
 
   suspend fun deleteNotIn(surveyId: String, ids: Collection<String>)
 
-  /**
-   * Returns the number of survey LOIs with a pending local change that has not yet been synced,
-   * excluding deletes.
-   */
-  suspend fun countPendingNonDeletedLois(surveyId: String): Int
+  /** Returns how many of the survey's LOIs were created locally and not uploaded yet. */
+  suspend fun countPendingCreatedLois(surveyId: String): Int
 }

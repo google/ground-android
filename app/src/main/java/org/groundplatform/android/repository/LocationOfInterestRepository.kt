@@ -17,6 +17,7 @@ package org.groundplatform.android.repository
 
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.time.Clock
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.firstOrNull
@@ -106,12 +107,12 @@ constructor(
       localLoiStore.deleteNotIn(survey.id, syncedLoiIds + pendingLoiIds)
     }
 
-    return newestLoiTimestamp
+    return minOf(newestLoiTimestamp, Clock.System.now().toEpochMilliseconds())
   }
 
   override suspend fun hasMissedRemoteDeletions(survey: Survey): Boolean {
     val expectedRemoteCount =
-      localLoiStore.getLoiCount(survey.id) - localLoiStore.countPendingNonDeletedLois(survey.id)
+      localLoiStore.getLoiCount(survey.id) - localLoiStore.countPendingCreatedLois(survey.id)
     if (expectedRemoteCount <= 0) return false
 
     val ownerUserId = authenticationManager.getAuthenticatedUser().id

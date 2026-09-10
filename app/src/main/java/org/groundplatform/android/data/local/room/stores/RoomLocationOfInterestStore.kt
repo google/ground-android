@@ -157,10 +157,10 @@ class RoomLocationOfInterestStore @Inject internal constructor() : LocalLocation
     locationOfInterestDao.upsertAll(entities)
   }
 
-  override suspend fun countPendingNonDeletedLois(surveyId: String): Int =
+  override suspend fun countPendingCreatedLois(surveyId: String): Int =
     locationOfInterestMutationDao.countLocationOfInterestIds(
       surveyId,
-      MutationEntityType.DELETE,
+      MutationEntityType.CREATE,
       MutationEntitySyncStatus.PENDING,
       MutationEntitySyncStatus.IN_PROGRESS,
     )
