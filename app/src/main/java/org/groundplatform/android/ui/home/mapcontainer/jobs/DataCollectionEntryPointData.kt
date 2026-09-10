@@ -31,6 +31,7 @@ data class SelectedLoiSheetData(
   val submissionCount: Int,
   val showDeleteLoiButton: Boolean,
   val loiReport: LoiReport?,
+  val formattedArea: String? = null,
 ) : DataCollectionEntryPointData
 
 data class AdHocDataCollectionButtonData(override val canCollectData: Boolean, val job: Job) :

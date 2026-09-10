@@ -101,10 +101,27 @@ class LoiJobSheetTest {
     composeTestRule.onNodeWithText(getString(Res.string.share)).assertIsNotDisplayed()
   }
 
+  @Test
+  fun `area is shown when not null`() {
+    setContent(FREE_FORM_LOI, formattedArea = "1.20 ha")
+
+    composeTestRule.onNodeWithText(getString(R.string.area_message, "1.20 ha")).assertIsDisplayed()
+  }
+
+  @Test
+  fun `area is not shown when null`() {
+    setContent(FREE_FORM_LOI, formattedArea = null)
+
+    composeTestRule
+      .onNodeWithText(getString(R.string.area_message, "1.20 ha"))
+      .assertIsNotDisplayed()
+  }
+
   private fun setContent(
     loi: LocationOfInterest,
     showDeleteLoiButton: Boolean = false,
     loiReport: LoiReport? = getLoiReport(loi.id),
+    formattedArea: String? = null,
   ) {
     composeTestRule.setContent {
       LoiJobSheet(
@@ -115,6 +132,7 @@ class LoiJobSheetTest {
             loi = loi,
             showDeleteLoiButton = showDeleteLoiButton,
             loiReport = loiReport,
+            formattedArea = formattedArea,
           ),
         onCollectClicked = {},
         onDismiss = {},
