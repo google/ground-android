@@ -27,6 +27,7 @@ import android.text.TextUtils
 import android.text.style.StyleSpan
 import org.groundplatform.feature.pdf.model.SubmissionPdfDocument
 import org.groundplatform.feature.pdf.model.SubmissionPdfDocument.Answer
+import org.groundplatform.feature.pdf.model.SubmissionPdfDocument.Area
 import org.groundplatform.feature.pdf.model.SubmissionPdfDocument.Footer
 import org.groundplatform.feature.pdf.model.SubmissionPdfDocument.Header
 import org.groundplatform.feature.pdf.model.SubmissionPdfDocument.QrBlock
@@ -76,7 +77,7 @@ internal class PdfWriter(
 
   fun drawDocument(document: SubmissionPdfDocument) {
     drawQrPage(document.qrBlock)
-    drawTable(document.table)
+    drawTable(document.table, document.mapBlock?.area)
     finalizePage()
   }
 
@@ -105,21 +106,27 @@ internal class PdfWriter(
     pdfCanvas.finishPage()
   }
 
-  private fun drawTable(table: SubmissionPdfDocument.Table) {
+  private fun drawTable(table: SubmissionPdfDocument.Table, area: Area?) {
     val rows = table.rows.takeIf { it.isNotEmpty() } ?: return
     pageController.ensurePage()
     val titleLayout =
       staticLayout("${table.submissionLabel}: ${table.loiName}", paints.title, USABLE_WIDTH)
-    val subtitleLayout =
+    val jobLayout =
       staticLayout(labeled(table.jobLabel, table.jobName), paints.body, USABLE_WIDTH)
+    val areaLayout =
+      area?.value?.let { staticLayout(labeled(area.label, it), paints.body, USABLE_WIDTH) }
     val titleBlock =
       TableLayout.getTitleBlock(
         top = cursor.y,
         titleHeight = titleLayout.height.toFloat(),
-        subtitleHeight = subtitleLayout.height.toFloat(),
+        jobHeight = jobLayout.height.toFloat(),
+        areaHeight = areaLayout?.height?.toFloat() ?: 0f,
       )
     drawStaticLayoutAt(titleLayout, titleBlock.titleOffset)
-    drawStaticLayoutAt(subtitleLayout, titleBlock.subtitleOffset)
+    if (areaLayout != null && titleBlock.areaOffset != null) {
+      drawStaticLayoutAt(areaLayout, titleBlock.areaOffset)
+    }
+    drawStaticLayoutAt(jobLayout, titleBlock.jobOffset)
     cursor.moveTo(titleBlock.nextCursorY)
     rows.forEach { row ->
       when (val answer = row.answer) {

@@ -46,6 +46,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.JsonObject
 import org.groundplatform.android.R
 import org.groundplatform.android.ui.common.ExcludeFromJacocoGeneratedReport
 import org.groundplatform.android.ui.common.LocationOfInterestHelper
@@ -58,6 +59,7 @@ import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.job.Style
 import org.groundplatform.domain.model.locationofinterest.AuditInfo
 import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
+import org.groundplatform.domain.model.locationofinterest.LoiReport
 import org.groundplatform.domain.model.task.Task
 import org.groundplatform.ui.components.ShareButton
 import org.groundplatform.ui.theme.AppTheme
@@ -81,11 +83,7 @@ fun LoiJobSheet(
     dragHandle = { BottomSheetDefaults.DragHandle(width = 32.dp) },
   ) {
     ModalContents(
-      loi = state.loi,
-      canUserSubmitData = state.canCollectData,
-      submissionCount = state.submissionCount,
-      showDeleteLoiButton = state.showDeleteLoiButton,
-      showShareButton = state.loiReport != null,
+      state = state,
       onDeleteClicked = onDeleteClicked,
       onCollectClicked = {
         scope.launch { sheetState.hide() }.invokeOnCompletion { onCollectClicked() }
@@ -97,11 +95,7 @@ fun LoiJobSheet(
 
 @Composable
 private fun ModalContents(
-  loi: LocationOfInterest,
-  canUserSubmitData: Boolean,
-  submissionCount: Int,
-  showDeleteLoiButton: Boolean,
-  showShareButton: Boolean,
+  state: SelectedLoiSheetData,
   onDeleteClicked: (() -> Unit)?,
   onCollectClicked: () -> Unit,
   onShareClicked: () -> Unit,
@@ -111,19 +105,20 @@ private fun ModalContents(
   val showDeleteDialog = remember { mutableStateOf(false) }
 
   Column(modifier = Modifier.fillMaxWidth().padding(start = 24.dp, end = 24.dp, bottom = 50.dp)) {
-    JobName(loiHelper = loiHelper, loi = loi)
-    LoiHeader(loiHelper = loiHelper, loi = loi)
+    JobName(loiHelper = loiHelper, loi = state.loi)
+    LoiHeader(loiHelper = loiHelper, loi = state.loi)
     SubmissionRow(
-      loi = loi,
-      submissionCount = submissionCount,
-      canUserSubmitData = canUserSubmitData,
-      showShareButton = showShareButton,
+      loi = state.loi,
+      formattedArea = state.formattedArea,
+      submissionCount = state.submissionCount,
+      canUserSubmitData = state.canCollectData,
+      showShareButton = state.loiReport != null,
       onCollectClicked = onCollectClicked,
       onShareClicked = onShareClicked,
     )
     DeleteSiteSection(
-      showDeleteLoiButton = showDeleteLoiButton,
-      isPredefined = loi.isPredefined == true,
+      showDeleteLoiButton = state.showDeleteLoiButton,
+      isPredefined = state.loi.isPredefined == true,
       onClick = { showDeleteDialog.value = true },
     )
   }
@@ -173,6 +168,7 @@ private fun LoiHeader(loiHelper: LocationOfInterestHelper, loi: LocationOfIntere
 @Composable
 private fun SubmissionRow(
   loi: LocationOfInterest,
+  formattedArea: String?,
   submissionCount: Int,
   canUserSubmitData: Boolean,
   showShareButton: Boolean,
@@ -180,6 +176,13 @@ private fun SubmissionRow(
   onShareClicked: () -> Unit,
 ) {
   Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.Top) {
+    if (formattedArea != null) {
+      Text(
+        stringResource(R.string.area_message, formattedArea),
+        color = MaterialTheme.colorScheme.onSurface,
+        style = MaterialTheme.typography.bodyLarge,
+      )
+    }
     Text(
       if (submissionCount <= 0) stringResource(R.string.no_submissions)
       else pluralStringResource(R.plurals.submission_count, submissionCount, submissionCount),
@@ -241,6 +244,21 @@ private val user = User(id = "user", email = "user@email.com", displayName = "Us
 private val auditInfo = AuditInfo(user)
 private const val SURVEY_ID = "survey"
 private const val TASK_ID = "task 1"
+private const val AREA = "1.20 ha"
+private val loiReport =
+  LoiReport(
+    loiName = "Point A",
+    geoJson = JsonObject(mapOf()),
+    submissionDetails =
+      LoiReport.SubmissionDetails(
+        surveyName = "Test Survey",
+        userName = "John Doe",
+        userEmail = "john.doe@example.com",
+        submissions = emptyList(),
+        geometry = Point(Coordinates(0.0, 0.0)),
+        style = null,
+      ),
+  )
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
@@ -258,11 +276,15 @@ private fun PreviewModalContentsWhenJobHasNoTasks() {
     )
   AppTheme {
     ModalContents(
-      loi = loi,
-      canUserSubmitData = true,
-      submissionCount = 0,
-      showDeleteLoiButton = false,
-      showShareButton = true,
+      state =
+        SelectedLoiSheetData(
+          loi = loi,
+          canCollectData = true,
+          submissionCount = 0,
+          showDeleteLoiButton = false,
+          loiReport = loiReport,
+          formattedArea = AREA,
+        ),
       onDeleteClicked = null,
       onShareClicked = {},
       onCollectClicked = {},
@@ -303,11 +325,15 @@ private fun PreviewModalContentsWhenUserCannotSubmitData() {
     )
   AppTheme {
     ModalContents(
-      loi = loi,
-      canUserSubmitData = false,
-      submissionCount = 1,
-      showDeleteLoiButton = false,
-      showShareButton = true,
+      state =
+        SelectedLoiSheetData(
+          loi = loi,
+          canCollectData = false,
+          submissionCount = 1,
+          showDeleteLoiButton = false,
+          loiReport = loiReport,
+          formattedArea = AREA,
+        ),
       onDeleteClicked = null,
       onShareClicked = {},
       onCollectClicked = {},
@@ -350,11 +376,15 @@ private fun PreviewModalContentsWhenJobHasTasks() {
     )
   AppTheme {
     ModalContents(
-      loi = loi,
-      canUserSubmitData = true,
-      submissionCount = 20,
-      showDeleteLoiButton = false,
-      showShareButton = true,
+      state =
+        SelectedLoiSheetData(
+          loi = loi,
+          canCollectData = true,
+          submissionCount = 20,
+          showDeleteLoiButton = false,
+          loiReport = loiReport,
+          formattedArea = AREA,
+        ),
       onDeleteClicked = null,
       onShareClicked = {},
       onCollectClicked = {},
@@ -397,11 +427,15 @@ private fun PreviewModalContentsWhenJobHasTasksAndIsPredefined() {
     )
   AppTheme {
     ModalContents(
-      loi = loi,
-      canUserSubmitData = true,
-      submissionCount = 20,
-      showDeleteLoiButton = true,
-      showShareButton = true,
+      state =
+        SelectedLoiSheetData(
+          loi = loi,
+          canCollectData = true,
+          submissionCount = 20,
+          showDeleteLoiButton = true,
+          loiReport = loiReport,
+          formattedArea = AREA,
+        ),
       onDeleteClicked = null,
       onShareClicked = {},
       onCollectClicked = {},

@@ -43,6 +43,8 @@ import org.groundplatform.android.ui.home.mapcontainer.jobs.JobMapComponentState
 import org.groundplatform.android.ui.home.mapcontainer.jobs.SelectedLoiSheetData
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.geometry.LinearRing
+import org.groundplatform.domain.model.geometry.Polygon
 import org.groundplatform.domain.model.map.Bounds
 import org.groundplatform.domain.model.map.CameraPosition
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
@@ -115,6 +117,22 @@ class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
           )
         )
       )
+  }
+
+  @Test
+  fun `job card shows the LOI area in the user's measurement units`() = runWithTestDispatcher {
+    val areaLoi = LOCATION_OF_INTEREST.copy(geometry = ONE_HECTARE_POLYGON)
+    whenever(loiRepository.getWithinBounds(SURVEY, BOUNDS)).thenReturn(flowOf(listOf(areaLoi)))
+    viewModel.onMapCameraMoved(CAMERA_POSITION)
+    advanceUntilIdle()
+
+    viewModel.onFeatureClicked(
+      features = setOf(LOCATION_OF_INTEREST_FEATURE.copy(geometry = ONE_HECTARE_POLYGON))
+    )
+    val state = viewModel.processJobMapComponentState().first()
+    advanceUntilIdle()
+
+    assertThat((state as JobMapComponentState.LoiSelected).loi.formattedArea).isEqualTo("1.00 ha")
   }
 
   @Test
@@ -326,6 +344,18 @@ class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
 
   companion object {
     private val BOUNDS = Bounds(Coordinates(-20.0, -20.0), Coordinates(-10.0, -10.0))
+    private val ONE_HECTARE_POLYGON =
+      Polygon(
+        LinearRing(
+          listOf(
+            Coordinates(0.0, 0.0),
+            Coordinates(0.0, 0.0009),
+            Coordinates(0.0009, 0.0009),
+            Coordinates(0.0009, 0.0),
+            Coordinates(0.0, 0.0),
+          )
+        )
+      )
     val CAMERA_POSITION =
       CameraPosition(
         coordinates = LOCATION_OF_INTEREST.geometry.center(),
