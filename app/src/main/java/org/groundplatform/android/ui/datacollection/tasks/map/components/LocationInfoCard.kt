@@ -62,6 +62,7 @@ fun LocationInfoCard(locationInfo: LocationInfo, modifier: Modifier = Modifier) 
     modifier = modifier.testTag(LOCATION_INFO_CARD_TEST_TAG),
     shape = RoundedCornerShape(8.dp),
     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+    border = CardDefaults.outlinedCardBorder(),
   ) {
     Row(
       modifier = Modifier.fillMaxWidth().padding(8.dp),
@@ -84,7 +85,7 @@ fun LocationInfoCard(locationInfo: LocationInfo, modifier: Modifier = Modifier) 
         Text(
           text = locationInfo.locationText,
           style = MaterialTheme.typography.labelMedium,
-          color = MaterialTheme.colorScheme.onSurface,
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
           modifier = Modifier.testTag(CURRENT_LOCATION_VALUE_TEST_TAG),
         )
       }

@@ -32,6 +32,7 @@ import java.math.RoundingMode
 import java.text.DecimalFormat
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import org.groundplatform.android.R
@@ -114,21 +115,25 @@ abstract class AbstractTaskMapFragment<TVM : AbstractTaskViewModel> :
 
     viewLifecycleOwner.lifecycleScope.launch {
       viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-        getMapViewModel().location.collect {
-          if (getMapViewModel().locationLock.value.getOrDefault(false)) {
-            val locationText = it?.toCoordinates()?.toDmsFormat()
-            val accuracy = it?.getAccuracyOrNull()
-            val accuracyText =
-              accuracy?.let { value -> ACCURACY_FORMATTER.format(value) + "m" } ?: "?"
-
-            updateLocationInfoCard(
-              R.string.current_location,
-              locationText,
-              accuracyText,
-              accuracy,
-            )
+        combine(getMapViewModel().location, getMapViewModel().locationLock) { location, locationLock
+            ->
+            Pair(location, locationLock.getOrDefault(false))
           }
-        }
+          .collect { (location, isLocked) ->
+            if (isLocked) {
+              val locationText = location?.toCoordinates()?.toDmsFormat()
+              val accuracy = location?.getAccuracyOrNull()
+              val accuracyText =
+                accuracy?.let { value -> ACCURACY_FORMATTER.format(value) + "m" } ?: "?"
+
+              updateLocationInfoCard(
+                R.string.current_location,
+                locationText,
+                accuracyText,
+                accuracy,
+              )
+            }
+          }
       }
     }
   }
