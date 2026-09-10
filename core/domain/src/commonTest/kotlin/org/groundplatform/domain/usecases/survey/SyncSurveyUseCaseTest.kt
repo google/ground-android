@@ -20,7 +20,11 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.time.Clock
 import kotlinx.coroutines.test.runTest
+import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.SurveySyncMode
+import org.groundplatform.domain.model.SurveySyncState
 import org.groundplatform.testing.FakeDataGenerator
 import org.groundplatform.testing.FakeLocationOfInterestRepository
 import org.groundplatform.testing.FakeSurveyRepository
@@ -56,5 +60,101 @@ class SyncSurveyUseCaseTest {
     surveyRepository.onGetRemoteSurveyCall.overrideBehavior { error("Something went wrong") }
 
     assertFailsWith<IllegalStateException> { syncSurvey(FakeDataGenerator.newSurvey().id) }
+  }
+
+  @Test
+  fun `reads every LOI when the survey has never been synced`() = runTest {
+    assertEquals(SurveySyncMode.Full, executeSync(syncState = null))
+  }
+
+  @Test
+  fun `reads every LOI when the last sync covered a different survey data visibility setting`() =
+    runTest {
+      val state =
+        SurveySyncState(
+          surveyId = FakeDataGenerator.newSurvey().id,
+          latestLoiServerTimestamp = TEST_LATEST_LOI_TIMESTAMP,
+          lastFullSyncClientTimestamp = Clock.System.now().toEpochMilliseconds(),
+          syncedDataVisibility = Survey.DataVisibility.ALL_SURVEY_PARTICIPANTS,
+        )
+
+      assertEquals(SurveySyncMode.Full, executeSync(state))
+    }
+
+  @Test
+  fun `reads every LOI when the last full sync fell out of the message backlog`() = runTest {
+    val state =
+      SurveySyncState(
+        surveyId = FakeDataGenerator.newSurvey().id,
+        latestLoiServerTimestamp = TEST_LATEST_LOI_TIMESTAMP,
+        lastFullSyncClientTimestamp =
+          Clock.System.now().toEpochMilliseconds() -
+            SyncSurveyUseCase.FULL_SYNC_INTERVAL_MILLIS * 2,
+        syncedDataVisibility = null,
+      )
+
+    assertEquals(SurveySyncMode.Full, executeSync(state))
+  }
+
+  @Test
+  fun `resumes from the last cursor while the backlog still reaches it`() = runTest {
+    val state =
+      SurveySyncState(
+        surveyId = FakeDataGenerator.newSurvey().id,
+        latestLoiServerTimestamp = TEST_LATEST_LOI_TIMESTAMP,
+        lastFullSyncClientTimestamp =
+          Clock.System.now().toEpochMilliseconds() -
+            SyncSurveyUseCase.FULL_SYNC_INTERVAL_MILLIS / 2,
+        syncedDataVisibility = null,
+      )
+
+    assertEquals(SurveySyncMode.Incremental(TEST_LATEST_LOI_TIMESTAMP), executeSync(state))
+  }
+
+  @Test
+  fun `does not look for missed deletions when a full read is already due`() = runTest {
+    executeSync(syncState = null)
+
+    assertEquals(0, loiRepository.hasMissedRemoteDeletionsCall.callCount)
+  }
+
+  @Test
+  fun `reads every LOI when a deletion was missed`() = runTest {
+    loiRepository.hasMissedRemoteDeletionsCall.overrideBehavior { true }
+    val state =
+      SurveySyncState(
+        surveyId = FakeDataGenerator.newSurvey().id,
+        latestLoiServerTimestamp = TEST_LATEST_LOI_TIMESTAMP,
+        lastFullSyncClientTimestamp = Clock.System.now().toEpochMilliseconds(),
+        syncedDataVisibility = null,
+      )
+
+    assertEquals(SurveySyncMode.Full, executeSync(state))
+  }
+
+  @Test
+  fun `records where the sync of the LOIs left off`() = runTest {
+    val survey = FakeDataGenerator.newSurvey()
+    surveyRepository.remoteSurveys = listOf(survey)
+    loiRepository.latestLoiServerTimestamp = TEST_LATEST_LOI_TIMESTAMP
+
+    syncSurvey(survey.id)
+
+    assertEquals(SurveySyncMode.Full, surveyRepository.lastRecordedSyncMode)
+    assertEquals(TEST_LATEST_LOI_TIMESTAMP, surveyRepository.lastRecordedLoiServerTimestamp)
+  }
+
+  private suspend fun executeSync(syncState: SurveySyncState?): SurveySyncMode? {
+    val survey = FakeDataGenerator.newSurvey()
+    surveyRepository.remoteSurveys = listOf(survey)
+    surveyRepository.syncState = syncState
+
+    syncSurvey(survey.id)
+
+    return loiRepository.lastSyncMode
+  }
+
+  companion object {
+    private const val TEST_LATEST_LOI_TIMESTAMP = 987654321L
   }
 }

@@ -17,42 +17,35 @@ package org.groundplatform.android.data.local.room.stores
 
 import javax.inject.Inject
 import kotlin.time.Clock
+import org.groundplatform.android.data.local.room.converter.toLocalDataStoreObject
 import org.groundplatform.android.data.local.room.converter.toModelObject
 import org.groundplatform.android.data.local.room.dao.SurveySyncStateDao
 import org.groundplatform.android.data.local.room.dao.insertOrUpdate
-import org.groundplatform.android.data.local.room.entity.SurveySyncStateEntity
 import org.groundplatform.android.data.local.stores.LocalSurveySyncStateStore
-import org.groundplatform.android.data.remote.firebase.protobuf.toProto
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.SurveySyncState
 
 class RoomSurveySyncStateStore
 @Inject
 constructor(private val surveySyncStateDao: SurveySyncStateDao) : LocalSurveySyncStateStore {
-  override suspend fun get(surveyId: String): SurveySyncState? {
-    val entity = surveySyncStateDao.get(surveyId)
-    return entity?.toModelObject()
-  }
+  override suspend fun get(surveyId: String): SurveySyncState? =
+    surveySyncStateDao.get(surveyId)?.toModelObject()
 
-  override suspend fun recordIncrementalSync(
-    surveyId: String,
-    latestLoiServerTimestamp: Long,
-  ) {
+  override suspend fun recordIncrementalSync(surveyId: String, latestLoiServerTimestamp: Long) =
     surveySyncStateDao.updateLatestLoiServerTimestamp(surveyId, latestLoiServerTimestamp)
-  }
 
   override suspend fun recordFullSync(
     surveyId: String,
     latestLoiServerTimestamp: Long,
     dataVisibility: Survey.DataVisibility?,
-  ) {
+  ) =
     surveySyncStateDao.insertOrUpdate(
-      SurveySyncStateEntity(
-        surveyId = surveyId,
-        latestLoiServerTimestamp = latestLoiServerTimestamp,
-        lastFullSyncClientTimestamp = Clock.System.now().toEpochMilliseconds(),
-        syncedDataVisibility = dataVisibility?.toProto()?.ordinal,
-      )
+      SurveySyncState(
+          surveyId = surveyId,
+          latestLoiServerTimestamp = latestLoiServerTimestamp,
+          lastFullSyncClientTimestamp = Clock.System.now().toEpochMilliseconds(),
+          syncedDataVisibility = dataVisibility,
+        )
+        .toLocalDataStoreObject()
     )
-  }
 }

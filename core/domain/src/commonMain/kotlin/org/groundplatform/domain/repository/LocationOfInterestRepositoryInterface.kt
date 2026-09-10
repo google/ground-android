@@ -17,6 +17,7 @@ package org.groundplatform.domain.repository
 
 import kotlinx.coroutines.flow.Flow
 import org.groundplatform.domain.model.Survey
+import org.groundplatform.domain.model.SurveySyncMode
 import org.groundplatform.domain.model.geometry.Geometry
 import org.groundplatform.domain.model.job.Job
 import org.groundplatform.domain.model.locationofinterest.LocationOfInterest
@@ -24,8 +25,14 @@ import org.groundplatform.domain.model.map.Bounds
 import org.groundplatform.domain.model.mutation.LocationOfInterestMutation
 
 interface LocationOfInterestRepositoryInterface {
-  /** Mirrors locations of interest in the specified survey from the remote db into the local db. */
-  suspend fun syncLocationsOfInterest(survey: Survey)
+  /**
+   * Mirrors locations of interest in the specified survey from the remote db into the local db,
+   * reading as much of them as [mode] calls for. Returns the newest server timestamp it saw.
+   */
+  suspend fun syncLocationsOfInterest(survey: Survey, mode: SurveySyncMode): Long
+
+  /** Returns whether the local db holds an LOI which a full sync would find gone from remote. */
+  suspend fun hasMissedRemoteDeletions(survey: Survey): Boolean
 
   /** This only works if the survey and location of interests are already cached to local db. */
   suspend fun getOfflineLoi(surveyId: String, loiId: String): LocationOfInterest?

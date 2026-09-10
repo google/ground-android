@@ -85,6 +85,8 @@ class HomeScreenMapContainerViewModelTest : BaseHiltTest() {
       // Setup survey and LOIs
       remoteDataStore.surveys = listOf(SURVEY)
       remoteDataStore.predefinedLois = listOf(LOCATION_OF_INTEREST)
+      // Activating a survey syncs its LOIs, and the sync reports back where it left off.
+      whenever(loiRepository.syncLocationsOfInterest(any(), any())).thenReturn(0L)
       activateSurvey(SURVEY.id)
       advanceUntilIdle()
       whenever(loiRepository.getWithinBounds(SURVEY, BOUNDS))

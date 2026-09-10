@@ -46,6 +46,9 @@ interface LocalLocationOfInterestStore :
   /** Deletes LOI from local database. */
   suspend fun deleteLocationOfInterest(locationOfInterestId: String)
 
+  /** Deletes LOI from local database, keeping it if it has changes still waiting to upload. */
+  suspend fun safeDeleteLocalLoi(locationOfInterestId: String)
+
   /**
    * Returns a [Flow] that emits a [List] of all [LocationOfInterestMutation]s stored in the local
    * db related to a given [Survey]. A new [List] is emitted on each change to the underlying saved
@@ -65,11 +68,8 @@ interface LocalLocationOfInterestStore :
   /** Inserts or updates all the given LOIs in a single transaction. */
   suspend fun insertOrUpdateAll(lois: List<LocationOfInterest>)
 
-  suspend fun deleteNotIn(surveyId: String, ids: List<String>)
+  suspend fun deleteNotIn(surveyId: String, ids: Collection<String>)
 
-  /**
-   * Returns the number of survey LOIs with a pending local change that has not yet been synced,
-   * excluding deletes.
-   */
-  suspend fun countPendingNonDeletedLois(surveyId: String): Int
+  /** Returns how many of the survey's LOIs were created locally and not uploaded yet. */
+  suspend fun countPendingCreatedLois(surveyId: String): Int
 }
