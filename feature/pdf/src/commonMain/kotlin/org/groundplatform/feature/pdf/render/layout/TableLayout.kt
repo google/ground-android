@@ -84,25 +84,37 @@ internal object TableLayout {
   }
 
   /**
-   * Layout of the two title lines above the table.
+   * Layout of the title lines above the table.
    *
    * @param titleOffset Top-left position of the submission line.
-   * @param subtitleOffset Top-left position of the job line, directly below the submission line.
+   * @param areaOffset Top-left position of the area line, directly below the submission line, or
+   *   null when there is no area to show.
+   * @param jobOffset Top-left position of the job line, below the area line when there is one and
+   *   directly below the submission line otherwise.
    * @param nextCursorY Cursor Y position after the title block.
    */
   data class TitleBlock(
     val titleOffset: PdfOffset,
-    val subtitleOffset: PdfOffset,
+    val areaOffset: PdfOffset?,
+    val jobOffset: PdfOffset,
     val nextCursorY: Float,
   )
 
-  fun getTitleBlock(top: Float, titleHeight: Float, subtitleHeight: Float): TitleBlock {
+  fun getTitleBlock(
+    top: Float,
+    titleHeight: Float,
+    jobHeight: Float,
+    areaHeight: Float = 0f,
+  ): TitleBlock {
+    val hasArea = areaHeight > 0f
     val titleTop = top + LINE_SPACING * 2
-    val subtitleTop = titleTop + titleHeight + LINE_SPACING
+    val areaTop = titleTop + titleHeight + LINE_SPACING
+    val jobTop = if (hasArea) areaTop + areaHeight + LINE_SPACING else areaTop
     return TitleBlock(
       titleOffset = PdfOffset(MARGIN.toFloat(), titleTop),
-      subtitleOffset = PdfOffset(MARGIN.toFloat(), subtitleTop),
-      nextCursorY = subtitleTop + subtitleHeight + LINE_SPACING * 2,
+      areaOffset = if (hasArea) PdfOffset(MARGIN.toFloat(), areaTop) else null,
+      jobOffset = PdfOffset(MARGIN.toFloat(), jobTop),
+      nextCursorY = jobTop + jobHeight + LINE_SPACING * 2,
     )
   }
 

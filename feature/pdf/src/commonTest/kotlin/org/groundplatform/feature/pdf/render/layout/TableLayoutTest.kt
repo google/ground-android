@@ -37,47 +37,109 @@ class TableLayoutTest {
 
   @Test
   fun `title sits below a top gap at the left margin`() {
-    val layout = TableLayout.getTitleBlock(top = 100f, titleHeight = 14f, subtitleHeight = 12f)
+    val layout = TableLayout.getTitleBlock(top = 100f, titleHeight = 14f, jobHeight = 12f)
 
     assertEquals(PdfOffset(margin, 100f + 2 * lineSpacing), layout.titleOffset)
   }
 
   @Test
-  fun `subtitle sits below the title at the left margin`() {
+  fun `job line sits below the title at the left margin`() {
     val titleHeight = 14f
 
-    val layout =
-      TableLayout.getTitleBlock(top = 100f, titleHeight = titleHeight, subtitleHeight = 12f)
+    val layout = TableLayout.getTitleBlock(top = 100f, titleHeight = titleHeight, jobHeight = 12f)
 
     assertEquals(
       PdfOffset(margin, 100f + 2 * lineSpacing + titleHeight + lineSpacing),
-      layout.subtitleOffset,
+      layout.jobOffset,
     )
+  }
+
+  @Test
+  fun `area line sits below the title at the left margin`() {
+    val titleHeight = 14f
+
+    val layout =
+      TableLayout.getTitleBlock(
+        top = 100f,
+        titleHeight = titleHeight,
+        jobHeight = 12f,
+        areaHeight = 12f,
+      )
+
+    assertEquals(
+      PdfOffset(margin, 100f + 2 * lineSpacing + titleHeight + lineSpacing),
+      layout.areaOffset,
+    )
+  }
+
+  @Test
+  fun `job line sits below the area line when there is one`() {
+    val titleHeight = 14f
+    val areaHeight = 12f
+
+    val layout =
+      TableLayout.getTitleBlock(
+        top = 100f,
+        titleHeight = titleHeight,
+        jobHeight = 12f,
+        areaHeight = areaHeight,
+      )
+
+    assertEquals(
+      PdfOffset(
+        margin,
+        100f + 2 * lineSpacing + titleHeight + lineSpacing + areaHeight + lineSpacing,
+      ),
+      layout.jobOffset,
+    )
+  }
+
+  @Test
+  fun `title block has no area line when there is no area`() {
+    val layout = TableLayout.getTitleBlock(top = 100f, titleHeight = 14f, jobHeight = 12f)
+
+    assertNull(layout.areaOffset)
+  }
+
+  @Test
+  fun `the area line pushes the first row further down`() {
+    val areaHeight = 12f
+
+    val withoutArea = TableLayout.getTitleBlock(top = 0f, titleHeight = 14f, jobHeight = 12f)
+    val withArea =
+      TableLayout.getTitleBlock(
+        top = 0f,
+        titleHeight = 14f,
+        jobHeight = 12f,
+        areaHeight = areaHeight,
+      )
+
+    assertEquals(withoutArea.nextCursorY + lineSpacing + areaHeight, withArea.nextCursorY)
   }
 
   @Test
   fun `title block leaves a bottom gap before the first row`() {
     val top = 100f
     val titleHeight = 14f
-    val subtitleHeight = 12f
+    val jobHeight = 12f
 
     val layout =
       TableLayout.getTitleBlock(
         top = top,
         titleHeight = titleHeight,
-        subtitleHeight = subtitleHeight,
+        jobHeight = jobHeight,
       )
 
     assertEquals(
-      top + 2 * lineSpacing + titleHeight + lineSpacing + subtitleHeight + 2 * lineSpacing,
+      top + 2 * lineSpacing + titleHeight + lineSpacing + jobHeight + 2 * lineSpacing,
       layout.nextCursorY,
     )
   }
 
   @Test
   fun `taller title lines push the first row further down`() {
-    val short = TableLayout.getTitleBlock(top = 0f, titleHeight = 10f, subtitleHeight = 10f)
-    val tall = TableLayout.getTitleBlock(top = 0f, titleHeight = 30f, subtitleHeight = 20f)
+    val short = TableLayout.getTitleBlock(top = 0f, titleHeight = 10f, jobHeight = 10f)
+    val tall = TableLayout.getTitleBlock(top = 0f, titleHeight = 30f, jobHeight = 20f)
 
     assertTrue(short.nextCursorY < tall.nextCursorY)
     assertEquals(30f, tall.nextCursorY - short.nextCursorY)

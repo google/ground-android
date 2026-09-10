@@ -19,6 +19,8 @@ import android.graphics.Bitmap
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import org.groundplatform.domain.model.geometry.Coordinates
+import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.feature.pdf.model.SubmissionPdfDocument
 import org.groundplatform.feature.pdf.render.image.PdfImage
 import org.groundplatform.feature.pdf.render.image.PdfImageSet
@@ -98,9 +100,26 @@ class PdfWriterTest {
   fun `draws the submission title above the table with the job below it`() {
     val canvas = renderDocument(SINGLE_PAGE_DOCUMENT)
 
-    val jobLineIndex = canvas.drawnText.indexOf("${TABLE.jobLabel}: ${TABLE.jobName}")
+    val jobLineIndex = canvas.drawnText.indexOf(JOB_LINE)
     assertTrue(jobLineIndex > 0)
-    assertEquals("${TABLE.submissionLabel}: ${TABLE.loiName}", canvas.drawnText[jobLineIndex - 1])
+    assertEquals(SUBMISSION_LINE, canvas.drawnText[jobLineIndex - 1])
+  }
+
+  @Test
+  fun `draws the area between the submission title and the job line`() {
+    val canvas = renderDocument(SINGLE_PAGE_DOCUMENT.copy(mapBlock = MAP_BLOCK))
+
+    val areaLineIndex = canvas.drawnText.indexOf(AREA_LINE)
+    assertTrue(areaLineIndex > 0)
+    assertEquals(SUBMISSION_LINE, canvas.drawnText[areaLineIndex - 1])
+    assertEquals(JOB_LINE, canvas.drawnText[areaLineIndex + 1])
+  }
+
+  @Test
+  fun `draws no area line when the document has no area`() {
+    val canvas = renderDocument(SINGLE_PAGE_DOCUMENT.copy(mapBlock = MAP_BLOCK.copy(area = null)))
+
+    assertFalse(canvas.drawnText.any { it.startsWith(AREA.label) })
   }
 
   @Test
@@ -224,7 +243,7 @@ class PdfWriterTest {
     val canvas = renderDocument(tableless, pdfImageSet(qr = pdfImage()))
 
     assertEquals(listOf(1), canvas.startedPageNumbers)
-    assertFalse(canvas.drawnText.contains("${TABLE.submissionLabel}: ${TABLE.loiName}"))
+    assertFalse(canvas.drawnText.contains(SUBMISSION_LINE))
   }
 
   private fun renderDocument(
@@ -292,6 +311,15 @@ class PdfWriterTest {
 
     val QR_BLOCK = SubmissionPdfDocument.QrBlock(submissionName = "Plot 42", scanCaption = "Scan")
 
+    val AREA = SubmissionPdfDocument.Area(label = "Area", value = "1.00 ha")
+
+    val MAP_BLOCK =
+      SubmissionPdfDocument.MapBlock(
+        geometry = Point(Coordinates(0.0, 0.0)),
+        style = null,
+        area = AREA,
+      )
+
     val TABLE =
       SubmissionPdfDocument.Table(
         submissionLabel = "Submission",
@@ -300,6 +328,10 @@ class PdfWriterTest {
         jobName = "Job name",
         rows = emptyList(),
       )
+
+    val SUBMISSION_LINE = "${TABLE.submissionLabel}: ${TABLE.loiName}"
+    val AREA_LINE = "${AREA.label}: ${AREA.value}"
+    val JOB_LINE = "${TABLE.jobLabel}: ${TABLE.jobName}"
 
     val EMPTY_DOCUMENT =
       SubmissionPdfDocument(
