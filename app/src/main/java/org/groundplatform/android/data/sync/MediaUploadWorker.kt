@@ -34,6 +34,7 @@ import org.groundplatform.domain.model.mutation.SubmissionMutation
 import org.groundplatform.domain.model.task.PhotoTaskData
 import org.groundplatform.domain.repository.MutationRepositoryInterface
 import org.groundplatform.domain.repository.UserMediaRepositoryInterface
+import org.groundplatform.domain.usecases.ShouldForceUpdateUseCase
 import timber.log.Timber
 
 /**
@@ -54,11 +55,15 @@ constructor(
   private val remoteStorageManager: RemoteStorageManager,
   private val mutationRepository: MutationRepositoryInterface,
   private val userMediaRepository: UserMediaRepositoryInterface,
+  private val shouldForceUpdate: ShouldForceUpdateUseCase,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : CoroutineWorker(context, workerParams) {
 
   override suspend fun doWork(): Result =
     withContext(ioDispatcher) {
+      // Media stays queued locally and is uploaded once the updated app is opened.
+      if (shouldForceUpdate()) return@withContext success()
+
       val mutations = mutationRepository.getIncompleteMediaMutations()
       Timber.d("Uploading photos for ${mutations.size} submission mutations")
       val results = mutations.map { uploadAllMedia(it) }
