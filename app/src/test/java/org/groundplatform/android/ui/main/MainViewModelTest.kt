@@ -29,8 +29,10 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
+import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.local.room.LocalDataStoreException
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
+import org.groundplatform.android.data.remote.UpdateRequiredException
 import org.groundplatform.android.di.AppConfigRepositoryModule
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
 import org.groundplatform.android.system.deeplink.PlayInstallReferrerService
@@ -58,6 +60,7 @@ class MainViewModelTest : BaseHiltTest() {
 
   @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
+  @Inject lateinit var localValueStore: LocalValueStore
   @Inject lateinit var viewModel: MainViewModel
   @Inject lateinit var sharedPreferences: SharedPreferences
   @Inject lateinit var tosRepository: TermsOfServiceRepositoryInterface
@@ -225,16 +228,17 @@ class MainViewModelTest : BaseHiltTest() {
     }
 
   @Test
-  fun `navigation is skipped when an app update is required`() = runWithTestDispatcher {
+  fun `stays signed in when an app update is required`() = runWithTestDispatcher {
     tosRepository.isTermsOfServiceAccepted = true
-    whenever(appConfigRepository.getAppConfig()).thenReturn(UPDATE_REQUIRED)
+    localValueStore.lastActiveSurveyId = SURVEY_ID
+    fakeRemoteDataStore.onLoadSurvey = { throw UpdateRequiredException() }
 
     viewModel.uiEffects.test {
       fakeAuthenticationManager.signIn()
       advanceUntilIdle()
 
       expectNoEvents()
-      verifyUserNotSaved()
+      verifyUserSaved()
     }
   }
 

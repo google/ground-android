@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.groundplatform.android.data.remote.UpdateRequiredException
 import org.groundplatform.android.di.coroutines.IoDispatcher
 import org.groundplatform.android.system.auth.AuthenticationManager
 import org.groundplatform.android.system.deeplink.PlayInstallReferrerService
@@ -91,10 +92,6 @@ constructor(
   }
 
   private suspend fun onUserSignedIn(user: User) {
-    // Stay behind the update dialog. The steps below may call the remote store, and any failure
-    // among them signs the user out, which clears the local db along with unsynced changes.
-    if (shouldForceUpdateUseCase()) return
-
     val destination =
       try {
         userRepository.saveUserDetails(user)
@@ -117,6 +114,9 @@ constructor(
             }
           }
         }
+      } catch (_: UpdateRequiredException) {
+        // Popup prompting the user to update is displayed, so we don't need to do anything here.
+        return
       } catch (e: Throwable) {
         Timber.e(e)
         // TODO: Display some error dialog to the user with a helpful user-readable message.
