@@ -17,7 +17,6 @@ package org.groundplatform.android.ui.main
 
 import android.net.Uri
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.channels.Channel
@@ -26,7 +25,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.groundplatform.android.BuildConfig
 import org.groundplatform.android.di.coroutines.IoDispatcher
 import org.groundplatform.android.system.auth.AuthenticationManager
 import org.groundplatform.android.system.deeplink.PlayInstallReferrerService
@@ -37,6 +35,7 @@ import org.groundplatform.domain.model.User
 import org.groundplatform.domain.model.auth.SignInState
 import org.groundplatform.domain.repository.TermsOfServiceRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
+import org.groundplatform.domain.usecases.ShouldForceUpdateUseCase
 import org.groundplatform.domain.usecases.survey.ReactivateLastSurveyUseCase
 import org.groundplatform.domain.usecases.user.ClearUserSessionUseCase
 import timber.log.Timber
@@ -52,7 +51,7 @@ constructor(
   private val reactivateLastSurvey: ReactivateLastSurveyUseCase,
   private val surveyDeepLinkParser: SurveyDeepLinkParser,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-  private val remoteConfig: FirebaseRemoteConfig,
+  private val shouldForceUpdateUseCase: ShouldForceUpdateUseCase,
   authenticationManager: AuthenticationManager,
   private val playInstallReferrerService: PlayInstallReferrerService,
 ) : AbstractViewModel() {
@@ -92,6 +91,10 @@ constructor(
   }
 
   private suspend fun onUserSignedIn(user: User) {
+    // Stay behind the update dialog. The steps below may call the remote store, and any failure
+    // among them signs the user out, which clears the local db along with unsynced changes.
+    if (shouldForceUpdateUseCase()) return
+
     val destination =
       try {
         userRepository.saveUserDetails(user)
@@ -126,28 +129,6 @@ constructor(
   /** Returns true if the user has already accepted the Terms of Service. */
   private fun isTosAccepted(): Boolean = termsOfServiceRepository.isTermsOfServiceAccepted
 
-  private fun isOlderVersion(current: String, minRequired: String): Boolean {
-    fun String.toSegments() = split('.').map { it.toIntOrNull() ?: 0 }
-
-    val currentParts = current.toSegments()
-    val requiredParts = minRequired.toSegments()
-    val maxLength = maxOf(currentParts.size, requiredParts.size)
-
-    for (i in 0 until maxLength) {
-      val curr = currentParts.getOrElse(i) { 0 }
-      val req = requiredParts.getOrElse(i) { 0 }
-      if (curr != req) return curr < req
-    }
-
-    return false
-  }
-
-  fun isAppUpdateAvailable(currentVersion: String = BuildConfig.VERSION_NAME): Boolean {
-    val forceUpdate = remoteConfig.getBoolean("force_update")
-    val latestVersion = remoteConfig.getString("min_app_version")
-
-    return forceUpdate &&
-      latestVersion.isNotBlank() &&
-      isOlderVersion(currentVersion, latestVersion)
-  }
+  /** Returns true if this build must be updated before it may be used. */
+  fun isAppUpdateRequired(): Boolean = shouldForceUpdateUseCase()
 }

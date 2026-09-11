@@ -161,7 +161,7 @@ class MainActivity : AbstractActivity() {
 
   override fun onResume() {
     super.onResume()
-    if (viewModel.isAppUpdateAvailable()) {
+    if (viewModel.isAppUpdateRequired()) {
       showForceUpdateDialog()
     }
   }
