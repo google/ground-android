@@ -17,12 +17,12 @@ package org.groundplatform.domain.usecases
 
 import org.groundplatform.domain.repository.AppConfigRepositoryInterface
 
+/** Checks whether this build is below the minimum version required by the app config. */
 class ShouldForceUpdateUseCase(
   private val appConfigRepository: AppConfigRepositoryInterface,
   private val currentVersion: String,
 ) {
 
-  /** Returns true if this build must be updated before it may be used. */
   operator fun invoke(): Boolean {
     val appConfig = appConfigRepository.getAppConfig()
     val minRequired = appConfig.minAppVersion

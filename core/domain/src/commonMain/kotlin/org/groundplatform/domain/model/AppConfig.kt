@@ -15,6 +15,7 @@
  */
 package org.groundplatform.domain.model
 
+/** Remotely managed settings that control whether this app version must be updated. */
 data class AppConfig(
   val minAppVersion: String,
   val forceUpdate: Boolean,

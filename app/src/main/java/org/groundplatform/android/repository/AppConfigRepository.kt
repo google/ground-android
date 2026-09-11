@@ -21,6 +21,7 @@ import javax.inject.Singleton
 import org.groundplatform.domain.model.AppConfig
 import org.groundplatform.domain.repository.AppConfigRepositoryInterface
 
+/** Reads the [AppConfig] from Firebase Remote Config. */
 @Singleton
 class AppConfigRepository @Inject constructor(private val remoteConfig: FirebaseRemoteConfig) :
   AppConfigRepositoryInterface {
