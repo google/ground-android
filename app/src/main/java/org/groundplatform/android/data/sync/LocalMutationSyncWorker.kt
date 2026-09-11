@@ -46,11 +46,11 @@ constructor(
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : CoroutineWorker(context, params) {
 
-  override suspend fun doWork(): Result =
-    withContext(ioDispatcher) {
-      // Changes stay queued locally and are uploaded once the updated app is opened.
-      if (shouldForceUpdate()) return@withContext success()
+  override suspend fun doWork(): Result {
+    // Changes stay queued locally and are uploaded once the updated app is opened.
+    if (shouldForceUpdate()) return success()
 
+    return withContext(ioDispatcher) {
       val queue = mutationRepository.getIncompleteUploads()
       Timber.d("Uploading ${queue.size} additions / changes")
       val results = queue.map { mutationRepository.processMutations(it.mutations()) }
@@ -64,4 +64,5 @@ constructor(
 
       if (results.size == successfulMutations.size) success() else retry()
     }
+  }
 }

@@ -59,16 +59,17 @@ constructor(
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : CoroutineWorker(context, workerParams) {
 
-  override suspend fun doWork(): Result =
-    withContext(ioDispatcher) {
-      // Media stays queued locally and is uploaded once the updated app is opened.
-      if (shouldForceUpdate()) return@withContext success()
+  override suspend fun doWork(): Result {
+    // Media stays queued locally and is uploaded once the updated app is opened.
+    if (shouldForceUpdate()) return success()
 
+    return withContext(ioDispatcher) {
       val mutations = mutationRepository.getIncompleteMediaMutations()
       Timber.d("Uploading photos for ${mutations.size} submission mutations")
       val results = mutations.map { uploadAllMedia(it) }
       if (results.all { it }) success() else retry()
     }
+  }
 
   /**
    * Upload all media associated with a given submission. Returns `true` if all uploads succeeds or
