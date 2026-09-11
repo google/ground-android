@@ -16,6 +16,6 @@
 package org.groundplatform.domain.model
 
 data class AppConfig(
-    val minAppVersion: String,
-    val forceUpdate: Boolean
+  val minAppVersion: String,
+  val forceUpdate: Boolean,
 )

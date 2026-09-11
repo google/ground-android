@@ -36,6 +36,7 @@ import org.groundplatform.android.data.local.stores.LocalUserStore
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.data.remote.FakeRemoteStorageManager
 import org.groundplatform.android.di.coroutines.IoDispatcher
+import org.groundplatform.domain.model.AppConfig
 import org.groundplatform.domain.model.mutation.Mutation
 import org.groundplatform.domain.model.mutation.Mutation.SyncStatus.COMPLETED
 import org.groundplatform.domain.model.mutation.Mutation.SyncStatus.FAILED
@@ -52,6 +53,8 @@ import org.groundplatform.domain.model.task.Task
 import org.groundplatform.domain.model.task.Task.Type.PHOTO
 import org.groundplatform.domain.repository.MutationRepositoryInterface
 import org.groundplatform.domain.repository.UserMediaRepositoryInterface
+import org.groundplatform.domain.usecases.ShouldForceUpdateUseCase
+import org.groundplatform.testing.FakeAppConfigRepository
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -71,6 +74,10 @@ class MediaUploadWorkerTest : BaseHiltTest() {
   @Inject lateinit var localLocationOfInterestStore: LocalLocationOfInterestStore
   @Inject @IoDispatcher lateinit var ioDispatcher: CoroutineDispatcher
 
+  private val appConfigRepository = FakeAppConfigRepository()
+  private val shouldForceUpdate =
+    ShouldForceUpdateUseCase(appConfigRepository, currentVersion = "1.0.0")
+
   private val factory =
     object : WorkerFactory() {
       override fun createWorker(
@@ -84,6 +91,7 @@ class MediaUploadWorkerTest : BaseHiltTest() {
           fakeRemoteStorageManager,
           mutationRepository,
           userMediaRepository,
+          shouldForceUpdate,
           ioDispatcher,
         )
     }
@@ -165,6 +173,21 @@ class MediaUploadWorkerTest : BaseHiltTest() {
     assertThatMutationCountEquals(MEDIA_UPLOAD_AWAITING_RETRY, 0)
     assertThatMutationCountEquals(MEDIA_UPLOAD_PENDING, 0)
     assertThatMutationCountEquals(MEDIA_UPLOAD_IN_PROGRESS, 0)
+  }
+
+  @Test
+  fun `doWork leaves media queued when an app update is required`() = runWithTestDispatcher {
+    appConfigRepository.config = AppConfig(minAppVersion = "2.0.0", forceUpdate = true)
+    localUserStore.insertOrUpdateUser(FakeData.USER)
+    localSurveyStore.insertOrUpdateSurvey(TEST_SURVEY)
+    localLocationOfInterestStore.insertOrUpdate(TEST_LOI)
+    localSubmissionStore.applyAndEnqueue(
+      createSubmissionMutation().copy(syncStatus = MEDIA_UPLOAD_PENDING)
+    )
+
+    createAndDoWork(context)
+
+    assertThatMutationCountEquals(MEDIA_UPLOAD_PENDING, 1)
   }
 
   // Initiates and runs the MediaUploadWorker

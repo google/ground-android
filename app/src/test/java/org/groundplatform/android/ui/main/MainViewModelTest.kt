@@ -22,6 +22,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.FirebaseFirestoreException
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
+import dagger.hilt.android.testing.UninstallModules
 import javax.inject.Inject
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -30,24 +31,30 @@ import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.data.local.room.LocalDataStoreException
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
+import org.groundplatform.android.di.AppConfigRepositoryModule
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
 import org.groundplatform.android.system.deeplink.PlayInstallReferrerService
+import org.groundplatform.domain.model.AppConfig
 import org.groundplatform.domain.model.auth.SignInState
+import org.groundplatform.domain.repository.AppConfigRepositoryInterface
 import org.groundplatform.domain.repository.TermsOfServiceRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mock
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
+@UninstallModules(AppConfigRepositoryModule::class)
 @RunWith(RobolectricTestRunner::class)
 class MainViewModelTest : BaseHiltTest() {
 
   @BindValue @JvmField val playInstallReferrerService: PlayInstallReferrerService = mock()
+  @BindValue @Mock lateinit var appConfigRepository: AppConfigRepositoryInterface
 
   @Inject lateinit var fakeAuthenticationManager: FakeAuthenticationManager
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
@@ -61,6 +68,7 @@ class MainViewModelTest : BaseHiltTest() {
     super.setUp()
 
     fakeAuthenticationManager.setUser(FakeData.USER)
+    whenever(appConfigRepository.getAppConfig()).thenReturn(NO_UPDATE)
   }
 
   private fun setupUserPreferences() {
@@ -216,7 +224,32 @@ class MainViewModelTest : BaseHiltTest() {
       }
     }
 
+  @Test
+  fun `navigation is skipped when an app update is required`() = runWithTestDispatcher {
+    tosRepository.isTermsOfServiceAccepted = true
+    whenever(appConfigRepository.getAppConfig()).thenReturn(UPDATE_REQUIRED)
+
+    viewModel.uiEffects.test {
+      fakeAuthenticationManager.signIn()
+      advanceUntilIdle()
+
+      expectNoEvents()
+      verifyUserNotSaved()
+    }
+  }
+
+  @Test
+  fun `isAppUpdateRequired reflects the active config`() {
+    assertThat(viewModel.isAppUpdateRequired()).isFalse()
+
+    whenever(appConfigRepository.getAppConfig()).thenReturn(UPDATE_REQUIRED)
+
+    assertThat(viewModel.isAppUpdateRequired()).isTrue()
+  }
+
   companion object {
     private const val SURVEY_ID = "survey_123"
+    private val NO_UPDATE = AppConfig(minAppVersion = "0.0.0", forceUpdate = false)
+    private val UPDATE_REQUIRED = AppConfig(minAppVersion = "9999.0.0", forceUpdate = true)
   }
 }
