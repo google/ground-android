@@ -15,13 +15,13 @@
  */
 package org.groundplatform.android
 
+import android.app.Application
 import android.os.StrictMode
 import android.os.StrictMode.VmPolicy
 import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import androidx.hilt.work.HiltWorkerFactory
-import androidx.multidex.MultiDexApplication
 import androidx.work.Configuration
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import dagger.hilt.android.HiltAndroidApp
@@ -31,7 +31,7 @@ import org.groundplatform.android.data.local.LocalValueStore
 import timber.log.Timber
 
 @HiltAndroidApp
-class GroundApplication : MultiDexApplication(), Configuration.Provider {
+class GroundApplication : Application(), Configuration.Provider {
 
   @Inject lateinit var crashReportingTree: CrashReportingTree
   @Inject lateinit var workerFactory: HiltWorkerFactory

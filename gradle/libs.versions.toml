@@ -61,7 +61,6 @@ material3Version = "1.9.0"
 mockitoBom = "5.23.0"
 mockitoInlineVersion = "5.2.0"
 mockitoKotlinVersion = "6.3.0"
-multidex = "2.0.1"
 navigationKtxVersion = "2.10.0"
 orchestratorVersion = "1.6.1"
 ossLicensesPluginVersion = "0.13.0"
@@ -107,7 +106,6 @@ androidx-junit = { module = "androidx.test.ext:junit", version.ref = "junitKtx" 
 androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleVersion" }
 androidx-material-icons = { module = "androidx.compose.material:material-icons-core" }
 androidx-material3-android = { module = "androidx.compose.material3:material3-android" }
-androidx-multidex = { module = "androidx.multidex:multidex", version.ref = "multidex" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationKtxVersion" }
 androidx-navigation-testing = { module = "androidx.navigation:navigation-testing", version.ref = "navigationKtxVersion" }
 androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationKtxVersion" }

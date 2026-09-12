@@ -85,7 +85,6 @@ android {
         versionCode getGitCommitCount()
         versionName "${getGitBranchName()}-${getGitHash()}-debug"
 
-        multiDexEnabled = true
         // For rendering vector map markers.
         vectorDrawables.useSupportLibrary = true
         buildConfigField "String", "EMULATOR_HOST", "\"10.0.2.2\""
@@ -190,7 +189,6 @@ dependencies {
     implementation project(':core:domain')
     implementation project(':core:ui')
     implementation project(':feature:pdf')
-    implementation libs.androidx.multidex
     implementation libs.androidx.preference.ktx
 
     // Kotlin
