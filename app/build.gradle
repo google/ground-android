@@ -223,7 +223,7 @@ dependencies {
     implementation libs.androidx.ui
     implementation libs.androidx.ui.tooling.preview.android
     stagingImplementation libs.androidx.ui.test.manifest
-    testImplementation libs.androidx.ui.test.junit4
+    testImplementation libs.androidx.compose.ui.test.junit4
     implementation libs.androidx.navigation.compose
     implementation libs.androidx.hilt.navigation.compose
     // Compose Multiplatform
@@ -275,10 +275,6 @@ dependencies {
     implementation libs.androidx.navigation.fragment.ktx
     implementation libs.androidx.navigation.ui.ktx
 
-    // Auto-value
-    compileOnly libs.auto.value.annotations
-    ksp libs.auto.value
-
     // Logging
     implementation libs.timber
 
@@ -305,12 +301,11 @@ dependencies {
     // Testing
     androidTestImplementation libs.androidx.junit
     androidTestImplementation libs.androidx.runner
-    androidTestImplementation libs.core.testing
+    androidTestImplementation libs.androidx.core.testing
     androidTestImplementation libs.truth
     testImplementation libs.androidx.core
     testImplementation libs.androidx.core.testing
     testImplementation libs.androidx.navigation.testing
-    testImplementation libs.core.testing
     testImplementation libs.json
     testImplementation libs.junit
     testImplementation libs.kotlin.test
