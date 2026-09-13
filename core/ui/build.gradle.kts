@@ -73,7 +73,7 @@ kotlin {
 
     androidMain { dependencies { implementation(libs.google.zxing) } }
 
-    val androidHostTest by getting {
+    getByName("androidHostTest") {
       dependencies {
         implementation(libs.junit)
         implementation(libs.robolectric)

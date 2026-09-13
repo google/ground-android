@@ -85,7 +85,6 @@ android {
         versionCode getGitCommitCount()
         versionName "${getGitBranchName()}-${getGitHash()}-debug"
 
-        multiDexEnabled = true
         // For rendering vector map markers.
         vectorDrawables.useSupportLibrary = true
         buildConfigField "String", "EMULATOR_HOST", "\"10.0.2.2\""
@@ -100,7 +99,7 @@ android {
     }
 
     // Use flag -PtestBuildType with desired variant to change default behavior.
-    testBuildType = project.getProperties().getOrDefault("testBuildType", "debug")
+    testBuildType = providers.gradleProperty("testBuildType").getOrElse("debug")
 
     // gradle doesn't sign debug test apk (needed for running instrumentation tests on firebase)
     // https://stackoverflow.com/questions/3082780/java-lang-securityexception-permission-denial/38202106
@@ -156,7 +155,6 @@ android {
     buildFeatures {
         buildConfig = true
         compose = true
-        dataBinding = true
         viewBinding = true
     }
     testOptions {
@@ -191,7 +189,6 @@ dependencies {
     implementation project(':core:domain')
     implementation project(':core:ui')
     implementation project(':feature:pdf')
-    implementation libs.androidx.multidex
     implementation libs.androidx.preference.ktx
 
     // Kotlin
@@ -226,7 +223,7 @@ dependencies {
     implementation libs.androidx.ui
     implementation libs.androidx.ui.tooling.preview.android
     stagingImplementation libs.androidx.ui.test.manifest
-    testImplementation libs.androidx.ui.test.junit4
+    testImplementation libs.androidx.compose.ui.test.junit4
     implementation libs.androidx.navigation.compose
     implementation libs.androidx.hilt.navigation.compose
     // Compose Multiplatform
@@ -278,10 +275,6 @@ dependencies {
     implementation libs.androidx.navigation.fragment.ktx
     implementation libs.androidx.navigation.ui.ktx
 
-    // Auto-value
-    compileOnly libs.auto.value.annotations
-    ksp libs.auto.value
-
     // Logging
     implementation libs.timber
 
@@ -308,12 +301,11 @@ dependencies {
     // Testing
     androidTestImplementation libs.androidx.junit
     androidTestImplementation libs.androidx.runner
-    androidTestImplementation libs.core.testing
+    androidTestImplementation libs.androidx.core.testing
     androidTestImplementation libs.truth
     testImplementation libs.androidx.core
     testImplementation libs.androidx.core.testing
     testImplementation libs.androidx.navigation.testing
-    testImplementation libs.core.testing
     testImplementation libs.json
     testImplementation libs.junit
     testImplementation libs.kotlin.test
@@ -355,12 +347,21 @@ dependencies {
     implementation libs.android.install.referrer
 }
 
+// Extracts protodefs in downloaded JAR to the build/extracted-protos dirs.
+def extractGroundProtoJar = tasks.register('extractGroundProtoJar', Copy) {
+    from(configurations.groundProtoJar.elements.map { elements ->
+        elements.collect { zipTree(it) }
+    })
+    into extractedGroundProtoPath
+    include "**/*.proto"
+}
+
 protobuf {
     protoc {
         artifact = "com.google.protobuf:protoc:4.26.1"
     }
     generateProtoTasks {
-        all().each {
+        all().configureEach {
             it.plugins {
                 // Generated Kotlin classes depend on these.
                 create("java") {
@@ -375,19 +376,6 @@ protobuf {
             it.dependsOn extractGroundProtoJar
         }
     }
-}
-
-// Extracts protodefs in downloaded JAR to the build/extracted-protos dirs.
-task extractGroundProtoJar(type: Copy) {
-    from(
-        // Defer resolution until after configuration phase.
-        provider {
-            configurations.groundProtoJar.collect {
-                zipTree(it)
-            }
-        })
-    into extractedGroundProtoPath
-    include "**/*.proto"
 }
 
 kotlin {

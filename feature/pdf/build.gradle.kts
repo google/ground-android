@@ -71,7 +71,7 @@ kotlin {
       }
     }
 
-    val androidHostTest by getting {
+    getByName("androidHostTest") {
       dependencies {
         implementation(libs.junit)
         implementation(libs.robolectric)
