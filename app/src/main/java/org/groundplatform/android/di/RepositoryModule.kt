@@ -20,6 +20,7 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import jakarta.inject.Singleton
+import org.groundplatform.android.repository.AppConfigRepository
 import org.groundplatform.android.repository.LocationOfInterestRepository
 import org.groundplatform.android.repository.MapStateRepository
 import org.groundplatform.android.repository.MutationRepository
@@ -29,6 +30,7 @@ import org.groundplatform.android.repository.SurveyRepository
 import org.groundplatform.android.repository.TermsOfServiceRepository
 import org.groundplatform.android.repository.UserMediaRepository
 import org.groundplatform.android.repository.UserRepository
+import org.groundplatform.domain.repository.AppConfigRepositoryInterface
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import org.groundplatform.domain.repository.MapStateRepositoryInterface
 import org.groundplatform.domain.repository.MutationRepositoryInterface
@@ -113,4 +115,12 @@ abstract class UserMediaRepositoryModule {
   @Binds
   @Singleton
   abstract fun bindUserMediaRepository(impl: UserMediaRepository): UserMediaRepositoryInterface
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class AppConfigRepositoryModule {
+  @Binds
+  @Singleton
+  abstract fun bindAppConfigRepository(impl: AppConfigRepository): AppConfigRepositoryInterface
 }

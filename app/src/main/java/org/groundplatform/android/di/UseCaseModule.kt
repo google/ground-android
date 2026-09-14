@@ -19,6 +19,8 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import org.groundplatform.android.BuildConfig
+import org.groundplatform.domain.repository.AppConfigRepositoryInterface
 import org.groundplatform.domain.repository.LocationOfInterestRepositoryInterface
 import org.groundplatform.domain.repository.MapStateRepositoryInterface
 import org.groundplatform.domain.repository.OfflineAreaRepositoryInterface
@@ -125,4 +127,11 @@ object UseCaseModule {
     surveyRepository: SurveyRepositoryInterface,
     userRepository: UserRepositoryInterface,
   ) = ListAvailableSurveysUseCase(networkManager, surveyRepository, userRepository)
+
+  @Provides
+  fun providesShouldForceUpdateUseCase(appConfigRepositoryInterface: AppConfigRepositoryInterface) =
+    org.groundplatform.domain.usecases.ShouldForceUpdateUseCase(
+      appConfigRepository = appConfigRepositoryInterface,
+      currentVersion = BuildConfig.VERSION_NAME,
+    )
 }
