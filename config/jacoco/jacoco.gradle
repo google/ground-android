@@ -28,22 +28,26 @@ tasks.withType(Test).configureEach {
 def isAndroidModule = plugins.hasPlugin('com.android.application') || plugins.hasPlugin('com.android.library')
 def isAndroidKmpModule = plugins.hasPlugin('com.android.kotlin.multiplatform.library')
 def isKmpModule = plugins.hasPlugin('org.jetbrains.kotlin.multiplatform')
+// Generated code only: excluding hand-written classes would hide real gaps. Every pattern here
+// matches `:app` classes only; no other module generates code of these kinds.
 def excludesList = [
     '**/databinding/*',
     '**/proto/*',
-    '**/migration/*',
+    // Room. `LocalDatabase_*` covers both the database impl and the generated auto-migrations.
     '**/local/room/dao/*',
+    '**/LocalDatabase_*',
+    // Hilt/Dagger. `**/di/**` rather than `**/*Module*`, which also matched hand-written classes
+    // merely named "...Module...".
     '**/*_Factory*',
+    '**/*_MembersInjector*',
+    '**/*_GeneratedInjector*',
+    '**/*_AssistedFactory*',
+    '**/*_ComponentTreeDeps*',
     '**/*Hilt*',
+    '**/di/**',
+    // Navigation Safe Args.
     '**/*Args*',
     '**/*Directions*',
-    '**/LocalDatabase_Impl*',
-    '**/*Module*',
-    '**/data/remote/firebase/base/*',
-    '**/data/remote/firebase/schema/*Reference*',
-    '**/data/remote/firebase/FirebaseStorageManager*',
-    '**/data/remote/firebase/FirestoreDataStore*',
-    '**/system/channel/LocationSharedFlowCallback*',
 ]
 def testTaskName
 def classDirs
