@@ -16,8 +16,11 @@
 
 package org.groundplatform.android.data.remote.firebase
 
+import com.google.android.gms.tasks.Task
 import com.google.firebase.firestore.DocumentSnapshot
 import org.mockito.Mockito
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
 /**
@@ -28,4 +31,14 @@ fun newDocumentSnapshot(id: String = "", data: Map<String, Any>? = null): Docume
   whenever(mockSnapshot.id).thenReturn(id)
   whenever(mockSnapshot.data).thenReturn(data)
   return mockSnapshot
+}
+
+/**
+ * Returns a [Task] in the completed-but-cancelled state, as produced when a Firebase call is
+ * abandoned. Awaiting it throws [kotlinx.coroutines.CancellationException].
+ */
+fun <T> canceledTask(): Task<T> = mock {
+  on { isComplete } doReturn true
+  on { isCanceled } doReturn true
+  on { exception } doReturn null
 }
