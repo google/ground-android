@@ -63,7 +63,6 @@ class HomeScreenFragment : AbstractFragment(), BackPressListener {
   ): View {
     super.onCreateView(inflater, container, savedInstanceState)
     binding = HomeScreenFragBinding.inflate(inflater, container, false)
-    binding.lifecycleOwner = this
     return binding.root
   }
 
