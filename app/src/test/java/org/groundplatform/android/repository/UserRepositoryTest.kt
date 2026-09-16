@@ -28,6 +28,7 @@ import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.local.stores.LocalSurveyStore
 import org.groundplatform.android.data.local.stores.LocalUserStore
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
+import org.groundplatform.android.data.sync.MediaUploadWorkManager
 import org.groundplatform.android.system.NetworkManager
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
 import org.groundplatform.domain.model.Role
@@ -40,6 +41,8 @@ import org.groundplatform.domain.repository.UserRepositoryInterface
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
+import org.mockito.kotlin.never
+import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
@@ -56,6 +59,7 @@ class UserRepositoryTest : BaseHiltTest() {
   @Inject lateinit var fakeRemoteDataStore: FakeRemoteDataStore
 
   @BindValue @Mock lateinit var networkManager: NetworkManager
+  @BindValue @Mock lateinit var mediaUploadWorkManager: MediaUploadWorkManager
 
   @Test
   fun `currentUser returns current user`() = runWithTestDispatcher {
@@ -227,5 +231,73 @@ class UserRepositoryTest : BaseHiltTest() {
     assertThat(localValueStore.selectedLanguage).isEqualTo("fr")
     assertThat(localValueStore.selectedLengthUnit).isEqualTo(MeasurementUnits.IMPERIAL.name)
     assertThat(localValueStore.shouldUploadMediaOverUnmeteredConnectionOnly).isTrue()
+  }
+
+  @Test
+  fun `setUserSettings() reschedules media uploads when wifi only uploads are disabled`() {
+    localValueStore.shouldUploadMediaOverUnmeteredConnectionOnly = true
+
+    userRepository.setUserSettings(
+      UserSettings("fr", MeasurementUnits.IMPERIAL, shouldUploadPhotosOnWifiOnly = false)
+    )
+
+    verify(mediaUploadWorkManager).rescheduleSyncWorker()
+  }
+
+  @Test
+  fun `setUserSettings() reschedules media uploads when wifi only uploads are enabled`() {
+    localValueStore.shouldUploadMediaOverUnmeteredConnectionOnly = false
+
+    userRepository.setUserSettings(
+      UserSettings("fr", MeasurementUnits.IMPERIAL, shouldUploadPhotosOnWifiOnly = true)
+    )
+
+    verify(mediaUploadWorkManager).rescheduleSyncWorker()
+  }
+
+  @Test
+  fun `setUserSettings() doesn't reschedule media uploads when the network preference is unchanged`() {
+    localValueStore.shouldUploadMediaOverUnmeteredConnectionOnly = true
+
+    userRepository.setUserSettings(
+      UserSettings("fr", MeasurementUnits.IMPERIAL, shouldUploadPhotosOnWifiOnly = true)
+    )
+
+    verify(mediaUploadWorkManager, never()).rescheduleSyncWorker()
+  }
+
+  @Test
+  fun `setUserSettings() doesn't reschedule media uploads when only the language changes`() {
+    // The store defaults to uploading over any connection, so this covers the common case of
+    // editing an unrelated setting without ever having touched the upload preference.
+    userRepository.setUserSettings(
+      UserSettings("fr", MeasurementUnits.IMPERIAL, shouldUploadPhotosOnWifiOnly = false)
+    )
+
+    verify(mediaUploadWorkManager, never()).rescheduleSyncWorker()
+  }
+
+  @Test
+  fun `setUserSettings() persists the new preference before rescheduling media uploads`() {
+    // Rescheduling first would re-enqueue the worker with the previous network type, leaving
+    // uploads stuck exactly as reported in issue 3945.
+    localValueStore.shouldUploadMediaOverUnmeteredConnectionOnly = true
+    var preferenceWhenRescheduled: Boolean? = null
+    whenever(mediaUploadWorkManager.rescheduleSyncWorker()).then {
+      preferenceWhenRescheduled = localValueStore.shouldUploadMediaOverUnmeteredConnectionOnly
+    }
+
+    userRepository.setUserSettings(
+      UserSettings("fr", MeasurementUnits.IMPERIAL, shouldUploadPhotosOnWifiOnly = false)
+    )
+
+    assertThat(preferenceWhenRescheduled).isFalse()
+  }
+
+  @Test
+  fun `clearUserData() cancels pending media uploads`() = runWithTestDispatcher {
+    userRepository.clearUserData()
+
+    verify(mediaUploadWorkManager).cancelSyncWorker()
   }
 }
