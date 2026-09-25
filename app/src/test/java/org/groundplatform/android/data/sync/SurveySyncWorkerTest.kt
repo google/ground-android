@@ -40,8 +40,11 @@ import org.groundplatform.android.data.sync.SurveySyncWorker.Companion.MAX_SYNC_
 import org.groundplatform.android.data.sync.SurveySyncWorker.Companion.SURVEY_ID_PARAM_KEY
 import org.groundplatform.android.data.sync.SurveySyncWorker.Companion.SYNC_TIMEOUT_MILLIS
 import org.groundplatform.android.di.coroutines.IoDispatcher
+import org.groundplatform.domain.model.AppConfig
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
+import org.groundplatform.domain.usecases.ShouldForceUpdateUseCase
 import org.groundplatform.domain.usecases.survey.SyncSurveyUseCase
+import org.groundplatform.testing.FakeAppConfigRepository
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -63,13 +66,25 @@ class SurveySyncWorkerTest : BaseHiltTest() {
 
   @Inject @IoDispatcher lateinit var ioDispatcher: CoroutineDispatcher
 
+  private val appConfigRepository = FakeAppConfigRepository()
+  private val shouldForceUpdate =
+    ShouldForceUpdateUseCase(appConfigRepository, currentVersion = "1.0.0")
+
   private val factory =
     object : WorkerFactory() {
       override fun createWorker(
         appContext: Context,
         workerClassName: String,
         workerParameters: WorkerParameters,
-      ) = SurveySyncWorker(appContext, workerParameters, syncSurvey, surveyRepository, ioDispatcher)
+      ) =
+        SurveySyncWorker(
+          appContext,
+          workerParameters,
+          syncSurvey,
+          surveyRepository,
+          shouldForceUpdate,
+          ioDispatcher,
+        )
     }
 
   @Before
@@ -106,6 +121,22 @@ class SurveySyncWorkerTest : BaseHiltTest() {
     val result = worker.doWork()
     assertThat(result).isEqualTo(Result.success())
     verify(syncSurvey).invoke(SURVEY.id)
+  }
+
+  @Test
+  fun `doWork() skips the sync when an app update is required`() = runWithTestDispatcher {
+    appConfigRepository.config = AppConfig(minAppVersion = "2.0.0", forceUpdate = true)
+
+    val worker =
+      TestListenableWorkerBuilder<SurveySyncWorker>(
+          context,
+          inputData = workDataOf(Pair(SURVEY_ID_PARAM_KEY, SURVEY.id)),
+        )
+        .setWorkerFactory(factory)
+        .build()
+    val result = worker.doWork()
+    assertThat(result).isEqualTo(Result.success())
+    verifyBlocking(syncSurvey, never()) { invoke(SURVEY.id) }
   }
 
   @Test

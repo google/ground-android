@@ -34,6 +34,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import org.groundplatform.android.di.coroutines.IoDispatcher
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
+import org.groundplatform.domain.usecases.ShouldForceUpdateUseCase
 import org.groundplatform.domain.usecases.survey.SyncSurveyUseCase
 import timber.log.Timber
 
@@ -46,6 +47,7 @@ constructor(
   @Assisted params: WorkerParameters,
   private val syncSurvey: SyncSurveyUseCase,
   private val surveyRepository: SurveyRepositoryInterface,
+  private val shouldForceUpdate: ShouldForceUpdateUseCase,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : CoroutineWorker(context, params) {
   private val surveyId: String? = params.inputData.getString(SURVEY_ID_PARAM_KEY)
@@ -57,6 +59,9 @@ constructor(
       Timber.e("Survey sync scheduled with null surveyId")
       return failure()
     }
+
+    // The first sync after the update catches up, so there is nothing to retry.
+    if (shouldForceUpdate()) return success()
 
     if (runAttemptCount >= MAX_SYNC_ATTEMPTS) {
       Timber.e("Giving up sync of survey $surveyId after $runAttemptCount attempts")
