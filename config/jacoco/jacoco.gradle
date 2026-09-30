@@ -17,7 +17,7 @@
 apply plugin: 'jacoco'
 
 jacoco {
-    toolVersion = "0.8.13"
+    toolVersion = libs.versions.jacocoVersion.get()
 }
 
 tasks.withType(Test).configureEach {
@@ -28,49 +28,77 @@ tasks.withType(Test).configureEach {
 def isAndroidModule = plugins.hasPlugin('com.android.application') || plugins.hasPlugin('com.android.library')
 def isAndroidKmpModule = plugins.hasPlugin('com.android.kotlin.multiplatform.library')
 def isKmpModule = plugins.hasPlugin('org.jetbrains.kotlin.multiplatform')
+// Generated code only: excluding hand-written classes would hide real gaps. Every pattern here
+// matches `:app` classes only; no other module generates code of these kinds.
 def excludesList = [
     '**/databinding/*',
     '**/proto/*',
-    '**/migration/*',
+    // Room. `LocalDatabase_*` covers both the database impl and the generated auto-migrations.
     '**/local/room/dao/*',
+    '**/LocalDatabase_*',
+    // Hilt/Dagger. `**/di/**` rather than `**/*Module*`, which also matched hand-written classes
+    // merely named "...Module...".
     '**/*_Factory*',
+    '**/*_MembersInjector*',
+    '**/*_GeneratedInjector*',
+    '**/*_AssistedFactory*',
+    '**/*_ComponentTreeDeps*',
     '**/*Hilt*',
+    '**/di/**',
+    // Navigation Safe Args.
     '**/*Args*',
     '**/*Directions*',
-    '**/LocalDatabase_Impl*',
-    '**/*Module*',
-    '**/data/remote/firebase/base/*',
-    '**/data/remote/firebase/schema/*Reference*',
-    '**/data/remote/firebase/FirebaseStorageManager*',
-    '**/data/remote/firebase/FirestoreDataStore*',
-    '**/system/channel/LocationSharedFlowCallback*',
 ]
 def testTaskName
 def classDirs
 def sourceDirs
-def execData
+// AGP redirects coverage to `outputs/unit_test_code_coverage` when the `jacoco` plugin is applied
+// before it, otherwise the Gradle plugin's `build/jacoco` default wins. Accept both.
+def execDataCandidates
 
 if (isAndroidModule) {
     testTaskName = 'testLocalDebugUnitTest'
     classDirs = 'build/intermediates/classes/localDebug/transformLocalDebugClassesWithAsm/dirs/org/groundplatform/android'
     sourceDirs = ['src/main/java/org/groundplatform/android']
-    execData = 'build/jacoco/testLocalDebugUnitTest.exec'
+    execDataCandidates = [
+        'jacoco/testLocalDebugUnitTest.exec',
+        'outputs/unit_test_code_coverage/localDebugUnitTest/testLocalDebugUnitTest.exec',
+    ]
 } else if (isAndroidKmpModule) {
     testTaskName = 'testAndroidHostTest'
     classDirs = 'build/classes/kotlin/android/main'
     sourceDirs = ['src/commonMain/kotlin', 'src/androidMain/kotlin']
-    execData = 'build/jacoco/testAndroidHostTest.exec'
+    execDataCandidates = ['jacoco/testAndroidHostTest.exec']
 } else if (isKmpModule) {
     testTaskName = 'jvmTest'
     classDirs = 'build/classes/kotlin/jvm/main'
     sourceDirs = ['src/commonMain/kotlin']
-    execData = 'build/jacoco/jvmTest.exec'
+    execDataCandidates = ['jacoco/jvmTest.exec']
 }
 
-tasks.register('jacocoLocalDebugUnitTestReport', JacocoReport) {
+// A `fileTree` matches only files that exist, so this resolves to whichever candidate was written.
+def execData = fileTree(dir: 'build', includes: execDataCandidates)
+
+// `JacocoReport` skips rather than fails on missing execution data, silently publishing an empty
+// report. A check inside that task would never run, so guard from a separate one.
+def verifyExecutionData = tasks.register('verifyJacocoExecutionData') {
     dependsOn tasks.named(testTaskName)
+    group = "Verification"
+    description = "Fails if '$testTaskName' produced no JaCoCo execution data."
+    doLast {
+        if (execData.empty) {
+            throw new GradleException(
+                "No JaCoCo execution data found under 'build' at any of $execDataCandidates. " +
+                    "The coverage report would be silently empty. Verify where '$testTaskName' " +
+                    "writes its .exec file.")
+        }
+    }
+}
+
+tasks.register('jacocoTestReport', JacocoReport) {
+    dependsOn verifyExecutionData
     group = "Reporting"
-    description = "Run tests and generate coverage reports"
+    description = "Runs '$testTaskName' and generates a JaCoCo coverage report."
     reports {
         csv.required = false
         xml.required = true
@@ -78,5 +106,5 @@ tasks.register('jacocoLocalDebugUnitTestReport', JacocoReport) {
     }
     classDirectories.from = fileTree(dir: classDirs, excludes: excludesList)
     sourceDirectories.from = files(sourceDirs)
-    executionData.from = files(execData)
+    executionData.from = execData
 }
