@@ -55,5 +55,11 @@ interface UserRepositoryInterface {
 
   fun getUserSettings(): UserSettings
 
+  /**
+   * Persists the given settings.
+   *
+   * Changing the preferred media upload network reschedules pending media uploads, since the
+   * constraints of work which was already scheduled can't be modified in place.
+   */
   fun setUserSettings(userSettings: UserSettings)
 }

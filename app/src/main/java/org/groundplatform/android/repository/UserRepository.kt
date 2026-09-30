@@ -22,6 +22,7 @@ import org.groundplatform.android.data.local.LocalValueStore
 import org.groundplatform.android.data.local.room.LocalDatabase
 import org.groundplatform.android.data.local.stores.LocalUserStore
 import org.groundplatform.android.data.remote.RemoteDataStore
+import org.groundplatform.android.data.sync.MediaUploadWorkManager
 import org.groundplatform.android.system.auth.AuthenticationManager
 import org.groundplatform.domain.model.Role
 import org.groundplatform.domain.model.Survey
@@ -50,6 +51,7 @@ constructor(
   private val surveyRepository: SurveyRepositoryInterface,
   private val remoteDataStore: RemoteDataStore,
   private val localDatabase: LocalDatabase,
+  private val mediaUploadWorkManager: MediaUploadWorkManager,
 ) : UserRepositoryInterface {
 
   override fun getSignInState(): Flow<SignInState> = authenticationManager.signInState
@@ -86,6 +88,9 @@ constructor(
 
   override suspend fun clearUserData() {
     clearUserPreferences()
+    // Pending uploads reference data which is about to be deleted, and work enqueued under the
+    // previous user's network preference would otherwise block uploads appended by the next user.
+    mediaUploadWorkManager.cancelSyncWorker()
     // TODO: Once multi-user login is supported, avoid clearing local db data. This is
     //  currently being done to prevent one user's data to be submitted as another user after
     //  re-login.
@@ -146,10 +151,20 @@ constructor(
     }
 
   override fun setUserSettings(userSettings: UserSettings) {
+    val uploadNetworkPreferenceChanged =
+      localValueStore.shouldUploadMediaOverUnmeteredConnectionOnly !=
+        userSettings.shouldUploadPhotosOnWifiOnly
+
     with(localValueStore) {
       selectedLanguage = userSettings.language
       selectedLengthUnit = userSettings.measurementUnits.name
       shouldUploadMediaOverUnmeteredConnectionOnly = userSettings.shouldUploadPhotosOnWifiOnly
+    }
+
+    // Constraints of already enqueued work can't be modified, so pending media uploads must be
+    // rescheduled for the new network preference to be applied to them.
+    if (uploadNetworkPreferenceChanged) {
+      mediaUploadWorkManager.rescheduleSyncWorker()
     }
   }
 }
