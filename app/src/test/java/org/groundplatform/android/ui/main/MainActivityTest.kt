@@ -15,9 +15,11 @@
  */
 package org.groundplatform.android.ui.main
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Looper
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
@@ -25,27 +27,36 @@ import com.google.common.truth.Truth.assertThat
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidTest
+import dagger.hilt.android.testing.UninstallModules
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.R
+import org.groundplatform.android.di.AppConfigRepositoryModule
 import org.groundplatform.android.getString
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
 import org.groundplatform.android.system.deeplink.PlayInstallReferrerService
+import org.groundplatform.domain.model.AppConfig
 import org.groundplatform.domain.model.auth.SignInState
+import org.groundplatform.domain.repository.AppConfigRepositoryInterface
 import org.groundplatform.domain.repository.TermsOfServiceRepositoryInterface
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mock
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
+import org.robolectric.shadows.ShadowDialog
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltAndroidTest
+@UninstallModules(AppConfigRepositoryModule::class)
 @RunWith(RobolectricTestRunner::class)
 class MainActivityTest : BaseHiltTest() {
   @get:Rule val composeTestRule = createComposeRule()
@@ -58,6 +69,13 @@ class MainActivityTest : BaseHiltTest() {
   @Inject lateinit var remoteConfig: FirebaseRemoteConfig
 
   @BindValue @JvmField val playInstallReferrerService: PlayInstallReferrerService = mock()
+  @BindValue @Mock lateinit var appConfigRepository: AppConfigRepositoryInterface
+
+  @Before
+  override fun setUp() {
+    super.setUp()
+    whenever(appConfigRepository.getAppConfig()).thenReturn(NO_UPDATE)
+  }
 
   @Test
   fun `Launch app with survey ID navigates to survey selector when user is logged in`() =
@@ -193,7 +211,62 @@ class MainActivityTest : BaseHiltTest() {
     }
   }
 
+  @Test
+  fun `Update dialog opens the Play Store`() = runWithTestDispatcher {
+    whenever(appConfigRepository.getAppConfig()).thenReturn(UPDATE_REQUIRED)
+
+    Robolectric.buildActivity(MainActivity::class.java).use { controller ->
+      controller.setup()
+      advanceUntilIdle()
+      val dialog = checkNotNull(updateDialog()) { "Update dialog not shown" }
+
+      dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick()
+      // The dialog delivers button clicks through the main looper.
+      shadowOf(Looper.getMainLooper()).idle()
+
+      assertThat(shadowOf(controller.get()).nextStartedActivity.data)
+        .isEqualTo(Uri.parse("market://details?id=${controller.get().packageName}"))
+    }
+  }
+
+  @Test
+  fun `Update dialog shows again when returning to the app`() = runWithTestDispatcher {
+    whenever(appConfigRepository.getAppConfig()).thenReturn(UPDATE_REQUIRED)
+
+    Robolectric.buildActivity(MainActivity::class.java).use { controller ->
+      controller.setup()
+      checkNotNull(updateDialog()).getButton(AlertDialog.BUTTON_POSITIVE).performClick()
+      shadowOf(Looper.getMainLooper()).idle()
+      assertThat(updateDialog()).isNull()
+
+      controller.pause().resume()
+
+      assertThat(updateDialog()).isNotNull()
+    }
+  }
+
+  @Test
+  fun `No update dialog when no update is required`() = runWithTestDispatcher {
+    Robolectric.buildActivity(MainActivity::class.java).use { controller ->
+      controller.setup()
+      advanceUntilIdle()
+
+      assertThat(updateDialog()).isNull()
+    }
+  }
+
+  private fun updateDialog(): AlertDialog? =
+    ShadowDialog.getShownDialogs().filterIsInstance<AlertDialog>().firstOrNull {
+      it.isShowing &&
+        shadowOf(it).title?.toString() == getString(R.string.dialog_title_update_required)
+    }
+
   private fun MainActivity.navController(): NavController =
     (supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment)
       .navController
+
+  companion object {
+    private val NO_UPDATE = AppConfig(minAppVersion = "0.0.0", forceUpdate = false)
+    private val UPDATE_REQUIRED = AppConfig(minAppVersion = "9999.0.0", forceUpdate = true)
+  }
 }

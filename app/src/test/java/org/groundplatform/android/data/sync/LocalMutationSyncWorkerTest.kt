@@ -39,6 +39,7 @@ import org.groundplatform.android.data.local.stores.LocalUserStore
 import org.groundplatform.android.data.remote.FakeRemoteDataStore
 import org.groundplatform.android.di.coroutines.IoDispatcher
 import org.groundplatform.android.system.auth.FakeAuthenticationManager
+import org.groundplatform.domain.model.AppConfig
 import org.groundplatform.domain.model.geometry.Point
 import org.groundplatform.domain.model.mutation.Mutation
 import org.groundplatform.domain.model.mutation.Mutation.SyncStatus.COMPLETED
@@ -52,6 +53,8 @@ import org.groundplatform.domain.model.task.PhotoTaskData
 import org.groundplatform.domain.model.task.Task
 import org.groundplatform.domain.repository.MutationRepositoryInterface
 import org.groundplatform.domain.repository.UserRepositoryInterface
+import org.groundplatform.domain.usecases.ShouldForceUpdateUseCase
+import org.groundplatform.testing.FakeAppConfigRepository
 import org.groundplatform.testing.FakeDataGenerator
 import org.junit.Before
 import org.junit.Test
@@ -87,6 +90,10 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
 
   @Inject @IoDispatcher lateinit var ioDispatcher: CoroutineDispatcher
 
+  private val appConfigRepository = FakeAppConfigRepository()
+  private val shouldForceUpdate =
+    ShouldForceUpdateUseCase(appConfigRepository, currentVersion = "1.0.0")
+
   private val factory =
     object : WorkerFactory() {
       override fun createWorker(
@@ -99,6 +106,7 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
           workerParameters,
           mutationRepository,
           mockMediaUploadWorkManager,
+          shouldForceUpdate,
           ioDispatcher,
         )
     }
@@ -155,6 +163,17 @@ class LocalMutationSyncWorkerTest : BaseHiltTest() {
 
     assertThat(result).isEqualTo(success())
     assertMutationsState(complete = 2)
+  }
+
+  @Test
+  fun `Leaves mutations queued when an app update is required`() = runWithTestDispatcher {
+    appConfigRepository.config = AppConfig(minAppVersion = "2.0.0", forceUpdate = true)
+    addPendingMutations()
+
+    val result = createAndDoWork(context)
+
+    assertThat(result).isEqualTo(success())
+    assertMutationsState(pending = 2)
   }
 
   @Test

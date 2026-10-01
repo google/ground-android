@@ -41,3 +41,5 @@ open class DataStoreException(message: String?) : RuntimeException(message) {
     }
   }
 }
+
+class UpdateRequiredException : DataStoreException("App update required")

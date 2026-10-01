@@ -39,7 +39,9 @@ import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.SURVEY
 import org.groundplatform.android.di.coroutines.IoDispatcher
 import org.groundplatform.domain.repository.SurveyRepositoryInterface
+import org.groundplatform.domain.usecases.ShouldForceUpdateUseCase
 import org.groundplatform.domain.usecases.survey.SyncSurveyUseCase
+import org.groundplatform.testing.FakeAppConfigRepository
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -61,6 +63,9 @@ class SurveySyncServiceTest : BaseHiltTest() {
   private lateinit var workManager: WorkManager
   private lateinit var testDriver: TestDriver
 
+  private val shouldForceUpdateUseCase =
+    ShouldForceUpdateUseCase(FakeAppConfigRepository(), currentVersion = "1.0.0")
+
   @Before
   override fun setUp() {
     super.setUp()
@@ -81,6 +86,7 @@ class SurveySyncServiceTest : BaseHiltTest() {
                 workerParameters,
                 syncSurvey,
                 surveyRepository,
+                shouldForceUpdateUseCase,
                 ioDispatcher,
               )
           }

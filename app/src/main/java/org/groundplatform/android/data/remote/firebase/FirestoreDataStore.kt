@@ -35,6 +35,7 @@ import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import org.groundplatform.android.BuildConfig.USE_EMULATORS
 import org.groundplatform.android.data.remote.RemoteDataStore
+import org.groundplatform.android.data.remote.UpdateRequiredException
 import org.groundplatform.android.data.remote.firebase.schema.GroundFirestore
 import org.groundplatform.android.data.remote.firebase.schema.LoiCollectionReference
 import org.groundplatform.android.data.remote.firebase.schema.LoiQueryScope
@@ -48,6 +49,7 @@ import org.groundplatform.domain.model.mutation.LocationOfInterestMutation
 import org.groundplatform.domain.model.mutation.Mutation
 import org.groundplatform.domain.model.mutation.SubmissionMutation
 import org.groundplatform.domain.model.toListItem
+import org.groundplatform.domain.usecases.ShouldForceUpdateUseCase
 import timber.log.Timber
 
 private const val PROFILE_REFRESH_CLOUD_FUNCTION_NAME = "profile-refresh"
@@ -58,10 +60,14 @@ class FirestoreDataStore
 internal constructor(
   private val firebaseFunctions: FirebaseFunctions,
   private val firestoreProvider: FirebaseFirestoreProvider,
+  private val shouldForceUpdate: ShouldForceUpdateUseCase,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : RemoteDataStore {
 
-  private suspend fun db() = GroundFirestore(firestoreProvider.get())
+  private suspend fun db(): GroundFirestore {
+    if (shouldForceUpdate()) throw UpdateRequiredException()
+    return GroundFirestore(firestoreProvider.get())
+  }
 
   override suspend fun loadSurvey(surveyId: String): Survey? =
     withContext(ioDispatcher) { db().surveys().survey(surveyId).get() }

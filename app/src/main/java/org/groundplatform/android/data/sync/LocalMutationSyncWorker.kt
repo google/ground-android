@@ -27,6 +27,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import org.groundplatform.android.di.coroutines.IoDispatcher
 import org.groundplatform.domain.repository.MutationRepositoryInterface
+import org.groundplatform.domain.usecases.ShouldForceUpdateUseCase
 import timber.log.Timber
 
 /**
@@ -41,11 +42,15 @@ constructor(
   @Assisted params: WorkerParameters,
   private val mutationRepository: MutationRepositoryInterface,
   private val mediaUploadWorkManager: MediaUploadWorkManager,
+  private val shouldForceUpdate: ShouldForceUpdateUseCase,
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : CoroutineWorker(context, params) {
 
-  override suspend fun doWork(): Result =
-    withContext(ioDispatcher) {
+  override suspend fun doWork(): Result {
+    // Changes stay queued locally and are uploaded once the updated app is opened.
+    if (shouldForceUpdate()) return success()
+
+    return withContext(ioDispatcher) {
       val queue = mutationRepository.getIncompleteUploads()
       Timber.d("Uploading ${queue.size} additions / changes")
       val results = queue.map { mutationRepository.processMutations(it.mutations()) }
@@ -59,4 +64,5 @@ constructor(
 
       if (results.size == successfulMutations.size) success() else retry()
     }
+  }
 }
