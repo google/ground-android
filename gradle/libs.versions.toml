@@ -56,7 +56,7 @@ lifecycleVersion = "2.11.0"
 markdownVersion = "0.7.14"
 materialVersion = "1.14.0"
 material3Version = "1.9.0"
-mockitoBom = "5.23.0"
+mockitoBom = "5.24.0"
 mockitoInlineVersion = "5.2.0"
 mockitoKotlinVersion = "6.4.0"
 navigationKtxVersion = "2.10.1"
@@ -78,7 +78,7 @@ timberVersion = "5.0.1"
 truthVersion = "1.4.5"
 turbineVersion = "1.2.1"
 uiautomatorVersion = "2.4.0"
-workVersion = "2.11.2"
+workVersion = "2.12.0"
 
 [libraries]
 android-install-referrer = { module = "com.android.installreferrer:installreferrer", version.ref = "androidInstallReferrer" }
