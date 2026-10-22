@@ -18,9 +18,9 @@ package org.groundplatform.android.data.remote.firebase.schema
 
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FieldPath
-import com.google.firebase.firestore.snapshots
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.tasks.await
 import org.groundplatform.android.data.remote.firebase.base.FluentCollectionReference
 import org.groundplatform.android.proto.Role
 import org.groundplatform.android.proto.Survey as SurveyProto
@@ -39,27 +39,38 @@ class SurveysCollectionReference internal constructor(ref: CollectionReference) 
 
   fun survey(id: String) = SurveyDocumentReference(reference().document(id))
 
+  /**
+   * Emits the surveys readable by [user] once per collection. Deliberately a one-shot read rather
+   * than a realtime listener, which bills every document again on each reconnect.
+   */
   fun getReadable(user: User): Flow<List<Survey>> {
     val references =
       reference()
         .whereIn(STATE, ALLOWED_STATES)
         .whereIn(FieldPath.of(ACL_FIELD, user.email), ALLOWED_ROLES)
 
-    return references.snapshots().map { snapshot ->
-      snapshot.documents
-        .mapNotNull { SurveyConverter.toSurvey(it) }
-        .filter { survey ->
-          survey.generalAccess == Survey.GeneralAccess.GENERAL_ACCESS_UNSPECIFIED ||
-            survey.generalAccess == Survey.GeneralAccess.RESTRICTED ||
-            survey.generalAccess == Survey.GeneralAccess.UNLISTED
-        }
+    return flow {
+      val snapshot = references.get().await()
+      val surveys =
+        snapshot.documents
+          .mapNotNull { SurveyConverter.toSurvey(it) }
+          .filter { survey ->
+            survey.generalAccess == Survey.GeneralAccess.GENERAL_ACCESS_UNSPECIFIED ||
+              survey.generalAccess == Survey.GeneralAccess.RESTRICTED ||
+              survey.generalAccess == Survey.GeneralAccess.UNLISTED
+          }
+      emit(surveys)
     }
   }
 
-  fun getPublicReadable(): Flow<List<Survey>> =
-    reference()
-      .whereEqualTo(GENERAL_ACCESS_FIELD, SurveyProto.GeneralAccess.PUBLIC_VALUE)
-      .whereIn(STATE, listOf(SurveyProto.State.READY_VALUE))
-      .snapshots()
-      .map { snapshot -> snapshot.documents.mapNotNull(SurveyConverter::toSurvey) }
+  /** Emits the public surveys once per collection. See [getReadable]. */
+  fun getPublicReadable(): Flow<List<Survey>> = flow {
+    val snapshot =
+      reference()
+        .whereEqualTo(GENERAL_ACCESS_FIELD, SurveyProto.GeneralAccess.PUBLIC_VALUE)
+        .whereIn(STATE, listOf(SurveyProto.State.READY_VALUE))
+        .get()
+        .await()
+    emit(snapshot.documents.mapNotNull(SurveyConverter::toSurvey))
+  }
 }

@@ -16,16 +16,13 @@
 
 package org.groundplatform.android.data.remote.firebase.schema
 
+import com.google.android.gms.tasks.Tasks
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.EventListener
 import com.google.firebase.firestore.FieldPath
-import com.google.firebase.firestore.ListenerRegistration
-import com.google.firebase.firestore.MetadataChanges
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
-import java.util.concurrent.Executor
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.groundplatform.android.FakeData
@@ -65,13 +62,7 @@ class SurveysCollectionReferenceTest {
     whenever(mockQuery.whereIn(any<String>(), any())).thenReturn(mockQuery)
     whenever(mockQuery.whereIn(any<FieldPath>(), any())).thenReturn(mockQuery)
 
-    val mockRegistration: ListenerRegistration = mock()
-    whenever(mockQuery.addSnapshotListener(any<Executor>(), any<MetadataChanges>(), any()))
-      .thenAnswer { invocation ->
-        val listener = invocation.getArgument<EventListener<QuerySnapshot>>(2)
-        listener.onEvent(mockQuerySnapshot, null)
-        mockRegistration
-      }
+    whenever(mockQuery.get()).thenReturn(Tasks.forResult(mockQuerySnapshot))
 
     surveysCollectionReference = SurveysCollectionReference(mockCollectionReference)
   }
