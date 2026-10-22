@@ -59,6 +59,7 @@ class SurveysCollectionReferenceTest {
 
     whenever(mockCollectionReference.whereIn(any<String>(), any())).thenReturn(mockQuery)
     whenever(mockCollectionReference.whereIn(any<FieldPath>(), any())).thenReturn(mockQuery)
+    whenever(mockCollectionReference.whereEqualTo(any<String>(), any())).thenReturn(mockQuery)
     whenever(mockQuery.whereIn(any<String>(), any())).thenReturn(mockQuery)
     whenever(mockQuery.whereIn(any<FieldPath>(), any())).thenReturn(mockQuery)
 
@@ -131,6 +132,52 @@ class SurveysCollectionReferenceTest {
         eq(FieldPath.of(SurveyProto.ACL_FIELD_NUMBER.toString(), TEST_USER.email)),
         eq(listOf(Role.SURVEY_ORGANIZER.ordinal, Role.DATA_COLLECTOR.ordinal, Role.VIEWER.ordinal)),
       )
+  }
+
+  @Test
+  fun `getPublicReadable returns public surveys`() = runTest {
+    val doc = createDocumentSnapshot("public", SurveyProto.GeneralAccess.PUBLIC)
+    whenever(mockQuerySnapshot.documents).thenReturn(listOf(doc))
+
+    val result = surveysCollectionReference.getPublicReadable().first()
+
+    assertThat(result.map { it.id }).containsExactly("public")
+  }
+
+  @Test
+  fun `getPublicReadable returns empty list when there are no public surveys`() = runTest {
+    whenever(mockQuerySnapshot.documents).thenReturn(emptyList())
+
+    val result = surveysCollectionReference.getPublicReadable().first()
+
+    assertThat(result).isEmpty()
+  }
+
+  @Test
+  fun `getPublicReadable queries for public access and ready state`() = runTest {
+    whenever(mockQuerySnapshot.documents).thenReturn(emptyList())
+
+    surveysCollectionReference.getPublicReadable().first()
+
+    verify(mockCollectionReference)
+      .whereEqualTo(
+        eq(SurveyProto.GENERAL_ACCESS_FIELD_NUMBER.toString()),
+        eq(SurveyProto.GeneralAccess.PUBLIC_VALUE),
+      )
+    verify(mockQuery)
+      .whereIn(
+        eq(SurveyProto.STATE_FIELD_NUMBER.toString()),
+        eq(listOf(SurveyProto.State.READY_VALUE)),
+      )
+  }
+
+  @Test
+  fun `getPublicReadable reads once instead of listening for changes`() = runTest {
+    whenever(mockQuerySnapshot.documents).thenReturn(emptyList())
+
+    surveysCollectionReference.getPublicReadable().first()
+
+    verify(mockQuery).get()
   }
 
   private fun createDocumentSnapshot(
