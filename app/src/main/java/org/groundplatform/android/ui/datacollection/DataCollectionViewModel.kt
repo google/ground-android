@@ -18,6 +18,7 @@ package org.groundplatform.android.ui.datacollection
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -111,6 +112,13 @@ internal constructor(
   private val taskViewModels = MutableStateFlow(mutableMapOf<String, AbstractTaskViewModel>())
 
   private var draftsEnabled = true
+
+  /**
+   * Set while the final submission is being saved. The state stays [DataCollectionUiState.Ready]
+   * until the save completes, so without this, repeated taps on "Done" each save the same data
+   * again, creating duplicate LOIs and submissions.
+   */
+  private val isSubmitting = AtomicBoolean(false)
 
   init {
     viewModelScope.launch {
@@ -296,19 +304,32 @@ internal constructor(
         if (!taskSequenceHandler.isLastPosition(task.id)) {
           moveToNextTask()
         } else {
-          clearDraft()
-          externalScope.launch(ioDispatcher) {
-            val submittedLoiId = saveChanges(uiState, getDeltas())
-            val loiReport =
-              getLoiReportUseCase.invoke(
-                loiName = getTypedLoiNameOrEmpty(),
-                loiId = submittedLoiId,
-                surveyId = uiState.surveyId,
-              )
-            _uiState.value = DataCollectionUiState.TaskSubmitted(loiReport)
-          }
+          submit(uiState)
         }
       }
+    }
+  }
+
+  /** Saves the collected data, ignoring the call if a save is already in progress. */
+  private fun submit(state: DataCollectionUiState.Ready) {
+    if (!isSubmitting.compareAndSet(false, true)) return
+    clearDraft()
+    externalScope.launch(ioDispatcher) {
+      val submittedLoiId =
+        try {
+          saveChanges(state, getDeltas())
+        } catch (e: Throwable) {
+          // Nothing was saved, so let the user try again.
+          isSubmitting.set(false)
+          throw e
+        }
+      val loiReport =
+        getLoiReportUseCase.invoke(
+          loiName = getTypedLoiNameOrEmpty(),
+          loiId = submittedLoiId,
+          surveyId = state.surveyId,
+        )
+      _uiState.value = DataCollectionUiState.TaskSubmitted(loiReport)
     }
   }
 
