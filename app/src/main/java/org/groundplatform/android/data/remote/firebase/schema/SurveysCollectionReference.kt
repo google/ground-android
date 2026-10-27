@@ -18,14 +18,27 @@ package org.groundplatform.android.data.remote.firebase.schema
 
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FieldPath
+import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.snapshots
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.launch
 import org.groundplatform.android.data.remote.firebase.base.FluentCollectionReference
 import org.groundplatform.android.proto.Role
 import org.groundplatform.android.proto.Survey as SurveyProto
 import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.User
+
+/**
+ * How long to ignore an empty cache snapshot before treating the survey list as empty.
+ *
+ * Firestore emits that snapshot when the first listen times out (about 10 seconds) and then retries
+ * the server read. Waiting longer than the retry keeps the list in a loading state instead of
+ * flashing the empty / sign-out UI. A settled server snapshot is delivered immediately.
+ */
+internal const val SURVEY_LIST_LOAD_TIMEOUT_MILLIS = 30_000L
 
 private const val ACL_FIELD = SurveyProto.ACL_FIELD_NUMBER.toString()
 private const val GENERAL_ACCESS_FIELD = SurveyProto.GENERAL_ACCESS_FIELD_NUMBER.toString()
@@ -45,7 +58,7 @@ class SurveysCollectionReference internal constructor(ref: CollectionReference) 
         .whereIn(STATE, ALLOWED_STATES)
         .whereIn(FieldPath.of(ACL_FIELD, user.email), ALLOWED_ROLES)
 
-    return references.snapshots().map { snapshot ->
+    return references.snapshots().toSettledSurveys { snapshot ->
       snapshot.documents
         .mapNotNull { SurveyConverter.toSurvey(it) }
         .filter { survey ->
@@ -56,10 +69,41 @@ class SurveysCollectionReference internal constructor(ref: CollectionReference) 
     }
   }
 
-  fun getPublicReadable(): Flow<List<Survey>> =
-    reference()
-      .whereEqualTo(GENERAL_ACCESS_FIELD, SurveyProto.GeneralAccess.PUBLIC_VALUE)
-      .whereIn(STATE, listOf(SurveyProto.State.READY_VALUE))
-      .snapshots()
-      .map { snapshot -> snapshot.documents.mapNotNull(SurveyConverter::toSurvey) }
+  fun getPublicReadable(): Flow<List<Survey>> {
+    val references =
+      reference()
+        .whereEqualTo(GENERAL_ACCESS_FIELD, SurveyProto.GeneralAccess.PUBLIC_VALUE)
+        .whereIn(STATE, listOf(SurveyProto.State.READY_VALUE))
+    return references.snapshots().toSettledSurveys { snapshot ->
+      snapshot.documents.mapNotNull(SurveyConverter::toSurvey)
+    }
+  }
 }
+
+/**
+ * Suppresses the empty cache snapshot emitted when the first server attempt times out.
+ *
+ * The listener stays open and the successful retry is emitted. If no settled snapshot arrives
+ * before [SURVEY_LIST_LOAD_TIMEOUT_MILLIS], an empty list is emitted so the UI can offer sign-out,
+ * and later server snapshots are still forwarded.
+ */
+private fun Flow<QuerySnapshot>.toSettledSurveys(
+  transform: (QuerySnapshot) -> List<Survey>
+): Flow<List<Survey>> = channelFlow {
+  val settled = AtomicBoolean(false)
+  launch {
+    collect { snapshot ->
+      if (!snapshot.isTransientEmptyCache() || settled.get()) {
+        settled.set(true)
+        send(transform(snapshot))
+      }
+    }
+  }
+  delay(SURVEY_LIST_LOAD_TIMEOUT_MILLIS)
+  if (settled.compareAndSet(false, true)) {
+    send(emptyList())
+  }
+}
+
+/** Empty local cache delivered while Firestore retries a timed-out server listen. */
+private fun QuerySnapshot.isTransientEmptyCache(): Boolean = isEmpty && metadata.isFromCache
