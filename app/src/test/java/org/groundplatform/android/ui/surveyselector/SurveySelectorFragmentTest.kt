@@ -145,7 +145,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
 
     fragmentScenario.launchFragmentWithNavController<SurveySelectorFragment>(
       fragmentArgs = bundleOf(Pair("shouldExitApp", false), Pair("surveyId", "")),
-      destId = R.id.surveySelectorFragment,
+      destId = R.id.survey_selector_fragment,
       navControllerCallback = { navController = it },
     )
     advanceUntilIdle()
@@ -166,7 +166,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
 
     fragmentScenario.launchFragmentWithNavController<SurveySelectorFragment>(
       fragmentArgs = bundleOf(Pair("shouldExitApp", false), Pair("surveyId", "")),
-      destId = R.id.surveySelectorFragment,
+      destId = R.id.survey_selector_fragment,
       navControllerCallback = { navController = it },
     )
     advanceUntilIdle()
@@ -176,7 +176,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     // Assert survey is activated.
     verify(surveyRepository).isSurveyActive(TEST_SURVEY_2.id)
     // Assert that navigation to home screen was not requested
-    assertThat(navController.currentDestination?.id).isEqualTo(R.id.surveySelectorFragment)
+    assertThat(navController.currentDestination?.id).isEqualTo(R.id.survey_selector_fragment)
     // Error toast message
     assertThat(ShadowToast.shownToastCount()).isEqualTo(1)
   }
@@ -222,7 +222,7 @@ class SurveySelectorFragmentTest : BaseHiltTest() {
     whenever(surveyRepository.isSurveyActive(TEST_SURVEY_1.id)).thenReturn(true)
     fragmentScenario.launchFragmentWithNavController<SurveySelectorFragment>(
       fragmentArgs = bundleOf(Pair("shouldExitApp", false), Pair("surveyId", TEST_SURVEY_1.id)),
-      destId = R.id.surveySelectorFragment,
+      destId = R.id.survey_selector_fragment,
       navControllerCallback = { navController = it },
     )
     advanceUntilIdle()

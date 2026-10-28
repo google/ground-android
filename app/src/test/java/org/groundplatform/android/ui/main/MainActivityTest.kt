@@ -80,7 +80,7 @@ class MainActivityTest : BaseHiltTest() {
         fakeAuthenticationManager.setState(SignInState.SignedIn(FakeData.USER))
         advanceUntilIdle()
 
-        assertThat(navController.currentDestination?.id).isEqualTo(R.id.surveySelectorFragment)
+        assertThat(navController.currentDestination?.id).isEqualTo(R.id.survey_selector_fragment)
 
         assertThat(navController.currentBackStackEntry?.arguments?.getString("surveyId"))
           .isEqualTo("surveyId")
@@ -119,7 +119,7 @@ class MainActivityTest : BaseHiltTest() {
       fakeAuthenticationManager.setState(SignInState.SignedIn(FakeData.USER))
       advanceUntilIdle()
 
-      assertThat(navController.currentDestination?.id).isEqualTo(R.id.surveySelectorFragment)
+      assertThat(navController.currentDestination?.id).isEqualTo(R.id.survey_selector_fragment)
       assertThat(navController.currentBackStackEntry?.arguments?.getString("surveyId"))
         .isEqualTo("surveyId")
     }
@@ -140,7 +140,7 @@ class MainActivityTest : BaseHiltTest() {
         fakeAuthenticationManager.setState(SignInState.SignedIn(FakeData.USER))
         advanceUntilIdle()
 
-        assertThat(navController.currentDestination?.id).isEqualTo(R.id.surveySelectorFragment)
+        assertThat(navController.currentDestination?.id).isEqualTo(R.id.survey_selector_fragment)
       }
     }
 
@@ -155,11 +155,11 @@ class MainActivityTest : BaseHiltTest() {
         fakeAuthenticationManager.setState(SignInState.SignedIn(FakeData.USER))
         advanceUntilIdle()
         val navController = controller.get().navController()
-        assertThat(navController.currentDestination?.id).isEqualTo(R.id.surveySelectorFragment)
+        assertThat(navController.currentDestination?.id).isEqualTo(R.id.survey_selector_fragment)
 
-        navController.navigate(R.id.aboutFragment)
+        navController.navigate(R.id.about_fragment)
         advanceUntilIdle()
-        assertThat(navController.currentDestination?.id).isEqualTo(R.id.aboutFragment)
+        assertThat(navController.currentDestination?.id).isEqualTo(R.id.about_fragment)
 
         controller.saveInstanceState(savedState)
       }
@@ -170,7 +170,7 @@ class MainActivityTest : BaseHiltTest() {
         advanceUntilIdle()
 
         assertThat(controller.get().navController().currentDestination?.id)
-          .isEqualTo(R.id.aboutFragment)
+          .isEqualTo(R.id.about_fragment)
       }
     }
 
@@ -183,7 +183,7 @@ class MainActivityTest : BaseHiltTest() {
       fakeAuthenticationManager.setState(SignInState.SignedIn(FakeData.USER))
       advanceUntilIdle()
       val navController = controller.get().navController()
-      navController.navigate(R.id.aboutFragment)
+      navController.navigate(R.id.about_fragment)
       advanceUntilIdle()
 
       fakeAuthenticationManager.setState(SignInState.SignedOut)

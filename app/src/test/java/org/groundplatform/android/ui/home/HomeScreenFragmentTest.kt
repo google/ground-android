@@ -301,7 +301,7 @@ class NavigationDrawerItemClickTest(
         // Issue URL: https://github.com/google/ground-android/issues/2385
         arrayOf("Data sync status", R.id.sync_status_fragment, TEST_SURVEY, true),
         arrayOf("Terms of service", R.id.terms_of_service_fragment, TEST_SURVEY, true),
-        arrayOf("About", R.id.aboutFragment, TEST_SURVEY, true),
+        arrayOf("About", R.id.about_fragment, TEST_SURVEY, true),
         arrayOf("Offline map imagery", R.id.offline_area_selector_fragment, TEST_SURVEY, true),
         arrayOf("Settings", R.id.settings_activity, TEST_SURVEY, true),
       )
