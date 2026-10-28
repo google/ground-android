@@ -85,23 +85,29 @@ class SurveysCollectionReference internal constructor(ref: CollectionReference) 
  *
  * The listener stays open and the successful retry is emitted. If no settled snapshot arrives
  * before [SURVEY_LIST_LOAD_TIMEOUT_MILLIS], an empty list is emitted so the UI can offer sign-out,
- * and later server snapshots are still forwarded.
+ * and later server snapshots are still forwarded. The timeout is cancelled once a snapshot settles
+ * or the upstream flow ends, so collection is not held open for the rest of the timeout.
  */
 private fun Flow<QuerySnapshot>.toSettledSurveys(
   transform: (QuerySnapshot) -> List<Survey>
 ): Flow<List<Survey>> = channelFlow {
   val settled = AtomicBoolean(false)
-  launch {
+  val delayJob = launch {
+    delay(SURVEY_LIST_LOAD_TIMEOUT_MILLIS)
+    if (settled.compareAndSet(false, true)) {
+      send(emptyList())
+    }
+  }
+  try {
     collect { snapshot ->
       if (!snapshot.isTransientEmptyCache() || settled.get()) {
         settled.set(true)
+        delayJob.cancel()
         send(transform(snapshot))
       }
     }
-  }
-  delay(SURVEY_LIST_LOAD_TIMEOUT_MILLIS)
-  if (settled.compareAndSet(false, true)) {
-    send(emptyList())
+  } finally {
+    delayJob.cancel()
   }
 }
 
