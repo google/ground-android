@@ -35,14 +35,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.Button
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,7 +48,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.em
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import org.groundplatform.android.R
@@ -127,13 +124,11 @@ private fun LoiNameDialogCard(
 
 @Composable
 private fun LoiNameDialogTitle() {
-  CompositionLocalProvider(LocalTextStyle provides MaterialTheme.typography.headlineSmall) {
-    Text(
-      text = stringResource(R.string.loi_name_dialog_title),
-      color = AlertDialogDefaults.titleContentColor,
-      fontSize = 5.em,
-    )
-  }
+  Text(
+    text = stringResource(R.string.loi_name_dialog_title),
+    color = AlertDialogDefaults.titleContentColor,
+    style = MaterialTheme.typography.headlineSmall,
+  )
 }
 
 @Composable
