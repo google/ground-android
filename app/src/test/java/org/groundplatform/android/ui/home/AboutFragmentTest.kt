@@ -42,7 +42,7 @@ class AboutFragmentTest : BaseHiltTest() {
   @Before
   override fun setUp() {
     super.setUp()
-    fragmentScenario.launchFragmentWithNavController<AboutFragment>(destId = R.id.aboutFragment) {
+    fragmentScenario.launchFragmentWithNavController<AboutFragment>(destId = R.id.about_fragment) {
       fragment = this as AboutFragment
     }
   }
