@@ -26,6 +26,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -320,6 +321,76 @@ class SurveySelectorViewModelTest : BaseHiltTest() {
         .isEqualTo(SurveySelectorEvent.ShowError(SurveySelectorEvent.ErrorType.Timeout))
     }
   }
+
+  @Test
+  fun `survey list timeout keeps loading until the retry succeeds`() = runWithTestDispatcher {
+    var attempt = 0
+    val firstAttempt = Channel<Unit>()
+    whenever(listAvailableSurveysUseCase())
+      .thenReturn(
+        flow {
+          attempt += 1
+          if (attempt == 1) {
+            firstAttempt.receive()
+            throw FirebaseFirestoreException(
+              "unavailable",
+              FirebaseFirestoreException.Code.UNAVAILABLE,
+            )
+          }
+          emit(listOf(TEST_SURVEY))
+        }
+      )
+    createViewModel()
+
+    viewModel.uiState.test {
+      val loading = awaitItem()
+      assertThat(loading.isLoading).isTrue()
+      assertThat(loading.showEmptyState).isFalse()
+
+      firstAttempt.send(Unit)
+      val loaded = awaitItem()
+
+      assertThat(attempt).isEqualTo(2)
+      assertThat(loaded.isLoading).isFalse()
+      assertThat(loaded.hasSurveys).isTrue()
+      assertThat(loaded.showEmptyState).isFalse()
+      cancelAndIgnoreRemainingEvents()
+    }
+  }
+
+  @Test
+  fun `survey list shows the empty state only after timeout retries fail`() =
+    runWithTestDispatcher {
+      var attempt = 0
+      val firstAttempt = Channel<Unit>()
+      whenever(listAvailableSurveysUseCase())
+        .thenReturn(
+          flow {
+            attempt += 1
+            if (attempt == 1) {
+              firstAttempt.receive()
+            }
+            throw FirebaseFirestoreException(
+              "unavailable",
+              FirebaseFirestoreException.Code.UNAVAILABLE,
+            )
+          }
+        )
+      createViewModel()
+
+      viewModel.uiState.test {
+        val loading = awaitItem()
+        assertThat(loading.isLoading).isTrue()
+        assertThat(loading.showEmptyState).isFalse()
+
+        firstAttempt.send(Unit)
+        val settled = awaitItem()
+
+        assertThat(settled.isLoading).isFalse()
+        assertThat(settled.showEmptyState).isTrue()
+        cancelAndIgnoreRemainingEvents()
+      }
+    }
 
   @Test
   fun `surveyList failure emits Generic error event`() = runWithTestDispatcher {

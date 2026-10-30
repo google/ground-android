@@ -69,6 +69,15 @@ class SurveySelectorScreenTest {
   }
 
   @Test
+  fun `empty state and sign out stay hidden while a reload is still loading`() {
+    setScreenContent(SurveySelectorUiState(isLoading = true))
+
+    composeTestRule.onNodeWithText(getString(R.string.loading)).assertIsDisplayed()
+    composeTestRule.onNodeWithText(getString(R.string.no_surveys_available)).assertIsNotDisplayed()
+    composeTestRule.onNodeWithText(getString(R.string.sign_out)).assertIsNotDisplayed()
+  }
+
+  @Test
   fun `floating action button is hidden while loading`() {
     setScreenContent(SurveySelectorUiState(isLoading = true))
 
