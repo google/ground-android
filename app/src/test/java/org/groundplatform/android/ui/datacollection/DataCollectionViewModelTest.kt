@@ -19,18 +19,27 @@ import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidTest
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData
+import org.groundplatform.android.data.uuid.OfflineUuidGenerator
+import org.groundplatform.android.ui.common.ViewModelFactory
+import org.groundplatform.android.ui.datacollection.tasks.AbstractTaskViewModel
 import org.groundplatform.domain.model.task.Task
+import org.groundplatform.domain.usecases.submission.SubmitDataUseCase
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.doSuspendableAnswer
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
@@ -104,7 +113,53 @@ class DataCollectionViewModelTest : BaseHiltTest() {
     assertThat(viewModel.showExitWarning.value).isFalse()
   }
 
-  private suspend fun setupViewModel(result: DataCollectionUiState): DataCollectionViewModel {
+  @Test
+  fun `onNextClicked on last task submits only once while the save is in progress`() =
+    runWithTestDispatcher {
+      val saveBlocker = CompletableDeferred<String>()
+      val submitDataUseCase =
+        mock<SubmitDataUseCase>().apply {
+          whenever(invoke(anyOrNull(), any(), any(), any(), anyOrNull(), any()))
+            .doSuspendableAnswer { saveBlocker.await() }
+        }
+      val taskViewModel =
+        mock<AbstractTaskViewModel>().apply {
+          whenever(task) doReturn READY_STATE.tasks.first()
+          whenever(taskTaskData) doReturn MutableStateFlow(null)
+          whenever(validate()) doReturn null
+        }
+      val viewModelFactory =
+        mock<ViewModelFactory>().apply {
+          whenever(create(any<Class<AbstractTaskViewModel>>())) doReturn taskViewModel
+        }
+      val offlineUuidGenerator =
+        mock<OfflineUuidGenerator>().apply { whenever(generateUuid()) doReturn "collection-id" }
+      val viewModel =
+        setupViewModel(
+          READY_STATE,
+          submitDataUseCase = submitDataUseCase,
+          viewModelFactory = viewModelFactory,
+          offlineUuidGenerator = offlineUuidGenerator,
+        )
+      advanceUntilIdle()
+
+      repeat(3) { viewModel.onNextClicked("taskId") }
+      advanceUntilIdle()
+      saveBlocker.complete("loi-id")
+      advanceUntilIdle()
+
+      verify(submitDataUseCase, times(1))
+        .invoke(anyOrNull(), any(), any(), any(), anyOrNull(), any())
+      assertThat(viewModel.uiState.value)
+        .isInstanceOf(DataCollectionUiState.TaskSubmitted::class.java)
+    }
+
+  private suspend fun setupViewModel(
+    result: DataCollectionUiState,
+    submitDataUseCase: SubmitDataUseCase = mock(),
+    viewModelFactory: ViewModelFactory = mock(),
+    offlineUuidGenerator: OfflineUuidGenerator = mock(),
+  ): DataCollectionViewModel {
     val initializer =
       mock<DataCollectionInitializer>().apply {
         whenever(initialize(any(), any(), anyOrNull(), anyOrNull())) doReturn
@@ -116,9 +171,9 @@ class DataCollectionViewModelTest : BaseHiltTest() {
       externalScope = CoroutineScope(testDispatcher),
       ioDispatcher = testDispatcher,
       submissionRepository = mock(),
-      submitDataUseCase = mock(),
-      offlineUuidGenerator = mock(),
-      viewModelFactory = mock(),
+      submitDataUseCase = submitDataUseCase,
+      offlineUuidGenerator = offlineUuidGenerator,
+      viewModelFactory = viewModelFactory,
       dataCollectionInitializer = initializer,
       getLoiReportUseCase = mock(),
       loiReportExporter = mock(),
