@@ -34,6 +34,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.groundplatform.android.di.coroutines.ApplicationScope
@@ -48,6 +49,9 @@ import org.groundplatform.domain.usecases.survey.GetSurveyListItemUseCase
 import org.groundplatform.domain.usecases.survey.ListAvailableSurveysUseCase
 import org.groundplatform.domain.usecases.survey.RemoveOfflineSurveyUseCase
 import timber.log.Timber
+
+/** Extra attempts after a timed-out survey-list load before the empty state is shown. */
+private const val MAX_SURVEY_LIST_LOAD_RETRIES = 2
 
 /** Represents view state and behaviors of the survey selector dialog. */
 @HiltViewModel
@@ -78,6 +82,14 @@ internal constructor(
   private val surveyList: Flow<List<SurveyListItem>> =
     listAvailableSurveysUseCase()
       .map { surveys -> surveys.sortedWith(compareBy({ !it.availableOffline }, { it.title })) }
+      .retryWhen { error, attempt ->
+        val retry = attempt < MAX_SURVEY_LIST_LOAD_RETRIES && error.isRetriableSurveyListFailure()
+        if (retry) {
+          // Keep the initial loading state. Emitting an empty list here would flash sign-out.
+          Timber.w(error, "Survey list load timed out, retrying")
+        }
+        retry
+      }
       .catch { error ->
         Timber.e(error, "Failed to load available surveys")
         _events.send(SurveySelectorEvent.ShowError(error.toSurveySelectorError()))
@@ -201,11 +213,15 @@ internal constructor(
     externalScope.launch(ioDispatcher) { removeOfflineSurveyUseCase(surveyId) }
   }
 
+  private fun Throwable.isRetriableSurveyListFailure(): Boolean =
+    toSurveySelectorError() == SurveySelectorEvent.ErrorType.Timeout
+
   private fun Throwable.toSurveySelectorError(): SurveySelectorEvent.ErrorType =
     when {
       this is TimeoutCancellationException ||
         (this is FirebaseFirestoreException &&
-          code == FirebaseFirestoreException.Code.UNAVAILABLE) ||
+          (code == FirebaseFirestoreException.Code.UNAVAILABLE ||
+            code == FirebaseFirestoreException.Code.DEADLINE_EXCEEDED)) ||
         (this is MlKitException && errorCode == MlKitException.NETWORK_ISSUE) ->
         SurveySelectorEvent.ErrorType.Timeout
       this is MlKitException &&
