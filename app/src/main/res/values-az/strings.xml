@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright 2018 Google LLC
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+
+  <!--
+    LOI DATA FORMS
+  -->
+
+  <!-- Shown below fields that are required but left empty (TBD). -->
+  <string name="required_task">Bu sahənin doldurulması məcburidir</string>
+
+  <!--
+    LOCATION (GPS/CELL/WIFI) UPDATE ERROR MESSAGES
+  -->
+
+  <!-- Shown when user has refused to grant app fine grained location permission. -->
+  <string name="no_fine_location_permissions">İcazə olmadan cari məkanı göstərmək mümkün deyil</string>
+  <!-- Shown when an unknown error occurs obtaining fine grained location permission. -->
+  <string name="location_updates_unknown_error">Məkan yeniləmələrini aktivləşdirmək mümkün olmadı</string>
+  <!-- Shown when user has refused to enable location services in settings.-->
+  <string name="location_disabled_in_settings">Sistem parametrlərində məkan xidmətini aktivləşdir</string>
+
+  <string name="map_view">Xəritə görünüşü</string>
+  <string name="unexpected_error">Gözlənilməz xəta baş verdi</string>
+  <string name="survey_load_timeout_error">Sorğunun yüklənməsi üçün gözləmə müddəti bitdi. Əlaqəni yoxla və yenidən cəhd et.</string>
+  <string name="google_api_install_failed">Google Play Services quraşdırıla bilmədi</string>
+  <string name="sign_out">Hesabdan çıx</string>
+  <string name="ok">Təsdiqlə</string>
+  <string name="add_data">Məlumat əlavə et</string>
+
+  <!-- Untranslated strings -->
+  <string name="offline_area_selector">Endirmək üçün ərazi seç</string>
+  <string name="offline_area_selector_prompt">İnternetsiz istifadə üçün əsas xəritə seç</string>
+  <string name="offline_area_selector_download">Endir</string>
+  <string name="camera">Kamera</string>
+  <string name="photo_preview">Önbaxış</string>
+  <string name="settings">Parametrlər</string>
+  <string name="offline_area_viewer_title">Endirilmiş ərazi</string>
+  <string name="offline_area_viewer_remove_button">Cihazdan çıxar</string>
+  <string name="offline_area_download_error">Endirmək mümkün olmadı. Yenidən cəhd et</string>
+  <!-- Label of button used enter the offline area selector. -->
+  <string name="offline_area_selector_select">Ərazi seç</string>
+  <string name="no_basemaps_downloaded">İnternetsiz istifadə üçün xəritə təsvirləri endirilməyib</string>
+  <string name="connect_to_download_message">İnternetə qoşulmamısan. İnternetsiz istifadə üçün xəritə təsvirlərini endirmək məqsədilə internetə qoşul</string>
+  <string name="signing_in">Hesaba daxil olunur</string>
+  <string name="sign_in_with_google">Google hesabı ilə daxil ol</string>
+  <!-- Precedes the build number shown in the side menu of debug builds. -->
+  <string name="build">Yığım %s</string>
+
+  <string name="tos_title">Xidmət şərtləri</string>
+  <string name="agree_terms">Razılıq ver</string>
+  <string name="agree_checkbox">Razıyam</string>
+  <!-- Other strings (to be organized) -->
+  <string name="sync_status">Məlumatların sinxronlaşdırılma vəziyyəti</string>
+
+  <string name="add_point">Nöqtə əlavə et</string>
+  <string name="complete_polygon">Tamamla</string>
+
+  <string name="road_map">Yol xəritəsi</string>
+  <string name="satellite">Peyk</string>
+  <string name="terrain">Relyef</string>
+  <string name="next">Növbəti</string>
+  <string name="done">Hazırdır</string>
+  <string name="skip">Ötür</string>
+
+  <string name="drop_pin">İşarə yerləşdir</string>
+  <string name="add_site">Məntəqə əlavə et</string>
+  <string name="job_site_icon">İşin yerinə yetirildiyi məntəqənin nişanı</string>
+  <string name="drop_a_pin_tooltip_text">Mərkəzdəki işarə istədiyin məkanın üzərinə düşənədək xəritəni sürüşdür</string>
+  <string name="current_location">Cari məkan:</string>
+  <string name="loading">Yüklənir…</string>
+  <string name="no_tasks_error">Bu işdə tamamlanmalı başqa tapşırıq yoxdur</string>
+  <string name="invalid_data_sharing_terms">Bu sorğu düzgün qurulmayıb (məlumatların paylaşılması şərtləri yoxdur). Sorğunun təşkilatçısı ilə əlaqə saxla.</string>
+  <string name="collect_data_viewer_error">İstifadəçinin yalnız baxış icazəsi olduğuna görə məlumat toplamaq mümkün deyil</string>
+  <string name="offline_map_imagery">İnternetsiz istifadə üçün xəritə təsvirləri</string>
+  <string name="offline_map_imagery_no_areas_downloaded_image">Heç bir təsvir endirilməyib</string>
+  <string name="offline_map_imagery_pref_description">Endirilmiş təsvirləri gizlət və ya göstər</string>
+  <string name="layers">Qatlar</string>
+  <string name="base_map">Əsas xəritə</string>
+  <string name="offline_map_imagery_download_progress_dialog_title">Endirilir - %d%%</string>
+  <string name="offline_map_imagery_download_progress_dialog_message">Endirmə müddəti seçilmiş ərazinin ölçüsündən və internet əlaqəsindən asılı olaraq dəyişə bilər.</string>
+  <string name="multiple_regions">Bir neçə bölgə</string>
+  <string name="permission_denied">İcazə verilmədi</string>
+  <string name="close_app">Tətbiqi bağla</string>
+  <string name="cancel">Ləğv et</string>
+  <string name="save">Yadda saxla</string>
+  <string name="no_imagery_available_for_area">Bu ərazi üçün təsvir yoxdur. Cihazına endirmək üçün təsviri olan ərazi seç.</string>
+  <string name="selected_offline_area_size">Seçilmiş ərazi cihazında %s\u00A0MB-dək yer tuta bilər</string>
+  <string name="selected_offline_area_too_large">Xəritəni yaxınlaşdır və cihazına endirmək üçün daha kiçik ərazi seç</string>
+  <string name="offline_area_size_loading_symbol">…</string>
+  <string name="offline_area_select_cancel_button">Ləğv et</string>
+  <string name="offline_area_selector_title">Bu ərazini endirmək istəyirsən?</string>
+  <string name="capture">Şəkil çək</string>
+  <string name="surveys">Sorğular</string>
+  <string name="offline_icon_description">Sorğu internetsiz istifadə üçün əlçatan olduqda göstərilən nişan</string>
+  <string name="more_options_icon_description">Əlavə seçimlər</string>
+  <string name="remove_offline_access_warning_title">Xəbərdarlıq</string>
+  <string name="remove_offline_access_warning_confirm_button">Çıxar</string>
+  <string name="remove_offline_access_warning_dialog_body">İnternetsiz istifadə imkanını ləğv etsən:\n \u2022 Sinxronlaşdırılmamış bütün məlumatlar silinəcək\n\nİnternetsiz istifadə imkanını ləğv etmək istədiyinə əminsən?</string>
+  <string name="unnamed_point">Adsız nöqtə</string>
+  <string name="unnamed_area">Adsız ərazi</string>
+  <string name="unnamed_job">Adsız iş</string>
+  <string name="offline_area_size_on_disk_mb">Diskdə %s\u00A0MB</string>
+  <string name="offline_area_list_item_size_on_disk_mb">%s\u00A0MB</string>
+  <string name="offline_downloaded_areas">Endirilmiş ərazilər</string>
+  <string name="offline_area_list_tip">İnternetsiz baxmaq mümkündür</string>
+  <string name="offline_area_list_item_icon">İnternetsiz istifadə üçün ərazilər siyahısındakı elementin nişanı</string>
+  <string name="no_surveys_available">Əlçatan sorğu yoxdur. Giriş icazəsi almaq üçün sorğunun təşkilatçısı ilə əlaqə saxla.</string>
+  <string name="previous">Əvvəlki</string>
+  <string name="network_error_when_signing_in">Hesaba daxil olmaq üçün internetə qoşul</string>
+  <string name="camera_permissions_needed">Şəkilləri təqdim etmək üçün bu tətbiqə kameradan istifadə icazəsi verməlisən.</string>
+  <string name="camera_launch_failed_title">Kamera xətası</string>
+  <string name="camera_launch_failed_desc">Kameranı açmaq mümkün olmadı. Yenidən cəhd et.</string>
+  <string name="photo_save_failed_title">Yadda saxlama xətası</string>
+  <string name="photo_save_failed_desc">Çəkilmiş şəkli yadda saxlamaq mümkün olmadı. Yenidən cəhd et.</string>
+  <string name="incomplete_area">Tamamlanmamış ərazi</string>
+  <string name="initializing">Hazırlanır…</string>
+  <string name="draw_area_task_instruction">İstədiyin ərazinin ətrafına nöqtələr əlavə etmək üçün xəritəni hərəkət etdir və “Nöqtə əlavə et” düyməsinə toxun.</string>
+  <string name="close">Bağla</string>
+  <string name="data_consent_dialog_title">Məlumatların paylaşılması barədə razılaşma</string>
+  <string name="map_location">Xəritədəki məkan:</string>
+  <string name="sign_out_dialog_title">Hesabdan çıxış barədə xəbərdarlıq</string>
+  <string name="sign_out_dialog_body">Hesabdan çıxsan:\n \u2022 Sinxronlaşdırılmamış bütün məlumatlar silinəcək\n \u2022 İnternetə qoşulmadan hesaba daxil ola bilməyəcəksən\n \u2022 Yenidən hesaba daxil olanadək internetsiz istifadə üçün saxlanmış sorğular əlçatan olmayacaq\n\nHesabdan çıxmaq istədiyinə əminsən?</string>
+  <string name="read_only_data_collection_hint">Sorğu yalnız oxumaq üçündür</string>
+  <string name="no_submissions">Təqdim edilmiş forma yoxdur</string>
+  <string name="dismiss_info_popup">Bağla</string>
+  <plurals name="submission_count">
+    <item quantity="one">Təqdim edilmiş %d forma</item>
+    <item quantity="other">Təqdim edilmiş %d forma</item>
+  </plurals>
+  <string name="loi_name_dialog_title">Məkanın adı</string>
+  <string name="loi_name_dialog_body">Yeni məlumat toplama məntəqəsi yaradılacaq.</string>
+  <string name="current_survey">Cari sorğu</string>
+  <string name="switch_survey">Sorğunu dəyiş</string>
+  <string name="no_survey_selected">Sorğu seçilməyib</string>
+  <string name="undo">Geri al</string>
+  <string name="redo">Yenidən et</string>
+  <string name="view_licenses_title">Lisenziyalar</string>
+  <string name="about">Haqqında</string>
+  <string name="terms_of_service">Xidmət şərtləri</string>
+  <string name="about_ground">Ground Google və FAO tərəfindən Meşə Məlumatları Tərəfdaşlığı çərçivəsində SİG, Ekam və açıq mənbə icmasının üzvlərinin köməyi ilə hazırlanmış açıq mənbəli icma layihəsidir. \n\nLayihə <annotation type="apache_license">Apache License, Version 2.0</annotation> əsasında lisenziyalaşdırılıb. \n\nDigər <annotation type="all_licenses">lisenziyalara</annotation> bax</string>
+  <string name="pending_retry">Təkrar cəhd gözlənilir</string>
+  <string name="uploaded">Yüklənib</string>
+  <string name="uploading_form_data">Formanın məlumatları yüklənir</string>
+  <string name="pending">Gözlənilir</string>
+  <string name="photos_pending">Şəkillər yüklənməyi gözləyir</string>
+  <string name="photos_pending_retry">Şəkillər üçün təkrar cəhd gözlənilir</string>
+  <string name="uploading_photos">Şəkillər yüklənir</string>
+  <string name="data_sync_status">Məlumatların sinxronlaşdırılma vəziyyəti</string>
+  <string name="signout_warning">Hesabdan çıxsan, yadda saxlanılmamış bütün məlumatlar itəcək.</string>
+  <string name="admin_request_access">Davam etmək üçün sistem administratoru ilə əlaqə saxla və giriş icazəsi istə.</string>
+  <string name="signup_request_access">Davam etmək üçün <annotation type="sign_up_link">qeydiyyatdan keç və giriş icazəsi istə</annotation>.</string>
+
+  <!-- Settings -->
+  <string name="general_title">Ümumi</string>
+  <string name="upload_media_title">Şəkilləri yüklə</string>
+  <string name="over_wifi_summary">Yalnız Wi-Fi vasitəsilə</string>
+  <string name="help_title">Kömək</string>
+  <string name="visit_website_title">Veb sayta keç</string>
+  <string name="accuracy">Dəqiqlik:</string>
+  <string name="select_language_title">Dil seçimi</string>
+  <!-- Data Sharing Consent Text -->
+  <string name="data_sharing_no_terms">*Göstəriləcək şərt yoxdur.*</string>
+  <string name="data_sharing_private_message">
+    ## Məlumatların məxfi paylaşılması
+    \nMəlumatlar yalnız sorğunun təşkilatçıları ilə paylaşılacaq. Təşkilatçılara toplanmış məlumatları ictimai şəkildə paylaşmağa və istifadə etməyə icazə verilmir.
+  </string>
+  <string name="data_sharing_public_message">
+    ## Məlumatların ictimai paylaşılması
+    \nSorğunun təşkilatçıları məlumatları *Creative Commons CC0 1.0 lisenziyası* əsasında ictimai şəkildə paylaşa və istifadə edə bilərlər:
+  </string>
+  <string name="draft_restored">Yadda saxlanılmamış məlumatlar bərpa edildi</string>
+  <string name="load_tos_failed">Əlaqə yaratmaq mümkün olmadı, daha sonra yenidən cəhd et</string>
+  <string name="data_collection_complete">Məlumatların toplanması tamamlandı!</string>
+  <string name="data_collection_complete_details">Məlumatların yadda saxlanıldı və internetə qoşulduqda avtomatik sinxronlaşdırılacaq.</string>
+
+  <string name="allow_location_confirmation">Məkana girişə icazə ver</string>
+  <string name="allow_location_title">Məkanın paylaşılmasına icazə</string>
+  <string name="allow_location_description">Ground tətbiqinə bu cihazın məkanına giriş icazəsi verməsən, bu məntəqədə məlumat toplamağa davam edə bilməyəcəksən.</string>
+
+  <string name="data_collection_cancellation_title">Məlumat toplanmasının dayandırılması</string>
+  <string name="data_collection_cancellation_description">Çıxsan, hələ təqdim etmədiyin məlumatlar silinəcək.</string>
+  <string name="data_collection_cancellation_confirm_button">Təsdiqlə</string>
+  <string name="something_went_wrong">Xəta baş verdi</string>
+
+  <string name="polygon_vertex_add_dialog_title">Yanlış ərazi</string>
+  <string name="polygon_vertex_add_dialog_message">Ərazinin sərhədi özü ilə kəsişə bilməz</string>
+  <string name="polygon_vertex_add_dialog_positive_button">Təsdiqlə</string>
+  <string name="clear">Təmizlə</string>
+  <string name="text_task_data_character_limit">Ən çox 255 simvol</string>
+
+  <string name="area_message">Sahə: %s</string>
+
+  <string name="access_restricted">Məhdud</string>
+  <string name="access_unlisted">Siyahıda göstərilmir</string>
+  <string name="access_public">İctimai</string>
+
+  <string name="section_on_device">Bu cihazda</string>
+  <string name="section_shared_with_me">Mənimlə paylaşılanlar</string>
+  <string name="section_public">İctimai</string>
+
+  <string name="dialog_title_update_required">Tələb olunan yeniləmə</string>
+  <string name="dialog_message_update_required">Tətbiqin yeni versiyası mövcuddur. Tətbiqdən istifadə etməyə davam etmək üçün onu yenilə.</string>
+  <string name="dialog_button_update">Yenilə</string>
+
+  <string name="select_length_title">Ölçü vahidlərinin seçimi</string>
+  <string name="length_metric">Metrik ölçü sistemi</string>
+  <string name="length_imperial">Britaniya ölçü sistemi</string>
+
+  <string name="delete_site">Məntəqəni sil</string>
+  <string name="delete_site_dialog_title">Məntəqəni silmək istəyirsən?</string>
+  <string name="delete_site_dialog_message">Bu məntəqə və onunla əlaqəli bütün məlumatlar həmişəlik silinəcək. Bu əməliyyatı geri qaytarmaq mümkün deyil.</string>
+  <string name="delete">Sil</string>
+
+  <string name="location_not_accurate_heading">Məkanın dəqiq müəyyən edilməyib</string>
+  <string name="location_not_accurate_description">Hərəkətsiz dayanmağa çalış və ya mövqeyinin daha dəqiq müəyyən edilməsini gözlə</string>
+
+  <string name="recenter">Yenidən mərkəzə gətir</string>
+  <string name="share_location">Məkanı paylaş</string>
+
+  <string name="join_survey">Sorğuya qoşul</string>
+  <string name="invalid_survey_qr_code">Sorğunun QR kodu tanınmadı</string>
+  <string name="join_survey_confirm_title">Sorğuya qoşulmaq istəyirsən?</string>
+</resources>
