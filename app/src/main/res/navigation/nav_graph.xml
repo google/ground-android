@@ -16,31 +16,29 @@
   ~ limitations under the License.
   -->
 
-<!-- TODO: Use snake_case for all ids here for consistency -->
-<!-- Issue URL: https://github.com/google/ground-android/issues/2916 -->
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools"
-  android:id="@+id/navGraph"
+  android:id="@+id/nav_graph"
   app:startDestination="@id/startup_fragment">
   <fragment
     android:id="@+id/startup_fragment"
     android:name="org.groundplatform.android.ui.startup.StartupFragment"
     android:label="startup_frag">
     <action
-      android:id="@+id/proceedToSignInScreen"
+      android:id="@+id/proceed_to_sign_in_screen"
       app:destination="@id/sign_in_fragment"
-      app:popUpTo="@id/navGraph"
+      app:popUpTo="@id/nav_graph"
       app:popUpToInclusive="true" />
     <action
-      android:id="@+id/proceedToHomeScreen"
+      android:id="@+id/proceed_to_home_screen"
       app:destination="@id/home_screen_fragment"
-      app:popUpTo="@id/navGraph"
+      app:popUpTo="@id/nav_graph"
       app:popUpToInclusive="true" />
     <action
-      android:id="@+id/showTermsOfService"
+      android:id="@+id/show_terms_of_service"
       app:destination="@id/terms_of_service_fragment"
-      app:popUpTo="@id/navGraph"
+      app:popUpTo="@id/nav_graph"
       app:popUpToInclusive="true" />
   </fragment>
 
@@ -50,34 +48,34 @@
     android:label="@string/map_view"
     tools:layout="@layout/home_screen_frag">
     <action
-      android:id="@+id/fromHomeScreenToSignInScreen"
+      android:id="@+id/from_home_screen_to_sign_in_screen"
       app:destination="@id/sign_in_fragment"
-      app:popUpTo="@id/navGraph"
+      app:popUpTo="@id/nav_graph"
       app:popUpToInclusive="true" />
     <action
       android:id="@+id/show_sync_status"
       app:destination="@id/sync_status_fragment" />
     <action
-      android:id="@+id/showOfflineAreas"
+      android:id="@+id/show_offline_areas"
       app:destination="@id/offline_areas_fragment" />
     <action
-      android:id="@+id/showOfflineAreaSelector"
+      android:id="@+id/show_offline_area_selector"
       app:destination="@+id/offline_area_selector_fragment" />
     <action
       android:id="@+id/action_home_screen_fragment_to_settings_activity"
       app:destination="@id/settings_activity" />
     <action
-      android:id="@+id/action_home_screen_fragment_to_surveySelectorFragment"
-      app:destination="@id/surveySelectorFragment" />
+      android:id="@+id/action_home_screen_fragment_to_survey_selector_fragment"
+      app:destination="@id/survey_selector_fragment" />
     <action
-      android:id="@+id/action_home_screen_fragment_to_dataCollectionFragment"
+      android:id="@+id/action_home_screen_fragment_to_data_collection_fragment"
       app:destination="@id/data_collection" />
     <action
-      android:id="@+id/showTermsOfService"
+      android:id="@+id/show_terms_of_service"
       app:destination="@id/terms_of_service_fragment" />
     <action
-      android:id="@+id/showAbout"
-      app:destination="@id/aboutFragment" />
+      android:id="@+id/show_about"
+      app:destination="@id/about_fragment" />
   </fragment>
   <fragment
     android:id="@+id/sync_status_fragment"
@@ -155,13 +153,13 @@
     android:name="org.groundplatform.android.ui.offlineareas.OfflineAreasFragment"
     android:label="@string/offline_map_imagery">
     <action
-      android:id="@+id/showOfflineAreaSelector"
+      android:id="@+id/show_offline_area_selector"
       app:destination="@id/offline_area_selector_fragment" />
     <action
-      android:id="@+id/backToHomeScreen"
+      android:id="@+id/back_to_home_screen"
       app:destination="@id/home_screen_fragment" />
     <action
-      android:id="@+id/viewOfflineArea"
+      android:id="@+id/view_offline_area"
       app:destination="@+id/offline_area_viewer_fragment" />
   </fragment>
   <fragment
@@ -185,9 +183,9 @@
     android:name="org.groundplatform.android.ui.signin.SignInFragment"
     android:label="sign_in_frag">
     <action
-      android:id="@+id/showTermsOfService"
+      android:id="@+id/show_terms_of_service"
       app:destination="@id/terms_of_service_fragment"
-      app:popUpTo="@id/navGraph"
+      app:popUpTo="@id/nav_graph"
       app:popUpToInclusive="true" />
   </fragment>
   <activity
@@ -196,17 +194,17 @@
     android:label="settings_activity"
     tools:layout="@layout/settings_activity" />
   <action
-    android:id="@+id/showSignInScreen"
+    android:id="@+id/show_sign_in_screen"
     app:destination="@id/sign_in_fragment"
-    app:popUpTo="@id/navGraph" />
+    app:popUpTo="@id/nav_graph" />
   <action
-    android:id="@+id/showHomeScreen"
+    android:id="@+id/show_home_screen"
     app:destination="@id/home_screen_fragment"
-    app:popUpTo="@id/navGraph" />
+    app:popUpTo="@id/nav_graph" />
   <action
-    android:id="@+id/showSurveySelectorScreen"
-    app:destination="@id/surveySelectorFragment"
-    app:popUpTo="@id/navGraph" />
+    android:id="@+id/show_survey_selector_screen"
+    app:destination="@id/survey_selector_fragment"
+    app:popUpTo="@id/nav_graph" />
   <fragment
     android:id="@+id/terms_of_service_fragment"
     android:name="org.groundplatform.android.ui.tos.TermsOfServiceFragment"
@@ -216,13 +214,13 @@
       android:name="isViewOnly"
       app:argType="boolean" />
     <action
-      android:id="@+id/proceedToHomeScreen"
+      android:id="@+id/proceed_to_home_screen"
       app:destination="@id/home_screen_fragment"
-      app:popUpTo="@id/navGraph"
+      app:popUpTo="@id/nav_graph"
       app:popUpToInclusive="true" />
   </fragment>
   <fragment
-    android:id="@+id/surveySelectorFragment"
+    android:id="@+id/survey_selector_fragment"
     android:name="org.groundplatform.android.ui.surveyselector.SurveySelectorFragment"
     android:label="SurveySelectorFragment">
     <argument
@@ -235,7 +233,7 @@
       android:defaultValue="@null" />
   </fragment>
   <fragment
-    android:id="@+id/aboutFragment"
+    android:id="@+id/about_fragment"
     android:name="org.groundplatform.android.ui.home.AboutFragment"
     android:label="AboutFragment" />
 </navigation>
