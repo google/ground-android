@@ -47,6 +47,24 @@ class SyncSurveyUseCaseTest {
   }
 
   @Test
+  fun `syncDefinition saves the survey without touching LOIs`() = runTest {
+    val survey = FakeDataGenerator.newSurvey()
+    surveyRepository.remoteSurveys = listOf(survey)
+
+    val result = syncSurvey.syncDefinition(survey.id)
+
+    assertEquals(survey, result)
+    assertEquals(listOf(survey), surveyRepository.offlineSurveys)
+    assertEquals(0, loiRepository.syncLocationsOfInterestCall.callCount)
+  }
+
+  @Test
+  fun `syncDefinition returns null when survey is not found in remote storage`() = runTest {
+    assertNull(syncSurvey.syncDefinition("someUnknownSurveyId"))
+    assertTrue(surveyRepository.offlineSurveys.isEmpty())
+  }
+
+  @Test
   fun `when survey is not found in remote storage, should return null`() = runTest {
     val result = syncSurvey("someUnknownSurveyId")
 

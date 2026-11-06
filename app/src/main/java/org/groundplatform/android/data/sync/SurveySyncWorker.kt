@@ -49,6 +49,8 @@ constructor(
   @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : CoroutineWorker(context, params) {
   private val surveyId: String? = params.inputData.getString(SURVEY_ID_PARAM_KEY)
+  private val definitionOnly: Boolean =
+    params.inputData.getBoolean(DEFINITION_ONLY_PARAM_KEY, false)
 
   override suspend fun doWork(): Result = withContext(ioDispatcher) { doWorkInternal() }
 
@@ -72,7 +74,7 @@ constructor(
           surveyRepository.unsubscribeFromSurveyUpdates(surveyId)
         } else {
           Timber.d("Syncing survey $surveyId")
-          syncSurvey(surveyId)
+          if (definitionOnly) syncSurvey.syncDefinition(surveyId) else syncSurvey(surveyId)
         }
       }
       success()
@@ -114,8 +116,13 @@ constructor(
      */
     internal const val SYNC_TIMEOUT_MILLIS = 8 * 60 * 1000L
 
+    internal const val DEFINITION_ONLY_PARAM_KEY = "definitionOnly"
+
     /** Returns a new work [Data] object containing the specified survey id. */
-    fun createInputData(surveyId: String): Data =
-      Data.Builder().putString(SURVEY_ID_PARAM_KEY, surveyId).build()
+    fun createInputData(surveyId: String, definitionOnly: Boolean = false): Data =
+      Data.Builder()
+        .putString(SURVEY_ID_PARAM_KEY, surveyId)
+        .putBoolean(DEFINITION_ONLY_PARAM_KEY, definitionOnly)
+        .build()
   }
 }

@@ -36,6 +36,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
 import org.groundplatform.android.BaseHiltTest
 import org.groundplatform.android.FakeData.SURVEY
+import org.groundplatform.android.data.sync.SurveySyncWorker.Companion.DEFINITION_ONLY_PARAM_KEY
 import org.groundplatform.android.data.sync.SurveySyncWorker.Companion.MAX_SYNC_ATTEMPTS
 import org.groundplatform.android.data.sync.SurveySyncWorker.Companion.SURVEY_ID_PARAM_KEY
 import org.groundplatform.android.data.sync.SurveySyncWorker.Companion.SYNC_TIMEOUT_MILLIS
@@ -255,4 +256,24 @@ class SurveySyncWorkerTest : BaseHiltTest() {
       verifyBlocking(syncSurvey, never()) { invoke(SURVEY.id) }
       verify(surveyRepository).unsubscribeFromSurveyUpdates(SURVEY.id)
     }
+
+  @Test
+  fun `doWork() syncs only the definition when requested`() = runWithTestDispatcher {
+    `when`(surveyRepository.getOfflineSurvey(SURVEY.id)).thenReturn(SURVEY)
+    `when`(syncSurvey.syncDefinition(SURVEY.id)).thenReturn(SURVEY)
+
+    val worker =
+      TestListenableWorkerBuilder<SurveySyncWorker>(
+          context,
+          inputData =
+            workDataOf(SURVEY_ID_PARAM_KEY to SURVEY.id, DEFINITION_ONLY_PARAM_KEY to true),
+        )
+        .setWorkerFactory(factory)
+        .build()
+    val result = worker.doWork()
+
+    assertThat(result).isEqualTo(Result.success())
+    verify(syncSurvey).syncDefinition(SURVEY.id)
+    verifyBlocking(syncSurvey, never()) { invoke(SURVEY.id) }
+  }
 }
