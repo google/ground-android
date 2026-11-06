@@ -35,7 +35,7 @@ class ListAvailableSurveysUseCaseTest {
     ListAvailableSurveysUseCase(networkManager, surveyRepository, userRepository)
 
   @Test
-  fun `when network is available, should return remote survey list`() = runTest {
+  fun `when network is available should return remote survey list`() = runTest {
     networkManager.setNetworkStatus(NetworkStatus.AVAILABLE)
 
     val local1 = FakeDataGenerator.newSurvey(id = "1", title = "Survey 1")
@@ -60,7 +60,7 @@ class ListAvailableSurveysUseCaseTest {
   }
 
   @Test
-  fun `when network is unavailable, should return local survey list`() = runTest {
+  fun `when network is unavailable should return local survey list`() = runTest {
     networkManager.setNetworkStatus(NetworkStatus.UNAVAILABLE)
 
     val local1 = FakeDataGenerator.newSurvey(id = "1", title = "Survey 1")
@@ -84,7 +84,7 @@ class ListAvailableSurveysUseCaseTest {
   }
 
   @Test
-  fun `when network is toggled, should switch to local or remote survey list`() = runTest {
+  fun `when network is toggled should switch to local or remote survey list`() = runTest {
     networkManager.setNetworkStatus(NetworkStatus.UNAVAILABLE)
 
     val local1 = FakeDataGenerator.newSurvey(id = "1", title = "Survey 1")
@@ -119,7 +119,7 @@ class ListAvailableSurveysUseCaseTest {
   }
 
   @Test
-  fun `when remote survey is saved, should update offline status of that survey`() = runTest {
+  fun `when remote survey is saved should update offline status of that survey`() = runTest {
     networkManager.setNetworkStatus(NetworkStatus.AVAILABLE)
 
     val survey1 = FakeDataGenerator.newSurvey(id = "1", title = "Survey 1")

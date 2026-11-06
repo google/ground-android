@@ -36,7 +36,7 @@ class ReactivateLastSurveyUseCaseTest {
   private val reactivateLastSurvey = ReactivateLastSurveyUseCase(activateSurvey, surveyRepository)
 
   @Test
-  fun `when last survey id is present, should activate it`() = runTest {
+  fun `when last survey id is present should activate it`() = runTest {
     val survey = FakeDataGenerator.newSurvey(id = "survey-1")
     surveyRepository.offlineSurveys = listOf(survey)
     surveyRepository.lastActiveSurveyId = survey.id
@@ -48,7 +48,7 @@ class ReactivateLastSurveyUseCaseTest {
   }
 
   @Test
-  fun `when survey is already active, should do nothing`() = runTest {
+  fun `when survey is already active should do nothing`() = runTest {
     val survey = FakeDataGenerator.newSurvey(id = "survey-1")
     surveyRepository.offlineSurveys = listOf(survey)
     activateSurvey(survey.id)
@@ -61,7 +61,7 @@ class ReactivateLastSurveyUseCaseTest {
   }
 
   @Test
-  fun `when last survey id is not present, should do nothing`() = runTest {
+  fun `when last survey id is not present should do nothing`() = runTest {
     surveyRepository.lastActiveSurveyId = ""
 
     val result = reactivateLastSurvey()
@@ -70,7 +70,7 @@ class ReactivateLastSurveyUseCaseTest {
   }
 
   @Test
-  fun `when last survey id is present but survey is not present, should throw exception`() =
+  fun `when last survey id is present but survey is not present should throw exception`() =
     runTest {
       surveyRepository.lastActiveSurveyId = "non-existent-survey"
 
