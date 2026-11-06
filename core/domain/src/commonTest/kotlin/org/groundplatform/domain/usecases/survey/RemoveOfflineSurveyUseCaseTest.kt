@@ -86,7 +86,7 @@ class RemoveOfflineSurveyUseCaseTest {
   }
 
   @Test
-  fun `when active survey is same, should deactivate as well`() = runTest {
+  fun `when active survey is same should deactivate as well`() = runTest {
     surveyRepository.saveSurvey(survey)
     surveyRepository.activateSurvey(survey.id)
 
@@ -96,7 +96,7 @@ class RemoveOfflineSurveyUseCaseTest {
   }
 
   @Test
-  fun `when active survey is different, should not deactivate`() = runTest {
+  fun `when active survey is different should not deactivate`() = runTest {
     val survey1 = FakeDataGenerator.newSurvey(id = "active survey id", jobMap = emptyMap())
     val survey2 = FakeDataGenerator.newSurvey(id = "inactive survey id", jobMap = emptyMap())
     surveyRepository.saveSurvey(survey1)
