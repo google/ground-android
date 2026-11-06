@@ -47,7 +47,7 @@ class SyncSurveyUseCaseTest {
   }
 
   @Test
-  fun `when survey is not found in remote storage, should return null`() = runTest {
+  fun `when survey is not found in remote storage should return null`() = runTest {
     val result = syncSurvey("someUnknownSurveyId")
 
     assertNull(result)
@@ -56,7 +56,7 @@ class SyncSurveyUseCaseTest {
   }
 
   @Test
-  fun `when remote survey load fails, should throw error`() = runTest {
+  fun `when remote survey load fails should throw error`() = runTest {
     surveyRepository.onGetRemoteSurveyCall.overrideBehavior { error("Something went wrong") }
 
     assertFailsWith<IllegalStateException> { syncSurvey(FakeDataGenerator.newSurvey().id) }

@@ -39,27 +39,27 @@ class MogImageMetadataTest {
     )
 
   @Test
-  fun `hasTile() returns true when coords in range`() {
+  fun `hasTile returns true when coords in range`() {
     assertTrue(testMogImageMetadata.hasTile(12, 12))
   }
 
   @Test
-  fun `hasTile() returns false when X coord out of range`() {
+  fun `hasTile returns false when X coord out of range`() {
     assertFalse(testMogImageMetadata.hasTile(16, 12))
   }
 
   @Test
-  fun `hasTile() returns false when Y coord out of range`() {
+  fun `hasTile returns false when Y coord out of range`() {
     assertFalse(testMogImageMetadata.hasTile(12, 16))
   }
 
   @Test
-  fun `getByteRange() returns null when coords out of range`() {
+  fun `getByteRange returns null when coords out of range`() {
     assertNull(testMogImageMetadata.getByteRange(12, 16))
   }
 
   @Test
-  fun `getByteRange() throws error when index out of bounds`() {
+  fun `getByteRange throws error when index out of bounds`() {
     assertFailsWith<IllegalArgumentException> {
       testMogImageMetadata
         .copy(tileOffsets = LongRange(1, 12).toList(), byteCounts = LongRange(1, 12).toList())
@@ -68,7 +68,7 @@ class MogImageMetadataTest {
   }
 
   @Test
-  fun `getByteRange() returns correct range`() {
+  fun `getByteRange returns correct range`() {
     assertEquals(
       LongRange(6, 11),
       testMogImageMetadata
@@ -78,7 +78,7 @@ class MogImageMetadataTest {
   }
 
   @Test
-  fun `equals() throws error`() {
+  fun `equals throws error`() {
     assertFailsWith<UnsupportedOperationException> {
       @Suppress("UnusedEquals")
       testMogImageMetadata.equals(testMogImageMetadata.copy(tileWidth = 100))
@@ -86,7 +86,7 @@ class MogImageMetadataTest {
   }
 
   @Test
-  fun `hashCode() throws error`() {
+  fun `hashCode throws error`() {
     assertFailsWith<UnsupportedOperationException> { testMogImageMetadata.hashCode() }
   }
 

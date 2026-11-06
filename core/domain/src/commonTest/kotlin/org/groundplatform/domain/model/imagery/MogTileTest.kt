@@ -22,7 +22,7 @@ import kotlin.test.assertTrue
 class MogTileTest {
 
   @Test
-  fun `buildJfifFile() returns valid JFIF bytes`() {
+  fun `buildJfifFile returns valid JFIF bytes`() {
     val mogTile = MogTile(MOG_TILE_METADATA, byteArrayOf(0, 1, 2, 3, 4))
     assertTrue(mogTile.buildJfifFile().contentEquals(EXPECTED_DATA))
   }

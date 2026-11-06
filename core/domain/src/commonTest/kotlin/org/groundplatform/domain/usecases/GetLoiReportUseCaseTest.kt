@@ -311,7 +311,7 @@ class GetLoiReportUseCaseTest {
   }
 
   @Test
-  fun `Should only include loiName, surveyName and date as properties`() = runTest {
+  fun `Should only include loiName surveyName and date as properties`() = runTest {
     val loiReport =
       invokeUseCase(
         geometry = Point(Coordinates(lat = 0.0, lng = 0.0)),
@@ -335,7 +335,7 @@ class GetLoiReportUseCaseTest {
   }
 
   @Test
-  fun `Should only include loiId, surveyName and date as properties, when no loiName is present`() =
+  fun `Should only include loiId surveyName and date as properties when no loiName is present`() =
     runTest {
       val loiReport =
         invokeUseCase(
@@ -359,7 +359,7 @@ class GetLoiReportUseCaseTest {
     }
 
   @Test
-  fun `Should populate loiName, userName and userEmail from the inputs`() = runTest {
+  fun `Should populate loiName userName and userEmail from the inputs`() = runTest {
     userRepository.currentUser =
       FakeDataGenerator.newUser(displayName = "John Doe", email = "john@example.com")
     submissionRepository.submissions = listOf(FakeDataGenerator.newSubmission())

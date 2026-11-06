@@ -34,7 +34,7 @@ class MakeSurveyAvailableOfflineUseCaseTest {
     MakeSurveyAvailableOfflineUseCase(surveyRepository, syncSurveyUseCase)
 
   @Test
-  fun `when survey sync returns null, should return null`() = runTest {
+  fun `when survey sync returns null should return null`() = runTest {
     val result = makeSurveyAvailableOffline("non-existent-survey")
 
     assertNull(result)
@@ -42,7 +42,7 @@ class MakeSurveyAvailableOfflineUseCaseTest {
   }
 
   @Test
-  fun `when survey sync throws error, should throw error`() = runTest {
+  fun `when survey sync throws error should throw error`() = runTest {
     surveyRepository.onGetRemoteSurveyCall.overrideBehavior { error("Remote failed") }
 
     assertFailsWith<IllegalStateException> { makeSurveyAvailableOffline("survey-1") }
@@ -50,7 +50,7 @@ class MakeSurveyAvailableOfflineUseCaseTest {
   }
 
   @Test
-  fun `when survey sync succeeds, should subscribe to updates`() = runTest {
+  fun `when survey sync succeeds should subscribe to updates`() = runTest {
     val survey = FakeDataGenerator.newSurvey(id = "survey-1")
     surveyRepository.remoteSurveys = listOf(survey)
 
