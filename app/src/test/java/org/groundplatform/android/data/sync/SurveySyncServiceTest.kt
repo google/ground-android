@@ -45,8 +45,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
+import org.mockito.kotlin.never
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyBlocking
 import org.robolectric.RobolectricTestRunner
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -150,5 +152,27 @@ class SurveySyncServiceTest : BaseHiltTest() {
     advanceUntilIdle()
 
     verify(syncSurvey, times(2)).invoke(surveyId)
+  }
+
+  @Test
+  fun `refreshes the survey definition separately from the LOIs`() = runWithTestDispatcher {
+    val surveyId = "survey1000"
+    `when`(surveyRepository.getOfflineSurvey(surveyId)).thenReturn(SURVEY)
+    `when`(syncSurvey.syncDefinition(surveyId)).thenReturn(SURVEY)
+
+    val service = SurveySyncService(workManager)
+    service.enqueueSync(surveyId)
+
+    val definitionWork =
+      workManager
+        .getWorkInfosForUniqueWork("${SurveySyncWorker::class.java}#$surveyId#definition")
+        .await()
+        .single()
+    testDriver.setInitialDelayMet(definitionWork.id)
+    testDriver.setAllConstraintsMet(definitionWork.id)
+    advanceUntilIdle()
+
+    verify(syncSurvey).syncDefinition(surveyId)
+    verifyBlocking(syncSurvey, never()) { invoke(surveyId) }
   }
 }

@@ -18,8 +18,10 @@ package org.groundplatform.android.data.remote.firebase.schema
 
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FieldPath
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.tasks.await
 import org.groundplatform.android.data.remote.firebase.base.FluentCollectionReference
 import org.groundplatform.android.proto.Role
@@ -50,17 +52,18 @@ class SurveysCollectionReference internal constructor(ref: CollectionReference) 
         .whereIn(FieldPath.of(ACL_FIELD, user.email), ALLOWED_ROLES)
 
     return flow {
-      val snapshot = references.get().await()
-      val surveys =
-        snapshot.documents
-          .mapNotNull { SurveyConverter.toSurvey(it) }
-          .filter { survey ->
-            survey.generalAccess == Survey.GeneralAccess.GENERAL_ACCESS_UNSPECIFIED ||
-              survey.generalAccess == Survey.GeneralAccess.RESTRICTED ||
-              survey.generalAccess == Survey.GeneralAccess.UNLISTED
-          }
-      emit(surveys)
-    }
+        val snapshot = references.get().await()
+        val surveys =
+          snapshot.documents
+            .mapNotNull { SurveyConverter.toSurvey(it) }
+            .filter { survey ->
+              survey.generalAccess == Survey.GeneralAccess.GENERAL_ACCESS_UNSPECIFIED ||
+                survey.generalAccess == Survey.GeneralAccess.RESTRICTED ||
+                survey.generalAccess == Survey.GeneralAccess.UNLISTED
+            }
+        emit(surveys)
+      }
+      .flowOn(Dispatchers.IO)
   }
 
   /** Emits the public surveys once per collection. See [getReadable]. */
@@ -73,4 +76,5 @@ class SurveysCollectionReference internal constructor(ref: CollectionReference) 
         .await()
     emit(snapshot.documents.mapNotNull(SurveyConverter::toSurvey))
   }
+    .flowOn(Dispatchers.IO)
 }
