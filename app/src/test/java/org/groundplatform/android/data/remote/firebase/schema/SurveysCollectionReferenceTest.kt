@@ -25,8 +25,13 @@ import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.MetadataChanges
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
+import com.google.firebase.firestore.SnapshotMetadata
 import java.util.concurrent.Executor
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.groundplatform.android.FakeData
 import org.groundplatform.android.data.remote.firebase.protobuf.toFirestoreMap
@@ -35,6 +40,7 @@ import org.groundplatform.android.proto.Role
 import org.groundplatform.android.proto.Survey as SurveyProto
 import org.groundplatform.android.proto.Survey.DataVisibility.DATA_VISIBILITY_UNSPECIFIED
 import org.groundplatform.android.proto.survey
+import org.groundplatform.domain.model.Survey
 import org.groundplatform.domain.model.User
 import org.junit.Before
 import org.junit.Test
@@ -48,6 +54,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
 class SurveysCollectionReferenceTest {
   @Mock private lateinit var mockCollectionReference: CollectionReference
@@ -126,6 +133,66 @@ class SurveysCollectionReferenceTest {
   }
 
   @Test
+  fun `getReadable ignores empty cache snapshot while a timed out listen retries`() = runTest {
+    val listeners = captureSnapshotListeners()
+    val emitted = mutableListOf<List<Survey>>()
+    backgroundScope.launch {
+      surveysCollectionReference.getReadable(TEST_USER).collect { emitted += it }
+    }
+    runCurrent()
+
+    listeners.single().onEvent(querySnapshot(fromCache = true, isEmpty = true), null)
+    runCurrent()
+    assertThat(emitted).isEmpty()
+
+    val serverSurvey = createDocumentSnapshot("survey", SurveyProto.GeneralAccess.RESTRICTED)
+    listeners
+      .single()
+      .onEvent(
+        querySnapshot(fromCache = false, isEmpty = false, documents = listOf(serverSurvey)),
+        null,
+      )
+    runCurrent()
+
+    assertThat(emitted).hasSize(1)
+    assertThat(emitted.single().map { it.id }).containsExactly("survey")
+    assertThat(testScheduler.currentTime).isLessThan(SURVEY_LIST_LOAD_TIMEOUT_MILLIS)
+  }
+
+  @Test
+  fun `getReadable emits empty state only after the load timeout`() = runTest {
+    val listeners = captureSnapshotListeners()
+    val emitted = mutableListOf<List<Survey>>()
+    backgroundScope.launch {
+      surveysCollectionReference.getReadable(TEST_USER).collect { emitted += it }
+    }
+    runCurrent()
+
+    listeners.single().onEvent(querySnapshot(fromCache = true, isEmpty = true), null)
+    runCurrent()
+    assertThat(emitted).isEmpty()
+
+    advanceTimeBy(SURVEY_LIST_LOAD_TIMEOUT_MILLIS)
+    runCurrent()
+
+    assertThat(emitted).containsExactly(emptyList<Survey>())
+  }
+
+  @Test
+  fun `getReadable emits an empty server snapshot without waiting for the load timeout`() =
+    runTest {
+      val metadata = snapshotMetadata(fromCache = false)
+      whenever(mockQuerySnapshot.metadata).thenReturn(metadata)
+      whenever(mockQuerySnapshot.isEmpty).thenReturn(true)
+      whenever(mockQuerySnapshot.documents).thenReturn(emptyList())
+
+      val result = surveysCollectionReference.getReadable(TEST_USER).first()
+
+      assertThat(result).isEmpty()
+      assertThat(testScheduler.currentTime).isLessThan(SURVEY_LIST_LOAD_TIMEOUT_MILLIS)
+    }
+
+  @Test
   fun `getReadable queries for correct state and user ACL`() = runTest {
     whenever(mockQuerySnapshot.documents).thenReturn(emptyList())
     surveysCollectionReference.getReadable(TEST_USER).first()
@@ -140,6 +207,36 @@ class SurveysCollectionReferenceTest {
         eq(FieldPath.of(SurveyProto.ACL_FIELD_NUMBER.toString(), TEST_USER.email)),
         eq(listOf(Role.SURVEY_ORGANIZER.ordinal, Role.DATA_COLLECTOR.ordinal, Role.VIEWER.ordinal)),
       )
+  }
+
+  private fun captureSnapshotListeners(): List<EventListener<QuerySnapshot>> {
+    val listeners = mutableListOf<EventListener<QuerySnapshot>>()
+    val registration = mock<ListenerRegistration>()
+    whenever(mockQuery.addSnapshotListener(any<Executor>(), any<MetadataChanges>(), any()))
+      .thenAnswer { invocation ->
+        listeners += invocation.getArgument<EventListener<QuerySnapshot>>(2)
+        registration
+      }
+    return listeners
+  }
+
+  private fun querySnapshot(
+    fromCache: Boolean,
+    isEmpty: Boolean,
+    documents: List<DocumentSnapshot> = emptyList(),
+  ): QuerySnapshot {
+    val snapshot = mock<QuerySnapshot>()
+    val metadata = snapshotMetadata(fromCache)
+    whenever(snapshot.metadata).thenReturn(metadata)
+    whenever(snapshot.isEmpty).thenReturn(isEmpty)
+    whenever(snapshot.documents).thenReturn(documents)
+    return snapshot
+  }
+
+  private fun snapshotMetadata(fromCache: Boolean): SnapshotMetadata {
+    val metadata = mock<SnapshotMetadata>()
+    whenever(metadata.isFromCache).thenReturn(fromCache)
+    return metadata
   }
 
   private fun createDocumentSnapshot(
