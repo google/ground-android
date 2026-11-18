@@ -46,7 +46,7 @@ import org.groundplatform.domain.repository.SurveyRepositoryInterface
 import timber.log.Timber
 
 private const val ACTIVATE_SURVEY_TIMEOUT_MILLS: Long = 3 * 1000
-private const val LOAD_REMOTE_SURVEY_TIMEOUT_MILLS: Long = 30 * 1000
+private const val LOAD_REMOTE_SURVEY_TIMEOUT_MILLS: Long = 60 * 1000
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @Singleton
